@@ -51,5 +51,4 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY
     inceptionYear = "2020"
     description = "Kotlin Extensions for the androidx.security:Security-crypto artifact"
-    metalavaK2UastEnabled = true
 }

@@ -45,7 +45,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Room Guava"
-    metalavaK2UastEnabled = true
 }
 
 android {

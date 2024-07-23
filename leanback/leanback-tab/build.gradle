@@ -47,5 +47,4 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK_TAB
     inceptionYear = "2020"
     description = "This library adds top tab navigation component to be used in TV"
-    metalavaK2UastEnabled = true
 }

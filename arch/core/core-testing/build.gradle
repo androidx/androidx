@@ -48,7 +48,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Core-Testing"
-    metalavaK2UastEnabled = true
 }
 
 android {

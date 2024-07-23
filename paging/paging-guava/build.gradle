@@ -48,7 +48,6 @@ androidx {
     inceptionYear = "2019"
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":paging:paging-samples"))
 }

@@ -66,5 +66,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Auto Projected specific funationaltiy to build navigation, parking, and charging apps for cars"
-    metalavaK2UastEnabled = true
 }

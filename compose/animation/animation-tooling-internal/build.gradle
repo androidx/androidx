@@ -36,6 +36,5 @@ androidx {
     name = "Compose Animation Tooling"
     description = "Compose Animation APIs for tooling support. Internal use only."
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
-    metalavaK2UastEnabled = true
     doNotDocumentReason = "Only used externally by Android Studio"
 }

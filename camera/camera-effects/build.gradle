@@ -57,6 +57,5 @@ androidx {
     inceptionYear = "2023"
     description = "Camera effects components for the Jetpack Camera Library, a library providing " +
             "camera post-processing features such as drawing overlay with the CameraX library."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

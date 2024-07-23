@@ -83,6 +83,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

@@ -49,7 +49,6 @@ androidx {
     mavenVersion = LibraryVersions.DYNAMICANIMATION_KTX
     inceptionYear = "2018"
     description = "Kotlin extensions for 'dynamicanimation' artifact"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

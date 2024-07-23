@@ -56,6 +56,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "WindowManager RxJava 3 Support"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

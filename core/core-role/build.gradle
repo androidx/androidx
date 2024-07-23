@@ -26,7 +26,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE_ROLE
     inceptionYear = "2019"
     description = "This Support Library provides names and documentation for roles."
-    metalavaK2UastEnabled = true
 }
 
 android {

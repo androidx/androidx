@@ -88,7 +88,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "read or write user's health and fitness records."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":health:connect:connect-client-samples"))
 }

@@ -48,7 +48,6 @@ androidx {
     mavenVersion = LibraryVersions.CUSTOMVIEW_POOLINGCONTAINER
     inceptionYear = "2021"
     description = "Utilities for listening to the lifecycle of containers that manage their child Views' lifecycle, such as RecyclerView"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

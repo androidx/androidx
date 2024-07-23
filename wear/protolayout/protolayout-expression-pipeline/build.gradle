@@ -60,5 +60,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Evaluate dynamic expressions."
-    metalavaK2UastEnabled = true
 }

@@ -75,7 +75,6 @@ androidx {
     description = "Lifecycle components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":camera:camera-lifecycle:camera-lifecycle-samples"))
 }

@@ -59,6 +59,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

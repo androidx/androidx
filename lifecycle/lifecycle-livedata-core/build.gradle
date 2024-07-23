@@ -51,7 +51,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

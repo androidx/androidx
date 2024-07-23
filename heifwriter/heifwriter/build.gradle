@@ -34,5 +34,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Support HeifWriter for writing HEIF still images"
-    metalavaK2UastEnabled = true
 }

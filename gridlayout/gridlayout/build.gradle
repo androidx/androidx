@@ -29,7 +29,6 @@ androidx {
     inceptionYear = "2013"
     description = "Android Support Grid Layout"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }
 
 android {

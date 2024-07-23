@@ -77,6 +77,5 @@ androidx {
     inceptionYear = "2021"
     description = "Navigation Compose Hilt Integration"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
     samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
 }

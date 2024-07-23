@@ -93,7 +93,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

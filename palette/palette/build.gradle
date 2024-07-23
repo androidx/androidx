@@ -28,7 +28,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2014"
     description = "Android Support Palette"
-    metalavaK2UastEnabled = true
 }
 
 android {

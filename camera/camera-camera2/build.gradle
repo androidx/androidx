@@ -104,6 +104,5 @@ androidx {
     description = "Camera2 implementation and extensions for the Jetpack Camera Library, a " +
             "library providing a consistent and reliable camera foundation that enables great " +
             "camera driven experiences across all of Android."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

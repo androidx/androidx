@@ -54,6 +54,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2023"
     description = "Provides extensions for tests using Core APIs."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

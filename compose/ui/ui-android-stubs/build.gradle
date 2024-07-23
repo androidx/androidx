@@ -37,7 +37,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Stubs for classes in older Android APIs"
-    metalavaK2UastEnabled = true
     doNotDocumentReason = "Not published to maven"
 }
 

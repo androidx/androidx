@@ -40,5 +40,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Arch-Common"
-    metalavaK2UastEnabled = true
 }

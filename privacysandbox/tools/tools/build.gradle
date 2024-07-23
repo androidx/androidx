@@ -38,5 +38,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Tools for communicating with SDKs running in the Privacy Sandbox."
-    metalavaK2UastEnabled = true
 }

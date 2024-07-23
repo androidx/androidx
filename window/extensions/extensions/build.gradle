@@ -57,7 +57,6 @@ androidx {
             "This module declares the interface the the core component of this library " +
             "(androidx.window:window) will use when communicating with the " +
             "device-specific OEM extension."
-    metalavaK2UastEnabled = true
 }
 
 android {

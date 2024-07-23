@@ -68,5 +68,4 @@ androidx {
     inceptionYear = "2014"
     description = "Android Support RecyclerView"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

@@ -40,5 +40,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Test utilities for enterprise-feedback."
-    metalavaK2UastEnabled = true
 }

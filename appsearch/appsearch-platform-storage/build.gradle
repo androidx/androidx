@@ -48,7 +48,6 @@ androidx {
     inceptionYear = "2021"
     description =
         "An implementation of AppSearchSession which uses the AppSearch service on Android S+"
-    metalavaK2UastEnabled = true
 }
 
 android {

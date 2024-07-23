@@ -92,7 +92,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

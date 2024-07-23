@@ -45,7 +45,6 @@ androidx {
     inceptionYear = "2018"
     description = "Android WorkManager RxJava2 interoperatibility library"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

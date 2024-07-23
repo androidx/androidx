@@ -63,7 +63,6 @@ androidx {
     inceptionYear = "2017"
     description = "Android Lifecycle Extensions"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

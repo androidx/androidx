@@ -81,6 +81,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Room Paging integration"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

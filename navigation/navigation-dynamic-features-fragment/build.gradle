@@ -67,6 +67,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Fragment"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

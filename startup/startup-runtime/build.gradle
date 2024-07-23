@@ -59,6 +59,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android App Startup Runtime"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

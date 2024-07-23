@@ -61,6 +61,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "RxJava3 integration for UWB module"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

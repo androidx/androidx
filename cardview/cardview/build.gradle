@@ -23,7 +23,6 @@ androidx {
     inceptionYear = "2011"
     description = "Android Support CardView"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }
 
 android {

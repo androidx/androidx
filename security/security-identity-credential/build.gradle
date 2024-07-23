@@ -58,6 +58,5 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_IDENTITY_CREDENTIAL
     inceptionYear = "2019"
     description = "AndroidX Security"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

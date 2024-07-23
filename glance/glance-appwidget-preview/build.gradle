@@ -59,6 +59,5 @@ androidx {
     inceptionYear = "2022"
     description = "Glance tooling library. This library provides the API required for the " +
             "GlanceAppWidget components and its Glance @Composable to be previewable in the IDE."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

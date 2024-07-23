@@ -45,7 +45,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Run GTest tests on Android devices"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     // Bypassed to better match existing androidx.test libraries
     bypassCoordinateValidation = true

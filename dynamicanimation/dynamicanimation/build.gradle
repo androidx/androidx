@@ -31,7 +31,6 @@ androidx {
     mavenVersion = LibraryVersions.DYNAMICANIMATION
     inceptionYear = "2017"
     description = "Physics-based animation in support library, where the animations are driven by physics force. You can use this Animation library to create smooth and realistic animations."
-    metalavaK2UastEnabled = true
 }
 
 android {

@@ -54,5 +54,4 @@ androidx {
     description = "A support library for AndroidX AppSearch that contains activities and views " +
             "for debugging an application's integration with AppSearch."
     doNotDocumentReason = "No public API"
-    metalavaK2UastEnabled = true
 }

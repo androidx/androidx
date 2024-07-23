@@ -56,6 +56,5 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK
     inceptionYear = "2014"
     description = "Android Support Leanback v17"
-    metalavaK2UastEnabled = true
     failOnDeprecationWarnings = false
 }

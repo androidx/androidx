@@ -63,5 +63,4 @@ androidx {
     description = "AndroidX Leanback Paging"
     failOnDeprecationWarnings = false
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
 }

@@ -60,5 +60,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "Provides support for embedding Custom Tabs in an app."
-    metalavaK2UastEnabled = true
 }

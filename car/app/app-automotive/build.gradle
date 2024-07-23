@@ -79,5 +79,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Automotive OS specific functionality to build navigation, parking, and charging apps for cars"
-    metalavaK2UastEnabled = true
 }

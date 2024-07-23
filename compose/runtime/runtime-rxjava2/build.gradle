@@ -51,7 +51,6 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with RxJava 2"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
     samples(projectOrArtifact(":compose:runtime:runtime-rxjava2:runtime-rxjava2-samples"))
 }
 

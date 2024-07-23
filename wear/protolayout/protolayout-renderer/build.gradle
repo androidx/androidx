@@ -65,5 +65,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Render ProtoLayouts to an Android surface"
-    metalavaK2UastEnabled = true
 }

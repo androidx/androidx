@@ -67,6 +67,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "AndroidX Preference"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

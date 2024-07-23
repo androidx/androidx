@@ -27,7 +27,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
-    metalavaK2UastEnabled = true
 }
 
 android {

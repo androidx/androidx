@@ -76,7 +76,6 @@ androidx {
             "to write Jetpack Compose applications for Wearable devices by providing " +
             "functionality to support navigation. " +
             "It builds upon the Jetpack Compose libraries."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:compose:compose-navigation-samples"))
 }

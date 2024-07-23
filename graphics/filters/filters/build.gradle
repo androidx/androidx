@@ -62,6 +62,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Apply visual filters to images, video or UI in real time."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

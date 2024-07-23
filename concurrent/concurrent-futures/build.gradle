@@ -40,5 +40,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Androidx implementation of Guava's ListenableFuture"
-    metalavaK2UastEnabled = true
 }

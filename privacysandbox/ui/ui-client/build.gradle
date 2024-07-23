@@ -66,6 +66,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "show UI from an SDKRuntime aware SDK"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

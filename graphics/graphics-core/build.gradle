@@ -76,7 +76,6 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":graphics:graphics-core:graphics-core-samples"))
 }

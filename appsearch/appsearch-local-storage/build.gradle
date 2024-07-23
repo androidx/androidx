@@ -103,5 +103,4 @@ androidx {
     description =
         "An implementation of AppSearchSession which uses local app storage and a local copy of " +
                 "the search library"
-    metalavaK2UastEnabled = true
 }

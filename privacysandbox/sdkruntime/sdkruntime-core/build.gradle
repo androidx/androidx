@@ -65,6 +65,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Provides shared components for SdkRuntime libraries"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

@@ -44,7 +44,6 @@ androidx {
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "A set of builders to create templates using SliceProvider APIs"
-    metalavaK2UastEnabled = true
     failOnDeprecationWarnings = false
 
     deviceTests {

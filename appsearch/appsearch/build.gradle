@@ -72,5 +72,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
-    metalavaK2UastEnabled = true
 }

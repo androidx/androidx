@@ -94,6 +94,5 @@ androidx {
     inceptionYear = "2022"
     description = "Provides native binaries required by AndroidX Tracing: Perfetto SDK " +
         "and is not intended to be used outside of that context."
-    metalavaK2UastEnabled = true
     doNotDocumentReason = "No public API"
 }

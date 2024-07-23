@@ -78,6 +78,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Android Lifecycle Saved State"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

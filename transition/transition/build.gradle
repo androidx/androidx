@@ -53,6 +53,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2016"
     description = "Android Transition Support Library"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

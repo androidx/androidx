@@ -44,7 +44,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
-    metalavaK2UastEnabled = true
 }
 
 android {

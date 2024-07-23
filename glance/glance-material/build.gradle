@@ -32,7 +32,6 @@ androidx {
     inceptionYear = "2022"
     description = "Glance Material 2 integration library." +
             " This library provides interop APIs with Material 2."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

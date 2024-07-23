@@ -35,5 +35,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2015"
     description = "Android Percent Support Library"
-    metalavaK2UastEnabled = true
 }

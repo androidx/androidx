@@ -55,6 +55,5 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_BIOMETRIC
     inceptionYear = "2020"
     description = "AndroidX Security Biometric"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

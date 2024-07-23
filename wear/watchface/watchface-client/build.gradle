@@ -76,6 +76,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Client library for controlling androidx watchfaces"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
