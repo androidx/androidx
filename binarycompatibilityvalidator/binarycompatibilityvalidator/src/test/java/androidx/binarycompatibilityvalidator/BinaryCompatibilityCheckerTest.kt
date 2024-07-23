@@ -19,8 +19,8 @@ package androidx.binarycompatibilityvalidator
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertFailsWith
 import kotlinx.validation.ExperimentalBCVApi
-import kotlinx.validation.api.klib.KLibDumpFilters
 import kotlinx.validation.api.klib.KlibDump
+import kotlinx.validation.api.klib.KlibDumpFilters
 import org.jetbrains.kotlin.library.abi.ExperimentalLibraryAbiReader
 import org.jetbrains.kotlin.library.abi.LibraryAbiReader
 import org.junit.Test
@@ -32,7 +32,7 @@ class BinaryCompatibilityCheckerTest {
     @Test
     fun klibDumpIsCompatibleWithItself() {
         val libraryAbi = LibraryAbiReader.readAbiInfo(klibFile, emptyList())
-        val dump = KlibDump.fromKlib(klibFile, "linuxX64", KLibDumpFilters {})
+        val dump = KlibDump.fromKlib(klibFile, "linuxX64", KlibDumpFilters {})
         val dumpText =
             StringBuilder().let {
                 dump.saveTo(it)

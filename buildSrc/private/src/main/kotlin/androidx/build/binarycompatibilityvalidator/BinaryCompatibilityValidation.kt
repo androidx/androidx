@@ -30,23 +30,27 @@ import androidx.build.checkapi.shouldWriteVersionedApiFile
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
-import java.io.File
+import kotlinx.validation.KlibDumpMetadata
 import kotlinx.validation.KotlinApiCompareTask
 import kotlinx.validation.KotlinKlibAbiBuildTask
-import kotlinx.validation.KotlinKlibExtractSupportedTargetsAbiTask
+import kotlinx.validation.KotlinKlibExtractAbiTask
 import kotlinx.validation.KotlinKlibMergeAbiTask
-import kotlinx.validation.SerializableSignatureVersion
 import kotlinx.validation.api.klib.KlibSignatureVersion
 import kotlinx.validation.api.klib.KlibTarget
 import kotlinx.validation.api.klib.konanTargetNameMapping
+import kotlinx.validation.toKlibTarget
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.dsl.KotlinCommonOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation.Companion.MAIN_COMPILATION_NAME
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.konan.target.HostManager
@@ -95,37 +99,33 @@ class BinaryCompatibilityValidation(
             return
         }
         val projectVersion: Version = project.version()
-        val projectAbiDir =
-            project.provider { project.getBcvFileDirectory().resolve(NATIVE_SUFFIX) }
-        val buildAbiDir =
-            project.provider {
-                project.getBuiltBcvFileDirectory().get().asFile.resolve(NATIVE_SUFFIX)
-            }
+        val projectAbiDir = project.getBcvFileDirectory().dir(NATIVE_SUFFIX)
+        val buildAbiDir = project.getBuiltBcvFileDirectory().map { it.dir(NATIVE_SUFFIX) }
 
-        val projectBuildDir = project.layout.buildDirectory.asFile.get()
-        val klibDumpDir = projectBuildDir.resolve(KLIB_DUMPS_DIRECTORY)
-        val klibMergeDir = klibDumpDir.resolve(KLIB_MERGE_DIRECTORY)
-        val klibMergeFile = klibMergeDir.resolve(CURRENT_API_FILE_NAME)
-        val klibExtractedFileDir = klibDumpDir.resolve(KLIB_EXTRACTED_DIRECTORY)
+        val klibDumpDir = project.layout.buildDirectory.dir(KLIB_DUMPS_DIRECTORY)
+        val klibMergeFile =
+            klibDumpDir.map { it.dir(KLIB_MERGE_DIRECTORY) }.map { it.file(CURRENT_API_FILE_NAME) }
+        val klibExtractedFileDir = klibDumpDir.map { it.dir(KLIB_EXTRACTED_DIRECTORY) }
 
         val generateAbi = project.generateAbiTask(klibMergeFile)
+        val generatedAndMergedApiFile: Provider<RegularFileProperty> =
+            generateAbi.map { it.mergedApiFile }
         val updateKlibAbi =
             project.updateKlibAbiTask(
                 projectAbiDir,
-                generateAbi.map { it.mergedFile },
+                generatedAndMergedApiFile,
                 projectVersion.toString()
             )
 
-        val extractKlibAbi = project.extractKlibAbiTask(projectAbiDir.get(), klibExtractedFileDir)
-        val checkKlibAbi =
-            project.checkKlibAbiTask(extractKlibAbi.map { it.outputAbiFile }.get(), klibMergeFile)
-        // because extract/merge takes a [File] instead of a provider we set up the dependencies
-        // manually
-        checkKlibAbi.configure {
-            it.dependsOn(extractKlibAbi)
-            it.dependsOn(generateAbi)
-        }
-        val checkKlibAbiRelease = project.checkKlibAbiReleaseTask(generateAbi, klibExtractedFileDir)
+        val extractKlibAbi = project.extractKlibAbiTask(projectAbiDir, klibExtractedFileDir)
+        val extractedProjectFile = extractKlibAbi.map { it.outputAbiFile }
+        val checkKlibAbi = project.checkKlibAbiTask(extractedProjectFile, generatedAndMergedApiFile)
+        val checkKlibAbiRelease =
+            project.checkKlibAbiReleaseTask(
+                generatedAndMergedApiFile,
+                projectAbiDir,
+                klibExtractedFileDir
+            )
 
         updateKlibAbi.configure { update ->
             checkKlibAbiRelease?.let { check -> update.dependsOn(check) }
@@ -136,49 +136,57 @@ class BinaryCompatibilityValidation(
             checkKlibAbiRelease?.let { releaseCheck -> checkTask.dependsOn(releaseCheck) }
         }
 
-        // configure the dump tasks for each individual target and set their output as inputs
-        // to the merge task
+        // add each target as an input to the merge task
         project.configureKlibTargets(generateAbi, buildAbiDir)
     }
 
     /* Check that the current ABI definition is up to date. */
-    private fun Project.checkKlibAbiTask(projectApiFile: File, generatedApiFile: File) =
+    private fun Project.checkKlibAbiTask(
+        projectApiFile: Provider<RegularFileProperty>,
+        generatedApiFile: Provider<RegularFileProperty>
+    ) =
         project.tasks
             .register(
                 CHECK_NAME.appendCapitalized(NATIVE_SUFFIX),
                 KotlinApiCompareTask::class.java
             ) {
-                it.projectApiFile = projectApiFile
-                it.generatedApiFile = generatedApiFile
+                it.projectApiFile.set(projectApiFile.map { fileProperty -> fileProperty.get() })
+                it.generatedApiFile.set(generatedApiFile.map { fileProperty -> fileProperty.get() })
                 it.group = ABI_GROUP_NAME
             }
             .also { task -> task.configure { it.cacheEvenIfNoOutputs() } }
 
     /* Check that the current ABI definition is compatible with most recently released version */
     private fun Project.checkKlibAbiReleaseTask(
-        generateAbiTask: TaskProvider<KotlinKlibMergeAbiTask>,
-        klibExtractDir: File
+        mergedApiFile: Provider<RegularFileProperty>,
+        klibApiDir: Directory,
+        klibExtractDir: Provider<Directory>
     ) =
         project.getRequiredCompatibilityAbiLocation(NATIVE_SUFFIX)?.let { requiredCompatFile ->
             val extractReleaseTask =
-                project.tasks.register(
-                    EXTRACT_RELEASE_NAME,
-                    KotlinKlibExtractSupportedTargetsAbiTask::class.java
-                ) {
-                    it.strictValidation = true
-                    it.supportedTargets = project.provider { supportedNativeTargetNames() }
-                    it.inputAbiFile = requiredCompatFile
-                    it.outputAbiFile = klibExtractDir.resolve(requiredCompatFile.name)
+                project.tasks.register(EXTRACT_RELEASE_NAME, KotlinKlibExtractAbiTask::class.java) {
+                    it.strictValidation.set(HostManager.hostIsMac)
+                    it.targetsToRemove.set(
+                        project.provider {
+                            unsupportedNativeTargetNames().map { targetName ->
+                                KlibTarget(targetName)
+                            }
+                        }
+                    )
+                    it.inputAbiFile.set(klibApiDir.file(requiredCompatFile.name))
+                    it.outputAbiFile.set(klibExtractDir.map { it.file(requiredCompatFile.name) })
                     (it as DefaultTask).group = ABI_GROUP_NAME
                 }
             project.tasks
                 .register(CHECK_RELEASE_NAME, CheckAbiIsCompatibleTask::class.java) {
-                    it.currentApiDump = generateAbiTask.map { merge -> merge.mergedFile }
-                    it.previousApiDump = extractReleaseTask.map { extract -> extract.outputAbiFile }
+                    it.currentApiDump.set(mergedApiFile.map { fileProperty -> fileProperty.get() })
+                    it.previousApiDump.set(
+                        extractReleaseTask.map { extract -> extract.outputAbiFile.get() }
+                    )
                     it.projectVersion = provider { projectVersion.toString() }
                     it.referenceVersion =
                         extractReleaseTask.map { extract ->
-                            extract.outputAbiFile.nameWithoutExtension
+                            extract.outputAbiFile.get().asFile.nameWithoutExtension
                         }
                     it.group = ABI_GROUP_NAME
                 }
@@ -189,16 +197,16 @@ class BinaryCompatibilityValidation(
 
     /* Updates the current abi file as well as the versioned abi file if appropriate */
     private fun Project.updateKlibAbiTask(
-        klibApiDir: Provider<File>,
-        mergedKlibFile: Provider<File>,
+        klibApiDir: Directory,
+        mergedKlibFile: Provider<RegularFileProperty>,
         projectVersion: String
     ) =
         project.tasks.register(
             UPDATE_NAME.appendCapitalized(NATIVE_SUFFIX),
             UpdateAbiTask::class.java
         ) {
-            it.outputDir = klibApiDir
-            it.inputApiLocation = mergedKlibFile
+            it.outputDir.set(klibApiDir)
+            it.inputApiLocation.set(mergedKlibFile.map { fileProperty -> fileProperty.get() })
             it.version.set(projectVersion)
             it.shouldWriteVersionedApiFile.set(project.shouldWriteVersionedApiFile())
             it.group = ABI_GROUP_NAME
@@ -210,47 +218,56 @@ class BinaryCompatibilityValidation(
      * project directory so they can be validated with checkAbi. For example on linux, extract all
      * current non-mac targets from the dump.
      */
-    private fun Project.extractKlibAbiTask(klibApiDir: File, extractDir: File) =
-        project.tasks.register(EXTRACT_NAME, KotlinKlibExtractSupportedTargetsAbiTask::class.java) {
-            it.strictValidation = HostManager.hostIsMac
-            it.supportedTargets = project.provider { supportedNativeTargetNames() }
-            it.inputAbiFile = klibApiDir.resolve(CURRENT_API_FILE_NAME)
-            it.outputAbiFile = extractDir.resolve(CURRENT_API_FILE_NAME)
+    private fun Project.extractKlibAbiTask(klibApiDir: Directory, extractDir: Provider<Directory>) =
+        project.tasks.register(EXTRACT_NAME, KotlinKlibExtractAbiTask::class.java) {
+            it.strictValidation.set(HostManager.hostIsMac)
+            it.targetsToRemove.set(
+                project.provider {
+                    unsupportedNativeTargetNames().map { targetName -> KlibTarget(targetName) }
+                }
+            )
+            it.inputAbiFile.set(klibApiDir.file(CURRENT_API_FILE_NAME))
+            it.outputAbiFile.set(extractDir.map { it.file(CURRENT_API_FILE_NAME) })
             (it as DefaultTask).group = ABI_GROUP_NAME
         }
 
     /* Merge target specific dumps into single file located in [mergeDir] */
-    private fun Project.generateAbiTask(mergeFile: File) =
+    private fun Project.generateAbiTask(mergeFile: Provider<RegularFile>) =
         project.tasks.register(GENERATE_NAME, KotlinKlibMergeAbiTask::class.java) {
-            it.dumpFileName = CURRENT_API_FILE_NAME
-            it.mergedFile = mergeFile
+            it.mergedApiFile.set(mergeFile)
             (it as DefaultTask).group = ABI_GROUP_NAME
         }
 
     private fun Project.configureKlibTargets(
         mergeTask: TaskProvider<KotlinKlibMergeAbiTask>,
-        abiBuildDir: Provider<File>
+        abiBuildDir: Provider<Directory>
     ) {
+        val generatedDumps = objects.setProperty(KlibDumpMetadata::class.java)
+        mergeTask.configure { it.dumps.addAll(generatedDumps) }
         kotlinMultiplatformExtension.nativeTargets().configureEach { currentTarget ->
-            val mainCompilations =
-                currentTarget.compilations.matching {
-                    it.name == KotlinCompilation.MAIN_COMPILATION_NAME
-                }
+            val mainCompilation =
+                currentTarget.compilations.findByName(MAIN_COMPILATION_NAME) ?: return@configureEach
 
-            val targetName = currentTarget.targetName
+            val target = currentTarget.toKlibTarget()
+
             val isEnabled =
                 currentTarget is KotlinNativeTarget &&
                     HostManager().isEnabled(currentTarget.konanTarget)
             if (isEnabled) {
-                mainCompilations.configureEach {
-                    val abiBuildLocation = abiBuildDir.get().resolve(targetName)
-                    val buildTargetAbi: TaskProvider<*> =
-                        configureKlibCompilation(it, targetName, abiBuildLocation)
-                    mergeTask.configure { task ->
-                        task.addInput(targetName, abiBuildLocation)
-                        task.dependsOn(buildTargetAbi)
-                    }
-                }
+                val buildTargetAbi =
+                    configureKlibCompilation(
+                        mainCompilation,
+                        target,
+                        abiBuildDir.map { it.dir(target.targetName) },
+                    )
+                generatedDumps.add(
+                    KlibDumpMetadata(
+                        target,
+                        objects.fileProperty().also {
+                            it.set(buildTargetAbi.flatMap { it.outputAbiFile })
+                        }
+                    )
+                )
             }
         }
     }
@@ -272,19 +289,18 @@ class BinaryCompatibilityValidation(
 
     private fun Project.configureKlibCompilation(
         compilation: KotlinCompilation<KotlinCommonOptions>,
-        targetName: String,
-        outputFileDir: File
+        target: KlibTarget,
+        outputFileDir: Provider<Directory>
     ): TaskProvider<KotlinKlibAbiBuildTask> {
         val buildTask =
             tasks.register(
-                GENERATE_NAME.appendCapitalized(targetName),
+                GENERATE_NAME.appendCapitalized(target.targetName),
                 KotlinKlibAbiBuildTask::class.java
             ) {
-                it.target = targetName
-                it.klibFile = project.files(provider { compilation.output.classesDirs })
-                it.compilationDependencies = files(provider { compilation.compileDependencyFiles })
-                it.signatureVersion = SerializableSignatureVersion(KlibSignatureVersion.LATEST)
-                it.outputApiFile = outputFileDir.resolve(CURRENT_API_FILE_NAME)
+                it.target.set(target)
+                it.klibFile.from(compilation.output.classesDirs)
+                it.signatureVersion.set(KlibSignatureVersion.LATEST)
+                it.outputAbiFile.set(outputFileDir.map { it.file(CURRENT_API_FILE_NAME) })
                 (it as DefaultTask).group = ABI_GROUP_NAME
             }
         return buildTask
@@ -293,7 +309,7 @@ class BinaryCompatibilityValidation(
 
 private fun Project.getRequiredCompatibilityAbiLocation(suffix: String) =
     getRequiredCompatibilityApiFileFromDir(
-        project.getBcvFileDirectory().resolve(suffix),
+        project.getBcvFileDirectory().dir(suffix).asFile,
         project.version(),
         ApiType.CLASSAPI
     )
