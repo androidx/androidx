@@ -498,6 +498,106 @@ class FloatingActionButtonTest {
             .assertWidthIsEqualTo(FabPrimaryTokens.ContainerWidth)
     }
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun expandedLargeExtendedFabTextAndIconHaveSizeFromSpecAndVisible() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LargeExtendedFloatingActionButton(
+                expanded = true,
+                onClick = {},
+                icon = {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        "Add",
+                        modifier =
+                            Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                                .testTag("icon"),
+                    )
+                },
+                text = { Text(text = "FAB", modifier = Modifier.testTag("text")) },
+                modifier = Modifier.testTag("FAB"),
+            )
+        }
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
+            .assertWidthIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
+
+        rule.onNodeWithTag("FAB").assertHeightIsEqualTo(96.dp).assertWidthIsAtLeast(112.dp)
+
+        rule.onNodeWithTag("text", useUnmergedTree = true).assertIsDisplayed()
+        rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun collapsedLargeExtendedFabTextAndIconHaveSizeFromSpecAndTextNotVisible() {
+        rule.setMaterialContent(lightColorScheme()) {
+            LargeExtendedFloatingActionButton(
+                expanded = false,
+                onClick = {},
+                icon = {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        "Add",
+                        modifier =
+                            Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                                .testTag("icon")
+                    )
+                },
+                text = { Text(text = "FAB", modifier = Modifier.testTag("text")) },
+                modifier = Modifier.testTag("FAB"),
+            )
+        }
+
+        rule.onNodeWithTag("FAB").assertIsSquareWithSize(96.dp)
+
+        rule
+            .onNodeWithTag("icon", useUnmergedTree = true)
+            .assertHeightIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
+            .assertWidthIsEqualTo(FloatingActionButtonDefaults.LargeIconSize)
+
+        rule.onNodeWithTag("text", useUnmergedTree = true).assertDoesNotExist()
+        rule.onNodeWithTag("icon", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Test
+    fun largeExtendedFabAnimates() {
+        rule.mainClock.autoAdvance = false
+
+        var expanded by mutableStateOf(true)
+        rule.setMaterialContent(lightColorScheme()) {
+            LargeExtendedFloatingActionButton(
+                expanded = expanded,
+                onClick = {},
+                icon = {
+                    Icon(
+                        Icons.Filled.Favorite,
+                        "Add",
+                        modifier =
+                            Modifier.size(FloatingActionButtonDefaults.LargeIconSize)
+                                .testTag("icon")
+                    )
+                },
+                text = { Text(text = "FAB", modifier = Modifier.testTag("text")) },
+                modifier = Modifier.testTag("FAB"),
+            )
+        }
+
+        rule.onNodeWithTag("FAB").assertHeightIsEqualTo(96.dp).assertWidthIsAtLeast(112.dp)
+
+        rule.runOnIdle { expanded = false }
+        rule.mainClock.advanceTimeBy(400)
+
+        rule
+            .onNodeWithTag("FAB")
+            .assertIsSquareWithSize(96.dp)
+            .assertHeightIsEqualTo(96.dp)
+            .assertWidthIsEqualTo(96.dp)
+    }
+
     @Test
     fun floatingActionButtonElevation_newInteraction() {
         val interactionSource = MutableInteractionSource()
