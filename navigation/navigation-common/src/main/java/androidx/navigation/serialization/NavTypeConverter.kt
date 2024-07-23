@@ -110,7 +110,7 @@ private fun SerialDescriptor.toInternalType(): InternalType {
 /**
  * Match the [SerialDescriptor] of a type to a KType
  *
- * Returns true match, false otherwise.
+ * Returns true if match, false otherwise.
  */
 internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
     if (this.isNullable != kType.isMarkedNullable) return false
@@ -121,8 +121,7 @@ internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
             "types. Please use @Serializable or @Serializable(with = ...) on the " +
             "class or object declaration."
     }
-    if (this.hashCode() != kTypeSerializer.descriptor.hashCode()) return false
-    return true
+    return this == kTypeSerializer.descriptor
 }
 
 internal object UNKNOWN : NavType<String>(false) {
