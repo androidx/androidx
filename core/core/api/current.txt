@@ -1850,6 +1850,13 @@ package androidx.core.net {
 
 package androidx.core.os {
 
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public enum BufferFillPolicy {
+    method public int getValue();
+    property public final int value;
+    enum_constant public static final androidx.core.os.BufferFillPolicy DISCARD;
+    enum_constant public static final androidx.core.os.BufferFillPolicy RING_BUFFER;
+  }
+
   public final class BuildCompat {
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N) public static boolean isAtLeastN();
     method @Deprecated @ChecksSdkIntAtLeast(api=android.os.Build.VERSION_CODES.N_MR1) public static boolean isAtLeastNMR1();
@@ -1917,6 +1924,17 @@ package androidx.core.os {
     method public static boolean postDelayed(android.os.Handler, Runnable, Object?, long);
   }
 
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public final class HeapProfileRequestBuilder extends androidx.core.os.RequestBuilder<androidx.core.os.HeapProfileRequestBuilder> {
+    method public androidx.core.os.HeapProfileRequestBuilder setBufferSizeKb(int bufferSizeKb);
+    method public androidx.core.os.HeapProfileRequestBuilder setDurationMs(int durationMs);
+    method public androidx.core.os.HeapProfileRequestBuilder setSamplingIntervalBytes(long samplingIntervalBytes);
+    method public androidx.core.os.HeapProfileRequestBuilder setTrackJavaAllocations(boolean traceJavaAllocations);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public final class JavaHeapDumpRequestBuilder extends androidx.core.os.RequestBuilder<androidx.core.os.JavaHeapDumpRequestBuilder> {
+    method public androidx.core.os.JavaHeapDumpRequestBuilder setBufferSizeKb(int bufferSizeKb);
+  }
+
   public final class LocaleListCompat {
     method public static androidx.core.os.LocaleListCompat create(java.util.Locale!...);
     method public static androidx.core.os.LocaleListCompat forLanguageTags(String?);
@@ -1973,6 +1991,34 @@ package androidx.core.os {
 
   public final class ProcessCompat {
     method public static boolean isApplicationUid(int);
+  }
+
+  public final class Profiling {
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static kotlinx.coroutines.flow.Flow<android.os.ProfilingResult> registerForAllProfilingResults(android.content.Context context);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static void registerForAllProfilingResults(android.content.Context context, java.util.concurrent.Executor executor, java.util.function.Consumer<android.os.ProfilingResult> listener);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static androidx.core.os.HeapProfileRequestBuilder requestHeapProfile();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static androidx.core.os.JavaHeapDumpRequestBuilder requestJavaHeapDump();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static androidx.core.os.StackSamplingRequestBuilder requestStackSampling();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static androidx.core.os.SystemTraceRequestBuilder requestSystemTrace();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static void unregisterForAllProfilingResults(android.content.Context context, java.util.function.Consumer<android.os.ProfilingResult> listener);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public abstract class RequestBuilder<T extends androidx.core.os.RequestBuilder<T>> {
+    method public final void request(android.content.Context context, java.util.concurrent.Executor? executor, java.util.function.Consumer<android.os.ProfilingResult>? listener);
+    method public final T setCancellationSignal(android.os.CancellationSignal cancellationSignal);
+    method public final T setTag(String tag);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public final class StackSamplingRequestBuilder extends androidx.core.os.RequestBuilder<androidx.core.os.StackSamplingRequestBuilder> {
+    method public androidx.core.os.StackSamplingRequestBuilder setBufferSizeKb(int bufferSizeKb);
+    method public androidx.core.os.StackSamplingRequestBuilder setDurationMs(int durationMs);
+    method public androidx.core.os.StackSamplingRequestBuilder setSamplingFrequencyHz(int samplingFrequencyHz);
+  }
+
+  @RequiresApi(api=android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public final class SystemTraceRequestBuilder extends androidx.core.os.RequestBuilder<androidx.core.os.SystemTraceRequestBuilder> {
+    method public androidx.core.os.SystemTraceRequestBuilder setBufferFillPolicy(androidx.core.os.BufferFillPolicy bufferFillPolicy);
+    method public androidx.core.os.SystemTraceRequestBuilder setBufferSizeKb(int bufferSizeKb);
+    method public androidx.core.os.SystemTraceRequestBuilder setDurationMs(int durationMs);
   }
 
   @Deprecated public final class TraceCompat {
