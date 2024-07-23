@@ -133,4 +133,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Standalone efficient collections."
+    metalavaK2UastEnabled = false
 }

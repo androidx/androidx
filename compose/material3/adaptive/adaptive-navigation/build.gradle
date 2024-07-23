@@ -106,6 +106,7 @@ androidx {
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }
 
 tasks.withType(KotlinCompile).configureEach {

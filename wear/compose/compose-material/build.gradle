@@ -89,5 +89,6 @@ androidx {
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":wear:compose:compose-material-samples"))
 }

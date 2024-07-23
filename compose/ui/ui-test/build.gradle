@@ -155,5 +155,6 @@ androidx {
     inceptionYear = "2019"
     description = "Compose testing library"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-test:ui-test-samples"))
 }

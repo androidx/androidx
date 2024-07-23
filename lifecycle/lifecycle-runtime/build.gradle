@@ -148,4 +148,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear "2017"
     description "Android Lifecycle Runtime"
+    metalavaK2UastEnabled = false
 }

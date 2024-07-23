@@ -97,6 +97,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose classes related to dimensions without units"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }
 
 android {

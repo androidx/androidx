@@ -90,6 +90,7 @@ androidx {
     description = "Compose tooling library API. This library provides the API required to declare" +
             " @Preview composables in user apps."
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }
 
 android {

@@ -106,5 +106,6 @@ androidx {
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Navigation Suite Library"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-adaptive-navigation-suite:material3-adaptive-navigation-suite-samples"))
 }
