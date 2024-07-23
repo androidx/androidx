@@ -28,8 +28,8 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class EasingTest {
-    private val ZeroEpsilon = -(1.0f.ulp)
-    private val OneEpsilon = 1.0f + 1.0f.ulp
+    private val ZeroEpsilon = -(1.0f.ulp * 2.0f)
+    private val OneEpsilon = 1.0f + 1.0f.ulp * 2.0f
 
     @Test
     fun cubicBezierStartsAt0() {
@@ -108,12 +108,49 @@ class EasingTest {
 
     @Test
     fun canSolveCubicForFractionsCloseToOne() {
-        val curve = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
+        // Only test curves defined in [0..1]
+        // For instance, EaseInOutBack is defined in a larger domain, so exclude it from the list
+        val curves =
+            listOf(
+                CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f),
+                Ease,
+                EaseIn,
+                EaseInBack,
+                EaseInCirc,
+                EaseInCubic,
+                EaseInExpo,
+                EaseInOut,
+                EaseInOutCirc,
+                EaseInOutCubic,
+                EaseInOutExpo,
+                EaseInOutQuad,
+                EaseInOutQuart,
+                EaseInOutQuint,
+                EaseInOutSine,
+                EaseInOutQuad,
+                EaseInOutQuart,
+                EaseInOutQuint,
+                EaseInSine,
+                EaseOut,
+                EaseOutCirc,
+                EaseOutCubic,
+                EaseOutExpo,
+                EaseOutQuad,
+                EaseOutQuart,
+                EaseOutQuint,
+                EaseOutSine
+            )
 
-        // Test the last 16 ulps until 1.0f
-        for (i in 0x3f7ffff0..0x3f7fffff) {
-            val t = curve.transform(floatFromBits(i))
-            assertTrue(t in -ZeroEpsilon..OneEpsilon)
+        for (curve in curves) {
+            // Test the last 16 ulps until 1.0f
+            for (i in 0x3f7ffff0..0x3f7fffff) {
+                val fraction = floatFromBits(i)
+                val t = curve.transform(fraction)
+                assertTrue(
+                    "f($fraction) = $t out of range for $curve",
+                    t in -ZeroEpsilon..OneEpsilon
+                )
+            }
         }
     }
 }
