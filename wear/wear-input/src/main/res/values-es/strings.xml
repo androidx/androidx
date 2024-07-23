@@ -19,7 +19,7 @@
     <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"Parte superior izquierda, arriba"</string>
     <string name="buttons_rect_left_top" msgid="5658240954637179416">"Parte superior, lateral izquierdo"</string>
     <string name="buttons_rect_left_center" msgid="2090348335774325845">"Parte central izquierda"</string>
-    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Parte inferior, lateral izquierdo"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"Parte inferior izquierda"</string>
     <string name="buttons_rect_right_top" msgid="8781047384037217975">"Parte superior, lateral derecho"</string>
     <string name="buttons_rect_right_center" msgid="9046922334870476704">"Parte central derecha"</string>
     <string name="buttons_rect_right_bottom" msgid="231110280868923853">"Parte inferior, lateral derecho"</string>
