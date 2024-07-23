@@ -27,6 +27,7 @@ import androidx.compose.ui.focus.setFocusableContent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -269,5 +270,25 @@ class WindowInfoCompositionLocalTest {
 
         rule.waitForIdle()
         assertThat(keyModifiers.packedValue).isEqualTo(0)
+    }
+
+    @Test
+    fun windowInfo_containerSize() {
+        // Arrange.
+        var containerSize = IntSize.Zero
+        var recompositions = 0
+        rule.setContent {
+            BasicText("Main Window")
+            val windowInfo = LocalWindowInfo.current
+            containerSize = windowInfo.containerSize
+            recompositions++
+        }
+
+        // Act.
+        rule.waitForIdle()
+
+        // Assert.
+        assertThat(containerSize).isNotEqualTo(IntSize.Zero)
+        assertThat(recompositions).isEqualTo(1)
     }
 }
