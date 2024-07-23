@@ -2124,11 +2124,6 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         preview: Preview? = null,
         imageAnalysis: ImageAnalysis? = null
     ) = runBlocking {
-        implName.ignoreTestForCameraPipe(
-            "TODO(b/247492645) Remove camera-pipe-integration restriction after porting" +
-                " ResolutionSelector logic"
-        )
-
         val cameraInfo =
             withContext(Dispatchers.Main) {
                 cameraProvider

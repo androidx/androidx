@@ -419,10 +419,6 @@ internal class ImageAnalysisTest(
 
     @Test
     fun analyzerAnalyzesImages_withHighResolutionEnabled() = runBlocking {
-        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
-        //  ResolutionSelector logic
-        assumeTrue(implName != CameraPipeConfig::class.simpleName)
-
         val cameraInfo =
             withContext(Dispatchers.Main) {
                 cameraProvider
