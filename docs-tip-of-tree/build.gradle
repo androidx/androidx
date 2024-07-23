@@ -220,7 +220,7 @@ dependencies {
     kmpDocs(project(":lifecycle:lifecycle-runtime"))
     kmpDocs(project(":lifecycle:lifecycle-runtime-compose"))
     kmpDocs(project(":lifecycle:lifecycle-runtime-ktx"))
-    docs(project(":lifecycle:lifecycle-runtime-testing"))
+    kmpDocs(project(":lifecycle:lifecycle-runtime-testing"))
     docs(project(":lifecycle:lifecycle-service"))
     kmpDocs(project(":lifecycle:lifecycle-viewmodel"))
     kmpDocs(project(":lifecycle:lifecycle-viewmodel-compose"))
