@@ -147,6 +147,47 @@ class ParameterizedFocusBenchmark(val count: Int) {
     }
 
     @Test
+    fun modifyActiveHierarchy_addRemoveModifiersWithExistingActiveSubtree() {
+        composeBenchmarkRule.toggleAlternatingStateBenchmarkRecompose({
+            object : LayeredComposeTestCase(), ToggleableAlternatingTestCase {
+
+                private val focusRequester = FocusRequester()
+                private var shouldAddNodes by mutableStateOf(false)
+
+                @Composable
+                override fun MeasuredContent() {
+                    Box(Modifier.thenIf(shouldAddNodes) { focusTargetModifiers() }) {
+                        for (i in 0 until count) {
+                            Box(Modifier.focusTarget()) {
+                                for (j in 0 until count) {
+                                    if (i == count - 1 && j == count - 1) {
+                                        // Focus on the last child in a depth first traversal
+                                        Box(Modifier.focusRequester(focusRequester).focusTarget())
+                                    } else {
+                                        Box(Modifier.focusTarget())
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                @Composable
+                override fun ContentWrappers(content: @Composable () -> Unit) {
+                    Box(Modifier.fillMaxSize().then(focusTargetModifiers())) {
+                        content()
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                    }
+                }
+
+                override fun toggleState(isStateChangeMeasured: Boolean) {
+                    shouldAddNodes = isStateChangeMeasured
+                }
+            }
+        })
+    }
+
+    @Test
     fun reuseInactiveFocusTarget() {
         composeBenchmarkRule.toggleStateBenchmarkRecompose({
             object : LayeredComposeTestCase(), ToggleableTestCase {
