@@ -382,9 +382,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<View>(R.id.crash_app).setOnClickListener {
             throw RuntimeException("Crashed app")
         }
-        findViewById<View>(R.id.enqueue_infinite_work_charging).setOnClickListener {
-            queueLotsOfWorkers(workManager)
-        }
+        findViewById<View>(R.id.stress_test).setOnClickListener { queueLotsOfWorkers(workManager) }
         findViewById<View>(R.id.enqueue_network_request).setOnClickListener {
             enqueueWithNetworkRequest(workManager)
         }
