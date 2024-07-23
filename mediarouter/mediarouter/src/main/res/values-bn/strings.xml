@@ -51,12 +51,8 @@
     <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"এই ডিভাইস ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
     <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"আরও জানুন"</a></string>
     <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"কীভাবে কাস্ট করবেন তা জানুন"</string>
-    <!-- no translation found for mr_route_name_unknown (5538521943939635302) -->
-    <skip />
-    <!-- no translation found for mr_route_name_bluetooth (5056346328175584455) -->
-    <skip />
-    <!-- no translation found for mr_route_name_tv (8041420425123528188) -->
-    <skip />
-    <!-- no translation found for mr_route_name_speaker (708574147123374685) -->
-    <skip />
+    <string name="mr_route_name_unknown" msgid="5538521943939635302">"অজানা"</string>
+    <string name="mr_route_name_bluetooth" msgid="5056346328175584455">"ব্লুটুথ"</string>
+    <string name="mr_route_name_tv" msgid="8041420425123528188">"টিভি"</string>
+    <string name="mr_route_name_speaker" msgid="708574147123374685">"স্পিকার"</string>
 </resources>
