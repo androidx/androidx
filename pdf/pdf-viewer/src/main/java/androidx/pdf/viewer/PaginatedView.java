@@ -74,8 +74,15 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
+    }
+
+    /** Instantiate PaginationModel and PageRangeHandler */
+    @NonNull
+    public PaginationModel initPaginationModelAndPageRangeHandler(@NonNull Context context) {
         mPaginationModel = new PaginationModel(context);
         mPageRangeHandler = new PageRangeHandler(mPaginationModel);
+        return mPaginationModel;
     }
 
     @NonNull
@@ -266,7 +273,7 @@ public class PaginatedView extends AbstractPaginatedView {
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (getVisibility() == View.VISIBLE) {
+        if (getVisibility() == View.VISIBLE && mPageRangeHandler != null) {
             mPageRangeHandler.adjustMaxPageToUpperVisibleRange();
             if (getChildCount() > 0) {
                 for (PageMosaicView page : getChildViews()) {

@@ -45,7 +45,6 @@ import androidx.pdf.viewer.PageIndicator
 import androidx.pdf.viewer.PageMosaicView
 import androidx.pdf.viewer.PageViewFactory
 import androidx.pdf.viewer.PaginatedView
-import androidx.pdf.viewer.PaginationModel
 import androidx.pdf.viewer.PdfPasswordDialog
 import androidx.pdf.viewer.PdfSelectionModel
 import androidx.pdf.viewer.SearchModel
@@ -71,7 +70,6 @@ class PdfLoaderCallbacksImpl(
     private val fragmentActivity: FragmentActivity? = pdfViewerFragment.activity
     private val pageElevationInPixels: Int =
         PaginationUtils.getPageElevationInPixels(pdfViewerFragment.requireContext())
-    private var paginationModel: PaginationModel = paginatedView.paginationModel
 
     var selectionModel: PdfSelectionModel? = null
     var searchModel: SearchModel? = null
@@ -111,20 +109,20 @@ class PdfLoaderCallbacksImpl(
             return
         }
 
-        if (selection.page >= paginationModel.size) {
+        if (selection.page >= paginatedView.paginationModel.size) {
             layoutHandler!!.layoutPages(selection.page + 1)
             return
         }
 
         val rect = selection.pageMatches.getFirstRect(selection.selected)
-        val x: Int = paginationModel.getLookAtX(selection.page, rect.centerX())
-        val y: Int = paginationModel.getLookAtY(selection.page, rect.centerY())
+        val x: Int = paginatedView.paginationModel.getLookAtX(selection.page, rect.centerX())
+        val y: Int = paginatedView.paginationModel.getLookAtY(selection.page, rect.centerY())
         zoomView.centerAt(x.toFloat(), y.toFloat())
 
         (pageViewFactory!!.getOrCreatePageView(
                 selection.page,
                 pageElevationInPixels,
-                paginationModel.getPageSize(selection.page)
+                paginatedView.paginationModel.getPageSize(selection.page)
             ) as PageMosaicView)
             .setOverlay(selection.overlay)
     }
@@ -136,7 +134,7 @@ class PdfLoaderCallbacksImpl(
         }
 
         zoomView.let {
-            paginationModel.setViewArea(it.visibleAreaInContentCoords)
+            paginatedView.paginationModel.setViewArea(it.visibleAreaInContentCoords)
             paginatedView.refreshPageRangeInVisibleArea(position, it.height)
             paginatedView.handleGonePages(/* clearViews= */ false)
             paginatedView.loadInvisibleNearPageRange(it.stableZoom)
@@ -166,7 +164,8 @@ class PdfLoaderCallbacksImpl(
     }
 
     private fun isPageCreated(pageNum: Int): Boolean {
-        return pageNum < paginationModel.size && paginatedView.getViewAt(pageNum) != null
+        return pageNum < paginatedView.paginationModel.size &&
+            paginatedView.getViewAt(pageNum) != null
     }
 
     private fun getPage(pageNum: Int): PageViewFactory.PageView? {
@@ -242,11 +241,11 @@ class PdfLoaderCallbacksImpl(
         paginatedView.pageRangeHandler.maxPage = 1
         if (viewState.get() != ViewState.NO_VIEW) {
 
-            paginationModel.initialize(numPages)
+            paginatedView.paginationModel.initialize(numPages)
 
             // Add pagination model to the view
-            paginatedView.model = paginationModel
-            paginatedView.let { paginationModel.addObserver(it) }
+            paginatedView.model = paginatedView.paginationModel
+            paginatedView.let { paginatedView.paginationModel.addObserver(it) }
 
             dismissPasswordDialog()
 
@@ -294,7 +293,7 @@ class PdfLoaderCallbacksImpl(
             (pageViewFactory!!.getOrCreatePageView(
                     page,
                     pageElevationInPixels,
-                    paginationModel.getPageSize(page)
+                    paginatedView.paginationModel.getPageSize(page)
                 ) as PageMosaicView)
                 .setFailure(pdfViewerFragment.getString(R.string.error_on_page, page + 1))
             fragmentActivity?.let { Toaster.LONG.popToast(it, R.string.error_on_page, page + 1) }
@@ -305,8 +304,9 @@ class PdfLoaderCallbacksImpl(
     override fun setPageDimensions(pageNum: Int, dimensions: Dimensions) {
         if (viewState.get() != ViewState.NO_VIEW) {
 
-            paginationModel.addPage(pageNum, dimensions)
-            layoutHandler!!.pageLayoutReach = paginationModel.size
+            paginatedView.paginationModel.addPage(pageNum, dimensions)
+
+            layoutHandler!!.pageLayoutReach = paginatedView.paginationModel.size
 
             if (
                 searchModel!!.query().get() != null &&
