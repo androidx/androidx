@@ -779,7 +779,7 @@ private interface TestInterface
 
 private fun nullableIntArgument(name: String, hasDefaultValue: Boolean = false) =
     navArgument(name) {
-        type = NullableIntType
+        type = IntNullableType
         nullable = true
         unknownDefaultValuePresent = hasDefaultValue
     }
@@ -789,32 +789,4 @@ private fun intArrayArgument(name: String, hasDefaultValue: Boolean = false) =
         type = NavType.IntArrayType
         nullable = true
         unknownDefaultValuePresent = hasDefaultValue
-    }
-
-private val NullableIntType: NavType<Int?> =
-    object : NavType<Int?>(true) {
-        override val name: String
-            get() = "nullable_integer"
-
-        override fun put(bundle: Bundle, key: String, value: Int?) {
-            value?.let { bundle.putInt(key, value) }
-        }
-
-        @Suppress("DEPRECATION")
-        override fun get(bundle: Bundle, key: String): Int? {
-            val value = bundle[key]
-            return value?.let { it as Int }
-        }
-
-        override fun parseValue(value: String): Int? {
-            return if (value == "null") {
-                null
-            } else if (value.startsWith("0x")) {
-                value.substring(2).toInt(16)
-            } else {
-                value.toInt()
-            }
-        }
-
-        override fun serializeAsValue(value: Int?): String = value?.toString() ?: "null"
     }

@@ -30,6 +30,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.NavDestination.Companion.createRoute
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.test.R
 import androidx.test.annotation.UiThreadTest
@@ -1149,6 +1150,37 @@ class NavControllerRouteTest {
         navController.navigate(dest2, navOptions { restoreState = true })
         assertThat(navController.currentDestination?.route).isEqualTo(TEST_CLASS_PATH_ARG_ROUTE)
         assertThat(navController.currentBackStackEntry?.arguments?.getInt("arg")).isEqualTo(0)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullableInt() {
+        @Serializable class TestClass(val arg: Int? = 10)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(15))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isEqualTo(15)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // passed in null
+        navController.navigate(TestClass(null))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isNull()
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+
+        // use default
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isEqualTo(10)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(5)
     }
 
     @UiThreadTest
