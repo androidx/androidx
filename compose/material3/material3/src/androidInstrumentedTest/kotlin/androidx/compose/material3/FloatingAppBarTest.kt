@@ -313,17 +313,17 @@ class FloatingAppBarTest {
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailingAndLeadingContent_expanded() {
+    fun horizontalFloatingAppBar_leadingAndTrailingContent_expanded() {
         rule.setMaterialContent(lightColorScheme()) {
             HorizontalFloatingAppBar(
                 modifier = Modifier.testTag(FloatingAppBarTestTag),
                 expanded = true,
-                trailingContent = {
+                leadingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
                 },
-                leadingContent = {
+                trailingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
@@ -338,17 +338,17 @@ class FloatingAppBarTest {
     }
 
     @Test
-    fun horizontalFloatingAppBar_trailingAndLeadingContent_notExpanded() {
+    fun horizontalFloatingAppBar_leadingAndTrailingContent_notExpanded() {
         rule.setMaterialContent(lightColorScheme()) {
             HorizontalFloatingAppBar(
                 modifier = Modifier.testTag(FloatingAppBarTestTag),
                 expanded = false,
-                trailingContent = {
+                leadingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
                 },
-                leadingContent = {
+                trailingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
@@ -438,17 +438,17 @@ class FloatingAppBarTest {
     }
 
     @Test
-    fun verticalFloatingAppBar_trailingAndLeadingContent_expanded() {
+    fun verticalFloatingAppBar_leadingAndTrailingContent_expanded() {
         rule.setMaterialContent(lightColorScheme()) {
             VerticalFloatingAppBar(
                 modifier = Modifier.testTag(FloatingAppBarTestTag),
                 expanded = true,
-                trailingContent = {
+                leadingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
                 },
-                leadingContent = {
+                trailingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
@@ -463,17 +463,17 @@ class FloatingAppBarTest {
     }
 
     @Test
-    fun verticalFloatingAppBar_trailingAndLeadingContent_notExpanded() {
+    fun verticalFloatingAppBar_leadingAndTrailingContent_notExpanded() {
         rule.setMaterialContent(lightColorScheme()) {
             VerticalFloatingAppBar(
                 modifier = Modifier.testTag(FloatingAppBarTestTag),
                 expanded = false,
-                trailingContent = {
+                leadingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }
                 },
-                leadingContent = {
+                trailingContent = {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Check, contentDescription = "Localized description")
                     }

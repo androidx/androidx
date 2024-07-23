@@ -113,8 +113,8 @@ internal class HorizontalFloatingAppBarTestCase : LayeredComposeTestCase() {
         HorizontalFloatingAppBar(
             expanded = true,
             modifier = Modifier.fillMaxWidth(),
-            trailingContent = { trailingContent() },
             leadingContent = { leadingContent() },
+            trailingContent = { trailingContent() },
             content = { mainContent() },
         )
     }
@@ -132,8 +132,8 @@ internal class VerticalFloatingAppBarTestCase : LayeredComposeTestCase() {
         VerticalFloatingAppBar(
             expanded = true,
             modifier = Modifier.fillMaxHeight(),
-            trailingContent = { trailingContent() },
             leadingContent = { leadingContent() },
+            trailingContent = { trailingContent() },
             content = { mainContent() },
         )
     }
@@ -145,16 +145,16 @@ internal class VerticalFloatingAppBarTestCase : LayeredComposeTestCase() {
 }
 
 @Composable
-private fun trailingContent() {
+private fun leadingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Check, contentDescription = "Localized description")
+        Icon(Icons.Filled.Add, contentDescription = "Localized description")
     }
 }
 
 @Composable
-private fun leadingContent() {
+private fun trailingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Add, contentDescription = "Localized description")
+        Icon(Icons.Filled.Check, contentDescription = "Localized description")
     }
 }
 
