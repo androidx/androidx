@@ -43,6 +43,7 @@ import androidx.camera.core.impl.TagBundle
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.collections.removeLast as removeLastKt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -135,7 +136,7 @@ class UseCaseCameraRequestControlTest {
         // Assert
         assertThat(fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.size).isEqualTo(3)
 
-        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLast()
+        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLastKt()
         assertThat(lastRequest.parameters[CaptureRequest.CONTROL_AE_MODE])
             .isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
         assertThat(lastRequest.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
@@ -145,7 +146,7 @@ class UseCaseCameraRequestControlTest {
         assertThat(lastRequest.parameters.size).isEqualTo(3)
 
         val secondLastRequest =
-            fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLast()
+            fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLastKt()
         assertThat(secondLastRequest.parameters[CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION])
             .isEqualTo(5)
         assertThat(secondLastRequest.parameters[CaptureRequest.CONTROL_AE_MODE])
@@ -357,7 +358,7 @@ class UseCaseCameraRequestControlTest {
 
         // Assert
         assertThat(fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.size).isEqualTo(3)
-        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLast()
+        val lastRequest = fakeCameraGraph.fakeCameraGraphSession.repeatingRequests.removeLastKt()
         assertThat(lastRequest.template!!.value)
             .isEqualTo(RequestTemplate(CameraDevice.TEMPLATE_RECORD).value)
     }

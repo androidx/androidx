@@ -32,6 +32,7 @@ import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
 import androidx.sqlite.throwSQLiteException
 import androidx.sqlite.use
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration.Companion.seconds
@@ -355,7 +356,7 @@ private class PooledConnectionImpl(
             if (transactionStack.isEmpty()) {
                 error("Not in a transaction")
             }
-            val transaction = transactionStack.removeLast()
+            val transaction = transactionStack.removeLastKt()
             if (success && !transaction.shouldRollback) {
                 if (transactionStack.isEmpty()) {
                     delegate.execSQL("END TRANSACTION")

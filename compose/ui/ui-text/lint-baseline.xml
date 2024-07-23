@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="NewApi"
@@ -129,83 +129,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field paragraphEnds with type List&lt;Integer>: replace with IntList"
-        errorLine1="    private val paragraphEnds: List&lt;Int>"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/LayoutHelper.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable lineFeeds with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val lineFeeds = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/LayoutHelper.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="variable list with type List&lt;? extends Float>: replace with FloatList"
         errorLine1="            @Suppress(&quot;UNCHECKED_CAST&quot;) val list = it as List&lt;Float>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakInWords: replace with IntList"
-        errorLine1="    private fun breakInWords(layoutHelper: LayoutHelper): List&lt;Int> {"
-        errorLine2="                                                          ~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable words with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable set with type TreeSet&lt;Integer>: replace with IntSet"
-        errorLine1="        val set = TreeSet&lt;Int>().apply { words.fastForEach { add(it) } }"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakWithBreakIterator: replace with IntList"
-        errorLine1="    private fun breakWithBreakIterator(text: CharSequence, breaker: BreakIterator): List&lt;Int> {"
-        errorLine2="                                                                                    ~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable res with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val res = mutableListOf(0)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakOffsets: replace with IntList"
-        errorLine1="    fun breakOffsets(layoutHelper: LayoutHelper, segmentType: SegmentType): List&lt;Int> {"
-        errorLine2="                                                                            ~~~~~~~~~">
-        <location
-            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
     </issue>
 
     <issue

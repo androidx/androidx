@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageSource
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.withTimeout
@@ -191,7 +192,7 @@ internal constructor(
                 pendingFrameQueue.add(FrameSimulator(request, requestSequence))
             }
         }
-        return pendingFrameQueue.removeFirst()
+        return pendingFrameQueue.removeFirstKt()
     }
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */

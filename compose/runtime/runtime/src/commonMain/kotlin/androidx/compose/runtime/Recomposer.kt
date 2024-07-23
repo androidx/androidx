@@ -38,6 +38,8 @@ import androidx.compose.runtime.snapshots.fastGroupBy
 import androidx.compose.runtime.snapshots.fastMap
 import androidx.compose.runtime.snapshots.fastMapNotNull
 import androidx.compose.runtime.tooling.CompositionData
+import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -795,7 +797,7 @@ class Recomposer(effectCoroutineContext: CoroutineContext) : CompositionContext(
                 ?: return
         try {
             while (compositionsToRetry.isNotEmpty()) {
-                val composition = compositionsToRetry.removeLast()
+                val composition = compositionsToRetry.removeLastKt()
                 if (composition !is CompositionImpl) continue
 
                 composition.invalidateAll()
@@ -1588,4 +1590,4 @@ internal fun <K, V> MutableMap<K, MutableList<V>>.addMultiValue(key: K, value: V
     getOrPut(key) { mutableListOf() }.add(value)
 
 internal fun <K, V> MutableMap<K, MutableList<V>>.removeLastMultiValue(key: K): V? =
-    get(key)?.let { list -> list.removeFirst().also { if (list.isEmpty()) remove(key) } }
+    get(key)?.let { list -> list.removeFirstKt().also { if (list.isEmpty()) remove(key) } }

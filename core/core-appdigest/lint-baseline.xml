@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, Checksum.TYPE_WHOLE_MD5, Checksum.TYPE_WHOLE_SHA1, Checksum.TYPE_WHOLE_SHA256, Checksum.TYPE_WHOLE_SHA512, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA256, Checksum.TYPE_PARTIAL_MERKLE_ROOT_1M_SHA512"
+        errorLine1="        context.getPackageManager().requestChecksums(packageName, includeSplits, required,"
+        errorLine2="                                                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/appdigest/ChecksumsApiSImpl.java"/>
+    </issue>
+
+</issues>

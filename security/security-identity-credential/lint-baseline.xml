@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-beta02" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-beta02)" variant="all" version="8.1.0-beta02">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="WrongConstant"
@@ -8,6 +8,15 @@
         errorLine2="                                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/security/identity/HardwareIdentityCredential.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: IdentityCredentialStore.CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256"
+        errorLine1="                    mStore.getCredentialByName(credentialName, cipherSuite);"
+        errorLine2="                                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/security/identity/HardwareIdentityCredentialStore.java"/>
     </issue>
 
 </issues>

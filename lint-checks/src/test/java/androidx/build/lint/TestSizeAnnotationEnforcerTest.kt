@@ -19,6 +19,7 @@
 package androidx.build.lint
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
+import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
 import org.junit.Test
@@ -57,6 +58,7 @@ class TestSizeAnnotationEnforcerTest : LintDetectorTest() {
                     .within("src/test"),
                 *StubClasses
             )
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
             .expectClean()
     }
@@ -263,6 +265,7 @@ src/androidTest/androidx/foo/Test.kt:7: Error: Unsupported test runner. Supporte
                     .within("src/androidTest"),
                 *StubClasses
             )
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
             .expect(
                 """
@@ -301,6 +304,7 @@ src/androidTest/androidx/foo/Test.kt:16: Error: Missing test size annotation [Mi
                     .within("src/androidTest"),
                 *StubClasses
             )
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
             .expect(
                 """
