@@ -51,6 +51,7 @@ dependencies {
     def compose_version = "1.4.0"
     implementation("androidx.activity:activity-compose:1.5.0")
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation("androidx.compose.ui:ui:$compose_version")
     implementation("androidx.compose.ui:ui-tooling-preview:$compose_version")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")

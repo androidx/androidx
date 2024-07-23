@@ -88,6 +88,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.testRules)
+                implementation("androidx.compose.material:material-icons-core:1.6.7")
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:test-utils"))

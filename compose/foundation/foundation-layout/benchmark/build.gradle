@@ -27,6 +27,7 @@ dependencies {
     androidTestImplementation project(":benchmark:benchmark-junit4")
     androidTestImplementation project(":compose:foundation:foundation-layout")
     androidTestImplementation project(":compose:material:material")
+    androidTestImplementation("androidx.compose.material:material-icons-core:1.6.7")
     androidTestImplementation project(":compose:runtime:runtime")
     androidTestImplementation project(":compose:benchmark-utils")
     androidTestImplementation(libs.testRules)

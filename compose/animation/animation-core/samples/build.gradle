@@ -41,6 +41,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.2.1")
     implementation("androidx.compose.foundation:foundation-layout:1.2.1")
     implementation("androidx.compose.material:material:1.2.1")
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
 }
 
 androidx {
