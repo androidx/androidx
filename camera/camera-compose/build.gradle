@@ -30,8 +30,22 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
+dependencies {
+    api(project(":camera:camera-core"))
+    // TODO(b/357895362): Switch to pinned dependencies when stable is released
+    api(project(":camera:viewfinder:viewfinder-compose"))
+    api(project(":camera:viewfinder:viewfinder-core"))
+    implementation("androidx.compose.foundation:foundation-layout:1.6.1")
+    implementation("androidx.compose.foundation:foundation:1.6.1")
+    implementation("androidx.compose.runtime:runtime:1.6.1")
+    implementation("androidx.core:core-ktx:1.12.0")
+}
+
 android {
+    compileSdk 35
     namespace "androidx.camera.compose"
+    // TODO(b/349411310): Remove once we can update runtime to 1.7.0
+    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
