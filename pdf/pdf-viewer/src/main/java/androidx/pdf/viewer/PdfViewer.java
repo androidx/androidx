@@ -287,7 +287,7 @@ public class PdfViewer extends LoadingViewer {
 
         mSelectionObserver =
                 new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        requireContext(), mSelectionActionMode);
+                        requireContext());
         mSelectionModel.selection().addObserver(mSelectionObserver);
 
         mSelectedMatchObserver =
@@ -336,7 +336,8 @@ public class PdfViewer extends LoadingViewer {
 
         mSelectionModel = new PdfSelectionModel(pdfLoader);
 
-        mSelectionHandles = new PdfSelectionHandles(mSelectionModel, mZoomView, mPaginatedView);
+        mSelectionHandles = new PdfSelectionHandles(mSelectionModel, mZoomView, mPaginatedView,
+                mSelectionActionMode);
 
     }
 

@@ -416,7 +416,12 @@ open class PdfViewerFragment : Fragment() {
                 pdfLoaderCallbacks?.selectionModel!!
             )
         selectionHandles =
-            PdfSelectionHandles(pdfLoaderCallbacks?.selectionModel!!, zoomView!!, paginatedView!!)
+            PdfSelectionHandles(
+                pdfLoaderCallbacks?.selectionModel!!,
+                zoomView!!,
+                paginatedView!!,
+                selectionActionMode!!
+            )
         layoutHandler = LayoutHandler(pdfLoader)
         singleTapHandler =
             SingleTapHandler(
@@ -476,8 +481,7 @@ open class PdfViewerFragment : Fragment() {
                 paginatedView!!,
                 paginationModel!!,
                 pageViewFactory!!,
-                requireContext(),
-                selectionActionMode!!
+                requireContext()
             )
         pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
 
