@@ -27,8 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.tv.material3.tokens.SurfaceScaleTokens
 
 @Composable
@@ -48,7 +47,7 @@ internal fun Modifier.tvSurfaceScale(
             label = "tv-surface-scale"
         )
 
-    return drawWithContent { scale(animatedScale) { this@drawWithContent.drawContent() } }
+    return this.graphicsLayer(scaleX = animatedScale, scaleY = animatedScale)
 }
 
 private fun defaultScaleAnimationSpec(interaction: Interaction): TweenSpec<Float> =
