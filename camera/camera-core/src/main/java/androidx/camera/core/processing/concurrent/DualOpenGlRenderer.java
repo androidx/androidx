@@ -40,8 +40,14 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.processing.OpenGlRenderer;
 import androidx.camera.core.processing.ShaderProvider;
+import androidx.camera.core.processing.util.GLUtils;
+import androidx.camera.core.processing.util.GLUtils.InputFormat;
+import androidx.camera.core.processing.util.GLUtils.SamplerShaderProgram;
 import androidx.camera.core.processing.util.GraphicDeviceInfo;
 import androidx.camera.core.processing.util.OutputSurface;
+import androidx.core.util.Preconditions;
+
+import java.util.Map;
 
 /**
  * An internal augmented {@link OpenGlRenderer} for dual concurrent cameras.
@@ -69,8 +75,8 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
     @NonNull
     @Override
     public GraphicDeviceInfo init(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
-        GraphicDeviceInfo graphicDeviceInfo = super.init(dynamicRange, shaderProvider);
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
+        GraphicDeviceInfo graphicDeviceInfo = super.init(dynamicRange, shaderProviderOverrides);
         mPrimaryExternalTextureId = createTexture();
         mSecondaryExternalTextureId = createTexture();
         return graphicDeviceInfo;
@@ -154,7 +160,7 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
             @NonNull LayoutSettings layoutSettings,
             int externalTextureId,
             boolean isPrimary) {
-        useAndConfigureProgram(externalTextureId);
+        useAndConfigureProgramWithTexture(externalTextureId);
         GLES20.glViewport(0, 0, outputSurface.getWidth(),
                 outputSurface.getHeight());
         GLES20.glScissor(0, 0, outputSurface.getWidth(),
@@ -167,22 +173,19 @@ public final class DualOpenGlRenderer extends OpenGlRenderer {
         surfaceOutput.updateTransformMatrix(
                 surfaceOutputMatrix, textureTransform, isPrimary);
 
-        GLES20.glUniformMatrix4fv(mTexMatrixLoc,
-                /*count=*/1, /*transpose=*/false, surfaceOutputMatrix,
-                /*offset=*/0);
-        checkGlErrorOrThrow("glUniformMatrix4fv");
+        GLUtils.Program2D currentProgram = Preconditions.checkNotNull(mCurrentProgram);
+        if (currentProgram instanceof SamplerShaderProgram) {
+            ((SamplerShaderProgram) currentProgram).updateTextureMatrix(surfaceOutputMatrix);
+        }
 
         float[] transTransform = getTransformMatrix(
                 new Size((int) (outputSurface.getWidth() * layoutSettings.getWidth()),
                         (int) (outputSurface.getHeight() * layoutSettings.getHeight())),
                 new Size(outputSurface.getWidth(), outputSurface.getHeight()),
                 layoutSettings);
-        GLES20.glUniformMatrix4fv(mTransMatrixLoc,
-                /*count=*/1, /*transpose=*/false, transTransform,
-                /*offset=*/0);
+        currentProgram.updateTransformMatrix(transTransform);
 
-        GLES20.glUniform1f(mAlphaScaleLoc, layoutSettings.getAlpha());
-        checkGlErrorOrThrow("glUniform1f");
+        currentProgram.updateAlpha(layoutSettings.getAlpha());
 
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFuncSeparate(

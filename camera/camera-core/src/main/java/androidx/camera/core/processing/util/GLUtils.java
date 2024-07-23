@@ -22,9 +22,7 @@ import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLDisplay;
 import android.opengl.EGLSurface;
-import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
-import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.util.Log;
 import android.util.Size;
@@ -41,7 +39,9 @@ import androidx.core.util.Preconditions;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,11 +62,6 @@ public final class GLUtils {
 
     public static final String VAR_TEXTURE_COORD = "vTextureCoord";
     public static final String VAR_TEXTURE = "sTexture";
-    public static final String VAR_TEXTURE_YUV = "sTextureYuv";
-    // SAMPLER_SELECTOR_UNKNOWN must be 0 to correctly initialize HDR shader uniform selector
-    public static final int SAMPLER_SELECTOR_UNKNOWN = 0;
-    public static final int SAMPLER_SELECTOR_DEFAULT = 1;
-    public static final int SAMPLER_SELECTOR_YUV = 2;
     public static final int PIXEL_STRIDE = 4;
     public static final int[] EMPTY_ATTRIBS = {EGL14.EGL_NONE};
     public static final int[] HLG_SURFACE_ATTRIBS = {
@@ -97,59 +92,93 @@ public final class GLUtils {
                     + "  %s = (uTexMatrix * aTextureCoord).xy;\n"
                     + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE_COORD);
 
-    public static final String DEFAULT_FRAGMENT_SHADER = String.format(Locale.US,
-            "#extension GL_OES_EGL_image_external : require\n"
-                    + "precision mediump float;\n"
-                    + "varying vec2 %s;\n"
-                    + "uniform samplerExternalOES %s;\n"
-                    + "uniform float uAlphaScale;\n"
+    public static final String BLANK_VERTEX_SHADER =
+            "uniform mat4 uTransMatrix;\n"
+                    + "attribute vec4 aPosition;\n"
                     + "void main() {\n"
-                    + "    vec4 src = texture2D(%s, %s);\n"
-                    + "    gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);\n"
-                    + "}\n", VAR_TEXTURE_COORD, VAR_TEXTURE, VAR_TEXTURE, VAR_TEXTURE_COORD);
+                    + "    gl_Position = uTransMatrix * aPosition;\n"
+                    + "}\n";
 
-    public static final String HDR_FRAGMENT_SHADER = String.format(Locale.US,
-            "#version 300 es\n"
-                    + "#extension GL_OES_EGL_image_external_essl3 : require\n"
-                    + "#extension GL_EXT_YUV_target : require\n"
-                    + "precision mediump float;\n"
-                    + "uniform samplerExternalOES %s;\n"
-                    + "uniform __samplerExternal2DY2YEXT %s;\n"
-                    + "uniform int uSamplerSelector;\n"
+    public static final String BLANK_FRAGMENT_SHADER =
+            "precision mediump float;\n"
                     + "uniform float uAlphaScale;\n"
-                    + "in vec2 %s;\n"
-                    + "out vec4 outColor;\n"
-                    + "\n"
-                    + "vec3 yuvToRgb(vec3 yuv) {\n"
-                    + "  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);\n"
-                    + "  const mat3 yuvToRgbColorTransform = mat3(\n"
-                    + "    1.1689f, 1.1689f, 1.1689f,\n"
-                    + "    0.0000f, -0.1881f, 2.1502f,\n"
-                    + "    1.6853f, -0.6530f, 0.0000f\n"
-                    + "  );\n"
-                    + "  return clamp(yuvToRgbColorTransform * (yuv - yuvOffset), 0.0, 1.0);\n"
-                    + "}\n"
-                    + "\n"
                     + "void main() {\n"
-                    + "  vec4 src = vec4(0.0);\n"
-                    + "  if (uSamplerSelector == %d) {\n"
-                    + "    src = texture(%s, %s);\n"
-                    + "  } else if (uSamplerSelector == %d) {\n"
-                    + "    vec3 srcYuv = texture(%s, %s).xyz;\n"
-                    + "    src = vec4(yuvToRgb(srcYuv), 1.0);\n"
-                    + "  }\n"
-                    + "  outColor = vec4(src.rgb, src.a * uAlphaScale);\n"
-                    + "}",
-            VAR_TEXTURE,
-            VAR_TEXTURE_YUV,
-            VAR_TEXTURE_COORD,
-            SAMPLER_SELECTOR_DEFAULT,
-            VAR_TEXTURE,
-            VAR_TEXTURE_COORD,
-            SAMPLER_SELECTOR_YUV,
-            VAR_TEXTURE_YUV,
-            VAR_TEXTURE_COORD
-    );
+                    + "    gl_FragColor = vec4(0.0, 0.0, 0.0, uAlphaScale);\n"
+                    + "}\n";
+
+    private static final ShaderProvider SHADER_PROVIDER_DEFAULT = new ShaderProvider() {
+        @NonNull
+        @Override
+        public String createFragmentShader(@NonNull String samplerVarName,
+                @NonNull String fragCoordsVarName) {
+            return String.format(Locale.US,
+                    "#extension GL_OES_EGL_image_external : require\n"
+                            + "precision mediump float;\n"
+                            + "varying vec2 %s;\n"
+                            + "uniform samplerExternalOES %s;\n"
+                            + "uniform float uAlphaScale;\n"
+                            + "void main() {\n"
+                            + "    vec4 src = texture2D(%s, %s);\n"
+                            + "    gl_FragColor = vec4(src.rgb, src.a * uAlphaScale);\n"
+                            + "}\n",
+                    fragCoordsVarName, samplerVarName, samplerVarName, fragCoordsVarName);
+        }
+    };
+
+    private static final ShaderProvider SHADER_PROVIDER_HDR_DEFAULT = new ShaderProvider() {
+        @NonNull
+        @Override
+        public String createFragmentShader(@NonNull String samplerVarName,
+                @NonNull String fragCoordsVarName) {
+            return String.format(Locale.US,
+                    "#version 300 es\n"
+                            + "#extension GL_OES_EGL_image_external_essl3 : require\n"
+                            + "precision mediump float;\n"
+                            + "uniform samplerExternalOES %s;\n"
+                            + "uniform float uAlphaScale;\n"
+                            + "in vec2 %s;\n"
+                            + "out vec4 outColor;\n"
+                            + "\n"
+                            + "void main() {\n"
+                            + "  vec4 src = texture(%s, %s);\n"
+                            + "  outColor = vec4(src.rgb, src.a * uAlphaScale);\n"
+                            + "}",
+                    samplerVarName, fragCoordsVarName, samplerVarName, fragCoordsVarName);
+        }
+    };
+
+    private static final ShaderProvider SHADER_PROVIDER_HDR_YUV = new ShaderProvider() {
+        @NonNull
+        @Override
+        public String createFragmentShader(@NonNull String samplerVarName,
+                @NonNull String fragCoordsVarName) {
+            return String.format(Locale.US,
+                    "#version 300 es\n"
+                            + "#extension GL_EXT_YUV_target : require\n"
+                            + "precision mediump float;\n"
+                            + "uniform __samplerExternal2DY2YEXT %s;\n"
+                            + "uniform float uAlphaScale;\n"
+                            + "in vec2 %s;\n"
+                            + "out vec4 outColor;\n"
+                            + "\n"
+                            + "vec3 yuvToRgb(vec3 yuv) {\n"
+                            + "  const vec3 yuvOffset = vec3(0.0625, 0.5, 0.5);\n"
+                            + "  const mat3 yuvToRgbColorMat = mat3(\n"
+                            + "    1.1689f, 1.1689f, 1.1689f,\n"
+                            + "    0.0000f, -0.1881f, 2.1502f,\n"
+                            + "    1.6853f, -0.6530f, 0.0000f\n"
+                            + "  );\n"
+                            + "  return clamp(yuvToRgbColorMat * (yuv - yuvOffset), 0.0, 1.0);\n"
+                            + "}\n"
+                            + "\n"
+                            + "void main() {\n"
+                            + "  vec3 srcYuv = texture(%s, %s).xyz;\n"
+                            + "  vec3 srcRgb = yuvToRgb(srcYuv);\n"
+                            + "  outColor = vec4(srcRgb, uAlphaScale);\n"
+                            + "}",
+                    samplerVarName, fragCoordsVarName, samplerVarName, fragCoordsVarName);
+        }
+    };
 
     public static final float[] VERTEX_COORDS = {
             -1.0f, -1.0f,   // 0 bottom left
@@ -172,22 +201,210 @@ public final class GLUtils {
             OutputSurface.of(EGL14.EGL_NO_SURFACE, 0, 0);
 
     public enum InputFormat {
-        UNKNOWN(SAMPLER_SELECTOR_UNKNOWN),
-        DEFAULT(SAMPLER_SELECTOR_DEFAULT),
-        YUV(SAMPLER_SELECTOR_YUV);
-
-        private final int mSamplerSelector;
-
-        InputFormat(int samplerSelector) {
-            mSamplerSelector = samplerSelector;
-        }
-
-        public int getSamplerSelector() {
-            return mSamplerSelector;
-        }
+        /**
+         * Input texture format is unknown.
+         *
+         * <p>When the input format is unknown, HDR content may require rendering blank frames
+         * since we are not sure what type of sampler can be used. For SDR content, it is
+         * typically safe to use samplerExternalOES since this can handle both RGB and YUV inputs
+         * for SDR content.
+         */
+        UNKNOWN,
+        /**
+         * Input texture format is the default format.
+         *
+         * <p>The texture format may be RGB or YUV. For SDR content, using samplerExternalOES is
+         * safe since it will be able to convert YUV to RGB automatically within the shader. For
+         * HDR content, the input is expected to be RGB.
+         */
+        DEFAULT,
+        /**
+         * Input format is explicitly YUV.
+         *
+         * <p>This needs to be specified for HDR content. Only __samplerExternal2DY2YEXT should be
+         * used for HDR YUV content as samplerExternalOES may not correctly convert to RGB.
+         */
+        YUV
     }
 
     private GLUtils() {
+    }
+
+    public abstract static class Program2D {
+        protected int mProgramHandle;
+        protected int mTransMatrixLoc = -1;
+        protected int mAlphaScaleLoc = -1;
+        protected int mPositionLoc = -1;
+
+        protected Program2D(@NonNull String vertexShaderSource,
+                @NonNull String fragmentShaderSource) {
+            int vertexShader = -1;
+            int fragmentShader = -1;
+            int program = -1;
+            try {
+                vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderSource);
+                fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderSource);
+                program = GLES20.glCreateProgram();
+                checkGlErrorOrThrow("glCreateProgram");
+                GLES20.glAttachShader(program, vertexShader);
+                checkGlErrorOrThrow("glAttachShader");
+                GLES20.glAttachShader(program, fragmentShader);
+                checkGlErrorOrThrow("glAttachShader");
+                GLES20.glLinkProgram(program);
+                int[] linkStatus = new int[1];
+                GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, /*offset=*/0);
+                if (linkStatus[0] != GLES20.GL_TRUE) {
+                    throw new IllegalStateException(
+                            "Could not link program: " + GLES20.glGetProgramInfoLog(program));
+                }
+                mProgramHandle = program;
+            } catch (IllegalStateException | IllegalArgumentException e) {
+                if (vertexShader != -1) {
+                    GLES20.glDeleteShader(vertexShader);
+                }
+                if (fragmentShader != -1) {
+                    GLES20.glDeleteShader(fragmentShader);
+                }
+                if (program != -1) {
+                    GLES20.glDeleteProgram(program);
+                }
+                throw e;
+            }
+
+            loadLocations();
+        }
+
+        /** Use this shader program */
+        public void use() {
+            // Select the program.
+            GLES20.glUseProgram(mProgramHandle);
+            checkGlErrorOrThrow("glUseProgram");
+
+            // Enable the "aPosition" vertex attribute.
+            GLES20.glEnableVertexAttribArray(mPositionLoc);
+            checkGlErrorOrThrow("glEnableVertexAttribArray");
+
+            // Connect vertexBuffer to "aPosition".
+            int coordsPerVertex = 2;
+            int vertexStride = 0;
+            GLES20.glVertexAttribPointer(mPositionLoc, coordsPerVertex, GLES20.GL_FLOAT,
+                    /*normalized=*/false, vertexStride, VERTEX_BUF);
+            checkGlErrorOrThrow("glVertexAttribPointer");
+
+            // Set to default value for single camera case
+            updateTransformMatrix(create4x4IdentityMatrix());
+            updateAlpha(1.0f);
+        }
+
+        /** Updates the global transform matrix */
+        public void updateTransformMatrix(@NonNull float[] transformMat) {
+            GLES20.glUniformMatrix4fv(mTransMatrixLoc,
+                    /*count=*/1, /*transpose=*/false, transformMat,
+                    /*offset=*/0);
+            checkGlErrorOrThrow("glUniformMatrix4fv");
+        }
+
+        /** Updates the alpha of the drawn frame */
+        public void updateAlpha(float alpha) {
+            GLES20.glUniform1f(mAlphaScaleLoc, alpha);
+            checkGlErrorOrThrow("glUniform1f");
+        }
+
+        /**
+         * Delete the shader program
+         *
+         * <p>Once called, this program should no longer be used.
+         */
+        public void delete() {
+            GLES20.glDeleteProgram(mProgramHandle);
+        }
+
+        private void loadLocations() {
+            mPositionLoc = GLES20.glGetAttribLocation(mProgramHandle, "aPosition");
+            checkLocationOrThrow(mPositionLoc, "aPosition");
+            mTransMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTransMatrix");
+            checkLocationOrThrow(mTransMatrixLoc, "uTransMatrix");
+            mAlphaScaleLoc = GLES20.glGetUniformLocation(mProgramHandle, "uAlphaScale");
+            checkLocationOrThrow(mAlphaScaleLoc, "uAlphaScale");
+        }
+    }
+
+    public static class SamplerShaderProgram extends Program2D {
+        private int mSamplerLoc = -1;
+        private int mTexMatrixLoc = -1;
+        private int mTexCoordLoc = -1;
+
+        public SamplerShaderProgram(
+                @NonNull DynamicRange dynamicRange,
+                @NonNull InputFormat inputFormat
+        ) {
+            this(dynamicRange, resolveDefaultShaderProvider(dynamicRange, inputFormat));
+        }
+
+        public SamplerShaderProgram(
+                @NonNull DynamicRange dynamicRange,
+                @NonNull ShaderProvider shaderProvider) {
+            super(dynamicRange.is10BitHdr() ? HDR_VERTEX_SHADER : DEFAULT_VERTEX_SHADER,
+                    getFragmentShaderSource(shaderProvider));
+
+            loadLocations();
+        }
+
+        @Override
+        public void use() {
+            super.use();
+            // Initialize the sampler to the correct texture unit offset
+            GLES20.glUniform1i(mSamplerLoc, 0);
+
+            // Enable the "aTextureCoord" vertex attribute.
+            GLES20.glEnableVertexAttribArray(mTexCoordLoc);
+            checkGlErrorOrThrow("glEnableVertexAttribArray");
+
+            // Connect texBuffer to "aTextureCoord".
+            int coordsPerTex = 2;
+            int texStride = 0;
+            GLES20.glVertexAttribPointer(mTexCoordLoc, coordsPerTex, GLES20.GL_FLOAT,
+                    /*normalized=*/false, texStride, TEX_BUF);
+            checkGlErrorOrThrow("glVertexAttribPointer");
+        }
+
+        /** Updates the texture transform matrix */
+        public void updateTextureMatrix(@NonNull float[] textureMat) {
+            GLES20.glUniformMatrix4fv(mTexMatrixLoc, /*count=*/1, /*transpose=*/false,
+                    textureMat, /*offset=*/0);
+            checkGlErrorOrThrow("glUniformMatrix4fv");
+        }
+
+        private void loadLocations() {
+            super.loadLocations();
+            mSamplerLoc = GLES20.glGetUniformLocation(mProgramHandle, VAR_TEXTURE);
+            checkLocationOrThrow(mSamplerLoc, VAR_TEXTURE);
+            mTexCoordLoc = GLES20.glGetAttribLocation(mProgramHandle, "aTextureCoord");
+            checkLocationOrThrow(mTexCoordLoc, "aTextureCoord");
+            mTexMatrixLoc = GLES20.glGetUniformLocation(mProgramHandle, "uTexMatrix");
+            checkLocationOrThrow(mTexMatrixLoc, "uTexMatrix");
+        }
+
+        private static ShaderProvider resolveDefaultShaderProvider(
+                @NonNull DynamicRange dynamicRange,
+                @Nullable InputFormat inputFormat) {
+            if (dynamicRange.is10BitHdr()) {
+                Preconditions.checkArgument(inputFormat != InputFormat.UNKNOWN,
+                        "No default sampler shader available for" + inputFormat);
+                if (inputFormat == InputFormat.YUV) {
+                    return SHADER_PROVIDER_HDR_YUV;
+                }
+                return SHADER_PROVIDER_HDR_DEFAULT;
+            } else {
+                return SHADER_PROVIDER_DEFAULT;
+            }
+        }
+    }
+
+    public static class BlankShaderProgram extends Program2D {
+        public BlankShaderProgram() {
+            super(BLANK_VERTEX_SHADER, BLANK_FRAGMENT_SHADER);
+        }
     }
 
     /**
@@ -282,43 +499,52 @@ public final class GLUtils {
     }
 
     /**
-     * Creates a program object based on shaders.
+     * Creates program objects based on shaders which are appropriate for each input format.
+     *
+     * <p>Each {@link InputFormat} may have different sampler requirements based on the dynamic
+     * range. For that reason, we create a separate program for each input format, and will switch
+     * to the program when the input format changes so we correctly sample the input texture
+     * (or no-op, in some cases).
      */
-    public static int createProgram(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
-        int vertexShader = -1;
-        int fragmentShader = -1;
-        int program = -1;
-        try {
-            vertexShader = loadShader(GLES20.GL_VERTEX_SHADER,
-                    dynamicRange.is10BitHdr() ? HDR_VERTEX_SHADER : DEFAULT_VERTEX_SHADER);
-            fragmentShader = loadFragmentShader(dynamicRange, shaderProvider);
-            program = GLES20.glCreateProgram();
-            checkGlErrorOrThrow("glCreateProgram");
-            GLES20.glAttachShader(program, vertexShader);
-            checkGlErrorOrThrow("glAttachShader");
-            GLES20.glAttachShader(program, fragmentShader);
-            checkGlErrorOrThrow("glAttachShader");
-            GLES20.glLinkProgram(program);
-            int[] linkStatus = new int[1];
-            GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, /*offset=*/0);
-            if (linkStatus[0] != GLES20.GL_TRUE) {
-                throw new IllegalStateException(
-                        "Could not link program: " + GLES20.glGetProgramInfoLog(program));
+    @NonNull
+    public static Map<InputFormat, Program2D> createPrograms(@NonNull DynamicRange dynamicRange,
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
+        HashMap<InputFormat, Program2D> programs = new HashMap<>();
+        for (InputFormat inputFormat : InputFormat.values()) {
+            ShaderProvider shaderProviderOverride = shaderProviderOverrides.get(inputFormat);
+            Program2D program;
+            if (shaderProviderOverride != null) {
+                // Always use the overridden shader provider if present
+                program = new SamplerShaderProgram(dynamicRange, shaderProviderOverride);
+            } else if (inputFormat == InputFormat.YUV || inputFormat == InputFormat.DEFAULT) {
+                // Use a default sampler shader for DEFAULT or YUV
+                program = new SamplerShaderProgram(dynamicRange, inputFormat);
+            } else {
+                Preconditions.checkState(inputFormat == InputFormat.UNKNOWN,
+                        "Unhandled input format: " + inputFormat);
+                if (dynamicRange.is10BitHdr()) {
+                    // InputFormat is UNKNOWN and we don't know if we need to use a
+                    // YUV-specific sampler for HDR. Use a blank shader program.
+                    program = new BlankShaderProgram();
+                } else {
+                    // If we're not rendering HDR content, we can use the default sampler shader
+                    // program since it can handle both YUV and DEFAULT inputs when the format
+                    // is UNKNOWN.
+                    ShaderProvider defaultShaderProviderOverride =
+                            shaderProviderOverrides.get(InputFormat.DEFAULT);
+                    if (defaultShaderProviderOverride != null) {
+                        program = new SamplerShaderProgram(dynamicRange,
+                                defaultShaderProviderOverride);
+                    } else {
+                        program = new SamplerShaderProgram(dynamicRange, InputFormat.DEFAULT);
+                    }
+                }
             }
-            return program;
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            if (vertexShader != -1) {
-                GLES20.glDeleteShader(vertexShader);
-            }
-            if (fragmentShader != -1) {
-                GLES20.glDeleteShader(fragmentShader);
-            }
-            if (program != -1) {
-                GLES20.glDeleteProgram(program);
-            }
-            throw e;
+            Log.d(TAG, "Shader program for input format " + inputFormat + " created: "
+                    + program);
+            programs.put(inputFormat, program);
         }
+        return programs;
     }
 
     /**
@@ -333,9 +559,9 @@ public final class GLUtils {
         GLES20.glBindTexture(GL_TEXTURE_EXTERNAL_OES, texId);
         checkGlErrorOrThrow("glBindTexture " + texId);
 
-        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
+        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MIN_FILTER,
                 GLES20.GL_NEAREST);
-        GLES20.glTexParameterf(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
+        GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_MAG_FILTER,
                 GLES20.GL_LINEAR);
         GLES20.glTexParameteri(GL_TEXTURE_EXTERNAL_OES, GLES20.GL_TEXTURE_WRAP_S,
                 GLES20.GL_CLAMP_TO_EDGE);
@@ -343,36 +569,6 @@ public final class GLUtils {
                 GLES20.GL_CLAMP_TO_EDGE);
         checkGlErrorOrThrow("glTexParameter");
         return texId;
-    }
-
-    /**
-     * Gets texture required image unites.
-     */
-    public static int getTexNumUnits() {
-        // Collect the required texture units for GL_TEXTURE_EXTERNAL_OES so we know
-        // which texture unit we can use to bind the YUV sampler. The documentation says
-        // GL_TEXTURE_EXTERNAL_OES can only use a maximum of 3 texture units, so default
-        // to that if we can't query the required units
-        int requiredUnits = -1;
-        try {
-            int[] texParams = new int[1];
-            GLES30.glGetTexParameteriv(
-                    GL_TEXTURE_EXTERNAL_OES,
-                    GLES11Ext.GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES,
-                    texParams, 0
-            );
-            checkGlErrorOrThrow("glGetTexParameteriv");
-            if (texParams[0] >= 0 && texParams[0] <= 3) {
-                requiredUnits = texParams[0];
-            } else {
-                Log.e(TAG, "Query for GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES returned out of"
-                        + " bounds size: " + texParams[0] + ". Defaulting to 3.");
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Unable to query GL_REQUIRED_TEXTURE_IMAGE_UNITS_OES", e);
-        }
-
-        return requiredUnits != -1 ? requiredUnits : 3;
     }
 
     /**
@@ -521,30 +717,23 @@ public final class GLUtils {
         checkGlErrorOrThrow("glDeleteFramebuffers");
     }
 
-    private static int loadFragmentShader(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
-        if (shaderProvider == ShaderProvider.DEFAULT) {
-            return loadShader(GLES20.GL_FRAGMENT_SHADER,
-                    dynamicRange.is10BitHdr() ? HDR_FRAGMENT_SHADER : DEFAULT_FRAGMENT_SHADER);
-        } else {
-            // Throw IllegalArgumentException if the shader provider can not provide a valid
-            // fragment shader.
-            String source;
-            try {
-                source = shaderProvider.createFragmentShader(VAR_TEXTURE, VAR_TEXTURE_COORD);
-                // A simple check to workaround custom shader doesn't contain required variable.
-                // See b/241193761.
-                if (source == null || !source.contains(VAR_TEXTURE_COORD) || !source.contains(
-                        VAR_TEXTURE)) {
-                    throw new IllegalArgumentException("Invalid fragment shader");
-                }
-                return loadShader(GLES20.GL_FRAGMENT_SHADER, source);
-            } catch (Throwable t) {
-                if (t instanceof IllegalArgumentException) {
-                    throw t;
-                }
-                throw new IllegalArgumentException("Unable to compile fragment shader", t);
+    private static String getFragmentShaderSource(@NonNull ShaderProvider shaderProvider) {
+        // Throw IllegalArgumentException if the shader provider can not provide a valid
+        // fragment shader.
+        try {
+            String source = shaderProvider.createFragmentShader(VAR_TEXTURE, VAR_TEXTURE_COORD);
+            // A simple check to workaround custom shader doesn't contain required variable.
+            // See b/241193761.
+            if (source == null || !source.contains(VAR_TEXTURE_COORD) || !source.contains(
+                    VAR_TEXTURE)) {
+                throw new IllegalArgumentException("Invalid fragment shader");
             }
+            return source;
+        } catch (Throwable t) {
+            if (t instanceof IllegalArgumentException) {
+                throw t;
+            }
+            throw new IllegalArgumentException("Unable retrieve fragment shader source", t);
         }
     }
 }

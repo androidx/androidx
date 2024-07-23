@@ -34,6 +34,7 @@ import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat
 import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.processing.util.GLUtils.InputFormat
 import androidx.camera.core.processing.util.GraphicDeviceInfo
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.TestImageUtil.createBitmap
@@ -269,7 +270,9 @@ class OpenGlRendererTest {
         val shaderProvider = createCustomShaderProvider(shaderString = "Invalid shader")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
-                createOpenGlRendererAndInit(shaderProvider = shaderProvider)
+                createOpenGlRendererAndInit(
+                    shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProvider)
+                )
             }
         }
     }
@@ -280,7 +283,9 @@ class OpenGlRendererTest {
             createCustomShaderProvider(exceptionToThrow = RuntimeException("Failed Shader"))
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
-                createOpenGlRendererAndInit(shaderProvider = shaderProvider)
+                createOpenGlRendererAndInit(
+                    shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProvider)
+                )
             }
         }
     }
@@ -290,7 +295,9 @@ class OpenGlRendererTest {
         val shaderProvider = createCustomShaderProvider(samplerVarName = "_mySampler_")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
-                createOpenGlRendererAndInit(shaderProvider = shaderProvider)
+                createOpenGlRendererAndInit(
+                    shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProvider)
+                )
             }
         }
     }
@@ -300,7 +307,9 @@ class OpenGlRendererTest {
         val shaderProvider = createCustomShaderProvider(fragCoordsVarName = "_myFragCoords_")
         assertThrows(IllegalArgumentException::class.java) {
             runBlocking(glDispatcher) {
-                createOpenGlRendererAndInit(shaderProvider = shaderProvider)
+                createOpenGlRendererAndInit(
+                    shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProvider)
+                )
             }
         }
     }
@@ -319,7 +328,7 @@ class OpenGlRendererTest {
         runBlocking(glDispatcher) {
             createOpenGlRendererAndInit()
             glRenderer.release()
-            glRenderer.init(DynamicRange.SDR, ShaderProvider.DEFAULT)
+            glRenderer.init(DynamicRange.SDR)
             assertThat(glRenderer.textureName).isNotEqualTo(0L)
         }
 
@@ -362,14 +371,22 @@ class OpenGlRendererTest {
     @Test
     fun renderByCustomShader(): Unit =
         runBlocking(glDispatcher) {
-            testRender(OutputType.IMAGE_READER, shaderProvider = createCustomShaderProvider())
+            val shaderProviderOverride = createCustomShaderProvider()
+            testRender(
+                OutputType.IMAGE_READER,
+                shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProviderOverride)
+            )
         }
 
     @SdkSuppress(minSdkVersion = 21, maxSdkVersion = 22)
     @Test
     fun renderByCustomShaderBelowApi23(): Unit =
         runBlocking(glDispatcher) {
-            testRender(OutputType.SURFACE_TEXTURE, shaderProvider = createCustomShaderProvider())
+            val shaderProviderOverride = createCustomShaderProvider()
+            testRender(
+                OutputType.SURFACE_TEXTURE,
+                shaderProviderOverrides = mapOf(InputFormat.DEFAULT to shaderProviderOverride)
+            )
         }
 
     @Test
@@ -390,27 +407,27 @@ class OpenGlRendererTest {
 
     private suspend fun initRender(
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
+        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap()
     ): GraphicDeviceInfo {
         prepareCamera()
         assumeDynamicRange(dynamicRange)
         return createOpenGlRendererAndInit(
             dynamicRange = dynamicRange,
-            shaderProvider = shaderProvider
+            shaderProviderOverrides = shaderProviderOverrides
         )
     }
 
     private suspend fun testRender(
         outputType: OutputType,
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT,
+        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap(),
         shouldInit: Boolean = true,
         expectedStandard: Int? = null,
         expectedTransfer: Int? = null
     ) {
         // Arrange.
         if (shouldInit) {
-            initRender(dynamicRange, shaderProvider)
+            initRender(dynamicRange, shaderProviderOverrides)
         }
 
         // Prepare input
@@ -460,16 +477,16 @@ class OpenGlRendererTest {
 
     private suspend fun createOpenGlRendererAndInit(
         dynamicRange: DynamicRange = DynamicRange.SDR,
-        shaderProvider: ShaderProvider = ShaderProvider.DEFAULT
+        shaderProviderOverrides: Map<InputFormat, ShaderProvider> = emptyMap()
     ): GraphicDeviceInfo {
         createOpenGlRenderer()
 
         return if (currentCoroutineContext()[ContinuationInterceptor] == glDispatcher) {
             // same dispatcher, init directly
-            glRenderer.init(dynamicRange, shaderProvider)
+            glRenderer.init(dynamicRange, shaderProviderOverrides)
         } else {
             runBlocking(glDispatcher) {
-                return@runBlocking glRenderer.init(dynamicRange, shaderProvider)
+                return@runBlocking glRenderer.init(dynamicRange, shaderProviderOverrides)
             }
         }
     }

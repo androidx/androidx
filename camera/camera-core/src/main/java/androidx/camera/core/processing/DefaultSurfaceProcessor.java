@@ -56,6 +56,7 @@ import kotlin.Triple;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -97,24 +98,25 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
     DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange) {
-        this(dynamicRange, ShaderProvider.DEFAULT);
+        this(dynamicRange, Collections.emptyMap());
     }
 
     /**
      * Constructs {@link DefaultSurfaceProcessor} with custom shaders.
      *
-     * @param shaderProvider custom shader provider for OpenGL rendering.
-     * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
+     * @param shaderProviderOverrides custom shader providers for OpenGL rendering, for each input
+     *                                format.
+     * @throws IllegalArgumentException if any shaderProvider override provides invalid shader.
      */
     DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new OpenGlRenderer();
         try {
-            initGlRenderer(dynamicRange, shaderProvider);
+            initGlRenderer(dynamicRange, shaderProviderOverrides);
         } catch (RuntimeException e) {
             release();
             throw e;
@@ -355,11 +357,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     }
 
     private void initGlRenderer(@NonNull DynamicRange dynamicRange,
-            @NonNull ShaderProvider shaderProvider) {
+            @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
         ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
             executeSafely(() -> {
                 try {
-                    mGlRenderer.init(dynamicRange, shaderProvider);
+                    mGlRenderer.init(dynamicRange, shaderProviderOverrides);
                     completer.set(null);
                 } catch (RuntimeException e) {
                     completer.setException(e);

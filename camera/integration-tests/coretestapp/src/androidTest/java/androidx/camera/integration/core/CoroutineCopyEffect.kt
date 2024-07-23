@@ -25,7 +25,6 @@ import androidx.camera.core.SurfaceOutput
 import androidx.camera.core.SurfaceProcessor
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.processing.OpenGlRenderer
-import androidx.camera.core.processing.ShaderProvider
 import androidx.camera.core.processing.util.GLUtils.InputFormat
 import java.util.concurrent.Executors
 import kotlinx.atomicfu.atomic
@@ -70,7 +69,7 @@ class CopyingSurfaceProcessor : SurfaceProcessor, AutoCloseable {
                 val newDynamicRange = surfaceRequest.dynamicRange
                 if (dynamicRange != newDynamicRange) {
                     dynamicRange?.let { glRenderer.release() }
-                    glRenderer.init(newDynamicRange, ShaderProvider.DEFAULT)
+                    glRenderer.init(newDynamicRange)
                     dynamicRange = newDynamicRange
                 }
 
