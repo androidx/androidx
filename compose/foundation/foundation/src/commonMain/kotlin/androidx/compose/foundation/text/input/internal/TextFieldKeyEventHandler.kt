@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.collection.MutableLongSet
 import androidx.compose.foundation.text.DeadKeyCombiner
 import androidx.compose.foundation.text.KeyCommand
 import androidx.compose.foundation.text.appendCodePointX
@@ -30,6 +31,7 @@ import androidx.compose.foundation.text.showCharacterPalette
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.TextRange
@@ -51,6 +53,15 @@ internal abstract class TextFieldKeyEventHandler {
     private val preparedSelectionState = TextFieldPreparedSelectionState()
     private val deadKeyCombiner = DeadKeyCombiner()
     private val keyMapping = platformDefaultKeyMapping
+
+    /**
+     * We hold a reference to the all key down events that we receive and consume so that we can
+     * also consume the corresponding key up events. Otherwise the up events get sent to the
+     * ancestor nodes where the behavior is unpredictable. Please refer to b/353554186 for more
+     * information.
+     */
+    // TODO(b/307580000) Factor this state out into a class to manage key inputs.
+    private var currentlyConsumedDownKeys: MutableLongSet? = null
 
     open fun onPreKeyEvent(
         event: KeyEvent,
@@ -77,10 +88,52 @@ internal abstract class TextFieldKeyEventHandler {
         singleLine: Boolean,
         onSubmit: () -> Unit
     ): Boolean {
-        if (event.type != KeyEventType.KeyDown) {
+        val keyCode = event.key.keyCode
+
+        if (event.type == KeyEventType.KeyUp) {
+            if (currentlyConsumedDownKeys?.contains(keyCode) == true) {
+                currentlyConsumedDownKeys?.remove(keyCode)
+                return true
+            } else {
+                return false
+            }
+        }
+
+        if (event.type == KeyEventType.Unknown) {
             return false
         }
 
+        val consumed =
+            processKeyDownEvent(
+                event = event,
+                textFieldState = textFieldState,
+                textLayoutState = textLayoutState,
+                textFieldSelectionState = textFieldSelectionState,
+                editable = editable,
+                singleLine = singleLine,
+                onSubmit = onSubmit
+            )
+
+        if (consumed) {
+            // initialize if it hasn't been initialized yet.
+            val currentlyConsumedDownKeys =
+                currentlyConsumedDownKeys
+                    ?: MutableLongSet(initialCapacity = 3).also { currentlyConsumedDownKeys = it }
+            currentlyConsumedDownKeys += keyCode
+        }
+
+        return consumed
+    }
+
+    private fun processKeyDownEvent(
+        event: KeyEvent,
+        textFieldState: TransformedTextFieldState,
+        textLayoutState: TextLayoutState,
+        textFieldSelectionState: TextFieldSelectionState,
+        editable: Boolean,
+        singleLine: Boolean,
+        onSubmit: () -> Unit
+    ): Boolean {
         if (event.isTypedEvent) {
             val codePoint = deadKeyCombiner.consume(event)
             if (codePoint != null) {
