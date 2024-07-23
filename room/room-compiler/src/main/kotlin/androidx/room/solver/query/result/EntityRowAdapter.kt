@@ -20,6 +20,7 @@ import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XMemberName.Companion.packageMember
 import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.ArrayLiteral
 import androidx.room.ext.CommonTypeNames
@@ -32,7 +33,7 @@ import androidx.room.vo.Entity
 import androidx.room.vo.columnNames
 import androidx.room.writer.EntityCursorConverterWriter
 
-class EntityRowAdapter(val entity: Entity) : QueryMappedRowAdapter(entity.type) {
+class EntityRowAdapter(val entity: Entity, out: XType) : QueryMappedRowAdapter(out) {
 
     override fun isMigratedToDriver() = true
 

@@ -46,6 +46,22 @@ public class MyDao_Impl(
     }
   }
 
+  public override fun getNullableEntitySupport(sql: SupportSQLiteQuery): MyEntity? {
+    __db.assertNotSuspendingTransaction()
+    val _cursor: Cursor = query(__db, sql, false, null)
+    try {
+      val _result: MyEntity?
+      if (_cursor.moveToFirst()) {
+        _result = __entityCursorConverter_MyEntity(_cursor)
+      } else {
+        _result = null
+      }
+      return _result
+    } finally {
+      _cursor.close()
+    }
+  }
+
   public override fun getEntitySupportFlow(sql: SupportSQLiteQuery): Flow<MyEntity> =
       CoroutinesRoom.createFlow(__db, false, arrayOf("MyEntity"), object : Callable<MyEntity> {
     public override fun call(): MyEntity {
@@ -75,6 +91,25 @@ public class MyDao_Impl(
           _result = __entityStatementConverter_MyEntity(_stmt)
         } else {
           error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun getNullableEntity(query: RoomRawQuery): MyEntity? {
+    val _sql: String = query.sql
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        query.getBindingFunction().invoke(_stmt)
+        val _result: MyEntity?
+        if (_stmt.step()) {
+          _result = __entityStatementConverter_MyEntity(_stmt)
+        } else {
+          _result = null
         }
         _result
       } finally {

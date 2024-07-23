@@ -996,11 +996,17 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @RawQuery
                 fun getEntitySupport(sql: SupportSQLiteQuery): MyEntity
 
+                @RawQuery
+                fun getNullableEntitySupport(sql: SupportSQLiteQuery): MyEntity?
+
                 @RawQuery(observedEntities = [MyEntity::class])
                 fun getEntitySupportFlow(sql: SupportSQLiteQuery): Flow<MyEntity>
 
                 @RawQuery
                 fun getEntity(query: RoomRawQuery): MyEntity
+
+                @RawQuery
+                fun getNullableEntity(query: RoomRawQuery): MyEntity?
 
                 @RawQuery(observedEntities = [MyEntity::class])
                 fun getEntityFlow(query: RoomRawQuery): Flow<MyEntity>

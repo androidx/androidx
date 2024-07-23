@@ -946,7 +946,9 @@ private constructor(
                 // we don't know what query returns. Check for entity.
                 if (typeElement.isEntityElement()) {
                     return EntityRowAdapter(
-                        EntityProcessor(context = context, element = typeElement).process()
+                        entity =
+                            EntityProcessor(context = context, element = typeElement).process(),
+                        out = typeMirror
                     )
                 }
             }
