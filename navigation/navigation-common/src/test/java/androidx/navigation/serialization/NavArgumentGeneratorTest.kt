@@ -53,14 +53,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToIntNullableIllegal() {
+    fun convertToIntNullable() {
         @Serializable class TestClass(val arg: Int?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = IntNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("integer does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test

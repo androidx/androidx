@@ -28,6 +28,7 @@ import kotlinx.serialization.serializerOrNull
 /** Marker for Native Kotlin types with either full or partial built-in NavType support */
 private enum class InternalType {
     INT,
+    INT_NULLABLE,
     BOOL,
     FLOAT,
     LONG,
@@ -53,6 +54,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
     val type =
         when (this.toInternalType()) {
             InternalType.INT -> NavType.IntType
+            InternalType.INT_NULLABLE -> IntNullableType
             InternalType.BOOL -> NavType.BoolType
             InternalType.FLOAT -> NavType.FloatType
             InternalType.LONG -> NavType.LongType
@@ -90,7 +92,8 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
 private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
-        serialName == "kotlin.Int" -> InternalType.INT
+        serialName == "kotlin.Int" ->
+            if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
         serialName == "kotlin.Boolean" -> InternalType.BOOL
         serialName == "kotlin.Float" -> InternalType.FLOAT
         serialName == "kotlin.Long" -> InternalType.LONG
@@ -134,4 +137,34 @@ internal object UNKNOWN : NavType<String>(false) {
     override fun get(bundle: Bundle, key: String): String? = null
 
     override fun parseValue(value: String): String = "null"
+}
+
+internal object IntNullableType : NavType<Int?>(true) {
+    override val name: String
+        get() = "integer_nullable"
+
+    override fun put(bundle: Bundle, key: String, value: Int?) {
+        // store null as serializable inside bundle, so that decoder will use the null
+        // instead of default value
+        if (value == null) bundle.putSerializable(key, null) else bundle.putInt(key, value)
+    }
+
+    @Suppress("DEPRECATION")
+    override fun get(bundle: Bundle, key: String): Int? {
+        return bundle[key] as? Int
+    }
+
+    override fun parseValue(value: String): Int? {
+        return if (value == "null") {
+            null
+        } else if (value.startsWith("0x")) {
+            value.substring(2).toInt(16)
+        } else {
+            value.toInt()
+        }
+    }
+
+    override fun serializeAsValue(value: Int?): String {
+        return value?.toString() ?: "null"
+    }
 }
