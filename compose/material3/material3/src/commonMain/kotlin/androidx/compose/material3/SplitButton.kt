@@ -21,6 +21,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -46,6 +47,7 @@ import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -53,11 +55,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
-import kotlin.math.roundToInt
 
 /**
  * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
@@ -91,10 +91,10 @@ fun SplitButton(
     spacing: Dp = SplitButtonDefaults.Spacing,
 ) {
     SplitButtonLayout(
-        { LeadingButtonLayout(content = leadingButton) },
-        { TrailingButtonLayout(content = trailingButton) },
+        leadingButton,
+        trailingButton,
         spacing,
-        modifier
+        modifier.minimumInteractiveComponentSize()
     )
 }
 
@@ -377,15 +377,31 @@ private fun SplitButtonLayout(
 ) {
     Layout(
         {
-            leadingButton()
-            trailingButton()
+            // Override min component size enforcement to avoid create extra padding internally
+            // Enforce it on the parent instead
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+                Box(
+                    modifier = Modifier.layoutId(LeadingButtonLayoutId),
+                    contentAlignment = Alignment.Center,
+                    content = { leadingButton() }
+                )
+                Box(
+                    modifier = Modifier.layoutId(TrailingButtonLayoutId),
+                    contentAlignment = Alignment.Center,
+                    content = { trailingButton() }
+                )
+            }
         },
         modifier,
         measurePolicy = { measurables, constraints ->
-            val leadingButtonPlaceable = measurables[0].measure(constraints)
+            // TODO(b/355553502) Handle split button modifier constraints
+            val leadingButtonPlaceable =
+                measurables.fastFirst { it.layoutId == LeadingButtonLayoutId }.measure(constraints)
 
             val trailingButtonPlaceable =
-                measurables[1].measure(constraints.copy(maxHeight = leadingButtonPlaceable.height))
+                measurables
+                    .fastFirst { it.layoutId == TrailingButtonLayoutId }
+                    .measure(constraints.copy(maxHeight = leadingButtonPlaceable.height))
 
             val placeables = listOf(leadingButtonPlaceable, trailingButtonPlaceable)
 
@@ -398,68 +414,6 @@ private fun SplitButtonLayout(
                     x = leadingButtonPlaceable.width + spacing.roundToPx(),
                     y = 0
                 )
-            }
-        }
-    )
-}
-
-@Composable
-private fun TrailingButtonLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Layout(
-        content,
-        modifier,
-        measurePolicy = { measurables, constraints ->
-            val placeables = measurables.fastMap { measurable -> measurable.measure(constraints) }
-
-            val measuredWidth = placeables.fastSumBy { it.width }
-            val measuredHeight = placeables.fastMaxOfOrNull { it.height } ?: 0
-
-            // TODO Handle minimum tap target when element is less than 48.dp
-            val width = measuredWidth.coerceAtLeast(48.dp.roundToPx())
-            val height = measuredHeight.coerceAtLeast(48.dp.roundToPx())
-
-            layout(width, height) {
-                var x = 0
-                var y: Int
-                placeables.fastForEach { placeable ->
-                    y = ((height - placeable.height) / 2f).roundToInt()
-                    placeable.placeRelative(x, y)
-
-                    x += placeable.width
-                }
-            }
-        }
-    )
-}
-
-@Composable
-private fun LeadingButtonLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
-    Layout(
-        content,
-        modifier,
-        measurePolicy = { measurables, constraints ->
-            val placeables = measurables.fastMap { measurable -> measurable.measure(constraints) }
-
-            val measuredWidth = placeables.fastSumBy { it.width }
-            val measuredHeight = placeables.fastMaxOfOrNull { it.height } ?: 0
-
-            // TODO Handle minimum tap target when element is less than 48.dp
-            val width = measuredWidth.coerceAtLeast(48.dp.roundToPx())
-            val height = measuredHeight.coerceAtLeast(48.dp.roundToPx())
-
-            layout(width, height) {
-                // Aligning children from end to start, in case visual bound is less than coerced
-                // layout size
-                var i = placeables.lastIndex
-                var x = width
-
-                while (i >= 0) {
-                    val placeable = placeables[i]
-                    x -= placeable.width
-                    val y = ((height - placeable.height) / 2f).roundToInt()
-                    placeable.placeRelative(x, y)
-                    i--
-                }
             }
         }
     )
@@ -547,34 +501,28 @@ object SplitButtonDefaults {
     ) {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-            Surface(
-                onClick = onClick,
-                modifier = modifier.semantics { role = Role.Button },
-                enabled = enabled,
-                shape = shape,
-                color = colors.containerColor,
+        Surface(
+            onClick = onClick,
+            modifier = modifier.semantics { role = Role.Button },
+            enabled = enabled,
+            shape = shape,
+            color = colors.containerColor,
+            contentColor = colors.contentColor,
+            shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
+            border = border,
+            interactionSource = interactionSource
+        ) {
+            ProvideContentColorTextStyle(
                 contentColor = colors.contentColor,
-                shadowElevation =
-                    elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
-                border = border,
-                interactionSource = interactionSource
+                textStyle = MaterialTheme.typography.labelLarge
             ) {
-                ProvideContentColorTextStyle(
-                    contentColor = colors.contentColor,
-                    textStyle = MaterialTheme.typography.labelLarge
-                ) {
-                    Row(
-                        Modifier.defaultMinSize(
-                                minWidth = LeadingButtonMinWidth,
-                                minHeight = MinHeight
-                            )
-                            .padding(contentPadding),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = content
-                    )
-                }
+                Row(
+                    Modifier.defaultMinSize(minWidth = LeadingButtonMinWidth, minHeight = MinHeight)
+                        .padding(contentPadding),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
             }
         }
     }
@@ -623,33 +571,30 @@ object SplitButtonDefaults {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
 
-        CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
-            Surface(
-                onClick = onClick,
-                modifier = modifier.semantics { role = Role.Button },
-                enabled = enabled,
-                shape = shape,
-                color = colors.containerColor,
+        Surface(
+            onClick = onClick,
+            modifier = modifier.semantics { role = Role.Button },
+            enabled = enabled,
+            shape = shape,
+            color = colors.containerColor,
+            contentColor = colors.contentColor,
+            shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
+            border = border,
+            interactionSource = interactionSource
+        ) {
+            ProvideContentColorTextStyle(
                 contentColor = colors.contentColor,
-                shadowElevation =
-                    elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp,
-                border = border,
-                interactionSource = interactionSource
+                textStyle = MaterialTheme.typography.labelLarge
             ) {
-                ProvideContentColorTextStyle(
-                    contentColor = colors.contentColor,
-                    textStyle = MaterialTheme.typography.labelLarge
-                ) {
-                    Row(
-                        Modifier.defaultMinSize(
-                            minWidth = TrailingButtonMinWidth,
-                            minHeight = MinHeight
-                        ),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                        content = content
-                    )
-                }
+                Row(
+                    Modifier.defaultMinSize(
+                        minWidth = TrailingButtonMinWidth,
+                        minHeight = MinHeight
+                    ),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = content
+                )
             }
         }
     }
@@ -870,3 +815,6 @@ private fun ElevatedTrailingButton(
         content = content
     )
 }
+
+private const val LeadingButtonLayoutId = "LeadingButton"
+private const val TrailingButtonLayoutId = "TrailingButton"
