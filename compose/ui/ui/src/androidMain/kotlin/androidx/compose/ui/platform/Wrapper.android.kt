@@ -87,10 +87,10 @@ private fun doSetContent(
             Collections.newSetFromMap(WeakHashMap<CompositionData, Boolean>())
         )
     }
-    val original = Composition(UiApplier(owner.root), parent)
+
     val wrapped =
         owner.view.getTag(R.id.wrapped_composition_tag) as? WrappedComposition
-            ?: WrappedComposition(owner, original).also {
+            ?: WrappedComposition(owner, Composition(UiApplier(owner.root), parent)).also {
                 owner.view.setTag(R.id.wrapped_composition_tag, it)
             }
     wrapped.setContent(content)
