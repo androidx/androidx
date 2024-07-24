@@ -165,14 +165,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToLongNullableIllegal() {
+    fun convertToLongNullable() {
         @Serializable class TestClass(val arg: Long?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.LongNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("long does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
