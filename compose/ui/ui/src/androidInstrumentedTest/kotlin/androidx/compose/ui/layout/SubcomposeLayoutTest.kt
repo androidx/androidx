@@ -64,6 +64,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertCountEquals
@@ -77,11 +78,13 @@ import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -812,10 +815,14 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(2))
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val id1 = rule.onNodeWithTag("1").semanticsId()
 
         rule.runOnIdle { items.value = listOf(2, 3) }
 
-        assertNodes(active = listOf(2, 3), deactivated = listOf(0, 1), disposed = listOf(4))
+        assertNodes(active = listOf(2, 3), disposed = listOf(4))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
     }
 
     @Test
@@ -824,6 +831,7 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(2))
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
 
         rule.runOnIdle {
             items.value = listOf(2, 3)
@@ -835,7 +843,8 @@ class SubcomposeLayoutTest {
             // the last reusable slot (1) will be used for composing 5
         }
 
-        assertNodes(active = listOf(2, 3, 5), deactivated = listOf(0), disposed = listOf(1, 4))
+        assertNodes(active = listOf(2, 3, 5), disposed = listOf(1, 4))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
     }
 
     @Test
@@ -844,6 +853,7 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(2))
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
 
         rule.runOnIdle {
             items.value = listOf(2, 3)
@@ -855,7 +865,8 @@ class SubcomposeLayoutTest {
             // slot 1 should be taken back from reusable
         }
 
-        assertNodes(active = listOf(2, 3, 1), deactivated = listOf(0))
+        assertNodes(active = listOf(2, 3, 1))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
     }
 
     @Test
@@ -864,6 +875,7 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(2))
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
 
         rule.runOnIdle {
             items.value = listOf(2, 3)
@@ -875,7 +887,8 @@ class SubcomposeLayoutTest {
             // prefetch should take slot 1 from reuse
         }
 
-        assertNodes(active = listOf(2, 3) + /*prefetch*/ listOf(5), deactivated = listOf(0))
+        assertNodes(active = listOf(2, 3) + /*prefetch*/ listOf(5))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
     }
 
     @Test
@@ -884,6 +897,8 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(3))
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val id1 = rule.onNodeWithTag("1").semanticsId()
 
         rule.runOnIdle {
             items.value = listOf(2)
@@ -895,11 +910,9 @@ class SubcomposeLayoutTest {
             // prefetch should take slot 3 from reuse
         }
 
-        assertNodes(
-            active = listOf(2) + /*prefetch*/ listOf(3),
-            deactivated = listOf(0, 1),
-            disposed = listOf(4)
-        )
+        assertNodes(active = listOf(2) + /*prefetch*/ listOf(3), disposed = listOf(4))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
     }
 
     @Test
@@ -920,10 +933,12 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
 
         composeItems(state, items)
+        val id2 = rule.onNodeWithTag("2").semanticsId()
 
         rule.runOnIdle { items.value = listOf(0, 1) }
 
-        assertNodes(active = listOf(0, 1), deactivated = listOf(2), disposed = listOf(3))
+        assertNodes(active = listOf(0, 1), disposed = listOf(3))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id2)
     }
 
     @SuppressLint("RememberReturnType")
@@ -1322,14 +1337,15 @@ class SubcomposeLayoutTest {
         }
 
         rule.onNodeWithTag("child").assertExists()
+        val idChild = rule.onNodeWithTag("child").semanticsId()
 
         needChild.value = false
 
-        rule.onNodeWithTag("child").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idChild)
 
         layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
 
-        rule.onNodeWithTag("child").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idChild)
     }
 
     @Test
@@ -1351,9 +1367,11 @@ class SubcomposeLayoutTest {
             }
         }
 
+        val idChild = rule.onNodeWithTag("child").semanticsId()
+
         rule.runOnIdle { needChild.value = false }
 
-        rule.onNodeWithTag("child").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idChild)
 
         layoutState.value = SubcomposeLayoutState(SubcomposeSlotReusePolicy(0))
 
@@ -1413,11 +1431,12 @@ class SubcomposeLayoutTest {
         }
 
         rule.onNodeWithTag("child").assertExists()
+        val idChild = rule.onNodeWithTag("child").semanticsId()
 
         assertThat(composed).isTrue()
         needChild.value = false
 
-        rule.onNodeWithTag("child").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idChild)
         assertThat(composed).isFalse()
         needChild.value = true
 
@@ -1444,10 +1463,12 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(policy)
 
         composeItems(state, items)
+        val id2 = rule.onNodeWithTag("2").semanticsId()
 
         rule.runOnIdle { items.value = listOf(0, 3) }
 
-        assertNodes(active = listOf(0, 3), deactivated = listOf(2), disposed = listOf(1, 4))
+        assertNodes(active = listOf(0, 3), disposed = listOf(1, 4))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id2)
 
         rule.runOnIdle { items.value = listOf(0, 3, 5) }
 
@@ -1547,10 +1568,16 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(policy)
 
         composeItems(state, items)
+        val id1 = rule.onNodeWithTag("1").semanticsId()
+        val id3 = rule.onNodeWithTag("3").semanticsId()
+        val id5 = rule.onNodeWithTag("5").semanticsId()
 
         rule.runOnIdle { items.value = listOf() }
 
-        assertNodes(deactivated = listOf(1, 3, 5), disposed = listOf(0, 2, 4, 6))
+        assertNodes(disposed = listOf(0, 2, 4, 6))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id5)
 
         rule.runOnIdle {
             items.value = listOf(8, 9, 10)
@@ -1558,7 +1585,9 @@ class SubcomposeLayoutTest {
             // 5 is reused for 9
         }
 
-        assertNodes(active = listOf(8, 9, 10), deactivated = listOf(1, 3), disposed = listOf(5))
+        assertNodes(active = listOf(8, 9, 10), disposed = listOf(5))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
     }
 
     @Test
@@ -1578,16 +1607,26 @@ class SubcomposeLayoutTest {
         val state = SubcomposeLayoutState(policy)
 
         composeItems(state, items)
+        val id0 = rule.onNodeWithTag("0").semanticsId()
+        val id1 = rule.onNodeWithTag("1").semanticsId()
+        val id2 = rule.onNodeWithTag("2").semanticsId()
+        val id3 = rule.onNodeWithTag("3").semanticsId()
 
         rule.runOnIdle { items.value = listOf() }
 
-        assertNodes(deactivated = listOf(0, 1, 2, 3))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id2)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
 
         rule.runOnIdle {
             items.value = listOf(10) // slot 2 should be reused
         }
 
-        assertNodes(active = listOf(10), deactivated = listOf(0, 1, 3), disposed = listOf(2))
+        assertNodes(active = listOf(10), disposed = listOf(2))
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id0)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id1)
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(id3)
     }
 
     @Test
@@ -2119,13 +2158,15 @@ class SubcomposeLayoutTest {
             }
         }
 
+        val idTag = rule.onNodeWithTag("tag").semanticsId()
+
         rule.runOnIdle { flag = false }
 
         // the node will exist when after `flag` was switched to false it will first cause
         // remeasure, and because during the remeasure we will not subcompose the child
         // the node will be deactivated before its block recomposes causing the Box to be
         // removed from the hierarchy.
-        rule.onNodeWithTag("tag").assertIsDeactivated()
+        rule.onRoot().fetchSemanticsNode().assertLayoutDeactivatedById(idTag)
     }
 
     // Regression test of b/271156218
@@ -2546,13 +2587,8 @@ class SubcomposeLayoutTest {
         Box(Modifier.fillMaxSize().testTag("$index"))
     }
 
-    private fun assertNodes(
-        active: List<Int> = emptyList(),
-        deactivated: List<Int> = emptyList(),
-        disposed: List<Int> = emptyList()
-    ) {
+    private fun assertNodes(active: List<Int> = emptyList(), disposed: List<Int> = emptyList()) {
         active.forEach { rule.onNodeWithTag("$it").assertExists() }
-        deactivated.forEach { rule.onNodeWithTag("$it").assertIsDeactivated() }
         disposed.forEach { rule.onNodeWithTag("$it").assertDoesNotExist() }
     }
 
@@ -2560,6 +2596,14 @@ class SubcomposeLayoutTest {
         assertDoesNotExist()
         // we want to verify the node is not deactivated, but such API does not exist yet
         expectAssertionError { assertIsDeactivated() }
+    }
+
+    private fun SemanticsNode.assertLayoutDeactivatedById(id: Int) {
+        children.fastForEach {
+            if (it.id == id) {
+                assert(it.layoutInfo.isDeactivated)
+            }
+        }
     }
 }
 

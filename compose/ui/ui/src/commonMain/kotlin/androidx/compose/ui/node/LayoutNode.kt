@@ -405,6 +405,10 @@ internal class LayoutNode(
 
     internal val collapsedSemantics: SemanticsConfiguration?
         get() {
+            // TODO: investigate if there's a better way to approach "half attached" state and
+            // whether or not deactivated nodes should be considered removed or not.
+            if (!isAttached || isDeactivated) return null
+
             trace("collapseSemantics") {
                 if (!nodes.has(Nodes.Semantics) || _collapsedSemantics != null) {
                     return _collapsedSemantics

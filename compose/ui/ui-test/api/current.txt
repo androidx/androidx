@@ -483,6 +483,7 @@ package androidx.compose.ui.test {
     method public androidx.compose.ui.test.SemanticsNodeInteraction assertExists(optional String? errorMessageOnFail);
     method public void assertIsDeactivated(optional String? errorMessageOnFail);
     method public androidx.compose.ui.semantics.SemanticsNode fetchSemanticsNode(optional String? errorMessageOnFail);
+    method public int semanticsId();
   }
 
   public final class SemanticsNodeInteractionCollection {
