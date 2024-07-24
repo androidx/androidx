@@ -83,7 +83,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                 public void onChange(@Nullable ZoomView.ZoomScroll oldValue,
                         @Nullable ZoomView.ZoomScroll newValue) {
                     if (mPaginationModel == null || !mPaginationModel.isInitialized()
-                            || newValue == null) {
+                            || newValue == null || mPaginationModel.getSize() == 0) {
                         return;
                     }
                     if (mPageIndicator.setRangeAndZoom(
