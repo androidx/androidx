@@ -351,11 +351,6 @@ class FloatingActionButtonMenuScreenshotTest {
                 ) {
                     items.forEachIndexed { i, item ->
                         FloatingActionButtonMenuItem(
-                            modifier =
-                                Modifier.semantics {
-                                    isTraversalGroup = true
-                                    traversalIndex = -1f + (items.size - i) * 0.01f
-                                },
                             onClick = { fabMenuExpanded = !fabMenuExpanded },
                             icon = { Icon(item.first, contentDescription = null) },
                             text = { Text(text = item.second) },

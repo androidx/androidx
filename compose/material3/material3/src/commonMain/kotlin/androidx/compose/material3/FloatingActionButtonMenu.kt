@@ -58,6 +58,8 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -90,7 +92,7 @@ fun FloatingActionButtonMenu(
     Column(
         modifier =
             modifier
-                .verticalScroll(state = rememberScrollState(), reverseScrolling = true)
+                .verticalScroll(state = rememberScrollState())
                 .padding(bottom = FabMenuPaddingBottom),
         horizontalAlignment = horizontalAlignment,
         verticalArrangement = Arrangement.spacedBy(FabMenuItemSpacingVertical)
@@ -164,7 +166,7 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
         derivedStateOf { (itemsCount - 1 - itemIndex) * stagger < staggerProgress }
     }
     AnimatedVisibility(
-        modifier = modifier,
+        modifier = modifier.semantics { isTraversalGroup = true },
         visible = visible,
         enter = fadeIn(animationSpec = springFastFlat()),
         exit = fadeOut(animationSpec = springFastFlat())
