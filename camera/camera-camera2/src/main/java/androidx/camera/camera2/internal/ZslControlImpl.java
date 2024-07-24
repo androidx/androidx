@@ -17,6 +17,7 @@
 package androidx.camera.camera2.internal;
 
 import static android.graphics.ImageFormat.PRIVATE;
+import static android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
 
 import static androidx.camera.camera2.internal.ZslUtil.isCapabilitySupported;
@@ -137,10 +138,12 @@ final class ZslControlImpl implements ZslControl {
         // regular capture request when taking pictures. So when user switches flash mode, we
         // could create reprocessing capture request if flash mode allows.
         if (mIsZslDisabledByUseCaseConfig) {
+            sessionConfigBuilder.setTemplateType(TEMPLATE_PREVIEW);
             return;
         }
 
         if (mShouldZslDisabledByQuirks) {
+            sessionConfigBuilder.setTemplateType(TEMPLATE_PREVIEW);
             return;
         }
 
@@ -153,6 +156,7 @@ final class ZslControlImpl implements ZslControl {
                 || mReprocessingInputSizeMap.isEmpty()
                 || !mReprocessingInputSizeMap.containsKey(PRIVATE)
                 || !isJpegValidOutputForInputFormat(mCameraCharacteristicsCompat, PRIVATE)) {
+            sessionConfigBuilder.setTemplateType(TEMPLATE_PREVIEW);
             return;
         }
 

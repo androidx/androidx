@@ -230,6 +230,7 @@ class Camera2CaptureRequestBuilder {
         if (device == null) {
             return null;
         }
+        Logger.d(TAG, "template type = " + captureConfig.getTemplateType());
         CaptureRequest.Builder builder = device.createCaptureRequest(
                 captureConfig.getTemplateType());
 
