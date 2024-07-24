@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.client.test
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.graphics.Rect
@@ -78,6 +79,7 @@ class SandboxedSdkViewTest {
         const val SHORTEST_TIME_BETWEEN_SIGNALS_MS = 200
     }
 
+    private lateinit var uiDevice: UiDevice
     private lateinit var context: Context
     private lateinit var view: SandboxedSdkView
     private lateinit var layoutParams: LayoutParams
@@ -257,6 +259,7 @@ class SandboxedSdkViewTest {
             testSandboxedUiAdapter = TestSandboxedUiAdapter()
             view.setAdapter(testSandboxedUiAdapter)
         }
+        uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
     @Test
@@ -405,18 +408,17 @@ class SandboxedSdkViewTest {
     @Test
     fun onConfigurationChangedTest() {
         addViewToLayout()
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         testSandboxedUiAdapter.assertSessionOpened()
         // newWindow() will be triggered by a window state change, even if the activity handles
         // orientation changes without recreating the activity.
-        device.performActionAndWait(
-            { device.setOrientationLeft() },
+        uiDevice.performActionAndWait(
+            { uiDevice.setOrientationLeft() },
             Until.newWindow(),
             UI_INTENSIVE_TIMEOUT
         )
         testSandboxedUiAdapter.assertSessionOpened()
-        device.performActionAndWait(
-            { device.setOrientationNatural() },
+        uiDevice.performActionAndWait(
+            { uiDevice.setOrientationNatural() },
             Until.newWindow(),
             UI_INTENSIVE_TIMEOUT
         )
@@ -796,6 +798,25 @@ class SandboxedSdkViewTest {
         }
         assertThat(session.shortestGapBetweenUiChangeEvents)
             .isAtLeast(SHORTEST_TIME_BETWEEN_SIGNALS_MS)
+    }
+
+    @Test
+    fun signalsSentWhenHostActivityStateChanges() {
+        addViewToLayoutAndWaitToBeActive()
+        val session = testSandboxedUiAdapter.testSession!!
+        session.runAndRetrieveNextUiChange {}
+        // Replace the first activity with a new activity. The onScreenGeometry should now be empty.
+        var sandboxedSdkViewUiInfo =
+            session.runAndRetrieveNextUiChange {
+                activityScenarioRule.scenario.onActivity {
+                    val intent = Intent(it, SecondActivity::class.java)
+                    it.startActivity(intent)
+                }
+            }
+        assertThat(sandboxedSdkViewUiInfo.onScreenGeometry.isEmpty).isTrue()
+        // Return to the first activity. The onScreenGeometry should now be non-empty.
+        sandboxedSdkViewUiInfo = session.runAndRetrieveNextUiChange { uiDevice.pressBack() }
+        assertThat(sandboxedSdkViewUiInfo.onScreenGeometry.isEmpty).isFalse()
     }
 
     private fun addViewToLayout(waitToBeActive: Boolean = false, viewToAdd: View = view) {
