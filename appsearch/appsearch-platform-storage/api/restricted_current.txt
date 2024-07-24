@@ -2,7 +2,7 @@
 package androidx.appsearch.platformstorage {
 
   @RequiresApi(android.os.Build.VERSION_CODES.S) public final class PlatformStorage {
-    method @SuppressCompatibility @RequiresApi(35) @androidx.core.os.BuildCompat.PrereleaseSdkCheck public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.EnterpriseGlobalSearchSession!> createEnterpriseGlobalSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
+    method @RequiresApi(android.os.Build.VERSION_CODES.VANILLA_ICE_CREAM) public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.EnterpriseGlobalSearchSession!> createEnterpriseGlobalSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.GlobalSearchSession!> createGlobalSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.GlobalSearchContext);
     method public static com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchSession!> createSearchSessionAsync(androidx.appsearch.platformstorage.PlatformStorage.SearchContext);
   }

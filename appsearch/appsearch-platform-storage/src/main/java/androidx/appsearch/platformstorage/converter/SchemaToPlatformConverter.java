@@ -28,7 +28,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.Features;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Collection;
@@ -48,9 +47,6 @@ public final class SchemaToPlatformConverter {
      * Translates a jetpack {@link AppSearchSchema} into a platform
      * {@link android.app.appsearch.AppSearchSchema}.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.AppSearchSchema toPlatformSchema(
             @NonNull AppSearchSchema jetpackSchema) {
@@ -63,7 +59,7 @@ public final class SchemaToPlatformConverter {
                     + " is not available on this AppSearch implementation.");
         }
         if (!jetpackSchema.getParentTypes().isEmpty()) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(Features.SCHEMA_ADD_PARENT_TYPE
                         + " is not available on this AppSearch implementation.");
             }
@@ -85,9 +81,6 @@ public final class SchemaToPlatformConverter {
      * Translates a platform {@link android.app.appsearch.AppSearchSchema} to a jetpack
      * {@link AppSearchSchema}.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static AppSearchSchema toJetpackSchema(
             @NonNull android.app.appsearch.AppSearchSchema platformSchema) {
@@ -98,7 +91,7 @@ public final class SchemaToPlatformConverter {
                 platformSchema.getProperties();
         // TODO(b/326987971): Call jetpackBuilder.setDescription() once descriptions become
         // available in platform.
-        if (BuildCompat.isAtLeastV()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             List<String> parentTypes = ApiHelperForV.getParentTypes(platformSchema);
             for (int i = 0; i < parentTypes.size(); i++) {
                 jetpackBuilder.addParentType(parentTypes.get(i));
@@ -114,9 +107,6 @@ public final class SchemaToPlatformConverter {
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static android.app.appsearch.AppSearchSchema.PropertyConfig toPlatformProperty(
             @NonNull AppSearchSchema.PropertyConfig jetpackProperty) {
@@ -196,7 +186,7 @@ public final class SchemaToPlatformConverter {
                             .setShouldIndexNestedProperties(
                                     documentProperty.shouldIndexNestedProperties());
             if (!documentProperty.getIndexableNestedProperties().isEmpty()) {
-                if (!BuildCompat.isAtLeastV()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     throw new UnsupportedOperationException(
                             "DocumentPropertyConfig.addIndexableNestedProperties is not supported "
                                     + "on this AppSearch implementation.");
@@ -218,9 +208,6 @@ public final class SchemaToPlatformConverter {
     // Most stringProperty.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     private static AppSearchSchema.PropertyConfig toJetpackProperty(
             @NonNull android.app.appsearch.AppSearchSchema.PropertyConfig platformProperty) {
@@ -289,7 +276,7 @@ public final class SchemaToPlatformConverter {
                             .setCardinality(documentProperty.getCardinality())
                             .setShouldIndexNestedProperties(
                                     documentProperty.shouldIndexNestedProperties());
-            if (BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 List<String> indexableNestedProperties =
                         ApiHelperForV.getIndexableNestedProperties(documentProperty);
                 jetpackBuilder.addIndexableNestedProperties(indexableNestedProperties);
@@ -346,7 +333,7 @@ public final class SchemaToPlatformConverter {
     }
 
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 

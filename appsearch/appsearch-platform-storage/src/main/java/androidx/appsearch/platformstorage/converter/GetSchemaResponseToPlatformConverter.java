@@ -27,7 +27,6 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -48,9 +47,6 @@ public final class GetSchemaResponseToPlatformConverter {
      * Translates a platform {@link android.app.appsearch.GetSchemaResponse} into a jetpack
      * {@link GetSchemaResponse}.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static GetSchemaResponse toJetpackGetSchemaResponse(
             @NonNull android.app.appsearch.GetSchemaResponse platformResponse) {
@@ -81,7 +77,7 @@ public final class GetSchemaResponseToPlatformConverter {
             }
         }
 
-        if (BuildCompat.isAtLeastV()) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             // Convert publicly visible schemas
             Map<String, PackageIdentifier> publiclyVisibleSchemas =
                     ApiHelperForV.getPubliclyVisibleSchemas(platformResponse);
@@ -162,7 +158,7 @@ public final class GetSchemaResponseToPlatformConverter {
         }
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 

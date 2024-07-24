@@ -21,7 +21,6 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 /**
@@ -36,9 +35,6 @@ final class FeaturesImpl implements Features {
         mContext = Preconditions.checkNotNull(context);
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     public boolean isFeatureSupported(@NonNull String feature) {
         switch (feature) {
@@ -92,7 +88,7 @@ final class FeaturesImpl implements Features {
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
                 // fall through
             case Features.ENTERPRISE_GLOBAL_SEARCH_SESSION:
-                return BuildCompat.isAtLeastV();
+                return Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM;
 
             // Beyond Android V Features
             case Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG:

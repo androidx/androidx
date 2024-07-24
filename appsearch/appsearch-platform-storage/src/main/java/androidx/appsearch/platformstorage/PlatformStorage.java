@@ -31,7 +31,6 @@ import androidx.appsearch.app.GlobalSearchSession;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.platformstorage.converter.SearchContextToPlatformConverter;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -276,15 +275,12 @@ public final class PlatformStorage {
     /**
      * Opens a new {@link EnterpriseGlobalSearchSession} on this storage.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     @SuppressLint("WrongConstant")
     @NonNull
     public static ListenableFuture<EnterpriseGlobalSearchSession>
             createEnterpriseGlobalSearchSessionAsync(@NonNull GlobalSearchContext context) {
-        if (!BuildCompat.isAtLeastV()) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             throw new UnsupportedOperationException(
                     Features.ENTERPRISE_GLOBAL_SEARCH_SESSION
                             + " is not supported on this AppSearch implementation");
@@ -313,7 +309,7 @@ public final class PlatformStorage {
         return future;
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {
             // This class is not instantiable.

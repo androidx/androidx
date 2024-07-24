@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -47,9 +46,6 @@ public final class SearchSpecToPlatformConverter {
     // Most jetpackSearchSpec.get calls cause WrongConstant lint errors because the methods are not
     // defined as returning the same constants as the corresponding setter expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSpec toPlatformSearchSpec(
             @NonNull SearchSpec jetpackSearchSpec) {
@@ -83,7 +79,7 @@ public final class SearchSpecToPlatformConverter {
         if (jetpackSearchSpec.getResultGroupingTypeFlags() != 0) {
             if ((jetpackSearchSpec.getResultGroupingTypeFlags()
                     & SearchSpec.GROUPING_TYPE_PER_SCHEMA) != 0
-                    && !BuildCompat.isAtLeastV()) {
+                    && Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(
                         Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA
                                 + " is not available on this AppSearch implementation.");
@@ -122,7 +118,7 @@ public final class SearchSpecToPlatformConverter {
             }
             // Copy V features
             if (jetpackSearchSpec.isListFilterHasPropertyFunctionEnabled()) {
-                if (!BuildCompat.isAtLeastV()) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     throw new UnsupportedOperationException(
                             Features.LIST_FILTER_HAS_PROPERTY_FUNCTION
                                     + " is not available on this AppSearch implementation.");
@@ -152,7 +148,7 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (!jetpackSearchSpec.getFilterProperties().isEmpty()) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
                         + " is not available on this AppSearch implementation.");
             }
@@ -161,7 +157,7 @@ public final class SearchSpecToPlatformConverter {
         }
 
         if (jetpackSearchSpec.getSearchSourceLogTag() != null) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(
                         Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG
                                 + " is not available on this AppSearch implementation.");
@@ -186,9 +182,6 @@ public final class SearchSpecToPlatformConverter {
         }
 
         @DoNotInline
-        // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-        //  BuildCompat.isAtLeastV() is removed.
-        @BuildCompat.PrereleaseSdkCheck
         static void setJoinSpec(@NonNull android.app.appsearch.SearchSpec.Builder builder,
                 JoinSpec jetpackJoinSpec) {
             builder.setJoinSpec(JoinSpecToPlatformConverter.toPlatformJoinSpec(jetpackJoinSpec));
@@ -223,7 +216,7 @@ public final class SearchSpecToPlatformConverter {
         }
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 
