@@ -29,7 +29,6 @@ import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SchemaVisibilityConfig;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -50,9 +49,6 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -94,7 +90,7 @@ public final class SetSchemaRequestToPlatformConverter {
         }
 
         if (!jetpackRequest.getPubliclyVisibleSchemas().isEmpty()) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(
                         "Publicly visible schema are not supported on this AppSearch "
                                 + "implementation.");
@@ -112,7 +108,7 @@ public final class SetSchemaRequestToPlatformConverter {
         }
 
         if (!jetpackRequest.getSchemasVisibleToConfigs().isEmpty()) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(
                         "Schema visible to config are not supported on this AppSearch "
                                 + "implementation.");
@@ -215,7 +211,7 @@ public final class SetSchemaRequestToPlatformConverter {
         }
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 

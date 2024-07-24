@@ -28,7 +28,6 @@ import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.RemoveByDocumentIdRequest;
 import androidx.appsearch.app.ReportSystemUsageRequest;
 import androidx.appsearch.app.ReportUsageRequest;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.List;
@@ -47,9 +46,6 @@ public final class RequestToPlatformConverter {
      * Translates a jetpack {@link PutDocumentsRequest} into a platform
      * {@link android.app.appsearch.PutDocumentsRequest}.
      */
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.PutDocumentsRequest toPlatformPutDocumentsRequest(
             @NonNull PutDocumentsRequest jetpackRequest) {
@@ -64,7 +60,7 @@ public final class RequestToPlatformConverter {
         // Convert taken action generic documents.
         for (GenericDocument jetpackTakenActionGenericDocument :
                 jetpackRequest.getTakenActionGenericDocuments()) {
-            if (BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 ApiHelperForV.addTakenActionGenericDocuments(
                         platformBuilder,
                         GenericDocumentToPlatformConverter.toPlatformGenericDocument(
@@ -146,7 +142,7 @@ public final class RequestToPlatformConverter {
                 .build();
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 

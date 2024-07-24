@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Collection;
@@ -48,9 +47,6 @@ public final class SearchSuggestionSpecToPlatformConverter {
     // methods are not defined as returning the same constants as the corresponding setter
     // expects, but they do
     @SuppressLint("WrongConstant")
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SearchSuggestionSpec toPlatformSearchSuggestionSpec(
             @NonNull SearchSuggestionSpec jetpackSearchSuggestionSpec) {
@@ -73,7 +69,7 @@ public final class SearchSuggestionSpecToPlatformConverter {
         Map<String, List<String>> jetpackFilterProperties =
                 jetpackSearchSuggestionSpec.getFilterProperties();
         if (!jetpackFilterProperties.isEmpty()) {
-            if (!BuildCompat.isAtLeastV()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
                         + " is not available on this AppSearch implementation.");
             }
@@ -85,7 +81,7 @@ public final class SearchSuggestionSpecToPlatformConverter {
         return platformBuilder.build();
     }
 
-    @RequiresApi(35)
+    @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     private static class ApiHelperForV {
         private ApiHelperForV() {}
 

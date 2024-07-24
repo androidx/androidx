@@ -56,7 +56,6 @@ import androidx.appsearch.platformstorage.converter.SetSchemaRequestToPlatformCo
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.appsearch.platformstorage.util.BatchResultCallbackAdapter;
 import androidx.concurrent.futures.ResolvableFuture;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -89,9 +88,6 @@ class SearchSessionImpl implements AppSearchSession {
         mFeatures = new FeaturesImpl(mContext);
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<SetSchemaResponse> setSchemaAsync(@NonNull SetSchemaRequest request) {
@@ -120,9 +116,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<GetSchemaResponse> getSchemaAsync() {
@@ -147,9 +140,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putAsync(
@@ -178,9 +168,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @Override
     @NonNull
     public SearchResults search(
@@ -195,9 +182,6 @@ class SearchSessionImpl implements AppSearchSession {
         return new SearchResultsImpl(platformSearchResults, searchSpec, mExecutor);
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     @Override
     public ListenableFuture<List<SearchSuggestionResult>> searchSuggestionAsync(
@@ -251,9 +235,6 @@ class SearchSessionImpl implements AppSearchSession {
         return future;
     }
 
-    // TODO(b/331658692): Remove BuildCompat.PrereleaseSdkCheck annotation once usage of
-    //  BuildCompat.isAtLeastV() is removed.
-    @BuildCompat.PrereleaseSdkCheck
     @SuppressLint("WrongConstant")
     @Override
     @NonNull
