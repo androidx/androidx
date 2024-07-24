@@ -137,14 +137,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToFloatNullableIllegal() {
+    fun convertToFloatNullable() {
         @Serializable class TestClass(val arg: Float?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.FloatNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("float does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test

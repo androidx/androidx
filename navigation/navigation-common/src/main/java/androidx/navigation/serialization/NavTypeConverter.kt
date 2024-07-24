@@ -32,6 +32,7 @@ private enum class InternalType {
     BOOL,
     BOOL_NULLABLE,
     FLOAT,
+    FLOAT_NULLABLE,
     LONG,
     STRING,
     INT_ARRAY,
@@ -59,6 +60,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.BOOL -> NavType.BoolType
             InternalType.BOOL_NULLABLE -> InternalNavType.BoolNullableType
             InternalType.FLOAT -> NavType.FloatType
+            InternalType.FLOAT_NULLABLE -> InternalNavType.FloatNullableType
             InternalType.LONG -> NavType.LongType
             InternalType.STRING -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
@@ -98,7 +100,8 @@ private fun SerialDescriptor.toInternalType(): InternalType {
             if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
         serialName == "kotlin.Boolean" ->
             if (isNullable) InternalType.BOOL_NULLABLE else InternalType.BOOL
-        serialName == "kotlin.Float" -> InternalType.FLOAT
+        serialName == "kotlin.Float" ->
+            if (isNullable) InternalType.FLOAT_NULLABLE else InternalType.FLOAT
         serialName == "kotlin.Long" -> InternalType.LONG
         serialName == "kotlin.String" -> InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
@@ -181,6 +184,26 @@ internal object InternalNavType {
 
             override fun parseValue(value: String): Boolean? {
                 return if (value == "null") null else BoolType.parseValue(value)
+            }
+        }
+
+    val FloatNullableType =
+        object : NavType<Float?>(true) {
+            override val name: String
+                get() = "float_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Float?) {
+                if (value == null) bundle.putSerializable(key, null)
+                else FloatType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Float? {
+                return bundle[key] as? Float
+            }
+
+            override fun parseValue(value: String): Float? {
+                return if (value == "null") null else FloatType.parseValue(value)
             }
         }
 }
