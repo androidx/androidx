@@ -23,10 +23,7 @@
         window:splitMinHeightDp="600"
         window:splitMinSmallestWidthDp="0"
         window:splitLayoutDirection="topToBottom"
-        window:animationBackgroundColor="#0000FF"
-        window:splitOpenAnimation="jumpCut"
-        window:splitCloseAnimation="jumpCut"
-        window:splitChangeAnimation="jumpCut">
+        window:animationBackgroundColor="#0000FF">
         <SplitPairFilter
             window:primaryActivityName="A"
             window:secondaryActivityName="B"/>

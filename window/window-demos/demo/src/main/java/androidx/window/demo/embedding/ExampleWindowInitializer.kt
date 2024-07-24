@@ -36,8 +36,6 @@ import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
 import androidx.window.embedding.ActivityEmbeddingController
-import androidx.window.embedding.EmbeddingAnimationParams
-import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec
 import androidx.window.embedding.EmbeddingBounds
 import androidx.window.embedding.EmbeddingConfiguration
 import androidx.window.embedding.EmbeddingConfiguration.DimAreaBehavior.Companion.ON_TASK
@@ -117,17 +115,14 @@ class ExampleWindowInitializer : Initializer<RuleController> {
         val isBookMode = windowLayoutInfo.isBookMode()
         val config = params.parentConfiguration
         val shouldReversed = tag?.contains(SUFFIX_REVERSED) ?: false
-        // Always use the Demo app specified animation background.
-        val animationParams =
-            EmbeddingAnimationParams.Builder()
-                .setAnimationBackground(demoActivityEmbeddingController.animationBackground)
-                .setDemoAppAnimations(params.defaultSplitAttributes.animationParams)
-                .build()
+        // Make a copy of the default splitAttributes, but replace the animation background
+        // to what is configured in the Demo app.
+        val animationBackground = demoActivityEmbeddingController.animationBackground
         val defaultSplitAttributes =
             SplitAttributes.Builder()
                 .setLayoutDirection(params.defaultSplitAttributes.layoutDirection)
                 .setSplitType(params.defaultSplitAttributes.splitType)
-                .setAnimationParams(animationParams)
+                .setAnimationBackground(animationBackground)
                 .apply {
                     if (extensionVersion >= 6) {
                         setDividerAttributes(params.defaultSplitAttributes.dividerAttributes)
@@ -163,7 +158,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else if (isPortrait) {
                     return expandContainersAttrs
@@ -180,7 +175,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -195,7 +190,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -207,7 +202,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -224,7 +219,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 TOP_TO_BOTTOM
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 } else {
                     SplitAttributes.Builder()
@@ -236,7 +231,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -258,7 +253,7 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                                 if (shouldReversed) RIGHT_TO_LEFT else LEFT_TO_RIGHT
                             }
                         )
-                        .setAnimationParams(animationParams)
+                        .setAnimationBackground(animationBackground)
                         .build()
                 }
             }
@@ -266,32 +261,11 @@ class ExampleWindowInitializer : Initializer<RuleController> {
                 return SplitAttributes.Builder()
                     .setSplitType(demoActivityEmbeddingController.customizedSplitType)
                     .setLayoutDirection(demoActivityEmbeddingController.customizedLayoutDirection)
-                    .setAnimationParams(animationParams)
+                    .setAnimationBackground(animationBackground)
                     .build()
             }
         }
         return defaultSplitAttributes
-    }
-
-    private fun EmbeddingAnimationParams.Builder.setDemoAppAnimations(
-        params: EmbeddingAnimationParams
-    ): EmbeddingAnimationParams.Builder {
-        // Replace the transition animations with what is configured in the Demo app if the default
-        // splitAttributes' transition animations are applicable (all configured to default).
-        val useDemoAppAnimations =
-            params.openAnimation == AnimationSpec.DEFAULT &&
-                params.closeAnimation == AnimationSpec.DEFAULT &&
-                params.changeAnimation == AnimationSpec.DEFAULT
-        if (useDemoAppAnimations) {
-            setOpenAnimation(demoActivityEmbeddingController.openAnimation)
-            setCloseAnimation(demoActivityEmbeddingController.closeAnimation)
-            setChangeAnimation(demoActivityEmbeddingController.changeAnimation)
-        } else {
-            setOpenAnimation(params.openAnimation)
-            setCloseAnimation(params.closeAnimation)
-            setChangeAnimation(params.changeAnimation)
-        }
-        return this
     }
 
     private fun sampleOverlayAttributesCalculator(

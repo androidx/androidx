@@ -83,13 +83,6 @@ public final class DividerAttributes {
      * the system will choose a default value based on the display size and form factor. Will only
      * be used when the divider type is {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-     * beyond this ratio, and when dragging is finished, the system will choose to either fully
-     * expand the secondary container or move the divider back to this ratio.
-     *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-     * drag beyond this ratio.
-     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     private final float mPrimaryMinRatio;
@@ -99,22 +92,12 @@ public final class DividerAttributes {
      * the system will choose a default value based on the display size and form factor. Will only
      * be used when the divider type is {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-     * beyond this ratio, and when dragging is finished, the system will choose to either fully
-     * expand the primary container or move the divider back to this ratio.
-     *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-     * drag beyond this ratio.
-     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     private final float mPrimaryMaxRatio;
 
     /** The color of the divider. */
     private final @ColorInt int mDividerColor;
-
-    /** Whether it is allowed to expand a container to full screen by dragging the divider. */
-    private final boolean mIsDraggingToFullscreenAllowed;
 
     /**
      * Constructor of {@link DividerAttributes}.
@@ -124,8 +107,6 @@ public final class DividerAttributes {
      * @param primaryMinRatio               the min split ratio for the primary container.
      * @param primaryMaxRatio               the max split ratio for the primary container.
      * @param dividerColor                  the color of the divider.
-     * @param isDraggingToFullscreenAllowed whether it is allowed to expand a container to full
-     *                                      screen by dragging the divider.
      * @throws IllegalStateException if the provided values are invalid.
      */
     private DividerAttributes(
@@ -133,8 +114,7 @@ public final class DividerAttributes {
             @Dimension int widthDp,
             float primaryMinRatio,
             float primaryMaxRatio,
-            @ColorInt int dividerColor,
-            boolean isDraggingToFullscreenAllowed) {
+            @ColorInt int dividerColor) {
         if (dividerType == DIVIDER_TYPE_FIXED
                 && (primaryMinRatio != RATIO_SYSTEM_DEFAULT
                 || primaryMaxRatio != RATIO_SYSTEM_DEFAULT)) {
@@ -152,7 +132,6 @@ public final class DividerAttributes {
         mPrimaryMinRatio = primaryMinRatio;
         mPrimaryMaxRatio = primaryMaxRatio;
         mDividerColor = dividerColor;
-        mIsDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed;
     }
 
     /**
@@ -181,13 +160,6 @@ public final class DividerAttributes {
      * based on the display size and form factor. Will only be used when the divider type is
      * {@link #DIVIDER_TYPE_DRAGGABLE}.
      *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-     * beyond this ratio, and when dragging is finished, the system will choose to either fully
-     * expand the secondary container or move the divider back to this ratio.
-     *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-     * drag beyond this ratio.
-     *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
     @RequiresVendorApiLevel(level = 6)
@@ -200,13 +172,6 @@ public final class DividerAttributes {
      * defaults to {@link #RATIO_SYSTEM_DEFAULT}, which means the system will choose a default value
      * based on the display size and form factor. Will only be used when the divider type is
      * {@link #DIVIDER_TYPE_DRAGGABLE}.
-     *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-     * beyond this ratio, and when dragging is finished, the system will choose to either fully
-     * expand the primary container or move the divider back to this ratio.
-     *
-     * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-     * drag beyond this ratio.
      *
      * @see SplitAttributes.SplitType.RatioSplitType#getRatio()
      */
@@ -221,15 +186,6 @@ public final class DividerAttributes {
         return mDividerColor;
     }
 
-    /**
-     * Returns whether it is allowed to expand a container to full screen by dragging the
-     * divider. Default is {@code true}.
-     */
-    @RequiresVendorApiLevel(level = 7)
-    public boolean isDraggingToFullscreenAllowed() {
-        return mIsDraggingToFullscreenAllowed;
-    }
-
     @Override
     public boolean equals(@Nullable Object obj) {
         if (this == obj) return true;
@@ -239,14 +195,12 @@ public final class DividerAttributes {
                 && mWidthDp == other.mWidthDp
                 && mPrimaryMinRatio == other.mPrimaryMinRatio
                 && mPrimaryMaxRatio == other.mPrimaryMaxRatio
-                && mDividerColor == other.mDividerColor
-                && mIsDraggingToFullscreenAllowed == other.mIsDraggingToFullscreenAllowed;
+                && mDividerColor == other.mDividerColor;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mDividerType, mWidthDp, mPrimaryMinRatio, mPrimaryMaxRatio,
-                mIsDraggingToFullscreenAllowed);
+        return Objects.hash(mDividerType, mWidthDp, mPrimaryMinRatio, mPrimaryMaxRatio);
     }
 
     @NonNull
@@ -258,7 +212,6 @@ public final class DividerAttributes {
                 + ", minPrimaryRatio=" + mPrimaryMinRatio
                 + ", maxPrimaryRatio=" + mPrimaryMaxRatio
                 + ", dividerColor=" + mDividerColor
-                + ", isDraggingToFullscreenAllowed=" + mIsDraggingToFullscreenAllowed
                 + "}";
     }
 
@@ -274,8 +227,6 @@ public final class DividerAttributes {
         private float mPrimaryMaxRatio = RATIO_SYSTEM_DEFAULT;
 
         private @ColorInt int mDividerColor = Color.BLACK;
-
-        private boolean mIsDraggingToFullscreenAllowed = false;
 
         /**
          * The {@link DividerAttributes} builder constructor.
@@ -302,7 +253,6 @@ public final class DividerAttributes {
             mPrimaryMinRatio = original.mPrimaryMinRatio;
             mPrimaryMaxRatio = original.mPrimaryMaxRatio;
             mDividerColor = original.mDividerColor;
-            mIsDraggingToFullscreenAllowed = original.mIsDraggingToFullscreenAllowed;
         }
 
         /**
@@ -328,13 +278,6 @@ public final class DividerAttributes {
          * on the display size and form factor. Will only be used when the divider type is
          * {@link #DIVIDER_TYPE_DRAGGABLE}.
          *
-         * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-         * beyond this ratio, and when dragging is finished, the system will choose to either fully
-         * expand the secondary container or move the divider back to this ratio.
-         *
-         * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-         * drag beyond this ratio.
-         *
          * @param primaryMinRatio the min ratio for the primary container. Must be in range
          *                        [0.0, 1.0) or {@link #RATIO_SYSTEM_DEFAULT}.
          * @throws IllegalArgumentException if the provided value is invalid.
@@ -357,13 +300,6 @@ public final class DividerAttributes {
          * {@link #RATIO_SYSTEM_DEFAULT}, which means the system will choose a default value
          * based on the display size and form factor. Will only be used when the divider type is
          * {@link #DIVIDER_TYPE_DRAGGABLE}.
-         *
-         * If {@link #isDraggingToFullscreenAllowed()} is {@code true}, the user is allowed to drag
-         * beyond this ratio, and when dragging is finished, the system will choose to either fully
-         * expand the primary container or move the divider back to this ratio.
-         *
-         * If {@link #isDraggingToFullscreenAllowed()} is {@code false}, the user is not allowed to
-         * drag beyond this ratio.
          *
          * @param primaryMaxRatio the max ratio for the primary container. Must be in range
          *                        (0.0, 1.0] or {@link #RATIO_SYSTEM_DEFAULT}.
@@ -394,17 +330,6 @@ public final class DividerAttributes {
         }
 
         /**
-         * Sets whether it is allowed to expand a container to full screen by dragging the divider.
-         * Default is {@code true}.
-         */
-        @RequiresVendorApiLevel(level = 7)
-        @NonNull
-        public Builder setDraggingToFullscreenAllowed(boolean isDraggingToFullscreenAllowed) {
-            mIsDraggingToFullscreenAllowed = isDraggingToFullscreenAllowed;
-            return this;
-        }
-
-        /**
          * Builds a {@link DividerAttributes} instance.
          *
          * @return a {@link DividerAttributes} instance.
@@ -414,7 +339,7 @@ public final class DividerAttributes {
         @NonNull
         public DividerAttributes build() {
             return new DividerAttributes(mDividerType, mWidthDp, mPrimaryMinRatio,
-                    mPrimaryMaxRatio, mDividerColor, mIsDraggingToFullscreenAllowed);
+                    mPrimaryMaxRatio, mDividerColor);
         }
     }
 }

@@ -36,51 +36,30 @@ import org.robolectric.RobolectricTestRunner;
 public class SplitAttributesTest {
     @Test
     public void testSplitAttributesEquals() {
-        final AnimationParams animParams1 =
-                new AnimationParams.Builder()
-                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
-                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
-                        .build();
         final SplitAttributes attrs1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationParams(animParams1)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final AnimationParams animParams2 =
-                new AnimationParams.Builder()
-                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
-                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
-                        .build();
         final SplitAttributes attrs2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationParams(animParams2)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final AnimationParams animParams3 =
-                new AnimationParams.Builder()
-                        .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
-                        .setOpenAnimationResId(AnimationParams.DEFAULT_ANIMATION_RESOURCES_ID)
-                        .build();
         final SplitAttributes attrs3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationParams(animParams3)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
-        final AnimationParams animParams4and5 =
-                new AnimationParams.Builder()
-                        .setAnimationBackground(
-                                AnimationBackground.createColorBackground(Color.BLUE))
-                        .setOpenAnimationResId(android.R.anim.fade_in)
-                        .build();
         final SplitAttributes attrs4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationParams(animParams4and5)
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
         final SplitAttributes attrs5 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationParams(animParams4and5)
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
 
         assertNotEquals(attrs1, attrs2);
@@ -101,11 +80,10 @@ public class SplitAttributesTest {
 
     @Test
     public void testSplitAttributesEqualsUsingBuilderFromExistingInstance() {
-        final AnimationParams animParamsDefault = new AnimationParams.Builder().build();
         final SplitAttributes attrs1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationParams(animParamsDefault)
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
         final SplitAttributes attrs2 = new SplitAttributes.Builder(attrs1).build();
         assertEquals(attrs1, attrs2);

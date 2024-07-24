@@ -59,27 +59,6 @@
             android:text="Make the divider draggable"
             android:enabled="false"/>
 
-        <CheckBox
-            android:id="@+id/openAnimationJumpCutCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Use jump cut for split open animation"
-            android:enabled="false"/>
-
-        <CheckBox
-            android:id="@+id/closeAnimationJumpCutCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Use jump cut for split close animation"
-            android:enabled="false"/>
-
-        <CheckBox
-            android:id="@+id/changeAnimationJumpCutCheckBox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Use jump cut for split change animation"
-            android:enabled="false"/>
-
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"

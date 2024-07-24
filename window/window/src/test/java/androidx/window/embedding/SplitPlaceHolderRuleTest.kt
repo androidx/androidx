@@ -73,7 +73,7 @@ internal class SplitPlaceHolderRuleTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .setAnimationParams(EmbeddingAnimationParams.Builder().build())
+                .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
                 .build()
         assertEquals(expectedSplitLayout, rule.defaultSplitAttributes)
         assertTrue(rule.checkParentBounds(density, validBounds))
@@ -93,13 +93,8 @@ internal class SplitPlaceHolderRuleTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LEFT_TO_RIGHT)
-                .setAnimationParams(
-                    EmbeddingAnimationParams.Builder()
-                        .setAnimationBackground(
-                            EmbeddingAnimationBackground.createColorBackground(Color.GREEN)
-                        )
-                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .build()
+                .setAnimationBackground(
+                    EmbeddingAnimationBackground.createColorBackground(Color.GREEN)
                 )
                 .build()
         val rule =

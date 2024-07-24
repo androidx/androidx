@@ -65,7 +65,7 @@ import java.util.Objects;
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * @see AnimationParams
+ * @see AnimationBackground
  */
 @RequiresVendorApiLevel(level = 2)
 public class SplitAttributes {
@@ -378,7 +378,7 @@ public class SplitAttributes {
     private final SplitType mSplitType;
 
     @NonNull
-    private final AnimationParams mAnimationParams;
+    private final AnimationBackground mAnimationBackground;
 
     @NonNull
     private final WindowAttributes mWindowAttributes;
@@ -395,8 +395,9 @@ public class SplitAttributes {
      * @param layoutDirection     The layout direction of the split, such as left to
      *                            right or top to bottom. See
      *                            {@link SplitAttributes.LayoutDirection}.
-     * @param animationParams     The {@link AnimationParams} to use for the during animation
-     *                            of the split involving this {@code SplitAttributes} object.
+     * @param animationBackground The {@link AnimationBackground} to use for the during animation
+     *                            of the split involving this {@code SplitAttributes} object if the
+     *                            animation requires a background.
      * @param attributes          The {@link WindowAttributes} of the split, such as dim area
      *                            behavior.
      * @param dividerAttributes   The {@link DividerAttributes}. If {@code null}, no divider is
@@ -405,13 +406,13 @@ public class SplitAttributes {
     SplitAttributes(
             @NonNull SplitType splitType,
             @ExtLayoutDirection int layoutDirection,
-            @NonNull AnimationParams animationParams,
+            @NonNull AnimationBackground animationBackground,
             @NonNull WindowAttributes attributes,
             @Nullable DividerAttributes dividerAttributes
     ) {
         mSplitType = splitType;
         mLayoutDirection = layoutDirection;
-        mAnimationParams = animationParams;
+        mAnimationBackground = animationBackground;
         mWindowAttributes = attributes;
         mDividerAttributes = dividerAttributes;
     }
@@ -437,25 +438,13 @@ public class SplitAttributes {
     }
 
     /**
-     * @deprecated Use {@link #getAnimationParams()} starting with vendor API level 7. Only used if
-     * {@link #getAnimationParams()} can't be called on vendor API level 5 and 6.
+     * Returns the {@link AnimationBackground} to use for the background during the
+     * animation of the split involving this {@code SplitAttributes} object.
      */
     @NonNull
-    @RequiresVendorApiLevel(level = 5, deprecatedSince = 7)
-    @Deprecated
-    @SuppressWarnings("Deprecation")
+    @RequiresVendorApiLevel(level = 5)
     public AnimationBackground getAnimationBackground() {
-        return mAnimationParams.getAnimationBackground();
-    }
-
-    /**
-     * Returns the {@link AnimationParams} to use during the animation of the split involving
-     * this {@code SplitAttributes} object.
-     */
-    @NonNull
-    @RequiresVendorApiLevel(level = 7)
-    public AnimationParams getAnimationParams() {
-        return mAnimationParams;
+        return mAnimationBackground;
     }
 
     /**
@@ -489,7 +478,8 @@ public class SplitAttributes {
         private int mLayoutDirection = LOCALE;
 
         @NonNull
-        private AnimationParams mAnimationParams = new AnimationParams.Builder().build();
+        private AnimationBackground mAnimationBackground =
+                AnimationBackground.ANIMATION_BACKGROUND_DEFAULT;
 
         @NonNull
         private WindowAttributes mWindowAttributes =
@@ -511,7 +501,7 @@ public class SplitAttributes {
         public Builder(@NonNull SplitAttributes original) {
             mSplitType = original.mSplitType;
             mLayoutDirection = original.mLayoutDirection;
-            mAnimationParams = original.mAnimationParams;
+            mAnimationBackground = original.mAnimationBackground;
             mWindowAttributes = original.mWindowAttributes;
             mDividerAttributes = original.mDividerAttributes;
         }
@@ -556,31 +546,21 @@ public class SplitAttributes {
         }
 
         /**
-         * @deprecated Use {@link #setAnimationParams(AnimationParams)} starting with vendor API
-         * level 7. Only used if {@link #setAnimationParams(AnimationParams)} can't be called on
-         * vendor API level 5 and 6.
-         */
-        @NonNull
-        @RequiresVendorApiLevel(level = 5, deprecatedSince = 7)
-        @Deprecated
-        @SuppressWarnings("Deprecation")
-        public Builder setAnimationBackground(@NonNull AnimationBackground background) {
-            mAnimationParams =
-                    new AnimationParams.Builder().setAnimationBackground(background).build();
-            return this;
-        }
-
-        /**
-         * Sets the {@link AnimationParams} to use during the animation of the split involving this
-         * {@code SplitAttributes} object.
+         * Sets the {@link AnimationBackground} to use for the background during the
+         * animation of the split involving this {@code SplitAttributes} object
+         * if the animation requires a background.
          *
-         * @param params The {@link AnimationParams} to be used for the animation of the split.
+         * The default value is {@link AnimationBackground#ANIMATION_BACKGROUND_DEFAULT}, which
+         * means to use the current theme window background color.
+         *
+         * @param background An {@link AnimationBackground} to be used for the animation of the
+         *                   split.
          * @return This {@code Builder}.
          */
         @NonNull
-        @RequiresVendorApiLevel(level = 7)
-        public Builder setAnimationParams(@NonNull AnimationParams params) {
-            mAnimationParams = params;
+        @RequiresVendorApiLevel(level = 5)
+        public Builder setAnimationBackground(@NonNull AnimationBackground background) {
+            mAnimationBackground = background;
             return this;
         }
 
@@ -610,13 +590,13 @@ public class SplitAttributes {
         /**
          * Builds a {@link SplitAttributes} instance with the attributes
          * specified by {@link #setSplitType}, {@link #setLayoutDirection}, and
-         * {@link #setAnimationParams}.
+         * {@link #setAnimationBackground}.
          *
          * @return The new {@code SplitAttributes} instance.
          */
         @NonNull
         public SplitAttributes build() {
-            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationParams,
+            return new SplitAttributes(mSplitType, mLayoutDirection, mAnimationBackground,
                     mWindowAttributes, mDividerAttributes);
         }
     }
@@ -627,14 +607,14 @@ public class SplitAttributes {
         if (!(o instanceof SplitAttributes)) return false;
         SplitAttributes that = (SplitAttributes) o;
         return mLayoutDirection == that.mLayoutDirection && mSplitType.equals(that.mSplitType)
-                && Objects.equals(mAnimationParams, that.mAnimationParams)
+                && mAnimationBackground.equals(that.mAnimationBackground)
                 && mWindowAttributes.equals(that.mWindowAttributes)
                 && Objects.equals(mDividerAttributes, that.mDividerAttributes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mLayoutDirection, mSplitType, mAnimationParams, mWindowAttributes,
+        return Objects.hash(mLayoutDirection, mSplitType, mAnimationBackground, mWindowAttributes,
                 mDividerAttributes);
     }
 
@@ -644,7 +624,7 @@ public class SplitAttributes {
         return SplitAttributes.class.getSimpleName() + "{"
                 + "layoutDir=" + layoutDirectionToString()
                 + ", splitType=" + mSplitType
-                + ", animationParams=" + mAnimationParams
+                + ", animationBackground=" + mAnimationBackground
                 + ", windowAttributes=" + mWindowAttributes
                 + ", dividerAttributes=" + mDividerAttributes
                 + "}";
