@@ -415,11 +415,11 @@ class ButtonTest {
                 .isEqualTo(
                     ButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = TextButtonTokens.LabelTextColor.value,
+                        contentColor = TextButtonTokens.LabelColor.value,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            TextButtonTokens.DisabledLabelTextColor.value.copy(
-                                alpha = TextButtonTokens.DisabledLabelTextOpacity
+                            TextButtonTokens.DisabledLabelColor.value.copy(
+                                alpha = TextButtonTokens.DisabledLabelOpacity
                             ),
                     )
                 )

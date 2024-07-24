@@ -203,6 +203,8 @@ package androidx.compose.material3 {
     method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke getOutlinedButtonBorder();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method public androidx.compose.foundation.layout.PaddingValues getSmallButtonContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSquareShape();
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonWithIconContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTextShape();
@@ -217,6 +219,7 @@ package androidx.compose.material3 {
     property public final float IconSpacing;
     property public final float MinHeight;
     property public final float MinWidth;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.foundation.layout.PaddingValues SmallButtonContentPadding;
     property public final androidx.compose.foundation.layout.PaddingValues TextButtonContentPadding;
     property public final androidx.compose.foundation.layout.PaddingValues TextButtonWithIconContentPadding;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape elevatedShape;
@@ -224,6 +227,7 @@ package androidx.compose.material3 {
     property @Deprecated @androidx.compose.runtime.Composable public final androidx.compose.foundation.BorderStroke outlinedButtonBorder;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape squareShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape textShape;
     field public static final androidx.compose.material3.ButtonDefaults INSTANCE;
   }

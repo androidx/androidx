@@ -184,12 +184,14 @@ import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
 import androidx.compose.material3.samples.SmallAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.SmallButtonSample
 import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.SmallFloatingActionButtonSample
 import androidx.compose.material3.samples.SplitButtonSample
 import androidx.compose.material3.samples.SplitButtonWithIconSample
 import androidx.compose.material3.samples.SplitButtonWithTextSample
+import androidx.compose.material3.samples.SquareButtonSample
 import androidx.compose.material3.samples.StepRangeSliderSample
 import androidx.compose.material3.samples.StepsSliderSample
 import androidx.compose.material3.samples.SuggestionChipSample
@@ -308,6 +310,20 @@ val ButtonsExamples =
             sourceUrl = ButtonsExampleSourceUrl,
         ) {
             ButtonSample()
+        },
+        Example(
+            name = "SquareButtonSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            SquareButtonSample()
+        },
+        Example(
+            name = "SmallButtonSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            SmallButtonSample()
         },
         Example(
             name = "ElevatedButtonSample",

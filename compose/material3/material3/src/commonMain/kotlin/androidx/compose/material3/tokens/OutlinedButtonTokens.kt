@@ -13,35 +13,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_7_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
-import androidx.compose.ui.unit.dp
-
 internal object OutlinedButtonTokens {
-    val ContainerHeight = 40.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerFull
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledLabelTextOpacity = 0.38f
-    val DisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledOutlineOpacity = 0.12f
-    val FocusLabelTextColor = ColorSchemeKeyTokens.Primary
-    val FocusOutlineColor = ColorSchemeKeyTokens.Primary
-    val HoverLabelTextColor = ColorSchemeKeyTokens.Primary
-    val HoverOutlineColor = ColorSchemeKeyTokens.Outline
-    val LabelTextColor = ColorSchemeKeyTokens.Primary
-    val LabelTextFont = TypographyKeyTokens.LabelLarge
-    val OutlineColor = ColorSchemeKeyTokens.Outline
-    val OutlineWidth = 1.0.dp
-    val PressedLabelTextColor = ColorSchemeKeyTokens.Primary
-    val PressedOutlineColor = ColorSchemeKeyTokens.Outline
+    val DisabledContainerOpacity = 0.12f
     val DisabledIconColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledIconOpacity = 0.38f
-    val FocusIconColor = ColorSchemeKeyTokens.Primary
-    val HoverIconColor = ColorSchemeKeyTokens.Primary
+    val DisabledIconOpacity = 0.38f
+    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledLabelTextOpacity = 0.38f
+    val DisabledOutlineColor = ColorSchemeKeyTokens.OnSurface
+    val FocusedIconColor = ColorSchemeKeyTokens.Primary
+    val FocusedLabelTextColor = ColorSchemeKeyTokens.Primary
+    val FocusedOutlineColor = ColorSchemeKeyTokens.Primary
+    val HoveredIconColor = ColorSchemeKeyTokens.Primary
+    val HoveredLabelTextColor = ColorSchemeKeyTokens.Primary
+    val HoveredOutlineColor = ColorSchemeKeyTokens.OutlineVariant
     val IconColor = ColorSchemeKeyTokens.Primary
-    val IconSize = 18.0.dp
+    val LabelTextColor = ColorSchemeKeyTokens.Primary
+    val OutlineColor = ColorSchemeKeyTokens.OutlineVariant
     val PressedIconColor = ColorSchemeKeyTokens.Primary
+    val PressedLabelTextColor = ColorSchemeKeyTokens.Primary
+    val PressedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
+    val SelectedContainerColor = ColorSchemeKeyTokens.InverseSurface
+    val SelectedFocusedIconColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedFocusedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedHoveredIconColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedHoveredLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedIconColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedPressedIconColor = ColorSchemeKeyTokens.InverseOnSurface
+    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.InverseOnSurface
+    val UnselectedFocusedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedFocusedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
+    val UnselectedHoveredIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedHoveredOutlineColor = ColorSchemeKeyTokens.OutlineVariant
+    val UnselectedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedPressedOutlineColor = ColorSchemeKeyTokens.OutlineVariant
 }
