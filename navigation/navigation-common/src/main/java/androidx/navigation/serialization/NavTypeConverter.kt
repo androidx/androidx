@@ -34,6 +34,7 @@ private enum class InternalType {
     FLOAT,
     FLOAT_NULLABLE,
     LONG,
+    LONG_NULLABLE,
     STRING,
     INT_ARRAY,
     BOOL_ARRAY,
@@ -62,6 +63,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.FLOAT -> NavType.FloatType
             InternalType.FLOAT_NULLABLE -> InternalNavType.FloatNullableType
             InternalType.LONG -> NavType.LongType
+            InternalType.LONG_NULLABLE -> InternalNavType.LongNullableType
             InternalType.STRING -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
             InternalType.BOOL_ARRAY -> NavType.BoolArrayType
@@ -102,7 +104,8 @@ private fun SerialDescriptor.toInternalType(): InternalType {
             if (isNullable) InternalType.BOOL_NULLABLE else InternalType.BOOL
         serialName == "kotlin.Float" ->
             if (isNullable) InternalType.FLOAT_NULLABLE else InternalType.FLOAT
-        serialName == "kotlin.Long" -> InternalType.LONG
+        serialName == "kotlin.Long" ->
+            if (isNullable) InternalType.LONG_NULLABLE else InternalType.LONG
         serialName == "kotlin.String" -> InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
         serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
@@ -204,6 +207,26 @@ internal object InternalNavType {
 
             override fun parseValue(value: String): Float? {
                 return if (value == "null") null else FloatType.parseValue(value)
+            }
+        }
+
+    val LongNullableType =
+        object : NavType<Long?>(true) {
+            override val name: String
+                get() = "long_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Long?) {
+                if (value == null) bundle.putSerializable(key, null)
+                else LongType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Long? {
+                return bundle[key] as? Long
+            }
+
+            override fun parseValue(value: String): Long? {
+                return if (value == "null") null else LongType.parseValue(value)
             }
         }
 }
