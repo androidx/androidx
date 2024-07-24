@@ -29,6 +29,7 @@ dependencies {
     implementation(project(":compose:animation:animation-core:animation-core-samples"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation project(':compose:material3:material3')
     implementation project(":navigation:navigation-compose")

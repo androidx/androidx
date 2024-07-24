@@ -69,8 +69,6 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.compose.material:material-icons-core:1.6.7")
-
                 api("androidx.annotation:annotation:1.1.0")
                 api("androidx.annotation:annotation-experimental:1.4.1")
 
