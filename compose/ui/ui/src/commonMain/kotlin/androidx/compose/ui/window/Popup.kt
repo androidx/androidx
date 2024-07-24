@@ -29,10 +29,10 @@ import androidx.compose.ui.unit.LayoutDirection
  *
  * @property focusable Whether the popup is focusable. When true, the popup will receive IME events
  *   and key presses, such as when the back button is pressed.
- * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button on
- *   Android or escape key on desktop. If true, pressing the back button will call onDismissRequest.
- *   Note that [focusable] must be set to true in order to receive key events such as the back
- *   button - if the popup is not focusable then this property does nothing.
+ * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back or escape
+ *   buttons on Android or the escape key on desktop. If true, pressing the back button will call
+ *   onDismissRequest. Note that [focusable] must be set to true in order to receive key events such
+ *   as the back button - if the popup is not focusable then this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  *   popup's bounds. If true, clicking outside the popup will call onDismissRequest.
  * @property clippingEnabled Whether to allow the popup window to extend beyond the bounds of the

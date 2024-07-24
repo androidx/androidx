@@ -98,10 +98,10 @@ import org.jetbrains.annotations.TestOnly
  * @property inheritSecurePolicy Whether [WindowManager.LayoutParams.FLAG_SECURE] should be set
  *   according to [SecureFlagPolicy.Inherit]. Other [SecureFlagPolicy] behaviors should be set via
  *   [flags] directly.
- * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back button. If
- *   true, pressing the back button will call onDismissRequest. Note that the popup must be
- *   [focusable] in order to receive key events such as the back button. If the popup is not
- *   [focusable], then this property does nothing.
+ * @property dismissOnBackPress Whether the popup can be dismissed by pressing the back or escape
+ *   buttons. If true, pressing the back or escape buttons will call onDismissRequest. Note that the
+ *   popup must be [focusable] in order to receive key events such as the back button. If the popup
+ *   is not [focusable], then this property does nothing.
  * @property dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
  *   popup's bounds. If true, clicking outside the popup will call onDismissRequest.
  * @property excludeFromSystemGesture A flag to check whether to set the
@@ -157,10 +157,10 @@ constructor(
      *
      * @param focusable Whether the popup is focusable. When true, the popup will receive IME events
      *   and key presses, such as when the back button is pressed.
-     * @param dismissOnBackPress Whether the popup can be dismissed by pressing the back button. If
-     *   true, pressing the back button will call onDismissRequest. Note that [focusable] must be
-     *   set to true in order to receive key events such as the back button. If the popup is not
-     *   focusable, then this property does nothing.
+     * @param dismissOnBackPress Whether the popup can be dismissed by pressing the back or escape
+     *   buttons. If true, pressing the back or escape buttons will call onDismissRequest. Note that
+     *   [focusable] must be set to true in order to receive key events such as the back button. If
+     *   the popup is not focusable, then this property does nothing.
      * @param dismissOnClickOutside Whether the popup can be dismissed by clicking outside the
      *   popup's bounds. If true, clicking outside the popup will call onDismissRequest.
      * @param securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the
@@ -625,17 +625,14 @@ internal class PopupLayout(
 
     /** Taken from PopupWindow */
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {
-        if (event.keyCode == KeyEvent.KEYCODE_BACK && properties.dismissOnBackPress) {
-            if (keyDispatcherState == null) {
-                return super.dispatchKeyEvent(event)
-            }
+        if (!properties.dismissOnBackPress) return super.dispatchKeyEvent(event)
+        if (event.keyCode == KeyEvent.KEYCODE_BACK || event.keyCode == KeyEvent.KEYCODE_ESCAPE) {
+            val state = keyDispatcherState ?: return super.dispatchKeyEvent(event)
             if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-                val state = keyDispatcherState
-                state?.startTracking(event, this)
+                state.startTracking(event, this)
                 return true
             } else if (event.action == KeyEvent.ACTION_UP) {
-                val state = keyDispatcherState
-                if (state != null && state.isTracking(event) && !event.isCanceled) {
+                if (state.isTracking(event) && !event.isCanceled) {
                     onDismissRequest?.invoke()
                     return true
                 }
