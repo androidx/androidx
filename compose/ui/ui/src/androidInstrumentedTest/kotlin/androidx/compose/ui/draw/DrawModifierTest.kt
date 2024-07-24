@@ -292,8 +292,10 @@ class DrawModifierTest {
                             modifier =
                                 Modifier.drawWithCache {
                                     resolvedDensity = Density(density, fontScale)
-                                    drawLatch.countDown()
-                                    onDrawBehind { drawDensity = Density(density, fontScale) }
+                                    onDrawBehind {
+                                        drawDensity = Density(density, fontScale)
+                                        drawLatch.countDown()
+                                    }
                                 },
                             text = "Change Layout Direction"
                         )
