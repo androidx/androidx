@@ -30,6 +30,7 @@ private enum class InternalType {
     INT,
     INT_NULLABLE,
     BOOL,
+    BOOL_NULLABLE,
     FLOAT,
     LONG,
     STRING,
@@ -54,8 +55,9 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
     val type =
         when (this.toInternalType()) {
             InternalType.INT -> NavType.IntType
-            InternalType.INT_NULLABLE -> IntNullableType
+            InternalType.INT_NULLABLE -> InternalNavType.IntNullableType
             InternalType.BOOL -> NavType.BoolType
+            InternalType.BOOL_NULLABLE -> InternalNavType.BoolNullableType
             InternalType.FLOAT -> NavType.FloatType
             InternalType.LONG -> NavType.LongType
             InternalType.STRING -> NavType.StringType
@@ -94,7 +96,8 @@ private fun SerialDescriptor.toInternalType(): InternalType {
     return when {
         serialName == "kotlin.Int" ->
             if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
-        serialName == "kotlin.Boolean" -> InternalType.BOOL
+        serialName == "kotlin.Boolean" ->
+            if (isNullable) InternalType.BOOL_NULLABLE else InternalType.BOOL
         serialName == "kotlin.Float" -> InternalType.FLOAT
         serialName == "kotlin.Long" -> InternalType.LONG
         serialName == "kotlin.String" -> InternalType.STRING
@@ -138,32 +141,46 @@ internal object UNKNOWN : NavType<String>(false) {
     override fun parseValue(value: String): String = "null"
 }
 
-internal object IntNullableType : NavType<Int?>(true) {
-    override val name: String
-        get() = "integer_nullable"
+internal object InternalNavType {
+    val IntNullableType =
+        object : NavType<Int?>(true) {
+            override val name: String
+                get() = "integer_nullable"
 
-    override fun put(bundle: Bundle, key: String, value: Int?) {
-        // store null as serializable inside bundle, so that decoder will use the null
-        // instead of default value
-        if (value == null) bundle.putSerializable(key, null) else bundle.putInt(key, value)
-    }
+            override fun put(bundle: Bundle, key: String, value: Int?) {
+                // store null as serializable inside bundle, so that decoder will use the null
+                // instead of default value
+                if (value == null) bundle.putSerializable(key, null)
+                else IntType.put(bundle, key, value)
+            }
 
-    @Suppress("DEPRECATION")
-    override fun get(bundle: Bundle, key: String): Int? {
-        return bundle[key] as? Int
-    }
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Int? {
+                return bundle[key] as? Int
+            }
 
-    override fun parseValue(value: String): Int? {
-        return if (value == "null") {
-            null
-        } else if (value.startsWith("0x")) {
-            value.substring(2).toInt(16)
-        } else {
-            value.toInt()
+            override fun parseValue(value: String): Int? {
+                return if (value == "null") null else IntType.parseValue(value)
+            }
         }
-    }
 
-    override fun serializeAsValue(value: Int?): String {
-        return value?.toString() ?: "null"
-    }
+    val BoolNullableType =
+        object : NavType<Boolean?>(true) {
+            override val name: String
+                get() = "boolean_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Boolean?) {
+                if (value == null) bundle.putSerializable(key, null)
+                else BoolType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Boolean? {
+                return bundle[key] as? Boolean
+            }
+
+            override fun parseValue(value: String): Boolean? {
+                return if (value == "null") null else BoolType.parseValue(value)
+            }
+        }
 }

@@ -59,7 +59,7 @@ class NavArgumentGeneratorTest {
         val converted = serializer<TestClass>().generateNavArguments()
         val expected =
             navArgument("arg") {
-                type = IntNullableType
+                type = InternalNavType.IntNullableType
                 nullable = true
             }
         assertThat(converted).containsExactlyInOrder(expected)
@@ -109,14 +109,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToBooleanNullableIllegal() {
+    fun convertToBooleanNullable() {
         @Serializable class TestClass(val arg: Boolean?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.BoolNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("boolean does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
