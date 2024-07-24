@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.params.InputConfiguration
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
@@ -136,15 +137,18 @@ class ZslControlImpl @Inject constructor(private val cameraProperties: CameraPro
         // regular capture request when taking pictures. So when user switches flash mode, we
         // could create reprocessing capture request if flash mode allows.
         if (isZslDisabledByUseCaseConfig) {
+            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             return
         }
 
         if (isZslDisabledByQuirks) {
+            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             return
         }
 
         if (!cameraMetadata.supportsPrivateReprocessing) {
             Log.info { "ZslControlImpl: Private reprocessing isn't supported" }
+            sessionConfigBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW)
             return
         }
 
