@@ -573,6 +573,14 @@ version -- we record three different types of API surfaces.
     [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
     and API review
 
+NOTE: Experimental API tracking for KLib is enabled by default for KMP projects
+via parallel `updateAbi` and `checkAbi` tasks. If you have a problem with these
+tools,
+[please file an issue](https://issuetracker.google.com/issues/new?component=1102332&template=1780493).
+As a workaround, you may opt-out by setting
+`enableBinaryCompatibilityValidator = false` under
+`AndroidxMultiplatformExtension` in your library's `build.gradle` file.
+
 ### Release notes & the `Relnote:` tag {#relnote}
 
 Prior to releasing, release notes are pre-populated using a script and placed
