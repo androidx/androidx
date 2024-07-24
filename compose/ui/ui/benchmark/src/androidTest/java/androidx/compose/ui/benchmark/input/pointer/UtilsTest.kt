@@ -75,21 +75,21 @@ class UtilsTest {
 
         assertThat(downs.size).isEqualTo(numberOfEvents)
 
-        for ((index, move) in downs.withIndex()) {
+        for ((index, down) in downs.withIndex()) {
             if (index == 0) {
-                assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_DOWN)
+                assertThat(down.actionMasked).isEqualTo(MotionEvent.ACTION_DOWN)
             } else {
-                assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_DOWN)
+                assertThat(down.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_DOWN)
             }
 
             val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
-            assertThat(move.eventTime).isEqualTo(expectedTime)
+            assertThat(down.eventTime).isEqualTo(expectedTime)
 
             val expectedX = xMoveInitial + (index * DefaultPointerInputMoveAmountPx)
-            assertThat(move.x).isEqualTo(expectedX)
+            assertThat(down.x).isEqualTo(expectedX)
 
-            assertThat(move.y).isEqualTo(y)
-            assertThat(move.historySize).isEqualTo(0)
+            assertThat(down.y).isEqualTo(y)
+            assertThat(down.historySize).isEqualTo(0)
         }
     }
 
@@ -114,51 +114,48 @@ class UtilsTest {
 
         assertThat(downs.size).isEqualTo(numberOfEvents)
 
-        for ((index, move) in downs.withIndex()) {
+        for ((index, down) in downs.withIndex()) {
             if (index == 0) {
-                assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_DOWN)
+                assertThat(down.actionMasked).isEqualTo(MotionEvent.ACTION_DOWN)
             } else {
-                assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_DOWN)
+                assertThat(down.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_DOWN)
             }
 
             val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
-            assertThat(move.eventTime).isEqualTo(expectedTime)
+            assertThat(down.eventTime).isEqualTo(expectedTime)
 
             val expectedX = xMoveInitial + (index * DefaultPointerInputMoveAmountPx)
 
-            val pointerId: Int = move.getPointerId(index)
+            val pointerId: Int = down.getPointerId(index)
             val localPointerCoords = MotionEvent.PointerCoords()
-            move.getPointerCoords(pointerId, localPointerCoords)
+            down.getPointerCoords(pointerId, localPointerCoords)
 
             assertThat(localPointerCoords.x).isEqualTo(expectedX)
             assertThat(localPointerCoords.y).isEqualTo(y)
 
-            assertThat(move.historySize).isEqualTo(0)
+            assertThat(down.historySize).isEqualTo(0)
         }
     }
 
     // Tests for Up Motion Event Creation <---------------
     @Test
     fun createUpMotionEvents_noEvent() {
-        val y = (ItemHeightPx / 2)
-        val xMoveInitial = 0f
         val initialTime = 100
-        val numberOfEvents = 0
+
+        val simplifiedUps = arrayOf<BenchmarkSimplifiedPointerInputPointer>()
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
         val ups =
             createUps(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers = simplifiedUps,
                 rootView = view,
-                numberOfEvents = numberOfEvents,
             )
 
         // Should just return an empty array
-        assertThat(ups.size).isEqualTo(numberOfEvents)
+        assertThat(ups.size).isEqualTo(simplifiedUps.size)
     }
 
     @Test
@@ -166,24 +163,24 @@ class UtilsTest {
         val y = (ItemHeightPx / 2)
         val xMoveInitial = 0f
         val initialTime = 100
-        val numberOfEvents = 1
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
+        val simplifiedUps =
+            arrayOf(BenchmarkSimplifiedPointerInputPointer(id = 0, x = xMoveInitial, y = y))
+
         val ups =
             createUps(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers = simplifiedUps,
                 rootView = view,
-                numberOfEvents = numberOfEvents,
             )
 
-        assertThat(ups.size).isEqualTo(numberOfEvents)
+        assertThat(ups.size).isEqualTo(simplifiedUps.size)
 
         for ((index, move) in ups.withIndex()) {
-            if (index == 0) {
+            if (index == (ups.size - 1)) { // last event should be ACTION_UP
                 assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_UP)
             } else {
                 assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_UP)
@@ -192,10 +189,11 @@ class UtilsTest {
             val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
             assertThat(move.eventTime).isEqualTo(expectedTime)
 
-            val expectedX = xMoveInitial + (index * DefaultPointerInputMoveAmountPx)
+            val expectedX = simplifiedUps[index].x
             assertThat(move.x).isEqualTo(expectedX)
 
-            assertThat(move.y).isEqualTo(y)
+            val expectedY = simplifiedUps[index].y
+            assertThat(move.y).isEqualTo(expectedY)
             assertThat(move.historySize).isEqualTo(0)
         }
     }
@@ -207,22 +205,34 @@ class UtilsTest {
         val initialTime = 100
         val numberOfEvents = 6
 
+        val simplifiedUps =
+            Array(numberOfEvents) { index ->
+                BenchmarkSimplifiedPointerInputPointer(
+                    id = index,
+                    x = xMoveInitial + (index * DefaultPointerInputMoveAmountPx),
+                    y = y
+                )
+            }
+
         val context = ApplicationProvider.getApplicationContext<Context>()
         val view = View(context)
 
         val ups =
             createUps(
-                initialX = xMoveInitial,
                 initialTime = initialTime,
-                y = y,
+                initialPointers = simplifiedUps,
                 rootView = view,
-                numberOfEvents = numberOfEvents,
             )
 
-        assertThat(ups.size).isEqualTo(numberOfEvents)
+        assertThat(ups.size).isEqualTo(simplifiedUps.size)
+
+        // The main x and y will always be the first pointer, but we want to verify that for all
+        // events.
+        val expectedMainX = simplifiedUps[0].x
+        val expectedMainY = simplifiedUps[0].y
 
         for ((index, move) in ups.withIndex()) {
-            if (index == 0) {
+            if (index == (ups.size - 1)) { // last event should be ACTION_UP
                 assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_UP)
             } else {
                 assertThat(move.actionMasked).isEqualTo(MotionEvent.ACTION_POINTER_UP)
@@ -231,14 +241,22 @@ class UtilsTest {
             val expectedTime = initialTime + (index * DefaultPointerInputTimeDelta)
             assertThat(move.eventTime).isEqualTo(expectedTime)
 
-            val expectedX = xMoveInitial + (index * DefaultPointerInputMoveAmountPx)
+            assertThat(move.x).isEqualTo(expectedMainX)
+            assertThat(move.y).isEqualTo(expectedMainY)
 
-            val pointerId: Int = move.getPointerId(index)
-            val localPointerCoords = MotionEvent.PointerCoords()
-            move.getPointerCoords(pointerId, localPointerCoords)
+            // Check all pointers are there and valid
+            val expectedPointerCount = simplifiedUps.size - index
+            assertThat(move.pointerCount).isEqualTo(expectedPointerCount)
 
-            assertThat(localPointerCoords.x).isEqualTo(expectedX)
-            assertThat(localPointerCoords.y).isEqualTo(y)
+            for (pointerIndex in 0 until move.pointerCount) {
+                val pointerId: Int = move.getPointerId(pointerIndex)
+                val localPointerCoords = MotionEvent.PointerCoords()
+                move.getPointerCoords(pointerId, localPointerCoords)
+
+                val expectedPointerCoords = simplifiedUps[pointerIndex]
+                assertThat(localPointerCoords.x).isEqualTo(expectedPointerCoords.x)
+                assertThat(localPointerCoords.y).isEqualTo(expectedPointerCoords.y)
+            }
 
             assertThat(move.historySize).isEqualTo(0)
         }

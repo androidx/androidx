@@ -39,14 +39,14 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 /**
- * Compose benchmarks for a single finger input (down/up and down/move/up) on an item using ONLY UI
+ * Compose benchmarks for multiple finger input (down/up and down/move/up) on an item using ONLY UI
  * module APIs (no Foundation calls which is what differentiates it from
  * [ComposeTapIntegrationBenchmark]). The benchmark uses pointerInput (ui) + awaitPointerEventScope
  * (ui) + awaitPointerEvent (ui) to track simple down/move/up inputs.
  *
- * The intent is to measure the speed of all parts necessary for a normal down, (from some
- * benchmarks, move,) and up starting from [MotionEvent]s getting dispatched to a particular view.
- * The test therefore includes hit testing and dispatch.
+ * The intent is to measure the speed of all parts necessary for a normal down, (move for some
+ * benchmarks) and up starting from [MotionEvent]s getting dispatched to a particular view. The test
+ * therefore includes hit testing and dispatch.
  *
  * The hierarchy is set up to look like: rootView -> Column -> Text (with click listener) -> Text
  * (with click listener) -> Text (with click listener) -> ...
@@ -58,7 +58,7 @@ import org.junit.runner.RunWith
  */
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ComposeOneFingerInputUIOnlyBenchmark {
+class ComposeMultiFingerInputUIOnlyBenchmark {
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
@@ -66,7 +66,7 @@ class ComposeOneFingerInputUIOnlyBenchmark {
     fun clickOnLateItem() {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at 0 will be hit tested late.
-        clickOnItem(0, "0", 0)
+        clickOnItem(item = 0, expectedLabel = "0", numberOfMoves = 0, numberOfFingers = 3)
     }
 
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
@@ -75,14 +75,19 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at NumItems - 1 will be hit tested early.
         val lastItem = NumItems - 1
-        clickOnItem(lastItem, "$lastItem", 0)
+        clickOnItem(
+            item = lastItem,
+            expectedLabel = "$lastItem",
+            numberOfMoves = 0,
+            numberOfFingers = 3
+        )
     }
 
     @Test
     fun clickWithMoveOnLateItem() {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at 0 will be hit tested late.
-        clickOnItem(0, "0", 6)
+        clickOnItem(item = 0, expectedLabel = "0", numberOfMoves = 6, numberOfFingers = 3)
     }
 
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
@@ -91,14 +96,25 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at NumItems - 1 will be hit tested early.
         val lastItem = NumItems - 1
-        clickOnItem(lastItem, "$lastItem", 6)
+        clickOnItem(
+            item = lastItem,
+            expectedLabel = "$lastItem",
+            numberOfMoves = 6,
+            numberOfFingers = 3
+        )
     }
 
     @Test
     fun clickWithMoveAndFlingHistoryOnLateItem() {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at 0 will be hit tested late.
-        clickOnItem(0, "0", 6, true)
+        clickOnItem(
+            item = 0,
+            expectedLabel = "0",
+            numberOfMoves = 6,
+            numberOfFingers = 3,
+            enableHistory = true
+        )
     }
 
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
@@ -107,13 +123,20 @@ class ComposeOneFingerInputUIOnlyBenchmark {
         // As items that are laid out last are hit tested first (so z order is respected), item
         // at NumItems - 1 will be hit tested early.
         val lastItem = NumItems - 1
-        clickOnItem(lastItem, "$lastItem", 6, true)
+        clickOnItem(
+            item = lastItem,
+            expectedLabel = "$lastItem",
+            numberOfMoves = 6,
+            numberOfFingers = 3,
+            enableHistory = true
+        )
     }
 
     private fun clickOnItem(
         item: Int,
         expectedLabel: String,
         numberOfMoves: Int,
+        numberOfFingers: Int,
         enableHistory: Boolean = false
     ) {
         val initialTimeForFirstEvent = 0
@@ -134,63 +157,81 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                 rootView = getHostView()
             }
 
-            // Create Events
+            // Create all MotionEvents
+            // 1. Create downs
             val downs =
                 createDowns(
                     initialX = initialXForFirstEvent,
                     initialTime = initialTimeForFirstEvent,
                     y = y,
                     rootView = rootView,
-                    numberOfEvents = 1,
+                    numberOfEvents = numberOfFingers,
                 )
 
-            assertThat(downs.size).isEqualTo(1)
+            assertThat(downs.size).isEqualTo(numberOfFingers)
 
-            val down = downs.last()
+            // 2. Create moves
+            // Get start time for moves
+            val lastDown = downs.last()
+            val initialMoveTime = lastDown.eventTime.toInt() + DefaultPointerInputTimeDelta
 
-            val initialMoveX = down.x + DefaultPointerInputMoveAmountPx
-            val initialMoveTime = down.eventTime.toInt() + DefaultPointerInputTimeDelta
+            // Get start x, y, and pointer id for moves
+            val initialMoveDataSimplified =
+                Array(lastDown.pointerCount) { index ->
+                    BenchmarkSimplifiedPointerInputPointer(
+                        id = lastDown.getPointerId(index),
+                        x = lastDown.getX(index) + DefaultPointerInputMoveAmountPx,
+                        y = lastDown.getY(index)
+                    )
+                }
 
             val moves =
                 createMoveMotionEvents(
                     initialTime = initialMoveTime,
-                    initialPointers =
-                        arrayOf(
-                            BenchmarkSimplifiedPointerInputPointer(id = 0, x = initialMoveX, y = y)
-                        ),
+                    initialPointers = initialMoveDataSimplified,
                     rootView = rootView,
                     numberOfMoveEvents = numberOfMoves,
                     enableFlingStyleHistory = enableHistory
                 )
 
-            val lastMotionEvent =
+            // 2. Create ups
+            // Get start time for ups
+            val lastMove =
                 if (moves.isNotEmpty()) {
                     moves.last()
                 } else {
-                    down
+                    lastDown
                 }
-            val upEventTime = lastMotionEvent.eventTime.toInt() + DefaultPointerInputTimeDelta
-            val upEventX = lastMotionEvent.x + DefaultPointerInputMoveAmountPx
+            val initialUpTime = lastMove.eventTime.toInt() + DefaultPointerInputTimeDelta
+
+            // Get start x, y, and pointer id for ups
+            val initialUpDataSimplified =
+                Array(lastMove.pointerCount) { index ->
+                    BenchmarkSimplifiedPointerInputPointer(
+                        id = lastMove.getPointerId(index),
+                        x = lastMove.getX(index),
+                        y = lastMove.getY(index)
+                    )
+                }
 
             val ups =
                 createUps(
-                    initialTime = upEventTime,
-                    initialPointers =
-                        arrayOf(
-                            BenchmarkSimplifiedPointerInputPointer(id = 0, x = upEventX, y = y)
-                        ),
-                    rootView = rootView
+                    initialTime = initialUpTime,
+                    initialPointers = initialUpDataSimplified,
+                    rootView = rootView,
                 )
 
-            assertThat(ups.size).isEqualTo(1)
-
-            val up = ups.last()
+            assertThat(ups.size).isEqualTo(numberOfFingers)
 
             benchmarkRule.measureRepeatedOnUiThread {
-                rootView.dispatchTouchEvent(down)
-                case.expectedPressCount++
-                assertThat(case.actualPressCount).isEqualTo(case.expectedPressCount)
+                // Trigger and verify all up events.
+                for (down in downs) {
+                    rootView.dispatchTouchEvent(down)
+                    case.expectedPressCount++
+                    assertThat(case.actualPressCount).isEqualTo(case.expectedPressCount)
+                }
 
+                // Trigger and verify all move events.
                 for (move in moves) {
                     rootView.dispatchTouchEvent(move)
                     case.expectedMoveCount++
@@ -200,9 +241,12 @@ class ComposeOneFingerInputUIOnlyBenchmark {
                 // Double checks move count again (in case there weren't any moves).
                 assertThat(case.actualMoveCount).isEqualTo(case.expectedMoveCount)
 
-                rootView.dispatchTouchEvent(up)
-                case.expectedReleaseCount++
-                assertThat(case.actualReleaseCount).isEqualTo(case.expectedReleaseCount)
+                // Trigger and verify all down events.
+                for (up in ups) {
+                    rootView.dispatchTouchEvent(up)
+                    case.expectedReleaseCount++
+                    assertThat(case.actualReleaseCount).isEqualTo(case.expectedReleaseCount)
+                }
 
                 assertThat(case.actualOtherEventCount).isEqualTo(case.expectedOtherEventCount)
             }
