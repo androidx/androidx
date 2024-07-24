@@ -31,11 +31,7 @@ plugins {
 }
 
 dependencies {
-
     api(project(":activity:activity"))
-    api("androidx.core:core-ktx:1.13.0") {
-        because "Mirror activity dependency graph for -ktx artifacts"
-    }
     api("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
@@ -43,18 +39,6 @@ dependencies {
     api("androidx.savedstate:savedstate-ktx:1.2.1") {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(project(":internal-testutils-runtime"), {
-        exclude group: "androidx.activity", module: "activity"
-    })
 }
 
 androidx {
