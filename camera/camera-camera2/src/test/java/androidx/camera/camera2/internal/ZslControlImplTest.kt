@@ -21,6 +21,8 @@ import android.graphics.ImageFormat.PRIVATE
 import android.graphics.ImageFormat.YUV_420_888
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
+import android.hardware.camera2.CameraDevice.TEMPLATE_ZERO_SHUTTER_LAG
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
@@ -84,6 +86,7 @@ class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageReader.height)
             .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
         assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_ZERO_SHUTTER_LAG)
     }
 
     @Test
@@ -101,6 +104,7 @@ class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -118,6 +122,7 @@ class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -135,6 +140,7 @@ class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -153,6 +159,7 @@ class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -178,6 +185,7 @@ class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageReader.height)
             .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
         assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_ZERO_SHUTTER_LAG)
     }
 
     @Test
@@ -218,6 +226,7 @@ class ZslControlImplTest {
         zslControl.addZslConfig(sessionConfigBuilder)
 
         assertThat(zslControl.mReprocessingImageReader).isNull()
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_PREVIEW)
     }
 
     @Test
@@ -245,6 +254,7 @@ class ZslControlImplTest {
         assertThat(zslControl.mReprocessingImageReader.height)
             .isEqualTo(PRIVATE_REPROCESSING_MAXIMUM_SIZE.height)
         assertThat(zslControl.mImageRingBuffer.maxCapacity).isEqualTo(RING_BUFFER_CAPACITY)
+        assertThat(sessionConfigBuilder.build().templateType).isEqualTo(TEMPLATE_ZERO_SHUTTER_LAG)
     }
 
     private fun createCameraCharacteristicsCompat(
