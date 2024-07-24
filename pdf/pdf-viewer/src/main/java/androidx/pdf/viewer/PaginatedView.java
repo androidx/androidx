@@ -289,7 +289,9 @@ public class PaginatedView extends AbstractPaginatedView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        mPageRangeHandler.setVisiblePages(null);
+        if (mPageRangeHandler != null) {
+            mPageRangeHandler.setVisiblePages(null);
+        }
     }
 
     /**

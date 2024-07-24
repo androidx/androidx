@@ -341,13 +341,6 @@ open class PdfViewerFragment : Fragment() {
     private fun onContentsAvailable(contents: DisplayData, savedState: Bundle?) {
         fileData = contents
 
-        if (pdfLoader != null) {
-            destroyContentModel()
-        }
-        if (paginatedView?.childCount!! > 0) {
-            paginatedView?.removeAllViews()
-        }
-
         createContentModel(
             PdfLoader.create(
                 requireActivity().applicationContext,
@@ -455,6 +448,8 @@ open class PdfViewerFragment : Fragment() {
 
     private fun destroyContentModel() {
 
+        pdfLoader?.cancelAll()
+
         paginationModel = null
         fastScrollContentModel = null
 
@@ -472,7 +467,7 @@ open class PdfViewerFragment : Fragment() {
 
     private fun destroyView() {
         if (zoomView != null) {
-            zoomView?.zoomScroll()?.removeObserver(zoomScrollObserver!!)
+            zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
             zoomView = null
         }
 
@@ -512,7 +507,9 @@ open class PdfViewerFragment : Fragment() {
         container = null
         super.onDestroyView()
 
-        fastScrollView!!.scrollerPositionY.removeObserver(fastscrollerPositionObserverKey!!)
+        fastscrollerPositionObserverKey?.let {
+            fastScrollView?.scrollerPositionY?.removeObserver(it)
+        }
     }
 
     override fun onDestroy() {
@@ -535,6 +532,12 @@ open class PdfViewerFragment : Fragment() {
 
     private fun loadFile(fileUri: Uri) {
         Preconditions.checkNotNull(fileUri)
+        if (pdfLoader != null) {
+            destroyContentModel()
+        }
+        if (paginatedView?.childCount!! > 0) {
+            paginatedView?.removeAllViews()
+        }
         try {
             validateFileUri(fileUri)
             fetchFile(fileUri)
