@@ -24,6 +24,8 @@ import static androidx.mediarouter.media.RouteListingPreference.Item.SUBTEXT_CUS
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -37,6 +39,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
+import androidx.mediarouter.app.MediaRouteActionProvider;
+import androidx.mediarouter.media.MediaControlIntent;
+import androidx.mediarouter.media.MediaRouteSelector;
 import androidx.mediarouter.media.MediaRouter;
 import androidx.mediarouter.media.RouteListingPreference;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -46,6 +52,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
 import com.example.androidx.mediarouting.RoutesManager.RouteListingPreferenceItemHolder;
+import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.ui.UiUtils;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.common.collect.ImmutableList;
@@ -53,6 +60,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /** Allows the user to manage the route listing preference of this app. */
@@ -113,6 +121,25 @@ public class RouteListingPreferenceActivity extends AppCompatActivity {
                 view ->
                         setUpRouteListingPreferenceItemEditionDialog(
                                 mRoutesManager.getRouteListingPreferenceItems().size()));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.route_button_menu, menu);
+        MenuItem mediaRouteMenuItem = menu.findItem(R.id.route_button_menu_item);
+        MediaRouteActionProvider mediaRouteActionProvider =
+                (MediaRouteActionProvider) MenuItemCompat.getActionProvider(mediaRouteMenuItem);
+        MediaRouteSelector routeSelector =
+                new MediaRouteSelector.Builder()
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_AUDIO_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_VIDEO_PLAYBACK)
+                        .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
+                        .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
+                        .build();
+        Objects.requireNonNull(mediaRouteActionProvider).setRouteSelector(routeSelector);
+        return true;
     }
 
     private void setUpRouteListingPreferenceItemEditionDialog(int itemPositionInList) {
