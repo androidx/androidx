@@ -22,6 +22,8 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.DropdownMenuItem
@@ -40,8 +42,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.substring
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -138,6 +142,97 @@ fun EditableExposedDropdownMenuSample() {
                     onClick = {
                         textFieldState.setTextAndPlaceCursorAtEnd(option.text)
                         setExpanded(false)
+                    },
+                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                )
+            }
+        }
+    }
+}
+
+@Preview
+@Sampled
+@Composable
+fun MultiAutocompleteExposedDropdownMenuSample() {
+    /**
+     * Returns the TextRange of the current token around the cursor, where commas define token
+     * boundaries.
+     */
+    fun TextFieldState.currentTokenRange(): TextRange? {
+        if (!selection.collapsed) return null
+
+        val cursor = selection.start
+        var start = cursor
+        while (start > 0 && text[start - 1] != ',') {
+            start--
+        }
+        while (start < cursor && text[start] == ' ') {
+            start++
+        }
+
+        var end = cursor
+        while (end < text.length && text[end] != ',') {
+            end++
+        }
+        return TextRange(start, end)
+    }
+
+    fun TextFieldState.replaceThenAddComma(start: Int, end: Int, text: CharSequence) = edit {
+        replace(start, end, text)
+        val afterText = start + text.length
+        if (afterText == this.length || this.charAt(afterText) != ',') {
+            insert(afterText, ", ")
+            placeCursorBeforeCharAt(afterText + 2)
+        } else {
+            placeCursorAfterCharAt(afterText)
+        }
+    }
+
+    val allOptions: List<String> = SampleData
+    val textFieldState = rememberTextFieldState()
+    val tokenSelection = textFieldState.currentTokenRange()
+    val tokenAtCursor =
+        if (tokenSelection != null) textFieldState.text.substring(tokenSelection) else ""
+    val filteredOptions =
+        if (tokenAtCursor.isBlank()) emptyList() else allOptions.filteredBy(tokenAtCursor)
+
+    val (allowExpanded, setExpanded) = remember { mutableStateOf(false) }
+    val expanded = allowExpanded && filteredOptions.isNotEmpty()
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = setExpanded,
+    ) {
+        TextField(
+            modifier =
+                Modifier.width(280.dp).menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
+            state = textFieldState,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            label = { Text("Label") },
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(
+                    expanded = expanded,
+                    modifier = Modifier.menuAnchor(ExposedDropdownMenuAnchorType.SecondaryEditable),
+                )
+            },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+        )
+        ExposedDropdownMenu(
+            modifier = Modifier.heightIn(max = 280.dp),
+            expanded = expanded,
+            onDismissRequest = { setExpanded(false) },
+        ) {
+            filteredOptions.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option, style = MaterialTheme.typography.bodyLarge) },
+                    onClick = {
+                        if (tokenSelection != null) {
+                            textFieldState.replaceThenAddComma(
+                                tokenSelection.start,
+                                tokenSelection.end,
+                                option
+                            )
+                        }
                     },
                     contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                 )

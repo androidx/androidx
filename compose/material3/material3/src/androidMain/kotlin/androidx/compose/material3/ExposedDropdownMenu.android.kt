@@ -121,6 +121,10 @@ import kotlin.math.roundToInt
  * An example of an editable Exposed Dropdown Menu:
  *
  * @sample androidx.compose.material3.samples.EditableExposedDropdownMenuSample
+ *
+ * An example of an editable Exposed Dropdown Menu used like a MultiAutoCompleteTextView:
+ *
+ * @sample androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
  * @param expanded whether the menu is expanded or not
  * @param onExpandedChange called when the exposed dropdown menu is clicked and the expansion state
  *   changes.

@@ -114,6 +114,7 @@ import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
+import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
 import androidx.compose.material3.samples.NavigationBarSample
 import androidx.compose.material3.samples.NavigationBarWithOnlySelectedLabelsSample
@@ -993,6 +994,13 @@ val MenusExamples =
             sourceUrl = MenusExampleSourceUrl
         ) {
             EditableExposedDropdownMenuSample()
+        },
+        Example(
+            name = "MultiAutocompleteExposedDropdownMenuSample",
+            description = MenusExampleDescription,
+            sourceUrl = MenusExampleSourceUrl
+        ) {
+            MultiAutocompleteExposedDropdownMenuSample()
         },
     )
 
