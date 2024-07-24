@@ -21,3 +21,7 @@ AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridScope#stickyH
 
 ParameterNameChange: androidx.compose.foundation.gestures.DraggableAnchors#positionOf(T) parameter #0:
     Attempted to change parameter name from value to anchor in method androidx.compose.foundation.gestures.DraggableAnchors.positionOf
+
+
+RemovedClass: androidx.compose.foundation.draganddrop.AndroidDragAndDropSource_androidKt:
+    Removed class androidx.compose.foundation.draganddrop.AndroidDragAndDropSource_androidKt

@@ -14,13 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.content.internal
+package androidx.compose.foundation.draganddrop
 
 import androidx.compose.foundation.implementedInJetBrainsFork
-import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
+import androidx.compose.ui.graphics.drawscope.DrawScope
 
-internal actual fun ReceiveContentDragAndDropNode(
-    receiveContentConfiguration: ReceiveContentConfiguration,
-    dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
-): DragAndDropTargetModifierNode = implementedInJetBrainsFork()
+internal actual object DragAndDropSourceDefaults {
+    actual val DefaultStartDetector: DragAndDropStartDetector = implementedInJetBrainsFork()
+}
+
+internal actual class CacheDrawScopeDragShadowCallback actual constructor() {
+    actual fun drawDragShadow(drawScope: DrawScope): Unit = implementedInJetBrainsFork()
+
+    actual fun cachePicture(scope: CacheDrawScope): DrawResult = implementedInJetBrainsFork()
+}
