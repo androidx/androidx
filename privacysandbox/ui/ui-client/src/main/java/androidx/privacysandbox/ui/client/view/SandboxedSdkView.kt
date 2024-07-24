@@ -205,7 +205,12 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
     private fun checkClientOpenSession() {
         val adapter = adapter
         if (
-            client == null && adapter != null && windowInputToken != null && width > 0 && height > 0
+            client == null &&
+                adapter != null &&
+                windowInputToken != null &&
+                width > 0 &&
+                height > 0 &&
+                windowVisibility == View.VISIBLE
         ) {
             stateListenerManager.currentUiSessionState = SandboxedSdkUiSessionState.Loading
             client = Client(this)
@@ -359,6 +364,13 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         previousWidth = width
         checkClientOpenSession()
         signalMeasurer?.maybeSendSignals()
+    }
+
+    override fun onWindowVisibilityChanged(visibility: Int) {
+        super.onWindowVisibilityChanged(visibility)
+        if (visibility == VISIBLE) {
+            checkClientOpenSession()
+        }
     }
 
     override fun setAlpha(alpha: Float) {
