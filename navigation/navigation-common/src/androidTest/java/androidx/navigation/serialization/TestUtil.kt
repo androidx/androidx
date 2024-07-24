@@ -73,5 +73,16 @@ internal fun intArgument(name: String, hasDefaultValue: Boolean = false) =
         unknownDefaultValuePresent = hasDefaultValue
     }
 
+internal fun <D : Enum<*>> enumArgument(
+    name: String,
+    clazz: Class<D>,
+    hasDefaultValue: Boolean = false
+) =
+    navArgument(name) {
+        type = NavType.EnumType(clazz)
+        nullable = false
+        unknownDefaultValuePresent = hasDefaultValue
+    }
+
 @OptIn(InternalSerializationApi::class)
 internal fun <T> KSerializer<T>.expectedSafeArgsId(): Int = generateHashCode()

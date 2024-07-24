@@ -23,6 +23,7 @@ import androidx.navigation.NavType
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialKind
 import kotlinx.serialization.serializerOrNull
 
 /** Marker for Native Kotlin types with either full or partial built-in NavType support */
@@ -42,6 +43,7 @@ private enum class InternalType {
     LONG_ARRAY,
     ARRAY,
     LIST,
+    ENUM,
     UNKNOWN
 }
 
@@ -84,6 +86,24 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
                     else -> UNKNOWN
                 }
             }
+            InternalType.ENUM -> {
+                var className = serialName
+                while (className.contains(".")) {
+                    // Support nested Enums by incrementally replacing last `.` with `$`
+                    // until we find the correct enum class name.
+                    className = Regex("(\\.+)(?!.*\\.)").replace(className, "\\$")
+                    try {
+                        val enumType = NavType.parseSerializableOrParcelableType(className, false)
+                        enumType?.let {
+                            return enumType
+                        }
+                    } catch (_: ClassNotFoundException) {}
+                }
+                throw IllegalArgumentException(
+                    "Cannot find Enum class with name \"$serialName\". Ensure that the " +
+                        "serialName for this argument is the default fully qualified name"
+                )
+            }
             else -> UNKNOWN
         }
     return type
@@ -98,6 +118,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
 private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
+        kind == SerialKind.ENUM -> InternalType.ENUM
         serialName == "kotlin.Int" ->
             if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
         serialName == "kotlin.Boolean" ->

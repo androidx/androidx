@@ -694,7 +694,7 @@ class NavTypeConverterTest {
     @Test
     fun getNavTypeEnumSerializable() {
         val type = serializer<TestEnum>().descriptor.getNavType()
-        assertThat(type).isEqualTo(UNKNOWN)
+        assertThat(type).isEqualTo(NavType.EnumType(TestEnum::class.java))
     }
 
     @Test
