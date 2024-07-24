@@ -779,7 +779,7 @@ private interface TestInterface
 
 private fun nullableIntArgument(name: String, hasDefaultValue: Boolean = false) =
     navArgument(name) {
-        type = IntNullableType
+        type = InternalNavType.IntNullableType
         nullable = true
         unknownDefaultValuePresent = hasDefaultValue
     }
