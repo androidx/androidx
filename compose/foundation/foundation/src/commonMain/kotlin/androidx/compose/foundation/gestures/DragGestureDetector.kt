@@ -25,6 +25,7 @@ package androidx.compose.foundation.gestures
 //  functions public
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
@@ -230,6 +231,8 @@ internal suspend fun PointerInputScope.detectDragGestures(
     orientationLock: Orientation?,
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
 ) {
+    var overSlop: Offset
+
     awaitEachGesture {
         val initialDown = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
         val awaitTouchSlop = shouldAwaitTouchSlop()
@@ -239,8 +242,8 @@ internal suspend fun PointerInputScope.detectDragGestures(
         }
         val down = awaitFirstDown(requireUnconsumed = false)
         var drag: PointerInputChange?
-        var overSlop = Offset.Zero
         var initialDelta = Offset.Zero
+        overSlop = Offset.Zero
 
         if (awaitTouchSlop) {
             do {
@@ -766,7 +769,7 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
             }
         } else {
             val postSlopOffset = touchSlopDetector.addPointerInputChange(dragEvent, touchSlop)
-            if (postSlopOffset != null) {
+            if (postSlopOffset.isSpecified) {
                 onPointerSlopReached(dragEvent, postSlopOffset)
                 if (dragEvent.isConsumed) {
                     return dragEvent
@@ -803,7 +806,7 @@ private class TouchSlopDetector(val orientation: Orientation? = null) {
      * provided by [touchSlop], this method will return the post slop offset, that is the total
      * accumulated delta change minus the touch slop value, otherwise this should return null.
      */
-    fun addPointerInputChange(dragEvent: PointerInputChange, touchSlop: Float): Offset? {
+    fun addPointerInputChange(dragEvent: PointerInputChange, touchSlop: Float): Offset {
         val currentPosition = dragEvent.position
         val previousPosition = dragEvent.previousPosition
         val positionChange = currentPosition - previousPosition
@@ -821,7 +824,7 @@ private class TouchSlopDetector(val orientation: Orientation? = null) {
         return if (hasCrossedSlop) {
             calculatePostSlopOffset(touchSlop)
         } else {
-            null
+            Offset.Unspecified
         }
     }
 

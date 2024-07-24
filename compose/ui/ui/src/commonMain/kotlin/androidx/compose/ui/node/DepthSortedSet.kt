@@ -16,7 +16,20 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.ui.internal.checkPrecondition
+
+private val DepthComparator: Comparator<LayoutNode> =
+    object : Comparator<LayoutNode> {
+        override fun compare(a: LayoutNode, b: LayoutNode): Int {
+            val depthDiff = a.depth.compareTo(b.depth)
+            if (depthDiff != 0) {
+                return depthDiff
+            }
+            return a.hashCode().compareTo(b.hashCode())
+        }
+    }
 
 /**
  * The set of [LayoutNode]s which orders items by their [LayoutNode.depth] and allows
@@ -32,24 +45,14 @@ internal class DepthSortedSet(private val extraAssertions: Boolean) {
     // changed since then. we need to enforce this as changing the depth can break the contract
     // used in comparator for building the tree in TreeSet.
     // Created and used only when extraAssertions == true
-    private val mapOfOriginalDepth by
-        lazy(LazyThreadSafetyMode.NONE) { mutableMapOf<LayoutNode, Int>() }
-    private val DepthComparator: Comparator<LayoutNode> =
-        object : Comparator<LayoutNode> {
-            override fun compare(a: LayoutNode, b: LayoutNode): Int {
-                val depthDiff = a.depth.compareTo(b.depth)
-                if (depthDiff != 0) {
-                    return depthDiff
-                }
-                return a.hashCode().compareTo(b.hashCode())
-            }
-        }
+    private var mapOfOriginalDepth: MutableObjectIntMap<LayoutNode>? = null
+
     private val set = TreeSet(DepthComparator)
 
     fun contains(node: LayoutNode): Boolean {
         val contains = set.contains(node)
         if (extraAssertions) {
-            checkPrecondition(contains == mapOfOriginalDepth.containsKey(node)) {
+            checkPrecondition(contains == safeMapOfOriginalDepth().containsKey(node)) {
                 "inconsistency in TreeSet"
             }
         }
@@ -59,9 +62,10 @@ internal class DepthSortedSet(private val extraAssertions: Boolean) {
     fun add(node: LayoutNode) {
         checkPrecondition(node.isAttached) { "DepthSortedSet.add called on an unattached node" }
         if (extraAssertions) {
-            val usedDepth = mapOfOriginalDepth[node]
-            if (usedDepth == null) {
-                mapOfOriginalDepth[node] = node.depth
+            val map = safeMapOfOriginalDepth()
+            val usedDepth = map.getOrDefault(node, Int.MAX_VALUE)
+            if (usedDepth == Int.MAX_VALUE) {
+                map[node] = node.depth
             } else {
                 checkPrecondition(usedDepth == node.depth) { "invalid node depth" }
             }
@@ -73,9 +77,13 @@ internal class DepthSortedSet(private val extraAssertions: Boolean) {
         checkPrecondition(node.isAttached) { "DepthSortedSet.remove called on an unattached node" }
         val contains = set.remove(node)
         if (extraAssertions) {
-            val usedDepth = mapOfOriginalDepth.remove(node)
-            checkPrecondition(usedDepth == if (contains) node.depth else null) {
-                "invalid node depth"
+            val map = safeMapOfOriginalDepth()
+            if (map.contains(node)) {
+                val usedDepth = map[node]
+                map.remove(node)
+                checkPrecondition(usedDepth == if (contains) node.depth else Int.MAX_VALUE) {
+                    "invalid node depth"
+                }
             }
         }
         return contains
@@ -97,6 +105,13 @@ internal class DepthSortedSet(private val extraAssertions: Boolean) {
     fun isEmpty(): Boolean = set.isEmpty()
 
     @Suppress("NOTHING_TO_INLINE") inline fun isNotEmpty(): Boolean = !isEmpty()
+
+    private fun safeMapOfOriginalDepth(): MutableObjectIntMap<LayoutNode> {
+        if (mapOfOriginalDepth == null) {
+            mapOfOriginalDepth = mutableObjectIntMapOf()
+        }
+        return mapOfOriginalDepth!!
+    }
 
     override fun toString(): String {
         return set.toString()
