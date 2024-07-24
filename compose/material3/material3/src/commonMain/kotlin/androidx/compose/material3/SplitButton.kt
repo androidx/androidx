@@ -24,10 +24,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -94,8 +92,8 @@ fun SplitButton(
 ) {
     SplitButtonLayout(
         { LeadingButtonLayout(content = leadingButton) },
-        { Spacer(Modifier.size(spacing)) },
         { TrailingButtonLayout(content = trailingButton) },
+        spacing,
         modifier
     )
 }
@@ -373,37 +371,31 @@ fun OutlinedSplitButton(
 @Composable
 private fun SplitButtonLayout(
     leadingButton: @Composable () -> Unit,
-    spacer: @Composable () -> Unit,
     trailingButton: @Composable () -> Unit,
+    spacing: Dp,
     modifier: Modifier = Modifier,
 ) {
     Layout(
         {
             leadingButton()
-            spacer()
             trailingButton()
         },
         modifier,
         measurePolicy = { measurables, constraints ->
             val leadingButtonPlaceable = measurables[0].measure(constraints)
 
-            val spacerPlaceable =
+            val trailingButtonPlaceable =
                 measurables[1].measure(constraints.copy(maxHeight = leadingButtonPlaceable.height))
 
-            val trailingButtonPlaceable =
-                measurables[2].measure(constraints.copy(maxHeight = leadingButtonPlaceable.height))
+            val placeables = listOf(leadingButtonPlaceable, trailingButtonPlaceable)
 
-            val placeables =
-                listOf(leadingButtonPlaceable, spacerPlaceable, trailingButtonPlaceable)
-
-            val width = placeables.fastSumBy { it.width }
+            val width = placeables.fastSumBy { it.width } + spacing.roundToPx()
             val height = placeables.fastMaxOfOrNull { it.height } ?: 0
 
             layout(width, height) {
                 leadingButtonPlaceable.placeRelative(0, 0)
-                spacerPlaceable.placeRelative(leadingButtonPlaceable.width, 0)
                 trailingButtonPlaceable.placeRelative(
-                    x = leadingButtonPlaceable.width + spacerPlaceable.width,
+                    x = leadingButtonPlaceable.width + spacing.roundToPx(),
                     y = 0
                 )
             }
