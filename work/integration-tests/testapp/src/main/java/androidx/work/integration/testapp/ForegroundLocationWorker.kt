@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,18 @@
 
 package androidx.work.integration.testapp
 
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+import android.content.pm.PackageManager
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.location.LocationManager
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.Data
@@ -32,22 +36,34 @@ import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import kotlinx.coroutines.delay
 
-class ForegroundWorker(context: Context, parameters: WorkerParameters) :
+class ForegroundLocationWorker(context: Context, parameters: WorkerParameters) :
     CoroutineWorker(context, parameters) {
 
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private val locationManager =
+        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-    private var progress: Data = Data.EMPTY
+    private var currentLocation: Data = Data.EMPTY
 
     override suspend fun doWork(): Result {
+        val permissionStatus =
+            ActivityCompat.checkSelfPermission(applicationContext, ACCESS_COARSE_LOCATION)
+        if (permissionStatus != PackageManager.PERMISSION_GRANTED) {
+            return Result.failure()
+        }
+
         val notificationId = inputData.getInt(InputNotificationId, NotificationId)
         val delayTime = inputData.getLong(InputDelayTime, Delay)
-        val range = 20
-        for (i in 1..range) {
-            delay(delayTime)
-            progress = workDataOf(Progress to i * (100 / range))
-            setProgress(progress)
+
+        setForeground(getForegroundInfo(notificationId))
+
+        repeat(20) {
+            val location =
+                locationManager.getLastKnownLocation(locationManager.allProviders.first())
+            currentLocation =
+                workDataOf(Lat to (location?.latitude ?: 0.0), Lon to (location?.longitude ?: 0.0))
+            setProgress(currentLocation)
             if (Build.VERSION.SDK_INT < 31) {
                 // No need for notifications starting S.
                 notificationManager.notify(
@@ -55,7 +71,9 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
                     getForegroundInfo(notificationId).notification
                 )
             }
+            delay(delayTime)
         }
+
         return Result.success()
     }
 
@@ -65,10 +83,11 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     }
 
     private fun getForegroundInfo(notificationId: Int): ForegroundInfo {
-        val percent = progress.getInt(Progress, 0)
+        val latitude = currentLocation.getDouble(Lat, 0.0)
+        val longitude = currentLocation.getDouble(Lon, 0.0)
         val id = applicationContext.getString(R.string.channel_id)
         val title = applicationContext.getString(R.string.notification_title)
-        val content = "Progress ($percent) %"
+        val content = "Location ($latitude,$longitude) %"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             createChannel()
         }
@@ -82,7 +101,7 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
                 .setOngoing(true)
                 .build()
 
-        return ForegroundInfo(notificationId, notification, FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        return ForegroundInfo(notificationId, notification, FOREGROUND_SERVICE_TYPE_LOCATION)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -100,7 +119,8 @@ class ForegroundWorker(context: Context, parameters: WorkerParameters) :
     companion object {
         private const val NotificationId = 10
         private const val Delay = 1000L
-        private const val Progress = "Progress"
+        private const val Lat = "Location.lat"
+        private const val Lon = "Location.Lon"
         const val InputNotificationId = "NotificationId"
         const val InputDelayTime = "DelayTime"
     }

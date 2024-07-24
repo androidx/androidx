@@ -239,6 +239,14 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
+        <Button android:text="@string/run_foreground_worker_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/run_foreground_worker_location"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
         <Button android:text="@string/cancel_foreground_worker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
