@@ -447,6 +447,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
         rule.runOnIdle { assertThat(info.isImportantForAccessibility).isTrue() }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     @SdkSuppress(minSdkVersion = 24)
     fun testIsNotImportant_testOnlyProperties() {

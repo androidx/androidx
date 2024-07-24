@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -197,6 +198,7 @@ class ScrollCaptureTest {
             assertThat(target.localVisibleRect).isEqualTo(Rect(0, 0, 10, 10))
         }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun search_doesNotFindTarget_whenInvisibleToUser() =
         captureTester.runTest {
