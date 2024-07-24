@@ -583,6 +583,7 @@ open class PdfViewerFragment : Fragment() {
         fastscrollerPositionObserverKey?.let {
             fastScrollView?.scrollerPositionY?.removeObserver(it)
         }
+        (zoomScrollObserver as? ZoomScrollValueObserver)?.clearAnnotationHandler()
     }
 
     override fun onDestroy() {
