@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import android.view.KeyEvent
 import android.widget.FrameLayout
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -105,6 +106,49 @@ class ExposedDropdownMenuTest {
                 (textFieldBounds.bottom + 1).toInt(),
             )
 
+        rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun expandedBehaviour_dismissesOnBackPress() {
+        rule.setMaterialContent {
+            var expanded by remember { mutableStateOf(true) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation()).pressBack()
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
+        rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
+    }
+
+    @Test
+    fun expandedBehaviour_dismissesOnEscapePress() {
+        rule.setMaterialContent {
+            var expanded by remember { mutableStateOf(true) }
+            ExposedDropdownMenuForTest(
+                expanded = expanded,
+                onExpandChange = { expanded = it },
+            )
+        }
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertIsDisplayed()
+        rule.onNodeWithTag(MenuItemTag).assertIsDisplayed()
+
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+            .pressKeyCode(KeyEvent.KEYCODE_ESCAPE)
+
+        rule.onNodeWithTag(TFTag).assertIsDisplayed()
+        rule.onNodeWithTag(EDMTag).assertDoesNotExist()
         rule.onNodeWithTag(MenuItemTag).assertDoesNotExist()
     }
 
