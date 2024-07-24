@@ -216,6 +216,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -2903,6 +2904,7 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @FlakyTest(bugId = 354750986)
     @Test
     fun sendTextEvents_whenSetText() {
         // Arrange.
@@ -2926,7 +2928,7 @@ class AndroidAccessibilityTest {
             .assert(expectValue(EditableText, AnnotatedString("H")))
 
         // TODO(b/272068594): Extra TYPE_WINDOW_CONTENT_CHANGED sent 100ms after setup.
-        rule.mainClock.advanceTimeBy(100L)
+        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
         rule.runOnIdle { clearInvocations(container) }
 
         // Act.
