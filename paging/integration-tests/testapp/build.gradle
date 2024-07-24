@@ -41,12 +41,10 @@ dependencies {
 
     // Only needed to ensure version of annotation:annotation matches in impl
     // and androidTestImpl, for both AOSP and playground builds.
-    implementation(project(":annotation:annotation"))
-    implementation(project(":annotation:annotation-experimental"))
+    implementation("androidx.annotation:annotation:1.8.1")
+    implementation("androidx.annotation:annotation-experimental:1.4.1")
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation(project(":annotation:annotation"))
-    androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

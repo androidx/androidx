@@ -46,7 +46,7 @@ dependencies {
     testImplementation(libs.truth)
 
     testRuntimeOnly(project(":resourceinspection:resourceinspection-annotation"))
-    testRuntimeOnly(project(":annotation:annotation"))
+    testRuntimeOnly("androidx.annotation:annotation:1.8.1")
     testRuntimeOnly(SdkHelperKt.getSdkDependency(project))
     testRuntimeOnly(libs.intellijAnnotations)
     testRuntimeOnly(libs.jsr250)

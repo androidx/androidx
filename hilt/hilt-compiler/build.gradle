@@ -39,7 +39,7 @@ dependencies {
     implementation(libs.kspApi)
 
     testImplementation(project(":hilt:hilt-common"))
-    testImplementation(project(":annotation:annotation"))
+    testImplementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(project(":room:room-compiler-processing-testing"))
