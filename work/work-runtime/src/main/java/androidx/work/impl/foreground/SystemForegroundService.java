@@ -175,6 +175,11 @@ public class SystemForegroundService extends LifecycleService implements
                 // is called, and the app is no longer in a state where it's possible to start a
                 // foreground service. WorkManager will eventually call stop() to clean up.
                 Logger.get().warning(TAG, "Unable to start foreground service", exception);
+            } catch (SecurityException exception) {
+                // In the case that a foreground type prerequisites permission is revoked
+                // and the service is restarted it will not be possible to start the
+                // foreground service.
+                Logger.get().warning(TAG, "Unable to start foreground service", exception);
             }
         }
     }
