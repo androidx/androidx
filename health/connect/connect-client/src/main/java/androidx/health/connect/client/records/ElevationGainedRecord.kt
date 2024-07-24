@@ -69,6 +69,10 @@ public class ElevationGainedRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "ElevationGainedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, elevation=$elevation, metadata=$metadata)"
+    }
+
     companion object {
         private val MAX_ELEVATION_GAIN = (1000_000).meters
         private val MIN_ELEVATION_GAIN = (-1000_000).meters

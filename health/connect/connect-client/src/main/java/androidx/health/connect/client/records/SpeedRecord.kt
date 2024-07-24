@@ -69,6 +69,10 @@ public class SpeedRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "SpeedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
+    }
+
     companion object {
         private const val SPEED_TYPE_NAME = "SpeedSeries"
         private const val SPEED_FIELD_NAME = "speed"
@@ -145,6 +149,10 @@ public class SpeedRecord(
             var result = time.hashCode()
             result = 31 * result + speed.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Sample(time=$time, speed=$speed)"
         }
     }
 }

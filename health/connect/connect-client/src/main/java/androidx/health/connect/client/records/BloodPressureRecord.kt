@@ -99,6 +99,10 @@ public class BloodPressureRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BloodPressureRecord(time=$time, zoneOffset=$zoneOffset, systolic=$systolic, diastolic=$diastolic, bodyPosition=$bodyPosition, measurementLocation=$measurementLocation, metadata=$metadata)"
+    }
+
     /** The arm and part of the arm where a blood pressure measurement was taken. */
     internal object MeasurementLocation {
         const val LEFT_WRIST = "left_wrist"

@@ -62,6 +62,10 @@ public class HeightRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "HeightRecord(time=$time, zoneOffset=$zoneOffset, height=$height, metadata=$metadata)"
+    }
+
     companion object {
         private const val HEIGHT_NAME = "Height"
         private const val HEIGHT_FIELD_NAME = "height"

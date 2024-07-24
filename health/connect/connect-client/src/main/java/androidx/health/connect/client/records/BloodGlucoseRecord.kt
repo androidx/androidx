@@ -197,4 +197,8 @@ public class BloodGlucoseRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "BloodGlucoseRecord(time=$time, zoneOffset=$zoneOffset, level=$level, specimenSource=$specimenSource, mealType=$mealType, relationToMeal=$relationToMeal, metadata=$metadata)"
+    }
 }

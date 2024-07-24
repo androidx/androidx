@@ -108,6 +108,10 @@ public class Metadata(
         return result
     }
 
+    override fun toString(): String {
+        return "Metadata(id='$id', dataOrigin=$dataOrigin, lastModifiedTime=$lastModifiedTime, clientRecordId=$clientRecordId, clientRecordVersion=$clientRecordVersion, device=$device, recordingMethod=$recordingMethod)"
+    }
+
     companion object {
         internal const val EMPTY_ID: String = ""
 

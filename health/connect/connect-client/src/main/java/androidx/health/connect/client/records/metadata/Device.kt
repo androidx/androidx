@@ -54,6 +54,10 @@ public class Device(
         return result
     }
 
+    override fun toString(): String {
+        return "Device(manufacturer=$manufacturer, model=$model, type=$type)"
+    }
+
     companion object {
         const val TYPE_UNKNOWN = 0
         const val TYPE_WATCH = 1

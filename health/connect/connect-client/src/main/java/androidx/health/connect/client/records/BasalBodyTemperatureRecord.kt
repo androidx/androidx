@@ -76,6 +76,10 @@ public class BasalBodyTemperatureRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BasalBodyTemperatureRecord(time=$time, zoneOffset=$zoneOffset, temperature=$temperature, measurementLocation=$measurementLocation, metadata=$metadata)"
+    }
+
     private companion object {
         private val MIN_TEMPERATURE = 0.celsius
         private val MAX_TEMPERATURE = 100.celsius

@@ -69,6 +69,10 @@ class StepsCadenceRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "StepsCadenceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
+    }
+
     companion object {
         private const val TYPE = "StepsCadenceSeries"
         private const val RATE_FIELD = "rate"
@@ -128,6 +132,10 @@ class StepsCadenceRecord(
             var result = time.hashCode()
             result = 31 * result + rate.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Sample(time=$time, rate=$rate)"
         }
     }
 }

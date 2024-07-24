@@ -71,6 +71,10 @@ public class CyclingPedalingCadenceRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "CyclingPedalingCadenceRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
+    }
+
     companion object {
         private const val TYPE = "CyclingPedalingCadenceSeries"
         private const val RPM_FIELD = "rpm"
@@ -132,6 +136,10 @@ public class CyclingPedalingCadenceRecord(
             var result = time.hashCode()
             result = 31 * result + revolutionsPerMinute.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Sample(time=$time, revolutionsPerMinute=$revolutionsPerMinute)"
         }
     }
 }

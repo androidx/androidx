@@ -63,4 +63,8 @@ public class OxygenSaturationRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "OxygenSaturationRecord(time=$time, zoneOffset=$zoneOffset, percentage=$percentage, metadata=$metadata)"
+    }
 }

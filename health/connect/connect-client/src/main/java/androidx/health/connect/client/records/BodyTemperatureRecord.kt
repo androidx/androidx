@@ -68,4 +68,8 @@ public class BodyTemperatureRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "BodyTemperatureRecord(time=$time, zoneOffset=$zoneOffset, temperature=$temperature, measurementLocation=$measurementLocation, metadata=$metadata)"
+    }
 }

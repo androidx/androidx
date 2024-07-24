@@ -178,6 +178,10 @@ internal constructor(
         return result
     }
 
+    override fun toString(): String {
+        return "ExerciseSessionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, exerciseType=$exerciseType, title=$title, notes=$notes, metadata=$metadata, segments=$segments, laps=$laps, exerciseRouteResult=$exerciseRouteResult)"
+    }
+
     companion object {
         /**
          * Metric identifier to retrieve the total exercise time from

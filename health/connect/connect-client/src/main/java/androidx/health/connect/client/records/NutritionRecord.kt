@@ -291,6 +291,10 @@ public class NutritionRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "NutritionRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, biotin=$biotin, caffeine=$caffeine, calcium=$calcium, energy=$energy, energyFromFat=$energyFromFat, chloride=$chloride, cholesterol=$cholesterol, chromium=$chromium, copper=$copper, dietaryFiber=$dietaryFiber, folate=$folate, folicAcid=$folicAcid, iodine=$iodine, iron=$iron, magnesium=$magnesium, manganese=$manganese, molybdenum=$molybdenum, monounsaturatedFat=$monounsaturatedFat, niacin=$niacin, pantothenicAcid=$pantothenicAcid, phosphorus=$phosphorus, polyunsaturatedFat=$polyunsaturatedFat, potassium=$potassium, protein=$protein, riboflavin=$riboflavin, saturatedFat=$saturatedFat, selenium=$selenium, sodium=$sodium, sugar=$sugar, thiamin=$thiamin, totalCarbohydrate=$totalCarbohydrate, totalFat=$totalFat, transFat=$transFat, unsaturatedFat=$unsaturatedFat, vitaminA=$vitaminA, vitaminB12=$vitaminB12, vitaminB6=$vitaminB6, vitaminC=$vitaminC, vitaminD=$vitaminD, vitaminE=$vitaminE, vitaminK=$vitaminK, zinc=$zinc, name=$name, mealType=$mealType, metadata=$metadata)"
+    }
+
     companion object {
         private const val TYPE_NAME = "Nutrition"
 

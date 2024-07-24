@@ -176,4 +176,30 @@ class SleepSessionRecordTest {
             )
         }
     }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                SleepSessionRecord(
+                        startTime = Instant.ofEpochMilli(1234L),
+                        startZoneOffset = null,
+                        endTime = Instant.ofEpochMilli(1236L),
+                        endZoneOffset = null,
+                        title = "title",
+                        notes = "note",
+                        stages =
+                            listOf(
+                                SleepSessionRecord.Stage(
+                                    startTime = Instant.ofEpochMilli(1234),
+                                    endTime = Instant.ofEpochMilli(1236),
+                                    stage = SleepSessionRecord.STAGE_TYPE_DEEP,
+                                ),
+                            ),
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "SleepSessionRecord(startTime=1970-01-01T00:00:01.234Z, startZoneOffset=null, endTime=1970-01-01T00:00:01.236Z, endZoneOffset=null, title=title, notes=note, stages=[Stage(startTime=1970-01-01T00:00:01.234Z, endTime=1970-01-01T00:00:01.236Z, stage=5)], metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
+    }
 }

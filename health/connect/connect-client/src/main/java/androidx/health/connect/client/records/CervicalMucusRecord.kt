@@ -150,4 +150,8 @@ public class CervicalMucusRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "CervicalMucusRecord(time=$time, zoneOffset=$zoneOffset, appearance=$appearance, sensation=$sensation, metadata=$metadata)"
+    }
 }

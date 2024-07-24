@@ -73,6 +73,10 @@ public class ActiveCaloriesBurnedRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "ActiveCaloriesBurnedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, energy=$energy, metadata=$metadata)"
+    }
+
     companion object {
         private const val TYPE_NAME = "ActiveCaloriesBurned"
         private const val ENERGY_FIELD_NAME = "energy"

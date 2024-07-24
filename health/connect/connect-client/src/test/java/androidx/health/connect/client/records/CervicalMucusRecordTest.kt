@@ -16,8 +16,10 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,5 +44,22 @@ class CervicalMucusRecordTest {
             .containsExactlyElementsIn(allEnums)
         assertThat(CervicalMucusRecord.SENSATION_INT_TO_STRING_MAP.keys)
             .containsExactlyElementsIn(allEnums)
+    }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                CervicalMucusRecord(
+                        time = Instant.ofEpochMilli(1234L),
+                        zoneOffset = null,
+                        appearance = CervicalMucusRecord.APPEARANCE_UNUSUAL,
+                        sensation = CervicalMucusRecord.SENSATION_MEDIUM,
+                        metadata = Metadata.EMPTY,
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "CervicalMucusRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, appearance=6, sensation=2, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
     }
 }

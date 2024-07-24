@@ -66,6 +66,10 @@ class MenstruationPeriodRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "MenstruationPeriodRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, metadata=$metadata)"
+    }
+
     private companion object {
         private val MAX_DURATION = Duration.ofDays(31)
     }

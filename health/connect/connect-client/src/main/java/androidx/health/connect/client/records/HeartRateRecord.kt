@@ -65,6 +65,10 @@ public class HeartRateRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "HeartRateRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, samples=$samples, metadata=$metadata)"
+    }
+
     companion object {
         private const val HEART_RATE_TYPE_NAME = "HeartRateSeries"
         private const val BPM_FIELD_NAME = "bpm"
@@ -142,6 +146,10 @@ public class HeartRateRecord(
             var result = time.hashCode()
             result = 31 * result + beatsPerMinute.hashCode()
             return result
+        }
+
+        override fun toString(): String {
+            return "Sample(time=$time, beatsPerMinute=$beatsPerMinute)"
         }
     }
 }

@@ -72,6 +72,10 @@ public class TotalCaloriesBurnedRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "TotalCaloriesBurnedRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, energy=$energy, metadata=$metadata)"
+    }
+
     companion object {
         private val MAX_ENERGY = 1000_000.kilocalories
 

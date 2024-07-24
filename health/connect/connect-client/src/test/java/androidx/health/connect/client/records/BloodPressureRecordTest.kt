@@ -16,8 +16,11 @@
 
 package androidx.health.connect.client.records
 
+import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.units.Pressure
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
+import java.time.Instant
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -42,5 +45,24 @@ class BloodPressureRecordTest {
             .containsExactlyElementsIn(allEnums)
         assertThat(BloodPressureRecord.MEASUREMENT_LOCATION_INT_TO_STRING_MAP.keys)
             .containsExactlyElementsIn(allEnums)
+    }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                BloodPressureRecord(
+                        time = Instant.ofEpochMilli(1234L),
+                        zoneOffset = null,
+                        systolic = Pressure.millimetersOfMercury(120.0),
+                        diastolic = Pressure.millimetersOfMercury(112.0),
+                        bodyPosition = BloodPressureRecord.BODY_POSITION_RECLINING,
+                        measurementLocation = BloodPressureRecord.MEASUREMENT_LOCATION_LEFT_WRIST,
+                        metadata = Metadata.EMPTY,
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "BloodPressureRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, systolic=120.0 mmHg, diastolic=112.0 mmHg, bodyPosition=4, measurementLocation=1, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
     }
 }

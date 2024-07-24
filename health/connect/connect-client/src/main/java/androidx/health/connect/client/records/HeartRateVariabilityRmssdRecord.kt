@@ -64,4 +64,8 @@ public class HeartRateVariabilityRmssdRecord(
         result = 31 * result + metadata.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "HeartRateVariabilityRmssdRecord(time=$time, zoneOffset=$zoneOffset, heartRateVariabilityMillis=$heartRateVariabilityMillis, metadata=$metadata)"
+    }
 }

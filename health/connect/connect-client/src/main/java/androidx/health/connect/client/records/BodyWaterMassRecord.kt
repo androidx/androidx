@@ -63,6 +63,10 @@ public class BodyWaterMassRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BodyWaterMassRecord(time=$time, zoneOffset=$zoneOffset, mass=$mass, metadata=$metadata)"
+    }
+
     private companion object {
         private val MAX_BODY_WATER_MASS = 1000.kilograms
     }

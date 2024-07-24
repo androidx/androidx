@@ -63,6 +63,10 @@ public class HydrationRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "HydrationRecord(startTime=$startTime, startZoneOffset=$startZoneOffset, endTime=$endTime, endZoneOffset=$endZoneOffset, volume=$volume, metadata=$metadata)"
+    }
+
     companion object {
         private val MAX_VOLUME = 100.liters
 

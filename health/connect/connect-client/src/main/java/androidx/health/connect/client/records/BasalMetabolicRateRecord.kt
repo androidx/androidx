@@ -60,6 +60,10 @@ public class BasalMetabolicRateRecord(
         return result
     }
 
+    override fun toString(): String {
+        return "BasalMetabolicRateRecord(time=$time, zoneOffset=$zoneOffset, basalMetabolicRate=$basalMetabolicRate, metadata=$metadata)"
+    }
+
     companion object {
         private const val BASAL_CALORIES_TYPE_NAME = "BasalCaloriesBurned"
         private const val ENERGY_FIELD_NAME = "energy"

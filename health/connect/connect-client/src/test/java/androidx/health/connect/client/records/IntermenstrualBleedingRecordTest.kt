@@ -40,4 +40,18 @@ class IntermenstrualBleedingRecordTest {
                 )
             )
     }
+
+    @Test
+    fun toString_containsMembers() {
+        assertThat(
+                IntermenstrualBleedingRecord(
+                        time = Instant.ofEpochMilli(1234L),
+                        zoneOffset = null,
+                    )
+                    .toString()
+            )
+            .isEqualTo(
+                "IntermenstrualBleedingRecord(time=1970-01-01T00:00:01.234Z, zoneOffset=null, metadata=Metadata(id='', dataOrigin=DataOrigin(packageName=''), lastModifiedTime=1970-01-01T00:00:00Z, clientRecordId=null, clientRecordVersion=0, device=null, recordingMethod=0))"
+            )
+    }
 }
