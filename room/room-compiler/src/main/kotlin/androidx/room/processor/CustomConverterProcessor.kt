@@ -51,22 +51,31 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             }
             val annotation = element.requireAnnotation(TypeConverters::class)
             val classes = annotation.getAsTypeList("value").mapTo(LinkedHashSet()) { it }
-            val converters =
-                classes.flatMap {
-                    val typeElement = it.typeElement
-                    if (typeElement == null) {
-                        context.logger.e(
-                            element,
-                            ProcessorErrors.typeConverterMustBeDeclared(
-                                it.asTypeName().toString(context.codeLanguage)
+            val typeElementToWrappers =
+                classes
+                    .mapNotNull {
+                        val typeElement = it.typeElement
+                        if (typeElement == null) {
+                            context.logger.e(
+                                element,
+                                ProcessorErrors.typeConverterMustBeDeclared(
+                                    it.asTypeName().toString(context.codeLanguage)
+                                )
                             )
-                        )
-                        emptyList()
-                    } else {
-                        CustomConverterProcessor(context, typeElement).process()
+                            null
+                        } else {
+                            typeElement
+                        }
                     }
-                }
-            reportDuplicates(context, converters)
+                    .associateWith {
+                        CustomConverterProcessor(context, it)
+                            .process()
+                            .map(::CustomTypeConverterWrapper)
+                    }
+            reportDuplicates(
+                context,
+                typeElementToWrappers.values.flatMap { wrappers -> wrappers.map { it.custom } }
+            )
             val builtInStates =
                 annotation.getAsAnnotationBox<BuiltInTypeConverters>("builtInTypeConverters").let {
                     BuiltInConverterFlags(
@@ -76,8 +85,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                     )
                 }
             return ProcessResult(
-                classes = classes,
-                converters = converters.map(::CustomTypeConverterWrapper),
+                typeElementToWrappers = typeElementToWrappers,
                 builtInConverterFlags = builtInStates
             )
         }
@@ -180,26 +188,33 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
 
     /** Order of classes is important hence they are a LinkedHashSet not a set. */
     data class ProcessResult(
-        val classes: LinkedHashSet<XType>,
-        val converters: List<CustomTypeConverterWrapper>,
+        private val typeElementToWrappers: Map<XTypeElement, List<CustomTypeConverterWrapper>>,
         val builtInConverterFlags: BuiltInConverterFlags
     ) {
         companion object {
             val EMPTY =
                 ProcessResult(
-                    classes = LinkedHashSet(),
-                    converters = emptyList(),
+                    typeElementToWrappers = LinkedHashMap(),
                     builtInConverterFlags = BuiltInConverterFlags.DEFAULT
                 )
         }
 
+        val classes: Set<XTypeElement>
+            get() = typeElementToWrappers.keys
+
+        val converters: List<CustomTypeConverterWrapper>
+            get() = typeElementToWrappers.flatMap { it.value }
+
         operator fun plus(other: ProcessResult): ProcessResult {
-            val newClasses = LinkedHashSet<XType>()
-            newClasses.addAll(classes)
-            newClasses.addAll(other.classes)
+            val newMap = LinkedHashMap<XTypeElement, List<CustomTypeConverterWrapper>>()
+            newMap.putAll(typeElementToWrappers)
+            other.typeElementToWrappers.forEach { (typeElement, converters) ->
+                if (!newMap.contains(typeElement)) {
+                    newMap[typeElement] = converters
+                }
+            }
             return ProcessResult(
-                classes = newClasses,
-                converters = converters + other.converters,
+                typeElementToWrappers = newMap,
                 builtInConverterFlags = other.builtInConverterFlags.withNext(builtInConverterFlags)
             )
         }

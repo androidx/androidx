@@ -38,12 +38,10 @@ class CompositeAdapter(
         if (fromCursorConverter == null) {
             return
         }
-        scope.builder.apply {
-            val tmpCursorValue = scope.getTmpVar()
-            addLocalVariable(tmpCursorValue, columnTypeAdapter.outTypeName)
-            columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, indexVarName, scope)
-            fromCursorConverter.convert(tmpCursorValue, outVarName, scope)
-        }
+        val tmpCursorValue = scope.getTmpVar()
+        scope.builder.addLocalVariable(tmpCursorValue, columnTypeAdapter.outTypeName)
+        columnTypeAdapter.readFromCursor(tmpCursorValue, cursorVarName, indexVarName, scope)
+        fromCursorConverter.convert(tmpCursorValue, outVarName, scope)
     }
 
     override fun bindToStmt(
@@ -55,9 +53,7 @@ class CompositeAdapter(
         if (intoStatementConverter == null) {
             return
         }
-        scope.builder.apply {
-            val bindVar = intoStatementConverter.convert(valueVarName, scope)
-            columnTypeAdapter.bindToStmt(stmtName, indexVarName, bindVar, scope)
-        }
+        val bindVar = intoStatementConverter.convert(valueVarName, scope)
+        columnTypeAdapter.bindToStmt(stmtName, indexVarName, bindVar, scope)
     }
 }

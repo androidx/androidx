@@ -22,16 +22,12 @@ import androidx.room.solver.CodeGenScope
 class CompositeTypeConverter(val conv1: TypeConverter, val conv2: TypeConverter) :
     TypeConverter(from = conv1.from, to = conv2.to, cost = conv1.cost + conv2.cost) {
     override fun doConvert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
-        scope.builder.apply {
-            val conv1Output = conv1.convert(inputVarName, scope)
-            conv2.convert(inputVarName = conv1Output, outputVarName = outputVarName, scope = scope)
-        }
+        val conv1Output = conv1.convert(inputVarName, scope)
+        conv2.convert(inputVarName = conv1Output, outputVarName = outputVarName, scope = scope)
     }
 
     override fun doConvert(inputVarName: String, scope: CodeGenScope): String {
-        scope.builder.apply {
-            val conv1Output = conv1.convert(inputVarName = inputVarName, scope = scope)
-            return conv2.convert(inputVarName = conv1Output, scope = scope)
-        }
+        val conv1Output = conv1.convert(inputVarName = inputVarName, scope = scope)
+        return conv2.convert(inputVarName = conv1Output, scope = scope)
     }
 }
