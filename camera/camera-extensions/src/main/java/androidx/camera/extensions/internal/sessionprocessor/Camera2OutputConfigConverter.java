@@ -46,7 +46,10 @@ class Camera2OutputConfigConverter {
             }
         }
 
-        if (impl instanceof SurfaceOutputConfigImpl) {
+        // Workaround to avoid the R8 issue (b/350689668)
+        // Force cast the input Camera2OutputConfigImpl instance to all possible types in sequence
+        // to know what is its real type.
+        try {
             SurfaceOutputConfigImpl surfaceImpl = (SurfaceOutputConfigImpl) impl;
             return SurfaceOutputConfig.create(
                     surfaceImpl.getId(),
@@ -54,7 +57,11 @@ class Camera2OutputConfigConverter {
                     surfaceImpl.getPhysicalCameraId(),
                     sharedOutputConfigs,
                     surfaceImpl.getSurface());
-        } else if (impl instanceof ImageReaderOutputConfigImpl) {
+        } catch (ClassCastException e) {
+            // Not type of SurfaceOutputConfigImpl! Go to try the next type.
+        }
+
+        try {
             ImageReaderOutputConfigImpl imageReaderImpl = (ImageReaderOutputConfigImpl) impl;
             return ImageReaderOutputConfig.create(
                     imageReaderImpl.getId(),
@@ -64,7 +71,11 @@ class Camera2OutputConfigConverter {
                     imageReaderImpl.getSize(),
                     imageReaderImpl.getImageFormat(),
                     imageReaderImpl.getMaxImages());
-        } else if (impl instanceof MultiResolutionImageReaderOutputConfigImpl) {
+        } catch (ClassCastException e) {
+            // Not type of ImageReaderOutputConfigImpl! Go to try the next type.
+        }
+
+        try {
             MultiResolutionImageReaderOutputConfigImpl multiResolutionImageReaderImpl =
                     (MultiResolutionImageReaderOutputConfigImpl) impl;
             return MultiResolutionImageReaderOutputConfig.create(
@@ -74,7 +85,10 @@ class Camera2OutputConfigConverter {
                     sharedOutputConfigs,
                     multiResolutionImageReaderImpl.getImageFormat(),
                     multiResolutionImageReaderImpl.getMaxImages());
+        } catch (ClassCastException e) {
+            // Not type of MultiResolutionImageReaderOutputConfigImpl!
         }
+
         throw new IllegalArgumentException(
                 "Not supported Camera2OutputConfigImpl: " + impl.getClass());
     }
