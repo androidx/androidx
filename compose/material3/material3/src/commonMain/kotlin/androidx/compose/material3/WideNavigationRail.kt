@@ -147,6 +147,12 @@ private fun WideNavigationRailLayout(
 ) {
     var currentWidth by remember { mutableIntStateOf(0) }
     var actualMaxExpandedWidth by remember { mutableIntStateOf(0) }
+    val minimumA11ySize =
+        if (LocalMinimumInteractiveComponentSize.current == Dp.Unspecified) {
+            0.dp
+        } else {
+            LocalMinimumInteractiveComponentSize.current
+        }
 
     val minWidth by
         animateDpAsState(
@@ -246,7 +252,10 @@ private fun WideNavigationRailLayout(
                                                             ItemMinWidth.roundToPx(),
                                                             itemMaxWidthConstraint
                                                         ),
-                                                    minHeight = WNRItemMinHeight.roundToPx(),
+                                                    minHeight =
+                                                        if (!expanded)
+                                                            WNRTopItemMinHeight.roundToPx()
+                                                        else minimumA11ySize.roundToPx(),
                                                     maxWidth = itemMaxWidthConstraint,
                                                     maxHeight = looseConstraints.maxHeight,
                                                 )
@@ -604,9 +613,9 @@ private val ExpandedRailMaxWidth = 360.dp
 private val ExpandedRailHorizontalItemPadding = 20.dp
 private val ItemStartIconIndicatorHorizontalPadding = 16.dp
 private val ItemStartIconToLabelPadding = 8.dp
-
 /*@VisibleForTesting*/
-internal val WNRItemMinHeight = 48.dp
+internal val WNRTopItemMinHeight = 64.dp
+
 /*@VisibleForTesting*/
 // Vertical padding between the contents of the wide navigation rail and its top/bottom.
 internal val WNRVerticalPadding = 44.dp

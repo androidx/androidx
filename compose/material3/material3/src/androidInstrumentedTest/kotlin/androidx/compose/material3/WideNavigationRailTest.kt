@@ -52,6 +52,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -367,7 +368,7 @@ class WideNavigationRailTest {
 
     @Test
     fun item_topIconPosition_withLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = WNRItemMinHeight
+        val defaultHeight = WNRTopItemMinHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
@@ -387,9 +388,10 @@ class WideNavigationRailTest {
 
     @Test
     fun item_startIconPosition_withLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = WNRItemMinHeight
+        var defaultHeight: Dp? = null
 
         rule.setMaterialContent(lightColorScheme()) {
+            defaultHeight = LocalMinimumInteractiveComponentSize.current
             WideNavigationRailItem(
                 iconPosition = NavigationItemIconPosition.Start,
                 icon = { Icon(Icons.Filled.Favorite, null) },
