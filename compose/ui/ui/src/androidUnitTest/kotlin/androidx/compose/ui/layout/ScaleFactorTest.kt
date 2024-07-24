@@ -136,6 +136,6 @@ class ScaleFactorTest {
 
     @Test
     fun testScaleFactorToString() {
-        assertEquals("ScaleFactor(1.2, 1.3)", ScaleFactor(1.234f, 1.25f).toString())
+        assertEquals("ScaleFactor(1.234, 1.25)", ScaleFactor(1.234f, 1.25f).toString())
     }
 }

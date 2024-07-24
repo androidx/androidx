@@ -81,7 +81,7 @@ value class ScaleFactor internal constructor(@PublishedApi internal val packedVa
      */
     @Stable operator fun div(operand: Float) = ScaleFactor(scaleX / operand, scaleY / operand)
 
-    override fun toString() = "ScaleFactor(${scaleX.roundToTenths()}, ${scaleY.roundToTenths()})"
+    override fun toString() = "ScaleFactor(${scaleX}, ${scaleY})"
 
     companion object {
 
@@ -92,20 +92,6 @@ value class ScaleFactor internal constructor(@PublishedApi internal val packedVa
          */
         @Stable val Unspecified = ScaleFactor(Float.NaN, Float.NaN)
     }
-}
-
-private fun Float.roundToTenths(): Float {
-    val shifted = this * 10
-    val decimal = shifted - shifted.toInt()
-    // Kotlin's round operator rounds 0.5f down to 0. Manually compare against
-    // 0.5f and round up if necessary
-    val roundedShifted =
-        if (decimal >= 0.5f) {
-            shifted.toInt() + 1
-        } else {
-            shifted.toInt()
-        }
-    return roundedShifted.toFloat() / 10
 }
 
 /** `false` when this is [ScaleFactor.Unspecified]. */
