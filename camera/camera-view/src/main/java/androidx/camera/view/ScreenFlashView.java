@@ -19,6 +19,8 @@ package androidx.camera.view;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
@@ -29,6 +31,7 @@ import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.ScreenFlash;
@@ -58,14 +61,17 @@ import androidx.fragment.app.Fragment;
  * {@link PreviewView} does not encompass the full screen, users may want to use this view
  * separately so that whole screen can be encompassed during screen flash operation.
  *
+ * @see #getScreenFlash
  * @see ImageCapture#FLASH_MODE_SCREEN
- * @see PreviewView#getScreenFlash
  */
 public final class ScreenFlashView extends View {
     private static final String TAG = "ScreenFlashView";
     private CameraController mCameraController;
     private Window mScreenFlashWindow;
     private ImageCapture.ScreenFlash mScreenFlash;
+
+    /** The timeout in seconds for the visibility animation at {@link ScreenFlash#apply}. */
+    private static final long ANIMATION_DURATION_MILLIS = 1000;
 
     @UiThread
     public ScreenFlashView(@NonNull Context context) {
@@ -80,7 +86,7 @@ public final class ScreenFlashView extends View {
     @UiThread
     public ScreenFlashView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
-        this(context, attrs,  defStyleAttr, 0);
+        this(context, attrs, defStyleAttr, 0);
     }
 
     @UiThread
@@ -134,7 +140,7 @@ public final class ScreenFlashView extends View {
             return;
         }
         mCameraController.setScreenFlashUiInfo(new ScreenFlashUiInfo(
-                        ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW, control));
+                ScreenFlashUiInfo.ProviderType.SCREEN_FLASH_VIEW, control));
     }
 
     /**
@@ -170,36 +176,108 @@ public final class ScreenFlashView extends View {
         if (mScreenFlashWindow != window) {
             mScreenFlash = window == null ? null : new ScreenFlash() {
                 private float mPreviousBrightness;
+                private ValueAnimator mAnimator;
 
                 @Override
                 public void apply(long expirationTimeMillis,
                         @NonNull ImageCapture.ScreenFlashListener screenFlashListener) {
                     Logger.d(TAG, "ScreenFlash#apply");
 
-                    setAlpha(1f);
+                    mPreviousBrightness = getBrightness();
+                    setBrightness(1.0f);
 
-                    // Maximize screen brightness
-                    WindowManager.LayoutParams layoutParam = mScreenFlashWindow.getAttributes();
-                    mPreviousBrightness = layoutParam.screenBrightness;
-                    layoutParam.screenBrightness = 1F;
-                    mScreenFlashWindow.setAttributes(layoutParam);
-
-                    screenFlashListener.onCompleted();
+                    if (mAnimator != null) {
+                        mAnimator.cancel();
+                    }
+                    mAnimator = animateToFullOpacity(screenFlashListener::onCompleted);
                 }
 
                 @Override
                 public void clear() {
                     Logger.d(TAG, "ScreenFlash#clearScreenFlashUi");
 
+                    if (mAnimator != null) {
+                        mAnimator.cancel();
+                        mAnimator = null;
+                    }
+
                     setAlpha(0f);
 
                     // Restore screen brightness
-                    WindowManager.LayoutParams layoutParam = mScreenFlashWindow.getAttributes();
-                    layoutParam.screenBrightness = mPreviousBrightness;
-                    mScreenFlashWindow.setAttributes(layoutParam);
+                    setBrightness(mPreviousBrightness);
                 }
             };
         }
+    }
+
+    private ValueAnimator animateToFullOpacity(@Nullable Runnable onAnimationEnd) {
+        Logger.d(TAG, "animateToFullOpacity");
+
+        ValueAnimator animator = ValueAnimator.ofFloat(0F, 1F);
+
+        // TODO: b/355168952 - Allow users to overwrite the animation duration.
+        animator.setDuration(getVisibilityRampUpAnimationDurationMillis());
+
+        animator.addUpdateListener(animation -> {
+            Logger.d(TAG, "animateToFullOpacity: value = " + (float) animation.getAnimatedValue());
+            setAlpha((float) animation.getAnimatedValue());
+        });
+
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(@NonNull Animator animation) {
+                Logger.d(TAG, "ScreenFlash#apply: onAnimationEnd");
+                if (onAnimationEnd != null) {
+                    onAnimationEnd.run();
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(@NonNull Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(@NonNull Animator animation) {
+
+            }
+        });
+
+        animator.start();
+
+        return animator;
+    }
+
+    private float getBrightness() {
+        if (mScreenFlashWindow == null) {
+            Logger.e(TAG, "setBrightness: mScreenFlashWindow is null!");
+            return Float.NaN;
+        }
+
+        WindowManager.LayoutParams layoutParam = mScreenFlashWindow.getAttributes();
+        return layoutParam.screenBrightness;
+    }
+
+    private void setBrightness(float value) {
+        if (mScreenFlashWindow == null) {
+            Logger.e(TAG, "setBrightness: mScreenFlashWindow is null!");
+            return;
+        }
+
+        if (Float.isNaN(value)) {
+            Logger.e(TAG, "setBrightness: value is NaN!");
+            return;
+        }
+
+        WindowManager.LayoutParams layoutParam = mScreenFlashWindow.getAttributes();
+        layoutParam.screenBrightness = value;
+        mScreenFlashWindow.setAttributes(layoutParam);
+        Logger.d(TAG, "Brightness set to " + layoutParam.screenBrightness);
     }
 
     /**
@@ -207,8 +285,13 @@ public final class ScreenFlashView extends View {
      * set via {@link #setScreenFlashWindow(Window)}.
      *
      * <p> When {@link ScreenFlash#apply(long, ImageCapture.ScreenFlashListener)} is invoked,
-     * this view becomes fully visible and screen brightness is maximized using the provided
-     * {@code Window}. The default color of the overlay view is {@link Color#WHITE}. To change
+     * this view becomes fully visible gradually with an animation and screen brightness is
+     * maximized using the provided {@code Window}. Since brightness change of the display happens
+     * asynchronously and may take some time to be completed, the animation to ramp up visibility
+     * may require a duration of sufficient delay (decided internally) before
+     * {@link ImageCapture.ScreenFlashListener#onCompleted()} is invoked.
+     *
+     * <p> The default color of the overlay view is {@link Color#WHITE}. To change
      * the color, use {@link #setBackgroundColor(int)}.
      *
      * <p> When {@link ScreenFlash#clear()} is invoked, the view
@@ -219,11 +302,23 @@ public final class ScreenFlashView extends View {
      * Window} is set or none set at all, a null value will be returned by this method.
      *
      * @return A simple {@link ScreenFlash} implementation, or null value if a non-null
-     *         {@code Window} instance hasn't been set.
+     * {@code Window} instance hasn't been set.
      */
     @UiThread
     @Nullable
     public ScreenFlash getScreenFlash() {
         return mScreenFlash;
+    }
+
+    /**
+     * Returns the duration of the visibility ramp-up animation.
+     *
+     * <p> This is currently used in {@link ScreenFlash#apply}.
+     *
+     * @see #getScreenFlash()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public long getVisibilityRampUpAnimationDurationMillis() {
+        return ANIMATION_DURATION_MILLIS;
     }
 }
