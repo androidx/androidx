@@ -52,10 +52,16 @@ class TimeTextScreenshotTest {
 
     @get:Rule val testName = TestName()
 
+    private val MockTimeSource =
+        object : TimeSource {
+            @Composable override fun currentTime() = "10:10"
+        }
+
     @Test
     fun time_text_with_clock_only_on_round_device() = verifyScreenshot {
         TimeText(
             modifier = Modifier.testTag(TEST_TAG),
+            timeSource = MockTimeSource,
         ) {
             time()
         }
@@ -66,6 +72,7 @@ class TimeTextScreenshotTest {
         verifyScreenshot(false) {
             TimeText(
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 time()
             }
@@ -75,6 +82,7 @@ class TimeTextScreenshotTest {
     fun time_text_with_status_on_round_device() = verifyScreenshot {
         TimeText(
             modifier = Modifier.testTag(TEST_TAG),
+            timeSource = MockTimeSource,
         ) {
             text("ETA 12:48")
             separator()
@@ -87,6 +95,7 @@ class TimeTextScreenshotTest {
         verifyScreenshot(false) {
             TimeText(
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 text("ETA 12:48")
                 separator()
@@ -98,6 +107,7 @@ class TimeTextScreenshotTest {
     fun time_text_with_icon_on_round_device() = verifyScreenshot {
         TimeText(
             modifier = Modifier.testTag(TEST_TAG),
+            timeSource = MockTimeSource,
         ) {
             time()
             separator()
@@ -116,6 +126,7 @@ class TimeTextScreenshotTest {
         verifyScreenshot(false) {
             TimeText(
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 time()
                 separator()
@@ -138,6 +149,7 @@ class TimeTextScreenshotTest {
             contentColor = Color.Green,
             timeTextStyle = timeTextStyle,
             modifier = Modifier.testTag(TEST_TAG),
+            timeSource = MockTimeSource,
         ) {
             text("ETA", customStyle)
             composable { Spacer(modifier = Modifier.size(4.dp)) }
@@ -154,6 +166,7 @@ class TimeTextScreenshotTest {
             contentColor = Color.Green,
             timeTextStyle = timeTextStyle,
             modifier = Modifier.testTag(TEST_TAG),
+            timeSource = MockTimeSource,
         ) {
             text("Long status that should be ellipsized.")
             composable { Spacer(modifier = Modifier.size(4.dp)) }
@@ -171,6 +184,7 @@ class TimeTextScreenshotTest {
                 contentColor = Color.Green,
                 timeTextStyle = timeTextStyle,
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 text("ETA", customStyle)
                 composable { Spacer(modifier = Modifier.size(4.dp)) }
@@ -191,6 +205,7 @@ class TimeTextScreenshotTest {
                 timeTextStyle = timeTextStyle,
                 maxSweepAngle = 180f,
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 text(
                     "Very long text to ensure we are respecting the maxSweep parameter",
@@ -212,6 +227,7 @@ class TimeTextScreenshotTest {
                 timeTextStyle = timeTextStyle,
                 maxSweepAngle = 90f,
                 modifier = Modifier.testTag(TEST_TAG),
+                timeSource = MockTimeSource,
             ) {
                 text(
                     "Very long text to ensure we are respecting the maxSweep parameter",
