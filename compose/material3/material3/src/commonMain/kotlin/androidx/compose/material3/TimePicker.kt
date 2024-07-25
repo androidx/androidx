@@ -628,10 +628,14 @@ interface TimePickerState {
 
     /** Specifies whether the hour or minute component is being actively selected by the user. */
     var selection: TimePickerSelectionMode
-
-    /** Indicates whether the selected time falls within the afternoon period (12 PM - 12 AM). */
-    var isAfternoon: Boolean
 }
+
+/**
+ * Indicates whether the selected time falls within the period from 12 PM inclusive to 12 AM non
+ * inclusive.
+ */
+val TimePickerState.isPm
+    get() = hour >= 12
 
 /**
  * Factory function for the default implementation of [TimePickerState] [rememberTimePickerState]
@@ -679,9 +683,7 @@ private class TimePickerStateImpl(
 
     override var selection by mutableStateOf(TimePickerSelectionMode.Hour)
 
-    override var isAfternoon by mutableStateOf(initialHour >= 12)
-
-    val hourState = mutableIntStateOf(initialHour % 12)
+    val hourState = mutableIntStateOf(initialHour)
 
     val minuteState = mutableIntStateOf(initialMinute)
 
@@ -692,10 +694,9 @@ private class TimePickerStateImpl(
         }
 
     override var hour: Int
-        get() = hourState.intValue + if (isAfternoon) 12 else 0
+        get() = hourState.intValue
         set(value) {
-            isAfternoon = value >= 12
-            hourState.intValue = value % 12
+            hourState.intValue = value
         }
 
     companion object {
@@ -792,7 +793,7 @@ internal class AnalogTimePickerState(val state: TimePickerState) : TimePickerSta
         mutex.mutate(MutatePriority.UserInput) {
             if (selection == TimePickerSelectionMode.Hour) {
                 hourAngle = angle.toHour() % 12 * RadiansPerHour
-                state.hour = hourAngle.toHour() % 12 + if (isAfternoon) 12 else 0
+                state.hour = hourAngle.toHour() % 12 + if (isPm) 12 else 0
             } else {
                 minuteAngle = angle.toMinute() * RadiansPerMinute
                 state.minute = minuteAngle.toMinute()
@@ -865,13 +866,18 @@ internal val TimePickerState.hourForDisplay: Int
         when {
             is24hour -> hour % 24
             hour % 12 == 0 -> 12
-            isAfternoon -> hour - 12
+            isPm -> hour - 12
             else -> hour
         }
 
 private fun TimePickerState.moveSelector(x: Float, y: Float, maxDist: Float, center: IntOffset) {
     if (selection == TimePickerSelectionMode.Hour && is24hour) {
-        isAfternoon = dist(x, y, center.x, center.y) < maxDist
+        val currentDist = dist(x, y, center.x, center.y)
+        if (isPm) {
+            hour -= if (currentDist >= maxDist) 12 else 0
+        } else {
+            hour += if (currentDist < maxDist) 12 else 0
+        }
     }
 }
 
@@ -905,7 +911,7 @@ internal val AnalogTimePickerState.selectorPos: DpOffset
     get() {
         val handleRadiusPx = ClockDialSelectorHandleContainerSize / 2
         val selectorLength =
-            if (is24hour && this.isAfternoon && selection == TimePickerSelectionMode.Hour) {
+            if (is24hour && this.isPm && selection == TimePickerSelectionMode.Hour) {
                     InnerCircleRadius
                 } else {
                     OuterCircleSizeRadius
@@ -1269,9 +1275,13 @@ private fun PeriodToggleImpl(
         measurePolicy = measurePolicy,
         content = {
             ToggleItem(
-                checked = !state.isAfternoon,
+                checked = !state.isPm,
                 shape = startShape,
-                onClick = { state.isAfternoon = false },
+                onClick = {
+                    if (state.isPm) {
+                        state.hour -= 12
+                    }
+                },
                 colors = colors,
             ) {
                 Text(text = getString(string = Strings.TimePickerAM))
@@ -1283,9 +1293,13 @@ private fun PeriodToggleImpl(
                     .background(color = colors.periodSelectorBorderColor)
             )
             ToggleItem(
-                checked = state.isAfternoon,
+                checked = state.isPm,
                 shape = endShape,
-                onClick = { state.isAfternoon = true },
+                onClick = {
+                    if (!state.isPm) {
+                        state.hour += 12
+                    }
+                },
                 colors = colors,
             ) {
                 Text(getString(string = Strings.TimePickerPM))
@@ -1708,7 +1722,7 @@ private fun timeInputOnChange(
 
     if (value.text.isEmpty()) {
         if (selection == TimePickerSelectionMode.Hour) {
-            state.hour = if (state.isAfternoon && !state.is24hour) 12 else 0
+            state.hour = if (state.isPm && !state.is24hour) 12 else 0
         } else {
             state.minute = 0
         }
@@ -1726,7 +1740,7 @@ private fun timeInputOnChange(
 
         if (newValue <= max) {
             if (selection == TimePickerSelectionMode.Hour) {
-                state.hour = newValue + if (state.isAfternoon && !state.is24hour) 12 else 0
+                state.hour = newValue + if (state.isPm && !state.is24hour) 12 else 0
                 if (newValue > 1 && !state.is24hour) {
                     state.selection = TimePickerSelectionMode.Minute
                 }
