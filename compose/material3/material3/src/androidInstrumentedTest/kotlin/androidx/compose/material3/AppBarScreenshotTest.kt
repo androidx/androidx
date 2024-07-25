@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Arrangement
@@ -657,7 +656,6 @@ class AppBarScreenshotTest {
 
     @Test
     fun bottomAppBarSpacedAround_lightTheme() {
-        composeTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_LANDSCAPE
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
@@ -701,7 +699,6 @@ class AppBarScreenshotTest {
 
     @Test
     fun bottomAppBarSpacedBetween_lightTheme() {
-        composeTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_LANDSCAPE
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
@@ -744,7 +741,6 @@ class AppBarScreenshotTest {
 
     @Test
     fun bottomAppBarSpacedEvenly_lightTheme() {
-        composeTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_LANDSCAPE
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
@@ -788,7 +784,6 @@ class AppBarScreenshotTest {
 
     @Test
     fun bottomAppBarFixed_lightTheme() {
-        composeTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_LANDSCAPE
         composeTestRule.setMaterialContent(lightColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
@@ -831,7 +826,6 @@ class AppBarScreenshotTest {
 
     @Test
     fun bottomAppBarFixed_darkTheme() {
-        composeTestRule.activity.requestedOrientation = SCREEN_ORIENTATION_LANDSCAPE
         composeTestRule.setMaterialContent(darkColorScheme()) {
             Box(Modifier.testTag(BottomAppBarTestTag)) {
                 BottomAppBar(
