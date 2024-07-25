@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.util.runner.CompilationTestRunner
 import com.google.common.truth.Fact.fact
 import com.google.common.truth.Fact.simpleFact
 import com.google.common.truth.FailureMetadata
+import com.google.common.truth.PrimitiveByteArraySubject
 import com.google.common.truth.StringSubject
 import com.google.common.truth.Subject
 import com.google.common.truth.Subject.Factory

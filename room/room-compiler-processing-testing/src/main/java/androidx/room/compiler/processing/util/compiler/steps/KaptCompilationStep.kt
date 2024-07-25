@@ -24,7 +24,6 @@ import java.io.File
 import java.io.ObjectOutputStream
 import java.util.Base64
 import javax.annotation.processing.Processor
-import org.jetbrains.kotlin.base.kapt3.AptMode
 import org.jetbrains.kotlin.cli.common.ExitCode
 import org.jetbrains.kotlin.com.intellij.util.PathUtil
 import org.jetbrains.kotlin.kapt.cli.CliToolOption

@@ -107,6 +107,9 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.withType(Test).configureEach { test ->
     test.maxParallelForks(2)
     test.systemProperty("androidx.room.compiler.processing.strict", "true")
+    // With the move to K2 and KSP2 the memory usage has increased so we enlarge the heap
+    // to prevent OOM while running all the tests in one go.
+    test.maxHeapSize("8g")
 }
 
 androidx {
