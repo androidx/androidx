@@ -19,7 +19,6 @@ package androidx.compose.material3
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -45,7 +44,7 @@ import androidx.compose.material3.tokens.ExtendedFabPrimaryTokens
 import androidx.compose.material3.tokens.FabPrimaryLargeTokens
 import androidx.compose.material3.tokens.FabPrimarySmallTokens
 import androidx.compose.material3.tokens.FabPrimaryTokens
-import androidx.compose.material3.tokens.MotionTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -427,8 +426,11 @@ fun ExtendedFloatingActionButton(
             modifier =
                 Modifier.sizeIn(
                         minWidth =
-                            if (expanded) ExtendedFabMinimumWidth
-                            else FabPrimaryTokens.ContainerWidth
+                            if (expanded) {
+                                ExtendedFabMinimumWidth
+                            } else {
+                                FabPrimaryTokens.ContainerWidth
+                            }
                     )
                     .padding(start = startPadding, end = endPadding),
             verticalAlignment = Alignment.CenterVertically,
@@ -437,8 +439,8 @@ fun ExtendedFloatingActionButton(
             icon()
             AnimatedVisibility(
                 visible = expanded,
-                enter = ExtendedFabExpandAnimation,
-                exit = ExtendedFabCollapseAnimation,
+                enter = extendedFabExpandAnimation(),
+                exit = extendedFabCollapseAnimation(),
             ) {
                 Row(Modifier.clearAndSetSemantics {}) {
                     Spacer(Modifier.width(ExtendedFabEndIconPadding))
@@ -726,37 +728,26 @@ private val ExtendedFabTextPadding = 20.dp
 
 private val ExtendedFabMinimumWidth = 80.dp
 
-private val ExtendedFabCollapseAnimation =
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun extendedFabCollapseAnimation() =
     fadeOut(
-        animationSpec =
-            tween(
-                durationMillis = MotionTokens.DurationShort2.toInt(),
-                easing = MotionTokens.EasingLinearCubicBezier,
-            )
+        // TODO Load the motionScheme tokens from the component tokens file
+        animationSpec = MotionSchemeKeyTokens.FastEffects.value()
     ) +
         shrinkHorizontally(
-            animationSpec =
-                tween(
-                    durationMillis = MotionTokens.DurationLong2.toInt(),
-                    easing = MotionTokens.EasingEmphasizedCubicBezier,
-                ),
+            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
             shrinkTowards = Alignment.Start,
         )
 
-private val ExtendedFabExpandAnimation =
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun extendedFabExpandAnimation() =
     fadeIn(
-        animationSpec =
-            tween(
-                durationMillis = MotionTokens.DurationShort4.toInt(),
-                delayMillis = MotionTokens.DurationShort2.toInt(),
-                easing = MotionTokens.EasingLinearCubicBezier,
-            ),
+        // TODO Load the motionScheme tokens from the component tokens file
+        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
     ) +
         expandHorizontally(
-            animationSpec =
-                tween(
-                    durationMillis = MotionTokens.DurationLong2.toInt(),
-                    easing = MotionTokens.EasingEmphasizedCubicBezier,
-                ),
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             expandFrom = Alignment.Start,
         )

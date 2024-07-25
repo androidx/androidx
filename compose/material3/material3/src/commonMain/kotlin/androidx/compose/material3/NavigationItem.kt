@@ -16,10 +16,8 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
@@ -31,6 +29,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.layoutId
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -375,7 +374,8 @@ internal fun AnimatedNavigationItem(
         val iconPositionProgress =
             animateFloatAsState(
                 targetValue = if (iconPosition == NavigationItemIconPosition.Top) 0f else 1f,
-                animationSpec = AnimationSpec
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
             )
 
         // We'll always display only one label, but for the animation to be correct we need two
@@ -1098,15 +1098,22 @@ private fun StyledLabel(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun animateIndicatorProgressAsState(selected: Boolean) =
-    animateFloatAsState(targetValue = if (selected) 1f else 0f, animationSpec = AnimationSpec)
+    animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        // TODO Load the motionScheme tokens from the component tokens file
+        animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
+    )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun animateLabelAlphaProgressAsState(isTargetValue: Boolean) =
     animateFloatAsState(
         targetValue = if (isTargetValue) 1f else 0f,
-        animationSpec = AnimationSpec,
+        // TODO Load the motionScheme tokens from the component tokens file
+        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
         visibilityThreshold =
             if (isTargetValue) Spring.DefaultDisplacementThreshold
             else LabelAnimationVisibilityThreshold
@@ -1146,4 +1153,3 @@ private const val AnimatedLabelStartIconLayoutIdTag: String = "animatedLabelStar
 private const val LabelAnimationVisibilityThreshold: Float = 0.35f
 
 private val IndicatorVerticalOffset: Dp = 12.dp
-private val AnimationSpec: AnimationSpec<Float> = spring(dampingRatio = 0.8f, stiffness = 380f)

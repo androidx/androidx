@@ -22,10 +22,8 @@ import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDecay
 import androidx.compose.animation.core.animateTo
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -49,6 +47,7 @@ import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.BottomAppBarTokens
 import androidx.compose.material3.tokens.FabSecondaryTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.TopAppBarLargeTokens
 import androidx.compose.material3.tokens.TopAppBarMediumTokens
 import androidx.compose.material3.tokens.TopAppBarSmallCenteredTokens
@@ -1588,12 +1587,14 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
-        snapAnimationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
+        // TODO Load the motionScheme tokens from the component tokens file
+        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
     ): TopAppBarScrollBehavior =
         EnterAlwaysScrollBehavior(
@@ -1621,12 +1622,14 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun exitUntilCollapsedScrollBehavior(
         state: TopAppBarState = rememberTopAppBarState(),
         canScroll: () -> Boolean = { true },
-        snapAnimationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
+        // TODO Load the motionScheme tokens from the component tokens file
+        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.DefaultEffects.value(),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
     ): TopAppBarScrollBehavior =
         remember(state, canScroll, snapAnimationSpec, flingAnimationSpec) {
@@ -1991,12 +1994,14 @@ object BottomAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the
      *   bottom app bar when the user flings the app bar itself, or the content below it
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun exitAlwaysScrollBehavior(
         state: BottomAppBarState = rememberBottomAppBarState(),
         canScroll: () -> Boolean = { true },
-        snapAnimationSpec: AnimationSpec<Float>? = spring(stiffness = Spring.StiffnessMediumLow),
+        // TODO Load the motionScheme tokens from the component tokens file
+        snapAnimationSpec: AnimationSpec<Float>? = MotionSchemeKeyTokens.FastSpatial.value(),
         flingAnimationSpec: DecayAnimationSpec<Float>? = rememberSplineBasedDecay()
     ): BottomAppBarScrollBehavior =
         ExitAlwaysScrollBehavior(
@@ -2298,7 +2303,8 @@ private fun SingleRowTopAppBar(
     val appBarContainerColor =
         animateColorAsState(
             targetColor,
-            animationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+            // TODO Load the motionScheme tokens from the component tokens file
+            animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
         )
 
     // Wrap the given actions in a Row.

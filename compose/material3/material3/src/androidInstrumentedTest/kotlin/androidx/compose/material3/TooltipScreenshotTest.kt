@@ -55,7 +55,7 @@ class TooltipScreenshotTest {
         rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         assertAgainstGolden("plainTooltip_lightTheme")
@@ -71,7 +71,7 @@ class TooltipScreenshotTest {
         rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         assertAgainstGolden("plainTooltip_darkTheme")
@@ -87,7 +87,7 @@ class TooltipScreenshotTest {
         rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         assertAgainstGolden("richTooltip_lightTheme")
@@ -103,7 +103,7 @@ class TooltipScreenshotTest {
         rule.onNodeWithTag(AnchorTestTag).performTouchInput { longClick() }
 
         // Advance by the fade in time
-        rule.mainClock.advanceTimeBy(TooltipFadeInDuration.toLong())
+        rule.mainClock.advanceTimeBy(TooltipFadeInDuration)
 
         rule.waitForIdle()
         assertAgainstGolden("richTooltip_darkTheme")
@@ -160,3 +160,5 @@ class TooltipScreenshotTest {
 
 private const val AnchorTestTag = "Anchor"
 private const val TooltipTestTag = "tooltip"
+// We use springs to animate, so picking an arbitrary duration that works.
+private const val TooltipFadeInDuration = 300L

@@ -17,7 +17,6 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.InteractionSource
@@ -37,12 +36,12 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
 import androidx.compose.material3.internal.SupportingTopPadding
-import androidx.compose.material3.internal.TextFieldAnimationDuration
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.material3.internal.TextFieldType
 import androidx.compose.material3.internal.animateBorderStrokeAsState
 import androidx.compose.material3.internal.textFieldBackground
 import androidx.compose.material3.tokens.FilledTextFieldTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedTextFieldTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -229,6 +228,7 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun Container(
@@ -242,10 +242,11 @@ object TextFieldDefaults {
         unfocusedIndicatorLineThickness: Dp = UnfocusedIndicatorThickness,
     ) {
         val focused = interactionSource.collectIsFocusedAsState().value
+        // TODO Load the motionScheme tokens from the component tokens file
         val containerColor =
             animateColorAsState(
                 targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = tween(durationMillis = TextFieldAnimationDuration),
+                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
             )
         Box(
             modifier
@@ -1041,6 +1042,7 @@ object OutlinedTextFieldDefaults {
      * @param focusedBorderThickness thickness of the border when the text field is focused
      * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun Container(
@@ -1063,10 +1065,11 @@ object OutlinedTextFieldDefaults {
                 focusedBorderThickness,
                 unfocusedBorderThickness,
             )
+        // TODO Load the motionScheme tokens from the component tokens file
         val containerColor =
             animateColorAsState(
                 targetValue = colors.containerColor(enabled, isError, focused),
-                animationSpec = tween(durationMillis = TextFieldAnimationDuration),
+                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
             )
         Box(
             modifier

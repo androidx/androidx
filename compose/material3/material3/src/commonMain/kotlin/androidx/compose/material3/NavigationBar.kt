@@ -18,7 +18,6 @@ package androidx.compose.material3
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.Interaction
@@ -40,6 +39,7 @@ import androidx.compose.material3.internal.MappedInteractionSource
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -168,6 +168,7 @@ fun NavigationBar(
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RowScope.NavigationBarItem(
     selected: Boolean,
@@ -187,7 +188,8 @@ fun RowScope.NavigationBarItem(
             val iconColor by
                 animateColorAsState(
                     targetValue = colors.iconColor(selected = selected, enabled = enabled),
-                    animationSpec = tween(ItemAnimationDurationMillis)
+                    // TODO Load the motionScheme tokens from the component tokens file
+                    animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
                 )
             // If there's a label, don't have a11y services repeat the icon description.
             val clearSemantics = label != null && (alwaysShowLabel || selected)
@@ -203,7 +205,8 @@ fun RowScope.NavigationBarItem(
                 val textColor by
                     animateColorAsState(
                         targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        animationSpec = tween(ItemAnimationDurationMillis)
+                        // TODO Load the motionScheme tokens from the component tokens file
+                        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
                     )
                 ProvideContentColorTextStyle(
                     contentColor = textColor,
@@ -231,12 +234,18 @@ fun RowScope.NavigationBarItem(
         contentAlignment = Alignment.Center,
         propagateMinConstraints = true,
     ) {
-        val animationProgress: State<Float> =
+        val alphaAnimationProgress: State<Float> =
             animateFloatAsState(
                 targetValue = if (selected) 1f else 0f,
-                animationSpec = tween(ItemAnimationDurationMillis)
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
             )
-
+        val sizeAnimationProgress: State<Float> =
+            animateFloatAsState(
+                targetValue = if (selected) 1f else 0f,
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
+            )
         // The entire item is selectable, but only the indicator pill shows the ripple. To achieve
         // this, we re-map the coordinates of the item's InteractionSource into the coordinates of
         // the indicator.
@@ -265,7 +274,7 @@ fun RowScope.NavigationBarItem(
             @Composable {
                 Box(
                     Modifier.layoutId(IndicatorLayoutIdTag)
-                        .graphicsLayer { alpha = animationProgress.value }
+                        .graphicsLayer { alpha = alphaAnimationProgress.value }
                         .background(
                             color = colors.indicatorColor,
                             shape = NavigationBarTokens.ActiveIndicatorShape.value,
@@ -279,7 +288,8 @@ fun RowScope.NavigationBarItem(
             icon = styledIcon,
             label = styledLabel,
             alwaysShowLabel = alwaysShowLabel,
-            animationProgress = { animationProgress.value },
+            alphaAnimationProgress = { alphaAnimationProgress.value },
+            sizeAnimationProgress = { sizeAnimationProgress.value }
         )
     }
 }
@@ -502,8 +512,10 @@ constructor(
  * @param label text label for this item
  * @param alwaysShowLabel whether to always show the label for this item. If false, the label will
  *   only be shown when this item is selected.
- * @param animationProgress progress of the animation, where 0 represents the unselected state of
- *   this item and 1 represents the selected state. This value controls other values such as
+ * @param alphaAnimationProgress progress of the animation, where 0 represents the unselected state
+ *   of this item and 1 represents the selected state. This value controls the indicator's opacity.
+ * @param sizeAnimationProgress progress of the animation, where 0 represents the unselected state
+ *   of this item and 1 represents the selected state. This value controls other values such as
  *   indicator size, icon and label positions, etc.
  */
 @Composable
@@ -513,7 +525,8 @@ private fun NavigationBarItemLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
     alwaysShowLabel: Boolean,
-    animationProgress: () -> Float,
+    alphaAnimationProgress: () -> Float,
+    sizeAnimationProgress: () -> Float,
 ) {
     Layout(
         modifier = Modifier.badgeBounds(),
@@ -526,7 +539,9 @@ private fun NavigationBarItemLayout(
             if (label != null) {
                 Box(
                     Modifier.layoutId(LabelLayoutIdTag)
-                        .graphicsLayer { alpha = if (alwaysShowLabel) 1f else animationProgress() }
+                        .graphicsLayer {
+                            alpha = if (alwaysShowLabel) 1f else alphaAnimationProgress()
+                        }
                         .padding(horizontal = NavigationBarItemHorizontalPadding / 2)
                 ) {
                     label()
@@ -534,7 +549,9 @@ private fun NavigationBarItemLayout(
             }
         }
     ) { measurables, constraints ->
-        @Suppress("NAME_SHADOWING") val animationProgress = animationProgress()
+        @Suppress("NAME_SHADOWING")
+        // Ensure that the progress is >= 0. It may be negative on bouncy springs, for example.
+        val animationProgress = sizeAnimationProgress().coerceAtLeast(0f)
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
@@ -701,8 +718,6 @@ private const val IconLayoutIdTag: String = "icon"
 private const val LabelLayoutIdTag: String = "label"
 
 private val NavigationBarHeight: Dp = NavigationBarTokens.ContainerHeight
-
-private const val ItemAnimationDurationMillis: Int = 100
 
 /*@VisibleForTesting*/
 internal val NavigationBarItemHorizontalPadding: Dp = 8.dp

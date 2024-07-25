@@ -18,7 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.Orientation
@@ -42,9 +42,11 @@ import androidx.compose.material3.internal.DraggableAnchors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -111,6 +113,7 @@ import kotlinx.coroutines.launch
  *   sheet's window behavior.
  * @param content The content to be displayed inside the bottom sheet.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @ExperimentalMaterial3Api
 fun ModalBottomSheet(
@@ -128,6 +131,17 @@ fun ModalBottomSheet(
     properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    // TODO Load the motionScheme tokens from the component tokens file
+    val anchoredDraggableMotion: FiniteAnimationSpec<Float> =
+        MotionSchemeKeyTokens.DefaultSpatial.value()
+    val showMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value()
+    val hideMotion: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.FastEffects.value()
+
+    SideEffect {
+        sheetState.showMotionSpec = showMotion
+        sheetState.hideMotionSpec = hideMotion
+        sheetState.anchoredDraggableMotionSpec = anchoredDraggableMotion
+    }
     val scope = rememberCoroutineScope()
     val animateToDismiss: () -> Unit = {
         if (sheetState.anchoredDraggableState.confirmValueChange(Hidden)) {
@@ -275,24 +289,41 @@ internal fun BoxScope.ModalBottomSheetContent(
                         transformOrigin =
                             TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
                     }
-                },
+                }
+                // Scale up the Surface vertically in case the sheet's offset overflows below the
+                // min anchor. This is done to avoid showing a gap when the sheet opens and bounces
+                // when it's applied with a bouncy motion. Note that the content inside the Surface
+                // is scaled back down to maintain its aspect ratio (see below).
+                .verticalScaleUp(
+                    { sheetState.anchoredDraggableState.offset },
+                    { sheetState.anchoredDraggableState.anchors.minAnchor() }
+                ),
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
         tonalElevation = tonalElevation,
     ) {
         Column(
-            Modifier.fillMaxWidth().windowInsetsPadding(contentWindowInsets()).graphicsLayer {
-                val progress = predictiveBackProgress.value
-                val predictiveBackScaleX = calculatePredictiveBackScaleX(progress)
-                val predictiveBackScaleY = calculatePredictiveBackScaleY(progress)
+            Modifier.fillMaxWidth()
+                .windowInsetsPadding(contentWindowInsets())
+                .graphicsLayer {
+                    val progress = predictiveBackProgress.value
+                    val predictiveBackScaleX = calculatePredictiveBackScaleX(progress)
+                    val predictiveBackScaleY = calculatePredictiveBackScaleY(progress)
 
-                // Preserve the original aspect ratio and alignment of the child content.
-                scaleY =
-                    if (predictiveBackScaleY != 0f) predictiveBackScaleX / predictiveBackScaleY
-                    else 1f
-                transformOrigin = PredictiveBackChildTransformOrigin
-            }
+                    // Preserve the original aspect ratio and alignment of the child content.
+                    scaleY =
+                        if (predictiveBackScaleY != 0f) predictiveBackScaleX / predictiveBackScaleY
+                        else 1f
+                    transformOrigin = PredictiveBackChildTransformOrigin
+                }
+                // Scale the content down in case the sheet offset overflows below the min anchor.
+                // The wrapping Surface is scaled up, so this is done to maintain the content's
+                // aspect ratio.
+                .verticalScaleDown(
+                    { sheetState.anchoredDraggableState.offset },
+                    { sheetState.anchoredDraggableState.anchors.minAnchor() }
+                )
         ) {
             if (dragHandle != null) {
                 val collapseActionLabel = getString(Strings.BottomSheetPartialExpandDescription)
@@ -398,11 +429,16 @@ fun rememberModalBottomSheetState(
         initialValue = Hidden,
     )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) {
+    // TODO Load the motionScheme tokens from the component tokens file
     if (color.isSpecified) {
         val alpha by
-            animateFloatAsState(targetValue = if (visible) 1f else 0f, animationSpec = TweenSpec())
+            animateFloatAsState(
+                targetValue = if (visible) 1f else 0f,
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+            )
         val closeSheet = getString(Strings.CloseSheet)
         val dismissSheet =
             if (visible) {

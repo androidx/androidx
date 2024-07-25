@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.material3
 
 import android.content.Context
@@ -55,7 +53,6 @@ import androidx.compose.material3.internal.MinSupportingTextLineHeight
 import androidx.compose.material3.internal.MinTextLineHeight
 import androidx.compose.material3.internal.Strings.Companion.DefaultErrorMessage
 import androidx.compose.material3.internal.SupportingTopPadding
-import androidx.compose.material3.internal.TextFieldAnimationDuration
 import androidx.compose.material3.internal.TextFieldPadding
 import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
@@ -1817,7 +1814,7 @@ class TextFieldTest {
         rule.runOnUiThread { focusRequester.requestFocus() }
 
         // advance to middle of animation
-        rule.mainClock.advanceTimeBy(TextFieldAnimationDuration.toLong() / 2)
+        rule.mainClock.advanceTimeBy(TextFieldAnimationDuration)
 
         rule.runOnIdle {
             assertThat(textStyle.color).isEqualTo(expectedLabelColor)
@@ -2059,3 +2056,6 @@ private val View.isSoftwareKeyboardShown: Boolean
         //  way to check if the software keyboard is shown.
         return inputMethodManager.isAcceptingText()
     }
+
+// We use springs to animate, so picking an arbitrary duration that work.
+private const val TextFieldAnimationDuration = 75L

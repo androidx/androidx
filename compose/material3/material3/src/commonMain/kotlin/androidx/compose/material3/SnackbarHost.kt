@@ -18,12 +18,10 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.RecomposeScope
@@ -321,6 +319,7 @@ internal fun SnackbarDuration.toMillis(
 
 // TODO: to be replaced with the public customizable implementation
 // it's basically tweaked nullable version of Crossfade
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun FadeInFadeOutWithScale(
     current: SnackbarData?,
@@ -339,22 +338,10 @@ private fun FadeInFadeOutWithScale(
         keys.fastFilterNotNull().fastMapTo(state.items) { key ->
             FadeInFadeOutAnimationItem(key) { children ->
                 val isVisible = key == current
-                val duration = if (isVisible) SnackbarFadeInMillis else SnackbarFadeOutMillis
-                val delay = SnackbarFadeOutMillis + SnackbarInBetweenDelayMillis
-                val animationDelay =
-                    if (isVisible && keys.fastFilterNotNull().size != 1) {
-                        delay
-                    } else {
-                        0
-                    }
+                // TODO Load the motionScheme tokens from the component tokens file
                 val opacity =
                     animatedOpacity(
-                        animation =
-                            tween(
-                                easing = LinearEasing,
-                                delayMillis = animationDelay,
-                                durationMillis = duration
-                            ),
+                        animation = MotionSchemeKeyTokens.FastEffects.value(),
                         visible = isVisible,
                         onAnimationFinish = {
                             if (key != state.current) {
@@ -366,12 +353,8 @@ private fun FadeInFadeOutWithScale(
                     )
                 val scale =
                     animatedScale(
-                        animation =
-                            tween(
-                                easing = FastOutSlowInEasing,
-                                delayMillis = animationDelay,
-                                durationMillis = duration
-                            ),
+                        // TODO Load the motionScheme tokens from the component tokens file
+                        animation = MotionSchemeKeyTokens.FastSpatial.value(),
                         visible = isVisible
                     )
                 Box(
@@ -436,7 +419,3 @@ private fun animatedScale(animation: AnimationSpec<Float>, visible: Boolean): St
     }
     return scale.asState()
 }
-
-private const val SnackbarFadeInMillis = 150
-private const val SnackbarFadeOutMillis = 75
-private const val SnackbarInBetweenDelayMillis = 0

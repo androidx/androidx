@@ -17,10 +17,9 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.snap
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.interaction.Interaction
@@ -30,6 +29,7 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.triStateToggleable
 import androidx.compose.material3.tokens.CheckboxTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
@@ -257,6 +257,7 @@ object CheckboxDefaults {
         }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CheckboxImpl(
     enabled: Boolean,
@@ -269,9 +270,11 @@ private fun CheckboxImpl(
         transition.animateFloat(
             transitionSpec = {
                 when {
-                    initialState == ToggleableState.Off -> tween(CheckAnimationDuration)
-                    targetState == ToggleableState.Off -> snap(BoxOutDuration)
-                    else -> spring()
+                    // TODO Load the motionScheme tokens from the component tokens file
+                    initialState == ToggleableState.Off ->
+                        MotionSchemeKeyTokens.DefaultSpatial.value()
+                    targetState == ToggleableState.Off -> snap(delayMillis = SnapAnimationDelay)
+                    else -> MotionSchemeKeyTokens.DefaultSpatial.value()
                 }
             }
         ) {
@@ -286,9 +289,10 @@ private fun CheckboxImpl(
         transition.animateFloat(
             transitionSpec = {
                 when {
+                    // TODO Load the motionScheme tokens from the component tokens file
                     initialState == ToggleableState.Off -> snap()
-                    targetState == ToggleableState.Off -> snap(BoxOutDuration)
-                    else -> tween(durationMillis = CheckAnimationDuration)
+                    targetState == ToggleableState.Off -> snap(delayMillis = SnapAnimationDelay)
+                    else -> MotionSchemeKeyTokens.DefaultSpatial.value()
                 }
             }
         ) {
@@ -481,8 +485,7 @@ constructor(
                 checkedCheckmarkColor
             }
 
-        val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
-        return animateColorAsState(target, tween(durationMillis = duration))
+        return animateColorAsState(target, colorAnimationSpecForState(state))
     }
 
     /**
@@ -512,8 +515,7 @@ constructor(
         // If not enabled 'snap' to the disabled state, as there should be no animations between
         // enabled / disabled.
         return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
-            animateColorAsState(target, tween(durationMillis = duration))
+            animateColorAsState(target, colorAnimationSpecForState(state))
         } else {
             rememberUpdatedState(target)
         }
@@ -545,10 +547,23 @@ constructor(
         // If not enabled 'snap' to the disabled state, as there should be no animations between
         // enabled / disabled.
         return if (enabled) {
-            val duration = if (state == ToggleableState.Off) BoxOutDuration else BoxInDuration
-            animateColorAsState(target, tween(durationMillis = duration))
+            animateColorAsState(target, colorAnimationSpecForState(state))
         } else {
             rememberUpdatedState(target)
+        }
+    }
+
+    /** Returns the color [AnimationSpec] for the given state. */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    @Composable
+    private fun colorAnimationSpecForState(state: ToggleableState): AnimationSpec<Color> {
+        // TODO Load the motionScheme tokens from the component tokens file
+        return if (state == ToggleableState.Off) {
+            // Box out
+            MotionSchemeKeyTokens.FastEffects.value()
+        } else {
+            // Box in
+            MotionSchemeKeyTokens.DefaultEffects.value()
         }
     }
 
@@ -589,9 +604,7 @@ constructor(
     }
 }
 
-private const val BoxInDuration = 50
-private const val BoxOutDuration = 100
-private const val CheckAnimationDuration = 100
+private const val SnapAnimationDelay = 100
 
 // TODO(b/188529841): Update the padding and size when the Checkbox spec is finalized.
 private val CheckboxDefaultPadding = 2.dp

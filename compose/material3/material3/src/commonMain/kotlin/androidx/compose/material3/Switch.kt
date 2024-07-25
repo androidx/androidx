@@ -18,8 +18,8 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.SnapSpec
-import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.indication
@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.SwitchTokens
 import androidx.compose.material3.tokens.SwitchTokens.TrackOutlineWidth
 import androidx.compose.runtime.Composable
@@ -131,6 +132,7 @@ fun Switch(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @Suppress("ComposableLambdaParameterNaming", "ComposableLambdaParameterPosition")
 private fun SwitchImpl(
@@ -154,7 +156,14 @@ private fun SwitchImpl(
         Box(
             modifier =
                 Modifier.align(Alignment.CenterStart)
-                    .then(ThumbElement(interactionSource, checked))
+                    .then(
+                        ThumbElement(
+                            interactionSource = interactionSource,
+                            checked = checked,
+                            // TODO Load the motionScheme tokens from the component tokens file
+                            animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
+                        )
+                    )
                     .indication(
                         interactionSource = interactionSource,
                         indication =
@@ -177,8 +186,9 @@ private fun SwitchImpl(
 private data class ThumbElement(
     val interactionSource: InteractionSource,
     val checked: Boolean,
+    val animationSpec: FiniteAnimationSpec<Float>,
 ) : ModifierNodeElement<ThumbNode>() {
-    override fun create() = ThumbNode(interactionSource, checked)
+    override fun create() = ThumbNode(interactionSource, checked, animationSpec)
 
     override fun update(node: ThumbNode) {
         node.interactionSource = interactionSource
@@ -186,6 +196,7 @@ private data class ThumbElement(
             node.invalidateMeasurement()
         }
         node.checked = checked
+        node.animationSpec = animationSpec
         node.update()
     }
 
@@ -193,12 +204,14 @@ private data class ThumbElement(
         name = "switchThumb"
         properties["interactionSource"] = interactionSource
         properties["checked"] = checked
+        properties["animationSpec"] = animationSpec
     }
 }
 
 private class ThumbNode(
     var interactionSource: InteractionSource,
     var checked: Boolean,
+    var animationSpec: FiniteAnimationSpec<Float>,
 ) : Modifier.Node(), LayoutModifierNode {
 
     override val shouldAutoInvalidate: Boolean
@@ -258,13 +271,13 @@ private class ThumbNode(
 
         if (sizeAnim?.targetValue != size) {
             coroutineScope.launch {
-                sizeAnim?.animateTo(size, if (isPressed) SnapSpec else AnimationSpec)
+                sizeAnim?.animateTo(size, if (isPressed) SnapSpec else animationSpec)
             }
         }
 
         if (offsetAnim?.targetValue != offset) {
             coroutineScope.launch {
-                offsetAnim?.animateTo(offset, if (isPressed) SnapSpec else AnimationSpec)
+                offsetAnim?.animateTo(offset, if (isPressed) SnapSpec else animationSpec)
             }
         }
 
@@ -617,4 +630,3 @@ private val SwitchWidth = SwitchTokens.TrackWidth
 private val SwitchHeight = SwitchTokens.TrackHeight
 private val ThumbPadding = (SwitchHeight - ThumbDiameter) / 2
 private val SnapSpec = SnapSpec<Float>()
-private val AnimationSpec = TweenSpec<Float>(durationMillis = 100)

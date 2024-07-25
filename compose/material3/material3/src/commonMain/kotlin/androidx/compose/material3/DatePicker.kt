@@ -20,10 +20,8 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.exponentialDecay
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -72,7 +70,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.DatePickerModalTokens
 import androidx.compose.material3.tokens.DividerTokens
 import androidx.compose.material3.tokens.ElevationTokens
-import androidx.compose.material3.tokens.MotionTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -117,6 +115,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmInline
@@ -695,11 +695,14 @@ object DatePickerDefaults {
      * @param lazyListState a [LazyListState]
      * @param decayAnimationSpec the decay to use
      */
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     internal fun rememberSnapFlingBehavior(
         lazyListState: LazyListState,
         decayAnimationSpec: DecayAnimationSpec<Float> = exponentialDecay()
     ): FlingBehavior {
+        // TODO Load the motionScheme tokens from the component tokens file
+        val animationSpec: FiniteAnimationSpec<Float> = MotionSchemeKeyTokens.DefaultEffects.value()
         return remember(decayAnimationSpec, lazyListState) {
             val original = SnapLayoutInfoProvider(lazyListState)
             val snapLayoutInfoProvider =
@@ -713,7 +716,7 @@ object DatePickerDefaults {
             snapFlingBehavior(
                 snapLayoutInfoProvider = snapLayoutInfoProvider,
                 decayAnimationSpec = decayAnimationSpec,
-                snapAnimationSpec = spring(stiffness = Spring.StiffnessMediumLow)
+                snapAnimationSpec = animationSpec,
             )
         }
     }
@@ -789,6 +792,7 @@ internal expect inline fun formatHeadlineDescription(
  * @constructor create an instance with arbitrary colors, see [DatePickerDefaults.colors] for the
  *   default implementation that follows Material specifications.
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3Api
 @Immutable
 class DatePickerColors
@@ -914,7 +918,11 @@ constructor(
             rememberUpdatedState(target)
         } else {
             // Animate the content color only when the day is not in a range.
-            animateColorAsState(target, tween(durationMillis = MotionTokens.DurationShort2.toInt()))
+            animateColorAsState(
+                target,
+                // TODO Load the motionScheme tokens from the component tokens file
+                MotionSchemeKeyTokens.DefaultEffects.value()
+            )
         }
     }
 
@@ -938,7 +946,11 @@ constructor(
                 Color.Transparent
             }
         return if (animate) {
-            animateColorAsState(target, tween(durationMillis = MotionTokens.DurationShort2.toInt()))
+            animateColorAsState(
+                target,
+                // TODO Load the motionScheme tokens from the component tokens file
+                MotionSchemeKeyTokens.DefaultEffects.value()
+            )
         } else {
             rememberUpdatedState(target)
         }
@@ -968,7 +980,8 @@ constructor(
 
         return animateColorAsState(
             target,
-            tween(durationMillis = MotionTokens.DurationShort2.toInt())
+            // TODO Load the motionScheme tokens from the component tokens file
+            MotionSchemeKeyTokens.DefaultEffects.value()
         )
     }
 
@@ -988,7 +1001,8 @@ constructor(
             }
         return animateColorAsState(
             target,
-            tween(durationMillis = MotionTokens.DurationShort2.toInt())
+            // TODO Load the motionScheme tokens from the component tokens file
+            MotionSchemeKeyTokens.DefaultEffects.value()
         )
     }
 
@@ -1380,7 +1394,7 @@ internal fun DisplayModeToggleButton(
  * Date entry content that displays a [DatePickerContent] or a [DateInputContent] according to the
  * state's display mode.
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SwitchableDateEntryContent(
     selectedDateMillis: Long?,
@@ -1397,6 +1411,15 @@ private fun SwitchableDateEntryContent(
     // Parallax effect offset that will slightly scroll in and out the navigation part of the picker
     // when the display mode changes.
     val parallaxTarget = with(LocalDensity.current) { -48.dp.roundToPx() }
+    // TODO Load the motionScheme tokens from the component tokens file
+    val effectsInAnimationSpec: FiniteAnimationSpec<Float> =
+        MotionSchemeKeyTokens.DefaultEffects.value()
+    val effectsOutAnimationSpec: FiniteAnimationSpec<Float> =
+        MotionSchemeKeyTokens.FastEffects.value()
+    val spatialInOutAnimationSpec: FiniteAnimationSpec<IntOffset> =
+        MotionSchemeKeyTokens.DefaultSpatial.value()
+    val spatialSizeAnimationSpec: FiniteAnimationSpec<IntSize> =
+        MotionSchemeKeyTokens.DefaultSpatial.value()
     AnimatedContent(
         targetState = displayMode,
         modifier =
@@ -1410,42 +1433,30 @@ private fun SwitchableDateEntryContent(
             // When animating the input mode, fade out the calendar picker and slide in the text
             // field from the bottom with a delay to show up after the picker is hidden.
             if (targetState == DisplayMode.Input) {
-                    slideInVertically { height -> height } +
-                        fadeIn(
-                            animationSpec =
-                                tween(
-                                    durationMillis = MotionTokens.DurationShort2.toInt(),
-                                    delayMillis = MotionTokens.DurationShort2.toInt()
-                                )
-                        ) togetherWith
-                        fadeOut(tween(durationMillis = MotionTokens.DurationShort2.toInt())) +
-                            slideOutVertically(targetOffsetY = { _ -> parallaxTarget })
+                    slideInVertically(animationSpec = spatialInOutAnimationSpec) { height ->
+                        height
+                    } + fadeIn(animationSpec = effectsInAnimationSpec) togetherWith
+                        fadeOut(effectsOutAnimationSpec) +
+                            slideOutVertically(
+                                animationSpec = spatialInOutAnimationSpec,
+                                targetOffsetY = { _ -> parallaxTarget }
+                            )
                 } else {
                     // When animating the picker mode, slide out text field and fade in calendar
                     // picker with a delay to show up after the text field is hidden.
                     slideInVertically(
-                        animationSpec = tween(delayMillis = MotionTokens.DurationShort1.toInt()),
+                        animationSpec = spatialInOutAnimationSpec,
                         initialOffsetY = { _ -> parallaxTarget }
-                    ) +
-                        fadeIn(
-                            animationSpec =
-                                tween(
-                                    durationMillis = MotionTokens.DurationShort2.toInt(),
-                                    delayMillis = MotionTokens.DurationShort2.toInt()
-                                )
-                        ) togetherWith
-                        slideOutVertically(targetOffsetY = { fullHeight -> fullHeight }) +
-                            fadeOut(animationSpec = tween(MotionTokens.DurationShort2.toInt()))
+                    ) + fadeIn(animationSpec = effectsInAnimationSpec) togetherWith
+                        slideOutVertically(
+                            animationSpec = spatialInOutAnimationSpec,
+                            targetOffsetY = { fullHeight -> fullHeight }
+                        ) + fadeOut(animationSpec = effectsOutAnimationSpec)
                 }
                 .using(
                     SizeTransform(
                         clip = true,
-                        sizeAnimationSpec = { _, _ ->
-                            tween(
-                                MotionTokens.DurationLong2.toInt(),
-                                easing = MotionTokens.EasingEmphasizedDecelerateCubicBezier
-                            )
-                        }
+                        sizeAnimationSpec = { _, _ -> spatialSizeAnimationSpec }
                     )
                 )
         },
@@ -1478,7 +1489,7 @@ private fun SwitchableDateEntryContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DatePickerContent(
     selectedDateMillis: Long?,
@@ -1551,11 +1562,22 @@ private fun DatePickerContent(
                     colors = colors
                 )
             }
+            // TODO Load the motionScheme tokens from the component tokens file
+            val fadeInAnimationSpec: FiniteAnimationSpec<Float> =
+                MotionSchemeKeyTokens.DefaultEffects.value()
+            val fadeOutAnimationSpec: FiniteAnimationSpec<Float> =
+                MotionSchemeKeyTokens.FastEffects.value()
+            val shrinkExpandAnimationSpec: FiniteAnimationSpec<IntSize> =
+                MotionSchemeKeyTokens.DefaultEffects.value()
             androidx.compose.animation.AnimatedVisibility(
                 visible = yearPickerVisible,
                 modifier = Modifier.clipToBounds(),
-                enter = expandVertically() + fadeIn(initialAlpha = 0.6f),
-                exit = shrinkVertically() + fadeOut()
+                enter =
+                    expandVertically(animationSpec = shrinkExpandAnimationSpec) +
+                        fadeIn(animationSpec = fadeInAnimationSpec, initialAlpha = 0.6f),
+                exit =
+                    shrinkVertically(animationSpec = shrinkExpandAnimationSpec) +
+                        fadeOut(animationSpec = fadeOutAnimationSpec)
             ) {
                 // Apply a paneTitle to make the screen reader focus on a relevant node after this
                 // column is hidden and disposed.

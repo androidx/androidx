@@ -76,13 +76,13 @@ class MenuTest {
         rule.mainClock.advanceTimeByFrame() // Trigger the popup
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
-        rule.mainClock.advanceTimeBy(InTransitionDuration.toLong())
+        rule.mainClock.advanceTimeBy(300)
         rule.onNodeWithTag("MenuContent").assertExists()
 
         rule.runOnUiThread { expanded = false }
         rule.mainClock.advanceTimeByFrame() // Trigger the popup
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
-        rule.mainClock.advanceTimeBy(OutTransitionDuration.toLong())
+        rule.mainClock.advanceTimeBy(300)
         rule.mainClock.advanceTimeByFrame()
         rule.onNodeWithTag("MenuContent").assertDoesNotExist()
 
@@ -90,7 +90,7 @@ class MenuTest {
         rule.mainClock.advanceTimeByFrame() // Trigger the popup
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame() // Kick off the animation
-        rule.mainClock.advanceTimeBy(InTransitionDuration.toLong())
+        rule.mainClock.advanceTimeBy(300)
         rule.onNodeWithTag("MenuContent").assertExists()
     }
 

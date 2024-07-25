@@ -16,12 +16,10 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
@@ -32,6 +30,7 @@ import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.material3.internal.BasicTooltipBox
 import androidx.compose.material3.internal.BasicTooltipDefaults
 import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.PlainTooltipTokens
 import androidx.compose.material3.tokens.RichTooltipTokens
 import androidx.compose.runtime.Composable
@@ -41,7 +40,6 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.CacheDrawScope
@@ -573,6 +571,7 @@ internal fun Modifier.textVerticalPadding(subheadExists: Boolean, actionExists: 
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier =
     composed(
         inspectorInfo =
@@ -581,23 +580,14 @@ internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier 
                 properties["transition"] = transition
             }
     ) {
+        // TODO Load the motionScheme tokens from the component tokens file
+        val inOutScaleAnimationSpec: FiniteAnimationSpec<Float> =
+            MotionSchemeKeyTokens.FastSpatial.value()
+        val inOutAlphaAnimationSpec: FiniteAnimationSpec<Float> =
+            MotionSchemeKeyTokens.FastEffects.value()
         val scale by
             transition.animateFloat(
-                transitionSpec = {
-                    if (false isTransitioningTo true) {
-                        // show tooltip
-                        tween(
-                            durationMillis = TooltipFadeInDuration,
-                            easing = LinearOutSlowInEasing
-                        )
-                    } else {
-                        // dismiss tooltip
-                        tween(
-                            durationMillis = TooltipFadeOutDuration,
-                            easing = LinearOutSlowInEasing
-                        )
-                    }
-                },
+                transitionSpec = { inOutScaleAnimationSpec },
                 label = "tooltip transition: scaling"
             ) {
                 if (it) 1f else 0.8f
@@ -605,15 +595,7 @@ internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier 
 
         val alpha by
             transition.animateFloat(
-                transitionSpec = {
-                    if (false isTransitioningTo true) {
-                        // show tooltip
-                        tween(durationMillis = TooltipFadeInDuration, easing = LinearEasing)
-                    } else {
-                        // dismiss tooltip
-                        tween(durationMillis = TooltipFadeOutDuration, easing = LinearEasing)
-                    }
-                },
+                transitionSpec = { inOutAlphaAnimationSpec },
                 label = "tooltip transition: alpha"
             ) {
                 if (it) 1f else 0f
@@ -637,7 +619,3 @@ private val HeightFromSubheadToTextFirstLine = 24.dp
 private val TextBottomPadding = 16.dp
 internal val ActionLabelMinHeight = 36.dp
 internal val ActionLabelBottomPadding = 8.dp
-// No specification for fade in and fade out duration, so aligning it with the behavior for snack
-// bar
-internal const val TooltipFadeInDuration = 150
-internal const val TooltipFadeOutDuration = 75
