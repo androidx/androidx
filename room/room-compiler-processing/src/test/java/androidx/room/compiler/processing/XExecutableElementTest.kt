@@ -21,6 +21,7 @@ import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.className
@@ -505,7 +506,8 @@ class XExecutableElementTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runProcessorTest(sources = listOf(src), kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS) {
+            invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
             val methodNames = klass.getAllMethods().map { it.jvmName }.toList()
             assertThat(methodNames)
@@ -1346,7 +1348,11 @@ class XExecutableElementTest {
 
         val sources = buildSources("app")
         val classpath = compileFiles(buildSources("lib"))
-        runProcessorTest(sources = sources, classpath = classpath) { invocation ->
+        runProcessorTest(
+            sources = sources,
+            classpath = classpath,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+        ) { invocation ->
             // we use this to remove the hash added by the compiler for function names that don't
             // have valid JVM names
             // regex: match 7 characters after -

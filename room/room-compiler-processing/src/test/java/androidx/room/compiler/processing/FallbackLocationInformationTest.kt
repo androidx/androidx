@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
@@ -64,7 +65,11 @@ class FallbackLocationInformationTest {
         // sources and javac fails to resolve metadata
         val placeholder = Source.kotlin("MyPlaceholder.kt", "")
         val dependency = compileFiles(listOf(kotlinSource, javaSource))
-        runProcessorTest(sources = listOf(placeholder), classpath = dependency) { invocation ->
+        runProcessorTest(
+            sources = listOf(placeholder),
+            classpath = dependency,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+        ) { invocation ->
             val kotlinSubject = invocation.processingEnv.requireTypeElement("foo.bar.KotlinSubject")
             assertThat(kotlinSubject.getField("prop").fallbackLocationText)
                 .isEqualTo("prop in foo.bar.KotlinSubject")

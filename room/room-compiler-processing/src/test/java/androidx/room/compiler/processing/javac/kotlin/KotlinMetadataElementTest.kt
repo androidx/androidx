@@ -20,6 +20,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -818,11 +819,15 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        simpleRun(sources = listOf(src)) { env ->
+        simpleRun(sources = listOf(src), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { env ->
             val subject = env.requireTypeElement("Subject")
             subject.getDeclaredFields().forEach { assertThat(it.getter).isNotNull() }
             subject.getDeclaredMethods().forEach {
-                assertThat(it.isKotlinPropertyMethod()).isTrue()
+                // A private static function was generated for the lambda passed to lazy() with K2
+                // so we filter these out.
+                if (!it.jvmName.contains("$")) {
+                    assertThat(it.isKotlinPropertyMethod()).isTrue()
+                }
             }
         }
     }

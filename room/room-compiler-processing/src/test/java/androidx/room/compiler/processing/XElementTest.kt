@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.ksp.KspFieldElement
 import androidx.room.compiler.processing.ksp.KspFileMemberContainer
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticFileMemberContainer
 import androidx.room.compiler.processing.testcode.OtherAnnotation
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
@@ -866,7 +867,8 @@ class XElementTest {
             """
                         .trimIndent()
                 )
-            )
+            ),
+            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation, precompiled ->
             val enclosingElement =
                 invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass")
@@ -1367,9 +1369,12 @@ class XElementTest {
 
     private fun runProcessorTestHelper(
         sources: List<Source>,
+        kotlincArgs: List<String> = emptyList(),
         handler: (XTestInvocation, Boolean) -> Unit
     ) {
-        runProcessorTest(sources = sources) { handler(it, false) }
-        runProcessorTest(classpath = compileFiles(sources)) { handler(it, true) }
+        runProcessorTest(sources = sources, kotlincArguments = kotlincArgs) { handler(it, false) }
+        runProcessorTest(classpath = compileFiles(sources), kotlincArguments = kotlincArgs) {
+            handler(it, true)
+        }
     }
 }

@@ -318,7 +318,10 @@ class TestRunnerTest {
             )
         runProcessorTest(
             sources = listOf(src),
-            kotlincArguments = listOf("-Werror"),
+            // TODO(kuanyingchou): Remove the "1.9" args when we move to KAPT4. Our processor
+            //  doesn't get to run with KAPT3 and K2 as we pass "-Werror" and we got warning:
+            //  "Kapt currently doesn't support language version 2.0+. Falling back to 1.9."
+            kotlincArguments = listOf("-Werror", "-language-version=1.9", "-api-version=1.9"),
             javacArguments = listOf("-Werror") // needed for kapt as it uses javac,
         ) { invocation ->
             invocation.processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "some warning")

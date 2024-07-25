@@ -23,8 +23,8 @@ import org.jetbrains.kotlin.config.LanguageVersion
 
 /** Default argument / options across the steps and test compiler infra. */
 internal object TestDefaultOptions {
-    internal val kotlinLanguageVersion =
-        LanguageVersion.fromFullVersionString(KotlinVersion.CURRENT.toString())!!
+    // TODO(kuanyingchou): Change it back to follow AndroidX once it's updated to K2.
+    internal val kotlinLanguageVersion = LanguageVersion.KOTLIN_2_0
     internal val kotlinApiVersion = ApiVersion.createByLanguageVersion(kotlinLanguageVersion)
     internal val jvmTarget = JvmTarget.JVM_1_8
     internal val jvmDefaultMode = JvmDefaultMode.ALL_COMPATIBILITY

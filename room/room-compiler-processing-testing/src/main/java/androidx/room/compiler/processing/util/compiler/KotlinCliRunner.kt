@@ -24,6 +24,7 @@ import org.jetbrains.kotlin.cli.common.arguments.K2JVMCompilerArguments
 import org.jetbrains.kotlin.cli.jvm.K2JVMCompiler
 import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.compiler.plugin.parseLegacyPluginOption
+import org.jetbrains.kotlin.config.LanguageVersion
 
 /** Utility object to run kotlin compiler via its CLI API. */
 internal object KotlinCliRunner {
@@ -63,6 +64,14 @@ internal object KotlinCliRunner {
             compiledClasspath = destinationDir,
             kotlinCliArguments = cliArguments
         )
+    }
+
+    /** Get the language version specified with `-language-version=xxx`. */
+    fun getLanguageVersion(kotlincArguments: List<String>): LanguageVersion {
+        val cliArguments = compiler.createArguments()
+        compiler.parseArguments(kotlincArguments.toTypedArray(), cliArguments)
+        return cliArguments.languageVersion?.let { LanguageVersion.fromVersionString(it) }
+            ?: TestDefaultOptions.kotlinLanguageVersion
     }
 
     private fun CompilationStepArguments.copyToCliArguments(cliArguments: K2JVMCompilerArguments) {
