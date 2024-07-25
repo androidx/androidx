@@ -89,7 +89,8 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
             val tmpKeyVarName = scope.getTmpVar("_key")
             val tmpValueVarName = scope.getTmpVar("_value")
-            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+            val stepName = if (scope.useDriverApi) "step" else "moveToNext"
+            beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
                 addLocalVariable(name = tmpKeyVarName, typeName = keyTypeArg.asTypeName())
                 keyRowAdapter.convert(tmpKeyVarName, cursorVarName, scope)
 
@@ -122,4 +123,6 @@ class GuavaImmutableMultimapQueryResultAdapter(
             )
         }
     }
+
+    override fun isMigratedToDriver() = true
 }

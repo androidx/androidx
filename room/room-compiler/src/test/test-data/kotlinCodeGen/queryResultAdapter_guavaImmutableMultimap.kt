@@ -1,9 +1,7 @@
-import android.database.Cursor
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteStatement
 import com.google.common.collect.ImmutableListMultimap
 import com.google.common.collect.ImmutableSetMultimap
 import javax.`annotation`.processing.Generated
@@ -25,69 +23,68 @@ public class MyDao_Impl(
 
   public override fun getArtistWithSongs(): ImmutableSetMultimap<Artist, Song> {
     val _sql: String = "SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfArtistId: Int = getColumnIndexOrThrow(_cursor, "artistId")
-      val _cursorIndexOfSongId: Int = getColumnIndexOrThrow(_cursor, "songId")
-      val _cursorIndexOfArtistKey: Int = getColumnIndexOrThrow(_cursor, "artistKey")
-      val _mapBuilder: ImmutableSetMultimap.Builder<Artist, Song> = ImmutableSetMultimap.builder()
-      while (_cursor.moveToNext()) {
-        val _key: Artist
-        val _tmpArtistId: String
-        _tmpArtistId = _cursor.getString(_cursorIndexOfArtistId)
-        _key = Artist(_tmpArtistId)
-        if (_cursor.isNull(_cursorIndexOfSongId) && _cursor.isNull(_cursorIndexOfArtistKey)) {
-          continue
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfArtistId: Int = getColumnIndexOrThrow(_stmt, "artistId")
+        val _cursorIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
+        val _cursorIndexOfArtistKey: Int = getColumnIndexOrThrow(_stmt, "artistKey")
+        val _mapBuilder: ImmutableSetMultimap.Builder<Artist, Song> = ImmutableSetMultimap.builder()
+        while (_stmt.step()) {
+          val _key: Artist
+          val _tmpArtistId: String
+          _tmpArtistId = _stmt.getText(_cursorIndexOfArtistId)
+          _key = Artist(_tmpArtistId)
+          if (_stmt.isNull(_cursorIndexOfSongId) && _stmt.isNull(_cursorIndexOfArtistKey)) {
+            continue
+          }
+          val _value: Song
+          val _tmpSongId: String
+          _tmpSongId = _stmt.getText(_cursorIndexOfSongId)
+          val _tmpArtistKey: String
+          _tmpArtistKey = _stmt.getText(_cursorIndexOfArtistKey)
+          _value = Song(_tmpSongId,_tmpArtistKey)
+          _mapBuilder.put(_key, _value)
         }
-        val _value: Song
-        val _tmpSongId: String
-        _tmpSongId = _cursor.getString(_cursorIndexOfSongId)
-        val _tmpArtistKey: String
-        _tmpArtistKey = _cursor.getString(_cursorIndexOfArtistKey)
-        _value = Song(_tmpSongId,_tmpArtistKey)
-        _mapBuilder.put(_key, _value)
+        val _result: ImmutableSetMultimap<Artist, Song> = _mapBuilder.build()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: ImmutableSetMultimap<Artist, Song> = _mapBuilder.build()
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
     }
   }
 
   public override fun getArtistWithSongIds(): ImmutableListMultimap<Artist, Song> {
     val _sql: String = "SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    __db.assertNotSuspendingTransaction()
-    val _cursor: Cursor = query(__db, _statement, false, null)
-    try {
-      val _cursorIndexOfArtistId: Int = getColumnIndexOrThrow(_cursor, "artistId")
-      val _cursorIndexOfSongId: Int = getColumnIndexOrThrow(_cursor, "songId")
-      val _cursorIndexOfArtistKey: Int = getColumnIndexOrThrow(_cursor, "artistKey")
-      val _mapBuilder: ImmutableListMultimap.Builder<Artist, Song> = ImmutableListMultimap.builder()
-      while (_cursor.moveToNext()) {
-        val _key: Artist
-        val _tmpArtistId: String
-        _tmpArtistId = _cursor.getString(_cursorIndexOfArtistId)
-        _key = Artist(_tmpArtistId)
-        if (_cursor.isNull(_cursorIndexOfSongId) && _cursor.isNull(_cursorIndexOfArtistKey)) {
-          continue
+    return performBlocking(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        val _cursorIndexOfArtistId: Int = getColumnIndexOrThrow(_stmt, "artistId")
+        val _cursorIndexOfSongId: Int = getColumnIndexOrThrow(_stmt, "songId")
+        val _cursorIndexOfArtistKey: Int = getColumnIndexOrThrow(_stmt, "artistKey")
+        val _mapBuilder: ImmutableListMultimap.Builder<Artist, Song> =
+            ImmutableListMultimap.builder()
+        while (_stmt.step()) {
+          val _key: Artist
+          val _tmpArtistId: String
+          _tmpArtistId = _stmt.getText(_cursorIndexOfArtistId)
+          _key = Artist(_tmpArtistId)
+          if (_stmt.isNull(_cursorIndexOfSongId) && _stmt.isNull(_cursorIndexOfArtistKey)) {
+            continue
+          }
+          val _value: Song
+          val _tmpSongId: String
+          _tmpSongId = _stmt.getText(_cursorIndexOfSongId)
+          val _tmpArtistKey: String
+          _tmpArtistKey = _stmt.getText(_cursorIndexOfArtistKey)
+          _value = Song(_tmpSongId,_tmpArtistKey)
+          _mapBuilder.put(_key, _value)
         }
-        val _value: Song
-        val _tmpSongId: String
-        _tmpSongId = _cursor.getString(_cursorIndexOfSongId)
-        val _tmpArtistKey: String
-        _tmpArtistKey = _cursor.getString(_cursorIndexOfArtistKey)
-        _value = Song(_tmpSongId,_tmpArtistKey)
-        _mapBuilder.put(_key, _value)
+        val _result: ImmutableListMultimap<Artist, Song> = _mapBuilder.build()
+        _result
+      } finally {
+        _stmt.close()
       }
-      val _result: ImmutableListMultimap<Artist, Song> = _mapBuilder.build()
-      return _result
-    } finally {
-      _cursor.close()
-      _statement.release()
     }
   }
 
