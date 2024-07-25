@@ -16,6 +16,7 @@
 
 package androidx.pdf.widget;
 
+import android.content.res.Resources;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
@@ -64,8 +65,12 @@ public abstract class ZoomableSelectionHandles<S> {
 
         this.mOnTouchListener = new HandleTouchListener();
 
-        this.mStartHandle = createHandle(handleParent, false);
-        this.mStopHandle = createHandle(handleParent, true);
+        Resources resources = handleParent.getContext().getResources();
+        String packageName = handleParent.getContext().getPackageName();
+        int startHandleId = resources.getIdentifier("start_drag_handle", "id", packageName);
+        int stopHandleId = resources.getIdentifier("stop_drag_handle", "id", packageName);
+        this.mStartHandle = createHandle(handleParent, false, startHandleId);
+        this.mStopHandle = createHandle(handleParent, true, stopHandleId);
 
         mSelectionObserverKey = createSelectionObserver();
         mZoomViewObserverKey = createZoomViewObserver();
@@ -162,8 +167,9 @@ public abstract class ZoomableSelectionHandles<S> {
      * Creates a new text selection handle ImageView and adds it to the parent. Returns the handle.
      */
     @NonNull
-    protected ImageView createHandle(@NonNull ViewGroup parent, boolean isStop) {
+    protected ImageView createHandle(@NonNull ViewGroup parent, boolean isStop, int id) {
         ImageView handle = new ImageView(parent.getContext());
+        handle.setId(id);
         handle.setLayoutParams(
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         handle.setColorFilter(
