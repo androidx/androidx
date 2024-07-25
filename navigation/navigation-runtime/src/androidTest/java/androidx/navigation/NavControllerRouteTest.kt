@@ -1423,6 +1423,39 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectEnumNullable() {
+        @Serializable class TestClass(val arg: TestEnum? = TestEnum.ONE)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(TestEnum.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.TWO)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // passed in null
+        navController.navigate(TestClass(null))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isNull()
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+
+        // use default
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.ONE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(5)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectEnumNoDefault() {
         @Serializable class TestClass(val arg: TestEnum)
         val navController = createNavController()

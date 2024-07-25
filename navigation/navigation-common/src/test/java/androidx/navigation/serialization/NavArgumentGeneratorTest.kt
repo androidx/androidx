@@ -772,6 +772,21 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToEnumNullable() {
+        @Serializable class TestClass(val arg: TestEnum?)
+
+        @Suppress("UNCHECKED_CAST")
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.EnumNullableType(TestEnum::class.java as Class<Enum<*>?>)
+                nullable = true
+            }
+        val converted = serializer<TestClass>().generateNavArguments()
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToNestedEnum() {
         @Serializable class TestClass(val arg: EnumWrapper.NestedEnum)
 
@@ -795,7 +810,7 @@ class NavArgumentGeneratorTest {
             }
         assertThat(exception.message)
             .isEqualTo(
-                "Cannot find Enum class with name \"MyCustomSerialName\". Ensure that the " +
+                "Cannot find class with name \"MyCustomSerialName\". Ensure that the " +
                     "serialName for this argument is the default fully qualified name"
             )
     }

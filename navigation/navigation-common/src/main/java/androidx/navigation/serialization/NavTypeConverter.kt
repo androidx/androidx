@@ -20,6 +20,7 @@ package androidx.navigation.serialization
 
 import android.os.Bundle
 import androidx.navigation.NavType
+import java.io.Serializable
 import kotlin.reflect.KType
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -44,6 +45,7 @@ private enum class InternalType {
     ARRAY,
     LIST,
     ENUM,
+    ENUM_NULLABLE,
     UNKNOWN
 }
 
@@ -86,23 +88,14 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
                     else -> UNKNOWN
                 }
             }
-            InternalType.ENUM -> {
-                var className = serialName
-                while (className.contains(".")) {
-                    // Support nested Enums by incrementally replacing last `.` with `$`
-                    // until we find the correct enum class name.
-                    className = Regex("(\\.+)(?!.*\\.)").replace(className, "\\$")
-                    try {
-                        val enumType = NavType.parseSerializableOrParcelableType(className, false)
-                        enumType?.let {
-                            return enumType
-                        }
-                    } catch (_: ClassNotFoundException) {}
-                }
-                throw IllegalArgumentException(
-                    "Cannot find Enum class with name \"$serialName\". Ensure that the " +
-                        "serialName for this argument is the default fully qualified name"
-                )
+            InternalType.ENUM ->
+                NavType.parseSerializableOrParcelableType(getClass(), false) ?: UNKNOWN
+            InternalType.ENUM_NULLABLE -> {
+                val clazz = getClass()
+                if (Enum::class.java.isAssignableFrom(clazz)) {
+                    @Suppress("UNCHECKED_CAST")
+                    InternalNavType.EnumNullableType(clazz as Class<Enum<*>?>)
+                } else UNKNOWN
             }
             else -> UNKNOWN
         }
@@ -118,7 +111,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
 private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
-        kind == SerialKind.ENUM -> InternalType.ENUM
+        kind == SerialKind.ENUM -> if (isNullable) InternalType.ENUM_NULLABLE else InternalType.ENUM
         serialName == "kotlin.Int" ->
             if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
         serialName == "kotlin.Boolean" ->
@@ -138,6 +131,22 @@ private fun SerialDescriptor.toInternalType(): InternalType {
         // custom classes or other types without built-in NavTypes
         else -> InternalType.UNKNOWN
     }
+}
+
+private fun SerialDescriptor.getClass(): Class<*> {
+    var className = serialName.replace("?", "")
+    while (className.contains(".")) {
+        // Support nested Class by incrementally replacing last `.` with `$`
+        // until we find the correct enum class name.
+        className = Regex("(\\.+)(?!.*\\.)").replace(className, "\\$")
+        try {
+            return Class.forName(className)
+        } catch (_: ClassNotFoundException) {}
+    }
+    throw IllegalArgumentException(
+        "Cannot find class with name \"$serialName\". Ensure that the " +
+            "serialName for this argument is the default fully qualified name"
+    )
 }
 
 /**
@@ -250,4 +259,70 @@ internal object InternalNavType {
                 return if (value == "null") null else LongType.parseValue(value)
             }
         }
+
+    class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {
+        private val type: Class<D?>
+
+        /** Constructs a NavType that supports a given Enum type. */
+        init {
+            require(type.isEnum) { "$type is not an Enum type." }
+            this.type = type
+        }
+
+        override val name: String
+            get() = type.name
+
+        override fun parseValue(value: String): D? {
+            return if (value == "null") {
+                null
+            } else {
+                type.enumConstants!!.firstOrNull { constant ->
+                    constant!!.name.equals(value, ignoreCase = true)
+                }
+                    ?: throw IllegalArgumentException(
+                        "Enum value $value not found for type ${type.name}."
+                    )
+            }
+        }
+    }
+
+    // Base Serializable class to support nullable EnumNullableType
+    open class SerializableNullableType<D : Serializable?>(private val type: Class<D?>) :
+        NavType<D?>(true) {
+
+        override val name: String
+            get() = type.name
+
+        init {
+            require(Serializable::class.java.isAssignableFrom(type)) {
+                "$type does not implement Serializable."
+            }
+        }
+
+        override fun put(bundle: Bundle, key: String, value: D?) {
+            bundle.putSerializable(key, type.cast(value))
+        }
+
+        @Suppress("UNCHECKED_CAST", "DEPRECATION")
+        override fun get(bundle: Bundle, key: String): D? {
+            return bundle[key] as? D
+        }
+
+        /**
+         * @throws UnsupportedOperationException since Serializables do not support default values
+         */
+        public override fun parseValue(value: String): D? {
+            throw UnsupportedOperationException("Serializables don't support default values.")
+        }
+
+        public override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is SerializableNullableType<*>) return false
+            return type == other.type
+        }
+
+        public override fun hashCode(): Int {
+            return type.hashCode()
+        }
+    }
 }

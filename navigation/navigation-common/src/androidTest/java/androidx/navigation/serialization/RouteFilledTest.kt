@@ -363,6 +363,23 @@ class RouteFilledTest {
     }
 
     @Test
+    fun enumNullableType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val arg: TestEnum?, val arg2: TestEnum?)
+
+        val clazz = TestClass(TestEnum.ONE, null)
+        assertThatRouteFilledFrom(
+                clazz,
+                listOf(
+                    enumArgument("arg", TestEnum::class.java),
+                    enumArgument("arg2", TestEnum::class.java)
+                )
+            )
+            .isEqualTo("$PATH_SERIAL_NAME/ONE/null")
+    }
+
+    @Test
     fun customParamType() {
         @Serializable class CustomType
 
