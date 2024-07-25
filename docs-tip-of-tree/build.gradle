@@ -261,6 +261,7 @@ dependencies {
     docs(project(":palette:palette"))
     docs(project(":palette:palette-ktx"))
     docs(project(":pdf:pdf-viewer"))
+    docs(project(":pdf:pdf-viewer-fragment"))
     docs(project(":percentlayout:percentlayout"))
     docs(project(":preference:preference"))
     docs(project(":preference:preference-ktx"))
