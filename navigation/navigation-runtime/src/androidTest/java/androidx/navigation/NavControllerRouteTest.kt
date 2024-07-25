@@ -210,6 +210,24 @@ class NavControllerRouteTest {
 
     @Serializable class TestGraph
 
+    private enum class TestEnum {
+        ONE,
+        TWO
+    }
+
+    private enum class TestEnumWithArg(val number: Int) {
+        ONE(1),
+        TWO(2)
+    }
+
+    @Serializable
+    private class EnumWrapper {
+        enum class NestedEnum(val number: Int) {
+            ONE(1),
+            TWO(2)
+        }
+    }
+
     companion object {
         private const val UNKNOWN_DESTINATION_ID = -1
         private const val TEST_ARG = "test"
@@ -1374,6 +1392,113 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
         assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isNull()
         assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEnum() {
+        @Serializable class TestClass(val arg: TestEnum = TestEnum.ONE)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(TestEnum.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.TWO)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // use default
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.ONE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEnumNoDefault() {
+        @Serializable class TestClass(val arg: TestEnum)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(TestEnum.ONE))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.ONE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // passed in arg
+        navController.navigate(TestClass(TestEnum.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestEnum.TWO)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectEnumWithArg() {
+        @Serializable class TestClass(val arg: TestEnumWithArg, val arg2: TestEnumWithArg)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        navController.navigate(TestClass(TestEnumWithArg.ONE, TestEnumWithArg.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()?.arg
+        assertThat(arg).isEqualTo(TestEnumWithArg.ONE)
+        assertThat(arg?.number).isEqualTo(1)
+
+        val arg2 = navController.currentBackStackEntry?.toRoute<TestClass>()?.arg2
+        assertThat(arg2).isEqualTo(TestEnumWithArg.TWO)
+        assertThat(arg2?.number).isEqualTo(2)
+
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNestedEnum() {
+        @Serializable
+        class TestClass(val arg: EnumWrapper.NestedEnum, val arg2: EnumWrapper.NestedEnum)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        navController.navigate(TestClass(EnumWrapper.NestedEnum.ONE, EnumWrapper.NestedEnum.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()?.arg
+        assertThat(arg).isEqualTo(EnumWrapper.NestedEnum.ONE)
+        assertThat(arg?.number).isEqualTo(1)
+
+        val arg2 = navController.currentBackStackEntry?.toRoute<TestClass>()?.arg2
+        assertThat(arg2).isEqualTo(EnumWrapper.NestedEnum.TWO)
+        assertThat(arg2?.number).isEqualTo(2)
+
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
     }
 
     @UiThreadTest

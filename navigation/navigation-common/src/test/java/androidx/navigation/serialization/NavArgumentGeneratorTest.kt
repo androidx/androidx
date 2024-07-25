@@ -761,49 +761,43 @@ class NavArgumentGeneratorTest {
     fun convertToEnum() {
         @Serializable class TestClass(val arg: TestEnum)
 
-        val navType =
-            object : NavType<TestEnum>(false) {
-                override fun put(bundle: Bundle, key: String, value: TestEnum) {}
-
-                override fun get(bundle: Bundle, key: String) = null
-
-                override fun parseValue(value: String) = TestEnum.TEST
-            }
         val expected =
             navArgument("arg") {
-                type = navType
+                type = NavType.EnumType(TestEnum::class.java)
                 nullable = false
             }
-        val converted =
-            serializer<TestClass>().generateNavArguments(mapOf(typeOf<TestEnum>() to navType))
+        val converted = serializer<TestClass>().generateNavArguments()
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
-    fun convertToEnumNullable() {
-        @Serializable class TestClass(val arg: TestEnum?)
+    fun convertToNestedEnum() {
+        @Serializable class TestClass(val arg: EnumWrapper.NestedEnum)
 
-        val navType =
-            object : NavType<TestEnum?>(true) {
-                override val name: String
-                    get() = "TestEnum"
-
-                override fun put(bundle: Bundle, key: String, value: TestEnum?) {}
-
-                override fun get(bundle: Bundle, key: String) = null
-
-                override fun parseValue(value: String) = TestEnum.TEST
-            }
-        val converted =
-            serializer<TestClass>().generateNavArguments(mapOf(typeOf<TestEnum?>() to navType))
         val expected =
             navArgument("arg") {
-                type = navType
-                nullable = true
+                type = NavType.EnumType(EnumWrapper.NestedEnum::class.java)
+                nullable = false
             }
+        val converted = serializer<TestClass>().generateNavArguments()
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToEnumOverriddenSerialNameIllegal() {
+        @Serializable class TestClass(val arg: TestEnumCustomSerialName)
+
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                serializer<TestClass>().generateNavArguments()
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot find Enum class with name \"MyCustomSerialName\". Ensure that the " +
+                    "serialName for this argument is the default fully qualified name"
+            )
     }
 
     @Test
@@ -1325,8 +1319,20 @@ class NavArgumentGeneratorTest {
         } else true
     }
 
-    @Serializable
     enum class TestEnum {
         TEST
+    }
+
+    @SerialName("MyCustomSerialName")
+    enum class TestEnumCustomSerialName {
+        TEST
+    }
+
+    @Serializable
+    private class EnumWrapper {
+        enum class NestedEnum {
+            ONE,
+            TWO
+        }
     }
 }

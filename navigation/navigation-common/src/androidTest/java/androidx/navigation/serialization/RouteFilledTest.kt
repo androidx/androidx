@@ -346,6 +346,23 @@ class RouteFilledTest {
     }
 
     @Test
+    fun enumType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val arg: TestEnum, val arg2: TestEnum)
+
+        val clazz = TestClass(TestEnum.ONE, TestEnum.TWO)
+        assertThatRouteFilledFrom(
+                clazz,
+                listOf(
+                    enumArgument("arg", TestEnum::class.java),
+                    enumArgument("arg2", TestEnum::class.java)
+                )
+            )
+            .isEqualTo("$PATH_SERIAL_NAME/ONE/TWO")
+    }
+
+    @Test
     fun customParamType() {
         @Serializable class CustomType
 
@@ -790,3 +807,9 @@ private fun intArrayArgument(name: String, hasDefaultValue: Boolean = false) =
         nullable = true
         unknownDefaultValuePresent = hasDefaultValue
     }
+
+@Serializable
+private enum class TestEnum {
+    ONE,
+    TWO
+}
