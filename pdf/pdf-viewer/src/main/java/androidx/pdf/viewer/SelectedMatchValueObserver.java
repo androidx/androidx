@@ -19,6 +19,7 @@ package androidx.pdf.viewer;
 import android.content.Context;
 import android.graphics.Rect;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.ObservableValue;
@@ -26,7 +27,7 @@ import androidx.pdf.util.PaginationUtils;
 import androidx.pdf.widget.ZoomView;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class SelectedMatchValueObserver implements ObservableValue.ValueObserver<SelectedMatch> {
+public class SelectedMatchValueObserver implements ObservableValue.ValueObserver<SelectedMatch> {
     private final PaginatedView mPaginatedView;
     private final PaginationModel mPaginationModel;
     private final PageViewFactory mPageViewFactory;
@@ -34,9 +35,10 @@ class SelectedMatchValueObserver implements ObservableValue.ValueObserver<Select
     private final ZoomView mZoomView;
     private final Context mContext;
 
-    SelectedMatchValueObserver(PaginatedView paginatedView, PaginationModel paginationModel,
-            PageViewFactory pageViewFactory, ZoomView zoomView, LayoutHandler layoutHandler,
-            Context context) {
+    public SelectedMatchValueObserver(@NonNull PaginatedView paginatedView,
+            @NonNull PaginationModel paginationModel, @NonNull PageViewFactory pageViewFactory,
+            @NonNull ZoomView zoomView, @NonNull LayoutHandler layoutHandler,
+            @NonNull Context context) {
         mPaginatedView = paginatedView;
         mPaginationModel = paginationModel;
         mPageViewFactory = pageViewFactory;

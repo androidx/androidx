@@ -58,6 +58,8 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private PdfSelectionModel mSelectionModel;
 
+    private PdfSelectionHandles mSelectionHandles;
+
     private SearchModel mSearchModel;
 
     private PdfLoader mPdfLoader;
@@ -74,8 +76,15 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+
+    }
+
+    /** Instantiate PaginationModel and PageRangeHandler */
+    @NonNull
+    public PaginationModel initPaginationModelAndPageRangeHandler(@NonNull Context context) {
         mPaginationModel = new PaginationModel(context);
         mPageRangeHandler = new PageRangeHandler(mPaginationModel);
+        return mPaginationModel;
     }
 
     @NonNull
@@ -105,6 +114,15 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public void setSearchModel(@NonNull SearchModel searchModel) {
         mSearchModel = searchModel;
+    }
+
+    @NonNull
+    public PdfSelectionHandles getSelectionHandles() {
+        return  mSelectionHandles;
+    }
+
+    public void setSelectionHandles(@NonNull PdfSelectionHandles selectionHandles) {
+        mSelectionHandles = selectionHandles;
     }
 
     public void setPdfLoader(@NonNull PdfLoader pdfLoader) {
@@ -266,7 +284,7 @@ public class PaginatedView extends AbstractPaginatedView {
     @Override
     public void onWindowFocusChanged(boolean hasWindowFocus) {
         super.onWindowFocusChanged(hasWindowFocus);
-        if (getVisibility() == View.VISIBLE) {
+        if (getVisibility() == View.VISIBLE && mPageRangeHandler != null) {
             mPageRangeHandler.adjustMaxPageToUpperVisibleRange();
             if (getChildCount() > 0) {
                 for (PageMosaicView page : getChildViews()) {
@@ -282,7 +300,9 @@ public class PaginatedView extends AbstractPaginatedView {
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        mPageRangeHandler.setVisiblePages(null);
+        if (mPageRangeHandler != null) {
+            mPageRangeHandler.setVisiblePages(null);
+        }
     }
 
     /**

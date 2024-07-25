@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">PDF Viewer Integration Tests</string>
     <string name="launch_string">Launch AOSP PDF Viewer</string>
+    <string name="search_string">Search</string>
 </resources>

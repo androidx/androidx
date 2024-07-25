@@ -16,15 +16,23 @@
 
 package androidx.pdf.testapp
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentTransaction
+import androidx.pdf.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
+@SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class MainActivity : AppCompatActivity() {
+
+    private var pdfViewerFragment: PdfViewerFragment? = null
+    private var PDFVIEWERFRAGMENT_TAG = "pdfviewerfragment_tag"
 
     companion object {
         private const val MIME_TYPE_PDF = "application/pdf"
@@ -32,22 +40,49 @@ class MainActivity : AppCompatActivity() {
 
     private val filePicker =
         registerForActivityResult(GetContent()) { uri: Uri? ->
-            uri?.let {
-                setPdfView()
-                // TODO: Implement loading PDF from URI using latest APIs
-            }
+            uri?.let { pdfViewerFragment?.documentUri = uri }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        if (pdfViewerFragment == null) {
+            pdfViewerFragment =
+                supportFragmentManager.findFragmentByTag(PDFVIEWERFRAGMENT_TAG)
+                    as PdfViewerFragment?
+        }
+
         val getContentButton: MaterialButton = findViewById(R.id.launch_button)
+        val searchButton: MaterialButton = findViewById(R.id.search_button)
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
+        searchButton.setOnClickListener { setFindInFileViewVisible() }
+        if (savedInstanceState == null) {
+            setPdfView()
+        }
     }
 
     private fun setPdfView() {
-        // TODO: Implement this based on new APIs
+        val fragmentManager: FragmentManager = supportFragmentManager
+
+        // Fragment initialization
+        pdfViewerFragment = PdfViewerFragment()
+        val transaction: FragmentTransaction = fragmentManager.beginTransaction()
+
+        // Replace an existing fragment in a container with an instance of a new fragment
+        transaction.replace(
+            R.id.fragment_container_view,
+            pdfViewerFragment!!,
+            PDFVIEWERFRAGMENT_TAG
+        )
+        transaction.commitAllowingStateLoss()
+        fragmentManager.executePendingTransactions()
+    }
+
+    private fun setFindInFileViewVisible() {
+        if (pdfViewerFragment != null) {
+            pdfViewerFragment!!.isTextSearchActive = true
+        }
     }
 }

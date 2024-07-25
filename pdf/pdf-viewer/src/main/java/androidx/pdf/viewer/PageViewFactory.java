@@ -130,7 +130,7 @@ public class PageViewFactory {
         final PageMosaicView pageMosaicView =
                 new PageMosaicView(mContext, pageNum, pageSize, bitmapSource,
                         TileBoard.DEFAULT_RECYCLER, mPdfLoader, mPaginatedView.getSelectionModel(),
-                        mPaginatedView.getSearchModel());
+                        mPaginatedView.getSearchModel(), mPaginatedView.getSelectionHandles());
         if (isTouchExplorationEnabled(mContext)) {
             final PageLinksView pageLinksView = new PageLinksView(mContext, mZoomView.zoomScroll());
 

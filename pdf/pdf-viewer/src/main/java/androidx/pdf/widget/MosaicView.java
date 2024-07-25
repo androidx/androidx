@@ -161,9 +161,6 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
      */
     private final Rect mScaledViewArea = new Rect();
 
-    /** Whether to request a page bitmap even if tiling. */
-    protected boolean mAlwaysRequestPageBitmap = true;
-
     public MosaicView(@NonNull Context context) {
         super(context);
     }
@@ -360,13 +357,10 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     public void requestDrawAtZoom(float zoom) {
         mRequestedWidth = (int) (zoom * mBounds.width());
         boolean needTiling = needTiling(mRequestedWidth);
-
-        if (shouldDrawBitmap(needTiling)) {
-            int cappedWidth = getCappedWidth(needTiling);
-            if (mBitmap == null || mBitmap.getWidth() != cappedWidth) {
-                Dimensions pageSize = getPageDimensionsAtWidth(cappedWidth);
-                mBitmapSource.requestPageBitmap(pageSize, /* alsoRequestingTiles= */ needTiling);
-            }
+        int cappedWidth = getCappedWidth(needTiling);
+        if (mBitmap == null || mBitmap.getWidth() != cappedWidth) {
+            Dimensions pageSize = getPageDimensionsAtWidth(cappedWidth);
+            mBitmapSource.requestPageBitmap(pageSize, /* alsoRequestingTiles= */ needTiling);
         }
 
         if (needTiling) {
@@ -404,7 +398,7 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
 
         boolean needTiling = needTiling(mRequestedWidth);
 
-        if (shouldDrawBitmap(needTiling) && mBitmap != null) {
+        if (mBitmap != null) {
             int cappedWidth = getCappedWidth(needTiling);
             if (cappedWidth > 0) {
                 Dimensions pageSize = getPageDimensionsAtWidth(cappedWidth);
@@ -435,14 +429,6 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
             throw new RuntimeException(String.format("Invalid width %s", cappedWidth));
         }
         return cappedWidth;
-    }
-
-    /**
-     * True if debug flag is not set and either {@link #mAlwaysRequestPageBitmap} is true or
-     * we are not tiling.
-     */
-    private boolean shouldDrawBitmap(boolean needTiling) {
-        return (mAlwaysRequestPageBitmap || !needTiling);
     }
 
     /** Determines the current zoom of this view and scales {@code unscaled} accordingly. */
@@ -640,19 +626,17 @@ public class MosaicView extends ViewGroup implements ViewWithOverlays {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         // No tiling: draw the page bitmap or a white page.
-        if (mTileBoard == null) {
-            if (mBitmap != null) {
-                canvas.save();
-                float scale = (float) getWidth() / mBitmap.getWidth();
-                canvas.scale(scale, scale);
-                canvas.drawBitmap(mBitmap, IDENTITY, DITHER_BITMAP_PAINT);
-                canvas.restore();
-            } else if (mFailure != null) {
-                canvas.drawText(mFailure, getWidth() / 2, getHeight() / 2 - 10,
-                        MosaicView.MESSAGE_PAINT);
-            } else {
-                canvas.drawRect(mBounds, WHITE_PAINT);
-            }
+        if (mBitmap != null) {
+            canvas.save();
+            float scale = (float) getWidth() / mBitmap.getWidth();
+            canvas.scale(scale, scale);
+            canvas.drawBitmap(mBitmap, IDENTITY, DITHER_BITMAP_PAINT);
+            canvas.restore();
+        } else if (mFailure != null) {
+            canvas.drawText(mFailure, getWidth() / 2, getHeight() / 2 - 10,
+                    MosaicView.MESSAGE_PAINT);
+        } else {
+            canvas.drawRect(mBounds, WHITE_PAINT);
         }
     }
 
