@@ -291,7 +291,7 @@ internal constructor(
         }
         val velocity = calculateVelocity()
 
-        return if (velocity == 0.0f) {
+        return if (velocity == 0.0f || velocity.isNaN()) {
             0.0f
         } else if (velocity > 0) {
             velocity.coerceAtMost(maximumVelocity)
