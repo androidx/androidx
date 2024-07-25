@@ -56,6 +56,10 @@ const val composeReportsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
 const val enableMetricsArg = "androidx.enableComposeCompilerMetrics"
 const val enableReportsArg = "androidx.enableComposeCompilerReports"
+const val composeStrongSkippingOption =
+    "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping"
+const val composeNonSkippingGroupOptimizationOption =
+    "plugin:androidx.compose.compiler.plugins.kotlin:nonSkippingGroupOptimization"
 
 /**
  * Plugin to apply common configuration for Compose projects.
@@ -401,6 +405,12 @@ private fun configureComposeCompilerPlugin(
             // It used to be configured with `onlyIf` in upstream too.
             compile.onlyIf {
                 compile.kotlinOptions.freeCompilerArgs += "-Xplugin=${kotlinPlugin.first()}"
+
+                // Enable Compose strong skipping mode
+                compile.kotlinOptions.freeCompilerArgs +=
+                    listOf("-P", "$composeStrongSkippingOption=true")
+                compile.kotlinOptions.freeCompilerArgs +=
+                    listOf("-P", "$composeNonSkippingGroupOptimizationOption=true")
 
                 if (enableMetricsProvider.orNull == "true") {
                     val metricsDest = File(libraryMetricsDirectory, "compose")
