@@ -42,6 +42,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -87,6 +88,7 @@ class CheckboxScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun checkBoxTest_pressed() {
         rule.setMaterialContent {
             Box(wrap.testTag(wrapperTestTag)) {

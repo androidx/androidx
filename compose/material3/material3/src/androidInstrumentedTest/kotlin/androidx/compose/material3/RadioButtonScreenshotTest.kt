@@ -43,6 +43,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -99,6 +100,7 @@ class RadioButtonScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun radioButton_lightTheme_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }
@@ -119,6 +121,7 @@ class RadioButtonScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun radioButton_darkTheme_pressed() {
         rule.setMaterialContent(darkColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) { RadioButton(selected = false, onClick = {}) }

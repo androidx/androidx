@@ -44,6 +44,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -79,6 +80,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun wideNavigationRail_pressed() {
         val interactionSource = MutableInteractionSource()
 

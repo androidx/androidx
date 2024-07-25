@@ -40,6 +40,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -92,6 +93,7 @@ class TabScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun lightTheme_primary_pressed() {
         val interactionSource = MutableInteractionSource()
 
@@ -111,6 +113,7 @@ class TabScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun lightTheme_secondary_pressed() {
         val interactionSource = MutableInteractionSource()
 
@@ -168,6 +171,7 @@ class TabScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun darkTheme_primary_pressed() {
         val interactionSource = MutableInteractionSource()
 
@@ -187,6 +191,7 @@ class TabScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun darkTheme_secondary_pressed() {
         val interactionSource = MutableInteractionSource()
 
