@@ -146,8 +146,8 @@ public class TypefaceCompatTest {
         final FontRequest parsedRequest = entry.getRequest();
         final FontRequest request = new FontRequest(parsedRequest.getProviderAuthority(),
                 parsedRequest.getProviderPackage(), parsedRequest.getQuery(), SIGNATURE);
-        return new ProviderResourceEntry(request, entry.getFetchStrategy(), entry.getTimeout(),
-                entry.getSystemFontFamilyName());
+        return new ProviderResourceEntry(request, null /* fallbackRequest */,
+                entry.getFetchStrategy(), entry.getTimeout(), entry.getSystemFontFamilyName());
     }
 
     public static class FontCallback extends ResourcesCompat.FontCallback {

@@ -28,6 +28,10 @@
         <!-- The query to be sent over to the provider. Refer to your font provider's documentation
         on the format of this string. -->
         <attr name="fontProviderQuery" format="string" />
+        <!-- The query (for the same font provider) for a font to be used for
+         {@link android.graphics.Typeface.CustomFallbackBuilder custom font fallback}.
+         Ignored prior to API 29. -->
+        <attr name="fontProviderFallbackQuery" format="string" />
         <!-- The sets of hashes for the certificates the provider should be signed with. This is
         used to verify the identity of the provider, and is only required if the provider is not
         part of the system image. This value may point to one list or a list of lists, where each
@@ -49,7 +53,7 @@
               default typeface will be used instead. -->
             <enum name="blocking" value="0" />
             <!-- The async font fetch works as follows.
-              First, check the local cache, then if the requeted font is not cached, trigger a
+              First, check the local cache, then if the requested font is not cached, trigger a
               request the font and continue with layout inflation. Once the font fetch succeeds, the
               target text view will be refreshed with the downloaded font data. The
               fontProviderFetchTimeout will be ignored if async loading is specified. -->
@@ -79,7 +83,7 @@
             <enum name="italic" value="1" />
         </attr>
         <!-- The reference to the font file to be used. This should be a file in the res/font folder
-         and should therefore have an R reference value. E.g. @font/myfont -->
+         and should therefore have an R reference value. e.g. @font/myfont -->
         <attr name="font" format="reference" />
         <!-- The weight of the given font file. This will be used when the font is being loaded into
          the font stack and will override any weight information in the font's header tables. Must

@@ -2030,6 +2030,7 @@ package androidx.core.provider {
     method public static androidx.core.provider.FontsContractCompat.FontFamilyResult fetchFonts(android.content.Context, android.os.CancellationSignal?, androidx.core.provider.FontRequest) throws android.content.pm.PackageManager.NameNotFoundException;
     method @Deprecated public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler);
     method public static void requestFont(android.content.Context, androidx.core.provider.FontRequest, int, java.util.concurrent.Executor?, java.util.concurrent.Executor, androidx.core.provider.FontsContractCompat.FontRequestCallback);
+    method public static void requestFontWithFallbackChain(android.content.Context, java.util.List<androidx.core.provider.FontRequest!>, int, java.util.concurrent.Executor?, java.util.concurrent.Executor, androidx.core.provider.FontsContractCompat.FontRequestCallback);
   }
 
   public static final class FontsContractCompat.Columns implements android.provider.BaseColumns {
@@ -2048,6 +2049,7 @@ package androidx.core.provider {
 
   public static class FontsContractCompat.FontFamilyResult {
     method public androidx.core.provider.FontsContractCompat.FontInfo![]! getFonts();
+    method public java.util.List<androidx.core.provider.FontsContractCompat.FontInfo![]!> getFontsWithFallbacks();
     method public int getStatusCode();
     field public static final int STATUS_OK = 0; // 0x0
     field public static final int STATUS_UNEXPECTED_DATA_PROVIDED = 2; // 0x2

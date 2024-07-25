@@ -28,6 +28,7 @@ dependencies {
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.interpolator:interpolator:1.0.0")
+    implementation("androidx.tracing:tracing:1.2.0")
 
     api(libs.kotlinStdlib)
 

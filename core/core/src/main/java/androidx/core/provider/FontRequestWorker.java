@@ -27,6 +27,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Process;
 
@@ -40,8 +41,10 @@ import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
 import androidx.core.provider.FontsContractCompat.FontRequestCallback.FontRequestFailReason;
 import androidx.core.util.Consumer;
+import androidx.tracing.Trace;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -99,7 +102,7 @@ class FontRequestWorker {
             final int style,
             int timeoutInMillis
     ) {
-        final String id = createCacheId(request, style);
+        final String id = createCacheId(List.of(request), style);
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
             callback.onTypefaceResult(new TypefaceResult(cached));
@@ -109,7 +112,8 @@ class FontRequestWorker {
         // when timeout is infinite, do not post to bg thread, since it will block other requests
         if (timeoutInMillis == FontResourcesParserCompat.INFINITE_TIMEOUT_VALUE) {
             // Wait forever. No need to post to the thread.
-            TypefaceResult typefaceResult = getFontSync(id, context, request, style);
+            TypefaceResult typefaceResult = getFontSync(id, context, List.of(request),
+                    style);
             callback.onTypefaceResult(typefaceResult);
             return typefaceResult.mTypeface;
         }
@@ -117,7 +121,7 @@ class FontRequestWorker {
         final Callable<TypefaceResult> fetcher = new Callable<TypefaceResult>() {
             @Override
             public TypefaceResult call() {
-                return getFontSync(id, context, request, style);
+                return getFontSync(id, context, List.of(request), style);
             }
         };
 
@@ -143,7 +147,7 @@ class FontRequestWorker {
      *
      *
      * @param context
-     * @param request FontRequest for the font to be loaded.
+     * @param requests FontRequest for the font to be loaded (and any fallbacks).
      * @param style Typeface Style such as {@link Typeface#NORMAL}, {@link Typeface#BOLD} ads asd
      *             {@link Typeface#ITALIC}, {@link Typeface#BOLD_ITALIC}.
      * @param executor Executor instance to execute the request. If null is provided
@@ -155,13 +159,12 @@ class FontRequestWorker {
      */
     static Typeface requestFontAsync(
             @NonNull final Context context,
-            @NonNull final FontRequest request,
+            @NonNull final List<FontRequest> requests,
             final int style,
             @Nullable final Executor executor,
             @NonNull final CallbackWrapper callback
     ) {
-
-        final String id = createCacheId(request, style);
+        final String id = createCacheId(requests, style);
         Typeface cached = sTypefaceCache.get(id);
         if (cached != null) {
             callback.onTypefaceResult(new TypefaceResult(cached));
@@ -195,7 +198,7 @@ class FontRequestWorker {
             @Override
             public TypefaceResult call() {
                 try {
-                    return getFontSync(id, context, request, style);
+                    return getFontSync(id, context, requests, style);
                 } catch (Throwable t) {
                     return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
                 }
@@ -223,8 +226,16 @@ class FontRequestWorker {
         return null;
     }
 
-    private static String createCacheId(@NonNull FontRequest request, int style) {
-        return request.getId() + "-" + style;
+    private static String createCacheId(@NonNull List<FontRequest> requests, int style) {
+        StringBuilder cacheId = new StringBuilder();
+        for (int i = 0; i < requests.size(); i++) {
+            cacheId.append(requests.get(i).getId()).append("-").append(style);
+            if (i < requests.size() - 1) {
+                cacheId.append(";");
+            }
+        }
+
+        return cacheId.toString();
     }
 
     /** Package protected to prevent synthetic accessor */
@@ -232,34 +243,52 @@ class FontRequestWorker {
     static TypefaceResult getFontSync(
             @NonNull final String cacheId,
             @NonNull final Context context,
-            @NonNull final FontRequest request,
+            @NonNull final List<FontRequest> requests,
             int style
     ) {
-        Typeface cached = sTypefaceCache.get(cacheId);
-        if (cached != null) {
-            return new TypefaceResult(cached);
+        if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+            Trace.beginSection("getFontSync");
         }
-
-        FontFamilyResult result;
         try {
-            result = FontProvider.getFontFamilyResult(context, request, null);
-        } catch (PackageManager.NameNotFoundException e) {
-            return new TypefaceResult(FAIL_REASON_PROVIDER_NOT_FOUND);
-        }
+            Typeface cached = sTypefaceCache.get(cacheId);
+            if (cached != null) {
+                return new TypefaceResult(cached);
+            }
 
-        int fontFamilyResultStatus = getFontFamilyResultStatus(result);
-        if (fontFamilyResultStatus != RESULT_SUCCESS) {
-            return new TypefaceResult(fontFamilyResultStatus);
-        }
+            FontFamilyResult result;
+            try {
+                result = FontProvider.getFontFamilyResult(context, requests, null);
+            } catch (PackageManager.NameNotFoundException e) {
+                return new TypefaceResult(FAIL_REASON_PROVIDER_NOT_FOUND);
+            }
 
-        final Typeface typeface = TypefaceCompat.createFromFontInfo(
-                context, null /* CancellationSignal */, result.getFonts(), style);
+            int fontFamilyResultStatus = getFontFamilyResultStatus(result);
+            if (fontFamilyResultStatus != RESULT_SUCCESS) {
+                return new TypefaceResult(fontFamilyResultStatus);
+            }
+            final Typeface typeface;
+            // Fallbacks are only supported on API 29+; ignore them otherwise
+            if (result.hasFallback() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                typeface = TypefaceCompat.createFromFontInfoWithFallback(
+                        context, null /* CancellationSignal */, result.getFontsWithFallbacks(),
+                        style);
+            } else {
+                typeface = TypefaceCompat.createFromFontInfo(
+                        context, null /* CancellationSignal */, result.getFonts(), style);
+            }
 
-        if (typeface != null) {
-            sTypefaceCache.put(cacheId, typeface);
-            return new TypefaceResult(typeface);
-        } else {
-            return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+            if (typeface != null) {
+                // TODO(b/352510076): we probably need to validate that we got *all* the fonts we
+                //  requested
+                sTypefaceCache.put(cacheId, typeface);
+                return new TypefaceResult(typeface);
+            } else {
+                return new TypefaceResult(FAIL_REASON_FONT_LOAD_ERROR);
+            }
+        } finally {
+            if (TypefaceCompat.DOWNLOADABLE_FONT_TRACING) {
+                Trace.endSection();
+            }
         }
     }
 

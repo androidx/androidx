@@ -27,6 +27,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.res.FontResourcesParserCompat.FontFamilyFilesResourceEntry;
 import androidx.core.content.res.FontResourcesParserCompat.FontFileResourceEntry;
@@ -36,6 +37,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
@@ -54,6 +56,7 @@ class TypefaceCompatBaseImpl {
 
     private interface StyleExtractor<T> {
         int getWeight(T t);
+
         boolean isItalic(T t);
     }
 
@@ -151,6 +154,15 @@ class TypefaceCompatBaseImpl {
         } finally {
             TypefaceCompatUtil.closeQuietly(is);
         }
+    }
+
+    @Nullable
+    @RequiresApi(29)
+    public Typeface createFromFontInfoWithFallback(@NonNull Context context,
+            @Nullable CancellationSignal cancellationSignal,
+            @NonNull List<FontInfo[]> fonts, int style) {
+        throw new IllegalStateException(
+                "createFromFontInfoWithFallback must only be called on API 29+");
     }
 
     private FontFileResourceEntry findBestEntry(FontFamilyFilesResourceEntry entry, int style) {
