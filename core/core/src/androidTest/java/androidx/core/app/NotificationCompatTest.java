@@ -2456,7 +2456,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 20)
+    @SdkSuppress(minSdkVersion = 20, maxSdkVersion = 32) // Failing on API 33 emulator, b/355507696
     public void testCallStyle_preservesCustomActions() {
         PendingIntent hangupIntent = createIntent("hangup");
         Person person = new Person.Builder().setName("test name").build();
