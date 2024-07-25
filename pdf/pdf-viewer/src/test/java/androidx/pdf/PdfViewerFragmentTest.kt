@@ -18,6 +18,7 @@ package androidx.pdf
 
 import android.os.Bundle
 import androidx.fragment.app.testing.FragmentScenario
+import androidx.pdf.viewer.fragment.PdfViewerFragment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
@@ -26,14 +27,14 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PdfViewerFragmentTest {
-    private lateinit var scenario: FragmentScenario<androidx.pdf.PdfViewerFragment>
-    private lateinit var fragment: androidx.pdf.PdfViewerFragment
+    private lateinit var scenario: FragmentScenario<PdfViewerFragment>
+    private lateinit var fragment: PdfViewerFragment
 
     @Before
     fun setup() {
         scenario =
             FragmentScenario.Companion.launchInContainer(
-                androidx.pdf.PdfViewerFragment::class.java,
+                PdfViewerFragment::class.java,
                 Bundle.EMPTY,
                 androidx.appcompat.R.style.Theme_AppCompat
             )

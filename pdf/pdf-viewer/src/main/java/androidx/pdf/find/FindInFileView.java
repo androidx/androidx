@@ -63,6 +63,7 @@ public class FindInFileView extends LinearLayout {
     private ObservableValue<MatchCount> mMatchCount;
     private SearchModel mSearchModel;
     private PaginatedView mPaginatedView;
+    private Runnable mOnClosedButtonCallback;
     private boolean mIsAnnotationIntentResolvable;
     private static final char MATCH_STATUS_COUNTING = '\u2026';
     private static final String TAG = FindInFileView.class.getSimpleName();
@@ -174,6 +175,10 @@ public class FindInFileView extends LinearLayout {
         mPaginatedView = paginatedView;
     }
 
+    public void setOnClosedButtonCallback(@NonNull Runnable onClosedButtonCallback) {
+        this.mOnClosedButtonCallback = onClosedButtonCallback;
+    }
+
     @NonNull
     public SearchModel getSearchModel() {
         return mSearchModel;
@@ -214,6 +219,7 @@ public class FindInFileView extends LinearLayout {
         queryBoxRequestFocus();
 
         mCloseButton.setOnClickListener(view -> {
+            mOnClosedButtonCallback.run();
             View parentLayout = (View) mCloseButton.getParent();
             mQueryBox.clearFocus();
             mQueryBox.setText("");

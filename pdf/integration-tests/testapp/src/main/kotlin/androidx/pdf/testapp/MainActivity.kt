@@ -24,13 +24,14 @@ import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
+import androidx.pdf.viewer.fragment.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
 @SuppressLint("RestrictedApiAndroidX")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class MainActivity : AppCompatActivity() {
 
-    private var pdfViewerFragment: androidx.pdf.PdfViewerFragment? = null
+    private var pdfViewerFragment: PdfViewerFragment? = null
 
     private val filePicker =
         registerForActivityResult(GetContent()) { uri: Uri? ->
@@ -44,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         if (pdfViewerFragment == null) {
             pdfViewerFragment =
                 supportFragmentManager.findFragmentByTag(PDF_VIEWER_FRAGMENT_TAG)
-                    as androidx.pdf.PdfViewerFragment?
+                    as PdfViewerFragment?
         }
 
         val getContentButton: MaterialButton = findViewById(R.id.launch_button)
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         val fragmentManager: FragmentManager = supportFragmentManager
 
         // Fragment initialization
-        pdfViewerFragment = androidx.pdf.PdfViewerFragment()
+        pdfViewerFragment = PdfViewerFragment()
         val transaction: FragmentTransaction = fragmentManager.beginTransaction()
 
         // Replace an existing fragment in a container with an instance of a new fragment
