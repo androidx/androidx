@@ -135,4 +135,16 @@
        load a file, but there was a problem (e.g. device was offline). So we show the user a button with
        this "retry" text to try and fetch the file again. [CHAR LIMIT=20] -->
     <string name="retry_button_text">Retry</string>
+
+    <!-- Exception message when unable to process PDF document -->
+    <string name="pdf_error">Failed to process the PDF document!</string>
+
+    <!-- Exception message when the process was unable to access the file -->
+    <string name="file_error">Failed to open the file. Possible permission issue?</string>
+
+    <!-- Exception message when a page is unable to load in the document -->
+    <string name="page_broken">Page broken for the PDF document</string>
+
+    <!-- Exception message when the PDF document was insufficient file contents -->
+    <string name="needs_more_data">Insufficient data for processing the PDF document</string>
 </resources>

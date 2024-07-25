@@ -224,7 +224,6 @@ open class PdfViewerFragment : Fragment() {
                 zoomView!!,
                 paginatedView!!,
                 loadingView!!,
-                annotationButton!!,
                 viewState,
                 view,
                 onRequestPassword = { onScreen ->
@@ -236,17 +235,19 @@ open class PdfViewerFragment : Fragment() {
                         // will restart on the next onStart.
                         pdfLoader?.disconnect()
                     }
-                }
-            ) {
-                documentLoaded = true
-                if (shouldRedrawOnDocumentLoaded) {
-                    shouldRedrawOnDocumentLoaded = false
-                }
+                },
+                onDocumentLoaded = {
+                    documentLoaded = true
+                    if (shouldRedrawOnDocumentLoaded) {
+                        shouldRedrawOnDocumentLoaded = false
+                    }
 
-                if (annotationButton != null && isAnnotationIntentResolvable) {
-                    annotationButton?.visibility = View.VISIBLE
-                }
-            }
+                    if (annotationButton != null && isAnnotationIntentResolvable) {
+                        annotationButton?.visibility = View.VISIBLE
+                    }
+                },
+                onDocumentLoadFailure = { thrown -> onLoadDocumentError(thrown) }
+            )
 
         setUpEditFab()
 
@@ -516,6 +517,7 @@ open class PdfViewerFragment : Fragment() {
                 // app that owns it has been killed by the system. We will still recover,
                 // but log this.
                 viewState.set(ViewState.ERROR)
+                onLoadDocumentError(e)
             }
         }
     }
@@ -555,16 +557,14 @@ open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyView() {
-        if (zoomView != null) {
-            zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
-            zoomView = null
+        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
+        paginatedView?.let { view ->
+            view.removeAllViews()
+            paginationModel?.removeObserver(view)
         }
 
-        if (paginatedView != null) {
-            paginatedView?.removeAllViews()
-            paginationModel?.removeObserver(paginatedView!!)
-            paginatedView = null
-        }
+        zoomView = null
+        paginatedView = null
 
         pdfLoader?.cancelAll()
         documentLoaded = false
@@ -611,7 +611,9 @@ open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel?.let {
             outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
         }
-        outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, findInFileView!!.visibility == View.VISIBLE)
+        findInFileView?.let {
+            outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, it.visibility == View.VISIBLE)
+        }
     }
 
     private fun loadFile(fileUri: Uri) {
@@ -659,17 +661,11 @@ open class PdfViewerFragment : Fragment() {
                 }
 
                 override fun failed(thrown: Throwable) {
-                    finishActivity()
+                    onLoadDocumentError(thrown)
                 }
 
                 override fun progress(progress: Float) {}
             }]
-    }
-
-    private fun finishActivity() {
-        if (activity != null) {
-            requireActivity().finish()
-        }
     }
 
     private fun getFileName(fileUri: Uri): String {
@@ -693,9 +689,12 @@ open class PdfViewerFragment : Fragment() {
 
     private fun startViewer(contents: DisplayData) {
         Preconditions.checkNotNull(contents)
-
-        feed(contents)
-        postEnter()
+        try {
+            feed(contents)
+            postEnter()
+        } catch (exception: Exception) {
+            onLoadDocumentError(exception)
+        }
     }
 
     /** Feed this Viewer with contents to be displayed. */

@@ -50,7 +50,6 @@ import androidx.pdf.viewer.SelectedMatch
 import androidx.pdf.widget.FastScrollView
 import androidx.pdf.widget.ZoomView
 import androidx.pdf.widget.ZoomView.ZoomScroll
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.snackbar.Snackbar
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -61,11 +60,11 @@ class PdfLoaderCallbacksImpl(
     private var zoomView: ZoomView,
     private var paginatedView: PaginatedView,
     private var loadingView: LoadingView,
-    private var annotationButton: FloatingActionButton,
     private var viewState: ExposedValue<ViewState>,
     private val fragmentContainerView: View?,
     private val onRequestPassword: (Boolean) -> Unit,
-    private val onDocumentLoaded: () -> Unit
+    private val onDocumentLoaded: () -> Unit,
+    private val onDocumentLoadFailure: (Throwable) -> Unit
 ) : PdfLoaderCallbacks {
     private val pageElevationInPixels: Int = PaginationUtils.getPageElevationInPixels(context)
 
@@ -86,8 +85,21 @@ class PdfLoaderCallbacksImpl(
         currentPasswordDialog(fragmentManager)?.dismiss()
     }
 
-    fun handleError() {
+    private fun handleError(status: PdfStatus) {
         viewState.set(ViewState.ERROR)
+
+        val thrown =
+            when (status) {
+                PdfStatus.FILE_ERROR ->
+                    RuntimeException(context.resources.getString(R.string.file_error))
+                PdfStatus.PAGE_BROKEN ->
+                    RuntimeException(context.resources.getString(R.string.page_broken))
+                PdfStatus.NEED_MORE_DATA ->
+                    RuntimeException(context.resources.getString(R.string.needs_more_data))
+                else -> RuntimeException(context.resources.getString(R.string.pdf_error))
+            }
+
+        onDocumentLoadFailure(thrown)
     }
 
     @UiThread
@@ -236,17 +248,21 @@ class PdfLoaderCallbacksImpl(
             dismissPasswordDialog()
             when (status) {
                 PdfStatus.NONE,
-                PdfStatus.FILE_ERROR -> handleError()
-                PdfStatus.PDF_ERROR ->
-                    Toaster.LONG.popToast(context, R.string.error_file_format_pdf, fileName)
                 PdfStatus.LOADED,
                 PdfStatus.REQUIRES_PASSWORD ->
                     Preconditions.checkArgument(
                         false,
                         "Document not loaded but status " + status.number
                     )
+                PdfStatus.PDF_ERROR -> {
+                    Toaster.LONG.popToast(context, R.string.error_file_format_pdf, fileName)
+                    handleError(status)
+                }
+                PdfStatus.FILE_ERROR,
                 PdfStatus.PAGE_BROKEN,
-                PdfStatus.NEED_MORE_DATA -> {}
+                PdfStatus.NEED_MORE_DATA -> {
+                    handleError(status)
+                }
             }
         }
     }
