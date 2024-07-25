@@ -21,7 +21,7 @@ android {
 
 dependencies {
 
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core-ktx:1.13.0")
     api("androidx.lifecycle:lifecycle-common:2.6.1")
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")

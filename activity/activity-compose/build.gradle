@@ -44,7 +44,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
     implementation("androidx.savedstate:savedstate:1.2.1")
 
-    androidTestImplementation("androidx.annotation:annotation:1.8.0")
+    androidTestImplementation("androidx.annotation:annotation:1.8.1")
     androidTestImplementation("androidx.compose.foundation:foundation-layout:1.6.0")
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
     androidTestImplementation projectOrArtifact(":compose:material:material")

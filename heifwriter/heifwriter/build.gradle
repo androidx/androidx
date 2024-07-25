@@ -20,7 +20,7 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

@@ -56,7 +56,7 @@ dependencies {
     // OnBackPressedDispatcher is part of the API
     api("androidx.activity:activity:1.2.0")
     implementation(libs.guavaAndroid)
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
     implementation ("androidx.media:media:1.6.0")

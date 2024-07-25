@@ -12,7 +12,7 @@ plugins {
     id("com.android.library")
 }
 dependencies {
-    api("androidx.annotation:annotation:1.0.1")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.autoValueAnnotations)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

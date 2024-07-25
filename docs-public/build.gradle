@@ -22,7 +22,7 @@ dependencies {
     docsWithoutApiSince("androidx.ads:ads-identifier:1.0.0-alpha05")
     docsWithoutApiSince("androidx.ads:ads-identifier-common:1.0.0-alpha05")
     docsWithoutApiSince("androidx.ads:ads-identifier-provider:1.0.0-alpha05")
-    kmpDocs("androidx.annotation:annotation:1.9.0-alpha01")
+    kmpDocs("androidx.annotation:annotation:1.8.1")
     docs("androidx.annotation:annotation-experimental:1.4.1")
     docs("androidx.appcompat:appcompat:1.7.0")
     docs("androidx.appcompat:appcompat-resources:1.7.0")

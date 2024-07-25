@@ -61,7 +61,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation:1.8.1")
                 implementation(project(":compose:animation:animation"))
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
                 implementation("androidx.compose.material:material:1.0.0")

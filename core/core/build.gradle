@@ -21,7 +21,7 @@ dependencies {
         implementation(project(":core:core-testing"))
     }
 
-    api("androidx.annotation:annotation:1.8.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
     api("androidx.lifecycle:lifecycle-runtime:2.6.2")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")

@@ -41,7 +41,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
 
     // Manually align dependencies across debugRuntime and debugAndroidTestRuntime.
-    androidTestImplementation("androidx.annotation:annotation:1.6.0")
+    androidTestImplementation("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.kotlinStdlib)
     androidTestRuntimeOnly(libs.testCore)

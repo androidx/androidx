@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
     api("androidx.concurrent:concurrent-futures-ktx:1.1.0")
@@ -51,7 +51,6 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
 
-    implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)
     implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
 

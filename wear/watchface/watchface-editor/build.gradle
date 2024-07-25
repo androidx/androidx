@@ -31,7 +31,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api("androidx.activity:activity:1.2.0")
     api(project(":wear:watchface:watchface-client"))

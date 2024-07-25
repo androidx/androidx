@@ -41,7 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation:1.8.1")
                 api(project(":compose:ui:ui-geometry"))
                 implementation("androidx.collection:collection:1.4.0")
                 implementation(project(":compose:runtime:runtime"))
@@ -64,7 +64,6 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.1.0")
                 api("androidx.annotation:annotation-experimental:1.4.1")
                 implementation('androidx.collection:collection-ktx:1.2.0')
             }

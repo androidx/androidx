@@ -49,7 +49,7 @@ dependencies {
     implementation("androidx.test:rules:1.5.0")
     implementation("androidx.test:runner:1.5.2")
     implementation("androidx.tracing:tracing-ktx:1.1.0")
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testCore)

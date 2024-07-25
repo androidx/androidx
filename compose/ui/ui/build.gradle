@@ -45,7 +45,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
-                api("androidx.annotation:annotation:1.6.0")
+                api("androidx.annotation:annotation:1.8.1")
                 implementation("androidx.collection:collection:1.4.0")
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation(project(":compose:runtime:runtime"))

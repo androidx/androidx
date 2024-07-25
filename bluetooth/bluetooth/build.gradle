@@ -33,7 +33,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
 
-    implementation("androidx.annotation:annotation:1.7.0")
+    implementation("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testExtTruth)

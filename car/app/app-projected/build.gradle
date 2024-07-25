@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":car:app:app"))
     annotationProcessor(libs.nullaway)
 
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.testCore)

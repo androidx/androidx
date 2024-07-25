@@ -30,11 +30,9 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     implementation("com.google.crypto.tink:tink-android:1.8.0")
-
-    implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)

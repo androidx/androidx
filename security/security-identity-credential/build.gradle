@@ -31,7 +31,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("co.nstant.in:cbor:0.8")
     implementation("org.bouncycastle:bcprov-jdk15on:1.65")

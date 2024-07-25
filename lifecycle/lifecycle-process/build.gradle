@@ -40,7 +40,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(project(":lifecycle:lifecycle-runtime"))
     api("androidx.startup:startup-runtime:1.1.1")
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

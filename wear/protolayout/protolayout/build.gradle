@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     annotationProcessor(libs.nullaway)
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":wear:protolayout:protolayout-expression"))
 
     implementation("androidx.annotation:annotation-experimental:1.4.1")

@@ -34,7 +34,7 @@ plugins {
 
 dependencies {
     api(project(":glance:glance"))
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.compose.runtime:runtime:1.1.1")
     api("androidx.compose.ui:ui-graphics:1.1.1")
     api("androidx.compose.ui:ui-unit:1.1.1")

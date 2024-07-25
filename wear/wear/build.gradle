@@ -14,7 +14,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.swiperefreshlayout:swiperefreshlayout:1.0.0")
     api("androidx.fragment:fragment:1.2.4")
     api("androidx.recyclerview:recyclerview:1.1.0")

@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.6.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.annotation:annotation-experimental:1.4.1")
     compileOnly("androidx.window.extensions.core:core:1.0.0")
 

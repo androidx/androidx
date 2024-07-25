@@ -39,7 +39,7 @@ dependencies {
     api(project(":window:window"))
     api(libs.junit)
     implementation("androidx.core:core:1.8.0")
-    implementation("androidx.annotation:annotation:1.7.0")
+    implementation("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)

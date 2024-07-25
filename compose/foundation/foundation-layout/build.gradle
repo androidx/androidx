@@ -63,7 +63,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation:1.8.1")
                 api("androidx.annotation:annotation-experimental:1.4.1")
                 implementation("androidx.core:core:1.7.0")
                 implementation("androidx.compose.animation:animation-core:1.2.1")

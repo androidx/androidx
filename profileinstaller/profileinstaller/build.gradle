@@ -33,7 +33,7 @@ dependencies {
     api("androidx.startup:startup-runtime:1.1.1")
     api(libs.guavaListenableFuture)
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 }

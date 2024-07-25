@@ -34,7 +34,7 @@ dependencies {
         exclude group: "com.google.guava", module: "listenablefuture"
     }
     implementation("androidx.arch.core:core-runtime:2.2.0")
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)

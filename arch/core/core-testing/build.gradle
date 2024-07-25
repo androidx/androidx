@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     api(project(":arch:core:core-runtime"))
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.junit)
     api(libs.mockitoCore, excludes.bytebuddy)
 
