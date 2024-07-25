@@ -19,11 +19,10 @@ package androidx.core.telecom.extensions
 import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
-import android.telecom.DisconnectCause
 import android.util.Log
+import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CapabilityExchangeListener
@@ -32,9 +31,6 @@ import androidx.core.telecom.internal.ParticipantStateListenerRemote
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelAndJoin
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
@@ -43,6 +39,14 @@ import kotlinx.coroutines.launch
 class CallsManagerExtensions {
     companion object {
         internal const val LOG_TAG = "CallsManagerE"
+
+        /**
+         * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that
+         * this InCallService supports jetpack extensions
+         */
+        internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
+            "android.telecom.event.CAPABILITY_EXCHANGE"
+
         /** VERSION used for handling future compatibility in capability exchange. */
         internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
 
@@ -51,115 +55,56 @@ class CallsManagerExtensions {
          * part of sendCallEvent in the included extras.
          */
         internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
+
+        /**
+         * Constants used to denote the type of Extension supported by the [Capability] being
+         * registered.
+         */
+        @Target(AnnotationTarget.TYPE)
+        @Retention(AnnotationRetention.SOURCE)
+        @IntDef(PARTICIPANT)
+        annotation class Extensions
+
+        /** Represents the [ParticipantExtension] extension */
+        internal const val PARTICIPANT = 1
+
+        // Represents a null Participant over Binder
+        internal const val NULL_PARTICIPANT_ID = -1
     }
 }
-
-/** Events from the ICS that we have defined as extension events */
-internal enum class ExtensionEvent(val eventString: String) {
-    CAPABILITY_EXCHANGE("android.telecom.event.CAPABILITY_EXCHANGE")
-}
-
-/** An extension event from the ICS and related extras */
-internal data class CallEvent(val event: ExtensionEvent, val extras: Bundle)
 
 /**
- * Adds a call with extensions support, which allows an app to implement optional additional actions
- * that go beyond the scope of a call, such as information about meeting participants and icons.
+ * The repository containing the methods used during capability exchange to create each extension.
+ * Extensions will use this to register themselves as handlers of these callbacks.
  *
- * Supported Extensions:
- * - The ability to show meeting participants and information about those participants using
- *   [addParticipantExtension]
- *
- * For example, using Participants as an example of extensions:
- * ```
- * scope.launch {
- *         mCallsManager.addCallWithExtensions(attributes,
- *             onAnswerLambda,
- *             onDisconnectLambda,
- *             onSetActiveLambda,
- *             onSetInactiveLambda) {
- *                 // Initialize extensions ...
- *                 // Example: add participants support & associated actions
- *                 val participantExtension = addParticipantExtension(initialParticipants)
- *                 val raiseHandAction = participantExtension.addRaiseHandAction(
- *                         initialRaisedHands) { onHandRaisedStateChanged ->
- *                     // handle raised hand state changed
- *                 }
- *                 val kickParticipantAction = participantExtension.addKickParticipantAction {
- *                         participant ->
- *                     // handle kicking the requested participant
- *                 }
- *                 // Call has been set up, perform in-call actions
- *                 onCall {
- *                     // Example: collect call state updates
- *                     launch {
- *                         callStateFlow.collect { newState ->
- *                             // handle call state updates
- *                         }
- *                     }
- *                     // update participant extensions
- *                     launch {
- *                         participantsFlow.collect { newParticipants ->
- *                             participantExtension.updateParticipants(newParticipants)
- *                             // optionally update raise hand state
- *                         }
- *                     }
- *                 }
- *             }
- *         }
- * }
- * ```
- *
- * @param init The scope used to first initialize Extensions that will be used when the call is
- *   first notified to the platform and UX surfaces. Once the call is set up, the user's
- *   implementation of [ExtensionInitializationScope.onCall] will be called.
- * @see CallsManager.addCall
+ * @param connectionScope The [CoroutineScope] that governs this connection to the remote. This
+ *   scope will be cancelled by this class when the remote notifies us that the connection is being
+ *   torn down.
  */
-// TODO: Refactor to Public API
-@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-suspend fun CallsManager.addCallWithExtensions(
-    callAttributes: CallAttributesCompat,
-    onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
-    onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
-    onSetActive: suspend () -> Unit,
-    onSetInactive: suspend () -> Unit,
-    init: suspend ExtensionInitializationScope.() -> Unit
-) = coroutineScope {
-    Log.v(CallsManagerExtensions.LOG_TAG, "addCall: begin")
-    val eventFlow = MutableSharedFlow<CallEvent>()
-    val scope = ExtensionInitializationScope()
-    scope.init()
-    val extensionJob = launch {
-        Log.d(CallsManagerExtensions.LOG_TAG, "addCall: connecting extensions")
-        scope.collectEvents(this, eventFlow)
+internal class CapabilityExchangeRepository(connectionScope: CoroutineScope) {
+    companion object {
+        private const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(CER)"
     }
-    Log.v(CallsManagerExtensions.LOG_TAG, "addCall: init complete")
-    addCall(
-        callAttributes,
-        onAnswer,
-        onDisconnect,
-        onSetActive,
-        onSetInactive,
-        onEvent = { event, extras ->
-            Log.d(CallsManagerExtensions.LOG_TAG, "onEvent: received $event")
-            val foundEvent = ExtensionEvent.values().firstOrNull { it.eventString == event }
-            if (foundEvent == null) {
-                Log.i(
-                    CallsManagerExtensions.LOG_TAG,
-                    "No matching event found for $event, ignoring..."
-                )
+
+    /** A request to create the [ParticipantExtension] has been received */
+    var onCreateParticipantExtension:
+        ((CoroutineScope, Set<Int>, ParticipantStateListenerRemote) -> Unit)? =
+        null
+
+    val listener =
+        CapabilityExchangeListener(
+            onCreateParticipantExtension = { icsActions, binder ->
+                Log.d(LOG_TAG, "onCreateParticipantExtension: actions $icsActions")
+                onCreateParticipantExtension?.invoke(connectionScope, icsActions, binder)
+            },
+            onRemoveExtensions = {
+                Log.d(LOG_TAG, "onRemoveExtensions called")
+                // Cancel any ongoing coroutines associated with this connection once
+                // remove is called.
+                connectionScope.cancel()
             }
-            foundEvent?.let { eventFlow.emit(CallEvent(it, extras)) }
-        }
-    ) {
-        Log.i(CallsManagerExtensions.LOG_TAG, "addCall: invoking delegates")
-        scope.invokeDelegate(this)
-    }
-    // Ensure that when the call ends, we also cancel any ongoing coroutines/flows as part of
-    // extension work
-    extensionJob.cancelAndJoin()
+        )
 }
 
 /**
@@ -173,14 +118,13 @@ suspend fun CallsManager.addCallWithExtensions(
 // TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-class ExtensionInitializationScope {
+internal class ExtensionInitializationScope {
     private companion object {
         const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(EIS)"
     }
 
     private var onCreateDelegate: (suspend CallControlScope.() -> Unit)? = null
-    private val extensions: HashSet<() -> ExtensionCreationDelegate> = HashSet()
+    private val extensionCreators = HashSet<(CapabilityExchangeRepository) -> Capability>()
 
     /**
      * User provided callback implementation that is run when the call is ready using the provided
@@ -196,16 +140,32 @@ class ExtensionInitializationScope {
     }
 
     /**
-     * Called by extension functions during initialization to add themselves to the registered
-     * extensions that will be notified whenever a remote InCallService wishes to connect.
+     * Adds the participant extension to a call, which provides the ability to specify participant
+     * related information.
      *
-     * @param logTag The string used in logging to identify which extension is being added
-     * @param extension The delegate registered and invoked whenever a remote InCallService wishes
-     *   to connect.
+     * @param initialParticipants The initial participants in the call
+     * @param initialActiveParticipant The initial participant that is active in the call
+     * @return The interface used to update the participant state to remote InCallServices
      */
-    internal fun registerExtension(logTag: String, extension: () -> ExtensionCreationDelegate) {
-        extensions.add(extension)
-        Log.d(LOG_TAG, "add: adding extension $logTag")
+    // TODO: Refactor to Public API
+    fun addParticipantExtension(
+        initialParticipants: Set<Participant> = emptySet(),
+        initialActiveParticipant: Participant? = null
+    ): ParticipantExtension {
+        val participant = ParticipantExtension(initialParticipants, initialActiveParticipant)
+        registerExtension(onExchangeStarted = participant::onExchangeStarted)
+        return participant
+    }
+
+    /**
+     * Register an extension to be created once capability exchange begins.
+     *
+     * @param onExchangeStarted The capability exchange procedure has begun and the extension needs
+     *   to register the callbacks it will be handling as well as return the [Capability] of the
+     *   extension, which will be used during capability exchange.
+     */
+    private fun registerExtension(onExchangeStarted: (CapabilityExchangeRepository) -> Capability) {
+        extensionCreators.add(onExchangeStarted)
     }
 
     /**
@@ -218,7 +178,10 @@ class ExtensionInitializationScope {
      * @param eventFlow The [SharedFlow] representing the incoming [CallsManager.CallEvent]s from
      *   the framework.
      */
-    internal fun collectEvents(scope: CoroutineScope, eventFlow: SharedFlow<CallEvent>) {
+    internal fun collectEvents(
+        scope: CoroutineScope,
+        eventFlow: SharedFlow<CallsManager.CallEvent>
+    ) {
         scope.launch {
             Log.i(LOG_TAG, "collectEvents: starting collection")
             eventFlow
@@ -244,16 +207,18 @@ class ExtensionInitializationScope {
     }
 
     /**
-     * Consumes [CallEvent]s received from remote InCallService implementations.
+     * Consumes [CallsManager.CallEvent]s received from remote InCallService implementations.
      *
      * Provides a [CoroutineScope] for events to use to handle the event and set up a session for
      * the lifecycle of the call.
      *
      * @param callEvent The event that we received from an InCallService.
      */
-    private fun CoroutineScope.onEvent(callEvent: CallEvent) {
+    private fun CoroutineScope.onEvent(callEvent: CallsManager.CallEvent) {
         when (callEvent.event) {
-            ExtensionEvent.CAPABILITY_EXCHANGE -> handleCapabilityExchangeEvent(callEvent.extras)
+            CallsManagerExtensions.EVENT_JETPACK_CAPABILITY_EXCHANGE -> {
+                handleCapabilityExchangeEvent(callEvent.extras)
+            }
         }
     }
 
@@ -269,64 +234,29 @@ class ExtensionInitializationScope {
                     extras.getBinder(CallsManagerExtensions.EXTRA_CAPABILITY_EXCHANGE_BINDER)
                 )
                 ?.let { CapabilityExchangeRemote(it) }
-        if (capExchange == null) return
-        Log.i(LOG_TAG, "onEvent: received CE request, v=#$version")
-        val extensionCreators = extensions.map { it() }
-        val capabilities = extensionCreators.map { extension -> extension.capability }
+        if (capExchange == null) {
+            Log.w(
+                LOG_TAG,
+                "handleCapabilityExchangeEvent: capExchange binder is null, can" +
+                    " not complete cap exchange"
+            )
+            return
+        }
+        Log.i(LOG_TAG, "handleCapabilityExchangeEvent: received CE request, v=#$version")
         // Create a child scope for setting up and running the extensions so that we can cancel
         // the child scope when the remote ICS disconnects without affecting the parent scope.
         val connectionScope = CoroutineScope(coroutineContext)
-        Log.i(LOG_TAG, "onEvent: beginning exchange, caps=$capabilities")
-        try {
-            capExchange.beginExchange(
-                capabilities,
-                CapabilityExchangeListener(
-                    onCreateParticipantExtension = { icsActions, binder ->
-                        Log.d(
-                            LOG_TAG,
-                            "onEvent: onCreateParticipantE with actions " + "$icsActions"
-                        )
-                        val creator =
-                            extensionCreators.first { creator ->
-                                creator.capability.featureId == CallsManager.PARTICIPANT
-                            }
-                        creator.createParticipantExtension(connectionScope, icsActions, binder)
-                    },
-                    onRemoveExtensions = {
-                        Log.d(LOG_TAG, "onEvent: onRemove")
-                        // Cancel any ongoing coroutines associated with this connection once
-                        // remove is called.
-                        connectionScope.cancel()
-                    }
-                )
-            )
-        } catch (e: RemoteException) {
-            Log.w(LOG_TAG, "onEvent: Remote could not be reached: $e")
-        }
-    }
-}
+        // Create a new repository for each new connection
+        val callbackRepository = CapabilityExchangeRepository(connectionScope)
+        val capabilities = extensionCreators.map { it.invoke(callbackRepository) }
 
-/**
- * Registers a creation delegate, where the extension can register its [Capability] to be shared
- * with the remote and the delegate method used to create each extension type.
- *
- * @param capability The capability that will be sent to the remote party
- * @param onCreateParticipantExtension The delegate method called to create a Participant extension,
- *   which must create the participant extension on the given scope for the actions that the remote
- *   caller supports.
- */
-@ExperimentalAppActions
-internal class ExtensionCreationDelegate(
-    val capability: Capability,
-    private val onCreateParticipantExtension:
-        (scope: CoroutineScope, actions: Set<Int>, remote: ParticipantStateListenerRemote) -> Unit
-) {
-    /** Calls the delegate function registered by the extension that handles participants */
-    fun createParticipantExtension(
-        scope: CoroutineScope,
-        actions: Set<Int>,
-        binder: ParticipantStateListenerRemote
-    ) {
-        onCreateParticipantExtension(scope, actions, binder)
+        Log.i(LOG_TAG, "handleCapabilityExchangeEvent: beginning exchange, caps=$capabilities")
+        try {
+            capExchange.beginExchange(capabilities, callbackRepository.listener)
+        } catch (e: RemoteException) {
+            Log.w(LOG_TAG, "handleCapabilityExchangeEvent: Remote could not be reached: $e")
+            // This will cancel the surrounding coroutineScope
+            throw e
+        }
     }
 }

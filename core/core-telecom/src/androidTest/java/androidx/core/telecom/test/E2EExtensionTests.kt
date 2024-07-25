@@ -21,16 +21,14 @@ import android.content.Intent
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.InCallServiceCompat
-import androidx.core.telecom.extensions.CallExtensionCreationDelegate
+import androidx.core.telecom.extensions.CallExtensionCreator
 import androidx.core.telecom.extensions.CallExtensionsScope
+import androidx.core.telecom.extensions.CallsManagerExtensions
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.extensions.ParticipantClientExtension
-import androidx.core.telecom.extensions.addKickParticipantAction
-import androidx.core.telecom.extensions.addParticipantExtension
-import androidx.core.telecom.extensions.addRaiseHandAction
+import androidx.core.telecom.extensions.ParticipantExtension
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControl
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControlLocal
@@ -79,10 +77,13 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         // Set up a Capability with all actions supported.
         private val CAPABILITY_PARTICIPANT_WITH_ACTIONS =
             createCapability(
-                id = CallsManager.PARTICIPANT,
-                version = 1,
+                id = CallsManagerExtensions.PARTICIPANT,
+                version = ParticipantExtension.VERSION,
                 actions =
-                    setOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
+                    setOf(
+                        ParticipantExtension.RAISE_HAND_ACTION,
+                        ParticipantExtension.KICK_PARTICIPANT_ACTION
+                    )
             )
 
         /** Provide all the combinations of parameters that should be tested for each run */
@@ -114,8 +115,8 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         private val activeParticipantState = MutableStateFlow<Participant?>(null)
         val extension =
             scope.addParticipantExtension(
-                activeParticipantsUpdate = activeParticipantState::emit,
-                participantsUpdate = participantState::emit
+                onActiveParticipantChanged = activeParticipantState::emit,
+                onParticipantsUpdated = participantState::emit
             )
 
         suspend fun waitForParticipants(expected: Set<Participant>) {
@@ -137,7 +138,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
 
     internal class CachedRaisedHands(extension: ParticipantClientExtension) {
         private val raisedHands = MutableStateFlow<Set<Participant>>(emptySet())
-        val action = extension.addRaiseHandAction(stateUpdate = raisedHands::emit)
+        val action = extension.addRaiseHandAction(raisedHands::emit)
 
         suspend fun waitForRaisedHands(expected: Set<Participant>) {
             val result =
@@ -322,9 +323,10 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
     ): CompletableDeferred<CapabilityExchangeListenerRemote?> {
         val deferredVal = CompletableDeferred<CapabilityExchangeListenerRemote?>()
         scope.registerExtension {
-            CallExtensionCreationDelegate(
-                capability = createCapability(id = 8675309, version = 42, actions = emptySet()),
-                receiver = { capability, remote ->
+            CallExtensionCreator(
+                extensionCapability =
+                    createCapability(id = 8675309, version = 42, actions = emptySet()),
+                onExchangeComplete = { capability, remote ->
                     assertNull("Expected null capability", capability)
                     deferredVal.complete(remote)
                 }

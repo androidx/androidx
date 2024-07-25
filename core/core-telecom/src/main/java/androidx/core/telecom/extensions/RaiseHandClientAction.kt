@@ -21,7 +21,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallException
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.ParticipantActionsRemote
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.properties.Delegates
@@ -35,55 +34,20 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 
 /**
- * Adds the ability for participants to raise their hands.
- *
- * ```
- * connectExtensions(call) {
- *     val participantExtension = addParticipantExtension(
- *         // consume participant changed events
- *     )
- *     val raiseHandAction = participantExtension.addRaiseHandAction { raisedHands ->
- *         // consume changes of participants with their hands raised
- *     }
- *     onConnected {
- *         // extensions have been negotiated and actions are ready to be used
- *         ...
- *         // notify the remote that this user has changed their hand raised state
- *         val raisedHandResult = raiseHandAction.setRaisedHandState(userHandRaisedState)
- *     }
- * }
- * ```
- */
-// TODO: Refactor to Public API
-@RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalAppActions
-internal fun ParticipantClientExtension.addRaiseHandAction(
-    stateUpdate: RaisedHandsUpdate
-): RaiseHandClientAction {
-    val action = RaiseHandClientAction(participants, stateUpdate)
-    registerAction(CallsManager.RAISE_HAND_ACTION, action::connect) { scope, isSupported ->
-        Log.d(ParticipantClientExtension.TAG, "addRaiseHandAction: initialize")
-        raisedHandsStateCallback = action::raisedHandsStateChanged
-        action.initialize(scope, isSupported)
-    }
-    return action
-}
-
-/**
  * Implements the ability for the user to raise/lower their hand as well as allow the user to listen
  * to the hand raised states of all other participants
  *
  * @param participants The StateFlow containing the current set of participants in the call at any
  *   given time.
- * @param stateUpdate The callback that allows the user to listen to the state of participants that
- *   have their hand raised
+ * @param onRaisedHandsChanged The callback that allows the user to listen to the state of
+ *   participants that have their hand raised
  */
 // TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
 internal class RaiseHandClientAction(
     private val participants: StateFlow<Set<Participant>>,
-    private val stateUpdate: RaisedHandsUpdate
+    private val onRaisedHandsChanged: suspend (Set<Participant>) -> Unit
 ) {
     companion object {
         const val TAG = CallExtensionsScope.TAG + "(RHCA)"
@@ -130,23 +94,27 @@ internal class RaiseHandClientAction(
     }
 
     /** Called when the remote application has changed the raised hands state */
-    internal suspend fun raisedHandsStateChanged(raisedHands: Set<Int>) {
+    private suspend fun raisedHandsStateChanged(raisedHands: Set<Int>) {
         Log.d(TAG, "raisedHandsStateChanged to $raisedHands")
         raisedHandState.emit(raisedHands)
     }
 
     /** Called when capability exchange has completed and we should setup the action */
-    internal fun initialize(callScope: CoroutineScope, isSupported: Boolean) {
+    internal fun initialize(
+        callScope: CoroutineScope,
+        isSupported: Boolean,
+        callbacks: ParticipantStateCallbackRepository
+    ) {
         Log.d(TAG, "initialize, isSupported=$isSupported")
         this.isSupported = isSupported
-        if (isSupported) {
-            participants
-                .combine(raisedHandState) { p, rhs -> p.filter { rhs.contains(it.id) } }
-                .distinctUntilChanged()
-                .onEach { filtered -> stateUpdate.onRaisedHandsChanged(filtered.toSet()) }
-                .onCompletion { Log.d(TAG, "raised hands flow complete") }
-                .launchIn(callScope)
-        }
+        if (!isSupported) return
+        callbacks.raisedHandsStateCallback = ::raisedHandsStateChanged
+        participants
+            .combine(raisedHandState) { p, rhs -> p.filter { rhs.contains(it.id) } }
+            .distinctUntilChanged()
+            .onEach { filtered -> onRaisedHandsChanged(filtered.toSet()) }
+            .onCompletion { Log.d(TAG, "raised hands flow complete") }
+            .launchIn(callScope)
     }
 
     /** Called when the remote has connected for Actions and events are available */

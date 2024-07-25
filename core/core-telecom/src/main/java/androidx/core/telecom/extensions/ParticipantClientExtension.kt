@@ -19,128 +19,38 @@ package androidx.core.telecom.extensions
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.internal.ParticipantActionsRemote
 import androidx.core.telecom.internal.ParticipantStateListener
 import androidx.core.telecom.util.ExperimentalAppActions
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 import kotlin.properties.Delegates
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-@ExperimentalAppActions
-internal fun interface ParticipantsUpdate {
-    /**
-     * The participants in the call have been updated.
-     *
-     * @param participants The new Set of Participants
-     */
-    suspend fun onParticipantsUpdated(participants: Set<Participant>)
-}
-
-@ExperimentalAppActions
-internal fun interface ActiveParticipantsUpdate {
-    /**
-     * The active participant in the call has changed
-     *
-     * @param participant The Participant that is active in the call or `null` if there is no active
-     *   participant
-     */
-    suspend fun onActiveParticipantChanged(participant: Participant?)
-}
-
-@ExperimentalAppActions
-internal fun interface RaisedHandsUpdate {
-    /**
-     * The participants in the call with their hands raised has changed.
-     *
-     * @param participants The Set of Participants with their hands raised.
-     */
-    suspend fun onRaisedHandsChanged(participants: Set<Participant>)
-}
-
-/**
- * Add support for representing Participants in this call.
- *
- * ```
- * connectExtensions(call) {
- *     val participantExtension = addParticipantExtension(
- *         // consume participant changed events
- *     )
- *     onConnected {
- *         // extensions have been negotiated and actions are ready to be used
- *     }
- * }
- * ```
- */
-// TODO: Refactor to Public API
-@RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalAppActions
-internal fun CallExtensionsScope.addParticipantExtension(
-    activeParticipantsUpdate: ActiveParticipantsUpdate,
-    participantsUpdate: ParticipantsUpdate
-): ParticipantClientExtension {
-    val extension =
-        ParticipantClientExtension(callScope, activeParticipantsUpdate, participantsUpdate)
-    registerExtension {
-        CallExtensionCreationDelegate(
-            capability =
-                Capability().apply {
-                    featureId = CallsManager.PARTICIPANT
-                    featureVersion = 1
-                    supportedActions = extension.actions.keys.toIntArray()
-                },
-            receiver = extension::onNegotiated
-        )
-    }
-    return extension
-}
-
 /** Repository containing the callbacks associated with the Participant extension state changes */
 @ExperimentalAppActions
 internal class ParticipantStateCallbackRepository {
     var raisedHandsStateCallback: (suspend (Set<Int>) -> Unit)? = null
-
-    /** Called by the remote application when this state changes */
-    suspend fun raisedHandsStateChanged(newState: Set<Int>) {
-        raisedHandsStateCallback?.invoke(newState)
-    }
 }
 
 /**
- * Initializer allowing an action to first register callbacks to
- * [ParticipantStateCallbackRepository] as part of initialization as well as provides a
- * [CoroutineScope] to attach callbacks from the remote party to and whether or not the action is
- * supported.
- */
-@OptIn(ExperimentalAppActions::class)
-internal typealias ActionInitializer =
-    ParticipantStateCallbackRepository.(CoroutineScope, Boolean) -> Unit
-
-/**
- * Called with the remote interface that will be used to notify the remote application of when an
- * there is an event to send related to action.
- */
-@OptIn(ExperimentalAppActions::class)
-internal typealias ActionConnectedCallback = (ParticipantActionsRemote?) -> Unit
-
-/**
  * Contains the callbacks used by Actions during creation. [onInitialization] is called when
- * capability exchange has completed and [onActionConnected] is called when the remote has connected
- * and is ready to handle Participant action updates.
+ * capability exchange has completed and Actions should be initialized and [onRemoteConnected] is
+ * called when the remote has connected, finished sending initial state, and is ready to handle
+ * Participant action updates.
  */
 @ExperimentalAppActions
 internal data class ActionExchangeResult(
-    val onInitialization: ActionInitializer,
-    val onActionConnected: ActionConnectedCallback
+    val onInitialization: (Boolean) -> Unit,
+    val onRemoteConnected: (ParticipantActionsRemote?) -> Unit
 )
 
 /**
@@ -148,8 +58,10 @@ internal data class ActionExchangeResult(
  * themselves.
  *
  * @param callScope The CoroutineScope of the underlying call
- * @param activeParticipantsUpdate The update callback used whenever the active participants change
- * @param participantsUpdate The update callback used whenever the participants in the call change
+ * @param onActiveParticipantChanged The update callback used whenever the active participants
+ *   change
+ * @param onParticipantsUpdated The update callback used whenever the participants in the call
+ *   change
  */
 // TODO: Refactor to Public API
 // TODO: Remove old version of ParticipantClientExtension in a follow up CL with this impl.
@@ -157,9 +69,13 @@ internal data class ActionExchangeResult(
 @ExperimentalAppActions
 internal class ParticipantClientExtension(
     private val callScope: CoroutineScope,
-    private val activeParticipantsUpdate: ActiveParticipantsUpdate,
-    private val participantsUpdate: ParticipantsUpdate
+    private val onActiveParticipantChanged: suspend (Participant?) -> Unit,
+    private val onParticipantsUpdated: suspend (Set<Participant>) -> Unit
 ) {
+    companion object {
+        internal const val TAG = CallExtensionsScope.TAG + "(PCE)"
+    }
+
     /**
      * Whether or not the participants extension is supported by the remote.
      *
@@ -170,79 +86,119 @@ internal class ParticipantClientExtension(
      * Should not be queried until [CallExtensionsScope.onConnected] is called.
      */
     var isSupported by Delegates.notNull<Boolean>()
+
+    /** The actions that are registered with the Participant extension */
+    internal val actions
+        get() = actionInitializers.keys.toIntArray()
+
     // Maps a Capability to a receiver that allows the action to register itself with a listener
     // and then return a Receiver that gets called when Cap exchange completes.
-    internal val actions = HashMap<Int, ActionExchangeResult>()
+    private val actionInitializers = HashMap<Int, ActionExchangeResult>()
     // Manages callbacks that are applicable to sub-actions of the Participants
     private val callbacks = ParticipantStateCallbackRepository()
 
     // Participant specific state
-    internal val participants = MutableStateFlow<Set<Participant>>(emptySet())
+    private val participants = MutableStateFlow<Set<Participant>>(emptySet())
     private val activeParticipant = MutableStateFlow<Int?>(null)
 
-    // Holds the remote Binder interface that is used to send action events back to the remote
-    // application.
-    private val remoteBinderListener = MutableSharedFlow<ParticipantActionsRemote?>()
-    // Leapfrogs from the AIDL callback to scheduling delivery of these updates via the callScope
-    // coroutine
-    private val participantStateListener =
-        ParticipantStateListener(
-            updateParticipants = { newParticipants ->
-                callScope.launch {
-                    Log.v(TAG, "updateParticipants: $newParticipants")
-                    participants.emit(newParticipants)
-                }
-            },
-            updateActiveParticipant = { newActiveParticipant ->
-                callScope.launch {
-                    Log.v(TAG, "activeParticipant=$newActiveParticipant")
-                    activeParticipant.emit(newActiveParticipant)
-                }
-            },
-            updateRaisedHands = { newRaisedHands ->
-                callScope.launch {
-                    Log.v(TAG, "raisedHands=$newRaisedHands")
-                    callbacks.raisedHandsStateChanged(newRaisedHands)
-                }
-            },
-            finishSync = { remoteBinder ->
-                callScope.launch {
-                    Log.v(TAG, "finishSync complete, isNull=${remoteBinder == null}")
-                    remoteBinderListener.emit(remoteBinder)
-                }
-            }
-        )
-
-    companion object {
-        const val TAG = CallExtensionsScope.TAG + "(PCE)"
-    }
-
     /**
-     * Register an Action on the Participants extension.
+     * Adds the ability for participants to raise their hands.
      *
-     * @param action An `Int` describing the action
-     * @param onRemoteConnected The callback called when the remote has connected and action events
-     *   can be sent to the remote via [ParticipantActionsRemote]
-     * @param onInitialization The Action initializer, which allows the action to setup callbacks
-     *   via [ParticipantStateCallbackRepository] and determine if the action is supported.
+     * ```
+     * connectExtensions(call) {
+     *     val participantExtension = addParticipantExtension(
+     *         // consume participant changed events
+     *     )
+     *     val raiseHandAction = participantExtension.addRaiseHandAction { raisedHands ->
+     *         // consume changes of participants with their hands raised
+     *     }
+     *     onConnected {
+     *         // extensions have been negotiated and actions are ready to be used
+     *         ...
+     *         // notify the remote that this user has changed their hand raised state
+     *         val raisedHandResult = raiseHandAction.setRaisedHandState(userHandRaisedState)
+     *     }
+     * }
+     * ```
+     *
+     * @param onRaisedHandsChanged Called when the Set of Participants with their hands raised has
+     *   changed.
+     * @return The action that is used to send raise hand event requests to the remote Call.
      */
-    fun registerAction(
-        action: Int,
-        onRemoteConnected: ActionConnectedCallback,
-        onInitialization: ActionInitializer
-    ) {
-        actions[action] = ActionExchangeResult(onInitialization, onRemoteConnected)
+    fun addRaiseHandAction(
+        onRaisedHandsChanged: suspend (Set<Participant>) -> Unit
+    ): RaiseHandClientAction {
+        val action = RaiseHandClientAction(participants, onRaisedHandsChanged)
+        registerAction(
+            ParticipantExtension.RAISE_HAND_ACTION,
+            onRemoteConnected = action::connect
+        ) { isSupported ->
+            action.initialize(callScope, isSupported, callbacks)
+        }
+        return action
     }
 
     /**
-     * The Participant extension has been negotiated
+     * Adds the ability for the user to kick participants.
+     *
+     * ```
+     * connectExtensions(call) {
+     *     val participantExtension = addParticipantExtension(
+     *         // consume participant changed events
+     *     )
+     *     val kickParticipantAction = participantExtension.addKickParticipantAction()
+     *
+     *     onConnected {
+     *         // extensions have been negotiated and actions are ready to be used
+     *         ...
+     *         // kick a participant
+     *         val kickResult = kickParticipantAction.kickParticipant(participant)
+     *     }
+     * }
+     * ```
+     *
+     * @return The action that is used to send kick Participant event requests to the remote Call.
+     */
+    fun addKickParticipantAction(): KickParticipantClientAction {
+        val action = KickParticipantClientAction(participants)
+        registerAction(
+            ParticipantExtension.KICK_PARTICIPANT_ACTION,
+            onRemoteConnected = action::connect,
+            onInitialization = action::initialize
+        )
+        return action
+    }
+
+    /**
+     * Register an Action on the Participant extension that will be initialized and connected if the
+     * action is supported by the remote Call before [CallExtensionsScope.onConnected] is called.
+     *
+     * @param action A unique identifier for the action that will be used by the remote side to
+     *   identify this action.
+     * @param onRemoteConnected The callback called when the remote has connected and action events
+     *   can be sent to the remote via [ParticipantActionsRemote].
+     * @param onInitialization The Action initializer, which allows the action to setup callbacks.
+     *   via [ParticipantStateCallbackRepository] and determine if the action is supported by the
+     *   remote Call.
+     */
+    private fun registerAction(
+        action: Int,
+        onRemoteConnected: (ParticipantActionsRemote?) -> Unit,
+        onInitialization: (Boolean) -> Unit
+    ) {
+        actionInitializers[action] = ActionExchangeResult(onInitialization, onRemoteConnected)
+    }
+
+    /**
+     * Capability exchange has completed and the [Capability] of the Participant extension has been
+     * negotiated with the remote call.
      *
      * @param negotiatedCapability The negotiated Participant capability or null if the remote
      *   doesn't support this capability.
-     * @param remote The remote interface to use to create the Participant extension on the remote
-     *   side using the negotiated capability.
+     * @param remote The remote interface which must be used by this extension to create the
+     *   Participant extension on the remote side using the negotiated capability.
      */
-    suspend fun onNegotiated(
+    internal suspend fun onExchangeComplete(
         negotiatedCapability: Capability?,
         remote: CapabilityExchangeListenerRemote?
     ) {
@@ -254,47 +210,95 @@ internal class ParticipantClientExtension(
         }
         Log.d(TAG, "onNegotiated: setup updates")
         initializeParticipantUpdates()
-        initializeActions(negotiatedCapability)
+        initializeActionsLocally(negotiatedCapability)
+        val remoteBinder = connectActionsToRemote(negotiatedCapability, remote)
+        actionInitializers.forEach { connector -> connector.value.onRemoteConnected(remoteBinder) }
+    }
+
+    /**
+     * Connect Participant action Flows to the remote interface so we can start receiving changes to
+     * the Participant and associated action state.
+     *
+     * When [CapabilityExchangeListenerRemote.onCreateParticipantExtension] is called, the remote
+     * will send the initial state of each of the supported actions and then call
+     * [ParticipantStateListener.finishSync], which will provide us an interface to allow us to send
+     * participant action event requests.
+     *
+     * @param negotiatedCapability The negotiated Participant capability that contains a negotiated
+     *   version and actions supported by both the local and remote Call.
+     * @param remote The interface used by the local call to create the Participant extension with
+     *   the remote party if supported and allow for Participant state updates.
+     * @return The interface used by the local Call to send Participant action event requests.
+     */
+    private suspend fun connectActionsToRemote(
+        negotiatedCapability: Capability,
+        remote: CapabilityExchangeListenerRemote
+    ): ParticipantActionsRemote? = suspendCoroutine { continuation ->
+        val participantStateListener =
+            ParticipantStateListener(
+                updateParticipants = { newParticipants ->
+                    callScope.launch {
+                        Log.v(TAG, "updateParticipants: $newParticipants")
+                        participants.emit(newParticipants)
+                    }
+                },
+                updateActiveParticipant = { newActiveParticipant ->
+                    callScope.launch {
+                        Log.v(TAG, "activeParticipant=$newActiveParticipant")
+                        activeParticipant.emit(newActiveParticipant)
+                    }
+                },
+                updateRaisedHands = { newRaisedHands ->
+                    callScope.launch {
+                        Log.v(TAG, "raisedHands=$newRaisedHands")
+                        callbacks.raisedHandsStateCallback?.invoke(newRaisedHands)
+                    }
+                },
+                finishSync = { remoteBinder ->
+                    callScope.launch {
+                        Log.v(TAG, "finishSync complete, isNull=${remoteBinder == null}")
+                        continuation.resume(remoteBinder)
+                    }
+                }
+            )
         remote.onCreateParticipantExtension(
             negotiatedCapability.featureVersion,
             negotiatedCapability.supportedActions,
             participantStateListener
         )
-        val remoteBinder = remoteBinderListener.firstOrNull()
-        actions.forEach { connector -> connector.value.onActionConnected(remoteBinder) }
     }
 
     /** Setup callback updates when [participants] or [activeParticipant] changes */
     private fun initializeParticipantUpdates() {
         participants
-            .onEach { participantsState ->
-                participantsUpdate.onParticipantsUpdated(participantsState)
-            }
+            .onEach { participantsState -> onParticipantsUpdated(participantsState) }
             .combine(activeParticipant) { p, ap ->
                 ap?.let { p.firstOrNull { participant -> participant.id == ap } }
             }
             .distinctUntilChanged()
-            .onEach { activeParticipant ->
-                activeParticipantsUpdate.onActiveParticipantChanged(activeParticipant)
-            }
+            .onEach { activeParticipant -> onActiveParticipantChanged(activeParticipant) }
             .onCompletion { Log.d(TAG, "participant flow complete") }
             .launchIn(callScope)
     }
 
     /**
-     * Call the [ActionInitializer] callback on each action to initialize the action with whether or
-     * not the action is supported and provide the ability for the action to register for remote
-     * state callbacks.
+     * Calls the [ActionExchangeResult.onInitialization] callback on each registered action
+     * (registered via [registerAction]) to initialize. Initialization uses the negotiated
+     * [Capability] to determine whether or not the registered action is supported by the remote and
+     * provides the ability for the action to register for remote state callbacks.
+     *
+     * @param negotiatedCapability The negotiated Participant [Capability] containing the
+     *   Participant extension version and actions supported by both the local and remote Call.
      */
-    private fun initializeActions(negotiatedCapability: Capability) {
-        for (action in actions) {
+    private fun initializeActionsLocally(negotiatedCapability: Capability) {
+        for (action in actionInitializers) {
             Log.d(TAG, "initializeActions: setup action=${action.key}")
             if (negotiatedCapability.supportedActions.contains(action.key)) {
                 Log.d(TAG, "initializeActions: action=${action.key} supported")
-                action.value.onInitialization(callbacks, callScope, true)
+                action.value.onInitialization(true)
             } else {
                 Log.d(TAG, "initializeActions: action=${action.key} not supported")
-                action.value.onInitialization(callbacks, callScope, false)
+                action.value.onInitialization(false)
             }
         }
     }
@@ -305,8 +309,8 @@ internal class ParticipantClientExtension(
      */
     private fun initializeNotSupportedActions() {
         Log.d(TAG, "initializeActions: no actions supported")
-        for (action in actions) {
-            action.value.onInitialization(callbacks, callScope, false)
+        for (action in actionInitializers) {
+            action.value.onInitialization(false)
         }
     }
 }
