@@ -73,15 +73,27 @@ public class ExtraSupportedSurfaceCombinationsContainerTest {
                 createLevel3PrivPrivYuvSubsetConfiguration())});
         data.add(new Object[]{new Config("Google", null, "Pixel 7 Pro", "1",
                 createLevel3PrivPrivYuvSubsetConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 8", "0",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 8", "1",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 8 Pro", "0",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
+        data.add(new Object[]{new Config("Google", null, "Pixel 8 Pro", "1",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
 
         // Tests for FULL Samsung devices
+        data.add(new Object[]{new Config("Samsung", null, "SCG25", "0",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
+        data.add(new Object[]{new Config("Samsung", null, "SM-S9210", "1",
+                createLevel3PrivPrivYuvSubsetConfiguration())});
         data.add(new Object[]{new Config("Samsung", null, "SM-S926B", "0",
                 createLevel3PrivPrivYuvSubsetConfiguration())});
-        data.add(new Object[]{new Config("Samsung", null, "SM-S926B", "1",
+        data.add(new Object[]{new Config("Samsung", null, "SM-S926U", "1",
                 createLevel3PrivPrivYuvSubsetConfiguration())});
-        data.add(new Object[]{new Config("Samsung", null, "SM-S928U", "0",
+        data.add(new Object[]{new Config("Samsung", null, "SM-S928U1", "0",
                 createLevel3PrivPrivYuvSubsetConfiguration())});
-        data.add(new Object[]{new Config("Samsung", null, "SM-S928U", "1",
+        data.add(new Object[]{new Config("Samsung", null, "SM-S928B", "1",
                 createLevel3PrivPrivYuvSubsetConfiguration())});
 
         // Other cases
