@@ -259,7 +259,7 @@ fun ToggleableFloatingActionButton(
     containerSize: (Float) -> Dp = ToggleableFloatingActionButtonDefaults.containerSize(),
     containerCornerRadius: (Float) -> Dp =
         ToggleableFloatingActionButtonDefaults.containerCornerRadius(),
-    content: @Composable ToggleableFloatingActionButtonScope.(() -> Float) -> Unit,
+    content: @Composable ToggleableFloatingActionButtonScope.() -> Unit,
 ) {
     val checkedProgress =
         animateFloatAsState(
@@ -320,7 +320,7 @@ private fun ToggleableFloatingActionButton(
     containerSize: (Float) -> Dp = ToggleableFloatingActionButtonDefaults.containerSize(),
     containerCornerRadius: (Float) -> Dp =
         ToggleableFloatingActionButtonDefaults.containerCornerRadius(),
-    content: @Composable ToggleableFloatingActionButtonScope.(() -> Float) -> Unit,
+    content: @Composable ToggleableFloatingActionButtonScope.() -> Unit,
 ) {
     val initialSize = remember(containerSize) { containerSize(0f) }
     Box(Modifier.size(initialSize), contentAlignment = contentAlignment) {
@@ -377,7 +377,7 @@ private fun ToggleableFloatingActionButton(
                             get() = checkedProgress()
                     }
                 }
-            scope.content(checkedProgress)
+            content(scope)
         }
     }
 }
