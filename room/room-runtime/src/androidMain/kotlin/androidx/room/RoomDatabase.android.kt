@@ -1444,6 +1444,9 @@ actual abstract class RoomDatabase {
          * A use case for providing a callback is to allow logging executed queries. When the
          * callback implementation logs then it is recommended to use an immediate executor.
          *
+         * If a previous callback was set with [setQueryCallback] then this call will override it,
+         * including removing the Coroutine context previously set, if any.
+         *
          * @param queryCallback The query callback.
          * @param executor The executor on which the query callback will be invoked.
          * @return This builder instance.
@@ -1452,6 +1455,7 @@ actual abstract class RoomDatabase {
         open fun setQueryCallback(queryCallback: QueryCallback, executor: Executor) = apply {
             this.queryCallback = queryCallback
             this.queryCallbackExecutor = executor
+            this.queryCallbackCoroutineContext = null
         }
 
         /**
@@ -1464,6 +1468,9 @@ actual abstract class RoomDatabase {
          * callback implementation simply logs then it is recommended to use
          * [kotlinx.coroutines.Dispatchers.Unconfined].
          *
+         * If a previous callback was set with [setQueryCallback] then this call will override it,
+         * including removing the executor previously set, if any.
+         *
          * @param context The coroutine context on which the query callback will be invoked.
          * @param queryCallback The query callback.
          * @return This builder instance.
@@ -1471,6 +1478,7 @@ actual abstract class RoomDatabase {
         @Suppress("MissingGetterMatchingBuilder")
         fun setQueryCallback(context: CoroutineContext, queryCallback: QueryCallback) = apply {
             this.queryCallback = queryCallback
+            this.queryCallbackExecutor = null
             this.queryCallbackCoroutineContext = context
         }
 
