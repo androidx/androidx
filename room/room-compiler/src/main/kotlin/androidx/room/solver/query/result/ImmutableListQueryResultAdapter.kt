@@ -45,7 +45,8 @@ class ImmutableListQueryResultAdapter(
             )
 
             val tmpVarName = scope.getTmpVar("_item")
-            beginControlFlow("while (%L.moveToNext())", cursorVarName).apply {
+            val stepName = if (scope.useDriverApi) "step" else "moveToNext"
+            beginControlFlow("while (%L.$stepName())", cursorVarName).apply {
                 addLocalVariable(name = tmpVarName, typeName = typeArg.asTypeName())
                 rowAdapter.convert(tmpVarName, cursorVarName, scope)
                 addStatement("%L.add(%L)", immutableListBuilderName, tmpVarName)
@@ -59,4 +60,6 @@ class ImmutableListQueryResultAdapter(
             )
         }
     }
+
+    override fun isMigratedToDriver() = true
 }
