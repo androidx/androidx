@@ -16,7 +16,6 @@
 
 package androidx.room.solver.types
 
-import androidx.annotation.VisibleForTesting
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 
@@ -41,7 +40,7 @@ abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Co
      */
     protected open fun doConvert(inputVarName: String, scope: CodeGenScope): String {
         val outVarName = scope.getTmpVar()
-        scope.builder.apply { addLocalVariable(outVarName, to.asTypeName()) }
+        scope.builder.addLocalVariable(outVarName, to.asTypeName())
         doConvert(inputVarName = inputVarName, outputVarName = outVarName, scope = scope)
         return outVarName
     }
@@ -89,20 +88,16 @@ abstract class TypeConverter(val from: XType, val to: XType, val cost: Cost = Co
             intArrayOf(requireNotNull, converters, nullSafeWrapper, upCasts)
         )
 
-        @VisibleForTesting
-        val upCasts: Int
+        private val upCasts: Int
             get() = values[Buckets.UP_CAST]
 
-        @VisibleForTesting
-        val nullSafeWrapper: Int
+        private val nullSafeWrapper: Int
             get() = values[Buckets.NULL_SAFE]
 
-        @VisibleForTesting
-        val requireNotNull: Int
+        private val requireNotNull: Int
             get() = values[Buckets.REQUIRE_NOT_NULL]
 
-        @VisibleForTesting
-        val converters: Int
+        private val converters: Int
             get() = values[Buckets.CONVERTER]
 
         operator fun plus(other: Cost) =
