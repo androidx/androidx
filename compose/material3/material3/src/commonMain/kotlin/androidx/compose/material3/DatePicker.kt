@@ -51,7 +51,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -96,13 +95,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.isContainer
 import androidx.compose.ui.semantics.liveRegion
@@ -110,7 +107,6 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.text
-import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -121,7 +117,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import kotlin.jvm.JvmInline
 import kotlin.math.max
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -2020,22 +2015,11 @@ private fun YearPicker(
                 // selection of previous years.
                 initialFirstVisibleItemIndex = max(0, displayedYear - yearRange.first - YearsInRow)
             )
-        // Match the years container color to any elevated surface color that is composed under it.
-        val containerColor = colors.containerColor
-        val coroutineScope = rememberCoroutineScope()
-        val scrollToEarlierYearsLabel = getString(Strings.DatePickerScrollToShowEarlierYears)
-        val scrollToLaterYearsLabel = getString(Strings.DatePickerScrollToShowLaterYears)
         LazyVerticalGrid(
             columns = GridCells.Fixed(YearsInRow),
-            modifier =
-                modifier
-                    .background(containerColor)
-                    // Apply this to have the screen reader traverse outside the visible list of
-                    // years
-                    // and not scroll them by default.
-                    .semantics {
-                        verticalScrollAxisRange = ScrollAxisRange(value = { 0f }, maxValue = { 0f })
-                    },
+            // Match the years container color to any elevated surface color that is composed under
+            // it.
+            modifier = modifier.background(colors.containerColor),
             state = lazyGridState,
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalArrangement = Arrangement.spacedBy(YearsVerticalPadding)
@@ -2046,32 +2030,9 @@ private fun YearPicker(
                 Year(
                     modifier =
                         Modifier.requiredSize(
-                                width = DatePickerModalTokens.SelectionYearContainerWidth,
-                                height = DatePickerModalTokens.SelectionYearContainerHeight
-                            )
-                            .semantics {
-                                // Apply a11y custom actions to the first and last items in the
-                                // years
-                                // grid. The actions will suggest to scroll to earlier or later
-                                // years in
-                                // the grid.
-                                customActions =
-                                    if (
-                                        lazyGridState.firstVisibleItemIndex == it ||
-                                            lazyGridState.layoutInfo.visibleItemsInfo
-                                                .lastOrNull()
-                                                ?.index == it
-                                    ) {
-                                        customScrollActions(
-                                            state = lazyGridState,
-                                            coroutineScope = coroutineScope,
-                                            scrollUpLabel = scrollToEarlierYearsLabel,
-                                            scrollDownLabel = scrollToLaterYearsLabel
-                                        )
-                                    } else {
-                                        emptyList()
-                                    }
-                            },
+                            width = DatePickerModalTokens.SelectionYearContainerWidth,
+                            height = DatePickerModalTokens.SelectionYearContainerHeight
+                        ),
                     selected = selectedYear == displayedYear,
                     currentYear = selectedYear == currentYear,
                     onClick = { onYearSelected(selectedYear) },
@@ -2186,8 +2147,8 @@ private fun MonthsNavigation(
                     modifier =
                         Modifier.semantics {
                             // Make the screen reader read out updates to the menu button text as
-                            // the
-                            // user navigates the arrows or scrolls to change the displayed month.
+                            // the user navigates the arrows or scrolls to change the displayed
+                            // month.
                             liveRegion = LiveRegionMode.Polite
                             contentDescription = yearPickerText
                         }
@@ -2243,34 +2204,6 @@ private fun YearPickerMenuButton(
             Modifier.rotate(if (expanded) 180f else 0f)
         )
     }
-}
-
-private fun customScrollActions(
-    state: LazyGridState,
-    coroutineScope: CoroutineScope,
-    scrollUpLabel: String,
-    scrollDownLabel: String
-): List<CustomAccessibilityAction> {
-    val scrollUpAction = {
-        if (!state.canScrollBackward) {
-            false
-        } else {
-            coroutineScope.launch { state.scrollToItem(state.firstVisibleItemIndex - YearsInRow) }
-            true
-        }
-    }
-    val scrollDownAction = {
-        if (!state.canScrollForward) {
-            false
-        } else {
-            coroutineScope.launch { state.scrollToItem(state.firstVisibleItemIndex + YearsInRow) }
-            true
-        }
-    }
-    return listOf(
-        CustomAccessibilityAction(label = scrollUpLabel, action = scrollUpAction),
-        CustomAccessibilityAction(label = scrollDownLabel, action = scrollDownAction)
-    )
 }
 
 internal val RecommendedSizeForAccessibility = 48.dp
