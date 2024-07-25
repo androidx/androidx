@@ -19,7 +19,7 @@ package androidx.pdf;
 import androidx.annotation.RestrictTo;
 
 /**
- * The state of the view hierarchy for the {@link PdfViewerFragment}.
+ * The state of the view hierarchy.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public enum ViewState {

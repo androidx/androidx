@@ -16,14 +16,13 @@
 
 package androidx.pdf.viewer.loader
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
-import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import androidx.pdf.PdfViewerFragment
 import androidx.pdf.R
 import androidx.pdf.ViewState
 import androidx.pdf.data.PdfStatus
@@ -57,7 +56,8 @@ import com.google.android.material.snackbar.Snackbar
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class PdfLoaderCallbacksImpl(
-    private var pdfViewerFragment: PdfViewerFragment,
+    private val context: Context,
+    private val fragmentManager: FragmentManager,
     private var fastScrollView: FastScrollView,
     private var zoomView: ZoomView,
     private var paginatedView: PaginatedView,
@@ -65,11 +65,11 @@ class PdfLoaderCallbacksImpl(
     private var annotationButton: FloatingActionButton,
     private var pageIndicator: PageIndicator,
     private var viewState: ExposedValue<ViewState>,
+    private val fragmentContainerView: View?,
+    private val onRequestPassword: (Boolean) -> Unit,
+    private val onDocumentLoaded: () -> Unit
 ) : PdfLoaderCallbacks {
-
-    private val fragmentActivity: FragmentActivity? = pdfViewerFragment.activity
-    private val pageElevationInPixels: Int =
-        PaginationUtils.getPageElevationInPixels(pdfViewerFragment.requireContext())
+    private val pageElevationInPixels: Int = PaginationUtils.getPageElevationInPixels(context)
 
     var selectionModel: PdfSelectionModel? = null
     var searchModel: SearchModel? = null
@@ -79,18 +79,13 @@ class PdfLoaderCallbacksImpl(
     var pdfLoader: PdfLoader? = null
     var onScreen = false
 
-    private fun currentPasswordDialog(fm: FragmentManager?): PdfPasswordDialog? {
-        if (fm != null) {
-            val passwordDialog = fm.findFragmentByTag(PASSWORD_DIALOG_TAG)
-            if (passwordDialog is PdfPasswordDialog) {
-                return passwordDialog
-            }
-        }
-        return null
+    private fun currentPasswordDialog(fm: FragmentManager): PdfPasswordDialog? {
+        val passwordDialog = fm.findFragmentByTag(PASSWORD_DIALOG_TAG)
+        return passwordDialog as PdfPasswordDialog?
     }
 
     private fun dismissPasswordDialog() {
-        currentPasswordDialog(fragmentActivity?.supportFragmentManager)?.dismiss()
+        currentPasswordDialog(fragmentManager)?.dismiss()
     }
 
     fun handleError() {
@@ -175,24 +170,10 @@ class PdfLoaderCallbacksImpl(
     }
 
     override fun requestPassword(incorrect: Boolean) {
-        if (!(pdfViewerFragment.isResumed && onScreen)) {
-            // This would happen if the service decides to start while we're in
-            // the background.
-            // The dialog code below would then crash. We can't just bypass it
-            // because then we'd
-            // have
-            // a started service with no loaded PDF and no means to load it. The
-            // best way is to
-            // just
-            // kill the service which will restart on the next onStart.
-            pdfLoader?.disconnect()
-            return
-        }
+        onRequestPassword(onScreen)
 
         if (viewState.get() != ViewState.NO_VIEW) {
-            val fm: FragmentManager? = fragmentActivity?.supportFragmentManager
-
-            var passwordDialog = currentPasswordDialog(fm)
+            var passwordDialog = currentPasswordDialog(fragmentManager)
             if (passwordDialog == null) {
                 passwordDialog = PdfPasswordDialog()
                 passwordDialog.setListener(
@@ -204,7 +185,7 @@ class PdfLoaderCallbacksImpl(
                         override fun onDialogCancelled() {
                             val retryCallback = Runnable { requestPassword(false) }
                             val snackbar =
-                                pdfViewerFragment.view?.let {
+                                fragmentContainerView?.let {
                                     Snackbar.make(
                                         it,
                                         R.string.password_not_entered,
@@ -218,9 +199,8 @@ class PdfLoaderCallbacksImpl(
                         }
                     }
                 )
-                if (fm != null) {
-                    passwordDialog.show(fm, PASSWORD_DIALOG_TAG)
-                }
+
+                passwordDialog.show(fragmentManager, PASSWORD_DIALOG_TAG)
             }
 
             if (incorrect) {
@@ -235,7 +215,7 @@ class PdfLoaderCallbacksImpl(
             return
         }
 
-        pdfViewerFragment.documentLoaded = true
+        onDocumentLoaded()
         hideSpinner()
 
         // Assume we see at least the first page
@@ -254,29 +234,16 @@ class PdfLoaderCallbacksImpl(
             pageIndicator.setNumPages(numPages)
             searchModel?.setNumPages(numPages)
         }
-
-        if (pdfViewerFragment.shouldRedrawOnDocumentLoaded) {
-            pdfViewerFragment.shouldRedrawOnDocumentLoaded = false
-        }
-
-        if (pdfViewerFragment.isAnnotationIntentResolvable) {
-            annotationButton.visibility = View.VISIBLE
-        }
     }
 
     override fun documentNotLoaded(status: PdfStatus) {
         if (viewState.get() != ViewState.NO_VIEW) {
             dismissPasswordDialog()
-            if (pdfViewerFragment.arguments?.getBoolean(KEY_QUIT_ON_ERROR) == true) {
-                fragmentActivity?.finish()
-            }
             when (status) {
                 PdfStatus.NONE,
                 PdfStatus.FILE_ERROR -> handleError()
                 PdfStatus.PDF_ERROR ->
-                    pdfViewerFragment.context?.let {
-                        Toaster.LONG.popToast(it, R.string.error_file_format_pdf, fileName)
-                    }
+                    Toaster.LONG.popToast(context, R.string.error_file_format_pdf, fileName)
                 PdfStatus.LOADED,
                 PdfStatus.REQUIRES_PASSWORD ->
                     Preconditions.checkArgument(
@@ -296,8 +263,8 @@ class PdfLoaderCallbacksImpl(
                     pageElevationInPixels,
                     paginatedView.paginationModel.getPageSize(page)
                 ) as PageMosaicView)
-                .setFailure(pdfViewerFragment.getString(R.string.error_on_page, page + 1))
-            fragmentActivity?.let { Toaster.LONG.popToast(it, R.string.error_on_page, page + 1) }
+                .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
+            Toaster.LONG.popToast(context, R.string.error_on_page, page + 1)
             // TODO: Track render error.
         }
     }
@@ -417,6 +384,5 @@ class PdfLoaderCallbacksImpl(
 
     companion object {
         private const val PASSWORD_DIALOG_TAG = "password-dialog"
-        private const val KEY_QUIT_ON_ERROR = "quitOnError"
     }
 }

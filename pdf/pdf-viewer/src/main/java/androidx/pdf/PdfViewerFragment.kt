@@ -244,15 +244,36 @@ open class PdfViewerFragment : Fragment() {
 
         pdfLoaderCallbacks =
             PdfLoaderCallbacksImpl(
-                this,
+                requireContext(),
+                requireActivity().supportFragmentManager,
                 fastScrollView!!,
                 zoomView!!,
                 paginatedView!!,
                 loadingView!!,
                 annotationButton!!,
                 pageIndicator!!,
-                viewState
-            )
+                viewState,
+                view,
+                onRequestPassword = { onScreen ->
+                    if (!(isResumed && onScreen)) {
+                        // This would happen if the service decides to start while we're in
+                        // the background. The dialog code below would then crash. We can't just
+                        // bypass it because then we'd have a started service with no loaded PDF
+                        // and no means to load it. The best way is to just kill the service which
+                        // will restart on the next onStart.
+                        pdfLoader?.disconnect()
+                    }
+                }
+            ) {
+                documentLoaded = true
+                if (shouldRedrawOnDocumentLoaded) {
+                    shouldRedrawOnDocumentLoaded = false
+                }
+
+                if (annotationButton != null && isAnnotationIntentResolvable) {
+                    annotationButton?.visibility = View.VISIBLE
+                }
+            }
 
         setUpEditFab()
 
