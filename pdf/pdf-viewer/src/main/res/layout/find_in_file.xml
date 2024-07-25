@@ -23,6 +23,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:layout_marginRight="5dp"
         android:background="@drawable/shape_textbox">
 
         <!--        android:background = "@color/black"-->
@@ -54,26 +55,40 @@
 
     <ImageButton
         android:id="@+id/find_prev_btn"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="@drawable/shape_oval"
         android:src="@drawable/chevron_up"
-        app:tint="@color/search_prev_button"  />
+        app:tint="@color/search_prev_button"
+        android:cropToPadding="true"
+        android:padding="3dp"
+        android:scaleType="centerInside"
+        android:layout_margin="5dp"/>
 
     <ImageButton
         android:id="@+id/find_next_btn"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="@drawable/shape_oval"
         android:src="@drawable/chevron_down"
         app:tint="@color/search_next_button"
+        android:cropToPadding="true"
+        android:padding="3dp"
+        android:scaleType="centerInside"
+        android:layout_margin="5dp"
         />
     <ImageButton
         android:id="@+id/close_btn"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:background="?android:attr/selectableItemBackground"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
+        android:background="@drawable/shape_oval"
         android:src="@drawable/close_button"
-        app:tint="@color/search_close_button" />
+        app:tint="@color/search_close_button"
+        android:cropToPadding="true"
+        android:padding="5dp"
+        android:scaleType="centerInside"
+        android:layout_marginVertical="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp"/>
 
 </merge>
