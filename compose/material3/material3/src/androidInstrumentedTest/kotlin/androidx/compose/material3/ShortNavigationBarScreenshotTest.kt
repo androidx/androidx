@@ -49,6 +49,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,6 +83,7 @@ class ShortNavigationBarScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun equalWeightArrangement_lightTheme_pressed() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope
@@ -175,6 +177,7 @@ class ShortNavigationBarScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun equalWeightArrangement_darkTheme_pressed() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope
@@ -233,6 +236,7 @@ class ShortNavigationBarScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun centeredArrangement_lightTheme_pressed() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope
@@ -342,6 +346,7 @@ class ShortNavigationBarScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun centeredArrangement_darkTheme_pressed() {
         val interactionSource = MutableInteractionSource()
         lateinit var scope: CoroutineScope

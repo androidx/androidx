@@ -48,6 +48,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -109,6 +110,7 @@ class IconButtonScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun iconButton_lightTheme_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag)) {

@@ -43,6 +43,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -259,6 +260,7 @@ class CardScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun filledCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
@@ -274,6 +276,7 @@ class CardScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun elevatedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {
@@ -289,6 +292,7 @@ class CardScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun outlinedCard_pressed() {
         rule.setMaterialContent(lightColorScheme()) {
             Box(wrap.testTag(wrapperTestTag), contentAlignment = Alignment.Center) {

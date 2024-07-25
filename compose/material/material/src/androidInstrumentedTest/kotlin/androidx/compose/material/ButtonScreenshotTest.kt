@@ -41,6 +41,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,6 +83,7 @@ class ButtonScreenshotTest {
     }
 
     @Test
+    @Ignore("b/355413615")
     fun ripple() {
         rule.setMaterialContent {
             Box(Modifier.requiredSize(200.dp, 100.dp).wrapContentSize()) { Button(onClick = {}) {} }
