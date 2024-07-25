@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.LruCache;
 import androidx.core.content.res.FontResourcesParserCompat;
 import androidx.core.graphics.TypefaceCompat;
 import androidx.core.provider.FontsContractCompat.FontFamilyResult;
@@ -48,6 +49,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 class FontProvider {
     private FontProvider() {}
@@ -83,6 +85,49 @@ class FontProvider {
         }
     }
 
+    private static class ProviderCacheKey {
+        String mAuthority;
+        String mPackageName;
+        List<List<byte[]>> mCertificates;
+
+        ProviderCacheKey(String authority, String packageName,
+                List<List<byte[]>> certificates) {
+            this.mAuthority = authority;
+            this.mPackageName = packageName;
+            this.mCertificates = certificates;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof ProviderCacheKey)) return false;
+            ProviderCacheKey that = (ProviderCacheKey) o;
+            return Objects.equals(mAuthority, that.mAuthority) && Objects.equals(
+                    mPackageName, that.mPackageName) && Objects.equals(mCertificates,
+                    that.mCertificates);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mAuthority, mPackageName, mCertificates);
+        }
+    }
+
+    /**
+     * Cache of font providers.
+     * The realistic number of providers is 1, so we'll be generous and store up to 2.
+     */
+    private static final LruCache<ProviderCacheKey, ProviderInfo> sProviderCache =
+            new LruCache<>(2);
+
+    /**
+     * Clear font provider cache so that tests reset to a blank slate
+     */
+    @VisibleForTesting
+    static void clearProviderCache() {
+        sProviderCache.evictAll();
+    }
+
     /**
      * Do not access directly, visible for testing only.
      */
@@ -98,6 +143,13 @@ class FontProvider {
             Trace.beginSection("FontProvider.getProvider");
         }
         try {
+            List<List<byte[]>> requestCertificatesList = getCertificates(request, resources);
+            ProviderCacheKey cacheKey = new ProviderCacheKey(request.getProviderAuthority(),
+                    request.getProviderPackage(), requestCertificatesList);
+            ProviderInfo cachedPackageInfo = sProviderCache.get(cacheKey);
+            if (cachedPackageInfo != null) {
+                return cachedPackageInfo;
+            }
             String providerAuthority = request.getProviderAuthority();
             ProviderInfo info = packageManager.resolveContentProvider(providerAuthority, 0);
             if (info == null) {
@@ -118,12 +170,12 @@ class FontProvider {
                     PackageManager.GET_SIGNATURES);
             signatures = convertToByteArrayList(packageInfo.signatures);
             Collections.sort(signatures, sByteArrayComparator);
-            List<List<byte[]>> requestCertificatesList = getCertificates(request, resources);
             for (int i = 0; i < requestCertificatesList.size(); ++i) {
                 // Make a copy so we can sort it without modifying the incoming data.
                 List<byte[]> requestSignatures = new ArrayList<>(requestCertificatesList.get(i));
                 Collections.sort(requestSignatures, sByteArrayComparator);
                 if (equalsByteArrayList(signatures, requestSignatures)) {
+                    sProviderCache.put(cacheKey, info);
                     return info;
                 }
             }
