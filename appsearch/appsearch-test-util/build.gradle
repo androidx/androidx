@@ -25,7 +25,7 @@ dependencies {
 
     implementation(project(":appsearch:appsearch"))
     implementation(project(":appsearch:appsearch-local-storage"))
-    implementation('androidx.collection:collection:1.1.0')
+    implementation("androidx.collection:collection:1.4.2")
     implementation(libs.truth)
 
     androidTestImplementation(libs.testCore)

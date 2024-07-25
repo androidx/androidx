@@ -34,7 +34,7 @@ dependencies {
     api("androidx.remotecallback:remotecallback:1.0.0-alpha02")
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 }
 
 androidx {

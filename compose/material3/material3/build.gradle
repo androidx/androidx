@@ -42,7 +42,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 // Keep pinned unless there is a need for tip of tree behavior
-                implementation("androidx.collection:collection:1.4.1")
+                implementation("androidx.collection:collection:1.4.2")
                 implementation(project(":compose:animation:animation-core"))
                 implementation(project(":compose:ui:ui-util"))
                 api(project(":compose:foundation:foundation"))

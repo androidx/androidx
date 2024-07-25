@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":slice:slice-core"))
     implementation(project(":slice:slice-builders"))
     implementation(project(":recyclerview:recyclerview"))
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
     api("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 
     androidTestImplementation(libs.testExtJunit)

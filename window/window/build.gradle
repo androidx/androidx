@@ -50,7 +50,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
     implementation("androidx.annotation:annotation:1.8.1")
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.core:core:1.8.0")
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"

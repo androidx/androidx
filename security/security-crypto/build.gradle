@@ -33,7 +33,7 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
 
     implementation("com.google.crypto.tink:tink-android:1.8.0")
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
