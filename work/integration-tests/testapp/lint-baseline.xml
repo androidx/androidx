@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -17,6 +17,15 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/SleepWorker.java"/>
+    </issue>
+
+    <issue
+        id="MissingServiceExportedEqualsTrue"
+        message="Missing exported=true in &lt;service> tag"
+        errorLine1="        &lt;service"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue
