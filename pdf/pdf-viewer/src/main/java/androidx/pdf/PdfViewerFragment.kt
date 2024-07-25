@@ -516,6 +516,20 @@ open class PdfViewerFragment : Fragment() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!documentLoaded) {
+            return
+        }
+        if (annotationButton?.visibility != View.VISIBLE) {
+            annotationButton?.post {
+                annotationButton?.visibility = View.VISIBLE
+                annotationButton?.alpha = 0f
+                annotationButton?.animate()?.alpha(1f)?.setDuration(200)?.start()
+            }
+        }
+    }
+
     private fun destroyContentModel() {
 
         pdfLoader?.cancelAll()
