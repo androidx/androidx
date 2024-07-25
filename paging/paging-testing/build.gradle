@@ -123,6 +123,7 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Test artifact for Paging implementation"
+    metalavaK2UastEnabled = false
 }
 
 android {

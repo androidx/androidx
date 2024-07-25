@@ -69,5 +69,4 @@ androidx {
     inceptionYear = "2019"
     description = "Provides backward-compatible implementations of resource-related Android SDK" +
             "functionality, including color state list theming."
-    metalavaK2UastEnabled = true
 }

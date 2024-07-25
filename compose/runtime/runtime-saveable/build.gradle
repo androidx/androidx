@@ -110,6 +110,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose components that allow saving and restoring the local ui state"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:runtime:runtime-saveable:runtime-saveable-samples"))
 }
 

@@ -176,4 +176,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android DataStore Core - contains the underlying store used by each serialization method"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

@@ -44,5 +44,4 @@ androidx {
     inceptionYear = "2017"
     description = "Support for using emoji2 directly with Android Views, for use in apps without " +
             "appcompat"
-    metalavaK2UastEnabled = true
 }

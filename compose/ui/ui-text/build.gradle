@@ -141,6 +141,7 @@ androidx {
     inceptionYear = "2019"
     description = "Compose Text primitives and utilities"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-text:ui-text-samples"))
 }
 

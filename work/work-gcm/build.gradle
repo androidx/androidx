@@ -59,6 +59,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2019"
     description = "Android WorkManager GCMNetworkManager Support"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

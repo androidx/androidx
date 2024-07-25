@@ -57,7 +57,6 @@ androidx {
     mavenVersion = LibraryVersions.SLICE_BUILDERS_KTX
     inceptionYear = "2018"
     description = "A set of Kotlin extension methods built on top of slice-builders APIs."
-    metalavaK2UastEnabled = true
     failOnDeprecationWarnings = false
     legacyDisableKotlinStrictApiMode = true
 

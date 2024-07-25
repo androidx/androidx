@@ -86,4 +86,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Room-Common"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

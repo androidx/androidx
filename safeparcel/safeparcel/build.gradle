@@ -42,5 +42,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "A special Parcelable interface that ensures backwards-compatibility"
-    metalavaK2UastEnabled = true
 }

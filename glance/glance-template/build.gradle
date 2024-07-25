@@ -85,4 +85,5 @@ androidx {
     description = "Glance allows developers to build layouts for remote surfaces using a Jetpack " +
             "Compose-style API."
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

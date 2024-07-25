@@ -77,6 +77,7 @@ androidx {
     inceptionYear = "2019"
     description = "Testing utilities for 'lifecycle' artifact"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }
 
 android {

@@ -44,7 +44,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE_ANIMATION
     inceptionYear = "2018"
     description = "This library provides functionalities for creating and manipulating animations for API 14 and above."
-    metalavaK2UastEnabled = true
 }
 
 android {

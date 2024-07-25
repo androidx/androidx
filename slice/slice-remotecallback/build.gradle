@@ -50,7 +50,6 @@ androidx {
     mavenVersion = LibraryVersions.SLICE_REMOTECALLBACK
     inceptionYear = "2019"
     description = "A library that handles PendingIntents in slices as remote callbacks"
-    metalavaK2UastEnabled = true
     failOnDeprecationWarnings = false
 
     deviceTests {

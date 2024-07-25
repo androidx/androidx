@@ -115,6 +115,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose graphics"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:ui:ui-graphics:ui-graphics-samples"))
 }
 

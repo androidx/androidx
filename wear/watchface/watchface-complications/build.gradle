@@ -70,6 +70,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "Android Wear Complications"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

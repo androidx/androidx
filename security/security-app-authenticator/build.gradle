@@ -60,5 +60,4 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR
     inceptionYear = "2020"
     description = "Verify app packages for proper app to app authentication."
-    metalavaK2UastEnabled = true
 }

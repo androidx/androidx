@@ -62,6 +62,5 @@ androidx {
     inceptionYear = "2023"
     mavenVersion = LibraryVersions.CAMERA_VIEWFINDER_COMPOSE
     description = "Composable ViewFinder implementation for CameraX"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

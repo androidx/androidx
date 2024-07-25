@@ -61,6 +61,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "lets an SdkRuntime aware SDK share UI with a client application."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

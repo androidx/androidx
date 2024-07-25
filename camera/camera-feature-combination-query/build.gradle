@@ -53,6 +53,5 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
     description = "Camera feature combination components for the Jetpack Camera Library, a library " +
             "providing a seamless experience for querying camera features across all of Android."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

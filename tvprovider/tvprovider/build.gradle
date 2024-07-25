@@ -33,5 +33,4 @@ androidx {
     inceptionYear = "2017"
     description = "Android Support Library for TV Provider"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

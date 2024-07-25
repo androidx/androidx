@@ -58,6 +58,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2023"
     description = "Get media performance class data from Google."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

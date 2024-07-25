@@ -55,5 +55,4 @@ androidx {
     inceptionYear = "2012"
     description = "UI testing framework suitable for cross-app functional UI testing"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

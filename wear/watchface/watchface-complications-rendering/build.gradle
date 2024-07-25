@@ -72,6 +72,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

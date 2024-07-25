@@ -111,5 +111,6 @@ androidx {
             "components that can be shared between different Material libraries or used by app" +
             " developers. It builds upon the Jetpack Compose libraries."
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:material3:material3-common:material3-common-samples"))
 }

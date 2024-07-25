@@ -91,4 +91,5 @@ androidx {
             "gestures. It builds upon the Jetpack Compose libraries."
     samples(project(":wear:compose:compose-foundation-samples"))
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

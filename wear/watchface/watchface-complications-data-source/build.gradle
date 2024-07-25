@@ -65,6 +65,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Wear Complications Data Source"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

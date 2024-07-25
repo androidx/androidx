@@ -67,7 +67,6 @@ androidx {
     description = "Compose integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

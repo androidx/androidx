@@ -106,6 +106,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Android Wear Watchface Style"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

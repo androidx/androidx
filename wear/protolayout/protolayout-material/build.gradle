@@ -83,5 +83,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Material components library for ProtoLayout."
-    metalavaK2UastEnabled = true
 }

@@ -30,7 +30,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2018"
     description = "Provides support for inflating layouts off the UI thread."
-    metalavaK2UastEnabled = true
 }
 
 android {

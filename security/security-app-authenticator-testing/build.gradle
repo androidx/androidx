@@ -50,5 +50,4 @@ androidx {
     mavenVersion = LibraryVersions.SECURITY_APP_AUTHENTICATOR_TESTING
     inceptionYear = "2021"
     description = "This library provides a configurable AppAuthenticator that can be used during testing"
-    metalavaK2UastEnabled = true
 }

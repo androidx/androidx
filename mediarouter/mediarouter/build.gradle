@@ -72,5 +72,4 @@ androidx {
     inceptionYear = "2013"
     description = "Android MediaRouter Support Library"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

@@ -32,5 +32,4 @@ androidx {
     inceptionYear = "2019"
     description = "A channel to enable communication between an app and an EMM (enterprise " +
             "mobility management)"
-    metalavaK2UastEnabled = true
 }

@@ -82,7 +82,6 @@ androidx {
     description = "WearOS Compose Material Core Library. This library contains themeless " +
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }
 

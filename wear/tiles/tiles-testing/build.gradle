@@ -72,6 +72,5 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "Testing utilities for Android Wear Tiles."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

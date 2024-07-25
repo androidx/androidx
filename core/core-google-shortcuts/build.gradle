@@ -54,6 +54,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE_GOOGLE_SHORTCUTS
     inceptionYear = "2021"
     description = "Library for powering Google features with Android app shortcuts"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

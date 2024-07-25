@@ -68,6 +68,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Navigation-Runtime"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

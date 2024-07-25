@@ -110,4 +110,5 @@ androidx {
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

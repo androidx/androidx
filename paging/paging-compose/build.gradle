@@ -82,6 +82,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with Paging"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":paging:paging-compose:paging-compose-samples"))
 }
 

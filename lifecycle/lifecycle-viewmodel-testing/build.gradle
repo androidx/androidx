@@ -106,7 +106,7 @@ androidx {
     inceptionYear = "2024"
     description = "Testing utilities for 'lifecycle-viewmodel' artifact"
     // TODO(b/337268135): Temporarily disabled until issue fixed.
-    // metalavaK2UastEnabled = false
+    metalavaK2UastEnabled = false
 }
 
 android {

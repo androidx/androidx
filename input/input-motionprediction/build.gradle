@@ -59,6 +59,5 @@ androidx {
     mavenVersion = LibraryVersions.INPUT_MOTIONPREDICTION
     inceptionYear = "2022"
     description = "reduce the latency of input interactions by predicting future MotionEvents"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

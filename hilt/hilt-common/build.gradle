@@ -42,5 +42,4 @@ androidx {
     // TODO(danysantiago): Remove once @ViewModelInject is deleted.
     // This suppresses the the warning in the generated code by Hilt's GeneratesRootInput processor.
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

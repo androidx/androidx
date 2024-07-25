@@ -61,7 +61,6 @@ androidx {
     mavenVersion = LibraryVersions.WEAR_INPUT
     inceptionYear = "2020"
     description = "Android Wear Support Input"
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
     samples(project(":wear:wear-input-samples"))
 }

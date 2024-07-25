@@ -62,5 +62,4 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK_GRID
     inceptionYear = "2021"
     description = "This library adds grid view components to be used in TV"
-    metalavaK2UastEnabled = true
 }

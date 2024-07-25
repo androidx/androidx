@@ -135,6 +135,7 @@ androidx {
     inceptionYear = "2018"
     description = "Compose Material Design Components library"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:material:material:material-samples"))
 }
 

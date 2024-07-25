@@ -53,7 +53,6 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with LiveData"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
     samples(projectOrArtifact(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
 }
 

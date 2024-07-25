@@ -45,7 +45,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2019"
     description = "Kotlin extensions for 'transition' artifact"
-    metalavaK2UastEnabled = true
 }
 
 android {

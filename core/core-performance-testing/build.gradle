@@ -52,6 +52,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE_PERFORMANCE
     inceptionYear = "2023"
     description = "Test support for core-performance."
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

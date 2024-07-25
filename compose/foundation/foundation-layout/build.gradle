@@ -115,6 +115,7 @@ androidx {
     inceptionYear = "2019"
     description = "Compose layout implementations"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":compose:foundation:foundation-layout:foundation-layout-samples"))
 }
 

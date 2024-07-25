@@ -77,6 +77,5 @@ androidx {
     inceptionYear = "2016"
     description = "Android Wear Support UI"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
     legacyDisableKotlinStrictApiMode = true
 }

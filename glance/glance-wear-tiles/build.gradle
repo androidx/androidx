@@ -99,4 +99,5 @@ androidx {
     description = "Glance allows developers to build layouts for Wear Tiles using a Jetpack " +
             "Compose-style API."
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

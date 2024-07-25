@@ -85,4 +85,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
+    metalavaK2UastEnabled = false
 }

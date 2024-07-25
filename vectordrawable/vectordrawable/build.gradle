@@ -41,5 +41,4 @@ androidx {
     inceptionYear = "2015"
     description = "Android Support VectorDrawable"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

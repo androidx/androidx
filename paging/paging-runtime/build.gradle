@@ -67,6 +67,5 @@ androidx {
     inceptionYear = "2017"
     description = "Android Paging-Runtime"
     legacyDisableKotlinStrictApiMode = true
-    metalavaK2UastEnabled = true
     samples(project(":paging:paging-samples"))
 }

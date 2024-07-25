@@ -50,7 +50,6 @@ androidx {
     mavenVersion = LibraryVersions.SLICE
     inceptionYear = "2017"
     description = "The slices core library provides utilities for the slices view and provider libraries"
-    metalavaK2UastEnabled = true
     failOnDeprecationWarnings = false
 
     deviceTests {

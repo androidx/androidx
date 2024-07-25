@@ -38,5 +38,4 @@ androidx {
     inceptionYear = "2015"
     description = "AndroidX Leanback Preference"
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

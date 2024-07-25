@@ -63,5 +63,4 @@ androidx {
     inceptionYear = "2018"
     description = "Provides a stable but relatively compact binary serialization format that can be passed across processes or persisted safely."
     failOnDeprecationWarnings = false
-    metalavaK2UastEnabled = true
 }

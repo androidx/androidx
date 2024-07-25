@@ -44,7 +44,6 @@ androidx {
     inceptionYear = "2021"
     description = "Allows libraries to prepopulate ahead of time compilation traces to be read by" +
             " ART"
-    metalavaK2UastEnabled = true
 }
 
 android {

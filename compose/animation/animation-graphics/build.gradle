@@ -116,6 +116,7 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
     inceptionYear = "2021"
     description = "Compose Animation Graphics Library for using animated-vector resources in Compose"
+    metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation-graphics:animation-graphics-samples"))
 }
 

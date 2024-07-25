@@ -111,6 +111,7 @@ androidx {
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets in Compose"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
     samples(project(":constraintlayout:constraintlayout-compose:constraintlayout-compose-samples"))
 }
 

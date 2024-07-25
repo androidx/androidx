@@ -25,7 +25,6 @@ androidx {
     inceptionYear = "2022"
     description = "A thread-safe LayoutInflater Factory that provides compatibility between " +
             "AsyncLayoutInflater and AppCompat."
-    metalavaK2UastEnabled = true
 }
 
 android {

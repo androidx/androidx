@@ -115,4 +115,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = false
 }

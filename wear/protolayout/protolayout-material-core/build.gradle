@@ -65,5 +65,4 @@ androidx {
     inceptionYear = "2023"
     description = "Material Core components library for ProtoLayout. This library contains" +
             "themeless components that are shared with ProtoLayout Material libraries."
-    metalavaK2UastEnabled = true
 }

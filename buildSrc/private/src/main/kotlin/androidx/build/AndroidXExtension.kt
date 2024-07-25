@@ -354,7 +354,7 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     var bypassCoordinateValidation = false
 
-    var metalavaK2UastEnabled = false
+    var metalavaK2UastEnabled = true
 
     val additionalDeviceTestApkKeys = mutableListOf<String>()
 

@@ -41,7 +41,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE_ANIMATION_TESTING
     inceptionYear = "2018"
     description = "This library provides functionalities for testing animations for API 14 and above."
-    metalavaK2UastEnabled = true
 }
 
 android {
