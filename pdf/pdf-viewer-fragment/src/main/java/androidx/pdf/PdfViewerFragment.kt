@@ -84,7 +84,7 @@ import kotlinx.coroutines.launch
  * @see documentUri
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-open class PdfViewerFragment : Fragment() {
+public open class PdfViewerFragment : Fragment() {
 
     // ViewModel to manage PdfLoader state
     private val viewModel: PdfLoaderViewModel by viewModels()
@@ -149,7 +149,7 @@ open class PdfViewerFragment : Fragment() {
      * message is displayed, and the detailed exception can be captured by overriding
      * [onLoadDocumentError].
      */
-    var documentUri: Uri? = null
+    public var documentUri: Uri? = null
         set(value) {
             field = value
             if (value != null) {
@@ -162,7 +162,7 @@ open class PdfViewerFragment : Fragment() {
      *
      * Set to `true` to display the menu, or `false` to hide it.
      */
-    var isTextSearchActive: Boolean = false
+    public var isTextSearchActive: Boolean = false
         set(value) {
             field = value
             findInFileView!!.setFindInFileView(value)
@@ -176,7 +176,7 @@ open class PdfViewerFragment : Fragment() {
      *
      * @param throwable [Throwable] that occurred during document loading.
      */
-    @Suppress("UNUSED_PARAMETER") fun onLoadDocumentError(throwable: Throwable) {}
+    @Suppress("UNUSED_PARAMETER") public fun onLoadDocumentError(throwable: Throwable) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -304,7 +304,7 @@ open class PdfViewerFragment : Fragment() {
     }
 
     /** Called after this viewer exits the screen and becomes invisible to the user. */
-    protected fun onExit() {
+    private fun onExit() {
         participateInAccessibility(false)
         if (!documentLoaded) {
             // e.g. a password-protected pdf that wasn't loaded.
@@ -722,7 +722,7 @@ open class PdfViewerFragment : Fragment() {
         startActivity(intent)
     }
 
-    companion object {
+    private companion object {
         /** Key for saving page layout reach in bundles. */
         private const val KEY_LAYOUT_REACH: String = "plr"
         private const val KEY_DATA: String = "data"

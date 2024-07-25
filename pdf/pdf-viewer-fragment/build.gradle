@@ -31,11 +31,17 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    // Add dependencies here
+    api(project(":pdf:pdf-viewer"))
 }
 
 android {
     namespace "androidx.pdf.viewer.fragment"
+
+    defaultConfig {
+        minSdk 31
+        buildToolsVersion "35.0.0-rc1"
+        compileSdk 35
+    }
 }
 
 androidx {

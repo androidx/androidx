@@ -26,14 +26,14 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class PdfViewerFragmentTest {
-    private lateinit var scenario: FragmentScenario<PdfViewerFragment>
-    private lateinit var fragment: PdfViewerFragment
+    private lateinit var scenario: FragmentScenario<androidx.pdf.PdfViewerFragment>
+    private lateinit var fragment: androidx.pdf.PdfViewerFragment
 
     @Before
     fun setup() {
         scenario =
             FragmentScenario.Companion.launchInContainer(
-                PdfViewerFragment::class.java,
+                androidx.pdf.PdfViewerFragment::class.java,
                 Bundle.EMPTY,
                 androidx.appcompat.R.style.Theme_AppCompat
             )

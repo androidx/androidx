@@ -17,6 +17,6 @@ android {
 
 dependencies {
     api("com.google.android.material:material:1.11.0")
-    implementation(project(":pdf:pdf-viewer"))
+    implementation(project(":pdf:pdf-viewer-fragment"))
     implementation(libs.constraintLayout)
 }
