@@ -51,9 +51,6 @@
     <string name="rear_display_description">Demo of observing to WindowAreaStatus and enabling/disabling RearDisplay mode</string>
     <string name="current_split_attributes">Current SplitAttributes:</string>>
     <string name="current_animation_background">Current Animation Background:</string>>
-    <string name="current_open_animation">Current Open Animation:</string>>
-    <string name="current_close_animation">Current Close Animation:</string>>
-    <string name="current_change_animation">Current Change Animation:</string>>
     <string name="test_ime">Test IME</string>
     <string name="test_ime_button_clear">Clear Logs</string>
     <string name="test_ime_button_close">Close Test IME</string>

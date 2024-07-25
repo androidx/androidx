@@ -80,7 +80,7 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
                 .setLayoutDirection(LOCALE)
-                .setAnimationParams(EmbeddingAnimationParams.Builder().build())
+                .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
                 .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -138,15 +138,8 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
                 .setLayoutDirection(TOP_TO_BOTTOM)
-                .setAnimationParams(
-                    EmbeddingAnimationParams.Builder()
-                        .setAnimationBackground(
-                            EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
-                        )
-                        .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .build()
+                .setAnimationBackground(
+                    EmbeddingAnimationBackground.createColorBackground(Color.BLUE)
                 )
                 .build()
         assertEquals(TEST_TAG, rule.tag)
@@ -175,7 +168,7 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.5f))
                 .setLayoutDirection(LOCALE)
-                .setAnimationParams(EmbeddingAnimationParams.Builder().build())
+                .setAnimationBackground(EmbeddingAnimationBackground.DEFAULT)
                 .build()
         assertNull(rule.tag)
         assertEquals(SPLIT_MIN_DIMENSION_DP_DEFAULT, rule.minWidthDp)
@@ -239,17 +232,10 @@ class RuleParserTests {
             SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(0.3f))
                 .setLayoutDirection(BOTTOM_TO_TOP)
-                .setAnimationParams(
-                    EmbeddingAnimationParams.Builder()
-                        .setAnimationBackground(
-                            EmbeddingAnimationBackground.createColorBackground(
-                                application.resources.getColor(R.color.testColor, null)
-                            )
-                        )
-                        .setOpenAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .setCloseAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .setChangeAnimation(EmbeddingAnimationParams.AnimationSpec.JUMP_CUT)
-                        .build()
+                .setAnimationBackground(
+                    EmbeddingAnimationBackground.createColorBackground(
+                        application.resources.getColor(R.color.testColor, null)
+                    )
                 )
                 .build()
         assertEquals(TEST_TAG, rule.tag)

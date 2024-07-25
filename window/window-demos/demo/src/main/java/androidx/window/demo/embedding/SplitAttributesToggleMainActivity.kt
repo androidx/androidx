@@ -440,15 +440,6 @@ open class SplitAttributesToggleMainActivity :
             R.id.animation_background_dropdown ->
                 demoActivityEmbeddingController.animationBackground =
                     DemoActivityEmbeddingController.ANIMATION_BACKGROUND_VALUES[position]
-            R.id.open_animation_dropdown ->
-                demoActivityEmbeddingController.openAnimation =
-                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
-            R.id.close_animation_dropdown ->
-                demoActivityEmbeddingController.closeAnimation =
-                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
-            R.id.change_animation_dropdown ->
-                demoActivityEmbeddingController.changeAnimation =
-                    DemoActivityEmbeddingController.ANIMATION_SPEC_VALUES[position]
         }
         activityEmbeddingController.invalidateVisibleActivityStacks()
     }

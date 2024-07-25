@@ -207,9 +207,7 @@ package androidx.window.embedding {
 
   public static final class DividerAttributes.DraggableDividerAttributes extends androidx.window.embedding.DividerAttributes {
     method public androidx.window.embedding.DividerAttributes.DragRange getDragRange();
-    method public boolean isDraggingToFullscreenAllowed();
     property public final androidx.window.embedding.DividerAttributes.DragRange dragRange;
-    property public final boolean isDraggingToFullscreenAllowed;
   }
 
   @androidx.window.RequiresWindowSdkExtension(version=6) public static final class DividerAttributes.DraggableDividerAttributes.Builder {
@@ -218,7 +216,6 @@ package androidx.window.embedding {
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes build();
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setColor(@ColorInt int color);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDragRange(androidx.window.embedding.DividerAttributes.DragRange dragRange);
-    method @androidx.window.RequiresWindowSdkExtension(version=7) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setDraggingToFullscreenAllowed(boolean allowed);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.DividerAttributes.DraggableDividerAttributes.Builder setWidthDp(@IntRange(from=androidx.window.embedding.DividerAttributes.WIDTH_SYSTEM_DEFAULT.toLong()) int widthDp);
   }
 
@@ -255,40 +252,6 @@ package androidx.window.embedding {
 
   public static final class EmbeddingAnimationBackground.Companion {
     method public androidx.window.embedding.EmbeddingAnimationBackground.ColorBackground createColorBackground(@ColorInt @IntRange(from=android.graphics.Color.BLACK.toLong(), to=android.graphics.Color.WHITE.toLong()) int color);
-  }
-
-  public final class EmbeddingAnimationParams {
-    ctor public EmbeddingAnimationParams();
-    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
-    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation);
-    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation);
-    ctor public EmbeddingAnimationParams(optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation, optional androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec changeAnimation);
-    method public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
-    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getChangeAnimation();
-    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getCloseAnimation();
-    method public androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec getOpenAnimation();
-    property public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
-    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec changeAnimation;
-    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec closeAnimation;
-    property public final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec openAnimation;
-  }
-
-  public static final class EmbeddingAnimationParams.AnimationSpec {
-    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec.Companion Companion;
-    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec DEFAULT;
-    field public static final androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec JUMP_CUT;
-  }
-
-  public static final class EmbeddingAnimationParams.AnimationSpec.Companion {
-  }
-
-  public static final class EmbeddingAnimationParams.Builder {
-    ctor public EmbeddingAnimationParams.Builder();
-    method public androidx.window.embedding.EmbeddingAnimationParams build();
-    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
-    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setChangeAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
-    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setCloseAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
-    method public androidx.window.embedding.EmbeddingAnimationParams.Builder setOpenAnimation(androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec spec);
   }
 
   public final class EmbeddingAspectRatio {
@@ -465,17 +428,13 @@ package androidx.window.embedding {
     ctor public SplitAttributes();
     ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType);
     ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
-    ctor @Deprecated public SplitAttributes(androidx.window.embedding.SplitAttributes.SplitType splitType, androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
-    ctor @Deprecated public SplitAttributes(androidx.window.embedding.SplitAttributes.SplitType splitType, androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, androidx.window.embedding.EmbeddingAnimationBackground animationBackground, androidx.window.embedding.DividerAttributes dividerAttributes);
-    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationParams animationParams);
-    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationParams animationParams, optional androidx.window.embedding.DividerAttributes dividerAttributes);
-    method @Deprecated public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
-    method public androidx.window.embedding.EmbeddingAnimationParams getAnimationParams();
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground);
+    ctor public SplitAttributes(optional androidx.window.embedding.SplitAttributes.SplitType splitType, optional androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection, optional androidx.window.embedding.EmbeddingAnimationBackground animationBackground, optional androidx.window.embedding.DividerAttributes dividerAttributes);
+    method public androidx.window.embedding.EmbeddingAnimationBackground getAnimationBackground();
     method public androidx.window.embedding.DividerAttributes getDividerAttributes();
     method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
     method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
-    property @Deprecated public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
-    property public final androidx.window.embedding.EmbeddingAnimationParams animationParams;
+    property public final androidx.window.embedding.EmbeddingAnimationBackground animationBackground;
     property public final androidx.window.embedding.DividerAttributes dividerAttributes;
     property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
     property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
@@ -485,8 +444,7 @@ package androidx.window.embedding {
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.embedding.SplitAttributes build();
-    method @Deprecated @androidx.window.RequiresWindowSdkExtension(version=5) public androidx.window.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
-    method @androidx.window.RequiresWindowSdkExtension(version=7) public androidx.window.embedding.SplitAttributes.Builder setAnimationParams(androidx.window.embedding.EmbeddingAnimationParams params);
+    method @androidx.window.RequiresWindowSdkExtension(version=5) public androidx.window.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.embedding.EmbeddingAnimationBackground background);
     method @androidx.window.RequiresWindowSdkExtension(version=6) public androidx.window.embedding.SplitAttributes.Builder setDividerAttributes(androidx.window.embedding.DividerAttributes dividerAttributes);
     method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
     method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);

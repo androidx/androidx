@@ -52,8 +52,6 @@ import androidx.window.embedding.DividerAttributes;
 import androidx.window.embedding.DividerAttributes.DraggableDividerAttributes;
 import androidx.window.embedding.DividerAttributes.FixedDividerAttributes;
 import androidx.window.embedding.EmbeddedActivityWindowInfo;
-import androidx.window.embedding.EmbeddingAnimationParams;
-import androidx.window.embedding.EmbeddingAnimationParams.AnimationSpec;
 import androidx.window.embedding.EmbeddingRule;
 import androidx.window.embedding.RuleController;
 import androidx.window.embedding.SplitAttributes;
@@ -230,15 +228,6 @@ public class SplitActivityBase extends EdgeToEdgeActivity
         } else {
             mViewBinding.dividerCheckBox.setOnCheckedChangeListener(this);
             mViewBinding.draggableDividerCheckBox.setOnCheckedChangeListener(this);
-        }
-        if (extensionVersion < 7) {
-            mViewBinding.openAnimationJumpCutCheckBox.setVisibility(View.GONE);
-            mViewBinding.closeAnimationJumpCutCheckBox.setVisibility(View.GONE);
-            mViewBinding.changeAnimationJumpCutCheckBox.setVisibility(View.GONE);
-        } else {
-            mViewBinding.openAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
-            mViewBinding.closeAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
-            mViewBinding.changeAnimationJumpCutCheckBox.setOnCheckedChangeListener(this);
         }
 
         // Listen for split configuration checkboxes to update the rules before launching
@@ -455,34 +444,16 @@ public class SplitActivityBase extends EdgeToEdgeActivity
 
         final DividerAttributes dividerAttributes;
         if (mViewBinding.dividerCheckBox.isChecked()) {
-            if (mViewBinding.draggableDividerCheckBox.isChecked()) {
-                dividerAttributes = new DraggableDividerAttributes.Builder()
-                        .setWidthDp(1)
-                        .setDraggingToFullscreenAllowed(true)
-                        .build();
-            } else {
-                dividerAttributes = new FixedDividerAttributes.Builder().setWidthDp(1).build();
-            }
+            dividerAttributes = mViewBinding.draggableDividerCheckBox.isChecked()
+                    ? new DraggableDividerAttributes.Builder().setWidthDp(1).build()
+                    : new FixedDividerAttributes.Builder().setWidthDp(1).build();
         } else {
             dividerAttributes = DividerAttributes.NO_DIVIDER;
         }
-        final EmbeddingAnimationParams.Builder animationParamsBuilder =
-                new EmbeddingAnimationParams.Builder();
-        if (mViewBinding.openAnimationJumpCutCheckBox.isChecked()) {
-            animationParamsBuilder.setOpenAnimation(AnimationSpec.JUMP_CUT);
-        }
-        if (mViewBinding.closeAnimationJumpCutCheckBox.isChecked()) {
-            animationParamsBuilder.setCloseAnimation(AnimationSpec.JUMP_CUT);
-        }
-        if (mViewBinding.changeAnimationJumpCutCheckBox.isChecked()) {
-            animationParamsBuilder.setChangeAnimation(AnimationSpec.JUMP_CUT);
-        }
-        final EmbeddingAnimationParams animationParams = animationParamsBuilder.build();
 
         final SplitAttributes defaultSplitAttributes = new SplitAttributes.Builder()
                 .setSplitType(SplitAttributes.SplitType.ratio(SPLIT_RATIO))
                 .setDividerAttributes(dividerAttributes)
-                .setAnimationParams(animationParams)
                 .build();
 
         if (mViewBinding.splitMainCheckBox.isChecked()) {
@@ -503,12 +474,6 @@ public class SplitActivityBase extends EdgeToEdgeActivity
         }
 
         mViewBinding.draggableDividerCheckBox.setEnabled(mViewBinding.dividerCheckBox.isChecked());
-        mViewBinding.openAnimationJumpCutCheckBox.setEnabled(
-                mViewBinding.splitMainCheckBox.isChecked());
-        mViewBinding.closeAnimationJumpCutCheckBox.setEnabled(
-                mViewBinding.splitMainCheckBox.isChecked());
-        mViewBinding.changeAnimationJumpCutCheckBox.setEnabled(
-                mViewBinding.splitMainCheckBox.isChecked());
 
         if (mViewBinding.usePlaceholderCheckBox.isChecked()) {
             // Split B with placeholder.

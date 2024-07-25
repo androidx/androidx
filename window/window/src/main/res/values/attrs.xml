@@ -51,31 +51,6 @@
          The default is to use the current theme's windowBackground. Any non-opaque color will be
          treated the same as default. -->
     <attr name="animationBackgroundColor" format="color" />
-    <!-- An attribute for Activity Embedding rules.
-     Defines the open animation transition spec for the Activity Embedding split. -->
-    <attr name="splitOpenAnimation" format="enum">
-        <!-- The default animation specified by the system. -->
-        <enum name="systemDefault" value="0" />
-        <!-- An animation with zero duration. -->
-        <enum name="jumpCut" value="1" />
-    </attr>
-    <!-- An attribute for Activity Embedding rules.
-     Defines the close animation transition spec for the Activity Embedding split. -->
-    <attr name="splitCloseAnimation" format="enum">
-        <!-- The default animation specified by the system. -->
-        <enum name="systemDefault" value="0" />
-        <!-- An animation with zero duration. -->
-        <enum name="jumpCut" value="1" />
-    </attr>
-    <!-- An attribute for Activity Embedding rules.
-         Defines the change (resize or move) animation transition spec for the Activity Embedding
-         split. -->
-    <attr name="splitChangeAnimation" format="enum">
-        <!-- The default animation specified by the system. -->
-        <enum name="systemDefault" value="0" />
-        <!-- An animation with zero duration. -->
-        <enum name="jumpCut" value="1" />
-    </attr>
 
     <!-- An attribute for Activity Embedding rules.
          The smallest value of width of the parent Task bounds when the split should be used, in DP.
@@ -186,9 +161,6 @@
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
         <attr name="animationBackgroundColor"/>
-        <attr name="splitOpenAnimation"/>
-        <attr name="splitCloseAnimation"/>
-        <attr name="splitChangeAnimation"/>
     </declare-styleable>
 
     <!-- Attributes that are read when parsing a <SplitPlaceholderRule> tag, which defines the split
@@ -215,9 +187,6 @@
         <attr name="splitLayoutDirection"/>
         <attr name="tag"/>
         <attr name="animationBackgroundColor"/>
-        <attr name="splitOpenAnimation"/>
-        <attr name="splitCloseAnimation"/>
-        <attr name="splitChangeAnimation"/>
     </declare-styleable>
 
     <!-- Attributes that are read when parsing an <ActivityRule> tag, which defines the layout
