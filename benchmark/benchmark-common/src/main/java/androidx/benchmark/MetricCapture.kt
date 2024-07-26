@@ -154,17 +154,10 @@ internal class CpuEventCounterCapture(
 
     private val values = CpuEventCounter.Values()
     private val flags = events.getFlags()
-    private var hasResetEvents = false
 
     override fun captureStart(timeNs: Long) {
-        if (!hasResetEvents) {
-            // must be called on measure thread, so we wait until after init (which can be separate)
-            cpuEventCounter.resetEvents(flags)
-            hasResetEvents = true
-        } else {
-            // flags already set, fast path
-            cpuEventCounter.reset()
-        }
+        // must be called on measure thread, so we wait until after init (which can be separate)
+        cpuEventCounter.resetEvents(flags)
         cpuEventCounter.start()
     }
 

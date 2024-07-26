@@ -93,7 +93,19 @@ class BenchmarkState internal constructor(phaseConfig: MicrobenchmarkPhase.Confi
             warmupCount = warmupCount,
             measurementCount = Arguments.iterations ?: measurementCount,
             simplifiedTimingOnlyMode = simplifiedTimingOnlyMode,
-            metrics = config?.metrics?.toTypedArray() ?: DEFAULT_METRICS
+            metrics =
+                config?.metrics?.toTypedArray()
+                    ?: if (Arguments.cpuEventCounterMask != 0) {
+                        arrayOf(
+                            TimeCapture(),
+                            CpuEventCounterCapture(
+                                MicrobenchmarkPhase.cpuEventCounter,
+                                Arguments.cpuEventCounterMask
+                            )
+                        )
+                    } else {
+                        arrayOf(TimeCapture())
+                    }
         )
     )
 
@@ -645,19 +657,6 @@ class BenchmarkState internal constructor(phaseConfig: MicrobenchmarkPhase.Confi
          * error functionality doesn't handle changing error states dynamically
          */
         internal var enableMethodTracingAffectsMeasurementError = true
-
-        private val DEFAULT_METRICS: Array<MetricCapture> =
-            if (Arguments.cpuEventCounterMask != 0) {
-                arrayOf(
-                    TimeCapture(),
-                    CpuEventCounterCapture(
-                        MicrobenchmarkPhase.cpuEventCounter,
-                        Arguments.cpuEventCounterMask
-                    )
-                )
-            } else {
-                arrayOf(TimeCapture())
-            }
 
         @RequiresOptIn
         @Retention(AnnotationRetention.BINARY)

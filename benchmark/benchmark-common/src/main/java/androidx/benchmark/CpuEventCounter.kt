@@ -37,14 +37,23 @@ import java.io.Closeable
 class CpuEventCounter : Closeable {
     private var profilerPtr = CpuCounterJni.newProfiler()
     private var hasReset = false
+    internal var currentEventFlags = 0
+        private set
 
     fun resetEvents(events: List<Event>) {
         resetEvents(events.getFlags())
     }
 
     fun resetEvents(eventFlags: Int) {
+        if (currentEventFlags != eventFlags) {
+            // set up the flags
+            CpuCounterJni.resetEvents(profilerPtr, eventFlags)
+            currentEventFlags = eventFlags
+        } else {
+            // fast path when re-using same flags
+            reset()
+        }
         hasReset = true
-        CpuCounterJni.resetEvents(profilerPtr, eventFlags)
     }
 
     override fun close() {
