@@ -204,6 +204,9 @@ open class PdfViewerFragment : Fragment() {
         paginatedView = fastScrollView?.findViewById(R.id.pdf_view)
         paginationModel = paginatedView!!.paginationModel
         zoomView = pdfViewer?.findViewById(R.id.zoom_view)
+
+        pdfViewer?.isScrollContainer = true
+
         annotationButton = pdfViewer?.findViewById(R.id.edit_fab)
 
         // All views are inflated, update the view state.
