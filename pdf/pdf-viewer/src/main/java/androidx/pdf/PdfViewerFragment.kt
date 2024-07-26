@@ -347,7 +347,7 @@ open class PdfViewerFragment : Fragment() {
      * its view hierarchy built up and [.onCreateView] has finished). It might run right now if the
      * Viewer is currently started.
      */
-    protected fun postContentsAvailable(contents: DisplayData, savedState: Bundle?) {
+    private fun postContentsAvailable(contents: DisplayData, savedState: Bundle?) {
         Preconditions.checkState(delayedContentsAvailable == null, "Already waits for contents")
 
         if (isStarted()) {
