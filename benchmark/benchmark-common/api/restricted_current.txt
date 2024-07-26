@@ -42,6 +42,15 @@ package androidx.benchmark {
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalBlackHoleApi {
   }
 
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class ExperimentalConfig {
+    ctor public ExperimentalConfig();
+    ctor public ExperimentalConfig(optional androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig, optional androidx.benchmark.StartupInsightsConfig? startupInsightsConfig);
+    method public androidx.benchmark.perfetto.PerfettoConfig? getPerfettoConfig();
+    method public androidx.benchmark.StartupInsightsConfig? getStartupInsightsConfig();
+    property public final androidx.benchmark.perfetto.PerfettoConfig? perfettoConfig;
+    property public final androidx.benchmark.StartupInsightsConfig? startupInsightsConfig;
+  }
+
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public abstract class MetricCapture {
     ctor public MetricCapture(java.util.List<java.lang.String> names);
     method public abstract void capturePaused();
@@ -79,6 +88,12 @@ package androidx.benchmark {
 
   public static final class ProfilerConfig.StackSampling extends androidx.benchmark.ProfilerConfig {
     ctor public ProfilerConfig.StackSampling();
+  }
+
+  @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class StartupInsightsConfig {
+    ctor public StartupInsightsConfig(boolean isEnabled);
+    method public boolean isEnabled();
+    property public final boolean isEnabled;
   }
 
   @SuppressCompatibility @androidx.benchmark.ExperimentalBenchmarkConfigApi public final class TimeCapture extends androidx.benchmark.MetricCapture {

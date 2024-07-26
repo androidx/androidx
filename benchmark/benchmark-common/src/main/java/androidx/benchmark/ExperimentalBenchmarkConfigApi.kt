@@ -16,11 +16,21 @@
 
 package androidx.benchmark
 
+import androidx.benchmark.perfetto.PerfettoConfig
+
 /**
- * Annotation indicating experimental API primarily intended to allow configuration of
- * microbenchmarks from code, overriding instrumentation arguments like
- * `androidx.benchmark.profiling.mode`, and custom microbenchmark metrics.
+ * Annotates declarations that are considered experimental within the Benchmark API, and are likely
+ * to change before becoming stable. Using experimental features can potentially break your code if
+ * the design or behavior changes.
  */
 @RequiresOptIn
 @Retention(AnnotationRetention.BINARY)
 public annotation class ExperimentalBenchmarkConfigApi
+
+@ExperimentalBenchmarkConfigApi
+public class ExperimentalConfig(
+    val perfettoConfig: PerfettoConfig? = null,
+    val startupInsightsConfig: StartupInsightsConfig? = null
+)
+
+@ExperimentalBenchmarkConfigApi public class StartupInsightsConfig(val isEnabled: Boolean)
