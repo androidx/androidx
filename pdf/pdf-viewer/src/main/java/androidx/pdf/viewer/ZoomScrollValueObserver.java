@@ -16,6 +16,9 @@
 
 package androidx.pdf.viewer;
 
+import android.animation.ValueAnimator;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -36,11 +39,14 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final ZoomView mZoomView;
     private final LayoutHandler mLayoutHandler;
     private final FloatingActionButton mAnnotationButton;
+    private final Handler mAnnotationButtonHandler;
     private final FindInFileView mFindInFileView;
     private final PageIndicator mPageIndicator;
     private final FastScrollView mFastScrollView;
     private boolean mIsAnnotationIntentResolvable;
     private final ObservableValue<ViewState> mViewState;
+
+    private static final int FAB_ANIMATION_DURATION = 200;
 
     public ZoomScrollValueObserver(@NonNull ZoomView zoomView, @NonNull PaginatedView paginatedView,
             @NonNull LayoutHandler layoutHandler,
@@ -58,6 +64,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         mFastScrollView = fastScrollView;
         mIsAnnotationIntentResolvable = isAnnotationIntentResolvable;
         mViewState = viewState;
+        mAnnotationButtonHandler = new Handler(Looper.getMainLooper());
     }
 
     @Override
@@ -71,16 +78,57 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 position.stable)) {
             showFastScrollView();
         }
+        mAnnotationButtonHandler.removeCallbacksAndMessages(null);
 
         if (mIsAnnotationIntentResolvable) {
-            if (position.scrollY > 0) {
-                mAnnotationButton.setVisibility(View.GONE);
-            } else if (position.scrollY == 0
-                    && mAnnotationButton.getVisibility() == View.GONE
+
+            if (!isAnnotationButtonVisible() && position.scrollY == 0
                     && mFindInFileView.getVisibility() == View.GONE) {
-                mAnnotationButton.setVisibility(View.VISIBLE);
+                editFabExpandAnimation();
+            }
+            if (position.scrollY == oldPosition.scrollY) {
+                mAnnotationButtonHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (position.scrollY != 0) {
+                            mAnnotationButton.animate()
+                                    .alpha(0.0f)
+                                    .setDuration(FAB_ANIMATION_DURATION)
+                                    .withEndAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mAnnotationButton.setVisibility(View.GONE);
+                                            mAnnotationButton.setAlpha(1.0f);
+                                        }
+                                    });
+                        }
+                    }
+                });
             }
         }
+    }
+
+    private boolean isAnnotationButtonVisible() {
+        return mAnnotationButton.getVisibility() == View.VISIBLE;
+    }
+
+    private void editFabExpandAnimation() {
+        mAnnotationButton.setScaleX(0.0f);
+        mAnnotationButton.setScaleY(0.0f);
+        ValueAnimator scaleAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
+        scaleAnimator.setDuration(FAB_ANIMATION_DURATION);
+        scaleAnimator.addUpdateListener(
+                new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        float scale = (float) animation.getAnimatedValue();
+                        mAnnotationButton.setScaleX(scale);
+                        mAnnotationButton.setScaleY(scale);
+                        mAnnotationButton.setAlpha(scale);
+                    }
+                });
+        scaleAnimator.start();
+        mAnnotationButton.setVisibility(View.VISIBLE);
     }
 
     private void loadPageAssets(ZoomView.ZoomScroll position) {
@@ -119,6 +167,11 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         if (mFastScrollView != null) {
             mFastScrollView.setVisible();
         }
+    }
+
+    /** Exposing a function to clear the handler when PDFViewer Fragment is destroyed.*/
+    public void clearAnnotationHandler() {
+        mAnnotationButtonHandler.removeCallbacksAndMessages(null);
     }
 
     public void setAnnotationIntentResolvable(boolean annotationIntentResolvable) {

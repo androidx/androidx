@@ -21,6 +21,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.graphics.Rect;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import androidx.pdf.ViewState;
@@ -50,6 +52,7 @@ public class ZoomScrollValueObserverTest {
     private static final ZoomView.ZoomScroll OLD_POSITION = new ZoomView.ZoomScroll(1.0f, 0, 0,
             false);
     private static final Range PAGE_RANGE = new Range(0, 100);
+    private static final int ANIMATION_DELAY_MILLIS = 200;
 
     private final PaginatedView mMockPaginatedView = mock(PaginatedView.class);
     private final ZoomView mMockZoomView = mock(ZoomView.class);
@@ -63,6 +66,7 @@ public class ZoomScrollValueObserverTest {
 
     private boolean mIsAnnotationIntentResolvable;
     private ZoomView.ZoomScroll mNewPosition;
+    private ZoomView.ZoomScroll mOldPosition;
 
 
     @Before
@@ -147,15 +151,19 @@ public class ZoomScrollValueObserverTest {
     @Test
     public void onChange_hideAnnotationButton() {
         mIsAnnotationIntentResolvable = true;
-        mNewPosition = new ZoomView.ZoomScroll(1.0f, 0, 1, false);
+        mNewPosition = new ZoomView.ZoomScroll(1.0f, 0, 10, false);
+        mOldPosition = new ZoomView.ZoomScroll(1.0f, 0, 10, false);
+        when(mMockAnnotationButton.getVisibility()).thenReturn(View.VISIBLE);
 
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
                 mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
-        zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
-
-        verify(mMockAnnotationButton).setVisibility(View.GONE);
+        zoomScrollValueObserver.onChange(mOldPosition, mNewPosition);
+//        TODO: Remove this hardcode dependency.
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            verify(mMockAnnotationButton).setVisibility(View.GONE);
+        }, ANIMATION_DELAY_MILLIS);
     }
 
 }
