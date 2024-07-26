@@ -84,6 +84,8 @@ public class ZoomScrollValueObserverTest {
         when(mMockZoomView.getVisibleAreaInContentCoords()).thenReturn(RECT);
         when(mMockPaginatedView.createPageViewsForVisiblePageRange()).thenReturn(false);
         when(mPageRangeHandler.getVisiblePages()).thenReturn(PAGE_RANGE);
+        when(mMockPaginationModel.isInitialized()).thenReturn(true);
+        when(mMockPaginationModel.getSize()).thenReturn(1);
     }
 
     @Test

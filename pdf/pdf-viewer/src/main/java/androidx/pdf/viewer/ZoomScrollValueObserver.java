@@ -68,6 +68,10 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     @Override
     public void onChange(@Nullable ZoomView.ZoomScroll oldPosition,
             @Nullable ZoomView.ZoomScroll position) {
+        if (mPaginatedView == null || !mPaginatedView.getPaginationModel().isInitialized()
+                || position == null || mPaginatedView.getPaginationModel().getSize() == 0) {
+            return;
+        }
         loadPageAssets(position);
         if (mIsAnnotationIntentResolvable) {
 
