@@ -19,7 +19,6 @@ Note: The contributions workflow via GitHub is currently experimental - only con
 * [AppCompat](appcompat)
 * [Biometric](biometric)
 * [Collection](collection)
-* [Compose Compiler](compose/compiler)
 * [Compose Runtime](compose/runtime)
 * [Core](core)
 * [DataStore](datastore)
