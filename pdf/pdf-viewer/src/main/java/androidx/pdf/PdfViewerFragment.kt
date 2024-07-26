@@ -506,6 +506,7 @@ open class PdfViewerFragment : Fragment() {
         if (dataBundle != null) {
             try {
                 val restoredData = DisplayData.fromBundle(dataBundle)
+                localUri = restoredData.uri
                 postContentsAvailable(restoredData, savedState)
             } catch (e: Exception) {
                 // This can happen if the data is an instance of StreamOpenable, and the client
