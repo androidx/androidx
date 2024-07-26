@@ -58,8 +58,6 @@ import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -166,7 +164,6 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
         derivedStateOf { (itemsCount - 1 - itemIndex) * stagger < staggerProgress }
     }
     AnimatedVisibility(
-        modifier = modifier.semantics { isTraversalGroup = true },
         visible = visible,
         // TODO Load the motionScheme tokens from the component tokens file
         enter = fadeIn(animationSpec = MotionSchemeKeyTokens.FastEffects.value()),
@@ -176,6 +173,7 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
         // animation and we know we are meeting the size requirements below.
         CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
             Surface(
+                modifier = modifier,
                 shape = CircleShape,
                 color = containerColor,
                 contentColor = contentColor,
