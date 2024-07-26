@@ -362,6 +362,21 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         composeRootRegistry.waitForComposeRoots(atLeastOneRootExpected)
         // Then await composition(s)
         idlingStrategy.runUntilIdle()
+        // Then wait for the next frame to ensure any scheduled drawing has completed
+        if (testReceiverScope.hasContent) {
+            try {
+                val view = activity?.window?.decorView
+                if (view != null && view.isAttachedToWindow) {
+                    var frameHit = false
+                    view.postOnAnimation { view.post { frameHit = true } }
+                    while (!frameHit) {
+                        idlingStrategy.runUntilIdle()
+                    }
+                }
+            } catch (_: NullPointerException) {
+                // An NPE is thrown when the activity has already been destroyed. Just continue.
+            }
+        }
         // Check if a coroutine threw an uncaught exception
         coroutineExceptionHandler.throwUncaught()
     }
@@ -406,6 +421,9 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
 
     internal inner class AndroidComposeUiTestImpl : AndroidComposeUiTest<A> {
         private var disposeContentHook: (() -> Unit)? = null
+
+        val hasContent: Boolean
+            get() = disposeContentHook != null
 
         override val activity: A?
             get() = this@AndroidComposeUiTestEnvironment.activity
