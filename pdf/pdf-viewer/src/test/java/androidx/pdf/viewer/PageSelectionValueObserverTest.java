@@ -27,7 +27,6 @@ import android.util.DisplayMetrics;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.PageSelection;
-import androidx.pdf.select.SelectionActionMode;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -49,7 +48,6 @@ public class PageSelectionValueObserverTest {
     private final PageMosaicView mMockOldPageMosaicView = mock(PageMosaicView.class);
     private final PageMosaicView mMockNewPageMosaicView = mock(PageMosaicView.class);
     private final PageRangeHandler mMockPageRangeHandler = mock(PageRangeHandler.class);
-    private final SelectionActionMode mMockSelectionActionMode = mock(SelectionActionMode.class);
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
 
@@ -73,7 +71,7 @@ public class PageSelectionValueObserverTest {
 
         PageSelectionValueObserver pageSelectionValueObserver =
                 new PageSelectionValueObserver(mMockPaginatedView, mMockPaginationModel,
-                        mMockPageViewFactory, mContext, mMockSelectionActionMode);
+                        mMockPageViewFactory, mContext);
         pageSelectionValueObserver.onChange(mMockOldPageSelection, mMockNewPageSelection);
 
         verify(mMockOldPageMosaicView).setOverlay(null);
