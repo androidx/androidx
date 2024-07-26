@@ -117,6 +117,18 @@ private val Buttons =
         examples = ButtonsExamples,
     )
 
+private val ButtonGroups =
+    Component(
+        id = nextId(),
+        name = "Button Groups",
+        description =
+            "button groups is a container for material components that adds an animation on press",
+        guidelinesUrl = "$ComponentGuidelinesUrl/button-groups",
+        docsUrl = "$PackageSummaryUrl#buttongroups",
+        sourceUrl = "$Material3SourceUrl/ButtonGroup.kt",
+        examples = ButtonGroupsExamples,
+    )
+
 private val Card =
     Component(
         id = nextId(),
@@ -556,6 +568,7 @@ val Components =
         BottomAppBars,
         BottomSheets,
         Buttons,
+        ButtonGroups,
         Card,
         Carousel,
         Checkboxes,

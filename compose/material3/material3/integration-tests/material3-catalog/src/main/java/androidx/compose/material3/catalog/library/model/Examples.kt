@@ -35,6 +35,7 @@ import androidx.compose.material3.samples.AssistChipSample
 import androidx.compose.material3.samples.BasicAlertDialogSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
 import androidx.compose.material3.samples.BottomSheetScaffoldNestedScrollSample
+import androidx.compose.material3.samples.ButtonGroupSample
 import androidx.compose.material3.samples.ButtonSample
 import androidx.compose.material3.samples.ButtonWithIconSample
 import androidx.compose.material3.samples.CardSample
@@ -366,6 +367,19 @@ val ButtonsExamples =
             sourceUrl = ButtonsExampleSourceUrl,
         ) {
             ButtonWithIconSample()
+        }
+    )
+
+private const val ButtonGroupsExampleDescription = "ButtonGroup examples"
+private const val ButtonGroupsExampleSourceUrl = "$SampleSourceUrl/ButtonGroupSamples.kt"
+val ButtonGroupsExamples =
+    listOf(
+        Example(
+            name = "ButtonGroupSample",
+            description = ButtonGroupsExampleDescription,
+            sourceUrl = ButtonGroupsExampleSourceUrl,
+        ) {
+            ButtonGroupSample()
         }
     )
 

@@ -7,6 +7,51 @@
         errorLine1="        Thread.sleep(300)"
         errorLine2="               ~~~~~">
         <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ButtonGroupScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
     </issue>
 
@@ -152,24 +197,6 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(300)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(300)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/ToggleButtonScreenshotTest.kt"/>
     </issue>
 
     <issue

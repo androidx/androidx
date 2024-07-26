@@ -160,6 +160,8 @@ fun IconButton(
     shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     Box(
         modifier =
             modifier
@@ -174,7 +176,8 @@ fun IconButton(
                     interactionSource = interactionSource,
                     indication = ripple()
                 )
-                .childSemantics(),
+                .childSemantics()
+                .interactionSourceData(interactionSource),
         contentAlignment = Alignment.Center
     ) {
         val contentColor = colors.contentColor(enabled)
@@ -283,6 +286,8 @@ fun IconToggleButton(
     shape: Shape = IconButtonDefaults.standardShape,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     Box(
         modifier =
             modifier
@@ -297,7 +302,8 @@ fun IconToggleButton(
                     role = Role.Checkbox,
                     interactionSource = interactionSource,
                     indication = ripple()
-                ),
+                )
+                .interactionSourceData(interactionSource),
         contentAlignment = Alignment.Center
     ) {
         val contentColor = colors.contentColor(enabled, checked).value
