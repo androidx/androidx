@@ -47,6 +47,7 @@ import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
@@ -213,6 +214,7 @@ internal constructor(
         internal const val READ_OXYGEN_SATURATION = PERMISSION_PREFIX + "READ_OXYGEN_SATURATION"
         internal const val READ_RESPIRATORY_RATE = PERMISSION_PREFIX + "READ_RESPIRATORY_RATE"
         internal const val READ_RESTING_HEART_RATE = PERMISSION_PREFIX + "READ_RESTING_HEART_RATE"
+        internal const val READ_SKIN_TEMPERATURE = PERMISSION_PREFIX + "READ_SKIN_TEMPERATURE"
 
         // Write permissions for ACTIVITY.
         internal const val WRITE_ACTIVE_CALORIES_BURNED =
@@ -270,6 +272,7 @@ internal constructor(
         internal const val WRITE_OXYGEN_SATURATION = PERMISSION_PREFIX + "WRITE_OXYGEN_SATURATION"
         internal const val WRITE_RESPIRATORY_RATE = PERMISSION_PREFIX + "WRITE_RESPIRATORY_RATE"
         internal const val WRITE_RESTING_HEART_RATE = PERMISSION_PREFIX + "WRITE_RESTING_HEART_RATE"
+        internal const val WRITE_SKIN_TEMPERATURE = PERMISSION_PREFIX + "WRITE_SKIN_TEMPERATURE"
 
         internal const val READ_PERMISSION_PREFIX = PERMISSION_PREFIX + "READ_"
         internal const val WRITE_PERMISSION_PREFIX = PERMISSION_PREFIX + "WRITE_"
@@ -330,6 +333,8 @@ internal constructor(
                     READ_SEXUAL_ACTIVITY.substringAfter(READ_PERMISSION_PREFIX),
                 SleepSessionRecord::class to READ_SLEEP.substringAfter(READ_PERMISSION_PREFIX),
                 SpeedRecord::class to READ_SPEED.substringAfter(READ_PERMISSION_PREFIX),
+                SkinTemperatureRecord::class to
+                    READ_SKIN_TEMPERATURE.substringAfter(READ_PERMISSION_PREFIX),
                 StepsCadenceRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
                 StepsRecord::class to READ_STEPS.substringAfter(READ_PERMISSION_PREFIX),
                 TotalCaloriesBurnedRecord::class to

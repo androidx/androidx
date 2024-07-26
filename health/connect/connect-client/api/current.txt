@@ -1115,6 +1115,42 @@ package androidx.health.connect.client.records {
   public static final class SexualActivityRecord.Companion {
   }
 
+  public final class SkinTemperatureRecord implements androidx.health.connect.client.records.Record {
+    ctor public SkinTemperatureRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> deltas, optional androidx.health.connect.client.units.Temperature? baseline, optional int measurementLocation, optional androidx.health.connect.client.records.metadata.Metadata metadata);
+    method public androidx.health.connect.client.units.Temperature? getBaseline();
+    method public java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> getDeltas();
+    method public java.time.Instant getEndTime();
+    method public java.time.ZoneOffset? getEndZoneOffset();
+    method public int getMeasurementLocation();
+    method public androidx.health.connect.client.records.metadata.Metadata getMetadata();
+    method public java.time.Instant getStartTime();
+    method public java.time.ZoneOffset? getStartZoneOffset();
+    property public final androidx.health.connect.client.units.Temperature? baseline;
+    property public final java.util.List<androidx.health.connect.client.records.SkinTemperatureRecord.Delta> deltas;
+    property public java.time.Instant endTime;
+    property public java.time.ZoneOffset? endZoneOffset;
+    property public final int measurementLocation;
+    property public androidx.health.connect.client.records.metadata.Metadata metadata;
+    property public java.time.Instant startTime;
+    property public java.time.ZoneOffset? startZoneOffset;
+    field public static final androidx.health.connect.client.records.SkinTemperatureRecord.Companion Companion;
+    field public static final int MEASUREMENT_LOCATION_FINGER = 1; // 0x1
+    field public static final int MEASUREMENT_LOCATION_TOE = 2; // 0x2
+    field public static final int MEASUREMENT_LOCATION_UNKNOWN = 0; // 0x0
+    field public static final int MEASUREMENT_LOCATION_WRIST = 3; // 0x3
+  }
+
+  public static final class SkinTemperatureRecord.Companion {
+  }
+
+  public static final class SkinTemperatureRecord.Delta {
+    ctor public SkinTemperatureRecord.Delta(java.time.Instant time, androidx.health.connect.client.units.TemperatureDelta delta);
+    method public androidx.health.connect.client.units.TemperatureDelta getDelta();
+    method public java.time.Instant getTime();
+    property public final androidx.health.connect.client.units.TemperatureDelta delta;
+    property public final java.time.Instant time;
+  }
+
   public final class SleepSessionRecord implements androidx.health.connect.client.records.Record {
     ctor public SleepSessionRecord(java.time.Instant startTime, java.time.ZoneOffset? startZoneOffset, java.time.Instant endTime, java.time.ZoneOffset? endZoneOffset, optional String? title, optional String? notes, optional java.util.List<androidx.health.connect.client.records.SleepSessionRecord.Stage> stages, optional androidx.health.connect.client.records.metadata.Metadata metadata);
     method public java.time.Instant getEndTime();
@@ -1624,6 +1660,22 @@ package androidx.health.connect.client.units {
   public static final class Temperature.Companion {
     method public androidx.health.connect.client.units.Temperature celsius(double value);
     method public androidx.health.connect.client.units.Temperature fahrenheit(double value);
+  }
+
+  public final class TemperatureDelta implements java.lang.Comparable<androidx.health.connect.client.units.TemperatureDelta> {
+    method public static androidx.health.connect.client.units.TemperatureDelta celsius(double value);
+    method public int compareTo(androidx.health.connect.client.units.TemperatureDelta other);
+    method public static androidx.health.connect.client.units.TemperatureDelta fahrenheit(double value);
+    method public double getCelsius();
+    method public double getFahrenheit();
+    property public final double inCelsius;
+    property public final double inFahrenheit;
+    field public static final androidx.health.connect.client.units.TemperatureDelta.Companion Companion;
+  }
+
+  public static final class TemperatureDelta.Companion {
+    method public androidx.health.connect.client.units.TemperatureDelta celsius(double value);
+    method public androidx.health.connect.client.units.TemperatureDelta fahrenheit(double value);
   }
 
   public final class Velocity implements java.lang.Comparable<androidx.health.connect.client.units.Velocity> {
