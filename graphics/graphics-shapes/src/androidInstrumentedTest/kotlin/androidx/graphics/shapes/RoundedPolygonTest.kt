@@ -97,6 +97,14 @@ class RoundedPolygonTest {
         assertInBounds(manualSquarePVRounded.cubics, min, max)
     }
 
+    @Test
+    fun computeCenterTest() {
+        val polygon = RoundedPolygon(floatArrayOf(0f, 0f, 1f, 0f, 0f, 1f, 1f, 1f))
+
+        assertEquals(0.5f, polygon.centerX, 1e-4f)
+        assertEquals(0.5f, polygon.centerY, 1e-4f)
+    }
+
     private fun pointsToFloats(points: List<Point>): FloatArray {
         val result = FloatArray(points.size * 2)
         var index = 0
