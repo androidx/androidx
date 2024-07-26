@@ -313,6 +313,10 @@ objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libaut
 # > Task :collection:collection-benchmark:assembleAndroidXDarwinBenchmarksReleaseXCFramework
 objc\[[0-9]+\]: Class AMSupportURLConnectionDelegate is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+e[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
 objc\[[0-9]+\]: Class AMSupportURLSession is implemented in both /usr/lib/libauthinstall\.dylib \([0-9]+x[0-9]+f[0-9]+cf[0-9]+\) and /System/Library/PrivateFrameworks/MobileDevice\.framework/Versions/A/MobileDevice \([0-9]+x[0-9]+c[0-9]+\)\. One of the two will be used\. Which one is undefined\.
+# > Task :privacysandbox:sdkruntime:integration-tests:testsdk-asb:minifyBundleWithR8
+WARNING: R[0-9]+: Missing class android\.os\.ProfilingManager \(referenced from: android\.os\.ProfilingManager androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\$[0-9]+\.\$service and [0-9]+ other contexts\)
+Missing class android\.os\.ProfilingResult \(referenced from: java\.lang\.Object androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\.invokeSuspend\(java\.lang\.Object\) and [0-9]+ other context\)
+Missing class android\.os\.ProfilingResult \(referenced from: java\.lang\.Object androidx\.core\.os\.Profiling\$registerForAllProfilingResults\$[0-9]+\.invokeSuspend\(java\.lang\.Object\) and [0-9]+ other contexts\)
 New 'wasm' target is Work-in-Progress and is subject to change without notice.
 Yarn packages will be fetched from the offline mirror.*
 # Kotlin executes Yarn with the --ignore-scripts flag: https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/js/yarn/YarnBasics.kt
