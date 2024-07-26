@@ -449,7 +449,7 @@ private fun calculateCenter(vertices: FloatArray): Point {
         cumulativeX += vertices[index++]
         cumulativeY += vertices[index++]
     }
-    return Point(cumulativeX / vertices.size / 2, cumulativeY / vertices.size / 2)
+    return Point(cumulativeX / (vertices.size / 2), cumulativeY / (vertices.size / 2))
 }
 
 /**
