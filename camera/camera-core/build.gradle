@@ -92,7 +92,8 @@ android {
                         "-fomit-frame-pointer", "-fdata-sections", "-ffunction-sections"
                 arguments "-DCMAKE_VERBOSE_MAKEFILE=ON",
                         "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,--gc-sections " +
-                                "-Wl,--version-script=${versionScript}"
+                                "-Wl,--version-script=${versionScript} " +
+                                "-Wl,--undefined-version"
             }
         }
     }
