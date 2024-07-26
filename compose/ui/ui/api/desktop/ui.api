@@ -4011,15 +4011,6 @@ public final class androidx/compose/ui/text/TextMeasurerHelperKt {
 	public static final fun rememberTextMeasurer (ILandroidx/compose/runtime/Composer;II)Landroidx/compose/ui/text/TextMeasurer;
 }
 
-public class androidx/compose/ui/viewinterop/InteropViewAnchorModifierNode : androidx/compose/ui/Modifier$Node, androidx/compose/ui/node/PointerInputModifierNode {
-	public static final field $stable I
-	public fun <init> (Ljava/lang/Object;)V
-	public final fun getInteropView ()Ljava/lang/Object;
-	public fun onCancelPointerInput ()V
-	public fun onPointerEvent-H0pRuoY (Landroidx/compose/ui/input/pointer/PointerEvent;Landroidx/compose/ui/input/pointer/PointerEventPass;J)V
-	public final fun setInteropView (Ljava/lang/Object;)V
-}
-
 public abstract interface class androidx/compose/ui/window/ApplicationScope {
 	public abstract fun exitApplication ()V
 }

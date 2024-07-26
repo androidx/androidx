@@ -16,34 +16,5 @@
 
 package androidx.compose.ui.viewinterop
 
-import androidx.compose.runtime.ComposeNodeLifecycleCallback
-
-// TODO: implement this for iOS
-// Skiko doesn't have an intrinsic interop view type, so satisfy the expect declaration with a
-// no-op and unusable type.
-internal actual class InteropViewFactoryHolder private constructor(
-    // No instances allowed.
-) : ComposeNodeLifecycleCallback {
-    init {
-        throwUnsupportedError()
-    }
-
-    actual fun getInteropView(): InteropView? = throwUnsupportedError()
-
-    actual override fun onReuse() {
-        throwUnsupportedError()
-    }
-
-    actual override fun onDeactivate() {
-        throwUnsupportedError()
-    }
-
-    actual override fun onRelease() {
-        throwUnsupportedError()
-    }
-
-    private fun throwUnsupportedError(): Nothing = throw UnsupportedOperationException(
-        "InteropViewFactoryHolder cannot be used because " +
-            "interoperability views are not supported on this platform."
-    )
-}
+// TODO: Rename to InteropViewHolder: No need for typealiases and it's not a factory
+internal actual typealias InteropViewFactoryHolder = InteropViewHolder

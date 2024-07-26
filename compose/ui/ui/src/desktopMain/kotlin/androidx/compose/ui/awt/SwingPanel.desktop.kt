@@ -33,12 +33,6 @@ import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerEvent
-import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
-import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.EmptyLayout
 import androidx.compose.ui.layout.OverlayLayout
 import androidx.compose.ui.layout.findRootCoordinates
@@ -47,14 +41,19 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastAny
-import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.viewinterop.InteropContainer
+import androidx.compose.ui.viewinterop.InteropView
+import androidx.compose.ui.viewinterop.InteropViewGroup
+import androidx.compose.ui.viewinterop.InteropViewHolder
+import androidx.compose.ui.viewinterop.InteropViewUpdater
+import androidx.compose.ui.viewinterop.LocalInteropContainer
+import androidx.compose.ui.viewinterop.SwingInteropViewHolder
+import androidx.compose.ui.viewinterop.pointerInteropFilter
+import androidx.compose.ui.viewinterop.trackInteropPlacement
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
-import java.awt.event.MouseEvent
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
 import javax.swing.SwingUtilities
@@ -87,13 +86,14 @@ public fun <T : Component> SwingPanel(
     modifier: Modifier = Modifier,
     update: (T) -> Unit = NoOpUpdate,
 ) {
-    val interopContainer = LocalSwingInteropContainer.current
+    val interopContainer = LocalInteropContainer.current
     val compositeKey = currentCompositeKeyHash
-    val interopComponent = remember {
-        SwingInteropComponent(
-            container = SwingPanelContainer(
+    val interopViewHolder = remember {
+        SwingInteropViewHolder2(
+            container = interopContainer,
+            group = SwingInteropViewGroup(
                 key = compositeKey,
-                focusComponent = interopContainer.container,
+                focusComponent = interopContainer.root,
             ),
             update = update,
         )
@@ -101,7 +101,7 @@ public fun <T : Component> SwingPanel(
 
     val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
-    val focusSwitcher = remember { FocusSwitcher(interopComponent, focusManager) }
+    val focusSwitcher = remember { FocusSwitcher(interopViewHolder, focusManager) }
 
     OverlayLayout(
         modifier = modifier.onGloballyPositioned { coordinates ->
@@ -111,13 +111,12 @@ public fun <T : Component> SwingPanel(
             val bounds = rootCoordinates
                 .localBoundingBoxOf(coordinates, clipBounds = false).round(density)
 
-            interopComponent.setBounds(bounds, clippedBounds)
-            interopContainer.validateComponentsOrder()
+            interopViewHolder.setBounds(bounds, clippedBounds)
         }.drawBehind {
             // Clear interop area to make visible the component under our canvas.
             drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackSwingInterop(interopContainer, interopComponent)
-            .then(InteropPointerInputModifier(interopComponent))
+        }.trackInteropPlacement(interopViewHolder)
+            .pointerInteropFilter(interopViewHolder)
     ) {
         focusSwitcher.Content()
     }
@@ -125,7 +124,7 @@ public fun <T : Component> SwingPanel(
     DisposableEffect(Unit) {
         val focusListener = object : FocusListener {
             override fun focusGained(e: FocusEvent) {
-                if (e.isFocusGainedHandledBySwingPanel(interopComponent.container)) {
+                if (e.isFocusGainedHandledBySwingPanel(interopViewHolder.group)) {
                     when (e.cause) {
                         FocusEvent.Cause.TRAVERSAL_FORWARD -> focusSwitcher.moveForward()
                         FocusEvent.Cause.TRAVERSAL_BACKWARD -> focusSwitcher.moveBackward()
@@ -136,22 +135,22 @@ public fun <T : Component> SwingPanel(
 
             override fun focusLost(e: FocusEvent) = Unit
         }
-        interopContainer.container.addFocusListener(focusListener)
+        interopContainer.root.addFocusListener(focusListener)
         onDispose {
-            interopContainer.container.removeFocusListener(focusListener)
+            interopContainer.root.removeFocusListener(focusListener)
         }
     }
 
     DisposableEffect(factory) {
-        interopComponent.setupUserComponent(factory())
+        interopViewHolder.setupUserComponent(factory())
         onDispose {
-            interopComponent.cleanUserComponent()
+            interopViewHolder.cleanUserComponent()
         }
     }
 
     SideEffect {
-        interopComponent.container.background = background.toAwtColor()
-        interopComponent.update = update
+        interopViewHolder.group.background = background.toAwtColor()
+        interopViewHolder.update = update
     }
 }
 
@@ -163,7 +162,7 @@ public fun <T : Component> SwingPanel(
  *
  * The alternative that needs more investigation is to
  * not use ComposePanel as next/previous focus element for SwingPanel children
- * (see [SwingPanelContainer.focusComponent])
+ * (see [SwingInteropViewGroup.focusComponent])
  */
 internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
     container.isParentOf(oppositeComponent)
@@ -174,7 +173,7 @@ internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
  * @param key The unique identifier for the panel container.
  * @param focusComponent The component that should receive focus.
  */
-private class SwingPanelContainer(
+private class SwingInteropViewGroup(
     key: Int,
     private val focusComponent: Component
 ): JPanel() {
@@ -202,13 +201,13 @@ private class SwingPanelContainer(
     }
 }
 
-private class FocusSwitcher<T : Component>(
-    private val interopComponent: SwingInteropComponent<T>,
+private class FocusSwitcher(
+    private val interopViewHolder: InteropViewHolder,
     private val focusManager: FocusManager,
 ) {
     private val backwardTracker = FocusTracker {
-        val container = interopComponent.container
-        val component = container.focusTraversalPolicy.getFirstComponent(container)
+        val group = interopViewHolder.group
+        val component = group.focusTraversalPolicy.getFirstComponent(group)
         if (component != null) {
             component.requestFocus(FocusEvent.Cause.TRAVERSAL_FORWARD)
         } else {
@@ -217,7 +216,8 @@ private class FocusSwitcher<T : Component>(
     }
 
     private val forwardTracker = FocusTracker {
-        val component = interopComponent.container.focusTraversalPolicy.getLastComponent(interopComponent.container)
+        val group = interopViewHolder.group
+        val component = group.focusTraversalPolicy.getLastComponent(group)
         if (component != null) {
             component.requestFocus(FocusEvent.Cause.TRAVERSAL_BACKWARD)
         } else {
@@ -280,22 +280,27 @@ private class FocusSwitcher<T : Component>(
     }
 }
 
-private class SwingInteropComponent<T : Component>(
-    container: SwingPanelContainer,
+// TODO: Align naming. It's typed version of view holder, On Android it's called "ViewFactoryHolder"
+private class SwingInteropViewHolder2<T : Component>(
+    container: InteropContainer,
+    group: InteropViewGroup,
     var update: (T) -> Unit
-): InteropComponent(container) {
+): SwingInteropViewHolder(container, group) {
     private var userComponent: T? = null
-    private var updater: Updater<T>? = null
+    private var updater: InteropViewUpdater<T>? = null
+
+    override fun getInteropView(): InteropView? =
+        userComponent
 
     fun setupUserComponent(component: T) {
         check(userComponent == null)
         userComponent = component
-        container.add(component)
-        updater = Updater(component, update)
+        group.add(component)
+        updater = InteropViewUpdater(component, update) { SwingUtilities.invokeLater(it) }
     }
 
     fun cleanUserComponent() {
-        container.remove(userComponent)
+        group.remove(userComponent)
         updater?.dispose()
         userComponent = null
         updater = null
@@ -304,11 +309,11 @@ private class SwingInteropComponent<T : Component>(
     fun setBounds(
         bounds: IntRect,
         clippedBounds: IntRect = bounds
-    ) {
+    ) = container.changeInteropViewLayout {
         clipBounds = clippedBounds // Clipping area for skia canvas
-        container.isVisible = !clippedBounds.isEmpty // Hide if it's fully clipped
+        group.isVisible = !clippedBounds.isEmpty // Hide if it's fully clipped
         // Swing clips children based on parent's bounds, so use our container for clipping
-        container.setBounds(
+        group.setBounds(
             /* x = */ clippedBounds.left,
             /* y = */ clippedBounds.top,
             /* width = */ clippedBounds.width,
@@ -323,61 +328,6 @@ private class SwingInteropComponent<T : Component>(
             /* height = */ bounds.height
         )
     }
-
-    fun getDeepestComponentForEvent(event: MouseEvent): Component? {
-        if (userComponent == null) return null
-        val point = SwingUtilities.convertPoint(event.component, event.point, userComponent)
-        return SwingUtilities.getDeepestComponentAt(userComponent, point.x, point.y)
-    }
-}
-
-private class Updater<T : Component>(
-    private val component: T,
-    update: (T) -> Unit,
-) {
-    private var isDisposed = false
-    private val isUpdateScheduled = atomic(false)
-    private val snapshotObserver = SnapshotStateObserver { command ->
-        command()
-    }
-
-    private val scheduleUpdate = { _: T ->
-        if (!isUpdateScheduled.getAndSet(true)) {
-            SwingUtilities.invokeLater {
-                isUpdateScheduled.value = false
-                if (!isDisposed) {
-                    performUpdate()
-                }
-            }
-        }
-    }
-
-    var update: (T) -> Unit = update
-        set(value) {
-            if (field != value) {
-                field = value
-                performUpdate()
-            }
-        }
-
-    private fun performUpdate() {
-        // don't replace scheduleUpdate by lambda reference,
-        // scheduleUpdate should always be the same instance
-        snapshotObserver.observeReads(component, scheduleUpdate) {
-            update(component)
-        }
-    }
-
-    init {
-        snapshotObserver.start()
-        performUpdate()
-    }
-
-    fun dispose() {
-        snapshotObserver.stop()
-        snapshotObserver.clear()
-        isDisposed = true
-    }
 }
 
 private fun Rect.round(density: Density): IntRect {
@@ -386,58 +336,6 @@ private fun Rect.round(density: Density): IntRect {
     val right = ceil(right / density.density).toInt()
     val bottom = ceil(bottom / density.density).toInt()
     return IntRect(left, top, right, bottom)
-}
-
-private class InteropPointerInputModifier<T : Component>(
-    private val interopComponent: SwingInteropComponent<T>,
-) : PointerInputFilter(), PointerInputModifier {
-    override val pointerInputFilter: PointerInputFilter = this
-
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize,
-    ) {
-        /*
-         * If the event was a down or up event, we dispatch to platform as early as possible.
-         * If the event is a move event, and we can still intercept, we dispatch to platform after
-         * we have a chance to intercept due to movement.
-         *
-         * See Android's PointerInteropFilter as original source for this logic.
-         */
-        val dispatchDuringInitialTunnel = pointerEvent.changes.fastAny {
-            it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
-        }
-        if (pass == PointerEventPass.Initial && dispatchDuringInitialTunnel) {
-            dispatchToView(pointerEvent)
-        }
-        if (pass == PointerEventPass.Final && !dispatchDuringInitialTunnel) {
-            dispatchToView(pointerEvent)
-        }
-    }
-
-    override fun onCancel() {
-    }
-
-    private fun dispatchToView(pointerEvent: PointerEvent) {
-        val e = pointerEvent.awtEventOrNull ?: return
-        when (e.id) {
-            // Do not redispatch Enter/Exit events since they are related exclusively
-            // to original component.
-            MouseEvent.MOUSE_ENTERED, MouseEvent.MOUSE_EXITED -> return
-        }
-        if (SwingUtilities.isDescendingFrom(e.component, interopComponent.container)) {
-            // Do not redispatch the event if it originally from this interop view.
-            return
-        }
-        val component = interopComponent.getDeepestComponentForEvent(e)
-        if (component != null) {
-            component.dispatchEvent(SwingUtilities.convertMouseEvent(e.component, e, component))
-            pointerEvent.changes.fastForEach {
-                it.consume()
-            }
-        }
-    }
 }
 
 /**

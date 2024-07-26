@@ -16,12 +16,12 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.interop.UIKitInteropState
-import androidx.compose.ui.interop.UIKitInteropTransaction
-import androidx.compose.ui.interop.isNotEmpty
 import androidx.compose.ui.uikit.utils.CMPMetalDrawablesHandler
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.viewinterop.UIKitInteropState
+import androidx.compose.ui.viewinterop.UIKitInteropTransaction
+import androidx.compose.ui.viewinterop.isNotEmpty
 import kotlin.math.roundToInt
 import kotlinx.cinterop.*
 import org.jetbrains.skia.*

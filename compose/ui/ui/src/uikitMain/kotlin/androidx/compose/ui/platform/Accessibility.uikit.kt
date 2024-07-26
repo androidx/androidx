@@ -19,8 +19,7 @@ package androidx.compose.ui.platform
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.interop.InteropWrappingView
-import androidx.compose.ui.interop.InteropViewSemanticsKey
+import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsConfiguration
@@ -29,8 +28,11 @@ import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.state.ToggleableState
-import androidx.compose.ui.uikit.utils.*
+import androidx.compose.ui.uikit.utils.CMPAccessibilityContainer
+import androidx.compose.ui.uikit.utils.CMPAccessibilityElement
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.viewinterop.InteropViewSemanticsKey
+import androidx.compose.ui.viewinterop.UIKitInteropViewGroup
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.measureTime
 import kotlinx.cinterop.CValue
@@ -117,7 +119,7 @@ private object CachedAccessibilityPropertyKeys {
     val accessibilityTraits = CachedAccessibilityPropertyKey<UIAccessibilityTraits>()
     val accessibilityValue = CachedAccessibilityPropertyKey<String?>()
     val accessibilityFrame = CachedAccessibilityPropertyKey<CValue<CGRect>>()
-    val interopWrappingView = CachedAccessibilityPropertyKey<InteropWrappingView?>()
+    val interopWrappingView = CachedAccessibilityPropertyKey<UIKitInteropViewGroup?>()
 }
 
 /**
@@ -192,7 +194,7 @@ private class AccessibilityElement(
      * Cached InteropWrappingView for the element if it's present. AX services will be redirected
      * to this view if it's not null, semantics data for this element will be ignored.
      */
-    private val interopView: InteropWrappingView?
+    private val interopView: UIKitInteropViewGroup?
         get() = getOrElse(CachedAccessibilityPropertyKeys.interopWrappingView) {
             cachedConfig.getOrNull(InteropViewSemanticsKey)?.also {
                 it.actualAccessibilityContainer = parent?.accessibilityContainer

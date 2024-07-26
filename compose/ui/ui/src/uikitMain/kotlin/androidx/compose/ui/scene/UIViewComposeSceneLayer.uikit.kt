@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.interop.UIKitInteropContainer
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.skiko.RecordDrawRectRenderDecorator
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.asDpOffset
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
+import androidx.compose.ui.viewinterop.UIKitInteropContainer
 import androidx.compose.ui.window.ComposeContainer
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.ProvideContainerCompositionLocals
@@ -149,8 +149,10 @@ internal class UIViewComposeSceneLayer(
         composeContainer.attachLayer(this)
     }
 
-    private fun createSkikoUIView(interopContainer: UIKitInteropContainer, renderDelegate: SkikoRenderDelegate): RenderingUIView =
-        RenderingUIView(
+    private fun createSkikoUIView(
+        interopContainer: UIKitInteropContainer,
+        renderDelegate: SkikoRenderDelegate
+    ) = RenderingUIView(
             renderDelegate = recordDrawBounds(renderDelegate),
             retrieveInteropTransaction = {
                 interopContainer.retrieveTransaction()

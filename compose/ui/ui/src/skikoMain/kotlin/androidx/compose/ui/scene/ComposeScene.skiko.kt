@@ -30,7 +30,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.viewinterop.InteropViewAnchorModifierNode
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -46,6 +45,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.compose.ui.viewinterop.pointerInteropFilter
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import org.jetbrains.skiko.currentNanoTime
@@ -236,7 +236,7 @@ interface ComposeScene {
 
     /**
      * Perform hit test and return the [InteropView] associated with the resulting node
-     * in case it has a [InteropViewAnchorModifierNode], otherwise return null.
+     * in case it has a [Modifier.pointerInteropFilter], otherwise return null.
      * @param position The position of the hit test.
      * @return The [InteropView] associated with the resulting node in case there is any, or null.
      */

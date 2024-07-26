@@ -19,6 +19,7 @@ package androidx.compose.ui.viewinterop
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.ui.InternalComposeUiApi
 
+// TODO: Rename to InteropViewHolder: No need for typealiases and it's not a factory
 @InternalComposeUiApi
 internal expect class InteropViewFactoryHolder : ComposeNodeLifecycleCallback {
     fun getInteropView(): InteropView?

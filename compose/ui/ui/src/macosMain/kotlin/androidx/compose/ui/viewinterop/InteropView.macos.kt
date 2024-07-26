@@ -16,9 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
-/**
- * A typealias for the platform's built-in View type, which may be hosted inside of a Compose UI
- * hierarchy to allow for interoperability. Not all platforms support interoperability in this way,
- * in which case the typealias will resolve to [Any].
- */
 actual typealias InteropView = Any
+
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+internal actual typealias InteropViewGroup = Any

@@ -23,7 +23,6 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
-import androidx.compose.ui.awt.SwingInteropContainer
 import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.awt.runOnEDTThread
 import androidx.compose.ui.focus.FocusDirection
@@ -58,6 +57,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.SwingInteropContainer
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
@@ -160,7 +160,7 @@ internal class ComposeSceneMediator(
      * native views/components to [container].
      */
     private val interopContainer = SwingInteropContainer(
-        container = container,
+        root = container,
         placeInteropAbove = !useInteropBlending || metalOrderHack
     )
 

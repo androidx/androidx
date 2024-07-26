@@ -38,9 +38,6 @@ import androidx.compose.ui.input.pointer.HistoricalChange
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.interop.LocalUIKitInteropContainer
-import androidx.compose.ui.interop.UIKitInteropContainer
-import androidx.compose.ui.node.TrackInteropContainer
 import androidx.compose.ui.platform.AccessibilityMediator
 import androidx.compose.ui.platform.AccessibilitySyncOptions
 import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
@@ -72,6 +69,9 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.compose.ui.viewinterop.LocalInteropContainer
+import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
+import androidx.compose.ui.viewinterop.UIKitInteropContainer
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.FocusStack
@@ -297,7 +297,7 @@ internal class ComposeSceneMediator(
      * Container for managing UIKitView and UIKitViewController
      */
     private val interopContainer = UIKitInteropContainer(
-        containerView = interactionView,
+        root = interactionView,
         requestRedraw = ::onComposeSceneInvalidate
     )
 
@@ -476,7 +476,7 @@ internal class ComposeSceneMediator(
                  */
                 if (renderingView.isReadyToShowContent.value) {
                     ProvideComposeSceneMediatorCompositionLocals {
-                        interopContainer.TrackInteropContainer(
+                        interopContainer.TrackInteropPlacementContainer(
                             content = content
                         )
                     }
@@ -502,7 +502,7 @@ internal class ComposeSceneMediator(
     @Composable
     private fun ProvideComposeSceneMediatorCompositionLocals(content: @Composable () -> Unit) =
         CompositionLocalProvider(
-            LocalUIKitInteropContainer provides interopContainer,
+            LocalInteropContainer provides interopContainer,
             LocalKeyboardOverlapHeight provides keyboardOverlapHeightState.value,
             LocalSafeArea provides safeAreaState.value,
             LocalLayoutMargins provides layoutMarginsState.value,

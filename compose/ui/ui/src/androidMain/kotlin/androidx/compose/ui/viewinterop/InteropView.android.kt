@@ -17,5 +17,8 @@
 package androidx.compose.ui.viewinterop
 
 import android.view.View
+import android.view.ViewGroup
 
 actual typealias InteropView = View
+
+internal actual typealias InteropViewGroup = ViewGroup

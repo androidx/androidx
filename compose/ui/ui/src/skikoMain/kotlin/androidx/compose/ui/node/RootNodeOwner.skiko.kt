@@ -84,8 +84,9 @@ import androidx.compose.ui.unit.toIntRect
 import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastAll
 import androidx.compose.ui.util.trace
+import androidx.compose.ui.viewinterop.InteropPointerInputModifier
 import androidx.compose.ui.viewinterop.InteropView
-import androidx.compose.ui.viewinterop.InteropViewAnchorModifierNode
+import androidx.compose.ui.viewinterop.pointerInteropFilter
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.max
 import kotlin.math.min
@@ -268,15 +269,16 @@ internal class RootNodeOwner(
 
     /**
      * Perform hit test and return the [InteropView] associated with the resulting
-     * [PointerInputModifierNode] node in case it is a [InteropViewAnchorModifierNode], otherwise null.
+     * [PointerInputModifierNode] node in case it is a [Modifier.pointerInteropFilter],
+     * otherwise null.
      */
     fun hitTestInteropView(position: Offset): InteropView? {
         val result = HitTestResult()
         owner.root.hitTest(position, result, true)
 
-        val node = result.lastOrNull() as? InteropViewAnchorModifierNode ?: return null
-
-        return node.interopView
+        val last = result.lastOrNull() as? BackwardsCompatNode
+        val node = last?.element as? InteropPointerInputModifier
+        return node?.interopView
     }
 
     private fun isInBounds(localPosition: Offset): Boolean =
@@ -460,6 +462,7 @@ internal class RootNodeOwner(
 
         @InternalComposeUiApi
         override fun onInteropViewLayoutChange(view: InteropView) {
+            // TODO dispatch platform re-layout
         }
 
         override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
