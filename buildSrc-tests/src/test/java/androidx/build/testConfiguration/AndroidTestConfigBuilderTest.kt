@@ -487,6 +487,7 @@ private val goldenDefaultConfigBenchmark = """
     <option name="package" value="com.androidx.placeholder.Placeholder" />
     <option name="device-listeners" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
     <option name="device-listeners" value="androidx.benchmark.junit4.SideEffectRunListener" />
+    <option name="instrumentation-arg" key="androidx.benchmark.cpuEventCounter.enable" value="true" />
     </test>
     </configuration>
 """.trimIndent()
