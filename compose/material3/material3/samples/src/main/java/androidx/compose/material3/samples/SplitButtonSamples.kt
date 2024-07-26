@@ -20,9 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -47,7 +45,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
@@ -59,11 +56,11 @@ fun SplitButtonSample() {
     SplitButton(
         leadingButton = {
             SplitButtonDefaults.LeadingButton(
-                modifier = Modifier.height(48.dp),
                 onClick = { /* Do Nothing */ },
             ) {
                 Icon(
                     Icons.Outlined.Edit,
+                    modifier = Modifier.size(20.dp),
                     contentDescription = "Localized description",
                 )
                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
@@ -72,7 +69,7 @@ fun SplitButtonSample() {
         },
         trailingButton = {
             SplitButtonDefaults.AnimatedTrailingButton(
-                modifier = Modifier.size(48.dp),
+                modifier = Modifier.fillMaxHeight(),
                 onClick = { expanded = !expanded },
                 expanded = expanded,
             ) {
@@ -83,7 +80,7 @@ fun SplitButtonSample() {
                     )
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -105,11 +102,11 @@ fun FilledSplitButtonSample() {
         leadingContent = {
             Icon(
                 Icons.Outlined.Edit,
-                contentDescription = "Localized description",
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier.size(20.dp),
+                contentDescription = "Localized description"
             )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-            Text("My Button", fontSize = 18.sp)
+            Text("My Button")
         },
         trailingContent = {
             val rotation: Float by
@@ -117,13 +114,10 @@ fun FilledSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(
-                modifier = Modifier.fillMaxHeight().aspectRatio(1f),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.size(38.dp).graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -143,7 +137,11 @@ fun TonalSplitButtonSample() {
         expanded = expanded,
         onTrailingButtonClick = { expanded = !expanded },
         leadingContent = {
-            Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            Icon(
+                Icons.Outlined.Edit,
+                modifier = Modifier.size(20.dp),
+                contentDescription = "Localized description"
+            )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text("My Button")
         },
@@ -153,10 +151,10 @@ fun TonalSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -176,7 +174,11 @@ fun ElevatedSplitButtonSample() {
         expanded = expanded,
         onTrailingButtonClick = { expanded = !expanded },
         leadingContent = {
-            Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            Icon(
+                Icons.Outlined.Edit,
+                modifier = Modifier.size(20.dp),
+                contentDescription = "Localized description"
+            )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text("My Button")
         },
@@ -186,10 +188,10 @@ fun ElevatedSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -209,7 +211,11 @@ fun OutlinedSplitButtonSample() {
         expanded = expanded,
         onTrailingButtonClick = { expanded = !expanded },
         leadingContent = {
-            Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            Icon(
+                Icons.Outlined.Edit,
+                modifier = Modifier.size(20.dp),
+                contentDescription = "Localized description"
+            )
             Spacer(Modifier.size(ButtonDefaults.IconSpacing))
             Text("My Button")
         },
@@ -219,10 +225,10 @@ fun OutlinedSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(modifier = Modifier.size(44.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -249,7 +255,7 @@ fun SplitButtonWithTextSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.fillMaxHeight()
             ) {
                 val rotation: Float by
                     animateFloatAsState(
@@ -258,7 +264,7 @@ fun SplitButtonWithTextSample() {
                     )
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
@@ -281,6 +287,7 @@ fun SplitButtonWithIconSample() {
                 Icon(
                     Icons.Outlined.Edit,
                     contentDescription = "Localized description",
+                    Modifier.size(20.dp)
                 )
             }
         },
@@ -288,7 +295,7 @@ fun SplitButtonWithIconSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
-                modifier = Modifier.size(44.dp)
+                modifier = Modifier.fillMaxHeight()
             ) {
                 val rotation: Float by
                     animateFloatAsState(
@@ -297,7 +304,7 @@ fun SplitButtonWithIconSample() {
                     )
                 Icon(
                     Icons.Outlined.KeyboardArrowDown,
-                    modifier = Modifier.graphicsLayer { this.rotationZ = rotation },
+                    modifier = Modifier.size(20.dp).graphicsLayer { this.rotationZ = rotation },
                     contentDescription = "Localized description"
                 )
             }
