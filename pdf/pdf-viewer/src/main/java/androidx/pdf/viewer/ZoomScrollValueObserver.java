@@ -47,6 +47,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final ObservableValue<ViewState> mViewState;
 
     private static final int FAB_ANIMATION_DURATION = 200;
+    private boolean mIsPageScrollingUp;
 
     public ZoomScrollValueObserver(@NonNull ZoomView zoomView, @NonNull PaginatedView paginatedView,
             @NonNull LayoutHandler layoutHandler,
@@ -65,6 +66,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         mIsAnnotationIntentResolvable = isAnnotationIntentResolvable;
         mViewState = viewState;
         mAnnotationButtonHandler = new Handler(Looper.getMainLooper());
+        mIsPageScrollingUp = false;
     }
 
     @Override
@@ -78,6 +80,13 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 position.stable)) {
             showFastScrollView();
         }
+
+        if (oldPosition.scrollY > position.scrollY) {
+            mIsPageScrollingUp = true;
+        } else if (oldPosition.scrollY < position.scrollY) {
+            mIsPageScrollingUp = false;
+        }
+
         mAnnotationButtonHandler.removeCallbacksAndMessages(null);
 
         if (mIsAnnotationIntentResolvable) {
@@ -85,6 +94,9 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             if (!isAnnotationButtonVisible() && position.scrollY == 0
                     && mFindInFileView.getVisibility() == View.GONE) {
                 editFabExpandAnimation();
+            } else if (isAnnotationButtonVisible() && mIsPageScrollingUp) {
+                clearAnnotationHandler();
+                return;
             }
             if (position.scrollY == oldPosition.scrollY) {
                 mAnnotationButtonHandler.post(new Runnable() {
