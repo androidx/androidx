@@ -31,13 +31,6 @@ plugins {
 
 dependencies {
     api(project(":tracing:tracing"))
-    api(libs.kotlinStdlib)
-
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.kotlinCoroutinesAndroid)
-    testImplementation(libs.junit)
 }
 
 androidx {

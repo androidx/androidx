@@ -302,3 +302,97 @@ object Trace {
     private fun String.truncatedTraceSectionLabel(): String =
         takeIf { it.length <= MAX_TRACE_LABEL_LENGTH } ?: substring(0, MAX_TRACE_LABEL_LENGTH)
 }
+
+/**
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with the supplied [label]) and
+ * [Trace.endSection].
+ *
+ * @param label A name of the code section to appear in the trace.
+ * @param block A block of code which is being traced.
+ */
+public inline fun <T> trace(label: String, block: () -> T): T {
+    androidx.tracing.Trace.beginSection(label)
+    try {
+        return block()
+    } finally {
+        androidx.tracing.Trace.endSection()
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Trace.beginSection] (with a lazy-computed [lazyLabel],
+ * only if tracing is enabled - [Trace.isEnabled]) and [Trace.endSection].
+ *
+ * This variant allows you to build a dynamic label, but only when tracing is enabled, avoiding the
+ * cost of String construction otherwise.
+ *
+ * @param lazyLabel A name of the code section to appear in the trace, computed lazily if needed.
+ * @param block A block of code which is being traced.
+ */
+public inline fun <T> trace(lazyLabel: () -> String, block: () -> T): T {
+    val isEnabled = androidx.tracing.Trace.isEnabled()
+    if (isEnabled) {
+        androidx.tracing.Trace.beginSection(lazyLabel())
+    }
+    try {
+        return block()
+    } finally {
+        if (isEnabled) {
+            androidx.tracing.Trace.endSection()
+        }
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Trace.beginAsyncSection] (with the supplied [methodName]
+ * and [cookie]) and [Trace.endAsyncSection].
+ *
+ * @param methodName The method name to appear in the trace.
+ * @param cookie Unique identifier for distinguishing simultaneous events
+ * @param block A code block to be wrapped between [Trace.beginAsyncSection] and
+ *   [Trace.endAsyncSection].
+ */
+public suspend inline fun <T> traceAsync(
+    methodName: String,
+    cookie: Int,
+    crossinline block: suspend () -> T
+): T {
+    androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
+    try {
+        return block()
+    } finally {
+        androidx.tracing.Trace.endAsyncSection(methodName, cookie)
+    }
+}
+
+/**
+ * Wrap the specified [block] in calls to [Trace.beginAsyncSection] and [Trace.endAsyncSection],
+ * with a lazy-computed [lazyMethodName] and [lazyCookie], only if tracing is
+ * enabled - [Trace.isEnabled].
+ *
+ * @param lazyMethodName The method name to appear in the trace, computed lazily if needed.
+ * @param lazyCookie Unique identifier for distinguishing simultaneous events, computed lazily if
+ *   needed.
+ * @param block a code block to be wrapped between [Trace.beginAsyncSection] and
+ *   [Trace.endAsyncSection].
+ */
+public inline fun <T> traceAsync(
+    lazyMethodName: () -> String,
+    lazyCookie: () -> Int,
+    block: () -> T
+): T {
+    var methodName: String? = null
+    var cookie = 0
+    if (androidx.tracing.Trace.isEnabled()) {
+        methodName = lazyMethodName()
+        cookie = lazyCookie()
+        androidx.tracing.Trace.beginAsyncSection(methodName, cookie)
+    }
+    try {
+        return block()
+    } finally {
+        if (methodName != null) {
+            androidx.tracing.Trace.endAsyncSection(methodName, cookie)
+        }
+    }
+}
