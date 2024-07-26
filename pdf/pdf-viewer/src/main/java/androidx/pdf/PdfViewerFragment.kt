@@ -371,10 +371,6 @@ open class PdfViewerFragment : Fragment() {
      * @param savedState Saved state (e.g., layout) or null.
      */
     private fun setContents(savedState: Bundle?) {
-        createModelsAndHandlers(pdfLoader!!)
-        configureViewsAndModels()
-        initializeAndAddObservers()
-
         savedState?.let { state ->
             state.containsKey(KEY_LAYOUT_REACH).let {
                 val layoutReach = state.getInt(KEY_LAYOUT_REACH)
@@ -402,6 +398,9 @@ open class PdfViewerFragment : Fragment() {
             isAnnotationIntentResolvable =
                 showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
         }
+        createModelsAndHandlers(pdfLoader!!)
+        configureViewsAndModels()
+        initializeAndAddObservers()
     }
 
     /**
@@ -431,6 +430,7 @@ open class PdfViewerFragment : Fragment() {
                 paginationModel!!,
                 layoutHandler!!
             )
+        singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
         pageViewFactory =
             PageViewFactory(
                 requireContext(),
