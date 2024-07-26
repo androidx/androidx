@@ -358,6 +358,16 @@ public class PaginationModel {
     }
 
     /**
+     * Returns the number of pages in the document.
+     *
+     * @throws IllegalStateException if this is called before the model is initialized
+     */
+    public int getNumPages() {
+        Preconditions.checkState(mMaxPages != -1, "Model is not initialized");
+        return mMaxPages;
+    }
+
+    /**
      * Returns the intersection of this model and the last viewArea that was reported to this model
      * via {@link #setViewArea(Rect)}.
      */

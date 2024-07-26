@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.pdf.viewer;
+package androidx.pdf.widget;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
+import android.view.LayoutInflater;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -28,7 +28,6 @@ import androidx.annotation.VisibleForTesting;
 import androidx.pdf.R;
 import androidx.pdf.data.Range;
 import androidx.pdf.util.Accessibility;
-import androidx.pdf.widget.ReusableToast;
 
 import java.util.Objects;
 
@@ -52,8 +51,8 @@ public class PageIndicator extends ReusableToast {
 
     private float mCurrentZoom;
 
-    public PageIndicator(@NonNull Activity activity, @NonNull ViewGroup container) {
-        this(activity, inflateView(activity, container), Accessibility.get());
+    PageIndicator(Context context, ViewGroup container) {
+        this(context, inflateView(context, container), Accessibility.get());
     }
 
     @VisibleForTesting
@@ -109,8 +108,8 @@ public class PageIndicator extends ReusableToast {
         return shown;
     }
 
-    private static TextView inflateView(Activity activity, ViewGroup container) {
-        activity.getLayoutInflater().inflate(R.layout.page_indicator, container);
+    private static TextView inflateView(Context context, ViewGroup container) {
+        LayoutInflater.from(context).inflate(R.layout.page_indicator, container);
         return (TextView) container.findViewById(R.id.pdf_page_num);
     }
 

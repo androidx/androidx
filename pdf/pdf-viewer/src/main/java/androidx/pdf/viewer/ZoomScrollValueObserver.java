@@ -25,11 +25,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.ViewState;
-import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
 import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.ObservableValue;
-import androidx.pdf.widget.FastScrollView;
 import androidx.pdf.widget.ZoomView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -42,8 +40,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final FloatingActionButton mAnnotationButton;
     private final Handler mAnnotationButtonHandler;
     private final FindInFileView mFindInFileView;
-    private final PageIndicator mPageIndicator;
-    private final FastScrollView mFastScrollView;
     private boolean mIsAnnotationIntentResolvable;
     private final SelectionActionMode mSelectionActionMode;
     private final ObservableValue<ViewState> mViewState;
@@ -51,12 +47,10 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private static final int FAB_ANIMATION_DURATION = 200;
     private boolean mIsPageScrollingUp;
 
-    public ZoomScrollValueObserver(@NonNull ZoomView zoomView, @NonNull PaginatedView paginatedView,
-            @NonNull LayoutHandler layoutHandler,
-            @Nullable FloatingActionButton annotationButton,
-            @Nullable FindInFileView findInFileView,
-            @NonNull PageIndicator pageIndicator, @NonNull FastScrollView fastScrollView,
-            boolean isAnnotationIntentResolvable,
+    public ZoomScrollValueObserver(@Nullable ZoomView zoomView,
+            @Nullable PaginatedView paginatedView,
+            @NonNull LayoutHandler layoutHandler, @NonNull FloatingActionButton annotationButton,
+            @NonNull FindInFileView findInFileView, boolean isAnnotationIntentResolvable,
             @NonNull SelectionActionMode selectionActionMode,
             @NonNull ObservableValue<ViewState> viewState) {
         mZoomView = zoomView;
@@ -64,8 +58,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         mLayoutHandler = layoutHandler;
         mAnnotationButton = annotationButton;
         mFindInFileView = findInFileView;
-        mPageIndicator = pageIndicator;
-        mFastScrollView = fastScrollView;
         mIsAnnotationIntentResolvable = isAnnotationIntentResolvable;
         mSelectionActionMode = selectionActionMode;
         mViewState = viewState;
@@ -77,22 +69,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     public void onChange(@Nullable ZoomView.ZoomScroll oldPosition,
             @Nullable ZoomView.ZoomScroll position) {
         loadPageAssets(position);
-        Range visiblePageRange = mPaginatedView.getPageRangeHandler()
-                .computeVisibleRange(position.scrollY, position.zoom,
-                        mZoomView.getHeight(), false);
-        if (mPageIndicator.setRangeAndZoom(visiblePageRange, position.zoom,
-                position.stable)) {
-            showFastScrollView();
-        }
-
-        if (oldPosition.scrollY > position.scrollY) {
-            mIsPageScrollingUp = true;
-        } else if (oldPosition.scrollY < position.scrollY) {
-            mIsPageScrollingUp = false;
-        }
-
-        mAnnotationButtonHandler.removeCallbacksAndMessages(null);
-
         if (mIsAnnotationIntentResolvable) {
 
             if (!isAnnotationButtonVisible() && position.scrollY == 0
@@ -143,7 +119,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         scaleAnimator.addUpdateListener(
                 new ValueAnimator.AnimatorUpdateListener() {
                     @Override
-                    public void onAnimationUpdate(ValueAnimator animation) {
+                    public void onAnimationUpdate(@NonNull ValueAnimator animation) {
                         float scale = (float) animation.getAnimatedValue();
                         mAnnotationButton.setScaleX(scale);
                         mAnnotationButton.setScaleY(scale);
@@ -155,6 +131,9 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     }
 
     private void loadPageAssets(ZoomView.ZoomScroll position) {
+        if (!mPaginatedView.getPaginationModel().isInitialized()) {
+            return;
+        }
         // Change the resolution of the bitmaps only when a gesture is not in progress.
         if (position.stable || mZoomView.getStableZoom() == 0) {
             mZoomView.setStableZoom(position.zoom);
@@ -186,13 +165,8 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         }
     }
 
-    private void showFastScrollView() {
-        if (mFastScrollView != null) {
-            mFastScrollView.setVisible();
-        }
-    }
 
-    /** Exposing a function to clear the handler when PDFViewer Fragment is destroyed.*/
+    /** Exposing a function to clear the handler when PDFViewer Fragment is destroyed. */
     public void clearAnnotationHandler() {
         mAnnotationButtonHandler.removeCallbacksAndMessages(null);
     }

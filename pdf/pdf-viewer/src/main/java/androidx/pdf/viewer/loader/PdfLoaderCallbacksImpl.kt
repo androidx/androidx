@@ -40,7 +40,6 @@ import androidx.pdf.util.TileBoard
 import androidx.pdf.util.Toaster
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
-import androidx.pdf.viewer.PageIndicator
 import androidx.pdf.viewer.PageMosaicView
 import androidx.pdf.viewer.PageViewFactory
 import androidx.pdf.viewer.PaginatedView
@@ -63,7 +62,6 @@ class PdfLoaderCallbacksImpl(
     private var paginatedView: PaginatedView,
     private var loadingView: LoadingView,
     private var annotationButton: FloatingActionButton,
-    private var pageIndicator: PageIndicator,
     private var viewState: ExposedValue<ViewState>,
     private val fragmentContainerView: View?,
     private val onRequestPassword: (Boolean) -> Unit,
@@ -95,10 +93,6 @@ class PdfLoaderCallbacksImpl(
     @UiThread
     fun hideSpinner() {
         loadingView.visibility = View.GONE
-    }
-
-    private fun showFastScrollView() {
-        fastScrollView.setVisible()
     }
 
     private fun lookAtSelection(selection: SelectedMatch?) {
@@ -228,10 +222,11 @@ class PdfLoaderCallbacksImpl(
             paginatedView.model = paginatedView.paginationModel
             paginatedView.let { paginatedView.paginationModel.addObserver(it) }
 
+            fastScrollView.setPaginationModel(paginatedView.paginationModel)
+
             dismissPasswordDialog()
 
             layoutHandler!!.maybeLayoutPages(1)
-            pageIndicator.setNumPages(numPages)
             searchModel?.setNumPages(numPages)
         }
     }
@@ -303,12 +298,6 @@ class PdfLoaderCallbacksImpl(
                     true
                 )
             if (newRange.isEmpty) {
-                // During fast-scroll, we mostly don't need to fetch assets, but
-                // make sure we keep pushing layout bounds far enough, and update
-                // page numbers as we "scroll" down.
-                if (pageIndicator.setRangeAndZoom(newRange, zoomView.stableZoom, false)) {
-                    showFastScrollView()
-                }
                 layoutHandler!!.maybeLayoutPages(newRange.last)
             } else if (newRange.contains(pageNum)) {
                 // The new page is visible, fetch its assets.

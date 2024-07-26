@@ -34,7 +34,7 @@ public interface PaginationModelObserver {
      * <p>The {@link PaginationModel} does not enforce any implementation expectations.
      * Implementations are free to use this information as desired.
      */
-    void onPageAdded();
+    default void onPageAdded() {}
 
     /**
      * Notifies the implementation that the {@code viewArea} of the {@link PaginationModel} has
@@ -43,5 +43,5 @@ public interface PaginationModelObserver {
      * <p>The {@link PaginationModel} does not enforce any implementation expectations.
      * Implementations are free to use this information as desired.
      */
-    void onViewAreaChanged();
+    default void onViewAreaChanged() {}
 }
