@@ -23,6 +23,7 @@ import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.util.GestureTracker.Gesture;
 
@@ -46,16 +47,16 @@ public abstract class GestureTrackingView extends FrameLayout {
         super(context);
     }
 
-    public GestureTrackingView(@NonNull Context context, @NonNull AttributeSet attrs) {
+    public GestureTrackingView(@NonNull Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public GestureTrackingView(@NonNull Context context, @NonNull AttributeSet attrs,
+    public GestureTrackingView(@NonNull Context context, @Nullable AttributeSet attrs,
             int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
-    public GestureTrackingView(@NonNull Context ctx, @NonNull AttributeSet attrs, int defStyleAttr,
+    public GestureTrackingView(@NonNull Context ctx, @Nullable AttributeSet attrs, int defStyleAttr,
             int defStyleRes) {
         super(ctx, attrs, defStyleAttr, defStyleRes);
     }

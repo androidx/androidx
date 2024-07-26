@@ -230,11 +230,15 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         mGestureTracker.setDelegateHandler(mGestureHandler);
     }
 
-    public ZoomView(@NonNull Context context, @NonNull AttributeSet attrs) {
+    public ZoomView(@NonNull Context context) {
+        this(context, null);
+    }
+
+    public ZoomView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public ZoomView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
+    public ZoomView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.ZoomView, defStyle,
