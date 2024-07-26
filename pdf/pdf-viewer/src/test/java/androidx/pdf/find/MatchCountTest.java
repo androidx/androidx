@@ -18,16 +18,11 @@ package androidx.pdf.find;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Build;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @RunWith(RobolectricTestRunner.class)
-//TODO: Remove minsdk check after sdk extension 13 release
-@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class MatchCountTest {
     private final MatchCount mMatchCount1 =
             new MatchCount(2, 10, true);

@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.Build
@@ -85,7 +84,7 @@ import kotlinx.coroutines.launch
  * @see documentUri
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-open class PdfViewerFragment : Fragment() {
+public open class PdfViewerFragment : Fragment() {
 
     // ViewModel to manage PdfLoader state
     private val viewModel: PdfLoaderViewModel by viewModels()
@@ -150,7 +149,7 @@ open class PdfViewerFragment : Fragment() {
      * message is displayed, and the detailed exception can be captured by overriding
      * [onLoadDocumentError].
      */
-    var documentUri: Uri? = null
+    public var documentUri: Uri? = null
         set(value) {
             field = value
             if (value != null) {
@@ -163,7 +162,7 @@ open class PdfViewerFragment : Fragment() {
      *
      * Set to `true` to display the menu, or `false` to hide it.
      */
-    var isTextSearchActive: Boolean = false
+    public var isTextSearchActive: Boolean = false
         set(value) {
             field = value
             findInFileView!!.setFindInFileView(value)
@@ -177,7 +176,7 @@ open class PdfViewerFragment : Fragment() {
      *
      * @param throwable [Throwable] that occurred during document loading.
      */
-    @Suppress("UNUSED_PARAMETER") fun onLoadDocumentError(throwable: Throwable) {}
+    @Suppress("UNUSED_PARAMETER") public fun onLoadDocumentError(throwable: Throwable) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -225,7 +224,6 @@ open class PdfViewerFragment : Fragment() {
                 zoomView!!,
                 paginatedView!!,
                 loadingView!!,
-                annotationButton!!,
                 viewState,
                 view,
                 onRequestPassword = { onScreen ->
@@ -237,17 +235,19 @@ open class PdfViewerFragment : Fragment() {
                         // will restart on the next onStart.
                         pdfLoader?.disconnect()
                     }
-                }
-            ) {
-                documentLoaded = true
-                if (shouldRedrawOnDocumentLoaded) {
-                    shouldRedrawOnDocumentLoaded = false
-                }
+                },
+                onDocumentLoaded = {
+                    documentLoaded = true
+                    if (shouldRedrawOnDocumentLoaded) {
+                        shouldRedrawOnDocumentLoaded = false
+                    }
 
-                if (annotationButton != null && isAnnotationIntentResolvable) {
-                    annotationButton?.visibility = View.VISIBLE
-                }
-            }
+                    if (annotationButton != null && isAnnotationIntentResolvable) {
+                        annotationButton?.visibility = View.VISIBLE
+                    }
+                },
+                onDocumentLoadFailure = { thrown -> onLoadDocumentError(thrown) }
+            )
 
         setUpEditFab()
 
@@ -304,7 +304,7 @@ open class PdfViewerFragment : Fragment() {
     }
 
     /** Called after this viewer exits the screen and becomes invisible to the user. */
-    protected fun onExit() {
+    private fun onExit() {
         participateInAccessibility(false)
         if (!documentLoaded) {
             // e.g. a password-protected pdf that wasn't loaded.
@@ -371,7 +371,6 @@ open class PdfViewerFragment : Fragment() {
      *
      * @param savedState Saved state (e.g., layout) or null.
      */
-    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     private fun setContents(savedState: Bundle?) {
         savedState?.let { state ->
             state.containsKey(KEY_LAYOUT_REACH).let {
@@ -518,6 +517,7 @@ open class PdfViewerFragment : Fragment() {
                 // app that owns it has been killed by the system. We will still recover,
                 // but log this.
                 viewState.set(ViewState.ERROR)
+                onLoadDocumentError(e)
             }
         }
     }
@@ -557,16 +557,14 @@ open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyView() {
-        if (zoomView != null) {
-            zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
-            zoomView = null
+        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
+        paginatedView?.let { view ->
+            view.removeAllViews()
+            paginationModel?.removeObserver(view)
         }
 
-        if (paginatedView != null) {
-            paginatedView?.removeAllViews()
-            paginationModel?.removeObserver(paginatedView!!)
-            paginatedView = null
-        }
+        zoomView = null
+        paginatedView = null
 
         pdfLoader?.cancelAll()
         documentLoaded = false
@@ -613,7 +611,9 @@ open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel?.let {
             outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
         }
-        outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, findInFileView!!.visibility == View.VISIBLE)
+        findInFileView?.let {
+            outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, it.visibility == View.VISIBLE)
+        }
     }
 
     private fun loadFile(fileUri: Uri) {
@@ -661,17 +661,11 @@ open class PdfViewerFragment : Fragment() {
                 }
 
                 override fun failed(thrown: Throwable) {
-                    finishActivity()
+                    onLoadDocumentError(thrown)
                 }
 
                 override fun progress(progress: Float) {}
             }]
-    }
-
-    private fun finishActivity() {
-        if (activity != null) {
-            requireActivity().finish()
-        }
     }
 
     private fun getFileName(fileUri: Uri): String {
@@ -695,9 +689,12 @@ open class PdfViewerFragment : Fragment() {
 
     private fun startViewer(contents: DisplayData) {
         Preconditions.checkNotNull(contents)
-
-        feed(contents)
-        postEnter()
+        try {
+            feed(contents)
+            postEnter()
+        } catch (exception: Exception) {
+            onLoadDocumentError(exception)
+        }
     }
 
     /** Feed this Viewer with contents to be displayed. */
@@ -725,7 +722,7 @@ open class PdfViewerFragment : Fragment() {
         startActivity(intent)
     }
 
-    companion object {
+    private companion object {
         /** Key for saving page layout reach in bundles. */
         private const val KEY_LAYOUT_REACH: String = "plr"
         private const val KEY_DATA: String = "data"

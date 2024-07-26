@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 import androidx.pdf.data.FutureValue.Callback;
 import androidx.pdf.data.FutureValues;
@@ -32,12 +30,9 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
-//TODO: Remove minsdk check after sdk extension 13 release
-@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class SettableFutureValueTest {
 
     private static final class TestCallback implements Callback<String> {

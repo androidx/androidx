@@ -34,7 +34,6 @@ import android.os.ext.SdkExtensions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Supplier;
 
 import java.util.List;
@@ -77,7 +76,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     public void render(@NonNull Bitmap bitmap) {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             mPdfRendererPage.render(bitmap, null, null, getRenderParams());
         } else {
             checkAndExecute(
@@ -87,7 +86,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     public void renderTile(@NonNull Bitmap bitmap,
             int left, int top, int scaledPageWidth, int scaledPageHeight) {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             int pageWidth = mPdfRendererPage.getWidth();
             int pageHeight = mPdfRendererPage.getHeight();
             Matrix transform = getTransformationMatrix(left, top, (float) scaledPageWidth,
@@ -112,7 +111,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @NonNull
     public List<PdfPageTextContent> getPageTextContents() {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getTextContents();
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.getTextContents());
@@ -120,7 +119,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @NonNull
     public List<PdfPageImageContent> getPageImageContents() {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getImageContents();
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.getImageContents());
@@ -129,7 +128,7 @@ class PdfPageAdapter implements AutoCloseable {
     @Nullable
     public PageSelection selectPageText(@NonNull SelectionBoundary start,
             @NonNull SelectionBoundary stop) {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.selectContent(start, stop);
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.selectContent(start, stop));
@@ -137,7 +136,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @NonNull
     public List<PageMatchBounds> searchPageText(@NonNull String query) {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.searchText(query);
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.searchText(query));
@@ -145,7 +144,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @NonNull
     public List<PdfPageLinkContent> getPageLinks() {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getLinkContents();
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.getLinkContents());
@@ -153,7 +152,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @NonNull
     public List<PdfPageGotoLinkContent> getPageGotoLinks() {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getGotoLinks();
         }
         return checkAndExecute(() -> mPdfRendererPreVPage.getGotoLinks());
@@ -194,7 +193,7 @@ class PdfPageAdapter implements AutoCloseable {
 
     @Override
     public void close() {
-        if (mPdfRendererPage != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             mPdfRendererPage.close();
             mPdfRendererPage = null;
         } else {

@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -24,20 +23,17 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-// TODO: Remove minsdk check after sdk extension 13 release
-@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class PdfViewerFragmentTest {
-    private lateinit var scenario: FragmentScenario<PdfViewerFragment>
-    private lateinit var fragment: PdfViewerFragment
+    private lateinit var scenario: FragmentScenario<androidx.pdf.PdfViewerFragment>
+    private lateinit var fragment: androidx.pdf.PdfViewerFragment
 
     @Before
     fun setup() {
         scenario =
             FragmentScenario.Companion.launchInContainer(
-                PdfViewerFragment::class.java,
+                androidx.pdf.PdfViewerFragment::class.java,
                 Bundle.EMPTY,
                 androidx.appcompat.R.style.Theme_AppCompat
             )

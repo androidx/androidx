@@ -25,7 +25,6 @@ import android.os.ext.SdkExtensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Supplier;
 
 import java.io.IOException;
@@ -38,7 +37,7 @@ class PdfRendererAdapter implements AutoCloseable {
     PdfRendererAdapter(@NonNull ParcelFileDescriptor parcelFileDescriptor,
             @NonNull String password)
             throws IOException, SecurityException {
-        if (BuildCompat.isAtLeastV()) {
+        if (Build.VERSION.SDK_INT >= 35) {
             LoadParams params = new LoadParams.Builder().setPassword(password).build();
             mPdfRenderer = new PdfRenderer(parcelFileDescriptor, params);
         } else {
@@ -59,21 +58,21 @@ class PdfRendererAdapter implements AutoCloseable {
     }
 
     public int getPageCount() {
-        if (mPdfRenderer != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getPageCount();
         }
         return checkAndExecute(() -> mPdfRendererPreV.getPageCount());
     }
 
     public int getDocumentLinearizationType() {
-        if (mPdfRenderer != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getDocumentLinearizationType();
         }
         return checkAndExecute(() -> mPdfRendererPreV.getDocumentLinearizationType());
     }
 
     public int getDocumentFormType() {
-        if (mPdfRenderer != null && BuildCompat.isAtLeastV()) {
+        if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getPdfFormType();
         }
         return checkAndExecute(() -> mPdfRendererPreV.getPdfFormType());
