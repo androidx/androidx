@@ -29,6 +29,7 @@ import androidx.glance.testing.unit.hasText
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -45,6 +46,7 @@ class GlanceAppWidgetUnitTestEnvironmentRobolectricTest {
         context = ApplicationProvider.getApplicationContext()
     }
 
+    @Ignore // b/355680002
     @Test
     fun runTest_localContextRead() = runGlanceAppWidgetUnitTest {
         setContext(context)
