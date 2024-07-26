@@ -108,6 +108,11 @@ public class PageIndicator extends ReusableToast {
         return shown;
     }
 
+    @NonNull
+    public TextView getTextView() {
+        return mPageNumberView;
+    }
+
     private static TextView inflateView(Context context, ViewGroup container) {
         LayoutInflater.from(context).inflate(R.layout.page_indicator, container);
         return (TextView) container.findViewById(R.id.pdf_page_num);

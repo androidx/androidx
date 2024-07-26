@@ -26,10 +26,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowInsets;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.pdf.R;
@@ -94,11 +96,15 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                 }
             };
 
-    public FastScrollView(@NonNull Context context, @NonNull AttributeSet attrs) {
+    public FastScrollView(@NonNull Context context) {
+        this(context, null);
+    }
+
+    public FastScrollView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-    public FastScrollView(@NonNull Context context, @NonNull AttributeSet attrs, int defStyle) {
+    public FastScrollView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
         setWillNotDraw(false);
@@ -210,6 +216,18 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
 
     public void setScrollbarMarginBottom(int scrollbarMarginBottom) {
         this.mTrackBottomMargin = scrollbarMarginBottom + mDragHandle.getMeasuredHeight() / 2;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public View getDragHandle() {
+        return mDragHandle;
+    }
+
+    @VisibleForTesting
+    @NonNull
+    public TextView getPageIndicator() {
+        return mPageIndicator.getTextView();
     }
 
     private void updateDragHandleX() {
