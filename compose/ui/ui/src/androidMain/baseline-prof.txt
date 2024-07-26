@@ -49,6 +49,10 @@ HSPLandroidx/compose/ui/geometry/**->**(**)**
 # graphics include everything
 HSPLandroidx/compose/ui/graphics/**->**(**)**
 
+#
+# spatial indexing include everything
+HSPLandroidx/compose/ui/spatial/**->**(**)**
+
 # input
 HSPLandroidx/compose/ui/input/InputMode;->**(**)**
 HSPLandroidx/compose/ui/input/InputModeManagerImpl;->**(**)**

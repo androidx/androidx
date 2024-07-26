@@ -67,6 +67,7 @@ import androidx.compose.ui.platform.invertTo
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsModifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -2367,6 +2368,8 @@ internal class MockOwner(
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
 
+    override val rectManager: RectManager = RectManager()
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
@@ -2508,6 +2511,9 @@ internal class MockOwner(
                 matrix.timesAssign(transform)
             }
 
+            override val underlyingMatrix: Matrix
+                get() = transform
+
             override fun inverseTransform(matrix: Matrix) {
                 matrix.timesAssign(inverseTransform)
             }
@@ -2525,6 +2531,8 @@ internal class MockOwner(
     override fun onLayoutChange(layoutNode: LayoutNode) {
         layoutChangeCount++
     }
+
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
 
     @InternalComposeUiApi override fun onInteropViewLayoutChange(view: InteropView) {}
 

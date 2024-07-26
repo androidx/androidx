@@ -91,6 +91,9 @@ internal interface OwnedLayer {
      */
     fun transform(matrix: Matrix)
 
+    /** The matrix associated with the affine transform of this layer */
+    val underlyingMatrix: Matrix
+
     /**
      * Calculates the transform from the layer to the parent and multiplies [matrix] by the
      * transform.

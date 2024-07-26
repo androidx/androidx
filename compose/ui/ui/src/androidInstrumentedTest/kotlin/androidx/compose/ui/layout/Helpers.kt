@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -149,6 +150,8 @@ private class FakeOwner(
 
     override fun onLayoutChange(layoutNode: LayoutNode) {}
 
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
+
     override fun onInteropViewLayoutChange(view: InteropView) {}
 
     @OptIn(InternalCoreApi::class) override var showLayoutBounds: Boolean = false
@@ -215,6 +218,8 @@ private class FakeOwner(
 
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
+
+    override val rectManager: RectManager = RectManager()
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -619,6 +624,9 @@ internal open class MockLayer() : OwnedLayer {
     ) {}
 
     override fun transform(matrix: Matrix) {}
+
+    override val underlyingMatrix: Matrix
+        get() = Matrix()
 
     override fun inverseTransform(matrix: Matrix) {}
 

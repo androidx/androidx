@@ -403,6 +403,9 @@ internal class GraphicsLayerOwnerLayer(
         return matrixCache
     }
 
+    override val underlyingMatrix: Matrix
+        get() = getMatrix()
+
     private fun getInverseMatrix(): Matrix? {
         val inverseMatrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
         if (!isInverseMatrixDirty) {
