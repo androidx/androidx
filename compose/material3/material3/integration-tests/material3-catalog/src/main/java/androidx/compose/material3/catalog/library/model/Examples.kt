@@ -103,12 +103,18 @@ import androidx.compose.material3.samples.IndeterminateLinearProgressIndicatorSa
 import androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.InputChipSample
 import androidx.compose.material3.samples.InputChipWithAvatarSample
+import androidx.compose.material3.samples.LargeAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
 import androidx.compose.material3.samples.LoadingIndicatorSample
+import androidx.compose.material3.samples.MediumAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.MediumFloatingActionButtonSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
@@ -177,6 +183,9 @@ import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
 import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
+import androidx.compose.material3.samples.SmallAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.SmallExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.SmallFloatingActionButtonSample
 import androidx.compose.material3.samples.SplitButtonSample
 import androidx.compose.material3.samples.SplitButtonWithIconSample
@@ -754,6 +763,27 @@ val ExtendedFABExamples =
             ExtendedFloatingActionButtonSample()
         },
         Example(
+            name = "SmallExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            SmallExtendedFloatingActionButtonSample()
+        },
+        Example(
+            name = "MediumExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            MediumExtendedFloatingActionButtonSample()
+        },
+        Example(
+            name = "LargeExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            LargeExtendedFloatingActionButtonSample()
+        },
+        Example(
             name = "ExtendedFloatingActionButtonTextSample",
             description = ExtendedFABExampleDescription,
             sourceUrl = ExtendedFABExampleSourceUrl,
@@ -761,11 +791,53 @@ val ExtendedFABExamples =
             ExtendedFloatingActionButtonTextSample()
         },
         Example(
+            name = "SmallExtendedFloatingActionButtonTextSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            SmallExtendedFloatingActionButtonTextSample()
+        },
+        Example(
+            name = "MediumExtendedFloatingActionButtonTextSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            MediumExtendedFloatingActionButtonTextSample()
+        },
+        Example(
+            name = "LargeExtendedFloatingActionButtonTextSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            LargeExtendedFloatingActionButtonTextSample()
+        },
+        Example(
             name = "AnimatedExtendedFloatingActionButtonSample",
             description = ExtendedFABExampleDescription,
             sourceUrl = ExtendedFABExampleSourceUrl,
         ) {
             AnimatedExtendedFloatingActionButtonSample()
+        },
+        Example(
+            name = "SmallAnimatedExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            SmallAnimatedExtendedFloatingActionButtonSample()
+        },
+        Example(
+            name = "MediumAnimatedExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            MediumAnimatedExtendedFloatingActionButtonSample()
+        },
+        Example(
+            name = "LargeAnimatedExtendedFloatingActionButtonSample",
+            description = ExtendedFABExampleDescription,
+            sourceUrl = ExtendedFABExampleSourceUrl,
+        ) {
+            LargeAnimatedExtendedFloatingActionButtonSample()
         },
     )
 
