@@ -89,6 +89,10 @@ androidXMultiplatform {
     }
 }
 
+dependencies {
+    lintPublish(project(":lifecycle:lifecycle-viewmodel-compose-lint"))
+}
+
 androidx {
     name = "Lifecycle ViewModel Compose"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
