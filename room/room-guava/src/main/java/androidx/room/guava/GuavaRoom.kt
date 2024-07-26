@@ -13,220 +13,221 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.room.guava;
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:JvmName("GuavaRoom")
 
-import android.annotation.SuppressLint;
-import android.os.CancellationSignal;
+package androidx.room.guava
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.arch.core.executor.ArchTaskExecutor;
-import androidx.concurrent.futures.ResolvableFuture;
-import androidx.room.RoomDatabase;
-import androidx.room.RoomSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteQuery;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.concurrent.Callable;
-import java.util.concurrent.Executor;
+import android.annotation.SuppressLint
+import android.os.CancellationSignal
+import androidx.annotation.RestrictTo
+import androidx.arch.core.executor.ArchTaskExecutor
+import androidx.concurrent.futures.ResolvableFuture
+import androidx.room.RoomDatabase
+import androidx.room.RoomSQLiteQuery
+import androidx.sqlite.db.SupportSQLiteQuery
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Callable
+import java.util.concurrent.Executor
 
 /**
- * A class to hold static methods used by code generation in Room's Guava compatibility library.
- *
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [ArchTaskExecutor]'s
+ * background-threaded Executor.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-@SuppressWarnings("unused") // Used in GuavaListenableFutureQueryResultBinder code generation.
-public class GuavaRoom {
+@SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
+public fun <T> createListenableFuture(
+    callable: Callable<T>,
+    query: RoomSQLiteQuery,
+    releaseQuery: Boolean
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = ArchTaskExecutor.getIOThreadExecutor(),
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = null
+    )
+}
 
-    private GuavaRoom() {}
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    callable: Callable<T>,
+    query: RoomSQLiteQuery,
+    releaseQuery: Boolean
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = roomDatabase.queryExecutor,
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = null
+    )
+}
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link ArchTaskExecutor}'s background-threaded Executor.
-     *
-     * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable,
-     *             RoomSQLiteQuery, boolean, CancellationSignal)}
-     */
-    @Deprecated
-    @SuppressLint("LambdaLast")
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final Callable<T> callable,
-            final RoomSQLiteQuery query,
-            final boolean releaseQuery) {
-        return createListenableFuture(
-                ArchTaskExecutor.getIOThreadExecutor(), callable, query, releaseQuery, null);
-    }
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@SuppressLint("LambdaLast")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    inTransaction: Boolean,
+    callable: Callable<T>,
+    query: RoomSQLiteQuery,
+    releaseQuery: Boolean
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = getExecutor(roomDatabase, inTransaction),
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = null
+    )
+}
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     *
-     * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable,
-     *             RoomSQLiteQuery, boolean, CancellationSignal)}
-     */
-    @Deprecated
-    @SuppressLint("LambdaLast")
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final RoomDatabase roomDatabase,
-            final Callable<T> callable,
-            final RoomSQLiteQuery query,
-            final boolean releaseQuery) {
-        return createListenableFuture(
-                roomDatabase.getQueryExecutor(), callable, query, releaseQuery, null);
-    }
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@SuppressLint("LambdaLast")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    inTransaction: Boolean,
+    callable: Callable<T>,
+    query: RoomSQLiteQuery,
+    releaseQuery: Boolean,
+    cancellationSignal: CancellationSignal?
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = getExecutor(roomDatabase, inTransaction),
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = cancellationSignal
+    )
+}
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     */
-    @SuppressLint("LambdaLast")
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final RoomDatabase roomDatabase,
-            final boolean inTransaction,
-            final Callable<T> callable,
-            final RoomSQLiteQuery query,
-            final boolean releaseQuery) {
-        return createListenableFuture(
-                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery, null);
-    }
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@SuppressLint("LambdaLast")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    inTransaction: Boolean,
+    callable: Callable<T>,
+    query: SupportSQLiteQuery,
+    releaseQuery: Boolean,
+    cancellationSignal: CancellationSignal?
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = getExecutor(roomDatabase, inTransaction),
+        callable = callable,
+        query = query,
+        releaseQuery = releaseQuery,
+        cancellationSignal = cancellationSignal
+    )
+}
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     */
-    @NonNull
-    @SuppressLint("LambdaLast")
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final @NonNull RoomDatabase roomDatabase,
-            final boolean inTransaction,
-            final @NonNull Callable<T> callable,
-            final @NonNull RoomSQLiteQuery query,
-            final boolean releaseQuery,
-            final @Nullable CancellationSignal cancellationSignal) {
-        return createListenableFuture(
-                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery,
-                cancellationSignal);
-    }
-
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     */
-    @NonNull
-    @SuppressLint("LambdaLast")
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final @NonNull RoomDatabase roomDatabase,
-            final boolean inTransaction,
-            final @NonNull Callable<T> callable,
-            final @NonNull SupportSQLiteQuery query,
-            final boolean releaseQuery,
-            final @Nullable CancellationSignal cancellationSignal) {
-        return createListenableFuture(
-                getExecutor(roomDatabase, inTransaction), callable, query, releaseQuery,
-                cancellationSignal);
-    }
-
-    private static <T> ListenableFuture<T> createListenableFuture(
-            final Executor executor,
-            final Callable<T> callable,
-            final SupportSQLiteQuery query,
-            final boolean releaseQuery,
-            final @Nullable CancellationSignal cancellationSignal) {
-
-        final ListenableFuture<T> future = createListenableFuture(executor, callable);
-        if (cancellationSignal != null) {
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    if (future.isCancelled()) {
-                        cancellationSignal.cancel();
-                    }
+private fun <T> createListenableFuture(
+    executor: Executor,
+    callable: Callable<T>,
+    query: SupportSQLiteQuery,
+    releaseQuery: Boolean,
+    cancellationSignal: CancellationSignal?
+): ListenableFuture<T> {
+    val future = createListenableFuture(executor, callable)
+    if (cancellationSignal != null) {
+        future.addListener(
+            {
+                if (future.isCancelled) {
+                    cancellationSignal.cancel()
                 }
-            }, sDirectExecutor);
-        }
+            },
+            directExecutor
+        )
+    }
 
-        if (releaseQuery) {
-            future.addListener(new Runnable() {
-                @Override
-                public void run() {
-                    if (query instanceof RoomSQLiteQuery) {
-                        ((RoomSQLiteQuery) query).release();
-                    }
+    if (releaseQuery) {
+        future.addListener(
+            {
+                if (query is RoomSQLiteQuery) {
+                    query.release()
                 }
-            }, sDirectExecutor);
+            },
+            directExecutor
+        )
+    }
+
+    return future
+}
+
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+@Deprecated("No longer used by generated code.")
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    callable: Callable<T>
+): ListenableFuture<T> {
+    return createListenableFuture(
+        roomDatabase = roomDatabase,
+        inTransaction = false,
+        callable = callable
+    )
+}
+
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
+ * [java.util.concurrent.Executor].
+ */
+public fun <T> createListenableFuture(
+    roomDatabase: RoomDatabase,
+    inTransaction: Boolean,
+    callable: Callable<T>
+): ListenableFuture<T> {
+    return createListenableFuture(
+        executor = getExecutor(roomDatabase, inTransaction),
+        callable = callable
+    )
+}
+
+/**
+ * Returns a [ListenableFuture] created by submitting the input `callable` to an
+ * [java.util.concurrent.Executor].
+ */
+private fun <T> createListenableFuture(
+    executor: Executor,
+    callable: Callable<T>
+): ListenableFuture<T> {
+    val future = ResolvableFuture.create<T>()
+    executor.execute {
+        try {
+            val result = callable.call()
+            future.set(result)
+        } catch (throwable: Throwable) {
+            future.setException(throwable)
         }
-
-        return future;
     }
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     *
-     * @deprecated Use {@link #createListenableFuture(RoomDatabase, boolean, Callable)}
-     */
-    @Deprecated
-    @NonNull
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final @NonNull RoomDatabase roomDatabase,
-            final @NonNull Callable<T> callable) {
-        return createListenableFuture(roomDatabase, false, callable);
-    }
+    return future
+}
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * {@link RoomDatabase}'s {@link java.util.concurrent.Executor}.
-     */
-    @NonNull
-    public static <T> ListenableFuture<T> createListenableFuture(
-            final @NonNull RoomDatabase roomDatabase,
-            final boolean inTransaction,
-            final @NonNull Callable<T> callable) {
-        return createListenableFuture(getExecutor(roomDatabase, inTransaction), callable);
-    }
+/** A Direct Executor. */
+private val directExecutor = Executor { runnable -> runnable.run() }
 
-    /**
-     * Returns a {@link ListenableFuture<T>} created by submitting the input {@code callable} to
-     * an {@link java.util.concurrent.Executor}.
-     */
-    @NonNull
-    private static <T> ListenableFuture<T> createListenableFuture(
-            final @NonNull Executor executor,
-            final @NonNull Callable<T> callable) {
-
-        final ResolvableFuture<T> future = ResolvableFuture.create();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    T result = callable.call();
-                    future.set(result);
-                } catch (Throwable throwable) {
-                    future.setException(throwable);
-                }
-            }
-        });
-
-        return future;
-    }
-
-    /**
-     * A Direct Executor.
-     */
-    private static Executor sDirectExecutor = new Executor() {
-        @Override
-        public void execute(@NonNull Runnable runnable) {
-            runnable.run();
-        }
-    };
-
-    private static Executor getExecutor(RoomDatabase database, boolean inTransaction) {
-        if (inTransaction) {
-            return database.getTransactionExecutor();
-        } else {
-            return database.getQueryExecutor();
-        }
+private fun getExecutor(database: RoomDatabase, inTransaction: Boolean): Executor {
+    return if (inTransaction) {
+        database.transactionExecutor
+    } else {
+        database.queryExecutor
     }
 }
