@@ -19,7 +19,6 @@ package androidx.compose.material3
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.fadeIn
@@ -38,6 +37,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.derivedStateOf
@@ -168,8 +168,9 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
     AnimatedVisibility(
         modifier = modifier.semantics { isTraversalGroup = true },
         visible = visible,
-        enter = fadeIn(animationSpec = springFastFlat()),
-        exit = fadeOut(animationSpec = springFastFlat())
+        // TODO Load the motionScheme tokens from the component tokens file
+        enter = fadeIn(animationSpec = MotionSchemeKeyTokens.FastEffects.value()),
+        exit = fadeOut(animationSpec = MotionSchemeKeyTokens.FastEffects.value())
     ) {
         // Disable min interactive component size because it interferes with the item expand
         // animation and we know we are meeting the size requirements below.
@@ -181,17 +182,18 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
                 onClick = onClick
             ) {
                 Row(
+                    // TODO Load the motionScheme tokens from the component tokens file
                     Modifier.animateEnterExit(
                             enter =
                                 expandHorizontally(
                                     expandFrom = getItemAnimationAlignment(horizontalAlignment),
-                                    animationSpec = springFastBouncy(),
+                                    animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
                                     clip = false
                                 ),
                             exit =
                                 shrinkHorizontally(
                                     shrinkTowards = getItemAnimationAlignment(horizontalAlignment),
-                                    animationSpec = springFastBouncy(),
+                                    animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
                                     clip = false
                                 )
                         )
@@ -264,7 +266,8 @@ fun ToggleableFloatingActionButton(
     val checkedProgress =
         animateFloatAsState(
             targetValue = if (checked) 1f else 0f,
-            animationSpec = springFastBouncy()
+            // TODO Load the motionScheme tokens from the component tokens file
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
         )
     ToggleableFloatingActionButton(
         checked,
@@ -487,7 +490,3 @@ private val FabMenuItemContentPaddingHorizontal = 16.dp
 private val FabMenuItemContentSpacingHorizontal = 8.dp
 private const val StaggerEnterDelayMillis = 35
 private const val StaggerExitDelayMillis = 25
-
-private fun <T> springFastBouncy() = spring<T>(0.6f, 800f)
-
-private fun <T> springFastFlat() = spring<T>(1f, 3800f)
