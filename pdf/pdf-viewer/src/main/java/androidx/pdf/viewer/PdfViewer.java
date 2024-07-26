@@ -678,6 +678,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                     // Callbacks should exit early if viewState == NO_VIEW (typically a Destroy
                     // is in progress).
                     @Override
+                    @SuppressWarnings("deprecation")
                     public void requestPassword(boolean incorrect) {
                         mIsPasswordProtected = true;
 
@@ -791,6 +792,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
                         }
                     }
 
+                    @SuppressWarnings("deprecation")
                     private void dismissPasswordDialog() {
                         DialogFragment passwordDialog = currentPasswordDialog(
                                 requireActivity().getSupportFragmentManager());

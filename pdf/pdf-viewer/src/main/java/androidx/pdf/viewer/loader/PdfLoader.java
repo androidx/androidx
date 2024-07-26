@@ -61,7 +61,7 @@ public class PdfLoader {
     private final DisplayData mData;
     private final boolean mHideTextAnnotations;
 
-    private final WeakPdfLoaderCallbacks mCallbacks;
+    private WeakPdfLoaderCallbacks mCallbacks;
 
     private final SparseArray<PdfPageLoader> mPageLoaders;
     private String mLoadedPassword;
@@ -131,6 +131,10 @@ public class PdfLoader {
 
     public void setNumPages(int numPages) {
         mNumPages = numPages;
+    }
+
+    public void setCallbacks(@NonNull WeakPdfLoaderCallbacks callbacks) {
+        mCallbacks = callbacks;
     }
 
     /** Schedule task to load a PdfDocument. */
@@ -274,7 +278,7 @@ public class PdfLoader {
     // PdfViewer, so it can be garbage collected if no longer in use, in which case the callbacks
     // all become no-ops.
     @NonNull
-    protected WeakPdfLoaderCallbacks getCallbacks() {
+    public WeakPdfLoaderCallbacks getCallbacks() {
         return mCallbacks;
     }
 
@@ -315,20 +319,26 @@ public class PdfLoader {
         @Override
         protected PdfStatus doInBackground(PdfDocumentRemoteProto pdfDocument)
                 throws RemoteException {
-            if (mData == null) {
-                return PdfStatus.FILE_ERROR;
-            }
+            PdfStatus result;
+            if (mConnection.isLoaded()) {
+                // Already loaded, skip the loading process (e.g., during screen rotation).
+                result = PdfStatus.LOADED;
+            } else {
+                if (mData == null) {
+                    return PdfStatus.FILE_ERROR;
+                }
 
-            // NOTE: This filedescriptor is not closed since it continues to be used by Pdfium.
-            // TODO: StrictMode- Look into filedescriptors more and document
-            // exactly when they should be opened and closed, making sure they are not leaked.
-            ParcelFileDescriptor fd = mData.openFd(mOpener);
+                // NOTE: This filedescriptor is not closed since it continues to be used by Pdfium.
+                // TODO: StrictMode- Look into filedescriptors more and document
+                // exactly when they should be opened and closed, making sure they are not leaked.
+                ParcelFileDescriptor fd = mData.openFd(mOpener);
 
-            if (fd == null || fd.getFd() == -1) {
-                return PdfStatus.FILE_ERROR;
+                if (fd == null || fd.getFd() == -1) {
+                    return PdfStatus.FILE_ERROR;
+                }
+                int statusIndex = pdfDocument.getPdfDocumentRemote().create(fd, mPassword);
+                result = PdfStatus.values()[statusIndex];
             }
-            int statusIndex = pdfDocument.getPdfDocumentRemote().create(fd, mPassword);
-            PdfStatus result = PdfStatus.values()[statusIndex];
 
             if (result == PdfStatus.LOADED) {
                 mNumPages = pdfDocument.getPdfDocumentRemote().numPages();
