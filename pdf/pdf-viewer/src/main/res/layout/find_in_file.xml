@@ -26,7 +26,6 @@
         android:layout_marginRight="5dp"
         android:background="@drawable/shape_textbox">
 
-        <!--        android:background = "@color/black"-->
         <androidx.pdf.widget.SearchEditText
             android:id="@+id/find_query_box"
             android:layout_width="wrap_content"
@@ -58,7 +57,7 @@
         android:layout_width="34dp"
         android:layout_height="34dp"
         android:background="@drawable/shape_oval"
-        android:src="@drawable/chevron_up"
+        android:src="@drawable/keyboard_up"
         app:tint="@color/search_prev_button"
         android:cropToPadding="true"
         android:padding="3dp"
@@ -70,7 +69,7 @@
         android:layout_width="34dp"
         android:layout_height="34dp"
         android:background="@drawable/shape_oval"
-        android:src="@drawable/chevron_down"
+        android:src="@drawable/keyboard_down"
         app:tint="@color/search_next_button"
         android:cropToPadding="true"
         android:padding="3dp"
