@@ -16,4 +16,5 @@
 
 package androidx.compose.foundation
 
-internal actual fun isMouseInputWorkaround(): Boolean = false
+// TODO https://youtrack.jetbrains.com/issue/CMP-5814/Review-Request-focus-on-click-feature
+internal expect fun isRequestFocusOnClickEnabled(): Boolean

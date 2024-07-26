@@ -16,4 +16,4 @@
 
 package androidx.compose.foundation
 
-internal actual fun isMouseInputWorkaround(): Boolean = true
+internal actual fun isRequestFocusOnClickEnabled(): Boolean = true

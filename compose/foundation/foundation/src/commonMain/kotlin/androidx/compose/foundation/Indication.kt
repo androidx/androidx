@@ -32,10 +32,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.input.InputModeManager
+import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateDraw
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
@@ -174,6 +178,14 @@ interface IndicationInstance {
 fun Modifier.indication(
     interactionSource: InteractionSource,
     indication: Indication?
+): Modifier = indicationImpl(
+    interactionSource,
+    platformIndication(indication)
+)
+
+private fun Modifier.indicationImpl(
+    interactionSource: InteractionSource,
+    indication: Indication?
 ): Modifier {
     if (indication == null) return this
     // Fast path - ideally we should never break into the composed path below.
@@ -184,18 +196,8 @@ fun Modifier.indication(
     // error-deprecated rememberUpdatedInstance
     return composed(
         factory = {
-            val inputModeManager = LocalInputModeManager.current
-            val filteredInteractionSource = remember(interactionSource) {
-                // When in Touch mode, skip the Focus interaction - its indication should not be drawn
-                TempInteractionSource(
-                    interactionSource.interactions.filter {
-                        !(inputModeManager.inputMode == InputMode.Touch && it is FocusInteraction.Focus)
-                    }
-                )
-            }
-
             @Suppress("DEPRECATION_ERROR")
-            val instance = indication.rememberUpdatedInstance(filteredInteractionSource)
+            val instance = indication.rememberUpdatedInstance(interactionSource)
             remember(instance) {
                 IndicationModifier(instance)
             }
@@ -374,4 +376,8 @@ private const val IndicationInstanceDeprecationMessage = "IndicationInstance has
     "IndicationNodeFactory#create. For a migration guide and background information, " +
     "please visit developer.android.com"
 
-private class TempInteractionSource(override val interactions: Flow<Interaction>):InteractionSource
+/**
+ * Some platforms add additional logic to the indication.
+ * For example, desktop/web in Compose Multiplatform hide focus indication depending on [InputMode]
+ */
+internal expect fun platformIndication(indication: Indication?): Indication?

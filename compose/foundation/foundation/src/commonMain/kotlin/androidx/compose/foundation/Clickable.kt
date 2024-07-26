@@ -364,7 +364,10 @@ internal inline fun Modifier.clickableWithIndicationIfNeeded(
 ): Modifier {
     return this.then(when {
         // Fast path - indication is managed internally
-        indication is IndicationNodeFactory -> createClickable(interactionSource, indication)
+        indication is IndicationNodeFactory -> createClickable(
+            interactionSource,
+            platformIndication(indication) as IndicationNodeFactory
+        )
         // Fast path - no need for indication
         indication == null -> createClickable(interactionSource, null)
         // Non-null Indication (not IndicationNodeFactory) with a non-null InteractionSource
@@ -1298,7 +1301,7 @@ internal fun TraversableNode.hasScrollableContainer(): Boolean {
 }
 
 private fun FocusRequesterModifierNode.requestFocusWhenInMouseInputMode() {
-    if (isMouseInputWorkaround()) {
+    if (isRequestFocusOnClickEnabled()) {
         requestFocus()
     }
 }

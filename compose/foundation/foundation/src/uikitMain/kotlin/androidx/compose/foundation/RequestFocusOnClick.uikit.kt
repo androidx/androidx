@@ -16,6 +16,4 @@
 
 package androidx.compose.foundation
 
-//TODO: Move this configuration to the top-level (ComposeScene.Platform, for example)
-// Issue https://github.com/JetBrains/compose-multiplatform/issues/3508
-internal expect fun isMouseInputWorkaround(): Boolean
+internal actual fun isRequestFocusOnClickEnabled(): Boolean = false
