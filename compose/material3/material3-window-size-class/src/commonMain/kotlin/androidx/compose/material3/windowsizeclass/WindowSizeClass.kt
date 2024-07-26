@@ -32,7 +32,7 @@ import androidx.compose.ui.util.fastForEach
  * WindowSizeClass contains a [WindowWidthSizeClass] and [WindowHeightSizeClass], representing the
  * window size classes for this window's width and height respectively.
  *
- * See [calculateWindowSizeClass] to calculate the WindowSizeClass for an Activity's current window
+ * See [calculateWindowSizeClass] to calculate the WindowSizeClass
  *
  * @property widthSizeClass width-based window size class ([WindowWidthSizeClass])
  * @property heightSizeClass height-based window size class ([WindowHeightSizeClass])

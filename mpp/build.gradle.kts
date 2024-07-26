@@ -52,6 +52,7 @@ val libraryToComponents = mapOf(
         ComposeComponent(":compose:material3:material3"),
         ComposeComponent(":compose:material:material-icons-core"),
         ComposeComponent(":compose:material:material-ripple"),
+        ComposeComponent(":compose:material3:material3-window-size-class"),
         ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:ui:ui"),

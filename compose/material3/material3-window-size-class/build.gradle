@@ -14,21 +14,29 @@
  * limitations under the License.
  */
 
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXComposeMultiplatform {
     android()
     desktop()
+    darwin()
+    wasm()
+    js()
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
@@ -42,7 +50,8 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
             }
         }
 
@@ -55,13 +64,6 @@ androidXMultiplatform {
 
         skikoMain {
             dependsOn(commonMain)
-            dependencies {
-                // Because dependencies are pinned in the android/common code.
-                implementation(project(":compose:ui:ui-util"))
-                api(project(":compose:runtime:runtime"))
-                api(project(":compose:ui:ui"))
-                api(project(":compose:ui:ui-unit"))
-            }
         }
 
         androidMain {
@@ -111,6 +113,27 @@ androidXMultiplatform {
 
             }
         }
+        wasmJsMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        skikoMain.dependsOn(commonMain)
+        desktopMain.dependsOn(skikoMain)
+        nonJvmMain.dependsOn(skikoMain)
+        webMain.dependsOn(nonJvmMain)
+        jsMain.dependsOn(webMain)
+        wasmJsMain.dependsOn(webMain)
+        nativeMain.dependsOn(nonJvmMain)
+
+        skikoTest.dependsOn(commonTest)
+        desktopTest.dependsOn(skikoTest)
+        nonJvmTest.dependsOn(skikoTest)
+        webTest.dependsOn(nonJvmTest)
+        jsTest.dependsOn(webTest)
+        wasmJsTest.dependsOn(webTest)
+        nativeTest.dependsOn(nonJvmTest)
     }
 }
 

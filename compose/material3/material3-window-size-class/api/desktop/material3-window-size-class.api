@@ -1,0 +1,71 @@
+public abstract interface annotation class androidx/compose/material3/windowsizeclass/ExperimentalMaterial3WindowSizeClassApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowHeightSizeClass : java/lang/Comparable {
+	public static final field Companion Landroidx/compose/material3/windowsizeclass/WindowHeightSizeClass$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/material3/windowsizeclass/WindowHeightSizeClass;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo-pav6bQQ (I)I
+	public static fun compareTo-pav6bQQ (II)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowHeightSizeClass$Companion {
+	public final fun getAllSizeClasses ()Ljava/util/Set;
+	public final fun getCompact-Pt018CI ()I
+	public final fun getDefaultSizeClasses ()Ljava/util/Set;
+	public final fun getExpanded-Pt018CI ()I
+	public final fun getMedium-Pt018CI ()I
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowSizeClass {
+	public static final field $stable I
+	public static final field Companion Landroidx/compose/material3/windowsizeclass/WindowSizeClass$Companion;
+	public synthetic fun <init> (IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHeightSizeClass-Pt018CI ()I
+	public final fun getWidthSizeClass-Y0FxcvE ()I
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowSizeClass$Companion {
+	public final fun calculateFromSize-qzXmJYc (JLjava/util/Set;Ljava/util/Set;)Landroidx/compose/material3/windowsizeclass/WindowSizeClass;
+	public static synthetic fun calculateFromSize-qzXmJYc$default (Landroidx/compose/material3/windowsizeclass/WindowSizeClass$Companion;JLjava/util/Set;Ljava/util/Set;ILjava/lang/Object;)Landroidx/compose/material3/windowsizeclass/WindowSizeClass;
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowSizeClass_skikoKt {
+	public static final fun calculateWindowSizeClass (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/windowsizeclass/WindowSizeClass;
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowWidthSizeClass : java/lang/Comparable {
+	public static final field Companion Landroidx/compose/material3/windowsizeclass/WindowWidthSizeClass$Companion;
+	public static final synthetic fun box-impl (I)Landroidx/compose/material3/windowsizeclass/WindowWidthSizeClass;
+	public synthetic fun compareTo (Ljava/lang/Object;)I
+	public fun compareTo-GxU_lZo (I)I
+	public static fun compareTo-GxU_lZo (II)I
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (ILjava/lang/Object;)Z
+	public static final fun equals-impl0 (II)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (I)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (I)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()I
+}
+
+public final class androidx/compose/material3/windowsizeclass/WindowWidthSizeClass$Companion {
+	public final fun getAllSizeClasses ()Ljava/util/Set;
+	public final fun getCompact-Y0FxcvE ()I
+	public final fun getDefaultSizeClasses ()Ljava/util/Set;
+	public final fun getExpanded-Y0FxcvE ()I
+	public final fun getMedium-Y0FxcvE ()I
+}
+
