@@ -23,10 +23,6 @@ plugins {
 android {
     namespace "androidx.privacysandbox.ui.integration.testaidl"
 
-    defaultConfig {
-        minSdk 33
-    }
-
     buildTypes {
         release {
             minifyEnabled false

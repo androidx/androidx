@@ -27,5 +27,6 @@ android {
 dependencies {
     implementation project(':privacysandbox:ui:ui-core')
     implementation project(':privacysandbox:ui:ui-provider')
+    implementation project(':privacysandbox:ui:integration-tests:testaidl')
     implementation project(':webkit:webkit')
 }

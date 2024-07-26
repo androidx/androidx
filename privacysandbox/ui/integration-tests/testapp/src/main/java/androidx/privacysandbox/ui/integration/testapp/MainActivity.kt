@@ -34,6 +34,7 @@ import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxProcessDeathCallbackCompat
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.ui.integration.sdkproviderutils.MediateeSdkApiImpl
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import com.google.android.material.navigation.NavigationView
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
                         AppOwnedSdkSandboxInterfaceCompat(
                             MEDIATEE_SDK_NAME,
                             /*version=*/ 0,
-                            AppOwnedMediateeSdkApi(applicationContext)
+                            MediateeSdkApiImpl(applicationContext)
                         )
                     )
                 }
