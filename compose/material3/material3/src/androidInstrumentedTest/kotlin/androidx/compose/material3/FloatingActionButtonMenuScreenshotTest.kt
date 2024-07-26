@@ -42,11 +42,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.isTraversalGroup
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -337,11 +332,7 @@ class FloatingActionButtonMenuScreenshotTest {
                 modifier =
                     Modifier.testTag(FabMenuTestTag)
                         .align(Alignment.BottomEnd)
-                        .padding(bottom = 16.dp, end = 16.dp)
-                        .semantics {
-                            isTraversalGroup = true
-                            traversalIndex = -1f
-                        },
+                        .padding(bottom = 16.dp, end = 16.dp),
                 horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButtonMenu(
@@ -361,13 +352,7 @@ class FloatingActionButtonMenuScreenshotTest {
                 }
 
                 ToggleableFloatingActionButton(
-                    modifier =
-                        Modifier.testTag(ToggleableFabTestTag).semantics {
-                            isTraversalGroup = true
-                            traversalIndex = -1f
-                            stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
-                            contentDescription = "Toggle menu"
-                        },
+                    modifier = Modifier.testTag(ToggleableFabTestTag),
                     checked = fabMenuExpanded,
                     onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
                     containerColor = containerColor,

@@ -50,7 +50,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
@@ -99,6 +101,25 @@ fun FloatingActionButtonMenuSample() {
             ) {
                 items.forEachIndexed { i, item ->
                     FloatingActionButtonMenuItem(
+                        modifier =
+                            Modifier.semantics {
+                                isTraversalGroup = true
+                                // Add a custom a11y action to allow closing the menu when focusing
+                                // the last menu item, since the close button comes before the first
+                                // menu item in the traversal order.
+                                if (i == itemsCount - 1) {
+                                    customActions =
+                                        listOf(
+                                            CustomAccessibilityAction(
+                                                label = "Close menu",
+                                                action = {
+                                                    fabMenuExpanded = false
+                                                    true
+                                                }
+                                            )
+                                        )
+                                }
+                            },
                         onClick = { fabMenuExpanded = false },
                         icon = { Icon(item.first, contentDescription = null) },
                         text = { Text(text = item.second) },
