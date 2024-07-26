@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verify;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.os.Build;
 
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.TileBoard.CancelTilesCallback;
@@ -44,6 +45,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,6 +55,8 @@ import java.util.Set;
 /** Unit tests for {@link TileBoard}. */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class TileBoardTest {
 
     private static final Dimensions TILE_SIZE = new Dimensions(800, 800);
