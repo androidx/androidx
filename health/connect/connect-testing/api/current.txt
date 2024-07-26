@@ -5,8 +5,8 @@ package androidx.health.connect.client.testing {
     ctor public FakeHealthConnectClient();
     ctor public FakeHealthConnectClient(optional String packageName, optional java.time.Clock clock, optional androidx.health.connect.client.PermissionController permissionController);
     method public suspend Object? aggregate(androidx.health.connect.client.request.AggregateRequest request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.aggregate.AggregationResult>);
-    method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
-    method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<? extends androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
+    method public suspend Object? aggregateGroupByDuration(androidx.health.connect.client.request.AggregateGroupByDurationRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration>>);
+    method public suspend Object? aggregateGroupByPeriod(androidx.health.connect.client.request.AggregateGroupByPeriodRequest request, kotlin.coroutines.Continuation<? super java.util.List<androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod>>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, androidx.health.connect.client.time.TimeRangeFilter timeRangeFilter, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public void expireToken(String token);
@@ -31,7 +31,7 @@ package androidx.health.connect.client.testing {
   @SuppressCompatibility @androidx.health.connect.client.ExperimentalHealthConnectApi public final class FakePermissionController implements androidx.health.connect.client.PermissionController {
     ctor public FakePermissionController();
     ctor public FakePermissionController(optional boolean grantAll);
-    method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<? extends java.lang.String>>);
+    method public suspend Object? getGrantedPermissions(kotlin.coroutines.Continuation<? super java.util.Set<java.lang.String>>);
     method public void grantPermission(String permission);
     method public void grantPermissions(java.util.Set<java.lang.String> permission);
     method public void replaceGrantedPermissions(java.util.Set<java.lang.String> permissions);
