@@ -624,6 +624,9 @@ open class PdfViewerFragment : Fragment() {
         } catch (e: SecurityException) {
             onLoadDocumentError(e)
         }
+        if (localUri != null && localUri != fileUri) {
+            annotationButton?.visibility = View.GONE
+        }
         localUri = fileUri
         isAnnotationIntentResolvable =
             AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
