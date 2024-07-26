@@ -184,6 +184,13 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
          */
         if (!project.usingMaxDepVersions()) {
             project.plugins.apply("com.autonomousapps.dependency-analysis")
+
+            // Ignore advice regarding ktx dependencies
+            val dependencyAnalysis =
+                project.extensions.getByType(
+                    com.autonomousapps.DependencyAnalysisExtension::class.java
+                )
+            dependencyAnalysis.structure { it.ignoreKtx(true) }
         }
     }
 
