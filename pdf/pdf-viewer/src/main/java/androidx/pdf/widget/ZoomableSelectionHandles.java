@@ -40,7 +40,7 @@ import androidx.pdf.widget.ZoomView.ZoomScroll;
 @SuppressWarnings("deprecation")
 public abstract class ZoomableSelectionHandles<S> {
     private static final float SCALE_OFFSET = 0.5f;
-    private static final float HANDLE_ALPHA = 0.75f;
+    private static final float HANDLE_ALPHA = 1.0f;
     private static final float RIGHT_HANDLE_X_MARGIN = -0.25f;
     private static final float LEFT_HANDLE_X_MARGIN = -0.75f;
     protected final ZoomView mZoomView;
@@ -128,8 +128,8 @@ public abstract class ZoomableSelectionHandles<S> {
 
     protected void showHandle(@NonNull ImageView handle, float rawX, float rawY, boolean isRight) {
         int resId = isRight
-                ? R.drawable.text_select_handle_right
-                : R.drawable.text_select_handle_left;
+                ? R.drawable.selection_drag_handle_right
+                : R.drawable.selection_drag_handle_left;
         handle.setImageResource(resId);
 
         // The sharp point of the handle is found at a particular point in the image -

@@ -256,7 +256,7 @@ public abstract class PasswordDialog extends DialogFragment {
     private void swapBackground(EditText textField, boolean reverse) {
         if (!reverse) {
             textField.setBackground(
-                    getResources().getDrawable(R.drawable.textfield_default_mtrl_alpha));
+                    getResources().getDrawable(R.drawable.drag_indicator));
         } else {
             EditText sample = new EditText(getActivity());
             textField.setBackground(sample.getBackground());
