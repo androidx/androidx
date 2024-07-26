@@ -34,6 +34,7 @@ import androidx.pdf.data.Openable
 import androidx.pdf.fetcher.Fetcher
 import androidx.pdf.find.FindInFileView
 import androidx.pdf.models.PageSelection
+import androidx.pdf.select.SelectionActionMode
 import androidx.pdf.util.AnnotationUtils
 import androidx.pdf.util.ObservableValue.ValueObserver
 import androidx.pdf.util.Observables
@@ -117,6 +118,7 @@ open class PdfViewerFragment : Fragment() {
     private var fastScrollView: FastScrollView? = null
     private var fastScrollContentModel: FastScrollContentModel? = null
     private var selectionObserver: ValueObserver<PageSelection>? = null
+    private var selectionActionMode: SelectionActionMode? = null
     private var localUri: Uri? = null
 
     private var fetcher: Fetcher? = null
@@ -403,6 +405,7 @@ open class PdfViewerFragment : Fragment() {
                 pageIndicator!!,
                 fastScrollView!!,
                 isAnnotationIntentResolvable,
+                selectionActionMode!!,
                 viewState
             )
         zoomView?.zoomScroll()?.addObserver(zoomScrollObserver)
@@ -433,7 +436,8 @@ open class PdfViewerFragment : Fragment() {
                 paginatedView!!,
                 paginationModel!!,
                 pageViewFactory!!,
-                requireContext()
+                requireContext(),
+                selectionActionMode!!
             )
         pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
 
@@ -495,6 +499,12 @@ open class PdfViewerFragment : Fragment() {
             fastScrollView?.id = id * 10
         }
         pdfLoaderCallbacks?.selectionModel = PdfSelectionModel(pdfLoader)
+        selectionActionMode =
+            SelectionActionMode(
+                requireActivity(),
+                paginatedView!!,
+                pdfLoaderCallbacks?.selectionModel!!
+            )
         selectionHandles =
             PdfSelectionHandles(pdfLoaderCallbacks?.selectionModel!!, zoomView!!, paginatedView!!)
         paginatedView?.selectionHandles = selectionHandles!!
@@ -542,6 +552,7 @@ open class PdfViewerFragment : Fragment() {
         selectionHandles = null
 
         pdfLoaderCallbacks?.selectionModel = null
+        selectionActionMode?.destroy()
 
         findInFileView!!.searchModel.selectedMatch().removeObserver(selectedMatchObserver!!)
         findInFileView!!.searchModel.query().removeObserver(searchQueryObserver!!)

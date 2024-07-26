@@ -57,6 +57,7 @@ import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.models.PageSelection;
+import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.AnnotationUtils;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.util.Preconditions;
@@ -191,6 +192,8 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
     private PageViewFactory mPageViewFactory;
 
     private SingleTapHandler mSingleTapHandler;
+
+    private SelectionActionMode mSelectionActionMode;
 
     public PdfViewer() {
         super(SELF_MANAGED_CONTENTS);
@@ -349,7 +352,7 @@ public class PdfViewer extends LoadingViewer implements FastScrollContentModel {
 
         mSelectionObserver =
                 new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
-                        requireContext());
+                        requireContext(), mSelectionActionMode);
         mSelectionModel.selection().addObserver(mSelectionObserver);
 
         mSelectedMatchObserver =

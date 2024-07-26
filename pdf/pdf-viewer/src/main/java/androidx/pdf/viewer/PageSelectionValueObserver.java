@@ -23,6 +23,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.data.Range;
 import androidx.pdf.models.PageSelection;
+import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.PaginationUtils;
 
@@ -32,14 +33,17 @@ public class PageSelectionValueObserver implements ObservableValue.ValueObserver
     private final PaginationModel mPaginationModel;
     private final PageViewFactory mPageViewFactory;
     private Context mContext;
+    private SelectionActionMode mSelectionActionMode;
 
     public PageSelectionValueObserver(@NonNull PaginatedView paginatedView,
             @NonNull PaginationModel paginationModel,
-            @NonNull PageViewFactory pageViewFactory, @NonNull Context context) {
+            @NonNull PageViewFactory pageViewFactory, @NonNull Context context,
+            @NonNull SelectionActionMode selectionActionMode) {
         mPaginatedView = paginatedView;
         mPaginationModel = paginationModel;
         mPageViewFactory = pageViewFactory;
         mContext = context;
+        mSelectionActionMode = selectionActionMode;
     }
 
     @Override
@@ -58,6 +62,7 @@ public class PageSelectionValueObserver implements ObservableValue.ValueObserver
                     PaginationUtils.getPageElevationInPixels(mContext),
                     mPaginationModel.getPageSize(newSelection.getPage())))
                     .setOverlay(new PdfHighlightOverlay(newSelection));
+            mSelectionActionMode.resume();
         }
     }
 

@@ -28,6 +28,7 @@ import android.view.View;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.find.FindInFileView;
+import androidx.pdf.select.SelectionActionMode;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.Observables;
 import androidx.pdf.widget.FastScrollView;
@@ -63,6 +64,7 @@ public class ZoomScrollValueObserverTest {
     private final PageIndicator mMockPageIndicator = mock(PageIndicator.class);
     private final FastScrollView mMockFastScrollView = mock(FastScrollView.class);
     private final PageRangeHandler mPageRangeHandler = mock(PageRangeHandler.class);
+    private final SelectionActionMode mMockSelectionActionMode = mock(SelectionActionMode.class);
 
     private boolean mIsAnnotationIntentResolvable;
     private ZoomView.ZoomScroll mNewPosition;
@@ -92,7 +94,7 @@ public class ZoomScrollValueObserverTest {
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
-                mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
+                mIsAnnotationIntentResolvable, mMockSelectionActionMode, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
         verify(mMockZoomView).setStableZoom(1.0f);
@@ -114,7 +116,7 @@ public class ZoomScrollValueObserverTest {
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
-                mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
+                mIsAnnotationIntentResolvable, mMockSelectionActionMode, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
         verify(mMockPaginatedView).refreshVisibleTiles(false, ViewState.NO_VIEW);
@@ -127,7 +129,7 @@ public class ZoomScrollValueObserverTest {
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
-                mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
+                mIsAnnotationIntentResolvable, mMockSelectionActionMode, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
         verify(mMockFastScrollView).setVisible();
@@ -142,7 +144,7 @@ public class ZoomScrollValueObserverTest {
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
-                mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
+                mIsAnnotationIntentResolvable, mMockSelectionActionMode, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
         verify(mMockAnnotationButton).setVisibility(View.VISIBLE);
@@ -158,7 +160,7 @@ public class ZoomScrollValueObserverTest {
         ZoomScrollValueObserver zoomScrollValueObserver = new ZoomScrollValueObserver(mMockZoomView,
                 mMockPaginatedView, mMockLayoutHandler, mMockAnnotationButton,
                 mMockFindInFileView, mMockPageIndicator, mMockFastScrollView,
-                mIsAnnotationIntentResolvable, VIEW_STATE_EXPOSED_VALUE);
+                mIsAnnotationIntentResolvable, mMockSelectionActionMode, VIEW_STATE_EXPOSED_VALUE);
         zoomScrollValueObserver.onChange(mOldPosition, mNewPosition);
 //        TODO: Remove this hardcode dependency.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
