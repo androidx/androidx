@@ -256,4 +256,14 @@ public interface Features {
      * <p>A property is defined as all values that are present at a particular path.
      */
     int getMaxIndexedProperties();
+
+    /**
+     * Returns the maximum amount of documents that can be indexed in an {@link AppSearchSession}
+     * between all databases owned by a given package, given the Android API level and AppSearch
+     * backend.
+     *
+     * <p>Deleted and expired documents should not count toward this limit.
+     */
+    @ExperimentalAppSearchApi
+    int getMaxIndexedDocumentCountPerPackage();
 }

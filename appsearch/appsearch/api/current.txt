@@ -290,7 +290,11 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
 
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAppSearchApi {
+  }
+
   public interface Features {
+    method @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public int getMaxIndexedDocumentCountPerPackage();
     method public int getMaxIndexedProperties();
     method public boolean isFeatureSupported(String);
     field public static final String ADD_PERMISSIONS_AND_GET_VISIBILITY = "ADD_PERMISSIONS_AND_GET_VISIBILITY";

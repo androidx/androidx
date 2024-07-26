@@ -558,4 +558,12 @@ public class AppSearchSessionLocalCtsTest extends AppSearchSessionCtsTestBase {
         assertThat(result.getFailures().get("id1").getErrorMessage())
                 .contains("was too large to write. Max is 16777215");
     }
+
+    // As LocalStorage has a very high limit, running this test will take a very long time
+    @Override
+    public void testPutDocuments_tooManyDocuments() { }
+
+    // As LocalStorage has a very high limit, running this test will take a very long time
+    @Override
+    public void testPutDocuments_maxDocuments() { }
 }
