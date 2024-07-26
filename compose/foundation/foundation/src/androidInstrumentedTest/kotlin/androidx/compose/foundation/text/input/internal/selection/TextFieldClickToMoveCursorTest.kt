@@ -33,6 +33,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -267,13 +268,18 @@ class TextFieldClickToMoveCursorTest : FocusedWindowTest {
             Dialog(
                 onDismissRequest = { show.value = false },
                 content = {
+                    val isWindowFocused = LocalWindowInfo.current.isWindowFocused
                     BasicTextField(
                         state = state,
                         textStyle = defaultTextStyle,
                         modifier =
                             Modifier.fillMaxWidth().testTag(TAG).focusRequester(focusRequester),
                     )
-                    LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                    LaunchedEffect(isWindowFocused) {
+                        if (isWindowFocused) {
+                            focusRequester.requestFocus()
+                        }
+                    }
                 }
             )
         }
