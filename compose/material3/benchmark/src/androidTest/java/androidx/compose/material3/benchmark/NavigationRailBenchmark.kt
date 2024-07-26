@@ -18,12 +18,18 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.WideNavigationRail
+import androidx.compose.material3.WideNavigationRailItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
@@ -44,6 +50,8 @@ class NavigationRailBenchmark {
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
     private val testCaseFactory = { NavigationRailTestCase() }
+    private val collapsedWideRailTestCaseFactory = { NavigationRailTestCase(true) }
+    private val expandedWideRailTestCaseFactory = { NavigationRailTestCase(true, true) }
 
     @Test
     fun firstPixel() {
@@ -57,35 +65,119 @@ class NavigationRailBenchmark {
             assertOneRecomposition = false,
         )
     }
+
+    @Test
+    fun wideNavigationRail_collapsed_firstPixel() {
+        benchmarkRule.benchmarkFirstRenderUntilStable(collapsedWideRailTestCaseFactory)
+    }
+
+    @Test
+    fun wideNavigationRail_collapsed_changeSelection() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            collapsedWideRailTestCaseFactory,
+            assertOneRecomposition = false,
+        )
+    }
+
+    @Test
+    fun wideNavigationRail_collapsed_expands() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            { NavigationRailTestCase(isWideNavRail = true, changeSelectionToggleTestCase = false) },
+            assertOneRecomposition = false,
+        )
+    }
+
+    @Test
+    fun wideNavigationRail_expanded_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(expandedWideRailTestCaseFactory)
+    }
+
+    @Test
+    fun wideNavigationRail_expanded_changeSelection() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            expandedWideRailTestCaseFactory,
+            assertOneRecomposition = false,
+        )
+    }
+
+    @Test
+    fun wideNavigationRail_expanded_collapses() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            {
+                NavigationRailTestCase(
+                    isWideNavRail = true,
+                    expanded = true,
+                    changeSelectionToggleTestCase = false
+                )
+            },
+            assertOneRecomposition = false,
+        )
+    }
 }
 
-internal class NavigationRailTestCase : LayeredComposeTestCase(), ToggleableTestCase {
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal class NavigationRailTestCase(
+    private val isWideNavRail: Boolean = false,
+    private var expanded: Boolean = false,
+    private val changeSelectionToggleTestCase: Boolean = true,
+) : LayeredComposeTestCase(), ToggleableTestCase {
     private lateinit var selectedIndexState: MutableIntState
+    private lateinit var actualExpanded: MutableState<Boolean>
 
     @Composable
     override fun MeasuredContent() {
         selectedIndexState = remember { mutableIntStateOf(0) }
+        actualExpanded = remember { mutableStateOf(expanded) }
 
-        NavigationRail {
-            NavigationRailItem(
-                selected = selectedIndexState.value == 0,
-                onClick = {},
-                icon = { Spacer(Modifier.size(24.dp)) },
-            )
-            NavigationRailItem(
-                selected = selectedIndexState.value == 1,
-                onClick = {},
-                icon = { Spacer(Modifier.size(24.dp)) },
-            )
+        if (isWideNavRail) {
+            WideNavigationRail(expanded = actualExpanded.value) {
+                WideNavigationRailItem(
+                    selected = selectedIndexState.value == 0,
+                    onClick = {},
+                    icon = { Spacer(Modifier.size(24.dp)) },
+                    railExpanded = actualExpanded.value,
+                    label = { Spacer(Modifier.size(24.dp)) }
+                )
+                WideNavigationRailItem(
+                    selected = selectedIndexState.value == 1,
+                    onClick = {},
+                    icon = { Spacer(Modifier.size(24.dp)) },
+                    railExpanded = actualExpanded.value,
+                    label = { Spacer(Modifier.size(24.dp)) }
+                )
+            }
+        } else {
+            NavigationRail {
+                NavigationRailItem(
+                    selected = selectedIndexState.value == 0,
+                    onClick = {},
+                    icon = { Spacer(Modifier.size(24.dp)) },
+                )
+                NavigationRailItem(
+                    selected = selectedIndexState.value == 1,
+                    onClick = {},
+                    icon = { Spacer(Modifier.size(24.dp)) },
+                )
+            }
         }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
-        MaterialTheme { content() }
+        if (isWideNavRail) {
+            MaterialExpressiveTheme { content() }
+        } else {
+            MaterialTheme { content() }
+        }
     }
 
     override fun toggleState() {
-        selectedIndexState.value = if (selectedIndexState.value == 0) 1 else 0
+        if (changeSelectionToggleTestCase) {
+            // Case where item selection changes.
+            selectedIndexState.value = if (selectedIndexState.value == 0) 1 else 0
+        } else {
+            // Case where rail expands if it's collapsed, or collapses if it's expanded.
+            actualExpanded.value = !actualExpanded.value
+        }
     }
 }
