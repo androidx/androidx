@@ -200,7 +200,7 @@ fun OutlinedTextField(
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
-    label: @Composable (() -> Unit)? = null,
+    label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,

@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldLayout
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldLabelPosition
+import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.material3.TextFieldLayout
 import androidx.compose.material3.outlineCutout
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -75,7 +76,7 @@ internal fun CommonDecorationBox(
     visualText: CharSequence,
     innerTextField: @Composable () -> Unit,
     labelPosition: TextFieldLabelPosition,
-    label: @Composable (() -> Unit)?,
+    label: @Composable (TextFieldLabelScope.() -> Unit)?,
     placeholder: @Composable (() -> Unit)?,
     leadingIcon: @Composable (() -> Unit)?,
     trailingIcon: @Composable (() -> Unit)?,
@@ -121,19 +122,24 @@ internal fun CommonDecorationBox(
         showExpandedLabel = label != null && !labelPosition.alwaysMinimize,
     ) { labelProgress, labelTextStyleColor, labelContentColor, placeholderAlpha, prefixSuffixAlpha
         ->
-        val labelProgressValue = labelProgress.value
+        val labelScope = remember {
+            object : TextFieldLabelScope {
+                override val progress: Float
+                    get() = labelProgress.value
+            }
+        }
         val decoratedLabel: @Composable (() -> Unit)? =
-            label?.let {
+            label?.let { label ->
                 @Composable {
                     val labelTextStyle =
-                        lerp(bodyLarge, bodySmall, labelProgressValue).let { textStyle ->
+                        lerp(bodyLarge, bodySmall, labelProgress.value).let { textStyle ->
                             if (overrideLabelTextStyleColor) {
                                 textStyle.copy(color = labelTextStyleColor.value)
                             } else {
                                 textStyle
                             }
                         }
-                    Decoration(labelContentColor.value, labelTextStyle, it)
+                    Decoration(labelContentColor.value, labelTextStyle) { labelScope.label() }
                 }
             }
 
@@ -234,7 +240,7 @@ internal fun CommonDecorationBox(
                     singleLine = singleLine,
                     labelPosition = labelPosition,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    labelProgress = labelProgressValue,
+                    labelProgress = labelProgress.value,
                     paddingValues = contentPadding
                 )
             }
@@ -266,8 +272,9 @@ internal fun CommonDecorationBox(
                         if (labelPosition !is TextFieldLabelPosition.Default) {
                             return@OutlinedTextFieldLayout
                         }
-                        val labelWidth = it.width * labelProgressValue
-                        val labelHeight = it.height * labelProgressValue
+                        val progress = labelProgress.value
+                        val labelWidth = it.width * progress
+                        val labelHeight = it.height * progress
                         if (
                             cutoutSize.value.width != labelWidth ||
                                 cutoutSize.value.height != labelHeight
@@ -277,7 +284,7 @@ internal fun CommonDecorationBox(
                     },
                     labelPosition = labelPosition,
                     // TODO(b/271000818): progress state read should be deferred to layout phase
-                    labelProgress = labelProgressValue,
+                    labelProgress = labelProgress.value,
                     container = borderContainerWithId,
                     paddingValues = contentPadding
                 )
