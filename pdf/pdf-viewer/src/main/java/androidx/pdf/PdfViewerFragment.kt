@@ -16,7 +16,6 @@
 
 package androidx.pdf
 
-import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.Build
@@ -371,7 +370,6 @@ open class PdfViewerFragment : Fragment() {
      *
      * @param savedState Saved state (e.g., layout) or null.
      */
-    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     private fun setContents(savedState: Bundle?) {
         savedState?.let { state ->
             state.containsKey(KEY_LAYOUT_REACH).let {

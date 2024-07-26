@@ -18,7 +18,6 @@ package androidx.pdf.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.os.Build
 import androidx.pdf.data.DisplayData
 import androidx.pdf.data.Openable
 import androidx.pdf.viewer.loader.PdfLoader
@@ -42,13 +41,10 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
-import org.robolectric.annotation.Config
 
 @SmallTest
 @RunWith(RobolectricTestRunner::class)
 @OptIn(ExperimentalCoroutinesApi::class)
-// TODO: Remove minsdk check after sdk extension 13 release
-@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 class PdfViewerViewModelTest {
 
     private val context: Context = getApplicationContext()

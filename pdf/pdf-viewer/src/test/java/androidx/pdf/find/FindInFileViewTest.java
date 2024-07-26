@@ -24,8 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doNothing;
 
-import android.os.Build;
-
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.loader.PdfLoader;
 import androidx.test.core.app.ApplicationProvider;
@@ -42,15 +40,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
-import org.robolectric.annotation.Config;
 
 /**
  * Unit tests for {@link FindInFileView}
  */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
-// TODO: Remove minsdk check after sdk extension 13 release
-@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class FindInFileViewTest extends TestCase {
     @Mock
     private PdfLoader mPdfLoader;

@@ -62,10 +62,9 @@ android {
     namespace "androidx.pdf"
 
     defaultConfig {
-        minSdk 35 //TODO: Set to 31 after sdk extension 13 release
+        minSdk 31
         buildToolsVersion "35.0.0-rc1"
         compileSdk 35
-        targetSdk 35 //TODO: Remove after sdk extension 13 release
     }
 
     buildFeatures {
