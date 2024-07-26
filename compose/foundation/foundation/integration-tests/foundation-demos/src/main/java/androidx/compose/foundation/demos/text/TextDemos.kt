@@ -212,6 +212,7 @@ val TextDemos =
                         MinTouchTargetTextSelection()
                     },
                     ComposableDemo("Selection & DropdownMenu") { DropdownMenuSelection() },
+                    ComposableDemo("Selection in Popup") { SelectionPopupDemo() },
                 )
             ),
             DemoCategory(
