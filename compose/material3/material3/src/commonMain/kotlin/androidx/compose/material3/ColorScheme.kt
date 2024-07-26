@@ -936,7 +936,7 @@ fun expressiveLightColorScheme() =
         // TODO: Replace palette references with color token references when available.
         onPrimaryContainer = PaletteTokens.Primary30,
         onSecondaryContainer = PaletteTokens.Secondary30,
-        onTertiaryContainer = PaletteTokens.Secondary30,
+        onTertiaryContainer = PaletteTokens.Tertiary30,
         onErrorContainer = PaletteTokens.Error30
     )
 
