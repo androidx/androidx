@@ -54,22 +54,20 @@ import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.camera.core.impl.utils.CompareSizesByArea
 import androidx.camera.viewfinder.CameraViewfinder
 import androidx.camera.viewfinder.CameraViewfinder.ScaleType
 import androidx.camera.viewfinder.CameraViewfinderExt.requestSurface
 import androidx.camera.viewfinder.surface.ImplementationMode
 import androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest
 import androidx.camera.viewfinder.surface.populateFromCharacteristics
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.window.layout.DisplayFeature
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import androidx.window.layout.WindowLayoutInfo
-import com.google.common.base.Objects
 import java.io.Closeable
 import java.io.File
 import java.io.FileOutputStream
@@ -83,6 +81,7 @@ import java.util.concurrent.TimeoutException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
+import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -142,52 +141,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
     private var layoutChangedListener: ViewTreeObserver.OnGlobalLayoutListener? = null
 
-    @Deprecated("Deprecated in Java")
-    @Suppress("DEPRECATION")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    @Deprecated("Deprecated in Java")
-    @Suppress("DEPRECATION")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-    }
-
-    @Deprecated("Deprecated in Java")
-    @Suppress("DEPRECATION")
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        val title = "Current impl: ${cameraViewfinder.implementationMode}"
-        menu.findItem(R.id.implementationMode)?.title = title
-        super.onPrepareOptionsMenu(menu)
-    }
-
-    @Deprecated("Deprecated in Java")
-    @Suppress("DEPRECATION")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.implementationMode -> {
-                val implementationMode =
-                    when (cameraViewfinder.surfaceImplementationMode) {
-                        ImplementationMode.EXTERNAL -> ImplementationMode.EMBEDDED
-                        else -> ImplementationMode.EXTERNAL
-                    }
-
-                lifecycleScope.launch {
-                    closeCamera()
-                    sendSurfaceRequest(implementationMode, false)
-                }
-            }
-            R.id.fitCenter -> cameraViewfinder.scaleType = ScaleType.FIT_CENTER
-            R.id.fillCenter -> cameraViewfinder.scaleType = ScaleType.FILL_CENTER
-            R.id.fitStart -> cameraViewfinder.scaleType = ScaleType.FIT_START
-            R.id.fitEnd -> cameraViewfinder.scaleType = ScaleType.FIT_END
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -203,7 +156,43 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
 
         cameraViewfinder = view.findViewById(R.id.view_finder)
         windowInfoTracker = WindowInfoTracker.getOrCreate(requireContext())
-        cameraManager = activity?.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+        requireActivity().apply {
+            cameraManager = getSystemService(Context.CAMERA_SERVICE) as CameraManager
+            addMenuProvider(
+                object : MenuProvider {
+                    override fun onCreateMenu(menu: Menu, inflater: MenuInflater) {
+                        inflater.inflate(R.menu.fragment_menu, menu)
+                    }
+
+                    override fun onMenuItemSelected(item: MenuItem): Boolean {
+                        when (item.itemId) {
+                            R.id.implementationMode -> {
+                                val implementationMode =
+                                    when (cameraViewfinder.surfaceImplementationMode) {
+                                        ImplementationMode.EXTERNAL -> ImplementationMode.EMBEDDED
+                                        else -> ImplementationMode.EXTERNAL
+                                    }
+
+                                lifecycleScope.launch {
+                                    closeCamera()
+                                    sendSurfaceRequest(implementationMode, false)
+                                }
+                            }
+                            R.id.fitCenter -> cameraViewfinder.scaleType = ScaleType.FIT_CENTER
+                            R.id.fillCenter -> cameraViewfinder.scaleType = ScaleType.FILL_CENTER
+                            R.id.fitStart -> cameraViewfinder.scaleType = ScaleType.FIT_START
+                            R.id.fitEnd -> cameraViewfinder.scaleType = ScaleType.FIT_END
+                        }
+                        return true
+                    }
+
+                    override fun onPrepareMenu(menu: Menu) {
+                        val title = "Current impl: ${cameraViewfinder.surfaceImplementationMode}"
+                        menu.findItem(R.id.implementationMode)?.title = title
+                    }
+                }
+            )
+        }
     }
 
     override fun onResume() {
@@ -286,12 +275,9 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                             }
                         )
                         .apply {
-                            observe(
-                                viewLifecycleOwner,
-                                Observer { orientation ->
-                                    Log.d(TAG, "Orientation changed: $orientation")
-                                }
-                            )
+                            observe(viewLifecycleOwner) { orientation ->
+                                Log.d(TAG, "Orientation changed: $orientation")
+                            }
                         }
 
                 val facing =
@@ -305,8 +291,8 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
                             .getCameraCharacteristics(
                                 checkNotNull(this.cameraId) { "camera id cannot be null" }
                             )
-                            .get<Int>(CameraCharacteristics.LENS_FACING)
-                    if (Objects.equal(currentFacing, facing)) {
+                            .get(CameraCharacteristics.LENS_FACING)
+                    if (currentFacing == facing) {
                         continue
                     }
                 }
@@ -541,7 +527,6 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun getBatchDirectoryName(): String {
         val appFolderPath =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString()
@@ -924,6 +909,17 @@ class CameraViewfinderFoldableFragment : Fragment(), View.OnClickListener {
             val format: Int
         ) : Closeable {
             override fun close() = image.close()
+        }
+    }
+}
+
+/** Comparator based on area of the given [Size] objects. */
+private class CompareSizesByArea(private val reverse: Boolean = false) : Comparator<Size> {
+
+    override fun compare(lhs: Size, rhs: Size): Int {
+        // We cast here to ensure the multiplications won't overflow
+        return (lhs.width.toLong() * lhs.height - rhs.width.toLong() * rhs.height).sign.let {
+            if (reverse) it * -1 else it
         }
     }
 }
