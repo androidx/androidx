@@ -58,6 +58,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertPixels
 import androidx.compose.testutils.assertShape
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -419,7 +420,7 @@ class OutlinedTextFieldTest {
                             }
                         )
                     },
-                    labelPosition = TextFieldLabelPosition.Above,
+                    labelPosition = TextFieldLabelPosition.Above(),
                 )
             }
             .assertHeightIsEqualTo(
@@ -431,6 +432,46 @@ class OutlinedTextFieldTest {
             assertThat(labelPosition.value?.x).isWithin(1f).of(AboveLabelHorizontalPadding.toPx())
             // y position is 0
             assertThat(labelPosition.value?.y).isEqualTo(0f)
+        }
+    }
+
+    @Test
+    fun testOutlinedTextField_labelPosition_customAlignment() {
+        val labelPosition = Ref<Offset>()
+        val labelSize = MinFocusedLabelLineHeight
+        rule.setMaterialContentForSizeAssertions {
+            OutlinedTextField(
+                state = rememberTextFieldState(),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = {
+                    Box(
+                        Modifier.size(labelSize).onGloballyPositioned {
+                            labelPosition.value = it.positionInRoot()
+                        }
+                    )
+                },
+                labelPosition =
+                    TextFieldLabelPosition.Default(
+                        minimizedAlignment = Alignment.End,
+                        expandedAlignment = Alignment.CenterHorizontally
+                    ),
+            )
+        }
+
+        rule.runOnIdleWithDensity {
+            // centered horizontally
+            assertThat(labelPosition.value?.x)
+                .isWithin(1f)
+                .of(((ExpectedDefaultTextFieldWidth - labelSize) / 2).toPx())
+        }
+
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        rule.runOnIdleWithDensity {
+            // end
+            assertThat(labelPosition.value?.x)
+                .isWithin(1f)
+                .of((ExpectedDefaultTextFieldWidth - TextFieldPadding - labelSize).toPx())
         }
     }
 
@@ -1020,7 +1061,7 @@ class OutlinedTextFieldTest {
                 prefix = { Text(prefixText) },
                 suffix = { Text(suffixText) },
                 placeholder = { Text(placeholderText) },
-                labelPosition = TextFieldLabelPosition.Above,
+                labelPosition = TextFieldLabelPosition.Above(),
             )
         }
 

@@ -48,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
@@ -160,7 +161,7 @@ object TextFieldDefaults {
         isError: Boolean = false,
         colors: TextFieldColors = colors(),
         contentPadding: PaddingValues =
-            if (label == null || labelPosition == TextFieldLabelPosition.Above) {
+            if (label == null || labelPosition is TextFieldLabelPosition.Above) {
                 contentPaddingWithoutLabel()
             } else {
                 contentPaddingWithLabel()
@@ -2010,19 +2011,31 @@ abstract class TextFieldLabelPosition private constructor() {
      * [OutlinedTextField], the label is positioned inside the text field container when expanded
      * and cuts into the border when minimized.
      */
-    class Default(@get:Suppress("GetterSetterNames") override val alwaysMinimize: Boolean = false) :
-        TextFieldLabelPosition() {
-        override fun toString(): String = "Default(alwaysMinimize=$alwaysMinimize)"
-
+    class Default(
+        @get:Suppress("GetterSetterNames") override val alwaysMinimize: Boolean = false,
+        override val minimizedAlignment: Alignment.Horizontal = Alignment.Start,
+        override val expandedAlignment: Alignment.Horizontal = Alignment.Start,
+    ) : TextFieldLabelPosition() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (other !is Default) return false
 
-            return alwaysMinimize == other.alwaysMinimize
+            if (alwaysMinimize != other.alwaysMinimize) return false
+            if (minimizedAlignment != other.minimizedAlignment) return false
+            if (expandedAlignment != other.expandedAlignment) return false
+
+            return true
         }
 
         override fun hashCode(): Int {
-            return alwaysMinimize.hashCode()
+            var result = alwaysMinimize.hashCode()
+            result = 31 * result + minimizedAlignment.hashCode()
+            result = 31 * result + expandedAlignment.hashCode()
+            return result
+        }
+
+        override fun toString(): String {
+            return "Default(alwaysMinimize=$alwaysMinimize, minimizedAlignment=$minimizedAlignment, expandedAlignment=$expandedAlignment)"
         }
     }
 
@@ -2030,12 +2043,24 @@ abstract class TextFieldLabelPosition private constructor() {
      * The label is positioned above and outside the text field container. This results in the label
      * always being minimized.
      */
-    object Above : TextFieldLabelPosition() {
+    class Above(override val minimizedAlignment: Alignment.Horizontal = Alignment.Start) :
+        TextFieldLabelPosition() {
         @get:Suppress("GetterSetterNames")
         override val alwaysMinimize: Boolean
             get() = true
 
-        override fun toString(): String = "Above"
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Above) return false
+
+            return minimizedAlignment == other.minimizedAlignment
+        }
+
+        override fun hashCode(): Int {
+            return minimizedAlignment.hashCode()
+        }
+
+        override fun toString(): String = "Above(minimizedAlignment=$minimizedAlignment)"
     }
 
     /**
@@ -2046,6 +2071,13 @@ abstract class TextFieldLabelPosition private constructor() {
      * the label when the text field is unfocused and empty.
      */
     @get:Suppress("GetterSetterNames") abstract val alwaysMinimize: Boolean
+
+    /** The horizontal alignment of the label when it is minimized. */
+    abstract val minimizedAlignment: Alignment.Horizontal
+
+    /** The horizontal alignment of the label when it is expanded. */
+    open val expandedAlignment: Alignment.Horizontal
+        get() = minimizedAlignment
 }
 
 /** Scope for the label of a [TextField] or [OutlinedTextField]. */

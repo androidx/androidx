@@ -2301,20 +2301,30 @@ package androidx.compose.material3 {
 
   public abstract class TextFieldLabelPosition {
     method public abstract boolean getAlwaysMinimize();
+    method public androidx.compose.ui.Alignment.Horizontal getExpandedAlignment();
+    method public abstract androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
     property public abstract boolean alwaysMinimize;
+    property public androidx.compose.ui.Alignment.Horizontal expandedAlignment;
+    property public abstract androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
   }
 
   public static final class TextFieldLabelPosition.Above extends androidx.compose.material3.TextFieldLabelPosition {
+    ctor public TextFieldLabelPosition.Above();
+    ctor public TextFieldLabelPosition.Above(optional androidx.compose.ui.Alignment.Horizontal minimizedAlignment);
     method public boolean getAlwaysMinimize();
+    method public androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
     property public boolean alwaysMinimize;
-    field public static final androidx.compose.material3.TextFieldLabelPosition.Above INSTANCE;
+    property public androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
   }
 
   public static final class TextFieldLabelPosition.Default extends androidx.compose.material3.TextFieldLabelPosition {
     ctor public TextFieldLabelPosition.Default();
-    ctor public TextFieldLabelPosition.Default(optional boolean alwaysMinimize);
+    ctor public TextFieldLabelPosition.Default(optional boolean alwaysMinimize, optional androidx.compose.ui.Alignment.Horizontal minimizedAlignment, optional androidx.compose.ui.Alignment.Horizontal expandedAlignment);
     method public boolean getAlwaysMinimize();
+    method public androidx.compose.ui.Alignment.Horizontal getMinimizedAlignment();
     property public boolean alwaysMinimize;
+    property public androidx.compose.ui.Alignment.Horizontal expandedAlignment;
+    property public androidx.compose.ui.Alignment.Horizontal minimizedAlignment;
   }
 
   @androidx.compose.runtime.Stable public interface TextFieldLabelScope {
