@@ -21,7 +21,7 @@
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.8.1")
 }
 
 androidx {

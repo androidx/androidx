@@ -32,7 +32,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     androidTestImplementation(libs.guavaAndroid)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTest)

@@ -28,7 +28,7 @@ android {
 
 dependencies {
     api("androidx.core:core:1.1.0")
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.annotation:annotation-experimental:1.4.1")
     api(libs.guavaListenableFuture)
 

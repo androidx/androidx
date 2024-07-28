@@ -40,7 +40,7 @@ dependencies {
     api(libs.kotlinCoroutinesRx2)
     api(libs.rxjava2)
     api(project(":window:window"))
-    implementation("androidx.annotation:annotation:1.5.0")
+    implementation("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

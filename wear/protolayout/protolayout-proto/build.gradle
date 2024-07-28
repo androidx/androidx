@@ -33,7 +33,7 @@ repackage {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     api(project(":wear:protolayout:protolayout-external-protobuf"))
     // Must be compileOnly to not bring in protobufLite in runtime
     // Repackaged protobufLite brought in by

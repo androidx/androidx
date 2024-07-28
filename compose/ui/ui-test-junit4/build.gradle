@@ -40,6 +40,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(project(":compose:ui:ui-test"))
+                implementation("androidx.annotation:annotation:1.8.1")
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 implementation(libs.kotlinCoroutinesTest)
@@ -55,7 +56,6 @@ androidXMultiplatform {
             dependsOn(commonMain)
             dependencies {
                 api(libs.junit)
-                compileOnly("androidx.annotation:annotation:1.1.0")
             }
         }
 
@@ -65,7 +65,6 @@ androidXMultiplatform {
                 api("androidx.activity:activity:1.2.1")
                 api("androidx.test.ext:junit:1.1.5")
                 implementation("androidx.activity:activity-compose:1.3.0")
-                implementation("androidx.annotation:annotation:1.1.0")
                 implementation("androidx.compose.runtime:runtime-saveable:1.6.0")
                 implementation("androidx.lifecycle:lifecycle-common:2.5.1")
                 implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")

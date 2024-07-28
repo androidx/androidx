@@ -32,7 +32,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.5.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.activity:activity:1.7.0")
     api(project(":wear:watchface:watchface-complications-data"))
     api(project(":wear:watchface:watchface-data"))

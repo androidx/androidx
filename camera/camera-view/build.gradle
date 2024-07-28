@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     api("androidx.lifecycle:lifecycle-common:2.0.0")
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":camera:camera-core"))
     api(project(":camera:camera-video"))
 

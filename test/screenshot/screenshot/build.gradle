@@ -44,7 +44,7 @@ dependencies {
 
     api(libs.junit)
 
-    implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation(libs.kotlinStdlib)
     implementation(libs.testMonitor)
 

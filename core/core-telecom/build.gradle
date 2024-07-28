@@ -33,7 +33,7 @@ dependencies {
     // core-telecom dependencies
     api(libs.kotlinStdlib)
     api(libs.guavaListenableFuture)
-    implementation("androidx.annotation:annotation:1.4.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     // @OptIn annotations
     api("androidx.annotation:annotation-experimental:1.4.1")
     implementation("androidx.core:core:1.9.0")

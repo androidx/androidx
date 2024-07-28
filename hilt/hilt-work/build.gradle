@@ -36,7 +36,7 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":hilt:hilt-common"))
     api("androidx.work:work-runtime:2.3.4")
     api(libs.hiltAndroid)

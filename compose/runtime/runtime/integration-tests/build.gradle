@@ -59,7 +59,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
-                api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation:1.8.1")
 
                 implementation("androidx.core:core-ktx:1.1.0")
             }

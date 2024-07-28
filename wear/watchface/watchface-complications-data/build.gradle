@@ -33,13 +33,12 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
     api("androidx.wear.protolayout:protolayout-expression:1.0.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
-    implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.1.0")
     implementation("androidx.preference:preference:1.1.0")
     implementation("androidx.wear.protolayout:protolayout-expression-pipeline:1.0.0-beta01")

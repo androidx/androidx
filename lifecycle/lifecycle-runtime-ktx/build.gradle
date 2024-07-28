@@ -40,7 +40,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(project(":lifecycle:lifecycle-runtime"))
-                api("androidx.annotation:annotation:1.8.0")
+                api("androidx.annotation:annotation:1.8.1")
             }
         }
 

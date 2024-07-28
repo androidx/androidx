@@ -32,7 +32,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
 

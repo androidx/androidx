@@ -37,7 +37,7 @@ android {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.0.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core-ktx:1.2.0")
     api("androidx.savedstate:savedstate:1.2.1")
     api(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))

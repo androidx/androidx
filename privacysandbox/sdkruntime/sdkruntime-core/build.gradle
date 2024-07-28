@@ -31,7 +31,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.6.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.core:core-ktx:1.12.0")

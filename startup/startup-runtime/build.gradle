@@ -41,7 +41,7 @@ dependencies {
     // baseline profile rules, but profileinstaller calls startup APIs, so we have to avoid
     // the circular dependency
 
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.tracing:tracing:1.0.0")
     lintPublish(project(":startup:startup-runtime-lint"))
     androidTestImplementation(libs.kotlinStdlib)

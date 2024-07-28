@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.lifecycle:lifecycle-livedata:2.1.0")
     api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation-experimental:1.4.1")

@@ -35,7 +35,7 @@ dependencies {
     api(project(":lifecycle:lifecycle-common"))
     api(project(":lifecycle:lifecycle-livedata"))
     api(project(":lifecycle:lifecycle-runtime"))
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.reactiveStreams)
 
     annotationProcessor(libs.nullaway)

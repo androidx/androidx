@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     api(project(":lifecycle:lifecycle-common"))
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

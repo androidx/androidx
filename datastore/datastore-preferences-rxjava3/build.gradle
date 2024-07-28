@@ -40,7 +40,7 @@ android {
 dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(libs.rxjava3)
 
     api(project(":datastore:datastore"))

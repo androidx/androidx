@@ -35,7 +35,7 @@ dependencies {
     api(libs.kotlinStdlib)
 
     // Add dependencies here
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation('androidx.media3:media3-effect:' + media3Version)
     implementation('androidx.media3:media3-common:' + media3Version)
     implementation('androidx.media3:media3-ui:' + media3Version)

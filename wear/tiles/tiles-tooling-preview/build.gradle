@@ -36,7 +36,7 @@ dependencies {
     api(project(":wear:protolayout:protolayout-expression"))
     api(project(":wear:tiles:tiles"))
     api("androidx.wear:wear-tooling-preview:1.0.0")
-    api("androidx.annotation:annotation:1.6.0")
+    api("androidx.annotation:annotation:1.8.1")
 }
 
 android {

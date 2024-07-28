@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     implementation(libs.junit)
-    implementation("androidx.annotation:annotation:1.4.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.tracing:tracing:1.1.0")
 
     androidTestImplementation(libs.mockitoCore)

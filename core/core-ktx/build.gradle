@@ -20,7 +20,7 @@ dependencies {
     }
 
     api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":core:core"))
 
     androidTestImplementation(libs.junit)

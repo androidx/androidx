@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     compileOnly(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.3.0")
+    api("androidx.annotation:annotation:1.8.1")
 }
 
 tasks.withType(Jar) {

@@ -38,7 +38,7 @@ android {
 
 dependencies {
     implementation(project(":slice:slice-core"))
-    api "androidx.annotation:annotation:1.1.0"
+    api "androidx.annotation:annotation:1.8.1"
     implementation("androidx.core:core:1.3.0")
     api(project(":slice:slice-builders"))
     api(libs.kotlinStdlib)

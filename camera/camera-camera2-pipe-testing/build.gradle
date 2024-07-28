@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     // Classes and types that are needed at compile & runtime
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     // Classes and types that are only needed at runtime
     implementation(libs.atomicFu)

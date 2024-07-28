@@ -35,7 +35,7 @@ dependencies {
     api(libs.kotlinStdlib)
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     implementation(project(":health:connect:connect-client-proto"))
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)

@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.navigation:navigation-runtime:2.5.1")
     api(libs.hiltAndroid)
     ksp(libs.hiltCompiler)

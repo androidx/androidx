@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.2.0")
+    implementation("androidx.annotation:annotation:1.8.1")
     implementation(project(":mediarouter:mediarouter"))
 }
 

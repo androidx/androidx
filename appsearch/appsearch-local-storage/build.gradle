@@ -74,7 +74,7 @@ BundleInsideHelper.forInsideAar(
 )
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     // icing project brings in repackaged protos only (not the runtime lib)
     bundleInside(project(":icing"))

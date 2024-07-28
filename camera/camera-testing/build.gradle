@@ -40,7 +40,7 @@ dependencies {
     implementation("androidx.test:runner:$testRunnerVersion")
 
     implementation(libs.testUiautomator)
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.appcompat:appcompat:1.1.0")
     api(project(":camera:camera-core"))

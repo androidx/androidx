@@ -59,7 +59,7 @@ configurations {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":wear:watchface:watchface-complications"))
     api(project(":wear:watchface:watchface-data"))
     api(libs.kotlinStdlib)

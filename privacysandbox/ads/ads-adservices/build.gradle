@@ -33,7 +33,7 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     implementation("androidx.core:core-ktx:1.8.0")
-    api("androidx.annotation:annotation:1.6.0")
+    api("androidx.annotation:annotation:1.8.1")
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTestJunit)

@@ -29,7 +29,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.1.0")
     api("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.collection:collection:1.0.0")

@@ -69,7 +69,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.1.0")
+                api("androidx.annotation:annotation:1.8.1")
                 api("androidx.annotation:annotation-experimental:1.4.1")
 
                 // TODO: remove next 3 dependencies when b/202810604 is fixed

@@ -13,7 +13,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.2.0")
+    api("androidx.annotation:annotation:1.8.1")
     api(project(":vectordrawable:vectordrawable"))
     implementation("androidx.core:core:1.12.0")
     implementation("androidx.interpolator:interpolator:1.0.0")

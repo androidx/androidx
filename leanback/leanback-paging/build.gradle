@@ -14,7 +14,7 @@ plugins {
 }
 
 dependencies {
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.8.1")
     api("androidx.leanback:leanback:1.1.0-beta01")
     api("androidx.paging:paging-runtime:3.1.0")
 
