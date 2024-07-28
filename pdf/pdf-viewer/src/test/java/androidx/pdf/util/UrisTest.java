@@ -19,16 +19,20 @@ package androidx.pdf.util;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link Uris}. */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class UrisTest {
 
     @Test

@@ -23,6 +23,8 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import android.os.Build;
+
 import androidx.pdf.data.Range;
 import androidx.test.filters.SmallTest;
 
@@ -32,9 +34,12 @@ import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class PageRangeHandlerTest {
     @Test
     public void getVisiblePage_nullVisiblePageRange_returnsZero() {

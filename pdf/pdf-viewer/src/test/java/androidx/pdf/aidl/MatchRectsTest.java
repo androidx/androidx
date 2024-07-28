@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertTrue;
 
 import android.graphics.Rect;
+import android.os.Build;
 
 import androidx.pdf.models.MatchRects;
 import androidx.test.filters.SmallTest;
@@ -28,6 +29,7 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ import java.util.List;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class MatchRectsTest {
 
     private MatchRects mMatchRects = createMatchRects(5, 0, 2, 3);

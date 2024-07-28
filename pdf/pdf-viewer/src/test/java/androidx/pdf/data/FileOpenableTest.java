@@ -19,6 +19,7 @@ package androidx.pdf.data;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.net.Uri;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Parcelable.Creator;
@@ -26,6 +27,7 @@ import android.os.Parcelable.Creator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -34,6 +36,8 @@ import java.io.FileNotFoundException;
  * Tests for {@link FileOpenable}.
  */
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class FileOpenableTest {
 
     private static final String PDF_MIME_TYPE = "application/pdf";

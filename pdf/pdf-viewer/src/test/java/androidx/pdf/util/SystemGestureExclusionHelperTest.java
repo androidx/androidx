@@ -26,6 +26,7 @@ import static androidx.pdf.util.SystemGestureExclusionHelper.needsRightSideExclu
 import static com.google.common.truth.Truth.assertThat;
 
 import android.graphics.Rect;
+import android.os.Build;
 
 import androidx.test.filters.SmallTest;
 
@@ -33,12 +34,15 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.List;
 
 /** Unit tests for {@link SystemGestureExclusionHelper}. */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class SystemGestureExclusionHelperTest {
 
     private static final int BUFFER_DISTANCE_ZERO = 0;

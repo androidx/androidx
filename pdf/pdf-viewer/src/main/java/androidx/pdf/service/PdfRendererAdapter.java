@@ -16,6 +16,7 @@
 
 package androidx.pdf.service;
 
+import android.annotation.SuppressLint;
 import android.graphics.pdf.LoadParams;
 import android.graphics.pdf.PdfRenderer;
 import android.graphics.pdf.PdfRendererPreV;
@@ -34,6 +35,7 @@ class PdfRendererAdapter implements AutoCloseable {
     private PdfRenderer mPdfRenderer;
     private PdfRendererPreV mPdfRendererPreV;
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     PdfRendererAdapter(@NonNull ParcelFileDescriptor parcelFileDescriptor,
             @NonNull String password)
             throws IOException, SecurityException {
@@ -57,6 +59,7 @@ class PdfRendererAdapter implements AutoCloseable {
         return new PdfPageAdapter(mPdfRendererPreV, pageNum);
     }
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public int getPageCount() {
         if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getPageCount();
@@ -64,6 +67,7 @@ class PdfRendererAdapter implements AutoCloseable {
         return checkAndExecute(() -> mPdfRendererPreV.getPageCount());
     }
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public int getDocumentLinearizationType() {
         if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getDocumentLinearizationType();
@@ -71,6 +75,7 @@ class PdfRendererAdapter implements AutoCloseable {
         return checkAndExecute(() -> mPdfRendererPreV.getDocumentLinearizationType());
     }
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public int getDocumentFormType() {
         if (mPdfRenderer != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRenderer.getPdfFormType();
