@@ -423,6 +423,12 @@ private fun SplitButtonLayout(
 /** Contains default values used by [SplitButton] and its style variants. */
 @ExperimentalMaterial3ExpressiveApi
 object SplitButtonDefaults {
+    /** Default icon size for the leading button */
+    val LeadingIconSize = 20.dp
+
+    /** Default icon size for the trailing button */
+    val TrailingIconSize = 20.dp
+
     /** Default spacing between the `leading` and `trailing` button */
     val Spacing = SplitButtonSmallTokens.BetweenSpace
 
