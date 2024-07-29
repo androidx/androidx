@@ -24,6 +24,7 @@ import android.os.Parcelable;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
@@ -62,22 +63,36 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
     @NonNull public static final Parcelable.Creator<SearchSuggestionSpec> CREATOR =
             new SearchSuggestionSpecCreator();
+
+    @NonNull
     @Field(id = 1, getter = "getFilterNamespaces")
     private final List<String> mFilterNamespaces;
+
+    @NonNull
     @Field(id = 2, getter = "getFilterSchemas")
     private final List<String> mFilterSchemas;
+
     // Maps are not supported by SafeParcelable fields, using Bundle instead. Here the key is
     // schema type and value is a list of target property paths in that schema to search over.
+    @NonNull
     @Field(id = 3)
     final Bundle mFilterProperties;
+
     // Maps are not supported by SafeParcelable fields, using Bundle instead. Here the key is
     // namespace and value is a list of target document ids in that namespace to search over.
+    @NonNull
     @Field(id = 4)
     final Bundle mFilterDocumentIds;
+
     @Field(id = 5, getter = "getRankingStrategy")
     private final int mRankingStrategy;
+
     @Field(id = 6, getter = "getMaximumResultCount")
     private final int mMaximumResultCount;
+
+    @NonNull
+    @Field(id = 7, getter = "getSearchStringParameters")
+    private final List<String> mSearchStringParameters;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -88,7 +103,8 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
             @Param(id = 3) @NonNull Bundle filterProperties,
             @Param(id = 4) @NonNull Bundle filterDocumentIds,
             @Param(id = 5) @SuggestionRankingStrategy int rankingStrategy,
-            @Param(id = 6) int maximumResultCount) {
+            @Param(id = 6) int maximumResultCount,
+            @Param(id = 7) @Nullable List<String> searchStringParameters) {
         Preconditions.checkArgument(maximumResultCount >= 1,
                 "MaximumResultCount must be positive.");
         mFilterNamespaces = Preconditions.checkNotNull(filterNamespaces);
@@ -97,6 +113,10 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
         mFilterDocumentIds = Preconditions.checkNotNull(filterDocumentIds);
         mRankingStrategy = rankingStrategy;
         mMaximumResultCount = maximumResultCount;
+        mSearchStringParameters =
+                (searchStringParameters != null)
+                        ? Collections.unmodifiableList(searchStringParameters)
+                        : Collections.emptyList();
     }
 
     /**
@@ -228,6 +248,18 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
         return documentIdsMap;
     }
 
+    /**
+     * Returns the list of String parameters that can be referenced in the query through the
+     * "getSearchStringParameter({index})" function.
+     *
+     * @see AppSearchSession#search
+     */
+    @NonNull
+    @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public List<String> getSearchStringParameters() {
+        return mSearchStringParameters;
+    }
+
     /** Builder for {@link SearchSuggestionSpec objects}. */
     public static final class Builder {
         private ArrayList<String> mNamespaces = new ArrayList<>();
@@ -237,6 +269,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
         private final int mTotalResultCount;
         @SuggestionRankingStrategy private int mRankingStrategy =
                 SUGGESTION_RANKING_STRATEGY_DOCUMENT_COUNT;
+        private List<String> mSearchStringParameters = new ArrayList<>();
         private boolean mBuilt = false;
 
         /**
@@ -557,6 +590,43 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
             return this;
         }
 
+        /**
+         * Adds Strings to the list of String parameters that can be referenced in the query through
+         * the "getSearchStringParameter({index})" function.
+         *
+         * @see AppSearchSession#search
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+        public Builder addSearchStringParameters(@NonNull String... searchStringParameters) {
+            Preconditions.checkNotNull(searchStringParameters);
+            resetIfBuilt();
+            return addSearchStringParameters(Arrays.asList(searchStringParameters));
+        }
+
+        /**
+         * Adds Strings to the list of String parameters that can be referenced in the query through
+         * the "getSearchStringParameter({index})" function.
+         *
+         * @see AppSearchSession#search
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+        public Builder addSearchStringParameters(@NonNull List<String> searchStringParameters) {
+            Preconditions.checkNotNull(searchStringParameters);
+            resetIfBuilt();
+            mSearchStringParameters.addAll(searchStringParameters);
+            return this;
+        }
+
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
         public SearchSuggestionSpec build() {
@@ -587,7 +657,8 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
                     mTypePropertyFilters,
                     mDocumentIds,
                     mRankingStrategy,
-                    mTotalResultCount);
+                    mTotalResultCount,
+                    mSearchStringParameters);
         }
 
         private void resetIfBuilt() {
@@ -596,6 +667,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
                 mSchemas = new ArrayList<>(mSchemas);
                 mTypePropertyFilters = BundleUtil.deepCopy(mTypePropertyFilters);
                 mDocumentIds = BundleUtil.deepCopy(mDocumentIds);
+                mSearchStringParameters = new ArrayList<>(mSearchStringParameters);
                 mBuilt = false;
             }
         }

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.core.util.Preconditions;
 
@@ -64,6 +65,13 @@ public class SearchSuggestionSpecToGmsConverter {
             for (Map.Entry<String, List<String>> entry : jetpackFilterProperties.entrySet()) {
                 gmsBuilder.addFilterProperties(entry.getKey(), entry.getValue());
             }
+        }
+
+        if (!jetpackSearchSuggestionSpec.getSearchStringParameters().isEmpty()) {
+            // TODO(b/332620561): Remove this once search parameter strings are supported.
+            throw new UnsupportedOperationException(
+                    Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
+                            + " is not available on this AppSearch implementation.");
         }
         return gmsBuilder.build();
     }

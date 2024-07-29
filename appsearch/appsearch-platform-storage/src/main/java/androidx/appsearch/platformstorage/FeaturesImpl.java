@@ -97,7 +97,7 @@ final class FeaturesImpl implements Features {
             case Features.SCHEMA_SET_DESCRIPTION:
                 // TODO(b/326987971) : Update when feature is ready in service-appsearch.
                 // fall through
-            case Features.LIST_FILTER_TOKENIZE_FUNCTION:
+            case Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS:
                 // TODO(b/332620561) : Update when feature is ready in service-appsearch.
                 // fall through
             case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:

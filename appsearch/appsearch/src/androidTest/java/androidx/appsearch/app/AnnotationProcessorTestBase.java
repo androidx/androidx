@@ -2867,30 +2867,28 @@ public abstract class AnnotationProcessorTestBase {
         assertThat(outputDocument).isEqualTo(email);
 
         // senderEmbedding is non-indexable, so querying for it will return nothing.
-        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), 0.9, 1)",
+        searchResults = mSession.search("semanticSearch(getEmbeddingParameter(0), 0.9, 1)",
                 new SearchSpec.Builder()
                         .setDefaultEmbeddingSearchMetricType(
                                 SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
-                        .addSearchEmbeddings(email.mSenderEmbedding)
+                        .addEmbeddingParameters(email.mSenderEmbedding)
                         .setRankingStrategy(
-                                "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                                "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                         .setListFilterQueryLanguageEnabled(true)
-                        .setEmbeddingSearchEnabled(true)
                         .build());
         results = retrieveAllSearchResults(searchResults);
         assertThat(results).isEmpty();
 
         // titleEmbedding is indexable, and querying for it using itself will return a cosine
         // similarity score of 1.
-        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), 0.9, 1)",
+        searchResults = mSession.search("semanticSearch(getEmbeddingParameter(0), 0.9, 1)",
                 new SearchSpec.Builder()
                         .setDefaultEmbeddingSearchMetricType(
                                 SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
-                        .addSearchEmbeddings(email.mTitleEmbedding)
+                        .addEmbeddingParameters(email.mTitleEmbedding)
                         .setRankingStrategy(
-                                "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                                "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                         .setListFilterQueryLanguageEnabled(true)
-                        .setEmbeddingSearchEnabled(true)
                         .build());
         results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(1);
@@ -2901,18 +2899,17 @@ public abstract class AnnotationProcessorTestBase {
 
         // Both receiverEmbeddings and bodyEmbeddings are indexable, and in this specific
         // document, they together hold three embedding vectors with the same signature.
-        searchResults = mSession.search("semanticSearch(getSearchSpecEmbedding(0), -1, 1)",
+        searchResults = mSession.search("semanticSearch(getEmbeddingParameter(0), -1, 1)",
                 new SearchSpec.Builder()
                         .setDefaultEmbeddingSearchMetricType(
                                 SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_COSINE)
                         // Using one of the three vectors to query
-                        .addSearchEmbeddings(email.mBodyEmbeddings[0])
+                        .addEmbeddingParameters(email.mBodyEmbeddings[0])
                         .setRankingStrategy(
                                 // We should get a score of 3 for "len", since there are three
                                 // embedding vectors matched.
-                                "len(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                                "len(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                         .setListFilterQueryLanguageEnabled(true)
-                        .setEmbeddingSearchEnabled(true)
                         .build());
         results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(1);
