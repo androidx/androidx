@@ -435,10 +435,10 @@ public final class GLUtils {
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compiled, /*offset=*/0);
         if (compiled[0] == 0) {
             Logger.w(TAG, "Could not compile shader: " + source);
+            String shaderLog = GLES20.glGetShaderInfoLog(shader);
             GLES20.glDeleteShader(shader);
             throw new IllegalStateException(
-                    "Could not compile shader type " + shaderType + ":" + GLES20.glGetShaderInfoLog(
-                            shader));
+                    "Could not compile shader type " + shaderType + ":" + shaderLog);
         }
         return shader;
     }
