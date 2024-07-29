@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
-import androidx.pdf.PdfViewerFragment
 import com.google.android.material.button.MaterialButton
 
 @SuppressLint("RestrictedApiAndroidX")
@@ -32,11 +31,6 @@ import com.google.android.material.button.MaterialButton
 class MainActivity : AppCompatActivity() {
 
     private var pdfViewerFragment: androidx.pdf.PdfViewerFragment? = null
-    private var PDFVIEWERFRAGMENT_TAG = "pdfviewerfragment_tag"
-
-    companion object {
-        private const val MIME_TYPE_PDF = "application/pdf"
-    }
 
     private val filePicker =
         registerForActivityResult(GetContent()) { uri: Uri? ->
@@ -49,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 
         if (pdfViewerFragment == null) {
             pdfViewerFragment =
-                supportFragmentManager.findFragmentByTag(PDFVIEWERFRAGMENT_TAG)
+                supportFragmentManager.findFragmentByTag(PDF_VIEWER_FRAGMENT_TAG)
                     as androidx.pdf.PdfViewerFragment?
         }
 
@@ -74,7 +68,7 @@ class MainActivity : AppCompatActivity() {
         transaction.replace(
             R.id.fragment_container_view,
             pdfViewerFragment!!,
-            PDFVIEWERFRAGMENT_TAG
+            PDF_VIEWER_FRAGMENT_TAG
         )
         transaction.commitAllowingStateLoss()
         fragmentManager.executePendingTransactions()
@@ -84,5 +78,10 @@ class MainActivity : AppCompatActivity() {
         if (pdfViewerFragment != null) {
             pdfViewerFragment!!.isTextSearchActive = true
         }
+    }
+
+    companion object {
+        private const val MIME_TYPE_PDF = "application/pdf"
+        private const val PDF_VIEWER_FRAGMENT_TAG = "pdf_viewer_fragment_tag"
     }
 }

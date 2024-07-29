@@ -32,6 +32,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     api(project(":pdf:pdf-viewer"))
+    api("androidx.core:core:1.13.1")
 }
 
 android {
