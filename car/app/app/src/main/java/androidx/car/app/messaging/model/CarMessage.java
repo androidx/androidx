@@ -24,7 +24,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.model.CarText;
@@ -33,7 +32,6 @@ import androidx.core.app.Person;
 import java.util.Objects;
 
 /** Represents a single message in a {@link ConversationItem} */
-@ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(7)
 @KeepFields
