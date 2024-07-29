@@ -724,6 +724,7 @@ public open class PdfViewerFragment : Fragment() {
             AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
         singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
         findInFileView!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        findInFileView!!.resetFindInFile()
         (zoomScrollObserver as? ZoomScrollValueObserver)?.setAnnotationIntentResolvable(
             isAnnotationIntentResolvable
         )
