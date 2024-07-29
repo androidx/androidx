@@ -235,8 +235,9 @@ each stage:
 ### Alpha {#alpha}
 
 Alpha releases are expected to be functionally stable, but may have unstable API
-surface or incomplete features. Typically, alphas have not gone through API
-Council review but are expected to have performed a minimum level of validation.
+surface or incomplete features. Changes in alpha do trigger API Council review,
+but the feedback does not block an alpha release. Library owners are expected to
+have performed a minimum level of validation.
 
 #### Within the `alphaXX` cycle
 
