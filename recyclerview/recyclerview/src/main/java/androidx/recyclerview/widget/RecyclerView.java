@@ -72,7 +72,6 @@ import androidx.annotation.Px;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.BuildCompat;
 import androidx.core.os.TraceCompat;
 import androidx.core.util.Preconditions;
 import androidx.core.view.AccessibilityDelegateCompat;
@@ -6008,7 +6007,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         mGapWorker.postFromTraversal(RecyclerView.this, consumedX, consumedY);
                     }
                 }
-                if (BuildCompat.isAtLeastV()) {
+                if (Build.VERSION.SDK_INT >= 35) {
                     Api35Impl.setFrameContentVelocity(RecyclerView.this,
                             Math.abs(scroller.getCurrVelocity()));
                 }
