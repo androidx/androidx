@@ -244,6 +244,7 @@ package androidx.mediarouter.media {
     method public final android.os.Handler getHandler();
     method public final androidx.mediarouter.media.MediaRouteProvider.ProviderMetadata getMetadata();
     method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? onCreateDynamicGroupRouteController(String);
+    method public androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController? onCreateDynamicGroupRouteController(String, android.os.Bundle?);
     method public androidx.mediarouter.media.MediaRouteProvider.RouteController? onCreateRouteController(String);
     method public void onDiscoveryRequestChanged(androidx.mediarouter.media.MediaRouteDiscoveryRequest?);
     method public final void setCallback(androidx.mediarouter.media.MediaRouteProvider.Callback?);

@@ -138,7 +138,10 @@ class MediaRoute2Provider extends MediaRouteProvider {
     @Nullable
     @Override
     public DynamicGroupRouteController onCreateDynamicGroupRouteController(
-            @NonNull String initialMemberRouteId) {
+            @NonNull String initialMemberRouteId, @Nullable Bundle controlHints) {
+        // The parent implementation of onCreateDynamicGroupRouteController(String, Bundle) calls
+        // onCreateDynamicGroupRouteController(String). We only need to override either one of
+        // the onCreateDynamicGroupRouteController methods.
         for (Map.Entry<MediaRouter2.RoutingController, GroupRouteController> entry
                 : mControllerMap.entrySet()) {
             GroupRouteController controller = entry.getValue();
