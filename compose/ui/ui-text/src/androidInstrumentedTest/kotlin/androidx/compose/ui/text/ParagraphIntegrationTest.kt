@@ -89,6 +89,9 @@ class ParagraphIntegrationTest {
             // we want a temporary thread, we don't need to control the font loading thread
             // for this test, hence the deprecation suppression
             @Suppress("DEPRECATION") EmojiCompat.init(BundledEmojiCompatConfig(appContext))
+
+            // wait for EmojiCompat instance to fully load
+            while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
         }
 
         @AfterClass
@@ -4365,8 +4368,6 @@ class ParagraphIntegrationTest {
         // "ab 🧑🏿‍🦰 cd" - example of complex emoji
         //             | (offset=3)      | (offset=6)
         assertThat(EmojiCompat.isConfigured()).isTrue()
-        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
-        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
 
         val text = "ab \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0 cd"
         val paragraph = simpleParagraph(text = text, style = TextStyle())
@@ -4379,8 +4380,6 @@ class ParagraphIntegrationTest {
     @Test(timeout = 5000)
     fun getWordBoundary_letters_emojis_mixed() {
         assertThat(EmojiCompat.isConfigured()).isTrue()
-        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
-        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
 
         val text = "a b\uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0c\uD83D\uDC4D\uD83C\uDFFE d"
         // a b🧑🏿‍🦰c👍🏾 d
@@ -4398,8 +4397,6 @@ class ParagraphIntegrationTest {
     @Test(timeout = 5000)
     fun getWordBoundary_multiple_emojis() {
         assertThat(EmojiCompat.isConfigured()).isTrue()
-        // If the EmojiCompat instance is loading, the test waits until it is fully loaded
-        while (EmojiCompat.get().loadState != EmojiCompat.LOAD_STATE_SUCCEEDED) {}
         val text = "\uD83D\uDE00\uD83D\uDE00\uD83D\uDE00" // 😀😀😀
         val paragraph = simpleParagraph(text, TextStyle())
         val result = paragraph.getWordBoundary(3)
