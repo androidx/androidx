@@ -21,8 +21,12 @@ import androidx.benchmark.junit4.measureRepeated
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
+import kotlin.test.assertEquals
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestScope
@@ -71,25 +75,34 @@ class SingleProcessDatastoreTest {
 
     @Test
     @MediumTest
-    fun read() =
-        testScope.runTest {
-            val scope = this
-            val testFile = tmp.newFile()
-            val store =
-                DataStoreFactory.create(serializer = TestingSerializer(), scope = dataStoreScope) {
-                    testFile
-                }
-            store.updateData { 1 }
-            benchmark.measureRepeated {
-                runBlocking(scope.coroutineContext) {
-                    val data = store.data.first()
-                    runWithTimingDisabled {
-                        val exp: Byte = 1
-                        Assert.assertEquals(exp, data)
-                    }
+    fun read() {
+        lateinit var job: Job
+        lateinit var store: DataStore<Byte>
+
+        suspend fun reinitDataStore() {
+            job = Job()
+            store =
+                DataStoreFactory.create(
+                        serializer = TestingSerializer(),
+                        scope = CoroutineScope(job),
+                        produceFile = { tmp.newFile() }
+                    )
+                    .also { it.updateData { 1 } }
+        }
+
+        runBlocking { reinitDataStore() }
+        benchmark.measureRepeated {
+            runBlocking {
+                val result = store.data.first()
+
+                runWithTimingDisabled {
+                    assertEquals(1, result)
+                    job.cancelAndJoin()
+                    reinitDataStore()
                 }
             }
         }
+    }
 
     @Test
     @MediumTest
