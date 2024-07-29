@@ -579,6 +579,24 @@ class ImageCaptureTest(
         assertThat(hasError).isFalse()
     }
 
+    /**
+     * Test Bind and then unbind immediately to ensure there is not race conditions or deadlocks.
+     */
+    @Test
+    fun canBindAndUnbindImmediately(): Unit = runBlocking {
+        val imageCapture = ImageCapture.Builder().build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                extensionsCameraSelector,
+                imageCapture
+            )
+        }
+
+        withContext(Dispatchers.Main) { cameraProvider.unbindAll() }
+    }
+
     @Test
     fun highResolutionDisabled_whenExtensionsEnabled(): Unit = runBlocking {
         val imageCapture = ImageCapture.Builder().build()
