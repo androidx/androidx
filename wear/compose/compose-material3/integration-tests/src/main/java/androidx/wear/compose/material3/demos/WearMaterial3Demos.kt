@@ -72,6 +72,7 @@ val WearMaterial3Demos =
                     ComposableDemo("Compact Button") { CompactButtonDemo() },
                     ComposableDemo("Multiline Button") { MultilineButtonDemo() },
                     ComposableDemo("Avatar Button") { AvatarButtonDemo() },
+                    ComposableDemo("Button (Image Background)") { ButtonBackgroundImageDemo() },
                 )
             ),
             ComposableDemo("List Header") { Centralize { ListHeaderDemo() } },
