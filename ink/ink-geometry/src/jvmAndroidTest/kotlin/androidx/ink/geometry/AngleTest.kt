@@ -28,8 +28,6 @@ class AngleTest {
     @Test
     fun degreesToRadians() {
         assertThat(Angle.degreesToRadians(180f)).isEqualTo(Math.PI.toFloat())
-        assertThat(Angle.degreesToRadians(180.toDouble())).isEqualTo(Math.PI.toFloat())
-        assertThat(Angle.degreesToRadians(180.toInt())).isEqualTo(Math.PI.toFloat())
     }
 
     @Test
@@ -40,21 +38,21 @@ class AngleTest {
     @Test
     fun constants_areCorrect() {
         assertThat(Angle.ZERO).isEqualTo(0f)
-        assertThat(Angle.PI_RADIANS).isEqualTo(Math.PI.toFloat())
-        assertThat(Angle.TWO_PI_RADIANS).isEqualTo((Math.PI * 2).toFloat())
-        assertThat(Angle.HALF_PI_RADIANS).isEqualTo((Math.PI / 2).toFloat())
+        assertThat(Angle.HALF_TURN_RADIANS).isEqualTo(Math.PI.toFloat())
+        assertThat(Angle.FULL_TURN_RADIANS).isEqualTo((Math.PI * 2).toFloat())
+        assertThat(Angle.QUARTER_TURN_RADIANS).isEqualTo((Math.PI / 2).toFloat())
     }
 
     @Test
     fun normalized_returnsValueFromJni() {
         assertThat(Angle.normalized(Angle.ZERO)).isEqualTo(0f)
-        assertThat(Angle.normalized(-Angle.PI_RADIANS)).isWithin(1e-6F).of(Math.PI.toFloat())
+        assertThat(Angle.normalized(-Angle.HALF_TURN_RADIANS)).isWithin(1e-6F).of(Math.PI.toFloat())
     }
 
     @Test
     fun normalizedAboutZero_returnsValueFromJni() {
         assertThat(Angle.normalizedAboutZero(Angle.ZERO)).isEqualTo(0f)
-        assertThat(Angle.normalizedAboutZero(Angle.TWO_PI_RADIANS - Angle.HALF_PI_RADIANS))
+        assertThat(Angle.normalizedAboutZero(Angle.FULL_TURN_RADIANS - Angle.QUARTER_TURN_RADIANS))
             .isWithin(1e-6F)
             .of(-Math.PI.toFloat() / 2F)
     }
