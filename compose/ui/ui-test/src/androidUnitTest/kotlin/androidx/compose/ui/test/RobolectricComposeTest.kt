@@ -82,7 +82,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
-@Config(minSdk = 21)
+@Config(minSdk = RobolectricMinSdk)
 @OptIn(ExperimentalTestApi::class)
 class RobolectricComposeTest {
     private var masterTimeout: IdlingPolicy? = null
