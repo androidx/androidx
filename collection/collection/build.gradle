@@ -21,7 +21,6 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -132,7 +131,6 @@ dependencies {
 androidx {
     name = "collections"
     type = LibraryType.PUBLISHED_LIBRARY
-    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2018"
     description = "Standalone efficient collections."
     metalavaK2UastEnabled = false
