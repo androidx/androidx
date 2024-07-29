@@ -26,6 +26,11 @@
             android:exported="true"
             android:label="ForegroundTestActivity" />
         <activity
+            android:name="androidx.camera.testing.impl.activity.RequestResultTestActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="true"
+            android:label="RequestResultTestActivity" />
+        <activity
             android:name="androidx.camera.testing.impl.activity.Camera2TestActivity"
             android:exported="true"
             android:label="Camera2 TestActivity" />

@@ -57,6 +57,7 @@ dependencies {
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
@@ -69,6 +70,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:camera-testlib-extensions"))
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
 
