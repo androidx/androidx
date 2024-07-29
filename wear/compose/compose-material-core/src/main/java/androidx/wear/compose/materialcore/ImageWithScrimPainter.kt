@@ -26,13 +26,20 @@ import androidx.compose.ui.graphics.painter.Painter
 /**
  * A painter which wraps another [Painter] for drawing a background image and a [Brush] which is
  * used to create an effect over the image to ensure that text drawn over it will be legible.
+ *
+ * This painter is intended for a background, and the size param if non-null will override the
+ * Painters intrinsicSize.
+ *
+ * For more control of the background image, an image loading library like Coil should be used which
+ * allows explicit contentScale handling.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class ImageWithScrimPainter(
     val imagePainter: Painter,
     val brush: Brush,
     private var scrimAlpha: Float = 1.0f,
-    private var alpha: Float = 1.0f
+    private var alpha: Float = 1.0f,
+    private val forcedSize: Size? = null,
 ) : Painter() {
 
     private var colorFilter: ColorFilter? = null
@@ -64,6 +71,7 @@ class ImageWithScrimPainter(
         if (brush != other.brush) return false
         if (scrimAlpha != other.scrimAlpha) return false
         if (alpha != other.alpha) return false
+        if (forcedSize != other.forcedSize) return false
 
         return true
     }
@@ -73,14 +81,22 @@ class ImageWithScrimPainter(
         result = 31 * result + brush.hashCode()
         result = 31 * result + scrimAlpha.hashCode()
         result = 31 * result + alpha.hashCode()
+        result = 31 * result + forcedSize.hashCode()
         return result
     }
 
     override fun toString(): String {
         return "ImageWithScrimPainter(imagePainter=$imagePainter, brush=$brush, " +
-            "scrimAlpha=$scrimAlpha, alpha=$alpha)"
+            "scrimAlpha=$scrimAlpha, alpha=$alpha, forcedSize=$forcedSize)"
     }
 
-    /** Size of the combined painter, return Unspecified to allow us to fill the available space */
-    override val intrinsicSize: Size = imagePainter.intrinsicSize
+    /**
+     * Size of the combined painter. Returns imagePainter.intrinsicSize unless size is non-null in
+     * constructor.
+     * - [Size.Unspecified] - the composable size should be used without considering the Painter
+     *   size. This likely involves scaling of the painter.
+     * - [Painter.intrinsicSize] - the Painter's size should be used, this likely increases the size
+     *   of the component.
+     */
+    override val intrinsicSize: Size = forcedSize ?: imagePainter.intrinsicSize
 }

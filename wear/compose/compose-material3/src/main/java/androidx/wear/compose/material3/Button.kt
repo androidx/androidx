@@ -46,6 +46,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -1228,6 +1229,9 @@ object ButtonDefaults {
      * @param disabledSecondaryContentColor The secondary content color of this [Button] when
      *   disabled, used for secondary label content
      * @param disabledIconColor The icon color of this [Button] when disabled, used for icon content
+     * @param forcedSize The value for [Painter.intrinsicSize], a value of null will respect the
+     *   [backgroundImagePainter] size. Defaults to [Size.Unspecified] which does not affect
+     *   component size.
      */
     @Composable
     fun imageBackgroundButtonColors(
@@ -1258,13 +1262,15 @@ object ButtonDefaults {
         disabledIconColor: Color =
             ImageButtonTokens.DisabledContentColor.value.toDisabledColor(
                 disabledAlpha = ImageButtonTokens.DisabledContentOpacity
-            )
+            ),
+        forcedSize: Size? = Size.Unspecified,
     ): ButtonColors {
         val backgroundPainter =
             remember(backgroundImagePainter, backgroundImageScrimBrush) {
                 androidx.wear.compose.materialcore.ImageWithScrimPainter(
                     imagePainter = backgroundImagePainter,
-                    brush = backgroundImageScrimBrush
+                    brush = backgroundImageScrimBrush,
+                    forcedSize = forcedSize,
                 )
             }
 
@@ -1275,6 +1281,7 @@ object ButtonDefaults {
                     imagePainter = backgroundImagePainter,
                     brush = backgroundImageScrimBrush,
                     alpha = disabledContentAlpha,
+                    forcedSize = forcedSize,
                 )
             }
         return ButtonColors(

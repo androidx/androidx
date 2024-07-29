@@ -211,6 +211,7 @@ fun TitleCardWithImageBackgroundSample() {
                 contentColor = MaterialTheme.colorScheme.onSurface,
                 titleColor = MaterialTheme.colorScheme.onSurface
             ),
+        contentPadding = CardDefaults.ImageContentPadding,
         modifier = Modifier.semantics { contentDescription = "Background image" }
     ) {
         Text("Card content")
