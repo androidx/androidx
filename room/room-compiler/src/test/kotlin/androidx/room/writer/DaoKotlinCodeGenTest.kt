@@ -2442,9 +2442,8 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     daoSrc,
                     entitySrc,
                     databaseSrc,
-                    COMMON.LISTENABLE_FUTURE,
-                    COMMON.GUAVA_ROOM,
                 ),
+            compiledFiles = compileFiles(listOf(COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM)),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }

@@ -29,6 +29,7 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.codegen.asMutableClassName
+import androidx.room.ext.RoomGuavaTypeNames.GUAVA_ROOM
 import androidx.room.solver.CodeGenScope
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import java.util.concurrent.Callable
@@ -213,6 +214,11 @@ object ReactiveStreamsTypeNames {
 
 object RoomGuavaTypeNames {
     val GUAVA_ROOM = XClassName.get("$ROOM_PACKAGE.guava", "GuavaRoom")
+    val GUAVA_ROOM_MARKER = XClassName.get("$ROOM_PACKAGE.guava", "GuavaRoomArtifactMarker")
+}
+
+object RoomGuavaMemberNames {
+    val GUAVA_ROOM_CREATE_LISTENABLE_FUTURE = GUAVA_ROOM.packageMember("createListenableFuture")
 }
 
 object RoomRxJava2TypeNames {

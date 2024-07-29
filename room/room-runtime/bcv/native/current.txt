@@ -98,6 +98,7 @@ abstract class androidx.room/RoomDatabase { // androidx.room/RoomDatabase|null[0
     }
     final fun <#A1: kotlin/Any> getTypeConverter(kotlin.reflect/KClass<#A1>): #A1 // androidx.room/RoomDatabase.getTypeConverter|getTypeConverter(kotlin.reflect.KClass<0:0>){0§<kotlin.Any>}[0]
     final fun close() // androidx.room/RoomDatabase.close|close(){}[0]
+    final fun getCoroutineScope(): kotlinx.coroutines/CoroutineScope // androidx.room/RoomDatabase.getCoroutineScope|getCoroutineScope(){}[0]
     final fun internalInitInvalidationTracker(androidx.sqlite/SQLiteConnection) // androidx.room/RoomDatabase.internalInitInvalidationTracker|internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection){}[0]
     final val invalidationTracker // androidx.room/RoomDatabase.invalidationTracker|{}invalidationTracker[0]
         final fun <get-invalidationTracker>(): androidx.room/InvalidationTracker // androidx.room/RoomDatabase.invalidationTracker.<get-invalidationTracker>|<get-invalidationTracker>(){}[0]

@@ -102,7 +102,7 @@ expect abstract class RoomDatabase() {
      */
     protected abstract fun createInvalidationTracker(): InvalidationTracker
 
-    internal fun getCoroutineScope(): CoroutineScope
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) fun getCoroutineScope(): CoroutineScope
 
     /**
      * Returns a Set of required [AutoMigrationSpec] classes.

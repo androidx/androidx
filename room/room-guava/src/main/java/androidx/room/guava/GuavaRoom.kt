@@ -25,10 +25,29 @@ import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
+import androidx.room.util.performSuspending
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteQuery
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
+import kotlinx.coroutines.guava.future
+
+/** Marker class used by annotation processor to identify dependency is in the classpath. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class GuavaRoomArtifactMarker private constructor()
+
+/**
+ * Returns a [ListenableFuture] created by launching the input `block` in [RoomDatabase]'s Coroutine
+ * scope.
+ */
+public fun <T> createListenableFuture(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> T
+): ListenableFuture<T> =
+    db.getCoroutineScope().future { performSuspending(db, isReadOnly, inTransaction, block) }
 
 /**
  * Returns a [ListenableFuture] created by submitting the input `callable` to [ArchTaskExecutor]'s
@@ -76,6 +95,7 @@ public fun <T> createListenableFuture(
  * [java.util.concurrent.Executor].
  */
 @SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     inTransaction: Boolean,
@@ -97,6 +117,7 @@ public fun <T> createListenableFuture(
  * [java.util.concurrent.Executor].
  */
 @SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     inTransaction: Boolean,
@@ -119,6 +140,7 @@ public fun <T> createListenableFuture(
  * [java.util.concurrent.Executor].
  */
 @SuppressLint("LambdaLast")
+@Deprecated("No longer used by generated code.")
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     inTransaction: Boolean,
@@ -178,17 +200,14 @@ public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     callable: Callable<T>
 ): ListenableFuture<T> {
-    return createListenableFuture(
-        roomDatabase = roomDatabase,
-        inTransaction = false,
-        callable = callable
-    )
+    return createListenableFuture(executor = getExecutor(roomDatabase, false), callable = callable)
 }
 
 /**
  * Returns a [ListenableFuture] created by submitting the input `callable` to [RoomDatabase]'s
  * [java.util.concurrent.Executor].
  */
+@Deprecated("No longer used by generated code.")
 public fun <T> createListenableFuture(
     roomDatabase: RoomDatabase,
     inTransaction: Boolean,
