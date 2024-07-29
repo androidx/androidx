@@ -14,27 +14,40 @@
  * limitations under the License.
  */
 
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
-import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXComposeMultiplatform {
     android()
     desktop()
+    darwin()
+    wasm()
+    js()
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+                implementation(project(":compose:ui:ui-util"))
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:foundation:foundation-layout"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
             }
         }
         androidMain.dependencies {
@@ -75,6 +88,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
+                implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:material3:material3-common"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
@@ -88,6 +102,22 @@ androidXMultiplatform {
             dependencies {
             }
         }
+
+        skikoMain.dependsOn(commonMain)
+        desktopMain.dependsOn(skikoMain)
+        nonJvmMain.dependsOn(skikoMain)
+        webMain.dependsOn(nonJvmMain)
+        jsMain.dependsOn(webMain)
+        wasmJsMain.dependsOn(webMain)
+        nativeMain.dependsOn(nonJvmMain)
+
+        skikoTest.dependsOn(commonTest)
+        desktopTest.dependsOn(skikoTest)
+        nonJvmTest.dependsOn(skikoTest)
+        webTest.dependsOn(nonJvmTest)
+        jsTest.dependsOn(webTest)
+        wasmJsTest.dependsOn(webTest)
+        nativeTest.dependsOn(nonJvmTest)
     }
 }
 
@@ -99,7 +129,6 @@ androidx {
     name = "Compose Material 3 Common components"
     mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_COMMON
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
     inceptionYear = "2023"
     description = "Compose Material 3 Common Library. This library contains foundational, themeless " +
             "components that can be shared between different Material libraries or used by app" +

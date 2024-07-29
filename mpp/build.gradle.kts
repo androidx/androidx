@@ -50,6 +50,7 @@ val libraryToComponents = mapOf(
         ComposeComponent(":compose:foundation:foundation-layout"),
         ComposeComponent(":compose:material:material"),
         ComposeComponent(":compose:material3:material3"),
+        ComposeComponent(":compose:material3:material3-common"),
         ComposeComponent(":compose:material:material-icons-core"),
         ComposeComponent(":compose:material:material-ripple"),
         ComposeComponent(":compose:material3:material3-window-size-class"),

@@ -1,0 +1,113 @@
+public abstract interface annotation class androidx/compose/material3/common/ExperimentalMaterial3CommonApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/material3/common/IconKt {
+	public static final fun Icon (Landroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/graphics/ColorProducer;Ljava/lang/String;Landroidx/compose/ui/Modifier;Landroidx/compose/runtime/Composer;II)V
+	public static final fun Icon-ww6aTOc (Landroidx/compose/ui/graphics/ImageBitmap;Ljava/lang/String;Landroidx/compose/ui/Modifier;JLandroidx/compose/runtime/Composer;II)V
+	public static final fun Icon-ww6aTOc (Landroidx/compose/ui/graphics/painter/Painter;Ljava/lang/String;Landroidx/compose/ui/Modifier;JLandroidx/compose/runtime/Composer;II)V
+	public static final fun Icon-ww6aTOc (Landroidx/compose/ui/graphics/vector/ImageVector;Ljava/lang/String;Landroidx/compose/ui/Modifier;JLandroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/material3/common/InteractiveComponentSizeKt {
+	public static final fun getLocalMinimumInteractiveComponentSize ()Landroidx/compose/runtime/ProvidableCompositionLocal;
+	public static final fun minimumInteractiveComponentSize (Landroidx/compose/ui/Modifier;)Landroidx/compose/ui/Modifier;
+}
+
+public final class androidx/compose/material3/common/TonalPalette {
+	public static final field $stable I
+	public synthetic fun <init> (JJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJJLkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun getNeutral0-0d7_KjU ()J
+	public final fun getNeutral10-0d7_KjU ()J
+	public final fun getNeutral100-0d7_KjU ()J
+	public final fun getNeutral12-0d7_KjU ()J
+	public final fun getNeutral17-0d7_KjU ()J
+	public final fun getNeutral20-0d7_KjU ()J
+	public final fun getNeutral22-0d7_KjU ()J
+	public final fun getNeutral24-0d7_KjU ()J
+	public final fun getNeutral30-0d7_KjU ()J
+	public final fun getNeutral4-0d7_KjU ()J
+	public final fun getNeutral40-0d7_KjU ()J
+	public final fun getNeutral50-0d7_KjU ()J
+	public final fun getNeutral6-0d7_KjU ()J
+	public final fun getNeutral60-0d7_KjU ()J
+	public final fun getNeutral70-0d7_KjU ()J
+	public final fun getNeutral80-0d7_KjU ()J
+	public final fun getNeutral87-0d7_KjU ()J
+	public final fun getNeutral90-0d7_KjU ()J
+	public final fun getNeutral92-0d7_KjU ()J
+	public final fun getNeutral94-0d7_KjU ()J
+	public final fun getNeutral95-0d7_KjU ()J
+	public final fun getNeutral96-0d7_KjU ()J
+	public final fun getNeutral98-0d7_KjU ()J
+	public final fun getNeutral99-0d7_KjU ()J
+	public final fun getNeutralVariant0-0d7_KjU ()J
+	public final fun getNeutralVariant10-0d7_KjU ()J
+	public final fun getNeutralVariant100-0d7_KjU ()J
+	public final fun getNeutralVariant12-0d7_KjU ()J
+	public final fun getNeutralVariant17-0d7_KjU ()J
+	public final fun getNeutralVariant20-0d7_KjU ()J
+	public final fun getNeutralVariant22-0d7_KjU ()J
+	public final fun getNeutralVariant24-0d7_KjU ()J
+	public final fun getNeutralVariant30-0d7_KjU ()J
+	public final fun getNeutralVariant4-0d7_KjU ()J
+	public final fun getNeutralVariant40-0d7_KjU ()J
+	public final fun getNeutralVariant50-0d7_KjU ()J
+	public final fun getNeutralVariant6-0d7_KjU ()J
+	public final fun getNeutralVariant60-0d7_KjU ()J
+	public final fun getNeutralVariant70-0d7_KjU ()J
+	public final fun getNeutralVariant80-0d7_KjU ()J
+	public final fun getNeutralVariant87-0d7_KjU ()J
+	public final fun getNeutralVariant90-0d7_KjU ()J
+	public final fun getNeutralVariant92-0d7_KjU ()J
+	public final fun getNeutralVariant94-0d7_KjU ()J
+	public final fun getNeutralVariant95-0d7_KjU ()J
+	public final fun getNeutralVariant96-0d7_KjU ()J
+	public final fun getNeutralVariant98-0d7_KjU ()J
+	public final fun getNeutralVariant99-0d7_KjU ()J
+	public final fun getPrimary0-0d7_KjU ()J
+	public final fun getPrimary10-0d7_KjU ()J
+	public final fun getPrimary100-0d7_KjU ()J
+	public final fun getPrimary20-0d7_KjU ()J
+	public final fun getPrimary30-0d7_KjU ()J
+	public final fun getPrimary40-0d7_KjU ()J
+	public final fun getPrimary50-0d7_KjU ()J
+	public final fun getPrimary60-0d7_KjU ()J
+	public final fun getPrimary70-0d7_KjU ()J
+	public final fun getPrimary80-0d7_KjU ()J
+	public final fun getPrimary90-0d7_KjU ()J
+	public final fun getPrimary95-0d7_KjU ()J
+	public final fun getPrimary99-0d7_KjU ()J
+	public final fun getSecondary0-0d7_KjU ()J
+	public final fun getSecondary10-0d7_KjU ()J
+	public final fun getSecondary100-0d7_KjU ()J
+	public final fun getSecondary20-0d7_KjU ()J
+	public final fun getSecondary30-0d7_KjU ()J
+	public final fun getSecondary40-0d7_KjU ()J
+	public final fun getSecondary50-0d7_KjU ()J
+	public final fun getSecondary60-0d7_KjU ()J
+	public final fun getSecondary70-0d7_KjU ()J
+	public final fun getSecondary80-0d7_KjU ()J
+	public final fun getSecondary90-0d7_KjU ()J
+	public final fun getSecondary95-0d7_KjU ()J
+	public final fun getSecondary99-0d7_KjU ()J
+	public final fun getTertiary0-0d7_KjU ()J
+	public final fun getTertiary10-0d7_KjU ()J
+	public final fun getTertiary100-0d7_KjU ()J
+	public final fun getTertiary20-0d7_KjU ()J
+	public final fun getTertiary30-0d7_KjU ()J
+	public final fun getTertiary40-0d7_KjU ()J
+	public final fun getTertiary50-0d7_KjU ()J
+	public final fun getTertiary60-0d7_KjU ()J
+	public final fun getTertiary70-0d7_KjU ()J
+	public final fun getTertiary80-0d7_KjU ()J
+	public final fun getTertiary90-0d7_KjU ()J
+	public final fun getTertiary95-0d7_KjU ()J
+	public final fun getTertiary99-0d7_KjU ()J
+}
+
+public final class androidx/compose/material3/common/TonalPaletteDefaults {
+	public static final field $stable I
+	public static final field INSTANCE Landroidx/compose/material3/common/TonalPaletteDefaults;
+	public final fun getBaselineTonalPalette ()Landroidx/compose/material3/common/TonalPalette;
+}
+
