@@ -4,6 +4,7 @@ import androidx.room.util.getLastInsertedRowId
 import androidx.room.util.getTotalChangedRows
 import androidx.room.util.performBlocking
 import androidx.sqlite.SQLiteStatement
+import java.lang.Void
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -46,6 +47,21 @@ public class MyDao_Impl(
         _stmt.bindLong(_argIndex, id)
         _stmt.step()
         getLastInsertedRowId(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun insertEntityReturnVoid(id: Long): Void? {
+    val _sql: String = "INSERT INTO MyEntity (id) VALUES (?)"
+    return performBlocking(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindLong(_argIndex, id)
+        _stmt.step()
+        null
       } finally {
         _stmt.close()
       }

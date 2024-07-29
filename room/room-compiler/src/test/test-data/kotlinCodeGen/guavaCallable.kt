@@ -5,9 +5,11 @@ import androidx.room.RoomDatabase
 import androidx.room.guava.createListenableFuture
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
+import androidx.room.util.getLastInsertedRowId
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteStatement
 import com.google.common.util.concurrent.ListenableFuture
+import java.lang.Void
 import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
@@ -212,6 +214,40 @@ public class MyDao_Impl(
           _result = null
         }
         _result
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun insertListenableFuture(id: String, name: String): ListenableFuture<Long> {
+    val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
+    return createListenableFuture(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, id)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, name)
+        _stmt.step()
+        getLastInsertedRowId(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun updateListenableFuture(id: String, name: String): ListenableFuture<Void?> {
+    val _sql: String = "UPDATE MyEntity SET other = ? WHERE pk = ?"
+    return createListenableFuture(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, name)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, id)
+        _stmt.step()
+        null
       } finally {
         _stmt.close()
       }

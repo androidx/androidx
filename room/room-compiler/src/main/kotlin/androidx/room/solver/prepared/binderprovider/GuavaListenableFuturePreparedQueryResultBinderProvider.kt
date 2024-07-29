@@ -25,7 +25,7 @@ import androidx.room.ext.RoomGuavaTypeNames.GUAVA_ROOM_MARKER
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
+import androidx.room.solver.prepared.binder.LambdaPreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 
 class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context) :
@@ -48,17 +48,10 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             context.logger.e(ProcessorErrors.NONNULL_VOID)
         }
 
-        return createPreparedBinder(
+        return LambdaPreparedQueryResultBinder(
             returnType = typeArg,
+            functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
-        ) { callableImpl, dbField ->
-            addStatement(
-                "return %M(%N, %L, %L)",
-                GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
-                dbField,
-                "true", // inTransaction
-                callableImpl
-            )
-        }
+        )
     }
 }
