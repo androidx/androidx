@@ -301,8 +301,6 @@ docs-tip-of-tree:docs completing
 # > Configure project :androidx-demos
 The current default is 'false'\.
 # Investigate more b/325465332
-# > Task :room:integration-tests:room-testapp-multiplatform:ksp.*
-i: \[ksp\] loaded provider\(s\): \[androidx\.room\.RoomKspProcessor\$Provider\]
 # buildPrivacySandboxSdkApksForDebug (b/329101823)
 Extracted sandbox SDK APK for.*
 # Building XCFrameworks (b/260140834) and iOS benchmark invocation
@@ -322,5 +320,5 @@ Yarn packages will be fetched from the offline mirror.*
 # Kotlin executes Yarn with the --ignore-scripts flag: https://github.com/JetBrains/kotlin/blob/master/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/targets/js/yarn/YarnBasics.kt
 # causing Yarn to throw the warning: https://github.com/yarnpkg/yarn/blob/master/src/reporters/lang/en.js#L105
 warning Ignored scripts due to flag.
-# > Task :camera:camera-camera2-pipe:kspReleaseKotlin
-exception: info: \[ksp\] loaded provider\(s\): \[dagger\.internal\.codegen\.KspComponentProcessor\$Provider\]
+# Due to https://github.com/google/ksp/issues/1797
+(.*)\[ksp\] loaded provider\(s\):(.*)
