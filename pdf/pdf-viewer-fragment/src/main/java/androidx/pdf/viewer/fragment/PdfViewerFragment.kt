@@ -622,6 +622,8 @@ public open class PdfViewerFragment : Fragment() {
 
         paginationModel = null
 
+        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
+
         selectionHandles?.destroy()
         selectionHandles = null
 
@@ -640,7 +642,7 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyView() {
-        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
+
         paginatedView?.let { view ->
             view.removeAllViews()
             paginationModel?.removeObserver(view)
@@ -713,6 +715,8 @@ public open class PdfViewerFragment : Fragment() {
         if (paginatedView?.childCount!! > 0) {
             paginatedView?.removeAllViews()
         }
+
+        zoomView?.resetZoomView()
         try {
             validateFileUri(fileUri)
             fetchFile(fileUri)

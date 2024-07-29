@@ -126,8 +126,6 @@ import java.util.Queue;
 @SuppressWarnings({"deprecation", "RestrictedApiAndroidX"})
 public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer {
 
-    private static final String TAG = "ZoomView";
-
     private static final float ZOOM_RESET = 1.5F;
     private static final float DEFAULT_MIN_ZOOM = 0.5f;
     private static final float DEFAULT_MAX_ZOOM = 64.0f;
@@ -150,20 +148,17 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     @VisibleForTesting
     protected final ZoomGestureHandler mGestureHandler =
             new ZoomGestureHandler(new Screen(getContext()));
-    private final boolean mSaveState;
     private final Handler mHandler = new Handler();
-    private final RelativeScroller mScroller;
-    private final Observables.ExposedValue<ZoomScroll> mPosition;
     /** The viewport is the usable area of this view, i.e. its dimensions less padding. */
     private final Rect mViewport = new Rect();
+    private final boolean mSaveState;
+    private final RelativeScroller mScroller;
+    private final Observables.ExposedValue<ZoomScroll> mPosition;
     /**
      * The raw bounds of the content view, i.e. before any transformation: (0, 0 - width,
      * height).
      */
-    private final Rect mContentRawBounds = new Rect();
-    private boolean mViewportInitialized;
-    /** The content view. */
-    private View mContentView;
+    private Rect mContentRawBounds = new Rect();
     /** Enables the double tap gesture to zoom in/out. */
     private boolean mDoubleTapEnabled = true;
     /** Whether we are in a fling movement. This is used to detect the end of that movement. */
@@ -191,6 +186,10 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     /** The animation started on a double-tap, if any is currently running. */
     @Nullable
     private Animator mZoomScrollAnimation;
+
+    private boolean mViewportInitialized;
+    /** The content view. */
+    private View mContentView;
     /** Client configurable settings. */
     private float mMinZoom;
     private float mMaxZoom;
@@ -249,6 +248,17 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
 
         ta.recycle();
         ViewCompat.setLayoutDirection(this, ViewCompat.LAYOUT_DIRECTION_LTR);
+    }
+
+    /**
+     * Resets zoomView data for state restoration.
+     */
+
+    public void resetZoomView() {
+        ZoomScroll newPos = new ZoomScroll(1, 0, 0, STABLE);
+        mPosition.set(newPos);
+        mContentRawBounds = new Rect();
+        mOverScrollX = mOverScrollY = 0;
     }
 
     /**
