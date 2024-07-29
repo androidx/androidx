@@ -14,6 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.common.interal
+package androidx.compose.material3.common.internal
 
-internal actual fun identityHashCode(instance: Any?): Int = System.identityHashCode(instance)
+internal actual fun identityHashCode(instance: Any?): Int {
+    if (instance == null) {
+        return 0
+    }
+    return instance.hashCode()
+}

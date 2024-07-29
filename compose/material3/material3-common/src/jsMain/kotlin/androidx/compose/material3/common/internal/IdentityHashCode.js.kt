@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.material3.common.interal
+package androidx.compose.material3.common.internal
 
 import androidx.compose.runtime.NoLiveLiterals
 

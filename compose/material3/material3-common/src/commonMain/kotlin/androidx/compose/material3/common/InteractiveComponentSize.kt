@@ -16,7 +16,7 @@
 
 package androidx.compose.material3.common
 
-import androidx.compose.material3.common.interal.identityHashCode
+import androidx.compose.material3.common.internal.identityHashCode
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
