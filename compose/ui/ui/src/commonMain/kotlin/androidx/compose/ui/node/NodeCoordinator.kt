@@ -447,28 +447,38 @@ internal abstract class NodeCoordinator(
     private var drawBlockParentLayer: GraphicsLayer? = null
     private var drawBlockCanvas: Canvas? = null
 
-    private val drawBlockCallToDrawModifiers: () -> Unit = {
-        drawContainedDrawModifiers(drawBlockCanvas!!, drawBlockParentLayer)
-    }
+    private var _drawBlock: ((Canvas, GraphicsLayer?) -> Unit)? = null
 
     // implementation of draw block passed to the OwnedLayer
-    private val drawBlock: (Canvas, GraphicsLayer?) -> Unit = { canvas, parentLayer ->
-        if (layoutNode.isPlaced) {
-            this.drawBlockCanvas = canvas
-            this.drawBlockParentLayer = parentLayer
-            snapshotObserver.observeReads(
-                this,
-                onCommitAffectingLayer,
-                drawBlockCallToDrawModifiers
-            )
-            lastLayerDrawingWasSkipped = false
-        } else {
-            // The invalidation is requested even for nodes which are not placed. As we are not
-            // going to display them we skip the drawing. It is safe to just draw nothing as the
-            // layer will be invalidated again when the node will be finally placed.
-            lastLayerDrawingWasSkipped = true
+    private val drawBlock: (Canvas, GraphicsLayer?) -> Unit
+        get() {
+            var block = _drawBlock
+            if (block == null) {
+                val drawBlockCallToDrawModifiers = {
+                    drawContainedDrawModifiers(drawBlockCanvas!!, drawBlockParentLayer)
+                }
+                block = { canvas, parentLayer ->
+                    if (layoutNode.isPlaced) {
+                        this.drawBlockCanvas = canvas
+                        this.drawBlockParentLayer = parentLayer
+                        snapshotObserver.observeReads(
+                            this,
+                            onCommitAffectingLayer,
+                            drawBlockCallToDrawModifiers
+                        )
+                        lastLayerDrawingWasSkipped = false
+                    } else {
+                        // The invalidation is requested even for nodes which are not placed. As we
+                        // are not going to display them we skip the drawing. It is safe to just
+                        // draw nothing as the layer will be invalidated again when the node will be
+                        // finally placed.
+                        lastLayerDrawingWasSkipped = true
+                    }
+                }
+                _drawBlock = block
+            }
+            return block
         }
-    }
 
     fun updateLayerBlock(
         layerBlock: (GraphicsLayerScope.() -> Unit)?,
