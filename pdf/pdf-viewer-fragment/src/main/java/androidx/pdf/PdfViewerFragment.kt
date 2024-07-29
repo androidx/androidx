@@ -373,12 +373,20 @@ public open class PdfViewerFragment : Fragment() {
      */
     private fun setContents(savedState: Bundle?) {
         savedState?.let { state ->
+            val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
+            isAnnotationIntentResolvable =
+                showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
+        }
+
+        createModelsAndHandlers(pdfLoader!!)
+        configureViewsAndModels()
+        initializeAndAddObservers()
+
+        savedState?.let { state ->
             state.containsKey(KEY_LAYOUT_REACH).let {
                 val layoutReach = state.getInt(KEY_LAYOUT_REACH)
                 layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
             }
-
-            val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
 
             // Restore page selection from saved state if it exists
             val savedSelection =
@@ -395,13 +403,7 @@ public open class PdfViewerFragment : Fragment() {
                     findInFileView!!.setFindInFileView(true)
                 }
             }
-
-            isAnnotationIntentResolvable =
-                showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
         }
-        createModelsAndHandlers(pdfLoader!!)
-        configureViewsAndModels()
-        initializeAndAddObservers()
     }
 
     /**
