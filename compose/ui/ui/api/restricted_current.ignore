@@ -7,5 +7,11 @@ AddedAbstractMethod: androidx.compose.ui.focus.FocusTargetModifierNode#setFocusa
     Added method androidx.compose.ui.focus.FocusTargetModifierNode.setFocusability(int)
 
 
+BecameUnchecked: androidx.compose.ui.semantics.SemanticsProperties#InvisibleToUser:
+    Removed property SemanticsProperties.InvisibleToUser from compatibility checked API surface
+BecameUnchecked: androidx.compose.ui.semantics.SemanticsProperties#getInvisibleToUser():
+    Removed method androidx.compose.ui.semantics.SemanticsProperties.getInvisibleToUser() from compatibility checked API surface
+
+
 RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#transformToScreen(float[]):
     Removed method androidx.compose.ui.layout.LayoutCoordinates.transformToScreen(float[])
