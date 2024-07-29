@@ -36,6 +36,7 @@ import androidx.compose.material3.tokens.LoadingIndicatorTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -360,10 +361,10 @@ private fun LoadingIndicatorImpl(
             calculateScaleFactor(indicatorPolygons) * LoadingIndicatorDefaults.ActiveIndicatorScale
         }
     val morphProgress = remember { Animatable(0f) }
-    var morphRotationTargetAngle = remember { QuarterRotation }
+    var morphRotationTargetAngle by remember { mutableFloatStateOf(QuarterRotation) }
     val globalRotation = remember { Animatable(0f) }
-    var currentMorphIndex by remember { mutableIntStateOf(0) }
-    LaunchedEffect(Unit) {
+    var currentMorphIndex by remember(indicatorPolygons) { mutableIntStateOf(0) }
+    LaunchedEffect(indicatorPolygons) {
         launch {
             // Note that we up the visibilityThreshold here to 0.1, which is x10 than the default
             // threshold, and ends the low-damping spring in a shorter time.
