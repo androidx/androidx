@@ -24,8 +24,8 @@ import androidx.room.ext.RoomGuavaMemberNames.GUAVA_ROOM_CREATE_LISTENABLE_FUTUR
 import androidx.room.ext.RoomGuavaTypeNames.GUAVA_ROOM_MARKER
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
+import androidx.room.solver.shortcut.binder.LambdaDeleteOrUpdateMethodBinder
 
 /** Provider for Guava ListenableFuture binders. */
 class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(val context: Context) :
@@ -49,15 +49,10 @@ class GuavaListenableFutureDeleteOrUpdateMethodBinderProvider(val context: Conte
             context.logger.e(ProcessorErrors.NONNULL_VOID)
         }
 
-        val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
-        return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, dbProperty ->
-            addStatement(
-                "return %M(%N, %L, %L)",
-                GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
-                dbProperty,
-                "true", // inTransaction
-                callableImpl
-            )
-        }
+        return LambdaDeleteOrUpdateMethodBinder(
+            typeArg = typeArg,
+            functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
+            adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
+        )
     }
 }

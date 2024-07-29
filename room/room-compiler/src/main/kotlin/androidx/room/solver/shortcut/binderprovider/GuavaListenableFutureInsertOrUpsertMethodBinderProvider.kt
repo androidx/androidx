@@ -24,12 +24,12 @@ import androidx.room.ext.RoomGuavaMemberNames.GUAVA_ROOM_CREATE_LISTENABLE_FUTUR
 import androidx.room.ext.RoomGuavaTypeNames.GUAVA_ROOM_MARKER
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
+import androidx.room.solver.shortcut.binder.LambdaInsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /** Provider for Guava ListenableFuture binders. */
-class GuavaListenableFutureInsertMethodBinderProvider(private val context: Context) :
+class GuavaListenableFutureInsertOrUpsertMethodBinderProvider(private val context: Context) :
     InsertOrUpsertMethodBinderProvider {
 
     private val hasGuavaRoom by lazy {
@@ -42,7 +42,8 @@ class GuavaListenableFutureInsertMethodBinderProvider(private val context: Conte
 
     override fun provide(
         declared: XType,
-        params: List<ShortcutQueryParameter>
+        params: List<ShortcutQueryParameter>,
+        forUpsert: Boolean
     ): InsertOrUpsertMethodBinder {
         if (!hasGuavaRoom) {
             context.logger.e(ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT)
@@ -53,15 +54,15 @@ class GuavaListenableFutureInsertMethodBinderProvider(private val context: Conte
             context.logger.e(ProcessorErrors.NONNULL_VOID)
         }
 
-        val adapter = context.typeAdapterStore.findInsertAdapter(typeArg, params)
-        return createInsertBinder(typeArg, adapter) { callableImpl, dbProperty ->
-            addStatement(
-                "return %M(%N, %L, %L)",
-                GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
-                dbProperty,
-                "true", // inTransaction
-                callableImpl
-            )
-        }
+        return LambdaInsertOrUpsertMethodBinder(
+            typeArg = typeArg,
+            functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
+            adapter =
+                if (forUpsert) {
+                    context.typeAdapterStore.findUpsertAdapter(typeArg, params)
+                } else {
+                    context.typeAdapterStore.findInsertAdapter(typeArg, params)
+                }
+        )
     }
 }

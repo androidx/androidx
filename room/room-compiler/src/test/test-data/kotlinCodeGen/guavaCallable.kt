@@ -1,16 +1,14 @@
-import androidx.room.EntityDeletionOrUpdateAdapter
-import androidx.room.EntityInsertionAdapter
-import androidx.room.EntityUpsertionAdapter
+import androidx.room.EntityDeleteOrUpdateAdapter
+import androidx.room.EntityInsertAdapter
+import androidx.room.EntityUpsertAdapter
 import androidx.room.RoomDatabase
 import androidx.room.guava.createListenableFuture
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
 import androidx.room.util.getLastInsertedRowId
 import androidx.sqlite.SQLiteStatement
-import androidx.sqlite.db.SupportSQLiteStatement
 import com.google.common.util.concurrent.ListenableFuture
 import java.lang.Void
-import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -27,121 +25,89 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
 
-  private val __deleteCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __deleteAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
-  private val __updateCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __updateAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
-  private val __upsertionAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
+  private val __upsertAdapterOfMyEntity: EntityUpsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
       }
     }
-    this.__deleteCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__deleteAdapterOfMyEntity = object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
       }
     }
-    this.__updateCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__updateAdapterOfMyEntity = object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
         statement.bindLong(3, entity.pk.toLong())
       }
     }
-    this.__upsertionAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
-        EntityInsertionAdapter<MyEntity>(__db) {
+    this.__upsertAdapterOfMyEntity = EntityUpsertAdapter<MyEntity>(object :
+        EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
       }
-    }, object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    }, object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
         statement.bindLong(3, entity.pk.toLong())
       }
     })
   }
 
   public override fun insertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = createListenableFuture(__db, true, object :
-      Callable<List<Long>> {
-    public override fun call(): List<Long> {
-      __db.beginTransaction()
-      try {
-        val _result: List<Long> = __insertionAdapterOfMyEntity.insertAndReturnIdsList(entities)
-        __db.setTransactionSuccessful()
-        return _result
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection,
+        entities)
+    _result
+  }
 
   public override fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      createListenableFuture(__db, true, object : Callable<Int> {
-    public override fun call(): Int {
-      var _total: Int = 0
-      __db.beginTransaction()
-      try {
-        _total += __deleteCompatAdapterOfMyEntity.handle(entity)
-        __db.setTransactionSuccessful()
-        return _total
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      createListenableFuture(__db, false, true) { _connection ->
+    var _result: Int = 0
+    _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+    _result
+  }
 
   public override fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      createListenableFuture(__db, true, object : Callable<Int> {
-    public override fun call(): Int {
-      var _total: Int = 0
-      __db.beginTransaction()
-      try {
-        _total += __updateCompatAdapterOfMyEntity.handle(entity)
-        __db.setTransactionSuccessful()
-        return _total
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      createListenableFuture(__db, false, true) { _connection ->
+    var _result: Int = 0
+    _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+    _result
+  }
 
   public override fun upsertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = createListenableFuture(__db, true, object :
-      Callable<List<Long>> {
-    public override fun call(): List<Long> {
-      __db.beginTransaction()
-      try {
-        val _result: List<Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsList(entities)
-        __db.setTransactionSuccessful()
-        return _result
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection,
+        entities)
+    _result
+  }
 
   public override fun getListenableFuture(vararg arg: String?): ListenableFuture<MyEntity> {
     val _stringBuilder: StringBuilder = StringBuilder()

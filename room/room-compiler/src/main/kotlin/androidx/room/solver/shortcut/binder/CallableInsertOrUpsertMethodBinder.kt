@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,26 +26,25 @@ import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
 /**
- * Binder for deferred upsert methods.
+ * Binder for deferred insert methods.
  *
  * This binder will create a Callable implementation that delegates to the
  * [InsertOrUpsertMethodAdapter]. Usage of the Callable impl is then delegate to the [addStmntBlock]
  * function.
  */
-class CallableUpsertMethodBinder(
+class CallableInsertOrUpsertMethodBinder(
     val typeArg: XType,
-    val addStmntBlock:
-        XCodeBlock.Builder.(callableImpl: XTypeSpec, dbProperty: XPropertySpec) -> Unit,
+    val addStmntBlock: XCodeBlock.Builder.(callableImpl: XTypeSpec, dbField: XPropertySpec) -> Unit,
     adapter: InsertOrUpsertMethodAdapter?
 ) : InsertOrUpsertMethodBinder(adapter) {
 
     companion object {
-        fun createUpsertBinder(
+        fun createInsertOrUpsertBinder(
             typeArg: XType,
             adapter: InsertOrUpsertMethodAdapter?,
             addCodeBlock:
                 XCodeBlock.Builder.(callableImpl: XTypeSpec, dbField: XPropertySpec) -> Unit
-        ) = CallableUpsertMethodBinder(typeArg, addCodeBlock, adapter)
+        ) = CallableInsertOrUpsertMethodBinder(typeArg, addCodeBlock, adapter)
     }
 
     override fun convertAndReturn(

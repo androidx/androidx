@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,22 +17,26 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.box
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomMemberNames.DB_UTIL_PERFORM_SUSPENDING
 import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/** Binder for suspending insert methods. */
-class CoroutineInsertMethodBinder(
+/**
+ * Binder for deferred insert or upsert methods.
+ *
+ * This binder generates code that invokes [functionName] with a lambda whose body will delegate to
+ * the given [adapter].
+ */
+class LambdaInsertOrUpsertMethodBinder(
     val typeArg: XType,
-    adapter: InsertOrUpsertMethodAdapter?,
-    private val continuationParamName: String
+    val functionName: XMemberName,
+    adapter: InsertOrUpsertMethodAdapter?
 ) : InsertOrUpsertMethodBinder(adapter) {
 
     override fun convertAndReturn(
@@ -48,16 +52,15 @@ class CoroutineInsertMethodBinder(
         val performBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
-                functionName = DB_UTIL_PERFORM_SUSPENDING,
+                functionName = functionName,
                 argFormat = listOf("%N", "%L", "%L"),
                 args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
-                continuationParamName = continuationParamName,
                 lambdaSpec =
                     object :
                         LambdaSpec(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
-                            returnTypeName = adapter.returnType.asTypeName().box(),
+                            returnTypeName = typeArg.asTypeName(),
                             javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
@@ -79,8 +82,8 @@ class CoroutineInsertMethodBinder(
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        error("Wrong convertAndReturn invoked")
+        error("Wrong executeAndReturn invoked")
     }
 
-    override fun isMigratedToDriver(): Boolean = true
+    override fun isMigratedToDriver() = true
 }

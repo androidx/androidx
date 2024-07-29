@@ -57,11 +57,9 @@ import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.query.parameter.CollectionQueryParameterAdapter
 import androidx.room.solver.query.result.MultiTypedPagingSourceQueryResultBinder
 import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureUpsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.GuavaListenableFutureInsertOrUpsertMethodBinderProvider
 import androidx.room.solver.shortcut.binderprovider.RxCallableDeleteOrUpdateMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCallableInsertMethodBinderProvider
-import androidx.room.solver.shortcut.binderprovider.RxCallableUpsertMethodBinderProvider
+import androidx.room.solver.shortcut.binderprovider.RxCallableInsertOrUpsertMethodBinderProvider
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room.solver.types.ColumnTypeAdapter
@@ -797,9 +795,8 @@ class TypeAdapterStoreTest {
                     val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(single, notNullValue())
                     assertThat(
-                        RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                            it.matches(single.type)
-                        },
+                        RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                            .any { it.matches(single.type) },
                         `is`(true)
                     )
                 }
@@ -816,9 +813,8 @@ class TypeAdapterStoreTest {
                 runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                     val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(
-                        RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                            it.matches(maybe.type)
-                        },
+                        RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                            .any { it.matches(maybe.type) },
                         `is`(true)
                     )
                 }
@@ -835,9 +831,8 @@ class TypeAdapterStoreTest {
                 runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                     val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(
-                        RxCallableInsertMethodBinderProvider.getAll(invocation.context).any {
-                            it.matches(completable.type)
-                        },
+                        RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                            .any { it.matches(completable.type) },
                         `is`(true)
                     )
                 }
@@ -852,7 +847,7 @@ class TypeAdapterStoreTest {
                     GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
                 )
             assertThat(
-                GuavaListenableFutureInsertMethodBinderProvider(invocation.context)
+                GuavaListenableFutureInsertOrUpsertMethodBinderProvider(invocation.context)
                     .matches(future.type),
                 `is`(true)
             )
@@ -929,9 +924,8 @@ class TypeAdapterStoreTest {
                     val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(single).isNotNull()
                     assertThat(
-                            RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
-                                it.matches(single.type)
-                            }
+                            RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                                .any { it.matches(single.type) }
                         )
                         .isTrue()
                 }
@@ -948,9 +942,8 @@ class TypeAdapterStoreTest {
                 runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                     val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(
-                            RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
-                                it.matches(maybe.type)
-                            }
+                            RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                                .any { it.matches(maybe.type) }
                         )
                         .isTrue()
                 }
@@ -967,9 +960,8 @@ class TypeAdapterStoreTest {
                 runProcessorTest(sources = listOf(rxTypeSrc)) { invocation ->
                     val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                     assertThat(
-                            RxCallableUpsertMethodBinderProvider.getAll(invocation.context).any {
-                                it.matches(completable.type)
-                            }
+                            RxCallableInsertOrUpsertMethodBinderProvider.getAll(invocation.context)
+                                .any { it.matches(completable.type) }
                         )
                         .isTrue()
                 }
@@ -984,7 +976,7 @@ class TypeAdapterStoreTest {
                     GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
                 )
             assertThat(
-                    GuavaListenableFutureUpsertMethodBinderProvider(invocation.context)
+                    GuavaListenableFutureInsertOrUpsertMethodBinderProvider(invocation.context)
                         .matches(future.type)
                 )
                 .isTrue()

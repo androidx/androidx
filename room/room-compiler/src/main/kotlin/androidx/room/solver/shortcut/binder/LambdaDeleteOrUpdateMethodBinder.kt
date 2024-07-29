@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,26 +16,32 @@
 
 package androidx.room.solver.shortcut.binder
 
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XMemberName
 import androidx.room.compiler.codegen.XPropertySpec
-import androidx.room.compiler.codegen.box
+import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.InvokeWithLambdaParameter
 import androidx.room.ext.LambdaSpec
-import androidx.room.ext.RoomMemberNames.DB_UTIL_PERFORM_BLOCKING
 import androidx.room.ext.SQLiteDriverTypeNames
-import androidx.room.ext.isNotVoid
 import androidx.room.solver.CodeGenScope
-import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
+import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/** Binder that knows how to write instant (blocking) insert methods. */
-class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
-    InsertOrUpsertMethodBinder(adapter) {
-
+/**
+ * Binder for deferred delete or update methods.
+ *
+ * This binder generates code that invokes [functionName] with a lambda whose body will delegate to
+ * the given [adapter].
+ */
+class LambdaDeleteOrUpdateMethodBinder(
+    val typeArg: XType,
+    val functionName: XMemberName,
+    adapter: DeleteOrUpdateMethodAdapter?
+) : DeleteOrUpdateMethodBinder(adapter) {
     override fun convertAndReturn(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
@@ -46,7 +52,7 @@ class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
         val performBlock =
             InvokeWithLambdaParameter(
                 scope = scope,
-                functionName = DB_UTIL_PERFORM_BLOCKING,
+                functionName = functionName,
                 argFormat = listOf("%N", "%L", "%L"),
                 args = listOf(dbProperty, /* isReadOnly= */ false, /* inTransaction= */ true),
                 lambdaSpec =
@@ -54,7 +60,7 @@ class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
                         LambdaSpec(
                             parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
                             parameterName = connectionVar,
-                            returnTypeName = adapter.returnType.asTypeName().box(),
+                            returnTypeName = typeArg.asTypeName(),
                             javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
                         ) {
                         override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
@@ -67,31 +73,16 @@ class InstantInsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
                         }
                     }
             )
-        val returnPrefix =
-            when (scope.language) {
-                CodeLanguage.JAVA ->
-                    if (adapter.returnType.isNotVoid()) {
-                        "return "
-                    } else {
-                        ""
-                    }
-                CodeLanguage.KOTLIN -> "return "
-            }
-        scope.builder.add("$returnPrefix%L", performBlock)
+        scope.builder.add("return %L", performBlock)
     }
 
     override fun convertAndReturnCompat(
         parameters: List<ShortcutQueryParameter>,
-        adapters: Map<String, Pair<XPropertySpec, Any>>,
+        adapters: Map<String, Pair<XPropertySpec, XTypeSpec>>,
         dbProperty: XPropertySpec,
         scope: CodeGenScope
     ) {
-        adapter?.generateMethodBodyCompat(
-            parameters = parameters,
-            adapters = adapters,
-            dbProperty = dbProperty,
-            scope = scope
-        )
+        error("Wrong executeAndReturn invoked")
     }
 
     override fun isMigratedToDriver() = true
