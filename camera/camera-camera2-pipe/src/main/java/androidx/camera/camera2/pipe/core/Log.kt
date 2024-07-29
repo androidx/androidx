@@ -84,6 +84,22 @@ object Log {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
 
+    /**
+     * Try-catch [block] and rethrow caught exception after logging with [msg].
+     *
+     * @param msg The message to log with the exception.
+     * @param block Function to be wrapped in try-catch.
+     * @return Original returned value of `block` in case of no exception.
+     * @throws Exception that is caught while executing `block`.
+     */
+    inline fun <T> rethrowExceptionAfterLogging(msg: String, crossinline block: () -> T) =
+        try {
+            block()
+        } catch (e: Exception) {
+            error(e) { msg }
+            throw e
+        }
+
     /** Read the stack trace of a calling method and join it to a formatted string. */
     fun readStackTrace(limit: Int = 4): String {
         val elements = Thread.currentThread().stackTrace
@@ -98,5 +114,14 @@ object Log {
                 separator = "\t",
                 limit = limit,
             )
+    }
+
+    /**
+     * Note that the message constants here may be used to parse test data, so these constant values
+     * should be changed with caution. See b/356108571 for details.
+     */
+    object MonitoredLogMessages {
+        const val REPEATING_REQUEST_STARTED_TIMEOUT =
+            "awaitStarted on last repeating request timed out"
     }
 }

@@ -36,6 +36,8 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Log.MonitoredLogMessages.REPEATING_REQUEST_STARTED_TIMEOUT
+import androidx.camera.camera2.pipe.core.Log.rethrowExceptionAfterLogging
 import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
@@ -344,11 +346,16 @@ internal class Camera2CaptureSequenceProcessor(
                         // [1] b/307588161 - [ANR] at
                         //
                         // androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
-                        runBlockingWithTimeout(
-                            threads.backgroundDispatcher,
-                            WAIT_FOR_REPEATING_TIMEOUT_MS
+                        rethrowExceptionAfterLogging(
+                            "$this#close: $REPEATING_REQUEST_STARTED_TIMEOUT" +
+                                ", lastSingleRepeatingRequestSequence = $it"
                         ) {
-                            it.awaitStarted()
+                            runBlockingWithTimeout(
+                                threads.backgroundDispatcher,
+                                WAIT_FOR_REPEATING_TIMEOUT_MS
+                            ) {
+                                it.awaitStarted()
+                            }
                         }
                     }
                 }
