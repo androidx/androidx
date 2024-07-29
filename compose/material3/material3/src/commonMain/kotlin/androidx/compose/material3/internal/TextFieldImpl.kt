@@ -250,7 +250,11 @@ internal fun CommonDecorationBox(
                 val borderContainerWithId: @Composable () -> Unit = {
                     Box(
                         Modifier.layoutId(ContainerId)
-                            .outlineCutout(cutoutSize::value, contentPadding),
+                            .outlineCutout(
+                                labelSize = cutoutSize::value,
+                                alignment = labelPosition.minimizedAlignment,
+                                paddingValues = contentPadding
+                            ),
                         propagateMinConstraints = true
                     ) {
                         container()

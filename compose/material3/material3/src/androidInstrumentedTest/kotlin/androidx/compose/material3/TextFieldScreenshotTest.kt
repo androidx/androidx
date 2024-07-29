@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.internal.defaultPlatformTextStyle
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -565,7 +566,7 @@ class TextFieldScreenshotTest {
                 state = rememberTextFieldState(),
                 modifier = Modifier.testTag(TextFieldTag),
                 label = { Text("Label") },
-                labelPosition = TextFieldLabelPosition.Above,
+                labelPosition = TextFieldLabelPosition.Above(),
                 leadingIcon = { Icon(Icons.Default.Call, null) },
                 trailingIcon = { Icon(Icons.Default.Clear, null) },
                 placeholder = { Text("Placeholder") },
@@ -574,6 +575,23 @@ class TextFieldScreenshotTest {
         }
 
         assertAgainstGolden("textField_labelPositionAbove_withIcons_andPlaceholder_andSupporting")
+    }
+
+    @Test
+    fun textField_labelAlignment_centerHorizontally() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TextField(
+                state = rememberTextFieldState("Text"),
+                modifier = Modifier.testTag(TextFieldTag),
+                label = { Text("Label") },
+                labelPosition =
+                    TextFieldLabelPosition.Default(
+                        minimizedAlignment = Alignment.CenterHorizontally
+                    ),
+            )
+        }
+
+        assertAgainstGolden("textField_labelAlignment_centerHorizontally")
     }
 
     @Test

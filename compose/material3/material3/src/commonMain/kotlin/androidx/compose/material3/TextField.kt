@@ -97,6 +97,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -253,7 +254,7 @@ fun TextField(
     shape: Shape = TextFieldDefaults.shape,
     colors: TextFieldColors = TextFieldDefaults.colors(),
     contentPadding: PaddingValues =
-        if (label == null || labelPosition == TextFieldLabelPosition.Above) {
+        if (label == null || labelPosition is TextFieldLabelPosition.Above) {
             TextFieldDefaults.contentPaddingWithoutLabel()
         } else {
             TextFieldDefaults.contentPaddingWithLabel()
@@ -714,7 +715,7 @@ internal fun TextFieldLayout(
             }
 
             val labelPadding =
-                if (labelPosition == TextFieldLabelPosition.Above) {
+                if (labelPosition is TextFieldLabelPosition.Above) {
                     Modifier.padding(
                         start = AboveLabelHorizontalPadding,
                         end = AboveLabelHorizontalPadding,
@@ -818,7 +819,7 @@ private class TextFieldMeasurePolicy(
         occupiedSpaceHorizontally += suffixPlaceable.widthOrZero
         occupiedSpaceVertically = max(occupiedSpaceVertically, suffixPlaceable.heightOrZero)
 
-        val isLabelAbove = labelPosition == TextFieldLabelPosition.Above
+        val isLabelAbove = labelPosition is TextFieldLabelPosition.Above
         val labelMeasurable = measurables.fastFirstOrNull { it.layoutId == LabelId }
         var labelPlaceable: Placeable? = null
         val labelIntrinsicHeight: Int
@@ -964,6 +965,7 @@ private class TextFieldMeasurePolicy(
                     isLabelAbove = isLabelAbove,
                     textPosition =
                         topPaddingValue + (if (isLabelAbove) 0 else labelPlaceable.height),
+                    layoutDirection = layoutDirection,
                 )
             } else {
                 placeWithoutLabel(
@@ -1138,7 +1140,7 @@ private class TextFieldMeasurePolicy(
             placeholderHeight = placeholderHeight,
             supportingHeight = supportingHeight,
             constraints = Constraints(),
-            isLabelAbove = labelPosition == TextFieldLabelPosition.Above,
+            isLabelAbove = labelPosition is TextFieldLabelPosition.Above,
         )
     }
 
@@ -1238,6 +1240,7 @@ private class TextFieldMeasurePolicy(
         labelEndY: Int,
         isLabelAbove: Boolean,
         textPosition: Int,
+        layoutDirection: LayoutDirection,
     ) {
         val yOffset = if (isLabelAbove) labelPlaceable.height else 0
 
@@ -1258,9 +1261,33 @@ private class TextFieldMeasurePolicy(
 
         val labelY = lerp(labelStartY, labelEndY, labelProgress)
         if (isLabelAbove) {
-            labelPlaceable.placeRelative(0, labelY)
+            val labelX =
+                labelPosition.minimizedAlignment.align(
+                    size = labelPlaceable.width,
+                    space = width,
+                    layoutDirection = layoutDirection,
+                )
+            // Not placeRelative because alignment already handles RTL
+            labelPlaceable.place(labelX, labelY)
         } else {
-            labelPlaceable.placeRelative(leadingPlaceable.widthOrZero, labelY)
+            val leftIconWidth =
+                if (layoutDirection == LayoutDirection.Ltr) leadingPlaceable.widthOrZero
+                else trailingPlaceable.widthOrZero
+            val labelStartX =
+                labelPosition.expandedAlignment.align(
+                    size = labelPlaceable.width,
+                    space = width - leadingPlaceable.widthOrZero - trailingPlaceable.widthOrZero,
+                    layoutDirection = layoutDirection,
+                ) + leftIconWidth
+            val labelEndX =
+                labelPosition.minimizedAlignment.align(
+                    size = labelPlaceable.width,
+                    space = width - leadingPlaceable.widthOrZero - trailingPlaceable.widthOrZero,
+                    layoutDirection = layoutDirection,
+                ) + leftIconWidth
+            val labelX = lerp(labelStartX, labelEndX, labelProgress)
+            // Not placeRelative because alignment already handles RTL
+            labelPlaceable.place(labelX, labelY)
         }
 
         prefixPlaceable?.placeRelative(leadingPlaceable.widthOrZero, yOffset + textPosition)
