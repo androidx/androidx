@@ -19,6 +19,7 @@ package androidx.glance.appwidget.testing.unit
 import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionLocalProvider
@@ -59,6 +60,7 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     GlanceAppWidgetUnitTest {
     private var testContext = TestContext<MappedNode, GlanceMappedNode>()
     private var testScope = TestScope()
+    private var provideComposableJob: Job? = null
 
     // Data for composition locals
     private var context: Context? = null
@@ -71,8 +73,11 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     private lateinit var recomposer: Recomposer
     private lateinit var composition: Composition
 
+    @Suppress("UNUSED_EXPRESSION") // https://youtrack.jetbrains.com/issue/KT-21282
+    // the UNUSED_EXPRESSION warning on block() call below is a false positive.
     fun runTest(block: GlanceAppWidgetUnitTest.() -> Unit) =
         testScope.runTest(timeout) {
+            Log.d(TAG, "runTest start")
             var snapshotMonitor: Job? = null
             try {
                 // GlobalSnapshotManager.ensureStarted() uses Dispatcher.Default, so using
@@ -87,6 +92,8 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
                 snapshotMonitor?.cancel()
                 recomposer.cancel()
                 recomposer.join()
+                provideComposableJob?.cancel()
+                Log.d(TAG, "runTest complete")
             }
         }
 
@@ -104,41 +111,46 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     override fun provideComposable(composable: @Composable () -> Unit) {
         check(testContext.rootGlanceNode == null) { "provideComposable can only be called once" }
 
-        testScope.launch {
-            var compositionLocals =
-                arrayOf(
-                    LocalGlanceId provides fakeGlanceID,
-                    LocalState provides state,
-                    LocalAppWidgetOptions provides appWidgetOptions,
-                    LocalSize provides size
-                )
-            context?.let { compositionLocals = compositionLocals.plus(LocalContext provides it) }
+        provideComposableJob =
+            testScope.launch {
+                var compositionLocals =
+                    arrayOf(
+                        LocalGlanceId provides fakeGlanceID,
+                        LocalState provides state,
+                        LocalAppWidgetOptions provides appWidgetOptions,
+                        LocalSize provides size
+                    )
+                context?.let {
+                    compositionLocals = compositionLocals.plus(LocalContext provides it)
+                }
 
-            composition.setContent {
-                CompositionLocalProvider(
-                    values = compositionLocals,
-                    content = composable,
-                )
-            }
+                composition.setContent {
+                    CompositionLocalProvider(
+                        values = compositionLocals,
+                        content = composable,
+                    )
+                }
 
-            launch(currentCoroutineContext() + TestFrameClock()) {
-                recomposer.runRecomposeAndApplyChanges()
-            }
+                launch(currentCoroutineContext() + TestFrameClock()) {
+                    recomposer.runRecomposeAndApplyChanges()
+                }
 
-            launch {
-                recomposer.currentState.collect { curState ->
-                    when (curState) {
-                        Recomposer.State.Idle -> {
-                            testContext.rootGlanceNode = GlanceMappedNode(emittable = root.copy())
+                launch {
+                    recomposer.currentState.collect { curState ->
+                        Log.d(TAG, "Recomposer state: $curState")
+                        when (curState) {
+                            Recomposer.State.Idle -> {
+                                testContext.rootGlanceNode =
+                                    GlanceMappedNode(emittable = root.copy())
+                            }
+                            Recomposer.State.ShutDown -> {
+                                cancel()
+                            }
+                            else -> {}
                         }
-                        Recomposer.State.ShutDown -> {
-                            cancel()
-                        }
-                        else -> {}
                     }
                 }
             }
-        }
     }
 
     override fun awaitIdle() {
@@ -148,6 +160,7 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     override fun onNode(
         matcher: GlanceNodeMatcher<MappedNode>
     ): GlanceNodeAssertion<MappedNode, GlanceMappedNode> {
+        Log.d(TAG, "Letting all enqueued tasks finish before inspecting the tree")
         // Always let all the enqueued tasks finish before inspecting the tree.
         testScope.testScheduler.runCurrent()
         check(testContext.hasNodes()) {
@@ -161,6 +174,7 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     override fun onAllNodes(
         matcher: GlanceNodeMatcher<MappedNode>
     ): GlanceNodeAssertionCollection<MappedNode, GlanceMappedNode> {
+        Log.d(TAG, "Letting all enqueued tasks finish before inspecting the tree")
         // Always let all the enqueued tasks finish before inspecting the tree.
         testScope.testScheduler.runCurrent()
         // Delegates matching to the next assertion.
@@ -193,5 +207,9 @@ internal class GlanceAppWidgetUnitTestEnvironment(private val timeout: Duration)
     private class TestFrameClock : MonotonicFrameClock {
         override suspend fun <R> withFrameNanos(onFrame: (frameTimeNanos: Long) -> R) =
             onFrame(System.currentTimeMillis())
+    }
+
+    companion object {
+        const val TAG = "GlanceAppWidgetUnitTestEnvironment"
     }
 }
