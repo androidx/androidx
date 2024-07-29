@@ -19,7 +19,6 @@ package androidx.compose.material3
 import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
@@ -47,7 +46,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -235,16 +233,12 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuItem_iconOnly_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            FloatingActionButtonMenu(
-                expanded = true,
-                itemsCount = 1,
-            ) {
+            FloatingActionButtonMenu(expanded = true, button = {}) {
                 FloatingActionButtonMenuItem(
                     modifier = Modifier.testTag(FabMenuItemTestTag),
                     onClick = {},
                     icon = { Icon(Icons.Filled.Add, contentDescription = null) },
                     text = {},
-                    itemIndex = 0,
                 )
             }
         }
@@ -258,16 +252,12 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuItem_textOnly_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            FloatingActionButtonMenu(
-                expanded = true,
-                itemsCount = 1,
-            ) {
+            FloatingActionButtonMenu(expanded = true, button = {}) {
                 FloatingActionButtonMenuItem(
                     modifier = Modifier.testTag(FabMenuItemTestTag),
                     onClick = {},
                     icon = {},
                     text = { Text(text = "Text") },
-                    itemIndex = 0,
                 )
             }
         }
@@ -281,16 +271,12 @@ class FloatingActionButtonMenuScreenshotTest {
     @Test
     fun fabMenuItem_minimumTextOnly_lightTheme() {
         rule.setMaterialContent(lightColorScheme()) {
-            FloatingActionButtonMenu(
-                expanded = true,
-                itemsCount = 1,
-            ) {
+            FloatingActionButtonMenu(expanded = true, button = {}) {
                 FloatingActionButtonMenuItem(
                     modifier = Modifier.testTag(FabMenuItemTestTag),
                     onClick = {},
                     icon = {},
                     text = { Text(text = ".") },
-                    itemIndex = 0,
                 )
             }
         }
@@ -329,46 +315,44 @@ class FloatingActionButtonMenuScreenshotTest {
             var fabMenuExpanded by rememberSaveable { mutableStateOf(false) }
 
             Column(
-                modifier =
-                    Modifier.testTag(FabMenuTestTag)
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 16.dp, end = 16.dp),
+                modifier = Modifier.testTag(FabMenuTestTag).align(Alignment.BottomEnd),
                 horizontalAlignment = Alignment.End
             ) {
                 FloatingActionButtonMenu(
                     modifier = Modifier.weight(weight = 1f, fill = false),
                     expanded = fabMenuExpanded,
-                    itemsCount = items.size,
+                    button = {
+                        ToggleableFloatingActionButton(
+                            modifier = Modifier.testTag(ToggleableFabTestTag),
+                            checked = fabMenuExpanded,
+                            onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
+                            containerColor = containerColor,
+                            containerSize = containerSize,
+                            containerCornerRadius = containerCornerRadius,
+                        ) {
+                            val imageVector by remember {
+                                derivedStateOf {
+                                    if (checkedProgress > 0.5f) Icons.Filled.Close
+                                    else Icons.Filled.Add
+                                }
+                            }
+                            Icon(
+                                painter = rememberVectorPainter(imageVector),
+                                contentDescription = null,
+                                modifier =
+                                    Modifier.animateIcon({ checkedProgress }, iconColor, iconSize)
+                            )
+                        }
+                    }
                 ) {
-                    items.forEachIndexed { i, item ->
+                    items.forEach { item ->
                         FloatingActionButtonMenuItem(
                             onClick = { fabMenuExpanded = !fabMenuExpanded },
                             icon = { Icon(item.first, contentDescription = null) },
                             text = { Text(text = item.second) },
-                            itemIndex = i,
                             containerColor = itemContainerColor
                         )
                     }
-                }
-
-                ToggleableFloatingActionButton(
-                    modifier = Modifier.testTag(ToggleableFabTestTag),
-                    checked = fabMenuExpanded,
-                    onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
-                    containerColor = containerColor,
-                    containerSize = containerSize,
-                    containerCornerRadius = containerCornerRadius,
-                ) {
-                    val imageVector by remember {
-                        derivedStateOf {
-                            if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
-                        }
-                    }
-                    Icon(
-                        painter = rememberVectorPainter(imageVector),
-                        contentDescription = null,
-                        modifier = Modifier.animateIcon({ checkedProgress }, iconColor, iconSize)
-                    )
                 }
             }
         }
