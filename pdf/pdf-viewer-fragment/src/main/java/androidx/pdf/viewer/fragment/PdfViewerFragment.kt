@@ -618,11 +618,10 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyContentModel() {
+
         pdfLoader?.cancelAll()
 
         paginationModel = null
-
-        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
 
         selectionHandles?.destroy()
         selectionHandles = null
@@ -642,12 +641,7 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyView() {
-
-        paginatedView?.let { view ->
-            view.removeAllViews()
-            paginationModel?.removeObserver(view)
-        }
-
+        detachViewsAndObservers()
         zoomView = null
         paginatedView = null
 
@@ -670,6 +664,14 @@ public open class PdfViewerFragment : Fragment() {
                     }
                 }
             }
+        }
+    }
+
+    private fun detachViewsAndObservers() {
+        zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
+        paginatedView?.let { view ->
+            view.removeAllViews()
+            paginationModel?.removeObserver(view)
         }
     }
 
@@ -712,11 +714,8 @@ public open class PdfViewerFragment : Fragment() {
         if (pdfLoader != null) {
             destroyContentModel()
         }
-        if (paginatedView?.childCount!! > 0) {
-            paginatedView?.removeAllViews()
-        }
-
-        zoomView?.resetZoomView()
+        detachViewsAndObservers()
+        fastScrollView?.resetContents()
         try {
             validateFileUri(fileUri)
             fetchFile(fileUri)

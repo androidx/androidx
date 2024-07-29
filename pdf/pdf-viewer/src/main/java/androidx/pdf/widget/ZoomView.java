@@ -254,11 +254,22 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
      * Resets zoomView data for state restoration.
      */
 
-    public void resetZoomView() {
-        ZoomScroll newPos = new ZoomScroll(1, 0, 0, STABLE);
-        mPosition.set(newPos);
+    public void resetContents() {
+        scrollTo(0, 0);
+
+        // Reset content bounds
         mContentRawBounds = new Rect();
+
+        // Reset gesture and scrolling states
         mOverScrollX = mOverScrollY = 0;
+        mIsFling = false;
+        mScroller.forceFinished(true);
+
+        // Reset zoom and fit states
+        mInitialZoomDone = false;
+        mPositionToRestore = null;
+
+        mScaleInProgress = false;
     }
 
     /**
@@ -667,6 +678,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     public void setStableZoom(float stableZoom) {
         this.mStableZoom = stableZoom;
     }
+
     private float getConstrainedZoomToFit() {
         return constrainZoom(getUnconstrainedZoomToFit());
     }
