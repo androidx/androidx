@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.pdf
+package androidx.pdf.viewer.fragment
 
 import android.content.ContentResolver
 import android.content.res.Configuration
@@ -24,7 +24,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import androidx.annotation.RestrictTo
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -32,7 +31,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.pdf.R
+import androidx.pdf.ViewState
 import androidx.pdf.data.DisplayData
 import androidx.pdf.data.FutureValue
 import androidx.pdf.data.Openable
@@ -86,9 +88,11 @@ import kotlinx.coroutines.launch
  * tightly limited to the currently visible pages. Pages that are scrolled past (become not visible)
  * have their bitmaps released to free up memory.
  *
+ * <p>Note that every activity/fragment that uses this class has to be themed with Theme.AppCompat
+ * or a theme that extends that theme.
+ *
  * @see documentUri
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public open class PdfViewerFragment : Fragment() {
 
     // ViewModel to manage PdfLoader state
@@ -149,39 +153,73 @@ public open class PdfViewerFragment : Fragment() {
     /**
      * The URI of the PDF document to display defaulting to `null`.
      *
-     * When this property is set, the fragment begins loading the PDF. A loading spinner is
-     * displayed until the document is fully loaded. If an error occurs during loading, an error
-     * message is displayed, and the detailed exception can be captured by overriding
-     * [onLoadDocumentError].
+     * When this property is set, the fragment begins loading the PDF document. A visual indicator
+     * is displayed while the document is being loaded. Once the loading is fully completed, the
+     * [onLoadDocumentSuccess] callback is invoked. If an error occurs during the loading phase, the
+     * [onLoadDocumentError] callback is invoked with the exception.
+     *
+     * <p>Note: This property should only be set when the fragment is in the started state.
      */
     public var documentUri: Uri? = null
         set(value) {
             field = value
-            if (value != null) {
+
+            // Check if the uri is different from the previous one or restoring the same one
+            val isRestoredFromBundle =
+                arguments?.let {
+                    val savedUri = BundleCompat.getParcelable(it, KEY_DOCUMENT_URI, Uri::class.java)
+                    savedUri?.equals(value) ?: false
+                } ?: false
+
+            if (value != null && !isRestoredFromBundle) {
                 loadFile(value)
             }
         }
 
     /**
-     * Controls the visibility of the "find in file" menu. Defaults to `false`.
+     * Controls whether text search mode is active. Defaults to false.
      *
-     * Set to `true` to display the menu, or `false` to hide it.
+     * When text search mode is activated, the search menu becomes visible, and search functionality
+     * is enabled. Deactivating text search mode hides the search menu, clears search results, and
+     * removes any search-related highlights.
+     *
+     * <p>Note: This property should only be set once the [documentUri] is set.
      */
     public var isTextSearchActive: Boolean = false
         set(value) {
+            Preconditions.checkNotNull(
+                documentUri,
+                "Property can be only be toggled if URI is set already!"
+            )
             field = value
-            findInFileView!!.setFindInFileView(value)
+
+            arguments?.putBoolean(KEY_TEXT_SEARCH_ACTIVE, value)
+            findInFileView?.setFindInFileView(value)
         }
 
     /**
-     * Callback invoked when an error occurs while loading the PDF document.
+     * Invoked when the document has been fully loaded, processed, and the initial pages are
+     * displayed within the viewing area. This callback signifies that the document is ready for
+     * user interaction.
      *
-     * Override this method to handle document loading errors. The default implementation displays a
-     * generic error message in the loading view.
-     *
-     * @param throwable [Throwable] that occurred during document loading.
+     * <p>Note that this callback is dispatched only when the fragment is fully created and not yet
+     * destroyed, i.e., after [onCreate] has fully run and before [onDestroy] runs, and only on the
+     * main thread.
      */
-    @Suppress("UNUSED_PARAMETER") public fun onLoadDocumentError(throwable: Throwable) {}
+    public open fun onLoadDocumentSuccess() {}
+
+    /**
+     * Invoked when a problem arises during the loading process of the PDF document. This callback
+     * provides details about the encountered error, allowing for appropriate error handling and
+     * user notification.
+     *
+     * <p>Note that this callback is dispatched only when the fragment is fully created and not yet
+     * destroyed, i.e., after [onCreate] has fully run and before [onDestroy] runs, and only on the
+     * main thread.
+     *
+     * @param error [Throwable] that occurred during document loading.
+     */
+    @Suppress("UNUSED_PARAMETER") public open fun onLoadDocumentError(error: Throwable) {}
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -203,15 +241,15 @@ public open class PdfViewerFragment : Fragment() {
         }
 
         pdfViewer = inflater.inflate(R.layout.pdf_viewer_container, container, false) as FrameLayout
-        findInFileView = pdfViewer?.findViewById(R.id.search)
+        pdfViewer?.isScrollContainer = true
         fastScrollView = pdfViewer?.findViewById(R.id.fast_scroll_view)
         loadingView = pdfViewer?.findViewById(R.id.loadingView)
         paginatedView = fastScrollView?.findViewById(R.id.pdf_view)
         paginationModel = paginatedView!!.paginationModel
         zoomView = pdfViewer?.findViewById(R.id.zoom_view)
-
-        pdfViewer?.isScrollContainer = true
-
+        findInFileView = pdfViewer?.findViewById(R.id.search)
+        findInFileView!!.setPaginatedView(paginatedView!!)
+        findInFileView!!.setOnClosedButtonCallback { isTextSearchActive = false }
         annotationButton = pdfViewer?.findViewById(R.id.edit_fab)
 
         // All views are inflated, update the view state.
@@ -261,6 +299,11 @@ public open class PdfViewerFragment : Fragment() {
         viewModel.pdfLoaderStateFlow.value?.let { loader ->
             pdfLoader = loader
             refreshContentAndModels(loader)
+        }
+
+        arguments?.let { args ->
+            documentUri = BundleCompat.getParcelable(args, KEY_DOCUMENT_URI, Uri::class.java)
+            isTextSearchActive = args.getBoolean(KEY_TEXT_SEARCH_ACTIVE)
         }
 
         return pdfViewer
@@ -427,13 +470,6 @@ public open class PdfViewerFragment : Fragment() {
             val savedSelection =
                 BundleCompat.getParcelable(state, KEY_PAGE_SELECTION, PageSelection::class.java)
             savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
-
-            savedState.containsKey(KEY_TEXT_SEARCH_ACTIVE).let {
-                val textSearchActive = savedState.getBoolean(KEY_TEXT_SEARCH_ACTIVE)
-                if (textSearchActive) {
-                    findInFileView!!.setFindInFileView(true)
-                }
-            }
         }
     }
 
@@ -655,13 +691,19 @@ public open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel?.let {
             outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
         }
-        findInFileView?.let {
-            outState.putBoolean(KEY_TEXT_SEARCH_ACTIVE, it.visibility == View.VISIBLE)
-        }
     }
 
     private fun loadFile(fileUri: Uri) {
         Preconditions.checkNotNull(fileUri)
+        Preconditions.checkArgument(
+            lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED),
+            "Cannot load the URI until the fragment has reached least the STARTED state!"
+        )
+        arguments =
+            Bundle().apply {
+                putParcelable(KEY_DOCUMENT_URI, fileUri)
+                putBoolean(KEY_TEXT_SEARCH_ACTIVE, false)
+            }
         if (pdfLoader != null) {
             destroyContentModel()
         }
@@ -702,6 +744,7 @@ public open class PdfViewerFragment : Fragment() {
             object : FutureValue.Callback<Openable> {
                 override fun available(value: Openable) {
                     viewerAvailable(fileUri, fileName, value)
+                    onLoadDocumentSuccess()
                 }
 
                 override fun failed(thrown: Throwable) {
@@ -773,5 +816,6 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_TEXT_SEARCH_ACTIVE: String = "isTextSearchActive"
         private const val KEY_SHOW_ANNOTATION: String = "showEditFab"
         private const val KEY_PAGE_SELECTION: String = "currentPageSelection"
+        private const val KEY_DOCUMENT_URI: String = "documentUri"
     }
 }

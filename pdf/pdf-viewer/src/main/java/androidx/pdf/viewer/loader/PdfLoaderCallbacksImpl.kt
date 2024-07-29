@@ -37,7 +37,6 @@ import androidx.pdf.util.PaginationUtils
 import androidx.pdf.util.Preconditions
 import androidx.pdf.util.ThreadUtils
 import androidx.pdf.util.TileBoard
-import androidx.pdf.util.Toaster
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
 import androidx.pdf.viewer.PageMosaicView
@@ -255,7 +254,6 @@ class PdfLoaderCallbacksImpl(
                         "Document not loaded but status " + status.number
                     )
                 PdfStatus.PDF_ERROR -> {
-                    Toaster.LONG.popToast(context, R.string.error_file_format_pdf, fileName)
                     handleError(status)
                 }
                 PdfStatus.FILE_ERROR,

@@ -14,10 +14,30 @@ android {
         compileSdk 35
         targetSdk 35
     }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("src/androidTest/assets/".toString())
+    }
 }
 
 dependencies {
     api("com.google.android.material:material:1.11.0")
     implementation(project(":pdf:pdf-viewer-fragment"))
     implementation(libs.constraintLayout)
+    implementation(libs.testCore)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(project(":pdf:pdf-viewer-fragment"))
+
+    debugImplementation("androidx.fragment:fragment-testing-manifest:1.8.1")
+    debugImplementation("androidx.fragment:fragment-testing:1.7.1")
 }
