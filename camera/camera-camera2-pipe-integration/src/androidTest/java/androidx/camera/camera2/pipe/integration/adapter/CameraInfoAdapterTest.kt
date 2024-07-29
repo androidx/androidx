@@ -62,10 +62,10 @@ class CameraInfoAdapterTest {
 
     @Test
     fun canReturnSupportedOutputFormats() {
-        val formats = cameraInfoAdapter.supportedOutputFormats.toList()
+        val formats = cameraInfoAdapter.supportedOutputFormats
         val cameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing)!!
         val streamConfigurationMap = cameraCharacteristics.get(SCALER_STREAM_CONFIGURATION_MAP)!!
 
-        assertThat(formats).containsExactlyElementsIn(streamConfigurationMap.outputFormats.toList())
+        assertThat(formats).containsExactlyElementsIn(streamConfigurationMap.outputFormats.toSet())
     }
 }
