@@ -19,7 +19,6 @@ package androidx.compose.material3.adaptive.layout
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.snap
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -90,7 +89,7 @@ internal fun ThreePaneScaffold(
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
-    val scaffoldState = remember { ThreePaneScaffoldState(SeekableTransitionState(scaffoldValue)) }
+    val scaffoldState = remember { ThreePaneScaffoldState(scaffoldValue) }
     LaunchedEffect(key1 = scaffoldValue) { scaffoldState.animateTo(scaffoldValue) }
     ThreePaneScaffold(
         modifier = modifier,
@@ -837,7 +836,7 @@ private class ThreePaneScaffoldScopeImpl(
             if (scaffoldState.currentState == scaffoldState.targetState) {
                 1f
             } else {
-                scaffoldState.fraction
+                scaffoldState.progressFraction
             }
 
     override var positionAnimationSpec: FiniteAnimationSpec<IntOffset> by mutableStateOf(snap())

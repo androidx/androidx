@@ -665,14 +665,16 @@ class SupportingPaneScaffoldNavigatorTest {
 
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            SupportingPaneScaffoldRole.Supporting]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[SupportingPaneScaffoldRole.Supporting]
                 )
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            SupportingPaneScaffoldRole.Main]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[SupportingPaneScaffoldRole.Main]
                 )
                 .isEqualTo(PaneAdaptedValue.Expanded)
 
@@ -687,14 +689,16 @@ class SupportingPaneScaffoldNavigatorTest {
 
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            SupportingPaneScaffoldRole.Supporting]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[SupportingPaneScaffoldRole.Supporting]
                 )
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            SupportingPaneScaffoldRole.Main]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[SupportingPaneScaffoldRole.Main]
                 )
                 .isEqualTo(PaneAdaptedValue.Expanded)
         }

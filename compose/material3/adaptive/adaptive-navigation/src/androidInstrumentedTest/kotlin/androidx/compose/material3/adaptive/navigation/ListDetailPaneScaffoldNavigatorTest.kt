@@ -604,14 +604,16 @@ class ListDetailPaneScaffoldNavigatorTest {
 
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            ListDetailPaneScaffoldRole.Detail]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.Detail]
                 )
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            ListDetailPaneScaffoldRole.List]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.List]
                 )
                 .isEqualTo(PaneAdaptedValue.Expanded)
 
@@ -626,14 +628,16 @@ class ListDetailPaneScaffoldNavigatorTest {
 
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            ListDetailPaneScaffoldRole.Detail]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.Detail]
                 )
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(
                     scaffoldNavigator
-                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopUntilScaffoldValueChange)[
-                            ListDetailPaneScaffoldRole.List]
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.List]
                 )
                 .isEqualTo(PaneAdaptedValue.Expanded)
         }
