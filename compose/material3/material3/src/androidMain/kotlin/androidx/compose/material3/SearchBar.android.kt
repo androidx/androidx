@@ -22,6 +22,7 @@ import androidx.activity.compose.PredictiveBackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.CubicBezierEasing
@@ -32,6 +33,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
@@ -48,10 +50,15 @@ import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.input.InputTransformation
+import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.SearchBarDefaults.InputFieldHeight
@@ -59,8 +66,10 @@ import androidx.compose.material3.internal.MutableWindowInsets
 import androidx.compose.material3.internal.PredictiveBack
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.internal.textFieldBackground
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.FilledTextFieldTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.MotionTokens
 import androidx.compose.material3.tokens.SearchBarTokens
 import androidx.compose.material3.tokens.SearchViewTokens
@@ -403,6 +412,15 @@ object SearchBarDefaults {
      * @param focusedPlaceholderColor the placeholder color for this input field when focused
      * @param unfocusedPlaceholderColor the placeholder color for this input field when not focused
      * @param disabledPlaceholderColor the placeholder color for this input field when disabled
+     * @param focusedPrefixColor the prefix color for this input field when focused
+     * @param unfocusedPrefixColor the prefix color for this input field when not focused
+     * @param disabledPrefixColor the prefix color for this input field when disabled
+     * @param focusedSuffixColor the suffix color for this input field when focused
+     * @param unfocusedSuffixColor the suffix color for this input field when not focused
+     * @param disabledSuffixColor the suffix color for this input field when disabled
+     * @param focusedContainerColor the container color for this input field when focused
+     * @param unfocusedContainerColor the container color for this input field when not focused
+     * @param disabledContainerColor the container color for this input field when disabled
      */
     @Composable
     fun inputFieldColors(
@@ -432,6 +450,21 @@ object SearchBarDefaults {
             FilledTextFieldTokens.DisabledInputColor.value.copy(
                 alpha = FilledTextFieldTokens.DisabledInputOpacity
             ),
+        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color =
+            FilledTextFieldTokens.InputPrefixColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledInputOpacity
+            ),
+        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color =
+            FilledTextFieldTokens.InputSuffixColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledInputOpacity
+            ),
+        focusedContainerColor: Color = Color.Transparent,
+        unfocusedContainerColor: Color = Color.Transparent,
+        disabledContainerColor: Color = Color.Transparent,
     ): TextFieldColors =
         TextFieldDefaults.colors(
             focusedTextColor = focusedTextColor,
@@ -448,10 +481,184 @@ object SearchBarDefaults {
             focusedPlaceholderColor = focusedPlaceholderColor,
             unfocusedPlaceholderColor = unfocusedPlaceholderColor,
             disabledPlaceholderColor = disabledPlaceholderColor,
+            focusedPrefixColor = focusedPrefixColor,
+            unfocusedPrefixColor = unfocusedPrefixColor,
+            disabledPrefixColor = disabledPrefixColor,
+            focusedSuffixColor = focusedSuffixColor,
+            unfocusedSuffixColor = unfocusedSuffixColor,
+            disabledSuffixColor = disabledSuffixColor,
+            focusedContainerColor = focusedContainerColor,
+            unfocusedContainerColor = unfocusedContainerColor,
+            disabledContainerColor = disabledContainerColor,
         )
 
     /**
-     * A text field to input a query in a search bar
+     * A text field to input a query in a search bar.
+     *
+     * This overload of [InputField] uses [TextFieldState] to keep track of the text content and
+     * position of the cursor or selection. It is the recommended overload to use with [SearchBar]
+     * and [DockedSearchBar].
+     *
+     * @param state [TextFieldState] that holds the internal editing state of the input field.
+     * @param onSearch the callback to be invoked when the input service triggers the
+     *   [ImeAction.Search] action. The current query in the [state] comes as a parameter of the
+     *   callback.
+     * @param expanded whether the search bar is expanded and showing search results.
+     * @param onExpandedChange the callback to be invoked when the search bar's expanded state is
+     *   changed.
+     * @param modifier the [Modifier] to be applied to this input field.
+     * @param enabled the enabled state of this input field. When `false`, this component will not
+     *   respond to user input, and it will appear visually disabled and disabled to accessibility
+     *   services.
+     * @param readOnly controls the editable state of the input field. When `true`, the field cannot
+     *   be modified. However, a user can focus it and copy text from it.
+     * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
+     * @param placeholder the placeholder to be displayed when the input text is empty.
+     * @param leadingIcon the leading icon to be displayed at the start of the input field.
+     * @param trailingIcon the trailing icon to be displayed at the end of the input field.
+     * @param prefix the optional prefix to be displayed before the input text.
+     * @param suffix the optional suffix to be displayed after the input text.
+     * @param inputTransformation optional [InputTransformation] that will be used to transform
+     *   changes to the [TextFieldState] made by the user. The transformation will be applied to
+     *   changes made by hardware and software keyboard events, pasting or dropping text,
+     *   accessibility services, and tests. The transformation will _not_ be applied when changing
+     *   the [state] programmatically, or when the transformation is changed. If the transformation
+     *   is changed on an existing text field, it will be applied to the next user edit. The
+     *   transformation will not immediately affect the current [state].
+     * @param outputTransformation optional [OutputTransformation] that transforms how the contents
+     *   of the text field are presented.
+     * @param scrollState scroll state that manages the horizontal scroll of the input field.
+     * @param shape the shape of the input field.
+     * @param colors [TextFieldColors] that will be used to resolve the colors used for this input
+     *   field in different states. See [SearchBarDefaults.inputFieldColors].
+     * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+     *   emitting [Interaction]s for this input field. You can use this to change the search bar's
+     *   appearance or preview the search bar in different states. Note that if `null` is provided,
+     *   interactions will still happen internally.
+     */
+    @ExperimentalMaterial3Api
+    @Composable
+    fun InputField(
+        state: TextFieldState,
+        onSearch: (String) -> Unit,
+        expanded: Boolean,
+        onExpandedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+        enabled: Boolean = true,
+        readOnly: Boolean = false,
+        textStyle: TextStyle = LocalTextStyle.current,
+        placeholder: @Composable (() -> Unit)? = null,
+        leadingIcon: @Composable (() -> Unit)? = null,
+        trailingIcon: @Composable (() -> Unit)? = null,
+        prefix: @Composable (() -> Unit)? = null,
+        suffix: @Composable (() -> Unit)? = null,
+        inputTransformation: InputTransformation? = null,
+        outputTransformation: OutputTransformation? = null,
+        scrollState: ScrollState = rememberScrollState(),
+        shape: Shape = inputFieldShape,
+        colors: TextFieldColors = inputFieldColors(),
+        interactionSource: MutableInteractionSource? = null,
+    ) {
+        @Suppress("NAME_SHADOWING")
+        val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+        val focused = interactionSource.collectIsFocusedAsState().value
+        val focusRequester = remember { FocusRequester() }
+        val focusManager = LocalFocusManager.current
+
+        val searchSemantics = getString(Strings.SearchBarSearch)
+        val suggestionsAvailableSemantics = getString(Strings.SuggestionsAvailable)
+
+        val textColor =
+            textStyle.color.takeOrElse {
+                colors.textColor(enabled, isError = false, focused = focused)
+            }
+        val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
+
+        BasicTextField(
+            state = state,
+            modifier =
+                modifier
+                    .sizeIn(
+                        minWidth = SearchBarMinWidth,
+                        maxWidth = SearchBarMaxWidth,
+                        minHeight = InputFieldHeight,
+                    )
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { if (it.isFocused) onExpandedChange(true) }
+                    .semantics {
+                        contentDescription = searchSemantics
+                        if (expanded) {
+                            stateDescription = suggestionsAvailableSemantics
+                        }
+                        onClick {
+                            focusRequester.requestFocus()
+                            true
+                        }
+                    },
+            enabled = enabled,
+            readOnly = readOnly,
+            lineLimits = TextFieldLineLimits.SingleLine,
+            textStyle = mergedTextStyle,
+            cursorBrush = SolidColor(colors.cursorColor(isError = false)),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+            onKeyboardAction = { onSearch(state.text.toString()) },
+            interactionSource = interactionSource,
+            inputTransformation = inputTransformation,
+            outputTransformation = outputTransformation,
+            scrollState = scrollState,
+            decorator =
+                TextFieldDefaults.decorator(
+                    state = state,
+                    enabled = enabled,
+                    lineLimits = TextFieldLineLimits.SingleLine,
+                    outputTransformation = outputTransformation,
+                    interactionSource = interactionSource,
+                    placeholder = placeholder,
+                    leadingIcon =
+                        leadingIcon?.let { leading ->
+                            { Box(Modifier.offset(x = SearchBarIconOffsetX)) { leading() } }
+                        },
+                    trailingIcon =
+                        trailingIcon?.let { trailing ->
+                            { Box(Modifier.offset(x = -SearchBarIconOffsetX)) { trailing() } }
+                        },
+                    prefix = prefix,
+                    suffix = suffix,
+                    colors = colors,
+                    contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(),
+                    container = {
+                        val containerColor =
+                            animateColorAsState(
+                                targetValue =
+                                    colors.containerColor(
+                                        enabled = enabled,
+                                        isError = false,
+                                        focused = focused
+                                    ),
+                                animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
+                            )
+                        Box(Modifier.textFieldBackground(containerColor::value, shape))
+                    },
+                )
+        )
+
+        val shouldClearFocus = !expanded && focused
+        LaunchedEffect(expanded) {
+            if (shouldClearFocus) {
+                // Not strictly needed according to the motion spec, but since the animation
+                // already has a delay, this works around b/261632544.
+                delay(AnimationDelayMillis.toLong())
+                focusManager.clearFocus()
+            }
+        }
+    }
+
+    /**
+     * A text field to input a query in a search bar.
+     *
+     * This overload of [InputField] takes a [query] and [onQueryChange] callback to keep track of
+     * the text content. Consider using the overload which takes a [TextFieldState] instead.
      *
      * @param query the query text to be shown in the input field.
      * @param onQueryChange the callback to be invoked when the input service updates the query. An
@@ -590,6 +797,68 @@ object SearchBarDefaults {
             containerColor = containerColor,
             dividerColor = dividerColor,
             inputFieldColors = inputFieldColors,
+        )
+
+    @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
+    @Composable
+    fun inputFieldColors(
+        focusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        unfocusedTextColor: Color = SearchBarTokens.InputTextColor.value,
+        disabledTextColor: Color =
+            FilledTextFieldTokens.DisabledInputColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledInputOpacity
+            ),
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
+        selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
+        focusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = SearchBarTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color =
+            FilledTextFieldTokens.DisabledLeadingIconColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity
+            ),
+        focusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = SearchBarTokens.TrailingIconColor.value,
+        disabledTrailingIconColor: Color =
+            FilledTextFieldTokens.DisabledTrailingIconColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity
+            ),
+        focusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        unfocusedPlaceholderColor: Color = SearchBarTokens.SupportingTextColor.value,
+        disabledPlaceholderColor: Color =
+            FilledTextFieldTokens.DisabledInputColor.value.copy(
+                alpha = FilledTextFieldTokens.DisabledInputOpacity
+            ),
+    ): TextFieldColors =
+        inputFieldColors(
+            focusedTextColor = focusedTextColor,
+            unfocusedTextColor = unfocusedTextColor,
+            disabledTextColor = disabledTextColor,
+            cursorColor = cursorColor,
+            selectionColors = selectionColors,
+            focusedLeadingIconColor = focusedLeadingIconColor,
+            unfocusedLeadingIconColor = unfocusedLeadingIconColor,
+            disabledLeadingIconColor = disabledLeadingIconColor,
+            focusedTrailingIconColor = focusedTrailingIconColor,
+            unfocusedTrailingIconColor = unfocusedTrailingIconColor,
+            disabledTrailingIconColor = disabledTrailingIconColor,
+            focusedPlaceholderColor = focusedPlaceholderColor,
+            unfocusedPlaceholderColor = unfocusedPlaceholderColor,
+            disabledPlaceholderColor = disabledPlaceholderColor,
+            focusedPrefixColor = FilledTextFieldTokens.InputPrefixColor.value,
+            unfocusedPrefixColor = FilledTextFieldTokens.InputPrefixColor.value,
+            disabledPrefixColor =
+                FilledTextFieldTokens.InputPrefixColor.value.copy(
+                    alpha = FilledTextFieldTokens.DisabledInputOpacity
+                ),
+            focusedSuffixColor = FilledTextFieldTokens.InputSuffixColor.value,
+            unfocusedSuffixColor = FilledTextFieldTokens.InputSuffixColor.value,
+            disabledSuffixColor =
+                FilledTextFieldTokens.InputSuffixColor.value.copy(
+                    alpha = FilledTextFieldTokens.DisabledInputOpacity
+                ),
+            focusedContainerColor = Color.Transparent,
+            unfocusedContainerColor = Color.Transparent,
+            disabledContainerColor = Color.Transparent,
         )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)

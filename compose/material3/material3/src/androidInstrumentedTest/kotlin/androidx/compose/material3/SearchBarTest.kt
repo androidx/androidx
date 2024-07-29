@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.getValue
@@ -85,8 +86,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -126,8 +126,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = false,
                             onExpandedChange = {},
@@ -164,8 +163,7 @@ class SearchBarTest {
                 SearchBar(
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = { capturedSearchQuery = it },
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -189,8 +187,7 @@ class SearchBarTest {
                 SearchBar(
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
+                            state = rememberTextFieldState(),
                             onSearch = {},
                             expanded = false,
                             onExpandedChange = {},
@@ -218,8 +215,7 @@ class SearchBarTest {
                     modifier = Modifier.onGloballyPositioned { searchBarSize.value = it.size },
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
+                            state = rememberTextFieldState(),
                             onSearch = {},
                             expanded = true,
                             onExpandedChange = {},
@@ -257,8 +253,7 @@ class SearchBarTest {
                     windowInsets = WindowInsets(top = searchBarTopInset),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
+                            state = rememberTextFieldState(),
                             onSearch = {},
                             expanded = true,
                             onExpandedChange = {},
@@ -289,8 +284,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -338,8 +332,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -379,8 +372,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = false,
                             onExpandedChange = {},
@@ -417,8 +409,7 @@ class SearchBarTest {
                 DockedSearchBar(
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = { capturedSearchQuery = it },
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
@@ -442,8 +433,7 @@ class SearchBarTest {
                 DockedSearchBar(
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
+                            state = rememberTextFieldState(),
                             onSearch = {},
                             expanded = false,
                             onExpandedChange = {},
@@ -466,8 +456,7 @@ class SearchBarTest {
                 DockedSearchBar(
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "",
-                            onQueryChange = {},
+                            state = rememberTextFieldState(),
                             onSearch = {},
                             expanded = true,
                             onExpandedChange = {},
@@ -497,8 +486,7 @@ class SearchBarTest {
                     modifier = Modifier.testTag(SearchBarTestTag),
                     inputField = {
                         SearchBarDefaults.InputField(
-                            query = "Query",
-                            onQueryChange = {},
+                            state = rememberTextFieldState("Query"),
                             onSearch = {},
                             expanded = expanded,
                             onExpandedChange = { expanded = it },
