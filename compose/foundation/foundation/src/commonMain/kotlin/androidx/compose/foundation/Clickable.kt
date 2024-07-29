@@ -842,8 +842,16 @@ private class CombinedClickableNodeImpl(
         return true
     }
 
+    override fun onCancelKeyInput() {
+        resetKeyPressState()
+    }
+
     override fun onReset() {
         super.onReset()
+        resetKeyPressState()
+    }
+
+    private fun resetKeyPressState() {
         longKeyPressJobs.apply {
             forEachValue { it.cancel() }
             clear()
@@ -877,7 +885,7 @@ internal abstract class AbstractClickableNode(
         FocusableNode(
             interactionSource,
             focusability = Focusability.SystemDefined,
-            onFocus = ::initializeIndicationAndInteractionSourceIfNeeded
+            onFocusChange = ::onFocusChange
         )
 
     private var pointerInputNode: SuspendingPointerInputModifierNode? = null
@@ -1005,6 +1013,22 @@ internal abstract class AbstractClickableNode(
         currentKeyPressInteractions.clear()
     }
 
+    private fun onFocusChange(isFocused: Boolean) {
+        if (isFocused) {
+            initializeIndicationAndInteractionSourceIfNeeded()
+        } else {
+            // If we are no longer focused while we are tracking existing key presses, we need to
+            // clear them and cancel the presses.
+            if (interactionSource != null) {
+                currentKeyPressInteractions.values.forEach {
+                    coroutineScope.launch { interactionSource?.emit(PressInteraction.Cancel(it)) }
+                }
+            }
+            currentKeyPressInteractions.clear()
+            onCancelKeyInput()
+        }
+    }
+
     private fun initializeIndicationAndInteractionSourceIfNeeded() {
         // We have already created the node, no need to do any work
         if (indicationNode != null) return
@@ -1092,6 +1116,12 @@ internal abstract class AbstractClickableNode(
     protected abstract fun onClickKeyDownEvent(event: KeyEvent): Boolean
 
     protected abstract fun onClickKeyUpEvent(event: KeyEvent): Boolean
+
+    /**
+     * Called when focus is lost, to allow cleaning up and resetting the state for ongoing key
+     * presses
+     */
+    protected open fun onCancelKeyInput() {}
 
     final override fun onPreKeyEvent(event: KeyEvent) = false
 
