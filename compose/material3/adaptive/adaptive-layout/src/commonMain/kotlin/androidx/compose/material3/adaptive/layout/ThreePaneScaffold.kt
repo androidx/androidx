@@ -21,7 +21,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.rememberTransition
 import androidx.compose.animation.core.snap
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
@@ -91,7 +90,7 @@ internal fun ThreePaneScaffold(
     paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
     primaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
 ) {
-    val scaffoldState = remember { SeekableTransitionState(scaffoldValue) }
+    val scaffoldState = remember { ThreePaneScaffoldState(SeekableTransitionState(scaffoldValue)) }
     LaunchedEffect(key1 = scaffoldValue) { scaffoldState.animateTo(scaffoldValue) }
     ThreePaneScaffold(
         modifier = modifier,
@@ -111,7 +110,7 @@ internal fun ThreePaneScaffold(
 internal fun ThreePaneScaffold(
     modifier: Modifier,
     scaffoldDirective: PaneScaffoldDirective,
-    scaffoldState: SeekableTransitionState<ThreePaneScaffoldValue>,
+    scaffoldState: ThreePaneScaffoldState,
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
@@ -137,7 +136,7 @@ internal fun ThreePaneScaffold(
             )
         }
 
-    val currentTransition = rememberTransition(scaffoldState)
+    val currentTransition = scaffoldState.rememberTransition()
 
     LookaheadScope {
         // Create PaneWrappers for each of the panes and map the transitions according to each pane
@@ -830,15 +829,15 @@ sealed interface ThreePaneScaffoldScope : PaneScaffoldScope, LookaheadScope {
 private class ThreePaneScaffoldScopeImpl(
     override val role: ThreePaneScaffoldRole,
     override val scaffoldStateTransition: Transition<ThreePaneScaffoldValue>,
-    private val transitionState: SeekableTransitionState<ThreePaneScaffoldValue>,
+    private val scaffoldState: ThreePaneScaffoldState,
     lookaheadScope: LookaheadScope
 ) : ThreePaneScaffoldScope, LookaheadScope by lookaheadScope, PaneScaffoldScopeImpl() {
     override val scaffoldStateTransitionFraction: Float
         get() =
-            if (transitionState.currentState == transitionState.targetState) {
+            if (scaffoldState.currentState == scaffoldState.targetState) {
                 1f
             } else {
-                transitionState.fraction
+                scaffoldState.fraction
             }
 
     override var positionAnimationSpec: FiniteAnimationSpec<IntOffset> by mutableStateOf(snap())
