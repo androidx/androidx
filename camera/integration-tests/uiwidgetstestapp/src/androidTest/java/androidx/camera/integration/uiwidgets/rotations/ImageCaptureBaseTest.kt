@@ -84,11 +84,10 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         )
 
     @get:Rule
-    val mCameraActivityRules: GrantPermissionRule =
+    val cameraActivityRules: GrantPermissionRule =
         GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
-    protected val mDevice: UiDevice =
-        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+    protected lateinit var device: UiDevice
 
     protected fun setUp(lensFacing: Int) {
         // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
@@ -105,9 +104,10 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
         CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
         // Ensure it's in a natural orientation. This change could delay around 1 sec, please
         // call this earlier before launching the test activity.
-        mDevice.setOrientationNatural()
+        device.setOrientationNatural()
 
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
@@ -123,7 +123,9 @@ abstract class ImageCaptureBaseTest<A : CameraActivity>(
             val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
-        mDevice.unfreezeRotation()
+        if (::device.isInitialized) {
+            device.unfreezeRotation()
+        }
     }
 
     @Suppress("DEPRECATION")

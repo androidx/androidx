@@ -84,7 +84,7 @@ class ImageAnalysisUnlockedOrientationTest(
         InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
 
         // Rotate
-        rotation.rotate(mDevice)
+        rotation.rotate(device)
 
         // Wait for the activity to be recreated after rotation
         InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(monitor, 2000L)
