@@ -25,7 +25,7 @@ dependencies {
     implementation(project(":recyclerview:recyclerview-selection"))
     implementation(libs.material)
     implementation(libs.androidx.annotation)
-    implementation('androidx.collection:collection:1.1.0')
+    implementation("androidx.collection:collection:1.4.2")
     implementation('androidx.loader:loader:1.0.0')
     implementation('androidx.cursoradapter:cursoradapter:1.0.0')
     implementation('androidx.lifecycle:lifecycle-viewmodel:2.6.2')

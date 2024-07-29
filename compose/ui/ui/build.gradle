@@ -46,7 +46,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinCoroutinesCore)
                 api("androidx.annotation:annotation:1.8.1")
-                implementation("androidx.collection:collection:1.4.0")
+                implementation("androidx.collection:collection:1.4.2")
                 // when updating the runtime version please also update the runtime-saveable version
                 implementation(project(":compose:runtime:runtime"))
                 api(project(":compose:runtime:runtime-saveable"))
@@ -84,7 +84,7 @@ androidXMultiplatform {
 
                 implementation("androidx.activity:activity-ktx:1.7.0")
                 implementation("androidx.core:core:1.12.0")
-                implementation('androidx.collection:collection:1.0.0')
+                implementation("androidx.collection:collection:1.4.2")
                 implementation("androidx.customview:customview-poolingcontainer:1.0.0")
                 implementation("androidx.savedstate:savedstate-ktx:1.2.1")
                 api("androidx.lifecycle:lifecycle-runtime-compose:2.8.3")

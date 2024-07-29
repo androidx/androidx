@@ -132,7 +132,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-unit"))
     androidTestImplementation(project(":compose:ui:ui-text"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
-    androidTestImplementation("androidx.collection:collection:1.4.0")
+    androidTestImplementation("androidx.collection:collection:1.4.2")
     // Needed for createComposeRule, but not createAndroidComposeRule:
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.0")
 }

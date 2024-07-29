@@ -32,7 +32,7 @@ dependencies {
     api("androidx.recyclerview:recyclerview:1.2.0")
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

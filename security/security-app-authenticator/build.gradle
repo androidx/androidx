@@ -32,7 +32,7 @@ dependencies {
     api("androidx.annotation:annotation:1.8.1")
     implementation(libs.autoValueAnnotations)
     annotationProcessor(libs.autoValue)
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 
     testImplementation(libs.junit)
     testImplementation(libs.testExtJunit)

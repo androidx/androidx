@@ -51,7 +51,7 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
     androidTestImplementation(projectOrArtifact(":activity:activity-ktx"))
-    androidTestImplementation("androidx.collection:collection-ktx:1.1.0")
+    androidTestImplementation("androidx.collection:collection-ktx:1.4.2")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)

@@ -32,7 +32,7 @@ plugins {
 dependencies {
     api(libs.kotlinStdlib)
     implementation('androidx.core:core:1.5.0')
-    implementation('androidx.collection:collection:1.1.0')
+    implementation("androidx.collection:collection:1.4.2")
 
     annotationProcessor(libs.nullaway)
 

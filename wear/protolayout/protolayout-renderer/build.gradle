@@ -48,7 +48,7 @@ dependencies {
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
     testImplementation(libs.robolectric)
-    testImplementation("androidx.collection:collection:1.2.0")
+    testImplementation("androidx.collection:collection:1.4.2")
     testImplementation(libs.truth)
 }
 

@@ -30,7 +30,7 @@ plugins {
 
 dependencies {
     implementation (project(":security:security-app-authenticator"))
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

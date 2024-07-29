@@ -14,7 +14,7 @@ plugins {
 
 dependencies {
     api("androidx.core:core:1.1.0")
-    implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.collection:collection:1.4.2")
 
     annotationProcessor(libs.nullaway)
 
