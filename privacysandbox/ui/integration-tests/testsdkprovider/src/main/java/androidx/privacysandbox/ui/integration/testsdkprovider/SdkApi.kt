@@ -25,7 +25,6 @@ import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.C
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
 import androidx.privacysandbox.ui.integration.sdkproviderutils.ViewabilityHandler
-import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.integration.testaidl.ISdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
@@ -104,7 +103,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
             appOwnedSdkSandboxInterfaces.forEach { appOwnedSdkSandboxInterfaceCompat ->
                 if (appOwnedSdkSandboxInterfaceCompat.getName() == MEDIATEE_SDK) {
                     val appOwnedMediateeSdkApi =
-                        IAppOwnedMediateeSdkApi.Stub.asInterface(
+                        IMediateeSdkApi.Stub.asInterface(
                             appOwnedSdkSandboxInterfaceCompat.getInterface()
                         )
                     return appOwnedMediateeSdkApi.loadBannerAd(

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.ui.integration.testapp
+package androidx.privacysandbox.ui.integration.sdkproviderutils
 
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
-import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
-import androidx.privacysandbox.ui.integration.sdkproviderutils.ViewabilityHandler
-import androidx.privacysandbox.ui.integration.testaidl.IAppOwnedMediateeSdkApi
+import androidx.privacysandbox.ui.integration.testaidl.IMediateeSdkApi
 import androidx.privacysandbox.ui.provider.toCoreLibInfo
 
-class AppOwnedMediateeSdkApi(private val sdkContext: Context) : IAppOwnedMediateeSdkApi.Stub() {
+class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi.Stub() {
+
     private val testAdapters = TestAdapters(sdkContext)
+    private val mediationDescription =
+        if (CompatImpl.isAppOwnedMediatee()) {
+            "App Owned Mediation"
+        } else "Runtime Mediation"
 
     override fun loadBannerAd(
         @AdType adType: Int,
@@ -37,7 +42,7 @@ class AppOwnedMediateeSdkApi(private val sdkContext: Context) : IAppOwnedMediate
             when (adType) {
                 AdType.WEBVIEW -> loadWebViewBannerAd()
                 AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
-                else -> loadNonWebViewBannerAd("AppOwnedMediation", waitInsideOnDraw)
+                else -> loadNonWebViewBannerAd(mediationDescription, waitInsideOnDraw)
             }
         ViewabilityHandler.addObserverFactoryToAdapter(adapter, drawViewability)
         return adapter.toCoreLibInfo(sdkContext)
@@ -56,5 +61,22 @@ class AppOwnedMediateeSdkApi(private val sdkContext: Context) : IAppOwnedMediate
         waitInsideOnDraw: Boolean
     ): SandboxedUiAdapter {
         return testAdapters.TestBannerAd(text, waitInsideOnDraw)
+    }
+
+    private object CompatImpl {
+        fun isAppOwnedMediatee(): Boolean {
+            return if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.TIRAMISU) {
+                true
+            } else {
+                Api34PlusImpl.isAppOwnedMediatee()
+            }
+        }
+
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        private object Api34PlusImpl {
+            fun isAppOwnedMediatee(): Boolean {
+                return !android.os.Process.isSdkSandbox()
+            }
+        }
     }
 }
