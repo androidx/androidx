@@ -289,10 +289,6 @@ public open class PdfViewerFragment : Fragment() {
                     if (shouldRedrawOnDocumentLoaded) {
                         shouldRedrawOnDocumentLoaded = false
                     }
-
-                    if (annotationButton != null && isAnnotationIntentResolvable) {
-                        annotationButton?.visibility = View.VISIBLE
-                    }
                 },
                 onDocumentLoadFailure = { thrown -> onLoadDocumentError(thrown) }
             )
@@ -418,11 +414,14 @@ public open class PdfViewerFragment : Fragment() {
      * its view hierarchy built up and [.onCreateView] has finished). It might run right now if the
      * Viewer is currently started.
      */
-    private fun postContentsAvailable(contents: DisplayData) {
+    private fun postContentsAvailable(
+        contents: DisplayData,
+        showAnnotationButton: Boolean = false
+    ) {
         Preconditions.checkState(delayedContentsAvailable == null, "Already waits for contents")
 
         if (isStarted()) {
-            onContentsAvailable(contents)
+            onContentsAvailable(contents, showAnnotationButton)
             hasContents = true
         } else {
             delayedContentsAvailable = Runnable {
@@ -430,14 +429,14 @@ public open class PdfViewerFragment : Fragment() {
                     !hasContents,
                     "Received contents while restoring another copy"
                 )
-                onContentsAvailable(contents)
+                onContentsAvailable(contents, showAnnotationButton)
                 delayedContentsAvailable = null
                 hasContents = true
             }
         }
     }
 
-    private fun onContentsAvailable(contents: DisplayData) {
+    private fun onContentsAvailable(contents: DisplayData, showAnnotationButton: Boolean) {
         fileData = contents
 
         // Update the PdfLoader in the ViewModel with the new DisplayData
@@ -446,6 +445,26 @@ public open class PdfViewerFragment : Fragment() {
             contents,
             pdfLoaderCallbacks!!
         )
+        setAnnotationIntentResolvability()
+        setAnnotationButtonVisibility(showAnnotationButton)
+    }
+
+    private fun setAnnotationIntentResolvability() {
+        isAnnotationIntentResolvable =
+            AnnotationUtils.resolveAnnotationIntent(requireContext(), documentUri!!)
+        singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        findInFileView!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        (zoomScrollObserver as? ZoomScrollValueObserver)?.setAnnotationIntentResolvable(
+            isAnnotationIntentResolvable
+        )
+    }
+
+    private fun setAnnotationButtonVisibility(showAnnotationButton: Boolean) {
+        annotationButton?.let { button ->
+            if (showAnnotationButton && isAnnotationIntentResolvable) {
+                button.visibility = View.VISIBLE
+            }
+        }
     }
 
     /**
@@ -723,14 +742,6 @@ public open class PdfViewerFragment : Fragment() {
             annotationButton?.visibility = View.GONE
         }
         localUri = fileUri
-        isAnnotationIntentResolvable =
-            AnnotationUtils.resolveAnnotationIntent(requireContext(), localUri!!)
-        singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
-        findInFileView!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
-        findInFileView!!.resetFindInFile()
-        (zoomScrollObserver as? ZoomScrollValueObserver)?.setAnnotationIntentResolvable(
-            isAnnotationIntentResolvable
-        )
     }
 
     private fun validateFileUri(fileUri: Uri) {
@@ -791,7 +802,7 @@ public open class PdfViewerFragment : Fragment() {
     /** Feed this Viewer with contents to be displayed. */
     private fun feed(contents: DisplayData?): PdfViewerFragment {
         if (contents != null) {
-            postContentsAvailable(contents)
+            postContentsAvailable(contents, true)
         }
         return this
     }
