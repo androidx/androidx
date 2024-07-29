@@ -116,9 +116,6 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
 
     class ScreenshotTestStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
-            Assume.assumeTrue("Disabling screenshots tests due to b/355440484", false)
-
-            /* Reenable this part when FTL new image rollout is complete.
             if (Build.MODEL.contains("gphone")) {
                 // We support emulators with API 33
                 Assume.assumeTrue("Requires SDK 33.", Build.VERSION.SDK_INT == 33)
@@ -126,7 +123,6 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
                 Assume.assumeTrue("Requires API 33 emulator", false)
             }
             base.evaluate()
-            */
         }
     }
 
