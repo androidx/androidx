@@ -17,24 +17,30 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
 import androidx.wear.compose.material3.IconButtonDefaults
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.ProgressIndicatorDefaults
-import androidx.wear.compose.material3.ProgressIndicatorDefaults.ButtonCircularIndicatorStrokeWidth
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
+import androidx.wear.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorOnOffSample
@@ -62,7 +68,7 @@ val ProgressIndicatorDemos =
                         modifier = Modifier.size(IconButtonDefaults.DefaultButtonSize),
                         startAngle = 120f,
                         endAngle = 60f,
-                        strokeWidth = ButtonCircularIndicatorStrokeWidth,
+                        strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                         colors = ProgressIndicatorDefaults.colors(indicatorColor = Color.Red)
                     )
                 }
@@ -75,4 +81,33 @@ val ProgressIndicatorDemos =
         ComposableDemo("Progress segments on/off") {
             Centralize { SegmentedProgressIndicatorOnOffSample() }
         },
+        ComposableDemo("Linear progress indicator") {
+            Centralize { LinearProgressIndicatorSamples() }
+        },
     )
+
+@Composable
+fun LinearProgressIndicatorSamples() {
+    Box(modifier = Modifier.background(MaterialTheme.colorScheme.background).fillMaxSize()) {
+        ScalingLazyColumn(
+            modifier = Modifier.fillMaxSize().padding(12.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item { ListHeader { Text("Progress 0%") } }
+            item { LinearProgressIndicatorSample(progress = { 0f }) }
+            item { ListHeader { Text("Progress 1%") } }
+            item { LinearProgressIndicatorSample(progress = { 0.01f }) }
+            item { ListHeader { Text("Progress 50%") } }
+            item { LinearProgressIndicatorSample(progress = { 0.5f }) }
+            item { ListHeader { Text("Progress 100%") } }
+            item { LinearProgressIndicatorSample(progress = { 1f }) }
+            item { ListHeader { Text("Disabled 0%") } }
+            item { LinearProgressIndicatorSample(progress = { 0f }, enabled = false) }
+            item { ListHeader { Text("Disabled 50%") } }
+            item { LinearProgressIndicatorSample(progress = { 0.5f }, enabled = false) }
+            item { ListHeader { Text("Disabled 100%") } }
+            item { LinearProgressIndicatorSample(progress = { 1f }, enabled = false) }
+        }
+    }
+}

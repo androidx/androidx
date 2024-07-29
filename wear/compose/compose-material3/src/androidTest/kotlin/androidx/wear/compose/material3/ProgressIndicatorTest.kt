@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -86,11 +87,11 @@ class CircularProgressIndicatorTest {
             )
         }
         rule.waitForIdle()
-        // by default fully filled progress approximately takes 25% of the control.
+        // With default stroke width the filled progress approximately takes 16% of the control.
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 23f..27f)
+            .assertColorInPercentageRange(Color.Yellow, 15f..18f)
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
     }
 
@@ -110,11 +111,11 @@ class CircularProgressIndicatorTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
-        // by default progress track approximately takes 25% of the control.
+        // With default stroke width the progress track approximately takes 16% of the control.
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 23f..27f)
+            .assertColorInPercentageRange(Color.Red, 15f..18f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -135,15 +136,15 @@ class CircularProgressIndicatorTest {
         }
         rule.waitForIdle()
         // Color should take approximately a quarter of the full screen color percentages,
-        // eg 25% / 4 ≈ 6%.
+        // eg 16% / 4 ≈ 4%.
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 4f..8f)
+            .assertColorInPercentageRange(Color.Yellow, 3f..5f)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 4f..8f)
+            .assertColorInPercentageRange(Color.Red, 3f..5f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -165,11 +166,11 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 0.5f..1f)
+            .assertColorInPercentageRange(Color.Yellow, 0.2f..0.5f)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 22f..27f)
+            .assertColorInPercentageRange(Color.Red, 15f..18f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -179,7 +180,7 @@ class CircularProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0.5f },
-                strokeWidth = 4.dp,
+                strokeWidth = CircularProgressIndicatorDefaults.smallStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -191,11 +192,11 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 2f..6f)
+            .assertColorInPercentageRange(Color.Yellow, 5f..7f)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 2f..6f)
+            .assertColorInPercentageRange(Color.Red, 5f..7f)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
@@ -205,7 +206,7 @@ class CircularProgressIndicatorTest {
             CircularProgressIndicator(
                 modifier = Modifier.testTag(TEST_TAG),
                 progress = { 0.5f },
-                strokeWidth = 36.dp,
+                strokeWidth = CircularProgressIndicatorDefaults.largeStrokeWidth,
                 colors =
                     ProgressIndicatorDefaults.colors(
                         indicatorColor = Color.Yellow,
@@ -218,11 +219,36 @@ class CircularProgressIndicatorTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Yellow, 20f..25f)
+            .assertColorInPercentageRange(Color.Yellow, 8f..10f)
         rule
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertColorInPercentageRange(Color.Red, 20f..25f)
+            .assertColorInPercentageRange(Color.Red, 8f..10f)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun progress_disabled_contains_disabled_colors() {
+        setContentWithTheme {
+            CircularProgressIndicator(
+                modifier = Modifier.testTag(TEST_TAG),
+                progress = { 0.5f },
+                enabled = false,
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Yellow,
+                        trackColor = Color.Red,
+                        disabledIndicatorColor = Color.Blue,
+                        disabledTrackColor = Color.Green,
+                    ),
+            )
+        }
+        rule.waitForIdle()
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Yellow)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertDoesNotContainColor(Color.Red)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(Color.Blue)
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(Color.Green)
     }
 
     private fun setContentWithTheme(composable: @Composable BoxScope.() -> Unit) {

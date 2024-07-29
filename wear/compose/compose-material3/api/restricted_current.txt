@@ -253,6 +253,23 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void SplitCheckboxButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, String? toggleContentDescription, kotlin.jvm.functions.Function0<kotlin.Unit> onContainerClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.wear.compose.material3.SplitCheckboxButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? toggleInteractionSource, optional androidx.compose.foundation.interaction.MutableInteractionSource? containerInteractionSource, optional String? containerClickLabel, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? secondaryLabel, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> label);
   }
 
+  public final class CircularProgressIndicatorDefaults {
+    method public float calculateRecommendedGapSize(float strokeWidth);
+    method public float getFullScreenPadding();
+    method @androidx.compose.runtime.Composable public float getLargeStrokeWidth();
+    method @androidx.compose.runtime.Composable public float getSmallStrokeWidth();
+    method public float getStartAngle();
+    property public final float FullScreenPadding;
+    property public final float StartAngle;
+    property @androidx.compose.runtime.Composable public final float largeStrokeWidth;
+    property @androidx.compose.runtime.Composable public final float smallStrokeWidth;
+    field public static final androidx.wear.compose.material3.CircularProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class CircularProgressIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
+  }
+
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
     ctor public ColorScheme();
     ctor public ColorScheme(optional long primary, optional long primaryDim, optional long primaryContainer, optional long onPrimary, optional long onPrimaryContainer, optional long secondary, optional long secondaryDim, optional long secondaryContainer, optional long onSecondary, optional long onSecondaryContainer, optional long tertiary, optional long tertiaryDim, optional long tertiaryContainer, optional long onTertiary, optional long onTertiaryContainer, optional long surfaceContainerLow, optional long surfaceContainer, optional long surfaceContainerHigh, optional long onSurface, optional long onSurfaceVariant, optional long outline, optional long outlineVariant, optional long background, optional long onBackground, optional long error, optional long onError, optional long errorContainer, optional long onErrorContainer);
@@ -580,6 +597,18 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void LevelIndicator(kotlin.jvm.functions.Function0<java.lang.Integer> value, kotlin.ranges.IntProgression valueProgression, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.wear.compose.material3.LevelIndicatorColors colors, optional float strokeWidth, optional float sweepAngle, optional boolean reverseDirection);
   }
 
+  public final class LinearProgressIndicatorDefaults {
+    method public float getStrokeWidthLarge();
+    method public float getStrokeWidthSmall();
+    property public final float StrokeWidthLarge;
+    property public final float StrokeWidthSmall;
+    field public static final androidx.wear.compose.material3.LinearProgressIndicatorDefaults INSTANCE;
+  }
+
+  public final class LinearProgressIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void LinearProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional boolean enabled);
+  }
+
   public final class ListHeaderDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getHeaderContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getSubheaderContentPadding();
@@ -766,31 +795,22 @@ package androidx.wear.compose.material3 {
   }
 
   public final class ProgressIndicatorColors {
-    ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush);
+    ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush, optional androidx.compose.ui.graphics.Brush disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush disabledTrackBrush);
+    method public androidx.compose.ui.graphics.Brush getDisabledIndicatorBrush();
+    method public androidx.compose.ui.graphics.Brush getDisabledTrackBrush();
     method public androidx.compose.ui.graphics.Brush getIndicatorBrush();
     method public androidx.compose.ui.graphics.Brush getTrackBrush();
+    property public final androidx.compose.ui.graphics.Brush disabledIndicatorBrush;
+    property public final androidx.compose.ui.graphics.Brush disabledTrackBrush;
     property public final androidx.compose.ui.graphics.Brush indicatorBrush;
     property public final androidx.compose.ui.graphics.Brush trackBrush;
   }
 
   public final class ProgressIndicatorDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional long indicatorColor, optional long trackColor);
-    method public float gapSize(float strokeWidth);
-    method public float getButtonCircularIndicatorStrokeWidth();
-    method public float getFullScreenPadding();
-    method public float getStartAngle();
-    method public float getStrokeWidth();
-    property public final float ButtonCircularIndicatorStrokeWidth;
-    property public final float FullScreenPadding;
-    property public final float StartAngle;
-    property public final float StrokeWidth;
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush, optional androidx.compose.ui.graphics.Brush? disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush? disabledTrackBrush);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional long indicatorColor, optional long trackColor, optional long disabledIndicatorColor, optional long disabledTrackColor);
     field public static final androidx.wear.compose.material3.ProgressIndicatorDefaults INSTANCE;
-  }
-
-  public final class ProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize);
   }
 
   @androidx.compose.runtime.Immutable public final class RadioButtonColors {
@@ -904,8 +924,8 @@ package androidx.wear.compose.material3 {
   }
 
   public final class SegmentedCircularProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize);
-    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> completed, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize);
+    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
+    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> completed, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
   }
 
   public final class ShapeDefaults {
