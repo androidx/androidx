@@ -17,14 +17,19 @@
 package androidx.pdf
 
 import android.content.ContentResolver
+import android.content.res.Configuration
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.RestrictTo
+import androidx.core.os.BundleCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -97,12 +102,12 @@ public open class PdfViewerFragment : Fragment() {
 
     /**
      * True when this Viewer is on-screen (but independent on whether it is actually started, so it
-     * could be invisible, because obscured by another app). This value is controlled by
-     * [.postEnter] and [.exit].
+     * could be invisible, because obscured by another app). This value is controlled by [postEnter]
+     * and [.exit].
      */
     private var onScreen = false
 
-    /** Marks that [.onEnter] must be run after [.onCreateView]. */
+    /** Marks that [onEnter] must be run after [onCreateView]. */
     private var delayedEnter = false
     private var hasContents = false
 
@@ -216,6 +221,8 @@ public open class PdfViewerFragment : Fragment() {
             loadingView?.showLoadingView()
         }
 
+        adjustInsetsForSearchMenu(findInFileView!!)
+
         pdfLoaderCallbacks =
             PdfLoaderCallbacksImpl(
                 requireContext(),
@@ -251,6 +258,11 @@ public open class PdfViewerFragment : Fragment() {
 
         setUpEditFab()
 
+        viewModel.pdfLoaderStateFlow.value?.let { loader ->
+            pdfLoader = loader
+            refreshContentAndModels(loader)
+        }
+
         return pdfViewer
     }
 
@@ -285,6 +297,31 @@ public open class PdfViewerFragment : Fragment() {
         onScreen = false
         started = false
         super.onStop()
+    }
+
+    /**
+     * Adjusts the [FindInFileView] in portrait to be displayed on top of the keyboard in portrait
+     * mode but this is not required in landscape mode as the keyboard is detached from the bottom
+     * of the view.
+     */
+    private fun adjustInsetsForSearchMenu(view: FindInFileView) {
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            WindowCompat.setDecorFitsSystemWindows(
+                requireActivity().window,
+                /* decorFitsSystemWindows= */ false
+            )
+
+            // Set the listener to handle window insets
+            ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+                val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
+                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = imeInsets.bottom
+                }
+
+                // Consume only the IME insets
+                insets.inset(imeInsets)
+            }
+        }
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
@@ -378,9 +415,7 @@ public open class PdfViewerFragment : Fragment() {
                 showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
         }
 
-        createModelsAndHandlers(pdfLoader!!)
-        configureViewsAndModels()
-        initializeAndAddObservers()
+        refreshContentAndModels(pdfLoader!!)
 
         savedState?.let { state ->
             state.containsKey(KEY_LAYOUT_REACH).let {
@@ -390,11 +425,7 @@ public open class PdfViewerFragment : Fragment() {
 
             // Restore page selection from saved state if it exists
             val savedSelection =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    state.getParcelable(KEY_PAGE_SELECTION, PageSelection::class.java)
-                } else {
-                    @Suppress("DEPRECATION") state.getParcelable(KEY_PAGE_SELECTION)
-                }
+                BundleCompat.getParcelable(state, KEY_PAGE_SELECTION, PageSelection::class.java)
             savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
 
             savedState.containsKey(KEY_TEXT_SEARCH_ACTIVE).let {
@@ -406,39 +437,60 @@ public open class PdfViewerFragment : Fragment() {
         }
     }
 
-    /**
-     * Creates core models and handlers for PDF interaction.
-     *
-     * @param pdfLoader PdfLoader for content processing.
-     */
-    private fun createModelsAndHandlers(pdfLoader: PdfLoader) {
-        paginationModel = paginatedView!!.initPaginationModelAndPageRangeHandler(requireContext())
-        pdfLoaderCallbacks?.selectionModel = PdfSelectionModel(pdfLoader)
+    private fun updateSelectionModel(updatedSelectionModel: PdfSelectionModel) {
+        pdfLoaderCallbacks?.selectionModel = updatedSelectionModel
+        zoomView?.setPdfSelectionModel(updatedSelectionModel)
+        paginatedView?.selectionModel = updatedSelectionModel
+
         selectionActionMode =
-            SelectionActionMode(
-                requireActivity(),
-                paginatedView!!,
-                pdfLoaderCallbacks?.selectionModel!!
-            )
+            SelectionActionMode(requireActivity(), paginatedView!!, updatedSelectionModel)
         selectionHandles =
             PdfSelectionHandles(
-                pdfLoaderCallbacks?.selectionModel!!,
+                updatedSelectionModel,
                 zoomView!!,
                 paginatedView!!,
                 selectionActionMode!!
             )
-        layoutHandler = LayoutHandler(pdfLoader)
+        paginatedView?.selectionHandles = selectionHandles!!
+    }
+
+    private fun updatePageViewFactory(updatedPageViewFactory: PageViewFactory) {
+        pageViewFactory = updatedPageViewFactory
+        pdfLoaderCallbacks?.pageViewFactory = updatedPageViewFactory
+        paginatedView?.pageViewFactory = updatedPageViewFactory
+
+        selectionObserver =
+            PageSelectionValueObserver(
+                paginatedView!!,
+                paginationModel!!,
+                pageViewFactory!!,
+                requireContext()
+            )
+        pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
+    }
+
+    private fun updateSearchModel() {
+        findInFileView?.searchModel?.let { model ->
+            pdfLoaderCallbacks?.searchModel = model
+            paginatedView?.searchModel = model
+            searchQueryObserver = SearchQueryObserver(paginatedView!!)
+            model.query().addObserver(searchQueryObserver)
+        }
+    }
+
+    private fun updateSingleTapHandler(pdfLoader: PdfLoader, selectionModel: PdfSelectionModel) {
         singleTapHandler =
             SingleTapHandler(
                 requireContext(),
                 annotationButton!!,
                 findInFileView!!,
                 zoomView!!,
-                pdfLoaderCallbacks?.selectionModel!!,
+                selectionModel,
                 paginationModel!!,
                 layoutHandler!!
             )
-        singleTapHandler?.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+        singleTapHandler!!.setAnnotationIntentResolvable(isAnnotationIntentResolvable)
+
         pageViewFactory =
             PageViewFactory(
                 requireContext(),
@@ -447,28 +499,24 @@ public open class PdfViewerFragment : Fragment() {
                 zoomView!!,
                 singleTapHandler!!
             )
+        updatePageViewFactory(pageViewFactory!!)
     }
 
-    /** Configures views and models for PDF viewing/interaction. */
-    private fun configureViewsAndModels() {
-        zoomView?.setPdfSelectionModel(pdfLoaderCallbacks?.selectionModel!!)
-        findInFileView!!.setPdfLoader(pdfLoader!!)
-        findInFileView!!.setPaginatedView(paginatedView!!)
-        annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
+    private fun refreshContentAndModels(pdfLoader: PdfLoader) {
+        paginationModel = paginatedView!!.initPaginationModelAndPageRangeHandler(requireActivity())
+
+        paginatedView?.setPdfLoader(pdfLoader)
+        findInFileView?.setPdfLoader(pdfLoader)
         pdfLoaderCallbacks?.pdfLoader = pdfLoader
-        pdfLoaderCallbacks!!.layoutHandler = layoutHandler
-        pdfLoaderCallbacks?.pageViewFactory = pageViewFactory!!
-        pdfLoaderCallbacks?.searchModel = findInFileView!!.searchModel
-        paginatedView?.selectionModel = pdfLoaderCallbacks?.selectionModel!!
-        paginatedView?.searchModel = findInFileView!!.searchModel
-        paginatedView?.setPdfLoader(pdfLoader!!)
-        paginatedView?.pageViewFactory = pageViewFactory!!
-        paginatedView?.selectionHandles = selectionHandles!!
-        zoomView?.setPdfSelectionModel(pdfLoaderCallbacks?.selectionModel!!)
-    }
 
-    /** Initializes and adds observers for selection, search, and match changes. */
-    private fun initializeAndAddObservers() {
+        layoutHandler = LayoutHandler(pdfLoader)
+
+        val updatedSelectionModel = PdfSelectionModel(pdfLoader)
+        updateSelectionModel(updatedSelectionModel)
+        updateSingleTapHandler(pdfLoader, updatedSelectionModel)
+        updateSearchModel()
+
+        pdfLoaderCallbacks!!.layoutHandler = layoutHandler
         zoomScrollObserver =
             ZoomScrollValueObserver(
                 zoomView!!,
@@ -482,18 +530,6 @@ public open class PdfViewerFragment : Fragment() {
             )
         zoomView?.zoomScroll()?.addObserver(zoomScrollObserver)
 
-        selectionObserver =
-            PageSelectionValueObserver(
-                paginatedView!!,
-                paginationModel!!,
-                pageViewFactory!!,
-                requireContext()
-            )
-        pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
-
-        searchQueryObserver = SearchQueryObserver(paginatedView!!)
-        findInFileView!!.searchModel.query().addObserver(searchQueryObserver)
-
         selectedMatchObserver =
             SelectedMatchValueObserver(
                 paginatedView!!,
@@ -504,6 +540,8 @@ public open class PdfViewerFragment : Fragment() {
                 requireContext()
             )
         findInFileView!!.searchModel.selectedMatch().addObserver(selectedMatchObserver)
+
+        annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
     }
 
     /** Restores the contents of this Viewer when it is automatically restored by android. */
@@ -511,9 +549,11 @@ public open class PdfViewerFragment : Fragment() {
         val dataBundle = savedState?.getBundle(KEY_DATA)
         if (dataBundle != null) {
             try {
-                val restoredData = DisplayData.fromBundle(dataBundle)
-                localUri = restoredData.uri
-                postContentsAvailable(restoredData)
+                fileData = DisplayData.fromBundle(dataBundle)
+                fileData?.let {
+                    localUri = it.uri
+                    postContentsAvailable(it)
+                }
             } catch (e: Exception) {
                 // This can happen if the data is an instance of StreamOpenable, and the client
                 // app that owns it has been killed by the system. We will still recover,
@@ -549,8 +589,10 @@ public open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel = null
         selectionActionMode?.destroy()
 
-        findInFileView!!.searchModel.selectedMatch().removeObserver(selectedMatchObserver!!)
-        findInFileView!!.searchModel.query().removeObserver(searchQueryObserver!!)
+        findInFileView?.searchModel?.let {
+            it.selectedMatch().removeObserver(selectedMatchObserver!!)
+            it.query().removeObserver(searchQueryObserver!!)
+        }
 
         pdfLoaderCallbacks?.searchModel = null
 

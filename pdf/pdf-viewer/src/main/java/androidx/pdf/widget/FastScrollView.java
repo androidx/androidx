@@ -180,9 +180,9 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                                         | WindowInsetsCompat.Type.displayCutout());
         if (mZoomView != null) {
             mZoomView.setPadding(
-                    mZoomViewBasePadding.left + insetsCompat.left,
+                    0,
                     mZoomViewBasePadding.top + insetsCompat.top,
-                    mZoomViewBasePadding.right + insetsCompat.top,
+                    0,
                     mZoomViewBasePadding.bottom + insetsCompat.bottom);
             setScrollbarMarginTop(mZoomView.getPaddingTop());
             // Ignore ZoomView's intrinsic padding on the right side as we want it to be

@@ -10,8 +10,9 @@ android {
 
     defaultConfig {
         applicationId "androidx.pdf.testapp"
-        minSdk 31
+        minSdk 35
         compileSdk 35
+        targetSdk 35
     }
 }
 

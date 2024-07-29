@@ -275,7 +275,6 @@ class PdfLoaderCallbacksImpl(
                     paginatedView.paginationModel.getPageSize(page)
                 ) as PageMosaicView)
                 .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
-            Toaster.LONG.popToast(context, R.string.error_on_page, page + 1)
             // TODO: Track render error.
         }
     }
