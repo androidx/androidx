@@ -41,7 +41,7 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters
 import org.robolectric.annotation.Config
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
-@Config(minSdk = 21)
+@Config(minSdk = RobolectricMinSdk)
 @OptIn(ExperimentalTestApi::class)
 class ViewVisibilityRobolectricTest(private val visibility: Int) {
     companion object {
