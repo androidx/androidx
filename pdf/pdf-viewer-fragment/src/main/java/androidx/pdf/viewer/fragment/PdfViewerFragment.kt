@@ -753,6 +753,7 @@ public open class PdfViewerFragment : Fragment() {
         }
         detachViewsAndObservers()
         fastScrollView?.resetContents()
+        findInFileView?.resetFindInFile()
         try {
             validateFileUri(fileUri)
             fetchFile(fileUri)
