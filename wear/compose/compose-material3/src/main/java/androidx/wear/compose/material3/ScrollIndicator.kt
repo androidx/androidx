@@ -226,7 +226,7 @@ object ScrollIndicatorDefaults {
 
     internal val indicatorHeight = 50.dp
     internal val indicatorWidth = 4.dp
-    internal val edgePadding = ScaffoldDefaults.edgePadding
+    internal val edgePadding = PaddingDefaults.edgePadding
 }
 
 /**

@@ -179,7 +179,7 @@ sealed class TimeTextScope {
 /** Contains the default values used by [TimeText]. */
 object TimeTextDefaults {
     /** The default padding from the edge of the screen. */
-    private val Padding = ScaffoldDefaults.edgePadding
+    private val Padding = PaddingDefaults.edgePadding
     /** Default format for 24h clock. */
     const val TimeFormat24Hours = "HH:mm"
 

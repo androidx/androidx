@@ -205,7 +205,7 @@ public fun HorizontalPageIndicator(
 internal object PageIndicatorDefaults {
 
     val MaxNumberOfIndicators = 6
-    internal val edgePadding = ScaffoldDefaults.edgePadding
+    internal val edgePadding = PaddingDefaults.edgePadding
 }
 
 @Composable
