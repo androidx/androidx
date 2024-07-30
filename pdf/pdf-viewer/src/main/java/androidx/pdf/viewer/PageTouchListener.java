@@ -21,6 +21,7 @@ import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.pdf.find.FindInFileView;
 import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.viewer.loader.PdfLoader;
@@ -33,15 +34,18 @@ class PageTouchListener extends GestureTracker.GestureHandler {
 
     private final PdfLoader mPdfLoader;
 
+    private final FindInFileView mFindInFileView;
 
     private final SingleTapHandler mSingleTapHandler;
 
     PageTouchListener(@NonNull PageViewFactory.PageView pageView,
             @NonNull PdfLoader pdfLoader,
-            @NonNull SingleTapHandler singleTapHandler) {
+            @NonNull SingleTapHandler singleTapHandler,
+            @NonNull FindInFileView findInFileView) {
         this.mPageView = pageView;
         this.mPdfLoader = pdfLoader;
         this.mSingleTapHandler = singleTapHandler;
+        this.mFindInFileView = findInFileView;
     }
 
     @Override
@@ -57,6 +61,7 @@ class PageTouchListener extends GestureTracker.GestureHandler {
 
     @Override
     public void onLongPress(MotionEvent e) {
+        mFindInFileView.resetFindInFile();
         SelectionBoundary boundary =
                 SelectionBoundary.atPoint(new Point((int) e.getX(), (int) e.getY()));
         mPdfLoader.selectPageText(mPageView.getPageNum(), boundary, boundary);

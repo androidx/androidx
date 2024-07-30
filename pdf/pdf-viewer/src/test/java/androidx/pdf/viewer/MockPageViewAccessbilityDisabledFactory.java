@@ -19,6 +19,7 @@ package androidx.pdf.viewer;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.pdf.find.FindInFileView;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.TileBoard;
 import androidx.pdf.viewer.loader.PdfLoader;
@@ -30,8 +31,9 @@ public class MockPageViewAccessbilityDisabledFactory extends PageViewFactory {
             @NonNull PdfLoader pdfLoader,
             @NonNull PaginatedView paginatedView,
             @NonNull ZoomView zoomView,
-            @NonNull SingleTapHandler singleTapHandler) {
-        super(context, pdfLoader, paginatedView, zoomView, singleTapHandler);
+            @NonNull SingleTapHandler singleTapHandler,
+            @NonNull FindInFileView findInFileView) {
+        super(context, pdfLoader, paginatedView, zoomView, singleTapHandler, findInFileView);
     }
 
     @NonNull

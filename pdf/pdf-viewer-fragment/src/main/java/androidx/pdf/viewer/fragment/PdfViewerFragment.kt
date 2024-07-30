@@ -572,7 +572,8 @@ public open class PdfViewerFragment : Fragment() {
                 pdfLoader,
                 paginatedView!!,
                 zoomView!!,
-                singleTapHandler!!
+                singleTapHandler!!,
+                findInFileView!!
             )
         updatePageViewFactory(pageViewFactory!!)
     }

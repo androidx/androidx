@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.pdf.find.FindInFileView;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
@@ -54,17 +55,20 @@ public class PageViewFactory {
     private final PaginatedView mPaginatedView;
     private final ZoomView mZoomView;
     private final SingleTapHandler mSingleTapHandler;
+    private final FindInFileView mFindInFileView;
 
     public PageViewFactory(@NonNull Context context,
             @NonNull PdfLoader pdfLoader,
             @NonNull PaginatedView paginatedView,
             @NonNull ZoomView zoomView,
-            @NonNull SingleTapHandler singleTapHandler) {
+            @NonNull SingleTapHandler singleTapHandler,
+            @NonNull FindInFileView findInFileView) {
         this.mContext = context;
         this.mPdfLoader = pdfLoader;
         this.mPaginatedView = paginatedView;
         this.mZoomView = zoomView;
         this.mSingleTapHandler = singleTapHandler;
+        this.mFindInFileView = findInFileView;
     }
 
     /**
@@ -182,7 +186,7 @@ public class PageViewFactory {
 
         GestureTracker gestureTracker = new GestureTracker(mContext);
         gestureTracker.setDelegateHandler(new PageTouchListener(pageView, mPdfLoader,
-                mSingleTapHandler));
+                mSingleTapHandler, mFindInFileView));
         pageView.asView().setOnTouchListener(gestureTracker);
 
         PageMosaicView pageMosaicView = pageView.getPageView();
