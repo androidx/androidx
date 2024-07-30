@@ -22,6 +22,7 @@
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"కుదించబడింది"</string>
     <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"డ్రాప్‌డౌన్ మెనూను టోగుల్ చేయండి"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"విస్మరించండి"</string>
+    <string name="m3c_snackbar_pane_title" msgid="3868801555855510515">"హెచ్చరిక"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"సెర్చ్ చేయండి"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"సూచనలు దిగువున ఉన్నాయి"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"తేదీని ఎంచుకోండి"</string>

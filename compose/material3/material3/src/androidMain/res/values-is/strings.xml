@@ -22,6 +22,7 @@
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"Minnkað"</string>
     <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"Velja eða afvelja fellivalmynd"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"Hunsa"</string>
+    <string name="m3c_snackbar_pane_title" msgid="3868801555855510515">"Viðvörun"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"Leit"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"Tillögur hér fyrir neðan"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"Velja dagsetningu"</string>

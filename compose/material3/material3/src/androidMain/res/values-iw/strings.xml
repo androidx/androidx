@@ -22,6 +22,7 @@
     <string name="m3c_dropdown_menu_collapsed" msgid="3177828188723359358">"התפריט הנפתח מכווץ"</string>
     <string name="m3c_dropdown_menu_toggle" msgid="8687821690726149911">"החלפת המצב של התפריט הנפתח"</string>
     <string name="m3c_snackbar_dismiss" msgid="6152755701819882931">"סגירה"</string>
+    <string name="m3c_snackbar_pane_title" msgid="3868801555855510515">"התראה"</string>
     <string name="m3c_search_bar_search" msgid="6152806324422087846">"חיפוש"</string>
     <string name="m3c_suggestions_available" msgid="7655536806087401899">"הצעות מופיעות למטה"</string>
     <string name="m3c_date_picker_title" msgid="7430790972741451689">"בחירת תאריך"</string>
