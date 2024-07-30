@@ -36,44 +36,11 @@ android {
 }
 
 dependencies {
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-
     // Internal library
-    implementation(project(":camera:camera-camera2"))
-    implementation(project(":camera:camera-lifecycle"))
     implementation(project(":camera:camera-viewfinder"))
 
     // Android Support Library
-    implementation("androidx.appcompat:appcompat:1.3.0")
-    implementation("androidx.activity:activity-ktx:1.2.0")
-    implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
-    implementation(project(":window:window"))
-    implementation(project(":window:window-java"))
-
-    implementation(libs.guavaAndroid)
-    implementation(libs.constraintLayout)
-
-    // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
-    androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
-
-    // Testing framework
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
-    androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.truth)
-    androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    androidTestImplementation("androidx.concurrent:concurrent-futures:1.1.0")
-    debugImplementation(libs.testCore)
-    debugImplementation("androidx.fragment:fragment-testing:1.2.3")
-    // camera-testing added as 'implementation' dependency to include camera-testing activity in APK
-    debugImplementation(project(":camera:camera-testing")) {
-        // Ensure camera-testing does not pull in camera-core project dependency which will
-        // override pinned dependency.
-        exclude(group:"androidx.camera", module:"camera-core")
-        // Ensure camera-testing does not pull in androidx.test dependencies
-        exclude(group:"androidx.test")
-    }
+    implementation("androidx.appcompat:appcompat:1.7.0")
+    implementation("androidx.activity:activity:1.9.1")
+    implementation("androidx.window:window:1.3.0")
 }
