@@ -543,6 +543,39 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Test
+    fun movingAwayItem_itemWithMoreChildren_crossAxisAlignmentDefined_shouldNotCrash() {
+        var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
+        val listSize = itemSize * 3
+        val listSizeDp = with(rule.density) { listSize.toDp() }
+        rule.setContent {
+            LazyList(
+                maxSize = listSizeDp,
+                startIndex = 3,
+                crossAxisAlignment = CrossAxisAlignment.Center
+            ) {
+                items(list, key = { it }) {
+                    Item(it)
+                    if (it != list.last()) {
+                        Box(modifier = Modifier)
+                    }
+                }
+            }
+        }
+
+        assertPositions(3 to 0f, 4 to itemSize, 5 to itemSize * 2)
+
+        // move item 5 out of bounds
+        rule.runOnUiThread { list = listOf(5, 0, 1, 2, 3, 4) }
+
+        // should not crash
+        onAnimationFrame { fraction ->
+            if (fraction == 1.0f) {
+                assertPositions(2 to 0f, 3 to itemSize, 4 to itemSize * 2)
+            }
+        }
+    }
+
+    @Test
     fun moveItemToTheBottomOutsideOfBounds_withSpacing() {
         var list by mutableStateOf(listOf(0, 1, 2, 3, 4, 5))
         val listSize = itemSize * 3 + spacing * 2
