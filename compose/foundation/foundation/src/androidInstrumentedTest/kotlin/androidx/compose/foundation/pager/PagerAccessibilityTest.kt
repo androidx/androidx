@@ -19,6 +19,7 @@ package androidx.compose.foundation.pager
 import android.view.accessibility.AccessibilityNodeProvider
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.focusable
+import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -49,7 +50,7 @@ class PagerAccessibilityTest(config: ParamConfig) : BasePagerTest(config = confi
 
     private val accessibilityNodeProvider: AccessibilityNodeProvider
         get() =
-            checkNotNull(composeView) { "composeView not initialized." }
+            checkPreconditionNotNull(composeView) { "composeView not initialized." }
                 .let { composeView ->
                     ViewCompat.getAccessibilityDelegate(composeView)!!.getAccessibilityNodeProvider(
                             composeView

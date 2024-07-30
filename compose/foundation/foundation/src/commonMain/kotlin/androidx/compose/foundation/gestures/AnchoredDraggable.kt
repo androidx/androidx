@@ -34,6 +34,8 @@ import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -855,7 +857,7 @@ class AnchoredDraggableState<T>(
      * @see offset
      */
     fun requireOffset(): Float {
-        check(!offset.isNaN()) {
+        checkPrecondition(!offset.isNaN()) {
             "The offset was read before being initialized. Did you access the offset in a phase " +
                 "before layout, like effects or composition?"
         }
@@ -989,7 +991,7 @@ class AnchoredDraggableState<T>(
      */
     @Deprecated(SettleWithVelocityDeprecated, level = DeprecationLevel.WARNING)
     suspend fun settle(velocity: Float): Float {
-        require(usePreModifierChangeBehavior) {
+        requirePrecondition(usePreModifierChangeBehavior) {
             "AnchoredDraggableState was configured through " +
                 "a constructor without providing positional and velocity threshold. This " +
                 "overload of settle has been deprecated. Please refer to " +

@@ -17,6 +17,7 @@
 package androidx.compose.foundation
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.ui.unit.Constraints
 
 /**
@@ -28,7 +29,7 @@ import androidx.compose.ui.unit.Constraints
  */
 fun checkScrollableContainerConstraints(constraints: Constraints, orientation: Orientation) {
     if (orientation == Orientation.Vertical) {
-        check(constraints.maxHeight != Constraints.Infinity) {
+        checkPrecondition(constraints.maxHeight != Constraints.Infinity) {
             "Vertically scrollable component was measured with an infinity maximum height " +
                 "constraints, which is disallowed. One of the common reasons is nesting layouts " +
                 "like LazyColumn and Column(Modifier.verticalScroll()). If you want to add a " +
@@ -40,7 +41,7 @@ fun checkScrollableContainerConstraints(constraints: Constraints, orientation: O
                 "hierarchy above the scrolling container."
         }
     } else {
-        check(constraints.maxWidth != Constraints.Infinity) {
+        checkPrecondition(constraints.maxWidth != Constraints.Infinity) {
             "Horizontally scrollable component was measured with an infinity maximum width " +
                 "constraints, which is disallowed. One of the common reasons is nesting layouts " +
                 "like LazyRow and Row(Modifier.horizontalScroll()). If you want to add a " +

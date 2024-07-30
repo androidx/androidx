@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateTo
 import androidx.compose.animation.core.copy
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import kotlin.coroutines.cancellation.CancellationException
@@ -104,7 +105,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
     density: Density,
     scrollScope: ScrollScope
 ) {
-    require(index >= 0f) { "Index should be non-negative ($index)" }
+    requirePrecondition(index >= 0f) { "Index should be non-negative" }
 
     with(scrollScope) {
         try {

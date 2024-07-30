@@ -33,6 +33,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -136,7 +137,7 @@ suspend fun TransformableState.animateZoomBy(
     zoomFactor: Float,
     animationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow)
 ) {
-    require(zoomFactor > 0) { "zoom value should be greater than 0" }
+    requirePrecondition(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previous = 1f
     transform {
         AnimationState(initialValue = previous).animateTo(zoomFactor, animationSpec) {
@@ -214,7 +215,7 @@ suspend fun TransformableState.animateBy(
     offsetAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
     rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow)
 ) {
-    require(zoomFactor > 0) { "zoom value should be greater than 0" }
+    requirePrecondition(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previousState = AnimationData(zoom = 1f, offset = Offset.Zero, degrees = 0f)
     val targetState = AnimationData(zoomFactor, offset, degrees)
     val animationSpec =

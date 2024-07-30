@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.TextDelegate.Companion.paint
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Canvas
@@ -112,9 +113,9 @@ internal class TextDelegate(
         get() = nonNullIntrinsics.maxIntrinsicWidth.ceilToIntPx()
 
     init {
-        require(maxLines > 0) { "no maxLines" }
-        require(minLines > 0) { "no minLines" }
-        require(minLines <= maxLines) { "minLines greater than maxLines" }
+        requirePrecondition(maxLines > 0) { "no maxLines" }
+        requirePrecondition(minLines > 0) { "no minLines" }
+        requirePrecondition(minLines <= maxLines) { "minLines greater than maxLines" }
     }
 
     fun layoutIntrinsics(layoutDirection: LayoutDirection) {

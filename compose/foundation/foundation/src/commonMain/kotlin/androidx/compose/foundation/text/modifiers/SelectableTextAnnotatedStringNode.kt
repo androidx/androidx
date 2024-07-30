@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -80,7 +81,7 @@ internal class SelectableTextAnnotatedStringNode(
         )
 
     init {
-        requireNotNull(selectionController) {
+        requirePreconditionNotNull(selectionController) {
             "Do not use SelectionCapableStaticTextModifier unless selectionController != null"
         }
     }

@@ -20,6 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -62,8 +64,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
     coroutineScope: CoroutineScope,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
-    require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
-    require(afterContentPadding >= 0) { "negative afterContentPadding" }
+    requirePrecondition(beforeContentPadding >= 0) { "negative beforeContentPadding" }
+    requirePrecondition(afterContentPadding >= 0) { "negative afterContentPadding" }
     val pageSizeWithSpacing = (pageAvailableSize + spaceBetweenPages).coerceAtLeast(0)
 
     debugLog {
@@ -296,7 +298,9 @@ internal fun LazyLayoutMeasureScope.measurePager(
         }
 
         // the initial offset for pages from visiblePages list
-        require(currentFirstPageScrollOffset >= 0) { "invalid currentFirstPageScrollOffset" }
+        requirePrecondition(currentFirstPageScrollOffset >= 0) {
+            "invalid currentFirstPageScrollOffset"
+        }
         val visiblePagesScrollOffset = -currentFirstPageScrollOffset
 
         var firstPage = visiblePages.first()
@@ -612,13 +616,17 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
     val mainAxisLayoutSize = if (orientation == Orientation.Vertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(pagesScrollOffset == 0) { "non-zero pagesScrollOffset=$pagesScrollOffset" }
+        checkPrecondition(pagesScrollOffset == 0) {
+            "non-zero pagesScrollOffset=$pagesScrollOffset"
+        }
     }
     val positionedPages =
         ArrayList<MeasuredPage>(pages.size + extraPagesBefore.size + extraPagesAfter.size)
 
     if (hasSpareSpace) {
-        require(extraPagesBefore.isEmpty() && extraPagesAfter.isEmpty()) { "No extra pages" }
+        requirePrecondition(extraPagesBefore.isEmpty() && extraPagesAfter.isEmpty()) {
+            "No extra pages"
+        }
 
         val pagesCount = pages.size
         fun Int.reverseAware() = if (!reverseLayout) this else pagesCount - this - 1

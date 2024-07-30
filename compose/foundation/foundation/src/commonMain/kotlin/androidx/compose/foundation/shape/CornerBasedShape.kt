@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.shape
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
@@ -58,7 +59,9 @@ abstract class CornerBasedShape(
             topEnd *= scale
             bottomEnd *= scale
         }
-        require(topStart >= 0.0f && topEnd >= 0.0f && bottomEnd >= 0.0f && bottomStart >= 0.0f) {
+        requirePrecondition(
+            topStart >= 0.0f && topEnd >= 0.0f && bottomEnd >= 0.0f && bottomStart >= 0.0f
+        ) {
             "Corner size in Px can't be negative(topStart = $topStart, topEnd = $topEnd, " +
                 "bottomEnd = $bottomEnd, bottomStart = $bottomStart)!"
         }

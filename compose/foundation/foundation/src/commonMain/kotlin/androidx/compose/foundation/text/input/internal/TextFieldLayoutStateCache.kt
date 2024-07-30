@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.input.PlacedAnnotation
@@ -143,7 +144,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
             )
         this.measureInputs = measureInputs
         val nonMeasureInputs =
-            checkNotNull(nonMeasureInputs) {
+            checkPreconditionNotNull(nonMeasureInputs) {
                 "Called layoutWithNewMeasureInputs before updateNonMeasureInputs"
             }
         return getOrComputeLayout(nonMeasureInputs, measureInputs)

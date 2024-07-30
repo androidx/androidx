@@ -21,6 +21,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.VectorConverter
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.MotionDurationScale
 import kotlin.contracts.ExperimentalContracts
@@ -88,7 +89,7 @@ internal class UpdatableAnimationState(animationSpec: AnimationSpec<Float>) {
         afterFrame: () -> Unit,
     ) {
         contract { callsInPlace(beforeFrame) }
-        check(!isRunning) { "animateToZero called while previous animation is running" }
+        checkPrecondition(!isRunning) { "animateToZero called while previous animation is running" }
 
         val durationScale = coroutineContext[MotionDurationScale]?.scaleFactor ?: 1f
         isRunning = true

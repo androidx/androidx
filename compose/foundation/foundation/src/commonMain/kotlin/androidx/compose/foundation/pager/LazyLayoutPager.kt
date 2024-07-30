@@ -30,6 +30,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayout
@@ -99,7 +100,7 @@ internal fun Pager(
     /** The content of the pager */
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
-    require(beyondViewportPageCount >= 0) {
+    requirePrecondition(beyondViewportPageCount >= 0) {
         "beyondViewportPageCount should be greater than or equal to 0, " +
             "you selected $beyondViewportPageCount"
     }

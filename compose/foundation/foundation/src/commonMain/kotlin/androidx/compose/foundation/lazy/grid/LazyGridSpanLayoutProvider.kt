@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
 import kotlin.math.min
 import kotlin.math.sqrt
 
@@ -111,7 +113,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             cachedBucket.clear()
         }
 
-        check(currentLine <= lineIndex) { "currentLine > lineIndex" }
+        checkPrecondition(currentLine <= lineIndex) { "currentLine > lineIndex" }
 
         while (currentLine < lineIndex && currentItemIndex < totalSize) {
             if (cacheThisBucket) {
@@ -138,7 +140,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
             if (currentLine % bucketSize == 0 && currentItemIndex < totalSize) {
                 val currentLineBucket = currentLine / bucketSize
                 // This should happen, as otherwise this should have been used as starting point.
-                check(buckets.size == currentLineBucket) { "invalid starting point" }
+                checkPrecondition(buckets.size == currentLineBucket) { "invalid starting point" }
                 buckets.add(Bucket(currentItemIndex, knownCurrentItemSpan))
             }
         }
@@ -172,7 +174,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
         if (totalSize <= 0) {
             return 0
         }
-        require(itemIndex < totalSize) { "ItemIndex > total count" }
+        requirePrecondition(itemIndex < totalSize) { "ItemIndex > total count" }
         if (!gridContent.hasCustomSpans) {
             return itemIndex / slotsPerLine
         }
@@ -184,7 +186,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
         var currentLine = lowerBoundBucket * bucketSize
         var currentItemIndex = buckets[lowerBoundBucket].firstItemIndex
 
-        require(currentItemIndex <= itemIndex) { "currentItemIndex > itemIndex" }
+        requirePrecondition(currentItemIndex <= itemIndex) { "currentItemIndex > itemIndex" }
         var spansUsed = 0
         while (currentItemIndex < itemIndex) {
             val span = spanOf(currentItemIndex++, slotsPerLine - spansUsed)

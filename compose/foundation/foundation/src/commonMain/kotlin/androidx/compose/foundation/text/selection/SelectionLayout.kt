@@ -23,6 +23,7 @@ import androidx.collection.MutableLongObjectMap
 import androidx.collection.longObjectMapOf
 import androidx.collection.mutableLongIntMapOf
 import androidx.collection.mutableLongObjectMapOf
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.selection.Direction.AFTER
 import androidx.compose.foundation.text.selection.Direction.BEFORE
 import androidx.compose.foundation.text.selection.Direction.ON
@@ -144,7 +145,7 @@ private class MultiSelectionLayout(
     override val previousSelection: Selection?,
 ) : SelectionLayout {
     init {
-        check(infoList.size > 1) {
+        checkPrecondition(infoList.size > 1) {
             "MultiSelectionLayout requires an infoList size greater than 1, was ${infoList.size}."
         }
     }
@@ -221,7 +222,7 @@ private class MultiSelectionLayout(
         if (selection.start.selectableId == selection.end.selectableId) {
             // this check, if not passed, leads to exceptions when selection
             // highlighting is rendered, so check here instead.
-            check(
+            checkPrecondition(
                 (selection.handlesCrossed && selection.start.offset >= selection.end.offset) ||
                     (!selection.handlesCrossed && selection.start.offset <= selection.end.offset)
             ) {
@@ -261,7 +262,7 @@ private class MultiSelectionLayout(
 
         // this check, if not passed, leads to exceptions when selection
         // highlighting is rendered, so check here instead.
-        check(minOffset <= maxOffset) {
+        checkPrecondition(minOffset <= maxOffset) {
             "minOffset should be less than or equal to maxOffset: $subSelection"
         }
 

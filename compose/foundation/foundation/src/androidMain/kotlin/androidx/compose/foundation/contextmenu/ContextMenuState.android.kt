@@ -17,6 +17,7 @@
 package androidx.compose.foundation.contextmenu
 
 import androidx.compose.foundation.contextmenu.ContextMenuState.Status
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -49,7 +50,7 @@ internal class ContextMenuState internal constructor(initialStatus: Status = Sta
             val offset: Offset
         ) : Status() {
             init {
-                check(offset.isSpecified) { UNSPECIFIED_OFFSET_ERROR_MESSAGE }
+                checkPrecondition(offset.isSpecified) { UNSPECIFIED_OFFSET_ERROR_MESSAGE }
             }
 
             override fun toString(): String = "Open(offset=$offset)"

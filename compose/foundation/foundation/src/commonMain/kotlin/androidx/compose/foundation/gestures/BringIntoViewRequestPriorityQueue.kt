@@ -17,6 +17,7 @@
 package androidx.compose.foundation.gestures
 
 import androidx.compose.foundation.gestures.ContentInViewNode.Request
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
 import kotlin.contracts.ExperimentalContracts
@@ -130,6 +131,6 @@ internal class BringIntoViewRequestPriorityQueue {
         // cancelled, so we need to make a copy of the list before iterating to avoid concurrent
         // mutation.
         requests.map { it.continuation }.forEach { it.cancel(cause) }
-        check(requests.isEmpty()) { "uncancelled requests present" }
+        checkPrecondition(requests.isEmpty()) { "uncancelled requests present" }
     }
 }

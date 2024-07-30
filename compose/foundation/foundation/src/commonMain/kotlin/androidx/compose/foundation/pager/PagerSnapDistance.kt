@@ -17,6 +17,7 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.Stable
 
 /**
@@ -55,7 +56,7 @@ interface PagerSnapDistance {
          * @param pages The maximum number of extra pages that can be flung at once.
          */
         fun atMost(pages: Int): PagerSnapDistance {
-            require(pages >= 0) {
+            requirePrecondition(pages >= 0) {
                 "pages should be greater than or equal to 0. You have used $pages."
             }
             return PagerSnapDistanceMaxPages(pages)

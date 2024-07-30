@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
@@ -222,7 +223,7 @@ private data class AllCapsTransformation(private val locale: Locale) : InputTran
 private data class MaxLengthFilter(private val maxLength: Int) : InputTransformation {
 
     init {
-        require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
+        requirePrecondition(maxLength >= 0) { "maxLength must be at least zero" }
     }
 
     override fun SemanticsPropertyReceiver.applySemantics() {

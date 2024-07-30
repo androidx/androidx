@@ -30,6 +30,7 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.stopScroll
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
@@ -168,7 +169,7 @@ internal constructor(
     abstract val pageCount: Int
 
     init {
-        require(currentPageOffsetFraction in -0.5..0.5) {
+        requirePrecondition(currentPageOffsetFraction in -0.5..0.5) {
             "currentPageOffsetFraction $currentPageOffsetFraction is " +
                 "not within the range -0.5 to 0.5"
         }
@@ -478,7 +479,7 @@ internal constructor(
     ) = scroll {
         debugLog { "Scroll from page=$currentPage to page=$page" }
         awaitScrollDependencies()
-        require(pageOffsetFraction in -0.5..0.5) {
+        requirePrecondition(pageOffsetFraction in -0.5..0.5) {
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"
         }
         val targetPage = page.coerceInPageRange()
@@ -581,7 +582,7 @@ internal constructor(
         )
             return
         awaitScrollDependencies()
-        require(pageOffsetFraction in -0.5..0.5) {
+        requirePrecondition(pageOffsetFraction in -0.5..0.5) {
             "pageOffsetFraction $pageOffsetFraction is not within the range -0.5 to 0.5"
         }
         val targetPage = page.coerceInPageRange()
@@ -787,7 +788,9 @@ internal constructor(
      * @return The offset of [page] with respect to [currentPage].
      */
     fun getOffsetDistanceInPages(page: Int): Float {
-        require(page in 0..pageCount) { "page $page is not within the range 0 to $pageCount" }
+        requirePrecondition(page in 0..pageCount) {
+            "page $page is not within the range 0 to $pageCount"
+        }
         return page - currentPage - currentPageOffsetFraction
     }
 

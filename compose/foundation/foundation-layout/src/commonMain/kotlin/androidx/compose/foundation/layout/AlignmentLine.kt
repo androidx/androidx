@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.AlignmentLine
@@ -190,7 +191,7 @@ private class AlignmentLineOffsetDpElement(
     val inspectorInfo: InspectorInfo.() -> Unit
 ) : ModifierNodeElement<AlignmentLineOffsetDpNode>() {
     init {
-        require(
+        requirePrecondition(
             (before.value >= 0f || before == Dp.Unspecified) &&
                 (after.value >= 0f || after == Dp.Unspecified)
         ) {

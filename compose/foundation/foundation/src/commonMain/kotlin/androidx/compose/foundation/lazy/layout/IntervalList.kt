@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.internal.throwIndexOutOfBoundsException
 import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 
@@ -75,8 +77,8 @@ sealed interface IntervalList<out T> {
         val value: T
     ) {
         init {
-            require(startIndex >= 0) { "startIndex should be >= 0, but was $startIndex" }
-            require(size > 0) { "size should be >0, but was $size" }
+            requirePrecondition(startIndex >= 0) { "startIndex should be >= 0" }
+            requirePrecondition(size > 0) { "size should be > 0" }
         }
     }
 }
@@ -106,7 +108,7 @@ class MutableIntervalList<T> : IntervalList<T> {
      * @param value the value representing this interval.
      */
     fun addInterval(size: Int, value: T) {
-        require(size >= 0) { "size should be >=0, but was $size" }
+        requirePrecondition(size >= 0) { "size should be >=0" }
         if (size == 0) {
             return
         }
@@ -128,7 +130,7 @@ class MutableIntervalList<T> : IntervalList<T> {
     override fun forEach(fromIndex: Int, toIndex: Int, block: (IntervalList.Interval<T>) -> Unit) {
         checkIndexBounds(fromIndex)
         checkIndexBounds(toIndex)
-        require(toIndex >= fromIndex) {
+        requirePrecondition(toIndex >= fromIndex) {
             "toIndex ($toIndex) should be not smaller than fromIndex ($fromIndex)"
         }
 
@@ -156,9 +158,10 @@ class MutableIntervalList<T> : IntervalList<T> {
         }
     }
 
-    private fun checkIndexBounds(index: Int) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun checkIndexBounds(index: Int) {
         if (index !in 0 until size) {
-            throw IndexOutOfBoundsException("Index $index, size $size")
+            throwIndexOutOfBoundsException("Index $index, size $size")
         }
     }
 

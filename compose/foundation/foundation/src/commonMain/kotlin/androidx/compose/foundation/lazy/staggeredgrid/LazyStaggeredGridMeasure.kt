@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
@@ -1226,7 +1227,7 @@ internal class LazyStaggeredGridMeasuredItem(
 
     fun place(scope: Placeable.PlacementScope, context: LazyStaggeredGridMeasureContext) =
         with(context) {
-            require(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
             with(scope) {
                 placeables.fastForEachIndexed { index, placeable ->
                     val minOffset = minMainAxisOffset - placeable.mainAxisSize

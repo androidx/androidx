@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -101,7 +102,7 @@ private fun rememberColumnSlots(
         contentPadding,
     ) {
         LazyStaggeredGridSlotCache { constraints ->
-            require(constraints.maxWidth != Constraints.Infinity) {
+            requirePrecondition(constraints.maxWidth != Constraints.Infinity) {
                 "LazyVerticalStaggeredGrid's width should be bound by parent."
             }
             val horizontalPadding =
@@ -192,7 +193,7 @@ private fun rememberRowSlots(
         contentPadding,
     ) {
         LazyStaggeredGridSlotCache { constraints ->
-            require(constraints.maxHeight != Constraints.Infinity) {
+            requirePrecondition(constraints.maxHeight != Constraints.Infinity) {
                 "LazyHorizontalStaggeredGrid's height should be bound by parent."
             }
             val verticalPadding =

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -119,10 +120,10 @@ internal fun Modifier.heightInLines(
     }
 
 internal fun validateMinMaxLines(minLines: Int, maxLines: Int) {
-    require(minLines > 0 && maxLines > 0) {
+    requirePrecondition(minLines > 0 && maxLines > 0) {
         "both minLines $minLines and maxLines $maxLines must be greater than zero"
     }
-    require(minLines <= maxLines) {
+    requirePrecondition(minLines <= maxLines) {
         "minLines $minLines must be less than or equal to maxLines $maxLines"
     }
 }

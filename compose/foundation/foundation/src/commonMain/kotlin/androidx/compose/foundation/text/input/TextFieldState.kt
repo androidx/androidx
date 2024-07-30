@@ -20,6 +20,7 @@ package androidx.compose.foundation.text.input
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.input.internal.EditingBuffer
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.Composable
@@ -200,7 +201,9 @@ internal constructor(
     @PublishedApi
     internal fun startEdit(): TextFieldBuffer {
         val isEditingFreeze = Snapshot.withoutReadObservation { isEditing }
-        check(!isEditingFreeze) { "TextFieldState does not support concurrent or nested editing." }
+        checkPrecondition(!isEditingFreeze) {
+            "TextFieldState does not support concurrent or nested editing."
+        }
         isEditing = true
         return TextFieldBuffer(value)
     }

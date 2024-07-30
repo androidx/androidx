@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
@@ -57,7 +58,7 @@ sealed interface TextFieldLineLimits {
     class MultiLine(val minHeightInLines: Int = 1, val maxHeightInLines: Int = Int.MAX_VALUE) :
         TextFieldLineLimits {
         init {
-            require(minHeightInLines in 1..maxHeightInLines) {
+            requirePrecondition(minHeightInLines in 1..maxHeightInLines) {
                 "Expected 1 ≤ minHeightInLines ≤ maxHeightInLines, were " +
                     "$minHeightInLines, $maxHeightInLines"
             }

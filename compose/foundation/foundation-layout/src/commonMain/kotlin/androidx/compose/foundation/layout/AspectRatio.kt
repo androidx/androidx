@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.IntrinsicMeasurable
@@ -74,7 +75,7 @@ private class AspectRatioElement(
     val inspectorInfo: InspectorInfo.() -> Unit
 ) : ModifierNodeElement<AspectRatioNode>() {
     init {
-        require(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
+        requirePrecondition(aspectRatio > 0) { "aspectRatio $aspectRatio must be > 0" }
     }
 
     override fun create(): AspectRatioNode {

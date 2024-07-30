@@ -18,6 +18,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -47,12 +48,14 @@ internal abstract class LegacyPlatformTextInputServiceAdapter : PlatformTextInpu
         private set
 
     fun registerModifier(node: LegacyPlatformTextInputNode) {
-        check(textInputModifierNode == null) { "Expected textInputModifierNode to be null" }
+        checkPrecondition(textInputModifierNode == null) {
+            "Expected textInputModifierNode to be null"
+        }
         textInputModifierNode = node
     }
 
     fun unregisterModifier(node: LegacyPlatformTextInputNode) {
-        check(textInputModifierNode === node) {
+        checkPrecondition(textInputModifierNode === node) {
             "Expected textInputModifierNode to be $node but was $textInputModifierNode"
         }
         textInputModifierNode = null

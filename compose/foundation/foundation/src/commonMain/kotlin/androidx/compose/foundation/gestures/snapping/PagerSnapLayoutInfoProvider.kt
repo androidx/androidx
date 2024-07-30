@@ -17,6 +17,7 @@
 package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.pager.PagerDebugConfig
 import androidx.compose.foundation.pager.PagerLayoutInfo
 import androidx.compose.foundation.pager.PagerSnapDistance
@@ -48,7 +49,7 @@ internal fun SnapLayoutInfoProvider(
             val finalDistance =
                 calculateFinalSnappingBound(velocity, lowerBoundOffset, upperBoundOffset)
 
-            check(
+            checkPrecondition(
                 finalDistance == lowerBoundOffset ||
                     finalDistance == upperBoundOffset ||
                     finalDistance == 0.0f

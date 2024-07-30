@@ -17,6 +17,9 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -71,8 +74,8 @@ internal fun measureLazyList(
     graphicsContext: GraphicsContext,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
-    require(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
-    require(afterContentPadding >= 0) { "invalid afterContentPadding" }
+    requirePrecondition(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
+    requirePrecondition(afterContentPadding >= 0) { "invalid afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         var layoutWidth = constraints.minWidth
@@ -278,7 +281,9 @@ internal fun measureLazyList(
             } else 0f
 
         // the initial offset for items from visibleItems list
-        require(currentFirstItemScrollOffset >= 0) { "negative currentFirstItemScrollOffset" }
+        requirePrecondition(currentFirstItemScrollOffset >= 0) {
+            "negative currentFirstItemScrollOffset"
+        }
         val visibleItemsScrollOffset = -currentFirstItemScrollOffset
         var firstItem = visibleItems.first()
 
@@ -583,14 +588,16 @@ private fun calculateItemsOffsets(
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < minOf(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(itemsScrollOffset == 0) { "non-zero itemsScrollOffset" }
+        checkPrecondition(itemsScrollOffset == 0) { "non-zero itemsScrollOffset" }
     }
 
     val positionedItems =
         ArrayList<LazyListMeasuredItem>(items.size + extraItemsBefore.size + extraItemsAfter.size)
 
     if (hasSpareSpace) {
-        require(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty()) { "no extra items" }
+        requirePrecondition(extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty()) {
+            "no extra items"
+        }
 
         val itemsCount = items.size
         fun Int.reverseAware() = if (!reverseLayout) this else itemsCount - this - 1
@@ -599,7 +606,7 @@ private fun calculateItemsOffsets(
         val offsets = IntArray(itemsCount) { 0 }
         if (isVertical) {
             with(
-                requireNotNull(verticalArrangement) {
+                requirePreconditionNotNull(verticalArrangement) {
                     "null verticalArrangement when isVertical == true"
                 }
             ) {
@@ -607,7 +614,7 @@ private fun calculateItemsOffsets(
             }
         } else {
             with(
-                requireNotNull(horizontalArrangement) {
+                requirePreconditionNotNull(horizontalArrangement) {
                     "null horizontalArrangement when isVertical == false"
                 }
             ) {

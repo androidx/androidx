@@ -20,6 +20,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.Orientation.Vertical
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.BringIntoViewResponder
 import androidx.compose.ui.Modifier
@@ -111,7 +112,7 @@ internal class ContentInViewNode(
     private var isAnimationRunning = false
 
     override fun calculateRectForParent(localRect: Rect): Rect {
-        check(viewportSize != IntSize.Zero) {
+        checkPrecondition(viewportSize != IntSize.Zero) {
             "Expected BringIntoViewRequester to not be used before parents are placed."
         }
         // size will only be zero before the initial measurement.
@@ -187,7 +188,9 @@ internal class ContentInViewNode(
 
     private fun launchAnimation() {
         val bringIntoViewSpec = requireBringIntoViewSpec()
-        check(!isAnimationRunning) { "launchAnimation called when previous animation was running" }
+        checkPrecondition(!isAnimationRunning) {
+            "launchAnimation called when previous animation was running"
+        }
 
         if (DEBUG) println("[$TAG] launchAnimation")
         val animationState = UpdatableAnimationState(BringIntoViewSpec.DefaultScrollAnimationSpec)
