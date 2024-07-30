@@ -17,7 +17,6 @@
 package androidx.compose.foundation
 
 import androidx.collection.mutableLongObjectMapOf
-import androidx.collection.mutableLongSetOf
 import androidx.compose.foundation.gestures.PressGestureScope
 import androidx.compose.foundation.gestures.ScrollableContainerNode
 import androidx.compose.foundation.gestures.detectTapAndPress
@@ -30,7 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.key
@@ -714,7 +712,6 @@ private class CombinedClickableNodeImpl(
         role,
         onClick
     ) {
-    private val pressedDownKeys = mutableLongSetOf()
     private val longKeyPressJobs = mutableLongObjectMapOf<Job>()
 
     override suspend fun PointerInputScope.clickPointerInput() {
@@ -806,7 +803,6 @@ private class CombinedClickableNodeImpl(
 
     override fun onClickKeyDownEvent(event: KeyEvent): Boolean {
         val keyCode = event.key.keyCode
-        pressedDownKeys.add(keyCode)
         if (onLongClick != null) {
             if (longKeyPressJobs[keyCode] == null) {
                 longKeyPressJobs[keyCode] =
@@ -822,12 +818,6 @@ private class CombinedClickableNodeImpl(
 
     override fun onClickKeyUpEvent(event: KeyEvent): Boolean {
         val keyCode = event.key.keyCode
-        if (!pressedDownKeys.contains(keyCode)) {
-            // If the node is reused while a key is pressed down (which resets the set of pressed
-            // down keys), we shouldn't interpret the key up event as a click.
-            return false
-        }
-        pressedDownKeys.remove(keyCode)
         if (longKeyPressJobs[keyCode] != null) {
             longKeyPressJobs[keyCode]?.let {
                 if (it.isActive) {
@@ -856,7 +846,6 @@ private class CombinedClickableNodeImpl(
             forEachValue { it.cancel() }
             clear()
         }
-        pressedDownKeys.clear()
     }
 }
 
@@ -893,7 +882,7 @@ internal abstract class AbstractClickableNode(
 
     private var pressInteraction: PressInteraction.Press? = null
     private var hoverInteraction: HoverInteraction.Enter? = null
-    private val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
+    private val currentKeyPressInteractions = mutableLongObjectMapOf<PressInteraction.Press>()
     private var centerOffset: Offset = Offset.Zero
 
     // Track separately from interactionSource, as we will create our own internal
@@ -1004,7 +993,7 @@ internal abstract class AbstractClickableNode(
                 val interaction = HoverInteraction.Exit(oldValue)
                 interactionSource.tryEmit(interaction)
             }
-            currentKeyPressInteractions.values.forEach {
+            currentKeyPressInteractions.forEachValue {
                 interactionSource.tryEmit(PressInteraction.Cancel(it))
             }
         }
@@ -1020,7 +1009,7 @@ internal abstract class AbstractClickableNode(
             // If we are no longer focused while we are tracking existing key presses, we need to
             // clear them and cancel the presses.
             if (interactionSource != null) {
-                currentKeyPressInteractions.values.forEach {
+                currentKeyPressInteractions.forEachValue {
                     coroutineScope.launch { interactionSource?.emit(PressInteraction.Cancel(it)) }
                 }
             }
@@ -1081,14 +1070,15 @@ internal abstract class AbstractClickableNode(
         // the event can bubble up without this clickable ever being focused, and hence without
         // this being initialized through the focus path
         initializeIndicationAndInteractionSourceIfNeeded()
+        val keyCode = event.key.keyCode
         return when {
             enabled && event.isPress -> {
                 // If the key already exists in the map, keyEvent is a repeat event.
                 // We ignore it as we only want to emit an interaction for the initial key press.
                 var wasInteractionHandled = false
-                if (!currentKeyPressInteractions.containsKey(event.key)) {
+                if (!currentKeyPressInteractions.containsKey(keyCode)) {
                     val press = PressInteraction.Press(centerOffset)
-                    currentKeyPressInteractions[event.key] = press
+                    currentKeyPressInteractions[keyCode] = press
                     // Even if the interactionSource is null, we still want to intercept the presses
                     // so we always track them above, and return true
                     if (interactionSource != null) {
@@ -1099,15 +1089,19 @@ internal abstract class AbstractClickableNode(
                 onClickKeyDownEvent(event) || wasInteractionHandled
             }
             enabled && event.isClick -> {
-                currentKeyPressInteractions.remove(event.key)?.let {
+                val press = currentKeyPressInteractions.remove(keyCode)
+                if (press != null) {
                     if (interactionSource != null) {
                         coroutineScope.launch {
-                            interactionSource?.emit(PressInteraction.Release(it))
+                            interactionSource?.emit(PressInteraction.Release(press))
                         }
                     }
+                    // Don't invoke onClick if we were not pressed - this could happen if we became
+                    // focused after the down event, or if the node was reused after the down event.
+                    onClickKeyUpEvent(event)
                 }
-                onClickKeyUpEvent(event)
-                true
+                // Only consume if we were previously pressed for this key event
+                press != null
             }
             else -> false
         }
