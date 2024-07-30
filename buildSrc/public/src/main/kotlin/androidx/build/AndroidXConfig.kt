@@ -34,7 +34,6 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
     }
 
     override val minSdk: Int = 21
-    override val ndkVersion: String = "27.0.12077973"
 
     override val targetSdk: Int by lazy {
         project.providers.gradleProperty(TARGET_SDK_VERSION).get().toInt()
@@ -73,9 +72,6 @@ interface AndroidConfig {
 
     /** Default minimum SDK version used for AndroidX projects. */
     val minSdk: Int
-
-    /** NDK version used for AndroidX projects. */
-    val ndkVersion: String
 
     /**
      * Default target SDK version used for AndroidX projects.
