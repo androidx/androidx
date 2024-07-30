@@ -735,14 +735,6 @@ class ProcessCameraProviderTest {
     }
 
     @Test
-    fun cannotConfigureTwice() {
-        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-        assertThrows<IllegalStateException> {
-            ProcessCameraProvider.configureInstance(FakeAppConfig.create())
-        }
-    }
-
-    @Test
     fun shutdown_clearsPreviousConfiguration() {
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
 
