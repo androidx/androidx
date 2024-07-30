@@ -371,6 +371,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         if (visibility == VISIBLE) {
             checkClientOpenSession()
         }
+        signalMeasurer?.maybeSendSignals()
     }
 
     override fun setAlpha(alpha: Float) {

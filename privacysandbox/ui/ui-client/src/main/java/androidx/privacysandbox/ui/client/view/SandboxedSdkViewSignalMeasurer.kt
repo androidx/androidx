@@ -18,6 +18,7 @@ package androidx.privacysandbox.ui.client.view
 
 import android.graphics.Rect
 import android.os.SystemClock
+import android.view.View
 import androidx.privacysandbox.ui.core.SandboxedSdkViewUiInfo
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
 
@@ -92,13 +93,17 @@ internal class SandboxedSdkViewSignalMeasurer(
 
     /** Updates the [SandboxedSdkViewUiInfo] that represents the state of the view. */
     private fun updateUiContainerInfo() {
-        val isVisible = view.getGlobalVisibleRect(onScreenGeometry)
-        if (!isVisible) {
-            onScreenGeometry.set(-1, -1, -1, -1)
+        if (view.windowVisibility == View.VISIBLE) {
+            val isVisible = view.getGlobalVisibleRect(onScreenGeometry)
+            if (!isVisible) {
+                onScreenGeometry.set(-1, -1, -1, -1)
+            } else {
+                view.getLocationOnScreen(windowLocation)
+                onScreenGeometry.offset(-windowLocation[0], -windowLocation[1])
+                onScreenGeometry.intersect(0, 0, view.width, view.height)
+            }
         } else {
-            view.getLocationOnScreen(windowLocation)
-            onScreenGeometry.offset(-windowLocation[0], -windowLocation[1])
-            onScreenGeometry.intersect(0, 0, view.width, view.height)
+            onScreenGeometry.set(-1, -1, -1, -1)
         }
         containerHeightPx = view.height
         containerWidthPx = view.width
