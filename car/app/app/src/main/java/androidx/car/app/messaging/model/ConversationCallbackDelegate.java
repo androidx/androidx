@@ -21,11 +21,9 @@ import android.annotation.SuppressLint;
 import androidx.annotation.NonNull;
 import androidx.car.app.OnDoneCallback;
 import androidx.car.app.annotations.CarProtocol;
-import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 
 /** Used by the host to invoke {@link ConversationCallback} methods on the client */
-@ExperimentalCarApi
 @CarProtocol
 @RequiresCarApi(7)
 public interface ConversationCallbackDelegate {

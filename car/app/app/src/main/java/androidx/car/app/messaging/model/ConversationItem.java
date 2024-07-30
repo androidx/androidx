@@ -43,8 +43,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** Represents a conversation */
-@ExperimentalCarApi
+/** Represents a text-based conversation (e.g. IM/SMS messages). */
 @CarProtocol
 @KeepFields
 @RequiresCarApi(7)
