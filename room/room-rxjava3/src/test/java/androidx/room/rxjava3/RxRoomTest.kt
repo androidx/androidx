@@ -23,6 +23,7 @@ import androidx.room.RoomDatabase
 import io.reactivex.rxjava3.functions.Consumer
 import io.reactivex.rxjava3.observers.TestObserver
 import io.reactivex.rxjava3.subscribers.TestSubscriber
+import java.util.concurrent.Callable
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
 import org.junit.Before
@@ -62,7 +63,7 @@ class RxRoomTest {
 
     @Test
     fun basicAddRemove_Flowable() {
-        val flowable = RxRoom.createFlowable(mDatabase, "a", "b")
+        val flowable = createFlowable(mDatabase, "a", "b")
         verify(mInvalidationTracker, never()).addObserver(any())
         var disposable = flowable.subscribe()
         verify(mInvalidationTracker).addObserver(any())
@@ -82,7 +83,7 @@ class RxRoomTest {
 
     @Test
     fun basicAddRemove_Observable() {
-        val observable = RxRoom.createObservable(mDatabase, "a", "b")
+        val observable = createObservable(mDatabase, "a", "b")
         verify(mInvalidationTracker, never()).addObserver(any())
         var disposable = observable.subscribe()
         verify(mInvalidationTracker).addObserver(any())
@@ -104,7 +105,7 @@ class RxRoomTest {
     fun basicNotify_Flowable() {
         val tables = arrayOf("a", "b")
         val tableSet: Set<String> = HashSet(listOf(*tables))
-        val flowable = RxRoom.createFlowable(mDatabase, *tables)
+        val flowable = createFlowable(mDatabase, *tables)
         val consumer = CountingConsumer()
         val disposable = flowable.subscribe(consumer)
         assertThat(mAddedObservers.size).isEqualTo(1)
@@ -123,7 +124,7 @@ class RxRoomTest {
     fun basicNotify_Observable() {
         val tables = arrayOf("a", "b")
         val tableSet: Set<String> = HashSet(listOf(*tables))
-        val observable = RxRoom.createObservable(mDatabase, *tables)
+        val observable = createObservable(mDatabase, *tables)
         val consumer = CountingConsumer()
         val disposable = observable.subscribe(consumer)
         assertThat(mAddedObservers.size).isEqualTo(1)
@@ -139,12 +140,12 @@ class RxRoomTest {
     }
 
     @Test
-    @Throws(Exception::class)
+    @Suppress("DEPRECATION")
     fun internalCallable_Flowable() {
         val value = AtomicReference<Any>(null)
         val tables = arrayOf("a", "b")
         val tableSet: Set<String> = HashSet(listOf(*tables))
-        val flowable = RxRoom.createFlowable(mDatabase, false, tables) { value.get() }
+        val flowable = createFlowable(mDatabase, false, tables, Callable { value.get() })
         val consumer = CountingConsumer()
         val disposable = flowable.subscribe(consumer)
         drain()
@@ -169,12 +170,12 @@ class RxRoomTest {
     }
 
     @Test
-    @Throws(Exception::class)
+    @Suppress("DEPRECATION")
     fun internalCallable_Observable() {
         val value = AtomicReference<Any>(null)
         val tables = arrayOf("a", "b")
         val tableSet: Set<String> = HashSet(listOf(*tables))
-        val flowable = RxRoom.createObservable(mDatabase, false, tables) { value.get() }
+        val flowable = createObservable(mDatabase, false, tables, Callable { value.get() })
         val consumer = CountingConsumer()
         val disposable = flowable.subscribe(consumer)
         drain()
@@ -199,12 +200,15 @@ class RxRoomTest {
     }
 
     @Test
-    @Throws(Exception::class)
+    @Suppress("DEPRECATION")
     fun exception_Flowable() {
         val flowable =
-            RxRoom.createFlowable<String>(mDatabase, false, arrayOf("a")) {
-                throw Exception("i want exception")
-            }
+            createFlowable<String>(
+                mDatabase,
+                false,
+                arrayOf("a"),
+                Callable { throw Exception("i want exception") }
+            )
         val subscriber = TestSubscriber<String>()
         flowable.subscribe(subscriber)
         drain()
@@ -212,12 +216,15 @@ class RxRoomTest {
     }
 
     @Test
-    @Throws(Exception::class)
+    @Suppress("DEPRECATION")
     fun exception_Observable() {
         val flowable =
-            RxRoom.createObservable<String>(mDatabase, false, arrayOf("a")) {
-                throw Exception("i want exception")
-            }
+            createObservable<String>(
+                mDatabase,
+                false,
+                arrayOf("a"),
+                Callable { throw Exception("i want exception") }
+            )
         val observer = TestObserver<String>()
         flowable.subscribe(observer)
         drain()

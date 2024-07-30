@@ -31,8 +31,6 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
-import androidx.room.ext.RoomRxJava2TypeNames
-import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.processor.DatabaseViewProcessor
@@ -123,9 +121,7 @@ object COMMON {
         )
     }
 
-    val RX2_ROOM by lazy {
-        loadJavaCode("common/input/Rx2Room.java", RoomRxJava2TypeNames.RX_ROOM.canonicalName)
-    }
+    val RX2_ROOM by lazy { loadKotlinCode("common/input/Rx2Room.kt") }
 
     val RX3_FLOWABLE by lazy {
         loadJavaCode("common/input/rxjava3/Flowable.java", RxJava3TypeNames.FLOWABLE.canonicalName)
@@ -150,9 +146,7 @@ object COMMON {
         )
     }
 
-    val RX3_ROOM by lazy {
-        loadJavaCode("common/input/Rx3Room.java", RoomRxJava3TypeNames.RX_ROOM.canonicalName)
-    }
+    val RX3_ROOM by lazy { loadKotlinCode("common/input/Rx3Room.kt") }
 
     val DATA_SOURCE_FACTORY by lazy { loadKotlinCode("common/input/DataSource.kt") }
 

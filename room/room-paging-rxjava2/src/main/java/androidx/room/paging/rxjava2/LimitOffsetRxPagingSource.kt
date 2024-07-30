@@ -24,7 +24,7 @@ import androidx.paging.PagingState
 import androidx.paging.rxjava2.RxPagingSource
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
-import androidx.room.RxRoom.createSingle
+import androidx.room.RxRoom
 import androidx.room.paging.util.INITIAL_ITEM_COUNT
 import androidx.room.paging.util.INVALID
 import androidx.room.paging.util.ThreadSafeInvalidationObserver
@@ -56,7 +56,7 @@ abstract class LimitOffsetRxPagingSource<Value : Any>(
 
     override fun loadSingle(params: LoadParams<Int>): Single<LoadResult<Int, Value>> {
         val scheduler = Schedulers.from(db.queryExecutor)
-        return createSingle {
+        return RxRoom.createSingle {
                 observer.registerIfNecessary(db)
                 val tempCount = itemCount.get()
                 if (tempCount == INITIAL_ITEM_COUNT) {

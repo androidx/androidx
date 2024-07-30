@@ -1982,18 +1982,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 fun getMaybe(vararg arg: String?): Maybe<MyEntity>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getFlowableNullable(vararg arg: String?): Flowable<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getObservableNullable(vararg arg: String?): Observable<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getSingleNullable(vararg arg: String?): Single<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getMaybeNullable(vararg arg: String?): Maybe<MyEntity?>
             }
 
             @Entity
@@ -2010,13 +1998,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 listOf(
                     src,
                     databaseSrc,
-                    COMMON.RX2_ROOM,
-                    COMMON.RX2_FLOWABLE,
-                    COMMON.RX2_OBSERVABLE,
-                    COMMON.RX2_SINGLE,
-                    COMMON.RX2_MAYBE,
-                    COMMON.PUBLISHER,
-                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                ),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX2_ROOM,
+                        COMMON.RX2_FLOWABLE,
+                        COMMON.RX2_OBSERVABLE,
+                        COMMON.RX2_SINGLE,
+                        COMMON.RX2_MAYBE,
+                        COMMON.RX2_COMPLETABLE,
+                        COMMON.PUBLISHER,
+                        COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
@@ -2044,18 +2038,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 fun getMaybe(vararg arg: String?): Maybe<MyEntity>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getFlowableNullable(vararg arg: String?): Flowable<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getObservableNullable(vararg arg: String?): Observable<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getSingleNullable(vararg arg: String?): Single<MyEntity?>
-
-                @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
-                fun getMaybeNullable(vararg arg: String?): Maybe<MyEntity?>
             }
 
             @Entity
@@ -2072,13 +2054,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 listOf(
                     src,
                     databaseSrc,
-                    COMMON.RX3_ROOM,
-                    COMMON.RX3_FLOWABLE,
-                    COMMON.RX3_OBSERVABLE,
-                    COMMON.RX3_SINGLE,
-                    COMMON.RX3_MAYBE,
-                    COMMON.PUBLISHER,
-                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                ),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX3_ROOM,
+                        COMMON.RX3_FLOWABLE,
+                        COMMON.RX3_OBSERVABLE,
+                        COMMON.RX3_SINGLE,
+                        COMMON.RX3_MAYBE,
+                        COMMON.RX3_COMPLETABLE,
+                        COMMON.PUBLISHER,
+                        COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
@@ -2119,14 +2107,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 listOf(
                     src,
                     databaseSrc,
-                    COMMON.RX2_ROOM,
-                    COMMON.RX2_FLOWABLE,
-                    COMMON.RX2_OBSERVABLE,
-                    COMMON.RX2_SINGLE,
-                    COMMON.RX2_MAYBE,
-                    COMMON.RX2_COMPLETABLE,
-                    COMMON.PUBLISHER,
-                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                ),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX2_ROOM,
+                        COMMON.RX2_FLOWABLE,
+                        COMMON.RX2_OBSERVABLE,
+                        COMMON.RX2_SINGLE,
+                        COMMON.RX2_MAYBE,
+                        COMMON.RX2_COMPLETABLE,
+                        COMMON.PUBLISHER,
+                        COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
@@ -2167,14 +2160,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 listOf(
                     src,
                     databaseSrc,
-                    COMMON.RX3_ROOM,
-                    COMMON.RX3_FLOWABLE,
-                    COMMON.RX3_OBSERVABLE,
-                    COMMON.RX3_SINGLE,
-                    COMMON.RX3_MAYBE,
-                    COMMON.RX3_COMPLETABLE,
-                    COMMON.PUBLISHER,
-                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                ),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX3_ROOM,
+                        COMMON.RX3_FLOWABLE,
+                        COMMON.RX3_OBSERVABLE,
+                        COMMON.RX3_SINGLE,
+                        COMMON.RX3_MAYBE,
+                        COMMON.RX3_COMPLETABLE,
+                        COMMON.PUBLISHER,
+                        COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )

@@ -29,7 +29,8 @@ internal constructor(val context: Context, private val rxType: RxType) :
     PreparedQueryResultBinderProvider {
 
     private val hasRxJavaArtifact by lazy {
-        context.processingEnv.findTypeElement(rxType.version.rxRoomClassName.canonicalName) != null
+        context.processingEnv.findTypeElement(rxType.version.rxMarkerClassName.canonicalName) !=
+            null
     }
 
     override fun matches(declared: XType): Boolean =

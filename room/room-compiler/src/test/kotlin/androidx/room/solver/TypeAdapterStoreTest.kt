@@ -29,6 +29,7 @@ import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
@@ -697,15 +698,20 @@ class TypeAdapterStoreTest {
         listOf(COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM, COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM)
             .forEach { (rxTypeSrc, rxRoomSrc) ->
                 runProcessorTest(
-                    sources =
-                        listOf(
-                            COMMON.RX2_SINGLE,
-                            COMMON.RX3_SINGLE,
-                            COMMON.RX2_OBSERVABLE,
-                            COMMON.RX3_OBSERVABLE,
-                            COMMON.PUBLISHER,
-                            rxTypeSrc,
-                            rxRoomSrc
+                    sources = listOf(rxTypeSrc, rxRoomSrc),
+                    classpath =
+                        compileFiles(
+                            listOf(
+                                COMMON.RX2_SINGLE,
+                                COMMON.RX2_MAYBE,
+                                COMMON.RX2_COMPLETABLE,
+                                COMMON.RX2_OBSERVABLE,
+                                COMMON.RX3_SINGLE,
+                                COMMON.RX3_MAYBE,
+                                COMMON.RX3_COMPLETABLE,
+                                COMMON.RX3_OBSERVABLE,
+                                COMMON.PUBLISHER,
+                            )
                         )
                 ) { invocation ->
                     val publisher =
@@ -731,15 +737,20 @@ class TypeAdapterStoreTest {
             )
             .forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
                 runProcessorTest(
-                    sources =
-                        listOf(
-                            COMMON.RX2_SINGLE,
-                            COMMON.RX3_SINGLE,
-                            COMMON.RX2_OBSERVABLE,
-                            COMMON.RX3_OBSERVABLE,
-                            COMMON.PUBLISHER,
-                            rxTypeSrc,
-                            rxRoomSrc
+                    sources = listOf(rxTypeSrc, rxRoomSrc),
+                    classpath =
+                        compileFiles(
+                            listOf(
+                                COMMON.RX2_SINGLE,
+                                COMMON.RX2_MAYBE,
+                                COMMON.RX2_COMPLETABLE,
+                                COMMON.RX2_OBSERVABLE,
+                                COMMON.RX3_SINGLE,
+                                COMMON.RX3_MAYBE,
+                                COMMON.RX3_COMPLETABLE,
+                                COMMON.RX3_OBSERVABLE,
+                                COMMON.PUBLISHER,
+                            )
                         )
                 ) { invocation ->
                     val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
@@ -761,15 +772,22 @@ class TypeAdapterStoreTest {
             )
             .forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
                 runProcessorTest(
-                    sources =
-                        listOf(
-                            COMMON.RX2_SINGLE,
-                            COMMON.RX3_SINGLE,
-                            COMMON.RX2_FLOWABLE,
-                            COMMON.RX3_FLOWABLE,
-                            COMMON.PUBLISHER,
-                            rxTypeSrc,
-                            rxRoomSrc
+                    sources = listOf(rxTypeSrc, rxRoomSrc),
+                    classpath =
+                        compileFiles(
+                            listOf(
+                                COMMON.RX2_SINGLE,
+                                COMMON.RX2_MAYBE,
+                                COMMON.RX2_COMPLETABLE,
+                                COMMON.RX2_OBSERVABLE,
+                                COMMON.RX2_FLOWABLE,
+                                COMMON.RX3_SINGLE,
+                                COMMON.RX3_MAYBE,
+                                COMMON.RX3_COMPLETABLE,
+                                COMMON.RX3_OBSERVABLE,
+                                COMMON.RX3_FLOWABLE,
+                                COMMON.PUBLISHER,
+                            )
                         )
                 ) { invocation ->
                     val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)

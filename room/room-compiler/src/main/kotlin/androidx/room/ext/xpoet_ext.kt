@@ -222,18 +222,37 @@ object RoomGuavaMemberNames {
 }
 
 object RoomRxJava2TypeNames {
-    val RX_ROOM = XClassName.get(ROOM_PACKAGE, "RxRoom")
-    val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
-    val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
-    val RX_EMPTY_RESULT_SET_EXCEPTION = XClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
+    val RX2_ROOM = XClassName.get(ROOM_PACKAGE, "RxRoom")
+    val RX2_EMPTY_RESULT_SET_EXCEPTION = XClassName.get(ROOM_PACKAGE, "EmptyResultSetException")
+}
+
+object RoomRxJava2MemberNames {
+    val RX_ROOM_CREATE_FLOWABLE =
+        RoomRxJava2TypeNames.RX2_ROOM.companionMember("createFlowable", isJvmStatic = true)
+    val RX_ROOM_CREATE_OBSERVABLE =
+        RoomRxJava2TypeNames.RX2_ROOM.companionMember("createObservable", isJvmStatic = true)
+    val RX_ROOM_CREATE_SINGLE =
+        RoomRxJava2TypeNames.RX2_ROOM.companionMember("createSingle", isJvmStatic = true)
+    val RX_ROOM_CREATE_MAYBE =
+        RoomRxJava2TypeNames.RX2_ROOM.companionMember("createMaybe", isJvmStatic = true)
+    val RX_ROOM_CREATE_COMPLETABLE =
+        RoomRxJava2TypeNames.RX2_ROOM.companionMember("createCompletable", isJvmStatic = true)
 }
 
 object RoomRxJava3TypeNames {
-    val RX_ROOM = XClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
-    val RX_ROOM_CREATE_FLOWABLE = "createFlowable"
-    val RX_ROOM_CREATE_OBSERVABLE = "createObservable"
-    val RX_EMPTY_RESULT_SET_EXCEPTION =
+    val RX3_ROOM = XClassName.get("$ROOM_PACKAGE.rxjava3", "RxRoom")
+    val RX3_ROOM_MARKER = XClassName.get("$ROOM_PACKAGE.rxjava3", "Rx3RoomArtifactMarker")
+    val RX3_EMPTY_RESULT_SET_EXCEPTION =
         XClassName.get("$ROOM_PACKAGE.rxjava3", "EmptyResultSetException")
+}
+
+object RoomRxJava3MemberNames {
+    val RX_ROOM_CREATE_FLOWABLE = RoomRxJava3TypeNames.RX3_ROOM.packageMember("createFlowable")
+    val RX_ROOM_CREATE_OBSERVABLE = RoomRxJava3TypeNames.RX3_ROOM.packageMember("createObservable")
+    val RX_ROOM_CREATE_SINGLE = RoomRxJava3TypeNames.RX3_ROOM.packageMember("createSingle")
+    val RX_ROOM_CREATE_MAYBE = RoomRxJava3TypeNames.RX3_ROOM.packageMember("createMaybe")
+    val RX_ROOM_CREATE_COMPLETABLE =
+        RoomRxJava3TypeNames.RX3_ROOM.packageMember("createCompletable")
 }
 
 object RoomPagingTypeNames {

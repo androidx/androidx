@@ -24,9 +24,9 @@ import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType
 import androidx.room.solver.TypeAdapterExtras
 import androidx.room.solver.query.result.QueryResultBinder
-import androidx.room.solver.query.result.RxCallableQueryResultBinder
+import androidx.room.solver.query.result.RxLambdaQueryResultBinder
 
-class RxCallableQueryResultBinderProvider
+class RxLambdaQueryResultBinderProvider
 private constructor(val context: Context, private val rxType: RxType) : QueryResultBinderProvider {
     override fun provide(
         declared: XType,
@@ -40,7 +40,7 @@ private constructor(val context: Context, private val rxType: RxType) : QueryRes
         )
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findQueryResultAdapter(typeArg, query, extras)
-        return RxCallableQueryResultBinder(rxType, typeArg, adapter)
+        return RxLambdaQueryResultBinder(rxType, typeArg, adapter)
     }
 
     override fun matches(declared: XType): Boolean =
@@ -62,10 +62,10 @@ private constructor(val context: Context, private val rxType: RxType) : QueryRes
     companion object {
         fun getAll(context: Context) =
             listOf(RxType.RX2_SINGLE, RxType.RX2_MAYBE, RxType.RX3_SINGLE, RxType.RX3_MAYBE).map {
-                RxCallableQueryResultBinderProvider(context, it)
+                RxLambdaQueryResultBinderProvider(context, it)
                     .requireArtifact(
                         context = context,
-                        requiredType = it.version.rxRoomClassName,
+                        requiredType = it.version.rxMarkerClassName,
                         missingArtifactErrorMsg = it.version.missingArtifactMessage
                     )
             }

@@ -20,7 +20,11 @@ package androidx.room.rxjava3
 import androidx.annotation.RestrictTo
 import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
+import androidx.room.coroutines.createFlow
+import androidx.room.util.performBlocking
+import androidx.sqlite.SQLiteConnection
 import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Completable
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.core.FlowableEmitter
 import io.reactivex.rxjava3.core.Maybe
@@ -31,9 +35,77 @@ import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.rx3.asObservable
+
+/** Marker class used by annotation processor to identify dependency is in the classpath. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) class Rx3RoomArtifactMarker private constructor()
 
 /** Data dispatched by the publisher created by [createFlowable]. */
 @JvmField val NOTHING: Any = Any()
+
+/** Helper function used by generated code to create a [Flowable] */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <T : Any> createFlowable(
+    db: RoomDatabase,
+    inTransaction: Boolean,
+    tableNames: Array<String>,
+    block: (SQLiteConnection) -> T?
+): Flowable<T> =
+    createObservable(db, inTransaction, tableNames, block).toFlowable(BackpressureStrategy.LATEST)
+
+/** Helper function used by generated code to create a [Observable] */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <T : Any> createObservable(
+    db: RoomDatabase,
+    inTransaction: Boolean,
+    tableNames: Array<String>,
+    block: (SQLiteConnection) -> T?
+): Observable<T> =
+    createFlow(db, inTransaction, tableNames, block)
+        .filterNotNull()
+        .asObservable(db.getQueryContext())
+
+/** Helper function used by generated code to create a [Maybe] */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <T : Any> createMaybe(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> T?
+): Maybe<T> =
+    Maybe.fromCallable(Callable<T> { performBlocking(db, isReadOnly, inTransaction, block) })
+
+/** Helper function used by generated code to create a [Completable] */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun createCompletable(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> Unit
+): Completable = Completable.fromCallable { performBlocking(db, isReadOnly, inTransaction, block) }
+
+/** Helper function used by generated code to create a [Single] */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+fun <T : Any> createSingle(
+    db: RoomDatabase,
+    isReadOnly: Boolean,
+    inTransaction: Boolean,
+    block: (SQLiteConnection) -> T?
+): Single<T> =
+    Single.create { emitter ->
+        if (emitter.isDisposed) return@create
+        try {
+            val result = performBlocking(db, isReadOnly, inTransaction, block)
+            if (result != null) {
+                emitter.onSuccess(result)
+            } else {
+                throw EmptyResultSetException("Query returned empty result set.")
+            }
+        } catch (e: EmptyResultSetException) {
+            emitter.tryOnError(e)
+        }
+    }
 
 /**
  * Creates a [Flowable] that emits at least once and also re-emits whenever one of the observed
@@ -82,6 +154,7 @@ fun createFlowable(database: RoomDatabase, vararg tableNames: String): Flowable<
  * thread and will automatically block null values since RxJava3 does not like null.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("No longer used by generated code.")
 fun <T : Any> createFlowable(
     database: RoomDatabase,
     inTransaction: Boolean,
@@ -135,6 +208,7 @@ fun createObservable(database: RoomDatabase, vararg tableNames: String): Observa
  * thread and will automatically block null values since RxJava3 does not like null.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("No longer used by generated code.")
 fun <T : Any> createObservable(
     database: RoomDatabase,
     inTransaction: Boolean,
