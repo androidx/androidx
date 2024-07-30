@@ -243,6 +243,26 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void TextButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.ButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
+  public final class ButtonShapes {
+    ctor public ButtonShapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape hoveredShape, androidx.compose.ui.graphics.Shape focusedShape, androidx.compose.ui.graphics.Shape checkedShape);
+    method public androidx.compose.ui.graphics.Shape component1();
+    method public androidx.compose.ui.graphics.Shape component2();
+    method public androidx.compose.ui.graphics.Shape component3();
+    method public androidx.compose.ui.graphics.Shape component4();
+    method public androidx.compose.ui.graphics.Shape component5();
+    method public androidx.compose.material3.ButtonShapes copy(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape hoveredShape, androidx.compose.ui.graphics.Shape focusedShape, androidx.compose.ui.graphics.Shape checkedShape);
+    method public androidx.compose.ui.graphics.Shape getCheckedShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getHoveredShape();
+    method public androidx.compose.ui.graphics.Shape getPressedShape();
+    method public androidx.compose.ui.graphics.Shape getShape();
+    property public final androidx.compose.ui.graphics.Shape checkedShape;
+    property public final androidx.compose.ui.graphics.Shape focusedShape;
+    property public final androidx.compose.ui.graphics.Shape hoveredShape;
+    property public final androidx.compose.ui.graphics.Shape pressedShape;
+    property public final androidx.compose.ui.graphics.Shape shape;
+  }
+
   @androidx.compose.runtime.Immutable public final class CardColors {
     ctor public CardColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
     method public androidx.compose.material3.CardColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
@@ -2466,6 +2486,95 @@ package androidx.compose.material3 {
     property public abstract boolean is24hour;
     property @IntRange(from=0L, to=59L) public abstract int minute;
     property public abstract int selection;
+  }
+
+  @androidx.compose.runtime.Immutable public final class ToggleButtonColors {
+    ctor public ToggleButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor, long checkedContainerColor, long checkedContentColor);
+    method public androidx.compose.material3.ToggleButtonColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method public long getCheckedContainerColor();
+    method public long getCheckedContentColor();
+    method public long getContainerColor();
+    method public long getContentColor();
+    method public long getDisabledContainerColor();
+    method public long getDisabledContentColor();
+    property public final long checkedContainerColor;
+    property public final long checkedContentColor;
+    property public final long containerColor;
+    property public final long contentColor;
+    property public final long disabledContainerColor;
+    property public final long disabledContentColor;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ToggleButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors elevatedToggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors elevatedToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getCheckedShape();
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getElevatedCheckedShape();
+    method public androidx.compose.ui.graphics.Shape getElevatedFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getElevatedHoveredShape();
+    method public androidx.compose.ui.graphics.Shape getElevatedPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getElevatedShape();
+    method public androidx.compose.ui.graphics.Shape getFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getHoveredShape();
+    method public float getIconSize();
+    method public float getIconSpacing();
+    method public float getMinHeight();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedCheckedShape();
+    method public androidx.compose.ui.graphics.Shape getOutlinedFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getOutlinedHoveredShape();
+    method public androidx.compose.ui.graphics.Shape getOutlinedPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
+    method public androidx.compose.ui.graphics.Shape getPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getRoundShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSquareShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTonalCheckedShape();
+    method public androidx.compose.ui.graphics.Shape getTonalFocusedShape();
+    method public androidx.compose.ui.graphics.Shape getTonalHoveredShape();
+    method public androidx.compose.ui.graphics.Shape getTonalPressedShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTonalShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method public androidx.compose.material3.ButtonShapes shapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape hoverShape, androidx.compose.ui.graphics.Shape focusShape, androidx.compose.ui.graphics.Shape checkedShape);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors toggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors toggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors tonalToggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors tonalToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float IconSize;
+    property public final float IconSpacing;
+    property public final float MinHeight;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape checkedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape elevatedCheckedShape;
+    property public final androidx.compose.ui.graphics.Shape elevatedFocusedShape;
+    property public final androidx.compose.ui.graphics.Shape elevatedHoveredShape;
+    property public final androidx.compose.ui.graphics.Shape elevatedPressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape elevatedShape;
+    property public final androidx.compose.ui.graphics.Shape focusedShape;
+    property public final androidx.compose.ui.graphics.Shape hoveredShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedCheckedShape;
+    property public final androidx.compose.ui.graphics.Shape outlinedFocusedShape;
+    property public final androidx.compose.ui.graphics.Shape outlinedHoveredShape;
+    property public final androidx.compose.ui.graphics.Shape outlinedPressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
+    property public final androidx.compose.ui.graphics.Shape pressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape roundShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape shape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape squareShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape tonalCheckedShape;
+    property public final androidx.compose.ui.graphics.Shape tonalFocusedShape;
+    property public final androidx.compose.ui.graphics.Shape tonalHoveredShape;
+    property public final androidx.compose.ui.graphics.Shape tonalPressedShape;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape tonalShape;
+    field public static final androidx.compose.material3.ToggleButtonDefaults INSTANCE;
+  }
+
+  public final class ToggleButtonKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ElevatedToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.ButtonShapes shapes, optional androidx.compose.material3.ToggleButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void OutlinedToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.ButtonShapes shapes, optional androidx.compose.material3.ToggleButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.ButtonShapes shapes, optional androidx.compose.material3.ToggleButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void TonalToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.ButtonShapes shapes, optional androidx.compose.material3.ToggleButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ToggleableFloatingActionButtonDefaults {

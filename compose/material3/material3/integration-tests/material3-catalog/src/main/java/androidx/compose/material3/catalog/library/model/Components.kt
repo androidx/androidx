@@ -425,6 +425,17 @@ private val SegmentedButtons =
         examples = SegmentedButtonExamples
     )
 
+private val ToggleButtons =
+    Component(
+        id = nextId(),
+        name = "ToggleButtons",
+        description = "Toggle buttons provide a selectable button that animates on press.",
+        guidelinesUrl = "", // No guidelines yet
+        docsUrl = "", // No docs yet
+        sourceUrl = "$Material3SourceUrl/ToggleButton.kt",
+        examples = ToggleButtonsExamples
+    )
+
 private val Sliders =
     Component(
         id = nextId(),
@@ -575,6 +586,7 @@ val Components =
         Tabs,
         TextFields,
         TimePickers,
+        ToggleButtons,
         Tooltips,
         TopAppBar
     )
