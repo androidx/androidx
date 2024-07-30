@@ -49,7 +49,6 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -145,6 +144,52 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         rule.onNodeWithTag("myClickable").performKeyInput { keyUp(key) }
 
         // The clickable should never see the up event, so it should never invoke onClick
+        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
+    }
+
+    @Test
+    @OptIn(ExperimentalTestApi::class)
+    fun clickWithKey_notInvokedIfCorrespondingDownEventWasNotReceived() {
+        var counter = 0
+        val outerFocusRequester = FocusRequester()
+        val clickableFocusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(
+                Modifier.testTag("outerBox")
+                    .padding(10.dp)
+                    .focusRequester(outerFocusRequester)
+                    .focusTarget()
+            ) {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .focusRequester(clickableFocusRequester)
+                            .clickable { counter++ }
+                )
+            }
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            outerFocusRequester.requestFocus()
+        }
+
+        // Press down on the outer box
+        rule.onNodeWithTag("outerBox").performKeyInput { keyDown(key) }
+
+        rule.runOnIdle {
+            assertThat(counter).isEqualTo(0)
+            // Focus the clickable, while still pressing down
+            clickableFocusRequester.requestFocus()
+        }
+
+        // Release the key
+        rule.onNodeWithTag("myClickable").performKeyInput { keyUp(key) }
+
+        // The clickable should not invoke onClick because it only saw the up event, not the
+        // corresponding down, and hence should not be considered pressed
         rule.runOnIdle { assertThat(counter).isEqualTo(0) }
     }
 
@@ -422,7 +467,6 @@ class ClickableParameterizedKeyInputTest(keyCode: Long) {
         }
     }
 
-    @Ignore("b/354735627")
     @Test
     @OptIn(ExperimentalTestApi::class)
     fun modifierReusedBetweenKeyDownAndKeyUp_doesNotCallListeners() {
