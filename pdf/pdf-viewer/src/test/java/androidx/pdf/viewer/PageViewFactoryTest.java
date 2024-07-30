@@ -27,6 +27,7 @@ import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 
+import androidx.pdf.find.FindInFileView;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.viewer.loader.PdfLoader;
@@ -52,6 +53,8 @@ public class PageViewFactoryTest {
 
     private final SingleTapHandler mMockSingleTapHandler = mock(SingleTapHandler.class);
 
+    private final FindInFileView mMockFindInFileView = mock(FindInFileView.class);
+
     @Before
     public void setup() {
         when(mMockZoomView.zoomScroll()).thenReturn(mock(ObservableValue.class));
@@ -68,7 +71,7 @@ public class PageViewFactoryTest {
                 PageViewFactory.PageView.class);
         PageViewFactory mockPageViewFactory = new MockPageViewAccessbilityDisabledFactory(
                 ApplicationProvider.getApplicationContext(), mMockPdfLoader, mMockPaginatedView,
-                mMockZoomView, mMockSingleTapHandler
+                mMockZoomView, mMockSingleTapHandler, mMockFindInFileView
         );
 
         // Act
@@ -99,7 +102,7 @@ public class PageViewFactoryTest {
                 PageViewFactory.PageView.class);
         PageViewFactory mockPageViewFactory = new MockPageViewAccessbilityEnabledFactory(
                 ApplicationProvider.getApplicationContext(), mMockPdfLoader, mMockPaginatedView,
-                mMockZoomView, mMockSingleTapHandler
+                mMockZoomView, mMockSingleTapHandler, mMockFindInFileView
         );
 
         // Act
