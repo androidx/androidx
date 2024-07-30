@@ -1644,7 +1644,6 @@ import java.util.Set;
             }
         }
 
-        @SuppressWarnings("unchecked") // Using Pair<RouteInfo, RouteInfo>
         private void invokeCallback(
                 MediaRouter.CallbackRecord record, int what, Object obj, int arg) {
             final MediaRouter router = record.mRouter;
