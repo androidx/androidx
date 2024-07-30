@@ -39,10 +39,15 @@ import org.json.JSONObject
  *   not enable backup or e2ee (screen lock).
  * @throws CreateRestoreCredentialDomException if the requestJson is an invalid Json that does not
  *   follow the standard webauthn web json format
+ * @throws IllegalArgumentException If [requestJson] is empty, or if it is not a valid JSON, or if
+ *   it doesn't have a valid `user.id` defined according to the [webauthn spec]
+ *   (https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson)
  */
-class CreateRestoreCredentialRequest(
+class CreateRestoreCredentialRequest
+@JvmOverloads
+constructor(
     val requestJson: String,
-    val isCloudBackupEnabled: Boolean,
+    val isCloudBackupEnabled: Boolean = true,
 ) :
     CreateCredentialRequest(
         type = RestoreCredential.TYPE_RESTORE_CREDENTIAL,
@@ -61,9 +66,13 @@ class CreateRestoreCredentialRequest(
             "androidx.credentials.BUNDLE_KEY_SHOULD_BACKUP_TO_CLOUD"
 
         private fun getDisplayInfoFromJson(requestJson: String): DisplayInfo {
-            val json = JSONObject(requestJson)
-            val userJson = json.getJSONObject("user")
-            return DisplayInfo(userJson.getString("id"))
+            try {
+                val json = JSONObject(requestJson)
+                val userJson = json.getJSONObject("user")
+                return DisplayInfo(userJson.getString("id"))
+            } catch (e: Exception) {
+                throw IllegalArgumentException("user.id must be defined in requestJson")
+            }
         }
 
         private fun toCredentialDataBundle(
