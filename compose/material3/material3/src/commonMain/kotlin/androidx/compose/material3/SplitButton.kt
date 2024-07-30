@@ -427,7 +427,7 @@ object SplitButtonDefaults {
     val LeadingIconSize = 20.dp
 
     /** Default icon size for the trailing button */
-    val TrailingIconSize = 20.dp
+    val TrailingIconSize = 22.dp
 
     /** Default spacing between the `leading` and `trailing` button */
     val Spacing = SplitButtonSmallTokens.BetweenSpace
