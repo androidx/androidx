@@ -240,6 +240,8 @@ private fun ComposeRootRegistry.ensureComposeRootRegistryIsSetUp() {
     }
 }
 
+// TODO(b/356129837): This won't work on Robolectric, where nothing happens while the latch is
+//  awaited. The impact seems limited though, as having to wait for a compose root is quite rare.
 internal fun ComposeRootRegistry.waitForComposeRoots(atLeastOneRootExpected: Boolean) {
     ensureComposeRootRegistryIsSetUp()
 
@@ -271,6 +273,8 @@ internal fun ComposeRootRegistry.waitForComposeRoots(atLeastOneRootExpected: Boo
     }
 }
 
+// TODO(b/356129837): This won't work on Robolectric, where nothing happens while we're suspended.
+//  The impact seems limited though, as having to wait for a compose root is quite rare.
 internal suspend fun ComposeRootRegistry.awaitComposeRoots() {
     ensureComposeRootRegistryIsSetUp()
 
