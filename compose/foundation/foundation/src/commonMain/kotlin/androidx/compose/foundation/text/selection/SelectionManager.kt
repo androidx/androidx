@@ -27,6 +27,7 @@ import androidx.compose.foundation.gestures.waitForUpOrCancellation
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TextDragObserver
 import androidx.compose.foundation.text.input.internal.coerceIn
+import androidx.compose.foundation.text.isPositionInsideSelection
 import androidx.compose.foundation.text.selection.Selection.AnchorInfo
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -812,7 +813,8 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
         currentDragPosition = position
 
-        val selectionLayout = getSelectionLayout(position, previousHandlePosition, isStartHandle)
+        val selectionLayout =
+            getSelectionLayout(position, previousHandlePosition, isStartHandle) ?: return false
         if (!selectionLayout.shouldRecomputeSelection(previousSelectionLayout)) {
             return false
         }
@@ -829,7 +831,7 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
         position: Offset,
         previousHandlePosition: Offset,
         isStartHandle: Boolean,
-    ): SelectionLayout {
+    ): SelectionLayout? {
         val containerCoordinates = requireContainerCoordinates()
         val sortedSelectables = selectionRegistrar.sort(containerCoordinates)
 
@@ -869,11 +871,31 @@ internal class SelectionManager(private val selectionRegistrar: SelectionRegistr
     internal fun shouldPerformHaptics(): Boolean =
         isInTouchMode && selectionRegistrar.selectables.fastAny { it.getText().isNotEmpty() }
 
-    fun contextMenuOpenAdjustment(position: Offset) {
-        val isEmptySelection = selection?.toTextRange()?.collapsed ?: true
-        // TODO(b/209483184) the logic should be more complex here, it should check that current
-        //  selection doesn't include click position
-        if (isEmptySelection) {
+    /**
+     * Implements the macOS select-word-on-right-click behavior.
+     *
+     * If the current selection does not already include [position], select the word at [position].
+     */
+    fun selectWordAtPositionIfNotAlreadySelected(position: Offset) {
+        val containerCoordinates = containerLayoutCoordinates ?: return
+        if (!containerCoordinates.isAttached) return
+
+        val isClickedPositionInsideSelection =
+            selectionRegistrar.selectables.fastAny { selectable ->
+                val selection =
+                    selectionRegistrar.subselections[selectable.selectableId]
+                        ?: return@fastAny false
+                val selectableLayoutCoords =
+                    selectable.getLayoutCoordinates() ?: return@fastAny false
+                val positionInSelectable =
+                    selectableLayoutCoords.localPositionOf(containerCoordinates, position)
+                val textLayoutResult = selectable.textLayoutResult() ?: return@fastAny false
+                textLayoutResult.isPositionInsideSelection(
+                    position = positionInSelectable,
+                    selectionRange = selection.toTextRange()
+                )
+            }
+        if (!isClickedPositionInsideSelection) {
             startSelection(
                 position = position,
                 isStartHandle = true,

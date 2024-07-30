@@ -16,9 +16,11 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
@@ -84,4 +86,23 @@ internal fun TextLayoutResult.canReuse(
     }
     return constraints.maxWidth == layoutInput.constraints.maxWidth &&
         constraints.maxHeight == layoutInput.constraints.maxHeight
+}
+
+/** Returns whether the given pixel position is inside the selection. */
+internal fun TextLayoutResult.isPositionInsideSelection(
+    position: Offset,
+    selectionRange: TextRange?,
+): Boolean {
+    if ((selectionRange == null) || selectionRange.collapsed) return false
+
+    fun isOffsetSelectedAndContainsPosition(offset: Int) =
+        selectionRange.contains(offset) && getBoundingBox(offset).contains(position)
+
+    // getOffsetForPosition returns the index at which the cursor should be placed when the
+    // given position is clicked. This means that when position is to the right of the center of
+    // a glyph it will return the index of the next glyph. So we test both the index it returns
+    // and the previous index.
+    val offset = getOffsetForPosition(position)
+    return isOffsetSelectedAndContainsPosition(offset) ||
+        isOffsetSelectedAndContainsPosition(offset - 1)
 }

@@ -143,6 +143,10 @@ internal class MultiWidgetSelectionDelegate(
         return layoutCoordinates
     }
 
+    override fun textLayoutResult(): TextLayoutResult? {
+        return layoutResultCallback()
+    }
+
     override fun getText(): AnnotatedString {
         val textLayoutResult = layoutResultCallback() ?: return AnnotatedString("")
         return textLayoutResult.layoutInput.text
