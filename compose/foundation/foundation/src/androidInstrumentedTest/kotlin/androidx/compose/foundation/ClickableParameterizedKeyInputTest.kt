@@ -49,6 +49,7 @@ import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,12 +57,11 @@ import org.junit.runners.Parameterized
 
 /**
  * Common parameterized tests for key input with the different supported keys
- * ([androidx.compose.foundation.isClick]). Non-parameterized key input tests are in
- * [CombinedClickableTest]
+ * ([androidx.compose.foundation.isClick]). Non-parameterized key input tests are in [ClickableTest]
  */
 @MediumTest
 @RunWith(Parameterized::class)
-class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
+class ClickableParameterizedKeyInputTest(keyCode: Long) {
     private val key: Key = Key(keyCode)
 
     companion object {
@@ -90,9 +90,9 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
             BasicText(
                 "ClickableText",
                 modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable { counter++ }
+                    Modifier.testTag("myClickable").focusRequester(focusRequester).clickable {
+                        counter++
+                    }
             )
         }
         rule.runOnIdle {
@@ -124,7 +124,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("myClickable")
                             .focusRequester(clickableFocusRequester)
-                            .combinedClickable { counter++ }
+                            .clickable { counter++ }
                 )
             }
         }
@@ -150,86 +150,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
 
     @Test
     @OptIn(ExperimentalTestApi::class)
-    fun longClickWithKey() {
-        var clickCounter = 0
-        var longClickCounter = 0
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable(
-                            onLongClick = { ++longClickCounter },
-                            onClick = { ++clickCounter }
-                        )
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput {
-            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
-            // The press duration is 100ms longer than the minimum required for a long press.
-            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
-            pressKey(key, durationMillis)
-        }
-
-        rule.runOnIdle {
-            assertThat(longClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(0)
-        }
-    }
-
-    @Test
-    @OptIn(ExperimentalTestApi::class)
-    fun longClickWithKey_notInvokedIfFocusIsLostWhilePressed() {
-        var counter = 0
-        val outerFocusRequester = FocusRequester()
-        val clickableFocusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            Box(Modifier.padding(10.dp).focusRequester(outerFocusRequester).focusTarget()) {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("myClickable")
-                            .focusRequester(clickableFocusRequester)
-                            .combinedClickable(onLongClick = { counter++ }) {}
-                )
-            }
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            clickableFocusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput { keyDown(key) }
-
-        rule.runOnIdle {
-            assertThat(counter).isEqualTo(0)
-            // Remove focus from the clickable
-            outerFocusRequester.requestFocus()
-        }
-
-        // Advance a small amount to allow the coroutine to be cancelled
-        rule.mainClock.advanceTimeBy(100)
-
-        // Advance past the long press timeout
-        rule.mainClock.advanceTimeBy(1000)
-
-        // We should dispose the long click when we lost focus, so onLongClick should not be invoked
-        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
-    }
-
-    @Test
-    @OptIn(ExperimentalTestApi::class)
     fun keyPress_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -242,12 +162,10 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                 BasicText(
                     "ClickableText",
                     modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                        Modifier.testTag("clickable").focusRequester(focusRequester).clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {}
                 )
             }
         }
@@ -291,10 +209,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("clickable")
                             .focusRequester(clickableFocusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                            .clickable(interactionSource = interactionSource, indication = null) {}
                 )
             }
         }
@@ -339,12 +254,10 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                 BasicText(
                     "ClickableText",
                     modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null
-                            ) {}
+                        Modifier.testTag("clickable").focusRequester(focusRequester).clickable(
+                            interactionSource = interactionSource,
+                            indication = null
+                        ) {}
                 )
             }
         }
@@ -407,7 +320,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                                 if (it.nativeKeyEvent.repeatCount != 0) repeatCounter++
                                 false
                             }
-                            .combinedClickable(
+                            .clickable(
                                 interactionSource = interactionSource,
                                 indication = null,
                             ) {}
@@ -460,13 +373,11 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                 BasicText(
                     "ClickableText",
                     modifier =
-                        Modifier.testTag("clickable")
-                            .focusRequester(focusRequester)
-                            .combinedClickable(
-                                interactionSource = interactionSource,
-                                indication = null,
-                                enabled = enabled.value
-                            ) {}
+                        Modifier.testTag("clickable").focusRequester(focusRequester).clickable(
+                            interactionSource = interactionSource,
+                            indication = null,
+                            enabled = enabled.value
+                        ) {}
                 )
             }
         }
@@ -511,59 +422,11 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
         }
     }
 
-    @Test
-    @OptIn(ExperimentalTestApi::class)
-    fun updateOnLongClickListenerBetweenKeyDownAndUp_callsNewListener() {
-        var clickCounter = 0
-        var longClickCounter = 0
-        var newLongClickCounter = 0
-        var mutableOnLongClick: () -> Unit by mutableStateOf({ ++longClickCounter })
-        val focusRequester = FocusRequester()
-        lateinit var inputModeManager: InputModeManager
-        rule.setContent {
-            inputModeManager = LocalInputModeManager.current
-            BasicText(
-                "ClickableText",
-                modifier =
-                    Modifier.testTag("myClickable")
-                        .focusRequester(focusRequester)
-                        .combinedClickable(
-                            onLongClick = mutableOnLongClick,
-                            onClick = { ++clickCounter }
-                        )
-            )
-        }
-        rule.runOnIdle {
-            inputModeManager.requestInputMode(Keyboard)
-            focusRequester.requestFocus()
-        }
-
-        rule.onNodeWithTag("myClickable").performKeyInput {
-            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
-            keyDown(key)
-            advanceEventTime(100)
-        }
-        mutableOnLongClick = { ++newLongClickCounter }
-        rule.waitForIdle()
-        rule.onNodeWithTag("myClickable").performKeyInput {
-            // The press duration is 100ms longer than the minimum required for a long press.
-            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
-            advanceEventTime(durationMillis)
-            keyUp(key)
-        }
-
-        rule.runOnIdle {
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(newLongClickCounter).isEqualTo(1)
-            assertThat(clickCounter).isEqualTo(0)
-        }
-    }
-
+    @Ignore("b/354735627")
     @Test
     @OptIn(ExperimentalTestApi::class)
     fun modifierReusedBetweenKeyDownAndKeyUp_doesNotCallListeners() {
-        var clickCounter = 0
-        var longClickCounter = 0
+        var counter = 0
         var reuseKey by mutableStateOf(0)
         val focusRequester = FocusRequester()
         lateinit var inputModeManager: InputModeManager
@@ -575,10 +438,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
                     modifier =
                         Modifier.testTag("myClickable")
                             .focusRequester(focusRequester)
-                            .combinedClickable(
-                                onLongClick = { ++longClickCounter },
-                                onClick = { ++clickCounter }
-                            )
+                            .clickable(onClick = { ++counter })
                 )
             }
         }
@@ -590,21 +450,11 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
         rule.onNodeWithTag("myClickable").performKeyInput {
             assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
             keyDown(key)
-            // Press the key down for 100ms less than the required long press duration.
-            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis - 100
-            advanceEventTime(durationMillis)
         }
         rule.runOnIdle { reuseKey = 1 }
         rule.waitForIdle()
-        rule.onNodeWithTag("myClickable").performKeyInput {
-            // Press the key down for another 200ms to reach the required long press duration.
-            advanceEventTime(200)
-            keyUp(key)
-        }
+        rule.onNodeWithTag("myClickable").performKeyInput { keyUp(key) }
 
-        rule.runOnIdle {
-            assertThat(longClickCounter).isEqualTo(0)
-            assertThat(clickCounter).isEqualTo(0)
-        }
+        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
     }
 }

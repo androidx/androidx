@@ -148,7 +148,7 @@ private class FocusableElement(private val interactionSource: MutableInteraction
 internal class FocusableNode(
     private var interactionSource: MutableInteractionSource?,
     focusability: Focusability = Focusability.Always,
-    private val onFocus: (() -> Unit)? = null
+    private val onFocusChange: ((Boolean) -> Unit)? = null
 ) :
     DelegatingNode(),
     SemanticsModifierNode,
@@ -211,8 +211,8 @@ internal class FocusableNode(
         // Ignore cases where we are initialized as unfocused, or moving between different unfocused
         // states, such as Inactive -> ActiveParent.
         if (isFocused == wasFocused) return
+        onFocusChange?.invoke(isFocused)
         if (isFocused) {
-            onFocus?.invoke()
             val parent = findBringIntoViewParent()
             if (parent != null) {
                 val layoutCoordinates = requireLayoutCoordinates()
