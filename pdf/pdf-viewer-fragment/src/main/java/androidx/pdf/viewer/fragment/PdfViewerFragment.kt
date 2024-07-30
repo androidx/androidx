@@ -193,6 +193,9 @@ public open class PdfViewerFragment : Fragment() {
             )
             field = value
 
+            // Clear selection
+            pdfLoaderCallbacks?.selectionModel?.setSelection(null)
+
             arguments?.putBoolean(KEY_TEXT_SEARCH_ACTIVE, value)
             findInFileView?.setFindInFileView(value)
         }
