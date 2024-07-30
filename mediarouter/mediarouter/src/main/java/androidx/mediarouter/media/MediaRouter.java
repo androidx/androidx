@@ -2005,7 +2005,7 @@ public final class MediaRouter {
          */
         @RestrictTo(LIBRARY)
         public boolean isGroup() {
-            return getMemberRoutes().size() >= 1;
+            return !mMemberRoutes.isEmpty();
         }
 
         /**
