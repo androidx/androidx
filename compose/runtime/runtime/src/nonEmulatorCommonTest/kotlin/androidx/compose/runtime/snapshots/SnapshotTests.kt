@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -958,7 +957,6 @@ class SnapshotTests {
         mutable1.dispose()
     }
 
-    @OptIn(ExperimentalComposeApi::class)
     @Test
     fun testUnsafeSnapshotEnterAndLeave() {
         val snapshot = takeSnapshot()
@@ -975,7 +973,6 @@ class SnapshotTests {
         }
     }
 
-    @OptIn(ExperimentalComposeApi::class)
     @Test
     fun testUnsafeSnapshotLeaveThrowsIfNotCurrent() {
         val snapshot = takeSnapshot()

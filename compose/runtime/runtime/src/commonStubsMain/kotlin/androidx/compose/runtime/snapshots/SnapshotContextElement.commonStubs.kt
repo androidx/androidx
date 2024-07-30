@@ -16,11 +16,9 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.implementedInJetBrainsFork
 import kotlin.coroutines.CoroutineContext
 
-@OptIn(ExperimentalComposeApi::class)
 internal actual class SnapshotContextElementImpl
 actual constructor(private val snapshot: Snapshot) : SnapshotContextElement {
     override val key: CoroutineContext.Key<*>

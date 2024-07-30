@@ -906,8 +906,8 @@ package androidx.compose.runtime.snapshots {
     method @kotlin.PublishedApi internal androidx.compose.runtime.snapshots.Snapshot? makeCurrent();
     method @kotlin.PublishedApi internal void restoreCurrent(androidx.compose.runtime.snapshots.Snapshot? snapshot);
     method public abstract androidx.compose.runtime.snapshots.Snapshot takeNestedSnapshot(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver);
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final androidx.compose.runtime.snapshots.Snapshot? unsafeEnter();
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public final void unsafeLeave(androidx.compose.runtime.snapshots.Snapshot? oldSnapshot);
+    method public final androidx.compose.runtime.snapshots.Snapshot? unsafeEnter();
+    method public final void unsafeLeave(androidx.compose.runtime.snapshots.Snapshot? oldSnapshot);
     property public int id;
     property public abstract boolean readOnly;
     property public abstract androidx.compose.runtime.snapshots.Snapshot root;
@@ -969,7 +969,7 @@ package androidx.compose.runtime.snapshots {
     field public static final androidx.compose.runtime.snapshots.SnapshotApplyResult.Success INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public interface SnapshotContextElement extends kotlin.coroutines.CoroutineContext.Element {
+  public interface SnapshotContextElement extends kotlin.coroutines.CoroutineContext.Element {
     field public static final androidx.compose.runtime.snapshots.SnapshotContextElement.Key Key;
   }
 
@@ -977,7 +977,7 @@ package androidx.compose.runtime.snapshots {
   }
 
   public final class SnapshotContextElementKt {
-    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeApi public static androidx.compose.runtime.snapshots.SnapshotContextElement asContextElement(androidx.compose.runtime.snapshots.Snapshot);
+    method public static androidx.compose.runtime.snapshots.SnapshotContextElement asContextElement(androidx.compose.runtime.snapshots.Snapshot);
   }
 
   public final class SnapshotKt {

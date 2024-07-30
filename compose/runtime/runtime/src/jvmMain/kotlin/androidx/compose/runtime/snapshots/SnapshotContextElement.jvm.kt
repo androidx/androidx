@@ -16,11 +16,9 @@
 
 package androidx.compose.runtime.snapshots
 
-import androidx.compose.runtime.ExperimentalComposeApi
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.ThreadContextElement
 
-@OptIn(ExperimentalComposeApi::class)
 internal actual class SnapshotContextElementImpl
 actual constructor(private val snapshot: Snapshot) :
     SnapshotContextElement, ThreadContextElement<Snapshot?> {

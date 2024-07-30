@@ -20,7 +20,6 @@ import androidx.collection.MutableScatterSet
 import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.checkPrecondition
@@ -165,10 +164,9 @@ sealed class Snapshot(
      * state (or to its parent snapshot if it is a nested snapshot) by calling
      * [MutableSnapshot.apply].
      */
-    @ExperimentalComposeApi fun unsafeEnter(): Snapshot? = makeCurrent()
+    fun unsafeEnter(): Snapshot? = makeCurrent()
 
     /** Leave the snapshot, restoring the [oldSnapshot] before returning. See [unsafeEnter]. */
-    @ExperimentalComposeApi
     fun unsafeLeave(oldSnapshot: Snapshot?) {
         checkPrecondition(threadSnapshot.get() === this) {
             "Cannot leave snapshot; $this is not the current snapshot"
