@@ -328,7 +328,6 @@ internal fun Modifier.textFieldBackground(
     }
 
 @Suppress("BanInlineOptIn")
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private inline fun TextFieldTransitionScope(
     inputState: InputPhase,
@@ -352,11 +351,9 @@ private inline fun TextFieldTransitionScope(
     val transition = updateTransition(inputState, label = "TextFieldInputState")
 
     // TODO Load the motionScheme tokens from the component tokens file
+    val labelTransitionSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
     val labelProgress =
-        transition.animateFloat(
-            label = "LabelProgress",
-            transitionSpec = { MotionSchemeKeyTokens.FastSpatial.value() }
-        ) {
+        transition.animateFloat(label = "LabelProgress", transitionSpec = { labelTransitionSpec }) {
             when (it) {
                 InputPhase.Focused -> 1f
                 InputPhase.UnfocusedEmpty -> if (showExpandedLabel) 0f else 1f
@@ -364,19 +361,21 @@ private inline fun TextFieldTransitionScope(
             }
         }
 
+    val fastOpacityTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
+    val slowOpacityTransitionSpec = MotionSchemeKeyTokens.SlowEffects.value<Float>()
     val placeholderOpacity =
         transition.animateFloat(
             label = "PlaceholderOpacity",
             transitionSpec = {
                 if (InputPhase.Focused isTransitioningTo InputPhase.UnfocusedEmpty) {
-                    MotionSchemeKeyTokens.FastEffects.value()
+                    fastOpacityTransitionSpec
                 } else if (
                     InputPhase.UnfocusedEmpty isTransitioningTo InputPhase.Focused ||
                         InputPhase.UnfocusedNotEmpty isTransitioningTo InputPhase.UnfocusedEmpty
                 ) {
-                    MotionSchemeKeyTokens.SlowEffects.value()
+                    slowOpacityTransitionSpec
                 } else {
-                    MotionSchemeKeyTokens.FastEffects.value()
+                    fastOpacityTransitionSpec
                 }
             }
         ) {
@@ -390,7 +389,7 @@ private inline fun TextFieldTransitionScope(
     val prefixSuffixOpacity =
         transition.animateFloat(
             label = "PrefixSuffixOpacity",
-            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() }
+            transitionSpec = { fastOpacityTransitionSpec }
         ) {
             when (it) {
                 InputPhase.Focused -> 1f
@@ -399,9 +398,10 @@ private inline fun TextFieldTransitionScope(
             }
         }
 
+    val colorTransitionSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
     val labelTextStyleColor =
         transition.animateColor(
-            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() },
+            transitionSpec = { colorTransitionSpec },
             label = "LabelTextStyleColor"
         ) {
             when (it) {
@@ -413,7 +413,7 @@ private inline fun TextFieldTransitionScope(
     @Suppress("UnusedTransitionTargetStateParameter")
     val labelContentColor =
         transition.animateColor(
-            transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() },
+            transitionSpec = { colorTransitionSpec },
             label = "LabelContentColor",
             targetValueByState = { labelColor }
         )
@@ -439,17 +439,19 @@ internal fun animateBorderStrokeAsState(
 ): State<BorderStroke> {
     // TODO Load the motionScheme tokens from the component tokens file
     val targetColor = colors.indicatorColor(enabled, isError, focused)
+    val colorAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Color>()
     val indicatorColor =
         if (enabled) {
-            animateColorAsState(targetColor, MotionSchemeKeyTokens.FastEffects.value())
+            animateColorAsState(targetColor, colorAnimationSpec)
         } else {
             rememberUpdatedState(targetColor)
         }
 
+    val thicknessAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Dp>()
     val thickness =
         if (enabled) {
             val targetThickness = if (focused) focusedBorderThickness else unfocusedBorderThickness
-            animateDpAsState(targetThickness, MotionSchemeKeyTokens.FastSpatial.value())
+            animateDpAsState(targetThickness, thicknessAnimationSpec)
         } else {
             rememberUpdatedState(unfocusedBorderThickness)
         }
