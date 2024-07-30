@@ -222,7 +222,7 @@ class ShortNavigationBarScreenshotTest {
             scope = rememberCoroutineScope()
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -245,7 +245,7 @@ class ShortNavigationBarScreenshotTest {
             scope = rememberCoroutineScope()
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -268,7 +268,7 @@ class ShortNavigationBarScreenshotTest {
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 setUnselectedItemsAsDisabled = true,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -289,7 +289,7 @@ class ShortNavigationBarScreenshotTest {
         composeTestRule.setContentWithSimulatedSize(600.dp, 100.dp, lightColorScheme()) {
             scope = rememberCoroutineScope()
             Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
                     ShortNavigationBarItem(
                         selected = true,
                         onClick = {},
@@ -332,7 +332,7 @@ class ShortNavigationBarScreenshotTest {
             scope = rememberCoroutineScope()
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -355,7 +355,7 @@ class ShortNavigationBarScreenshotTest {
             scope = rememberCoroutineScope()
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -378,7 +378,7 @@ class ShortNavigationBarScreenshotTest {
             DefaultShortNavigationBar(
                 interactionSource = interactionSource,
                 setUnselectedItemsAsDisabled = true,
-                arrangement = NavigationBarArrangement.Centered,
+                arrangement = ShortNavigationBarArrangement.Centered,
                 iconPosition = NavigationItemIconPosition.Start
             )
         }
@@ -444,7 +444,7 @@ private fun DefaultShortNavigationBar(
     interactionSource: MutableInteractionSource,
     modifier: Modifier = Modifier,
     setUnselectedItemsAsDisabled: Boolean = false,
-    arrangement: NavigationBarArrangement = NavigationBarArrangement.EqualWeight,
+    arrangement: ShortNavigationBarArrangement = ShortNavigationBarArrangement.EqualWeight,
     iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top
 ) {
     Box(modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {

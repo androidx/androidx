@@ -1356,17 +1356,6 @@ package androidx.compose.material3 {
   public interface MultiChoiceSegmentedButtonRowScope extends androidx.compose.foundation.layout.RowScope {
   }
 
-  @kotlin.jvm.JvmInline public final value class NavigationBarArrangement {
-    field public static final androidx.compose.material3.NavigationBarArrangement.Companion Companion;
-  }
-
-  public static final class NavigationBarArrangement.Companion {
-    method public int getCentered();
-    method public int getEqualWeight();
-    property public final int Centered;
-    property public final int EqualWeight;
-  }
-
   public final class NavigationBarDefaults {
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getElevation();
@@ -1868,6 +1857,17 @@ package androidx.compose.material3 {
     enum_constant public static final androidx.compose.material3.SheetValue Expanded;
     enum_constant public static final androidx.compose.material3.SheetValue Hidden;
     enum_constant public static final androidx.compose.material3.SheetValue PartiallyExpanded;
+  }
+
+  @kotlin.jvm.JvmInline public final value class ShortNavigationBarArrangement {
+    field public static final androidx.compose.material3.ShortNavigationBarArrangement.Companion Companion;
+  }
+
+  public static final class ShortNavigationBarArrangement.Companion {
+    method public int getCentered();
+    method public int getEqualWeight();
+    property public final int Centered;
+    property public final int EqualWeight;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ShortNavigationBarDefaults {

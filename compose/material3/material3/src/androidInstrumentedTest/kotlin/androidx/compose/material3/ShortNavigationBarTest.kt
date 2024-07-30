@@ -199,7 +199,7 @@ class ShortNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
                     repeat(3) { index ->
                         ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
@@ -239,7 +239,7 @@ class ShortNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
                     repeat(4) { index ->
                         ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
@@ -279,7 +279,7 @@ class ShortNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
                     repeat(5) { index ->
                         ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
@@ -319,7 +319,7 @@ class ShortNavigationBarTest {
             Modifier.onGloballyPositioned { coords: LayoutCoordinates -> parentCoords = coords }
         ) {
             Box {
-                ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+                ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
                     repeat(6) { index ->
                         ShortNavigationBarItem(
                             icon = { Icon(Icons.Filled.Favorite, null) },
@@ -355,7 +355,7 @@ class ShortNavigationBarTest {
         rule.setMaterialContent(lightColorScheme()) {
             ShortNavigationBar(
                 modifier = Modifier.testTag("TAG"),
-                arrangement = NavigationBarArrangement.Centered
+                arrangement = ShortNavigationBarArrangement.Centered
             ) {
                 repeat(4) { index ->
                     ShortNavigationBarItem(

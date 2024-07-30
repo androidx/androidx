@@ -57,12 +57,12 @@ import kotlin.math.roundToInt
  * it's being displayed at:
  * - In small screens, the [ShortNavigationBar] should contain three to five
  *   [ShortNavigationBarItem]s, each representing a singular destination, and its [arrangement]
- *   should be [NavigationBarArrangement.EqualWeight], so that the navigation items are equally
+ *   should be [ShortNavigationBarArrangement.EqualWeight], so that the navigation items are equally
  *   distributed on the bar.
  * - In medium screens, [ShortNavigationBar] should contain three to six [ShortNavigationBarItem]s,
  *   each representing a singular destination, and its [arrangement] should be
- *   [NavigationBarArrangement.Centered], so that the navigation items are distributed grouped on
- *   the center of the bar.
+ *   [ShortNavigationBarArrangement.Centered], so that the navigation items are distributed grouped
+ *   on the center of the bar.
  *
  * A simple example of the first configuration looks like this:
  *
@@ -80,7 +80,7 @@ import kotlin.math.roundToInt
  *   [Color.Transparent] to have no color
  * @param contentColor the color for content inside this navigation bar.
  * @param windowInsets a window insets of the navigation bar
- * @param arrangement the [NavigationBarArrangement] of this navigation bar
+ * @param arrangement the [ShortNavigationBarArrangement] of this navigation bar
  * @param content the content of this navigation bar, typically [ShortNavigationBarItem]s
  */
 @ExperimentalMaterial3ExpressiveApi
@@ -90,7 +90,7 @@ fun ShortNavigationBar(
     containerColor: Color = ShortNavigationBarDefaults.containerColor,
     contentColor: Color = ShortNavigationBarDefaults.contentColor,
     windowInsets: WindowInsets = ShortNavigationBarDefaults.windowInsets,
-    arrangement: NavigationBarArrangement = ShortNavigationBarDefaults.arrangement,
+    arrangement: ShortNavigationBarArrangement = ShortNavigationBarDefaults.arrangement,
     content: @Composable () -> Unit
 ) {
     Surface(
@@ -106,10 +106,10 @@ fun ShortNavigationBar(
             content = content,
             measurePolicy =
                 when (arrangement) {
-                    NavigationBarArrangement.EqualWeight -> {
+                    ShortNavigationBarArrangement.EqualWeight -> {
                         EqualWeightContentMeasurePolicy()
                     }
-                    NavigationBarArrangement.Centered -> {
+                    ShortNavigationBarArrangement.Centered -> {
                         CenteredContentMeasurePolicy()
                     }
                     else -> {
@@ -122,21 +122,21 @@ fun ShortNavigationBar(
 
 /** Class that describes the different supported item arrangements of the [ShortNavigationBar]. */
 @JvmInline
-value class NavigationBarArrangement private constructor(private val value: Int) {
+value class ShortNavigationBarArrangement private constructor(private val value: Int) {
     companion object {
         /*
          * The items are equally distributed on the Short Navigation Bar.
          *
          * This configuration is recommended for small width screens.
          */
-        val EqualWeight = NavigationBarArrangement(0)
+        val EqualWeight = ShortNavigationBarArrangement(0)
 
         /*
          * The items are centered on the Short Navigation Bar.
          *
          * This configuration is recommended for medium width screens.
          */
-        val Centered = NavigationBarArrangement(1)
+        val Centered = ShortNavigationBarArrangement(1)
     }
 
     override fun toString() =
@@ -249,8 +249,8 @@ object ShortNavigationBarDefaults {
         @Composable get() = ColorSchemeKeyTokens.OnSurfaceVariant.value
 
     /** Default arrangement for a short navigation bar. */
-    val arrangement: NavigationBarArrangement
-        get() = NavigationBarArrangement.EqualWeight
+    val arrangement: ShortNavigationBarArrangement
+        get() = ShortNavigationBarArrangement.EqualWeight
 
     /** Default window insets to be used and consumed by the short navigation bar. */
     val windowInsets: WindowInsets
