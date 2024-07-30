@@ -21,7 +21,6 @@ import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.LibraryGroup
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.requiresDocs
 import androidx.build.getBuildInfoDirectory
-import androidx.build.getGroupZipPath
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.getHeadShaProvider
@@ -92,8 +91,6 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
 
     @get:Input abstract val groupIdRequiresSameVersion: Property<Boolean>
 
-    @get:Input abstract val groupZipPath: Property<String>
-
     @get:Input abstract val projectZipPath: Property<String>
 
     @get:[Input Optional]
@@ -139,7 +136,6 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.path = projectDir.get()
         libraryBuildInfoFile.sha = commit.get()
         libraryBuildInfoFile.groupIdRequiresSameVersion = groupIdRequiresSameVersion.get()
-        libraryBuildInfoFile.groupZipPath = groupZipPath.get()
         libraryBuildInfoFile.projectZipPath = projectZipPath.get()
         libraryBuildInfoFile.kotlinVersion = kotlinVersion.orNull
         libraryBuildInfoFile.checks = ArrayList()
@@ -196,7 +192,6 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 )
                 task.commit.set(shaProvider)
                 task.groupIdRequiresSameVersion.set(mavenGroup?.requireSameVersion ?: false)
-                task.groupZipPath.set(project.getGroupZipPath())
                 task.projectZipPath.set(project.getProjectZipPath())
 
                 // Note:

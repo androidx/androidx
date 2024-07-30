@@ -45,7 +45,6 @@ public final class LibraryBuildInfoFile {
     public String kotlinVersion;
     public String path;
     public String sha;
-    public String groupZipPath;
     public String projectZipPath;
     public Boolean groupIdRequiresSameVersion;
     public ArrayList<Dependency> dependencies;
