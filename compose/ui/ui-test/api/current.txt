@@ -143,6 +143,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.DeviceConfigurationOverride LayoutDirection(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method public static androidx.compose.ui.test.DeviceConfigurationOverride Locales(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.compose.ui.text.intl.LocaleList locales);
     method @RequiresApi(23) public static androidx.compose.ui.test.DeviceConfigurationOverride RoundScreen(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, boolean isScreenRound);
+    method public static androidx.compose.ui.test.DeviceConfigurationOverride WindowInsets(androidx.compose.ui.test.DeviceConfigurationOverride.Companion, androidx.core.view.WindowInsetsCompat windowInsets);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {

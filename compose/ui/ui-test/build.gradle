@@ -99,6 +99,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependsOn(androidCommonTest)
             dependencies {
+                implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:material:material"))
                 implementation(project(":compose:animation:animation"))
                 implementation(project(":compose:ui:ui-test"))

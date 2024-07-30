@@ -17,9 +17,15 @@
 package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.roundToAndroidXInsets
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.test.DarkMode
 import androidx.compose.ui.test.DeviceConfigurationOverride
@@ -29,11 +35,14 @@ import androidx.compose.ui.test.ForcedSize
 import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.Locales
 import androidx.compose.ui.test.RoundScreen
+import androidx.compose.ui.test.WindowInsets
 import androidx.compose.ui.test.then
 import androidx.compose.ui.text.intl.LocaleList
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowInsetsCompat
 
 @Sampled
 @Composable
@@ -100,6 +109,33 @@ fun DeviceConfigurationOverrideFontWeightAdjustmentSample() {
 fun DeviceConfigurationOverrideRoundScreenSample() {
     DeviceConfigurationOverride(DeviceConfigurationOverride.RoundScreen(true)) {
         LocalConfiguration.current.isScreenRound // will be true
+    }
+}
+
+@Sampled
+@Composable
+fun DeviceConfigurationOverrideWindowInsetsSample() {
+    DeviceConfigurationOverride(
+        DeviceConfigurationOverride.WindowInsets(
+            WindowInsetsCompat.Builder()
+                .setInsets(
+                    WindowInsetsCompat.Type.captionBar(),
+                    DpRect(0.dp, 64.dp, 0.dp, 0.dp).roundToAndroidXInsets(),
+                )
+                .setInsets(
+                    WindowInsetsCompat.Type.navigationBars(),
+                    DpRect(24.dp, 0.dp, 48.dp, 24.dp).roundToAndroidXInsets(),
+                )
+                .build()
+        )
+    ) {
+        Box(
+            Modifier.background(Color.Blue)
+                // Will apply 64dp padding on the top, 24dp padding on the sides, and 48dp on the
+                // bottom
+                .safeDrawingPadding()
+                .background(Color.Red)
+        )
     }
 }
 
