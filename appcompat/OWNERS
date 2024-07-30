@@ -8,5 +8,9 @@ ryanmentley@google.com
 nona@google.com
 siyamed@google.com
 
+# For insets related files
+rgl@google.com
+tigerhuang@google.com
+
 # Per-file for Playground infra
 per-file settings.gradle = dustinlam@google.com, rahulrav@google.com
