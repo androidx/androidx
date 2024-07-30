@@ -17,18 +17,12 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -52,41 +46,57 @@ class ShapesScreenshotTest {
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     @Test
-    fun shapes() {
+    fun extraSmallShape() {
+        rule.setMaterialContent(lightColorScheme()) { TestCard(MaterialTheme.shapes.extraSmall) }
+        assertAgainstGolden("shapes_extraSmall")
+    }
+
+    @Test
+    fun smallShape() {
+        rule.setMaterialContent(lightColorScheme()) { TestCard(MaterialTheme.shapes.small) }
+        assertAgainstGolden("shapes_small")
+    }
+
+    @Test
+    fun mediumShape() {
+        rule.setMaterialContent(lightColorScheme()) { TestCard(MaterialTheme.shapes.small) }
+        assertAgainstGolden("shapes_medium")
+    }
+
+    @Test
+    fun largeShape() {
+        rule.setMaterialContent(lightColorScheme()) { TestCard(MaterialTheme.shapes.large) }
+        assertAgainstGolden("shapes_large")
+    }
+
+    @Test
+    fun largeIncreasedShape() {
         rule.setMaterialContent(lightColorScheme()) {
-            Box(Modifier.semantics(mergeDescendants = true) {}.testTag(Tag)) {
-                val shapes = MaterialTheme.shapes
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.verticalScroll(rememberScrollState()),
-                ) {
-                    Button(onClick = {}, shape = RectangleShape) { Text("None") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.extraSmall) { Text("Extra  Small") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.small) { Text("Small") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.medium) { Text("Medium") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.large) { Text("Large") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.largeIncreased) { Text("Large Increased") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.extraLarge) { Text("Extra Large") }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.extraLargeIncreased) {
-                        Text("Extra Large Increased")
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = shapes.extraExtraLarge) {
-                        Text("Extra Extra Large")
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(onClick = {}, shape = CircleShape) { Text("Full") }
-                }
-            }
+            TestCard(MaterialTheme.shapes.largeIncreased)
         }
-        assertAgainstGolden("shapes")
+        assertAgainstGolden("shapes_largeIncreased")
+    }
+
+    @Test
+    fun extraLargeShape() {
+        rule.setMaterialContent(lightColorScheme()) { TestCard(MaterialTheme.shapes.extraLarge) }
+        assertAgainstGolden("shapes_extraLarge")
+    }
+
+    @Test
+    fun extraLargeIncreasedShape() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TestCard(MaterialTheme.shapes.extraLargeIncreased)
+        }
+        assertAgainstGolden("shapes_extraLargeIncreased")
+    }
+
+    @Test
+    fun extraExtraLargeShape() {
+        rule.setMaterialContent(lightColorScheme()) {
+            TestCard(MaterialTheme.shapes.extraExtraLarge)
+        }
+        assertAgainstGolden("shapes_extraExtraLarge")
     }
 
     private fun assertAgainstGolden(goldenName: String) {
@@ -94,4 +104,8 @@ class ShapesScreenshotTest {
     }
 
     private val Tag = "Shapes"
+
+    @Composable
+    private fun TestCard(shape: Shape) =
+        Card(modifier = Modifier.testTag(Tag), shape = shape) { Box(Modifier.size(200.dp)) }
 }
