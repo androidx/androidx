@@ -31,10 +31,10 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarArrangement
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationItemIconPosition
 import androidx.compose.material3.ShortNavigationBar
+import androidx.compose.material3.ShortNavigationBarArrangement
 import androidx.compose.material3.ShortNavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -93,7 +93,7 @@ fun ShortNavigationBarWithHorizontalItemsSample() {
 
         Spacer(Modifier.height(32.dp))
 
-        ShortNavigationBar(arrangement = NavigationBarArrangement.Centered) {
+        ShortNavigationBar(arrangement = ShortNavigationBarArrangement.Centered) {
             items.forEachIndexed { index, item ->
                 ShortNavigationBarItem(
                     iconPosition = NavigationItemIconPosition.Start,
