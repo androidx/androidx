@@ -472,15 +472,7 @@ public final class MediaRouter {
      */
     @MainThread
     public void selectRoute(@NonNull RouteInfo route) {
-        if (route == null) {
-            throw new IllegalArgumentException("route must not be null");
-        }
-        checkCallingThread();
-
-        if (DEBUG) {
-            Log.d(TAG, "selectRoute: " + route);
-        }
-        getGlobalRouter().selectRoute(route, MediaRouter.UNSELECT_REASON_ROUTE_CHANGED);
+        route.select();
     }
 
     /**
@@ -2005,7 +1997,7 @@ public final class MediaRouter {
          */
         @RestrictTo(LIBRARY)
         public boolean isGroup() {
-            return getMemberRoutes().size() >= 1;
+            return !mMemberRoutes.isEmpty();
         }
 
         /**
