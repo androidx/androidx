@@ -190,9 +190,6 @@ internal open class AndroidViewHolder(
 
     private var isDrawing = false
 
-    /** `true` when the parent has requested this View to layout, but it hasn't been laid out yet */
-    private var isLayoutNeeded = false
-
     override val isValidOwnerScope: Boolean
         get() = isAttachedToWindow
 
@@ -246,21 +243,6 @@ internal open class AndroidViewHolder(
             return
         }
         measure(lastWidthMeasureSpec, lastHeightMeasureSpec)
-    }
-
-    /**
-     * Layout the View if a layout has been requested or do nothing if no layout has been requested.
-     */
-    fun layoutIfNeeded() {
-        if (isLayoutNeeded) {
-            isLayoutNeeded = false
-            if (isAttachedToWindow) {
-                val position = layoutNode.coordinates.positionInRoot()
-                val x = position.x.fastRoundToInt()
-                val y = position.y.fastRoundToInt()
-                layout(x, y, x + measuredWidth, y + measuredHeight)
-            }
-        }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
@@ -381,7 +363,7 @@ internal open class AndroidViewHolder(
                 .onGloballyPositioned {
                     // The global position of this LayoutNode can change with it being replaced. For
                     // these cases, we need to inform the View.
-                    isLayoutNeeded = true
+                    layoutAccordingTo(layoutNode)
                     @OptIn(InternalComposeUiApi::class) owner.onInteropViewLayoutChange(this)
                 }
         layoutNode.compositeKeyHash = compositeKeyHash
@@ -429,7 +411,7 @@ internal open class AndroidViewHolder(
                             layoutParams!!.height
                         )
                     )
-                    return layout(measuredWidth, measuredHeight) { isLayoutNeeded = true }
+                    return layout(measuredWidth, measuredHeight) { layoutAccordingTo(layoutNode) }
                 }
 
                 override fun IntrinsicMeasureScope.minIntrinsicWidth(
@@ -600,6 +582,13 @@ internal open class AndroidViewHolder(
             it.handler.post(it.runUpdate)
         }
     }
+}
+
+private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
+    val position = layoutNode.coordinates.positionInRoot()
+    val x = position.x.fastRoundToInt()
+    val y = position.y.fastRoundToInt()
+    layout(x, y, x + measuredWidth, y + measuredHeight)
 }
 
 private const val Unmeasured = Int.MIN_VALUE
