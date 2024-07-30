@@ -233,7 +233,7 @@ import java.util.Set;
     /* package */ void requestSetVolume(MediaRouter.RouteInfo route, int volume) {
         if (route == mSelectedRoute && mSelectedRouteController != null) {
             mSelectedRouteController.onSetVolume(volume);
-        } else if (!mRouteControllerMap.isEmpty()) {
+        } else {
             MediaRouteProvider.RouteController controller =
                     mRouteControllerMap.get(route.mUniqueId);
             if (controller != null) {
@@ -245,7 +245,7 @@ import java.util.Set;
     /* package */ void requestUpdateVolume(MediaRouter.RouteInfo route, int delta) {
         if (route == mSelectedRoute && mSelectedRouteController != null) {
             mSelectedRouteController.onUpdateVolume(delta);
-        } else if (!mRouteControllerMap.isEmpty()) {
+        } else {
             MediaRouteProvider.RouteController controller =
                     mRouteControllerMap.get(route.mUniqueId);
             if (controller != null) {
