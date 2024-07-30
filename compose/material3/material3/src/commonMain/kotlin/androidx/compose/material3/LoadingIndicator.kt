@@ -72,6 +72,9 @@ import kotlinx.coroutines.launch
  * This version of the loading indicator morphs between its [polygons] shapes by the value of its
  * [progress].
  *
+ * ![Loading indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/loading-indicator.png)
+ *
  * It can be created like this:
  *
  * @sample androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
@@ -110,6 +113,9 @@ fun LoadingIndicator(
  * This version of the loading indicator animates and morphs between various shapes as long as the
  * loading indicator is visible.
  *
+ * ![Loading indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/loading-indicator.png)
+ *
  * It can be created like this:
  *
  * @sample androidx.compose.material3.samples.LoadingIndicatorSample
@@ -140,6 +146,9 @@ fun LoadingIndicator(
  *
  * This version of the loading indicator morphs between its [polygons] shapes by the value of its
  * [progress]. The shapes in this variation are contained within a colored [containerShape].
+ *
+ * ![Contained loading indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/contained-loading-indicator.png)
  *
  * It can be created like this:
  *
@@ -187,6 +196,9 @@ fun ContainedLoadingIndicator(
  * This version of the loading indicator animates and morphs between various shapes as long as the
  * loading indicator is visible. The shapes in this variation are contained within a colored
  * [containerShape].
+ *
+ * ![Contained loading indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/contained-loading-indicator.png)
  *
  * It can be created like this:
  *

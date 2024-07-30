@@ -91,7 +91,7 @@ import kotlinx.coroutines.launch
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
  * ![Linear wavy progress indicator
- * image](https://developer.android.com/images/reference/androidx/compose/material3/linear-progress-indicator.png)
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/linear-wavy-progress-indicator.png)
  *
  * This version of a linear progress indicator accepts arguments, such as [amplitude], [wavelength],
  * and [waveSpeed] to render the progress as a waveform.
@@ -274,8 +274,8 @@ fun LinearWavyProgressIndicator(
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Linear wavy progress indicator
- * image](https://developer.android.com/images/reference/androidx/compose/material3/linear-progress-indicator.png)
+ * ![Indeterminate linear wavy progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/indeterminate-linear-wavy-progress-indicator.png)
  *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color the progress indicator color
@@ -394,8 +394,8 @@ fun LinearWavyProgressIndicator(
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Circular progress indicator
- * image](https://developer.android.com/images/reference/androidx/compose/material3/circular-progress-indicator.png)
+ * ![Circular wavy progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/circular-wavy-progress-indicator.png)
  *
  * By default there is no animation between [progress] values. You can use
  * [ProgressIndicatorDefaults.ProgressAnimationSpec] as the default recommended [AnimationSpec] when
@@ -529,8 +529,8 @@ fun CircularWavyProgressIndicator(
  *
  * Progress indicators express an unspecified wait time or display the duration of a process.
  *
- * ![Circular progress indicator
- * image](https://developer.android.com/images/reference/androidx/compose/material3/circular-progress-indicator.png)
+ * ![Indeterminate circular wavy progress indicator
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/indeterminate-circular-wavy-progress-indicator.png)
  *
  * @param modifier the [Modifier] to be applied to this progress indicator
  * @param color the progress indicator color

@@ -23,7 +23,6 @@ import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.spring
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -37,9 +36,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
  * There are two built-in schemes, a [standardMotionScheme] and an [expressiveMotionScheme], that
  * can be used as-is or customized.
  *
- * You can customize the motion scheme for all components in the [MaterialTheme], or you can do it
- * on a per component basis by providing a motion scheme using a [CompositionLocalProvider] and
- * [LocalMotionScheme].
+ * You can customize the motion scheme for all components in the [MaterialTheme].
  */
 @ExperimentalMaterial3ExpressiveApi
 @Immutable
