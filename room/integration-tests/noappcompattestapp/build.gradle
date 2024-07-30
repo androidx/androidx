@@ -23,7 +23,7 @@ dependencies {
     implementation(project(":room:room-runtime"))
     annotationProcessor(project(":room:room-compiler"))
     androidTestAnnotationProcessor(project(":room:room-compiler"))
-    androidTestImplementation(project(":annotation:annotation"))
+    androidTestImplementation("androidx.annotation:annotation:1.8.1")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
