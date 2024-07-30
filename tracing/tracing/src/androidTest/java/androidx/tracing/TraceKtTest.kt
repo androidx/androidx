@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-class TraceTestKt {
+class TraceKtTest {
     @Test
     fun traceTest() {
         val x = trace("Test") { 10 }
