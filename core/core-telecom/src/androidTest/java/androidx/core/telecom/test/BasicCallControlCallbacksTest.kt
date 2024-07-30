@@ -319,24 +319,26 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     private fun verifyAnswerCall() {
         assertFalse(TestUtils.mOnAnswerCallbackCalled)
         runBlocking {
-            mCallsManager.addCall(
-                TestUtils.INCOMING_CALL_ATTRIBUTES,
-                TestUtils.mOnAnswerLambda,
-                TestUtils.mOnDisconnectLambda,
-                TestUtils.mOnSetActiveLambda,
-                TestUtils.mOnSetInActiveLambda
-            ) {
-                launch {
-                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                    assertNotNull("The returned Call object is <NULL>", call)
-                    call!!.answer(0) // API under test
-                    TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
-                    // Terminal the call and ensure the call is cleaned up. Otherwise, fail
-                    // the test.
-                    Assert.assertEquals(
-                        CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    )
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        call!!.answer(0) // API under test
+                        TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
+                        // Terminal the call and ensure the call is cleaned up. Otherwise, fail
+                        // the test.
+                        Assert.assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
+                    }
                 }
             }
         }
@@ -348,25 +350,21 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     private fun verifyDisconnectCall() {
         assertFalse(TestUtils.mOnDisconnectCallbackCalled)
         runBlocking {
-            mCallsManager.addCall(
-                TestUtils.INCOMING_CALL_ATTRIBUTES,
-                TestUtils.mOnAnswerLambda,
-                TestUtils.mOnDisconnectLambda,
-                TestUtils.mOnSetActiveLambda,
-                TestUtils.mOnSetInActiveLambda
-            ) {
-                launch {
-                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                    assertNotNull("The returned Call object is <NULL>", call)
-                    // Disconnect the call and ensure the disconnect callback is received:
-                    call!!.disconnect()
-                    TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
-                    // Terminal the call and ensure the call is cleaned up. Otherwise, fail
-                    // the test.
-                    Assert.assertEquals(
-                        CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    )
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        // Disconnect the call and ensure the disconnect callback is received:
+                        call!!.disconnect()
+                        TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                    }
                 }
             }
         }
@@ -378,28 +376,30 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     private fun verifyHoldCall() {
         assertFalse(TestUtils.mOnSetInactiveCallbackCalled)
         runBlocking {
-            mCallsManager.addCall(
-                TestUtils.INCOMING_CALL_ATTRIBUTES,
-                TestUtils.mOnAnswerLambda,
-                TestUtils.mOnDisconnectLambda,
-                TestUtils.mOnSetActiveLambda,
-                TestUtils.mOnSetInActiveLambda
-            ) {
-                launch {
-                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                    assertNotNull("The returned Call object is <NULL>", call)
-                    Assert.assertEquals(CallControlResult.Success(), setActive())
-                    // Wait for the call to be set to ACTIVE:
-                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                    // Place the call on hold and ensure the onSetInactive callback is received:
-                    call.hold()
-                    TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
-                    // Terminal the call and ensure the call is cleaned up. Otherwise, fail
-                    // the test.
-                    Assert.assertEquals(
-                        CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    )
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        Assert.assertEquals(CallControlResult.Success(), setActive())
+                        // Wait for the call to be set to ACTIVE:
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                        // Place the call on hold and ensure the onSetInactive callback is received:
+                        call.hold()
+                        TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                        // Terminal the call and ensure the call is cleaned up. Otherwise, fail
+                        // the test.
+                        Assert.assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
+                    }
                 }
             }
         }
@@ -411,32 +411,35 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
     private fun verifyUnholdCall() {
         assertFalse(TestUtils.mOnSetActiveCallbackCalled)
         runBlocking {
-            mCallsManager.addCall(
-                TestUtils.INCOMING_CALL_ATTRIBUTES,
-                TestUtils.mOnAnswerLambda,
-                TestUtils.mOnDisconnectLambda,
-                TestUtils.mOnSetActiveLambda,
-                TestUtils.mOnSetInActiveLambda
-            ) {
-                launch {
-                    val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                    assertNotNull("The returned Call object is <NULL>", call)
-                    Assert.assertEquals(CallControlResult.Success(), setActive())
-                    // Wait for the call to be set to ACTIVE:
-                    TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                    Assert.assertEquals(CallControlResult.Success(), setInactive())
-                    // Wait for the call to be set to HOLDING (aka inactive):
-                    TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
-                    // Request to un-hold the call and ensure the onSetActive callback is received:
-                    call.unhold()
-                    TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
-                    delay(100)
-                    // Terminal the call and ensure the call is cleaned up. Otherwise, fail
-                    // the test.
-                    Assert.assertEquals(
-                        CallControlResult.Success(),
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                    )
+            usingIcs { ics ->
+                mCallsManager.addCall(
+                    TestUtils.INCOMING_CALL_ATTRIBUTES,
+                    TestUtils.mOnAnswerLambda,
+                    TestUtils.mOnDisconnectLambda,
+                    TestUtils.mOnSetActiveLambda,
+                    TestUtils.mOnSetInActiveLambda
+                ) {
+                    launch {
+                        val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                        assertNotNull("The returned Call object is <NULL>", call)
+                        Assert.assertEquals(CallControlResult.Success(), setActive())
+                        // Wait for the call to be set to ACTIVE:
+                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                        Assert.assertEquals(CallControlResult.Success(), setInactive())
+                        // Wait for the call to be set to HOLDING (aka inactive):
+                        TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                        // Request to un-hold the call and ensure the onSetActive callback is
+                        // received:
+                        call.unhold()
+                        TestUtils.waitOnCallState(call, Call.STATE_ACTIVE)
+                        delay(100)
+                        // Terminal the call and ensure the call is cleaned up. Otherwise, fail
+                        // the test.
+                        Assert.assertEquals(
+                            CallControlResult.Success(),
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                        )
+                    }
                 }
             }
         }
@@ -451,19 +454,21 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
 
         try {
             runBlocking {
-                mCallsManager.addCall(
-                    TestUtils.INCOMING_CALL_ATTRIBUTES,
-                    TestUtils.mOnAnswerLambda,
-                    TestUtils.mOnDisconnectLambda,
-                    TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
-                ) {
-                    // Note that this is reset in BaseTelecomTest in setUp/destroy
-                    TestUtils.mCompleteOnAnswer = false
-                    launch {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        assertNotNull("The returned Call object is <NULL>", call)
-                        call!!.answer(0) // API under test
+                usingIcs { ics ->
+                    mCallsManager.addCall(
+                        TestUtils.INCOMING_CALL_ATTRIBUTES,
+                        TestUtils.mOnAnswerLambda,
+                        TestUtils.mOnDisconnectLambda,
+                        TestUtils.mOnSetActiveLambda,
+                        TestUtils.mOnSetInActiveLambda
+                    ) {
+                        // Note that this is reset in BaseTelecomTest in setUp/destroy
+                        TestUtils.mCompleteOnAnswer = false
+                        launch {
+                            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                            assertNotNull("The returned Call object is <NULL>", call)
+                            call!!.answer(0) // API under test
+                        }
                     }
                 }
             }
@@ -481,20 +486,22 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         var catchBlockWasEntered = false
         try {
             runBlocking {
-                mCallsManager.addCall(
-                    TestUtils.INCOMING_CALL_ATTRIBUTES,
-                    TestUtils.mOnAnswerLambda,
-                    TestUtils.mOnDisconnectLambda,
-                    TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
-                ) {
-                    TestUtils.mCompleteOnSetInactive = false
-                    launch {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        assertNotNull("The returned Call object is <NULL>", call)
-                        answer(CallAttributes.AUDIO_CALL)
-                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                        call.hold()
+                usingIcs { ics ->
+                    mCallsManager.addCall(
+                        TestUtils.INCOMING_CALL_ATTRIBUTES,
+                        TestUtils.mOnAnswerLambda,
+                        TestUtils.mOnDisconnectLambda,
+                        TestUtils.mOnSetActiveLambda,
+                        TestUtils.mOnSetInActiveLambda
+                    ) {
+                        TestUtils.mCompleteOnSetInactive = false
+                        launch {
+                            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                            assertNotNull("The returned Call object is <NULL>", call)
+                            answer(CallAttributes.AUDIO_CALL)
+                            TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                            call.hold()
+                        }
                     }
                 }
             }
@@ -512,31 +519,34 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         var catchBlockWasEntered = false
         try {
             runBlocking {
-                mCallsManager.addCall(
-                    TestUtils.INCOMING_CALL_ATTRIBUTES,
-                    TestUtils.mOnAnswerLambda,
-                    TestUtils.mOnDisconnectLambda,
-                    TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
-                ) {
-                    launch {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        assertNotNull("The returned Call object is <NULL>", call)
-                        answer(CallAttributes.AUDIO_CALL) // API under test
-                        TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                        // Fail #onSetActive after call has successfully moved to the active state
-                        TestUtils.mCompleteOnSetActive = false
-                        setInactive()
-                        TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
-                        call.unhold()
-                        delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
-                        // Request to unhold call should be disregarded
-                        assertTrue(call.state == Call.STATE_HOLDING)
-                        // always send the disconnect signal if possible
-                        Assert.assertEquals(
-                            CallControlResult.Success(),
-                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
-                        )
+                usingIcs { ics ->
+                    mCallsManager.addCall(
+                        TestUtils.INCOMING_CALL_ATTRIBUTES,
+                        TestUtils.mOnAnswerLambda,
+                        TestUtils.mOnDisconnectLambda,
+                        TestUtils.mOnSetActiveLambda,
+                        TestUtils.mOnSetInActiveLambda
+                    ) {
+                        launch {
+                            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                            assertNotNull("The returned Call object is <NULL>", call)
+                            answer(CallAttributes.AUDIO_CALL) // API under test
+                            TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                            // Fail #onSetActive after call has successfully moved to the active
+                            // state
+                            TestUtils.mCompleteOnSetActive = false
+                            setInactive()
+                            TestUtils.waitOnCallState(call, Call.STATE_HOLDING)
+                            call.unhold()
+                            delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
+                            // Request to unhold call should be disregarded
+                            assertTrue(call.state == Call.STATE_HOLDING)
+                            // always send the disconnect signal if possible
+                            Assert.assertEquals(
+                                CallControlResult.Success(),
+                                disconnect(DisconnectCause(DisconnectCause.LOCAL))
+                            )
+                        }
                     }
                 }
             }
@@ -554,29 +564,32 @@ class BasicCallControlCallbacksTest : BaseTelecomTest() {
         var catchBlockWasEntered = false
         try {
             runBlocking {
-                mCallsManager.addCall(
-                    TestUtils.INCOMING_CALL_ATTRIBUTES,
-                    TestUtils.mOnAnswerLambda,
-                    TestUtils.mOnDisconnectLambda,
-                    TestUtils.mOnSetActiveLambda,
-                    TestUtils.mOnSetInActiveLambda
-                ) {
-                    TestUtils.mCompleteOnDisconnect = false
-                    launch {
-                        val call = TestUtils.waitOnInCallServiceToReachXCalls(1)
-                        assertNotNull("The returned Call object is <NULL>", call)
-                        if (invokeDisconnect) {
-                            answer(CallAttributes.AUDIO_CALL) // API under test
-                            TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
-                            call.disconnect()
-                        } else {
-                            call!!.reject(true, "REJECT_REASON_DECLINED")
+                usingIcs { ics ->
+                    mCallsManager.addCall(
+                        TestUtils.INCOMING_CALL_ATTRIBUTES,
+                        TestUtils.mOnAnswerLambda,
+                        TestUtils.mOnDisconnectLambda,
+                        TestUtils.mOnSetActiveLambda,
+                        TestUtils.mOnSetInActiveLambda
+                    ) {
+                        TestUtils.mCompleteOnDisconnect = false
+                        launch {
+                            val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
+                            assertNotNull("The returned Call object is <NULL>", call)
+                            if (invokeDisconnect) {
+                                answer(CallAttributes.AUDIO_CALL) // API under test
+                                TestUtils.waitOnCallState(call!!, Call.STATE_ACTIVE)
+                                call.disconnect()
+                            } else {
+                                call!!.reject(true, "REJECT_REASON_DECLINED")
+                            }
+                            delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
+                            // Rejecting the onDisconnect callback should still result in a
+                            // disconnect.
+                            TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
+                            // always send the disconnect signal if possible
+                            disconnect(DisconnectCause(DisconnectCause.LOCAL))
                         }
-                        delay(TestUtils.WAIT_ON_CALL_STATE_TIMEOUT)
-                        // Rejecting the onDisconnect callback should still result in a disconnect.
-                        TestUtils.waitOnCallState(call, Call.STATE_DISCONNECTED)
-                        // always send the disconnect signal if possible
-                        disconnect(DisconnectCause(DisconnectCause.LOCAL))
                     }
                 }
             }
