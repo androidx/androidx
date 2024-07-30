@@ -267,13 +267,15 @@ class PdfLoaderCallbacksImpl(
 
     override fun pageBroken(page: Int) {
         if (viewState.get() != ViewState.NO_VIEW) {
-            (pageViewFactory!!.getOrCreatePageView(
-                    page,
-                    pageElevationInPixels,
-                    paginatedView.paginationModel.getPageSize(page)
-                ) as PageMosaicView)
-                .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
-            // TODO: Track render error.
+            if (page < paginatedView.paginationModel.numPages) {
+                (pageViewFactory!!.getOrCreatePageView(
+                        page,
+                        pageElevationInPixels,
+                        paginatedView.paginationModel.getPageSize(page)
+                    ) as PageMosaicView)
+                    .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
+                // TODO: Track render error.
+            }
         }
     }
 
