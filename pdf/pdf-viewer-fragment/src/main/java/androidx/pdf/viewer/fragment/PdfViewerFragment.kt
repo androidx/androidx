@@ -146,10 +146,10 @@ public open class PdfViewerFragment : Fragment() {
     private var selectionHandles: PdfSelectionHandles? = null
     private var annotationButton: FloatingActionButton? = null
     private var fileData: DisplayData? = null
-
-    internal var shouldRedrawOnDocumentLoaded = false
-    internal var isAnnotationIntentResolvable = false
-    internal var documentLoaded = false
+    private var isFileRestoring: Boolean = false
+    private var shouldRedrawOnDocumentLoaded = false
+    private var isAnnotationIntentResolvable = false
+    private var documentLoaded = false
 
     /**
      * The URI of the PDF document to display defaulting to `null`.
@@ -166,13 +166,13 @@ public open class PdfViewerFragment : Fragment() {
             field = value
 
             // Check if the uri is different from the previous one or restoring the same one
-            val isRestoredFromBundle =
+            isFileRestoring =
                 arguments?.let {
                     val savedUri = BundleCompat.getParcelable(it, KEY_DOCUMENT_URI, Uri::class.java)
                     savedUri?.equals(value) ?: false
                 } ?: false
 
-            if (value != null && !isRestoredFromBundle) {
+            if (value != null && !isFileRestoring) {
                 loadFile(value)
             }
         }
@@ -492,23 +492,27 @@ public open class PdfViewerFragment : Fragment() {
      */
     private fun setContents(savedState: Bundle?) {
         savedState?.let { state ->
-            val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
-            isAnnotationIntentResolvable =
-                showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
+            if (isFileRestoring) {
+                val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
+                isAnnotationIntentResolvable =
+                    showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
+            }
         }
 
         refreshContentAndModels(pdfLoader!!)
 
         savedState?.let { state ->
-            state.containsKey(KEY_LAYOUT_REACH).let {
-                val layoutReach = state.getInt(KEY_LAYOUT_REACH)
-                layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
-            }
+            if (isFileRestoring) {
+                state.containsKey(KEY_LAYOUT_REACH).let {
+                    val layoutReach = state.getInt(KEY_LAYOUT_REACH)
+                    layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
+                }
 
-            // Restore page selection from saved state if it exists
-            val savedSelection =
-                BundleCompat.getParcelable(state, KEY_PAGE_SELECTION, PageSelection::class.java)
-            savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
+                // Restore page selection from saved state if it exists
+                val savedSelection =
+                    BundleCompat.getParcelable(state, KEY_PAGE_SELECTION, PageSelection::class.java)
+                savedSelection?.let { pdfLoaderCallbacks?.selectionModel?.setSelection(it) }
+            }
         }
     }
 
