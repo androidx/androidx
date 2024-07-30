@@ -40,6 +40,7 @@ import java.util.Objects;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PageIndicator extends ReusableToast {
     private static final int AUTO_HIDE_DELAY_MS = 1300;
+    private static final String DEFAULT_PAGE_TEXT = "";
 
     private final Context mContext;
     private final TextView mPageNumberView;
@@ -149,5 +150,22 @@ public class PageIndicator extends ReusableToast {
     private String getZoomDescription(float zoom) {
         Resources res = mContext.getResources();
         return res.getString(R.string.desc_zoom, Math.round(zoom * 100));
+    }
+
+    /**
+     * Resets the PageIndicator to its initial state. This includes clearing the
+     * displayed page range and zoom information, hiding the indicator, and clearing
+     * the text content of the TextView.
+     */
+    public void reset() {
+        // Clear current range and zoom
+        mCurrentRange = null;
+        mCurrentZoom = 0;
+
+        // Hide the page indicator
+        hide();
+
+        // Clear the text content of the TextView
+        mPageNumberView.setText(DEFAULT_PAGE_TEXT);
     }
 }

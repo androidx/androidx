@@ -148,7 +148,6 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         super.onViewRemoved(child);
         // Prevent leaks if ZoomView is removed from this ViewGroup.
         if (child instanceof ZoomView && child == mZoomView) {
-            mZoomView.zoomScroll().removeObserver(mZoomScrollObserver);
             mZoomView = null;
         }
     }
@@ -441,5 +440,29 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         if (mPaginationModel == null || !mPaginationModel.isInitialized()) {
             throw new IllegalStateException("PaginationModel not initialized!");
         }
+    }
+
+    /**
+     * Resets the contents of the FastScrollView and its associated components
+     * (ZoomView and PageIndicator) to their initial states.
+     * This is typically used when loading a new PDF document to ensure a fresh start
+     * for user interaction.
+     */
+    public void resetContents() {
+        // Reset ZoomView
+        mZoomView.resetContents();
+
+        // Reset FastScrollView's state variables
+        mThumbY = 0;
+        mCurrentPosition = 0;
+        setState(State.NONE);
+        mDragged = false;
+
+        // Reset PageIndicator
+        mPageIndicator.reset();
+
+        // Reset drag handle position and visibility
+        mDragHandle.setY(0F);
+        mDragHandle.setAlpha(0F);
     }
 }
