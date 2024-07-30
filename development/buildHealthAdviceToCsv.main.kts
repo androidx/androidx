@@ -95,6 +95,11 @@ advice.projectAdvice.forEach projectAdvice@{ projectAdvice ->
 //        return@projectAdvice
 //    }
 
+    // Ignore advice for lint projects: b/350084892
+    if (projectPath.contains("lint")) {
+        return@projectAdvice
+    }
+
     val description = StringBuilder()
     description.appendLine(
         "The dependency analysis gradle plugin found some dependencies that may have been " +
@@ -114,6 +119,13 @@ advice.projectAdvice.forEach projectAdvice@{ projectAdvice ->
         val isModifyDependencyAdvice = fromConfiguration != null && toConfiguration != null
         val isTransitiveDependencyAdvice = fromConfiguration == null && toConfiguration != null && !isCompileOnly
         val isUnusedDependencyAdvice = fromConfiguration != null && toConfiguration == null
+
+        // Ignore advice for androidx.profileinstaller:profileinstaller.
+        // It needs to remain implementation as that needs to be part of the manifest merger
+        // which is before runtime (b/355239547)
+        if(coordinates.identifier == "androidx.profileinstaller:profileinstaller") {
+            return@forEach
+        }
 
         var identifier = if(resolvedVersion == null) {
             "'${coordinates.identifier}'"
