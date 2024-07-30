@@ -73,6 +73,13 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             return;
         }
         loadPageAssets(position);
+
+        if (oldPosition.scrollY > position.scrollY) {
+            mIsPageScrollingUp = true;
+        } else if (oldPosition.scrollY < position.scrollY) {
+            mIsPageScrollingUp = false;
+        }
+
         if (mIsAnnotationIntentResolvable) {
 
             if (!isAnnotationButtonVisible() && position.scrollY == 0
