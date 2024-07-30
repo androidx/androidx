@@ -26,6 +26,10 @@ soboleva@google.com
 sunnygoyal@google.com
 pinyaoting@google.com
 
+# For insets related files
+rgl@google.com
+tigerhuang@google.com
+
 # Per-file for platform Storage
 # Bug component: 46626 = per-file src/main/java/androidx/core/content/FileProvider.java
 per-file src/main/java/androidx/core/content/FileProvider.java = maco@google.com, shikhamalhotra@google.com, sergeynv@google.com
