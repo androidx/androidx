@@ -35,4 +35,5 @@
     <string name="default_popup_window_title" msgid="6312721426453364202">"Cửa sổ bật lên"</string>
     <string name="range_start" msgid="7097486360902471446">"Điểm bắt đầu phạm vi"</string>
     <string name="range_end" msgid="5941395253238309765">"Điểm kết thúc phạm vi"</string>
+    <string name="snackbar_pane_title" msgid="2792228137354697160">"Cảnh báo"</string>
 </resources>
