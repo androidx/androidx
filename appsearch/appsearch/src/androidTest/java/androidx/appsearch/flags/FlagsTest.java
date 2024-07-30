@@ -120,4 +120,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_INFORMATIONAL_RANKING_EXPRESSIONS)
                 .isEqualTo("com.android.appsearch.flags.enable_informational_ranking_expressions");
     }
+
+    @Test
+    public void testFlagValue_enableResultAlreadyExists() {
+        assertThat(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)
+                .isEqualTo("com.android.appsearch.flags.enable_result_already_exists");
+    }
 }

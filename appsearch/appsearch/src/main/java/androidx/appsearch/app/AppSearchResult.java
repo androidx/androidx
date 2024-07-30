@@ -56,7 +56,8 @@ public final class AppSearchResult<ValueType> {
             RESULT_SECURITY_ERROR,
             RESULT_DENIED,
             RESULT_RATE_LIMITED,
-            RESULT_TIMED_OUT
+            RESULT_TIMED_OUT,
+            RESULT_ALREADY_EXISTS
     })
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
@@ -118,6 +119,10 @@ public final class AppSearchResult<ValueType> {
     /** The operation was timed out. */
     @FlaggedApi(Flags.FLAG_ENABLE_APP_FUNCTIONS)
     public static final int RESULT_TIMED_OUT = 11;
+
+    /** The operation is invalid because the resource already exists and can't be replaced.   */
+    @FlaggedApi(Flags.FLAG_ENABLE_RESULT_ALREADY_EXISTS)
+    public static final int RESULT_ALREADY_EXISTS = 12;
 
     @ResultCode private final int mResultCode;
     @Nullable private final ValueType mResultValue;
