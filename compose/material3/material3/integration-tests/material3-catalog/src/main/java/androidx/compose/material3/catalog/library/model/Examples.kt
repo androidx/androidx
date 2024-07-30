@@ -119,6 +119,7 @@ import androidx.compose.material3.samples.MediumFloatingActionButtonSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
+import androidx.compose.material3.samples.ModalExpandedNavigationRailSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -1136,6 +1137,13 @@ val NavigationRailExamples =
             sourceUrl = NavigationRailExampleSourceUrl,
         ) {
             WideNavigationRailResponsiveSample()
+        },
+        Example(
+            name = "ModalExpandedNavigationRailSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            ModalExpandedNavigationRailSample()
         },
         Example(
             name = "WideNavigationRailCollapsedSample",

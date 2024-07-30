@@ -20,9 +20,13 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuOpen
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
@@ -31,25 +35,32 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ModalExpandedNavigationRail
 import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailArrangement
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Text
 import androidx.compose.material3.WideNavigationRail
+import androidx.compose.material3.WideNavigationRailArrangement
 import androidx.compose.material3.WideNavigationRailItem
+import androidx.compose.material3.rememberModalExpandedNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
@@ -71,7 +82,8 @@ fun WideNavigationRailResponsiveSample() {
                     modifier = Modifier.padding(start = 24.dp),
                     onClick = { expanded = !expanded }
                 ) {
-                    Icon(Icons.Filled.Menu, "Header button")
+                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail.")
+                    else Icon(Icons.Filled.Menu, "Expand rail.")
                 }
             }
         ) {
@@ -94,6 +106,74 @@ fun WideNavigationRailResponsiveSample() {
 
         val textString = if (expanded) "expanded" else "collapsed"
         Text(modifier = Modifier.padding(16.dp), text = "The rail is $textString.")
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ModalExpandedNavigationRailSample() {
+    var selectedItem by remember { mutableIntStateOf(0) }
+    val items = listOf("Home", "Search", "Settings")
+    val selectedIcons = listOf(Icons.Filled.Home, Icons.Filled.Favorite, Icons.Filled.Star)
+    val unselectedIcons =
+        listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.StarBorder)
+    var openModalRail by rememberSaveable { mutableStateOf(false) }
+    var dismissRailOnItemSelection by rememberSaveable { mutableStateOf(true) }
+    val modalRailState = rememberModalExpandedNavigationRailState()
+    val scope = rememberCoroutineScope()
+
+    Row(Modifier.fillMaxSize()) {
+        if (openModalRail) {
+            ModalExpandedNavigationRail(
+                onDismissRequest = { openModalRail = false },
+                railState = modalRailState
+            ) {
+                items.forEachIndexed { index, item ->
+                    WideNavigationRailItem(
+                        railExpanded = true,
+                        icon = {
+                            Icon(
+                                if (selectedItem == index) selectedIcons[index]
+                                else unselectedIcons[index],
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(item) },
+                        selected = selectedItem == index,
+                        onClick = {
+                            selectedItem = index
+                            if (dismissRailOnItemSelection) {
+                                // Note: If you provide logic outside of onDismissRequest to close
+                                // the rail, you must additionally handle intended state cleanup, if
+                                // any.
+                                scope
+                                    .launch { modalRailState.close() }
+                                    .invokeOnCompletion { openModalRail = false }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = { openModalRail = !openModalRail }, Modifier.padding(32.dp)) {
+                Text(text = "Open modal rail")
+            }
+            Row(
+                Modifier.toggleable(
+                    value = dismissRailOnItemSelection,
+                    role = Role.Checkbox,
+                    onValueChange = { checked -> dismissRailOnItemSelection = checked }
+                )
+            ) {
+                Checkbox(checked = dismissRailOnItemSelection, onCheckedChange = null)
+                Spacer(Modifier.width(16.dp))
+                Text("Dismiss rail on item selection.")
+            }
+        }
     }
 }
 
@@ -162,7 +242,7 @@ fun WideNavigationRailArrangementsSample() {
     val unselectedIcons =
         listOf(Icons.Outlined.Home, Icons.Outlined.FavoriteBorder, Icons.Outlined.StarBorder)
     var expanded by remember { mutableStateOf(false) }
-    var arrangement by remember { mutableStateOf(NavigationRailArrangement.Center) }
+    var arrangement by remember { mutableStateOf(WideNavigationRailArrangement.Center) }
 
     Row(Modifier.fillMaxWidth()) {
         WideNavigationRail(
@@ -173,7 +253,8 @@ fun WideNavigationRailArrangementsSample() {
                     modifier = Modifier.padding(start = 24.dp),
                     onClick = { expanded = !expanded }
                 ) {
-                    Icon(Icons.Filled.Menu, "Header button")
+                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail.")
+                    else Icon(Icons.Filled.Menu, "Expand rail.")
                 }
             }
         ) {
@@ -194,7 +275,7 @@ fun WideNavigationRailArrangementsSample() {
             }
         }
 
-        val isArrangementCenter = arrangement == NavigationRailArrangement.Center
+        val isArrangementCenter = arrangement == WideNavigationRailArrangement.Center
         val changeToString = if (isArrangementCenter) "Bottom" else "Center"
         Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(modifier = Modifier.padding(16.dp), text = "Change arrangement to:")
@@ -202,9 +283,9 @@ fun WideNavigationRailArrangementsSample() {
                 modifier = Modifier.padding(4.dp),
                 onClick = {
                     if (isArrangementCenter) {
-                        arrangement = NavigationRailArrangement.Bottom
+                        arrangement = WideNavigationRailArrangement.Bottom
                     } else {
-                        arrangement = NavigationRailArrangement.Center
+                        arrangement = WideNavigationRailArrangement.Center
                     }
                 }
             ) {

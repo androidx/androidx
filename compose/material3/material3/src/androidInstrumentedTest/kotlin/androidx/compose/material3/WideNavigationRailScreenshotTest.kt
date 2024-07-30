@@ -157,7 +157,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             DefaultWideNavigationRail(
                 interactionSource,
                 expanded = scheme.expanded,
-                arrangement = NavigationRailArrangement.Center
+                arrangement = WideNavigationRailArrangement.Center
             )
         }
 
@@ -182,7 +182,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
             DefaultWideNavigationRail(
                 interactionSource,
                 expanded = scheme.expanded,
-                arrangement = NavigationRailArrangement.Bottom
+                arrangement = WideNavigationRailArrangement.Bottom
             )
         }
 
@@ -273,7 +273,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
  * @param interactionSource the [MutableInteractionSource] for the first [WideNavigationRailItem],
  *   to control its visual state
  * @param expanded whether the rail is expanded
- * @param arrangement the [NavigationRailArrangement] of the rail
+ * @param arrangement the [WideNavigationRailArrangement] of the rail
  * @param withHeader when true, shows a [FloatingActionButton] as the header
  * @param setUnselectedItemsAsDisabled when true, marks unselected items as disabled
  */
@@ -282,7 +282,7 @@ class WideNavigationRailScreenshotTest(private val scheme: TestWrapper) {
 private fun DefaultWideNavigationRail(
     interactionSource: MutableInteractionSource,
     expanded: Boolean = false,
-    arrangement: NavigationRailArrangement = NavigationRailArrangement.Top,
+    arrangement: WideNavigationRailArrangement = WideNavigationRailArrangement.Top,
     withHeader: Boolean = false,
     setUnselectedItemsAsDisabled: Boolean = false,
 ) {

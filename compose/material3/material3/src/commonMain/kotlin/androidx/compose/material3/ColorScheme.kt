@@ -506,7 +506,7 @@ class ColorScheme(
     internal var defaultShortNavigationBarItemColorsCached: NavigationItemColors? = null
 
     internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
-    internal var defaultWideNavigationRailColorsCached: NavigationRailColors? = null
+    internal var mDefaultWideWideNavigationRailColorsCached: WideNavigationRailColors? = null
     internal var defaultWideNavigationRailItemColorsCached: NavigationItemColors? = null
 
     internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
