@@ -53,7 +53,7 @@ androidXMultiplatform {
 
         commonMain {
             dependencies {
-                api(project(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.1")
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
             }
