@@ -639,7 +639,7 @@ public class PdfViewer extends LoadingViewer {
                     }
 
                     @Override
-                    public void documentLoaded(int numPages) {
+                    public void documentLoaded(int numPages, @NonNull DisplayData data) {
                         if (numPages <= 0) {
                             documentNotLoaded(PdfStatus.PDF_ERROR);
                             return;

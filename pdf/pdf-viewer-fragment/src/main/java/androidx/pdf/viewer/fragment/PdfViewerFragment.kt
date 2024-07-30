@@ -749,6 +749,7 @@ public open class PdfViewerFragment : Fragment() {
                 putBoolean(KEY_TEXT_SEARCH_ACTIVE, false)
             }
         if (pdfLoader != null) {
+            pdfLoaderCallbacks?.uri = fileUri
             destroyContentModel()
         }
         detachViewsAndObservers()

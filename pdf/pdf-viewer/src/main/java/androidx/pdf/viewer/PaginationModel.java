@@ -168,6 +168,10 @@ public class PaginationModel {
                 }
             };
 
+    public void setMaxPages(int maxPages) {
+        mMaxPages = maxPages;
+    }
+
     /** Adds the dimensions of the page at {@code pageNum} to this model. */
     public void addPage(int pageNum, @NonNull Dimensions pageSize) {
         Preconditions.checkNotNull(pageSize);

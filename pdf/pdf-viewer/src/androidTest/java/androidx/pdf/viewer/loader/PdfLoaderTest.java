@@ -29,6 +29,7 @@ import android.graphics.Rect;
 import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 
+import androidx.annotation.NonNull;
 import androidx.pdf.data.DisplayData;
 import androidx.pdf.data.Opener;
 import androidx.pdf.data.PdfStatus;
@@ -356,8 +357,8 @@ public class PdfLoaderTest {
         }
 
         @Override
-        public void documentLoaded(int numPages) {
-            super.documentLoaded(numPages);
+        public void documentLoaded(int numPages, @NonNull DisplayData data) {
+            super.documentLoaded(numPages, data);
             if (mDocumentLoadedLatch != null) {
                 mDocumentLoadedLatch.countDown();
             }
