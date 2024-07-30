@@ -21,16 +21,20 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalExpandedNavigationRail
+import androidx.compose.material3.ModalExpandedNavigationRailState
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.WideNavigationRail
 import androidx.compose.material3.WideNavigationRailItem
+import androidx.compose.material3.rememberModalExpandedNavigationRailState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.ToggleableTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
@@ -40,6 +44,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,6 +58,7 @@ class NavigationRailBenchmark {
     private val testCaseFactory = { NavigationRailTestCase() }
     private val collapsedWideRailTestCaseFactory = { NavigationRailTestCase(true) }
     private val expandedWideRailTestCaseFactory = { NavigationRailTestCase(true, true) }
+    private val modalExpandedRailTestCaseFactory = { ModalExpandedRailTestCase() }
 
     @Test
     fun firstPixel() {
@@ -110,6 +117,19 @@ class NavigationRailBenchmark {
                     changeSelectionToggleTestCase = false
                 )
             },
+            assertOneRecomposition = false,
+        )
+    }
+
+    @Test
+    fun modalExpandedNavigationRail_firstPixel() {
+        benchmarkRule.benchmarkToFirstPixel(modalExpandedRailTestCaseFactory)
+    }
+
+    @Test
+    fun modalExpandedNavigationRail_stateChange() {
+        benchmarkRule.toggleStateBenchmarkComposeMeasureLayout(
+            modalExpandedRailTestCaseFactory,
             assertOneRecomposition = false,
         )
     }
@@ -178,6 +198,51 @@ internal class NavigationRailTestCase(
         } else {
             // Case where rail expands if it's collapsed, or collapses if it's expanded.
             actualExpanded.value = !actualExpanded.value
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal class ModalExpandedRailTestCase() : LayeredComposeTestCase(), ToggleableTestCase {
+    private lateinit var state: ModalExpandedNavigationRailState
+    private lateinit var scope: CoroutineScope
+
+    @Composable
+    override fun MeasuredContent() {
+        state = rememberModalExpandedNavigationRailState()
+        scope = rememberCoroutineScope()
+
+        ModalExpandedNavigationRail(
+            onDismissRequest = {},
+            railState = state,
+        ) {
+            WideNavigationRailItem(
+                selected = true,
+                onClick = {},
+                icon = { Spacer(Modifier.size(24.dp)) },
+                railExpanded = true,
+                label = { Spacer(Modifier.size(24.dp)) }
+            )
+            WideNavigationRailItem(
+                selected = false,
+                onClick = {},
+                icon = { Spacer(Modifier.size(24.dp)) },
+                railExpanded = true,
+                label = { Spacer(Modifier.size(24.dp)) }
+            )
+        }
+    }
+
+    @Composable
+    override fun ContentWrappers(content: @Composable () -> Unit) {
+        MaterialExpressiveTheme { content() }
+    }
+
+    override fun toggleState() {
+        if (state.isOpen) {
+            scope.launch { state.close() }
+        } else {
+            scope.launch { state.open() }
         }
     }
 }
