@@ -98,8 +98,10 @@ internal fun animatedPressedButtonShape(
     interactionSource: InteractionSource,
     shape: CornerBasedShape,
     pressedShape: CornerBasedShape,
-    onPressAnimationSpec: FiniteAnimationSpec<Float> = MotionScheme.bouncyFastSpec(),
-    onReleaseAnimationSpec: FiniteAnimationSpec<Float> = MotionScheme.flatDefaultSpec(),
+    onPressAnimationSpec: FiniteAnimationSpec<Float> =
+        MaterialTheme.motionScheme.rememberFastEffectsSpec(),
+    onReleaseAnimationSpec: FiniteAnimationSpec<Float> =
+        MaterialTheme.motionScheme.rememberDefaultSpatialSpec(),
 ): Shape {
     val pressed = interactionSource.collectIsPressedAsState()
 
