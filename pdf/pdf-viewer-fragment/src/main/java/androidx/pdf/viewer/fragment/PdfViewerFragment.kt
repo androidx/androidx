@@ -23,6 +23,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
 import android.widget.FrameLayout
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
@@ -262,8 +263,6 @@ public open class PdfViewerFragment : Fragment() {
             loadingView?.showLoadingView()
         }
 
-        adjustInsetsForSearchMenu(findInFileView!!)
-
         pdfLoaderCallbacks =
             PdfLoaderCallbacksImpl(
                 requireContext(),
@@ -294,6 +293,12 @@ public open class PdfViewerFragment : Fragment() {
             )
 
         setUpEditFab()
+
+        // Need to adjust the view only after the layout phase is completed for the views to
+        // accurately calculate the height of the view
+        pdfViewer?.viewTreeObserver?.addOnGlobalLayoutListener {
+            adjustInsetsForSearchMenu(findInFileView!!)
+        }
 
         viewModel.pdfLoaderStateFlow.value?.let { loader ->
             pdfLoader = loader
@@ -346,24 +351,36 @@ public open class PdfViewerFragment : Fragment() {
      * mode but this is not required in landscape mode as the keyboard is detached from the bottom
      * of the view.
      */
-    private fun adjustInsetsForSearchMenu(view: FindInFileView) {
+    private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView) {
         if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             WindowCompat.setDecorFitsSystemWindows(
                 requireActivity().window,
                 /* decorFitsSystemWindows= */ false
             )
 
+            val screenHeight = requireActivity().resources.displayMetrics.heightPixels
+            val height = pdfViewer?.findViewById<FrameLayout>(R.id.parent_pdf_container)!!.height
+
             // Set the listener to handle window insets
-            ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets ->
+            ViewCompat.setOnApplyWindowInsetsListener(findInFileView) { view, insets ->
                 val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-                v.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    bottomMargin = imeInsets.bottom
+                view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+                    bottomMargin = 0
+                    if (!isKeyboardCollapsed(view)) {
+                        bottomMargin = imeInsets.bottom - (screenHeight - height)
+                    }
                 }
 
                 // Consume only the IME insets
                 insets.inset(imeInsets)
             }
         }
+    }
+
+    private fun isKeyboardCollapsed(view: View): Boolean {
+        val windowInsets = view.rootWindowInsets
+        val imeVisible = windowInsets?.isVisible(WindowInsets.Type.ime()) ?: false
+        return !imeVisible
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
@@ -411,7 +428,7 @@ public open class PdfViewerFragment : Fragment() {
 
     /**
      * Posts a [.onContentsAvailable] method to be run as soon as permitted (when this Viewer has
-     * its view hierarchy built up and [.onCreateView] has finished). It might run right now if the
+     * its view hierarchy built up and [onCreateView] has finished). It might run right now if the
      * Viewer is currently started.
      */
     private fun postContentsAvailable(
