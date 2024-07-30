@@ -17,7 +17,6 @@
 package androidx.compose.runtime.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -25,7 +24,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.asContextElement
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -68,7 +66,6 @@ private object someObject {
 }
 
 @Suppress("unused")
-@OptIn(ExperimentalComposeApi::class)
 @Sampled
 fun snapshotAsContextElementSample() {
     runBlocking {
