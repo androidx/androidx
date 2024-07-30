@@ -21,7 +21,7 @@ import androidx.room.DatabaseProcessingStep
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -90,7 +90,7 @@ class RemoveUnusedColumnsTest {
                 annotateMethod = annotateMethod
             ) + COMMON.USER
 
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = sources,
             createProcessingSteps = { listOf(DatabaseProcessingStep()) },
             options =

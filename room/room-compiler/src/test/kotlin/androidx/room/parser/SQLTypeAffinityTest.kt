@@ -20,7 +20,7 @@ import androidx.kruth.assertThat
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 
 class SQLTypeAffinityTest {
@@ -33,7 +33,7 @@ class SQLTypeAffinityTest {
      */
     @Test
     fun affinityTypes() {
-        runProcessorTest(sources = emptyList()) { invocation ->
+        runProcessorTestWithK1(sources = emptyList()) { invocation ->
             fun XNullability.toSignature() =
                 if (invocation.isKsp) {
                     when (this) {

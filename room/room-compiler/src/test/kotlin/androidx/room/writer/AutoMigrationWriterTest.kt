@@ -21,9 +21,9 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runJavaProcessorTest
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.processor.Context
+import androidx.room.runKspTestWithK1
 import androidx.room.util.SchemaDiffResult
 import androidx.room.vo.AutoMigration
 import loadTestSource
@@ -88,7 +88,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                     )
             }
 
-        runProcessorTest(listOf(specSource)) { invocation ->
+        runProcessorTestWithK1(listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -172,7 +172,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                     )
             }
 
-        runProcessorTest(listOf(specSource)) { invocation ->
+        runProcessorTestWithK1(listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -264,7 +264,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                     )
             }
 
-        runProcessorTest(listOf(specSource)) { invocation ->
+        runProcessorTestWithK1(listOf(specSource)) { invocation ->
             val autoMigrationResultWithNewAddedColumn =
                 AutoMigration(
                     from = 1,
@@ -320,7 +320,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
         }
     }
 
-    private fun runProcessorTest(sources: List<Source>, handler: (XTestInvocation) -> Unit) {
+    private fun runProcessorTestWithK1(sources: List<Source>, handler: (XTestInvocation) -> Unit) {
         when (codeLanguage) {
             CodeLanguage.JAVA ->
                 runJavaProcessorTest(
@@ -330,7 +330,7 @@ class AutoMigrationWriterTest(private val codeLanguage: CodeLanguage) {
                     handler = handler
                 )
             CodeLanguage.KOTLIN ->
-                runKspTest(
+                runKspTestWithK1(
                     sources = sources + kotlinDatabaseSource,
                     options =
                         mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),

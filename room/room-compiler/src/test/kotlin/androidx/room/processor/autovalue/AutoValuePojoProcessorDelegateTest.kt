@@ -20,10 +20,10 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.FieldProcessor
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.ProcessorErrors
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.Pojo
 import com.google.auto.value.processor.AutoValueProcessor
@@ -112,7 +112,7 @@ class AutoValuePojoProcessorDelegateTest {
                 // between javac (argN) and kotlinc (pN).
                 javacArguments = listOf("-parameters")
             )
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = emptyList(),
             classpath = libraryClasspath,
         ) { invocation: XTestInvocation ->
@@ -281,7 +281,7 @@ class AutoValuePojoProcessorDelegateTest {
         val pojoSource = Source.java(MY_POJO.canonicalName, pojoCode)
         val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.canonicalName, autoValuePojoCode)
         val all: List<Source> = sources.toList() + pojoSource + autoValuePojoSource
-        runProcessorTest(sources = all, classpath = classpathFiles) { invocation ->
+        runProcessorTestWithK1(sources = all, classpath = classpathFiles) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(
                         context = invocation.context,

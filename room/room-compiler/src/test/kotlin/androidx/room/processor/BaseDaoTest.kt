@@ -4,7 +4,7 @@ import COMMON
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.Dao
 import androidx.room.writer.DaoWriter
@@ -209,7 +209,7 @@ class BaseDaoTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(sources = listOf(source)) { invocation ->
+        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
             val dbElm = invocation.context.processingEnv.requireTypeElement("MyDb")
             val dbType = dbElm.type
             // if we could create valid code, it is good, no need for assertions.
@@ -268,8 +268,8 @@ class BaseDaoTest {
                 }
             """
             )
-        runProcessorTest(sources = listOf(baseClass, extension, COMMON.USER, fakeDb)) { invocation
-            ->
+        runProcessorTestWithK1(sources = listOf(baseClass, extension, COMMON.USER, fakeDb)) {
+            invocation ->
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")
             val dbElm = invocation.context.processingEnv.requireTypeElement("foo.bar.MyDb")
             val dbType = dbElm.type

@@ -19,8 +19,8 @@ package androidx.room.writer
 import androidx.room.DatabaseProcessingStep
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.processor.Context
+import androidx.room.runKspTestWithK1
 import java.io.File
 import loadTestSource
 import org.jetbrains.kotlin.config.JvmDefaultMode
@@ -35,10 +35,10 @@ abstract class BaseDaoKotlinCodeGenTest {
         sources: List<Source>,
         expectedFilePath: String,
         compiledFiles: List<File> = emptyList(),
-        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DEFAULT,
+        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DISABLE,
         handler: (XTestInvocation) -> Unit = {}
     ) {
-        runKspTest(
+        runKspTestWithK1(
             sources = sources,
             classpath = compiledFiles,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),

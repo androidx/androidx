@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.EntityBundle
 import androidx.room.migration.bundle.FieldBundle
@@ -25,6 +24,7 @@ import androidx.room.migration.bundle.PrimaryKeyBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTOMIGRATION_SPEC_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.INNER_CLASS_AUTOMIGRATION_SPEC_MUST_BE_STATIC
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import org.junit.Test
 
@@ -44,7 +44,7 @@ class AutoMigrationProcessorTest {
                     .trimIndent()
             )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTestWithK1(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
@@ -71,7 +71,7 @@ class AutoMigrationProcessorTest {
                     .trimIndent()
             )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTestWithK1(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),
@@ -100,7 +100,7 @@ class AutoMigrationProcessorTest {
                     .trimIndent()
             )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTestWithK1(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec =
@@ -132,7 +132,7 @@ class AutoMigrationProcessorTest {
                     .trimIndent()
             )
 
-        runProcessorTest(listOf(source)) { invocation ->
+        runProcessorTestWithK1(listOf(source)) { invocation ->
             AutoMigrationProcessor(
                     context = invocation.context,
                     spec = invocation.processingEnv.requireType("foo.bar.MyAutoMigration"),

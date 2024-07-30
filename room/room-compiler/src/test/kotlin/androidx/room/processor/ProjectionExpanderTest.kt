@@ -20,9 +20,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.isTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SqlParser
 import androidx.room.parser.expansion.ProjectionExpander
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import createVerifierFromEntitiesAndViews
 import org.hamcrest.CoreMatchers.equalTo
@@ -521,7 +521,7 @@ class ProjectionExpanderTest {
 
     @Test
     fun joinAndAbandonEntity() {
-        runProcessorTest(sources = ENTITIES) { invocation ->
+        runProcessorTestWithK1(sources = ENTITIES) { invocation ->
             val entities =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)
@@ -613,7 +613,7 @@ class ProjectionExpanderTest {
         val extraSource =
             input?.let { listOf(Source.java(name, DATABASE_PREFIX + input)) } ?: emptyList()
         val all = ENTITIES + extraSource
-        return runProcessorTest(sources = all) { invocation ->
+        return runProcessorTestWithK1(sources = all) { invocation ->
             val entities =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Entity::class.qualifiedName!!)

@@ -19,8 +19,8 @@ package androidx.room.writer
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.DatabaseProcessor
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.Database
 import org.hamcrest.CoreMatchers.`is`
@@ -219,7 +219,7 @@ class OpenDelegateWriterTest {
             }
             """
             )
-        runProcessorTest(sources = sources + databaseCode) { invocation ->
+        runProcessorTestWithK1(sources = sources + databaseCode) { invocation ->
             val db =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)

@@ -1033,8 +1033,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun delegatingFunctions_defaultImplBridge(
-        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
-        jvmDefaultMode: JvmDefaultMode
+        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL") jvmDefaultMode: JvmDefaultMode
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
@@ -1110,8 +1109,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun transactionMethodAdapter_interface(
-        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
-        jvmDefaultMode: JvmDefaultMode
+        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL") jvmDefaultMode: JvmDefaultMode
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name

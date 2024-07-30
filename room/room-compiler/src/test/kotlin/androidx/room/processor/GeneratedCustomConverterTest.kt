@@ -26,7 +26,7 @@ import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
 import androidx.room.compiler.processing.util.Source
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import com.squareup.javapoet.ClassName
@@ -75,7 +75,7 @@ class GeneratedCustomConverterTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = listOf(src),
             javacProcessors = listOf(RoomProcessor(), JavacCustomConverter()),
             symbolProcessorProviders =

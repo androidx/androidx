@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.FtsEntity
 import java.io.File
@@ -76,7 +76,8 @@ abstract class BaseFtsEntityParserTest {
                     baseClassReplacement
                 ) + input + ENTITY_SUFFIX
             )
-        runProcessorTest(sources = sources + entitySource, classpath = classpath) { invocation ->
+        runProcessorTestWithK1(sources = sources + entitySource, classpath = classpath) { invocation
+            ->
             val entity = invocation.processingEnv.requireTypeElement("foo.bar.MyEntity")
             val processor = FtsTableEntityProcessor(invocation.context, entity)
             val processedEntity = processor.process()

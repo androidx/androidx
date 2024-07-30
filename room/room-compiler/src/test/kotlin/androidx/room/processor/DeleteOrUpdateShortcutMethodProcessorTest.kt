@@ -28,7 +28,6 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
@@ -36,6 +35,7 @@ import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.DeleteOrUpdateShortcutMethod
 import kotlin.reflect.KClass
@@ -770,7 +770,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 COMMON.LISTENABLE_FUTURE,
                 COMMON.GUAVA_ROOM
             )
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
@@ -826,7 +826,7 @@ abstract class DeleteOrUpdateShortcutMethodProcessorTest<out T : DeleteOrUpdateS
                 COMMON.GUAVA_ROOM
             )
 
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = commonSources + additionalSources + inputSource,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
         ) { invocation ->
