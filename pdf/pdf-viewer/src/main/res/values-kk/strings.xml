@@ -52,4 +52,12 @@
     <string name="action_edit" msgid="5882082700509010966">"Файлды өңдеу"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Құлыпты ашу үшін құпия сөзді енгізіңіз."</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Қайталау"</string>
+    <!-- no translation found for pdf_error (3287950599604474450) -->
+    <skip />
+    <!-- no translation found for file_error (4003885928556884091) -->
+    <skip />
+    <!-- no translation found for page_broken (2968770793669433462) -->
+    <skip />
+    <!-- no translation found for needs_more_data (3520133467908240802) -->
+    <skip />
 </resources>
