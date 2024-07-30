@@ -58,8 +58,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -79,11 +82,16 @@ fun WideNavigationRailResponsiveSample() {
             expanded = expanded,
             header = {
                 IconButton(
-                    modifier = Modifier.padding(start = 24.dp),
+                    modifier =
+                        Modifier.padding(start = 24.dp).semantics {
+                            // The button must announce the expanded or collapsed state of the rail
+                            // for accessibility.
+                            stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        },
                     onClick = { expanded = !expanded }
                 ) {
-                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail.")
-                    else Icon(Icons.Filled.Menu, "Expand rail.")
+                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail")
+                    else Icon(Icons.Filled.Menu, "Expand rail")
                 }
             }
         ) {
@@ -105,7 +113,15 @@ fun WideNavigationRailResponsiveSample() {
         }
 
         val textString = if (expanded) "expanded" else "collapsed"
-        Text(modifier = Modifier.padding(16.dp), text = "The rail is $textString.")
+        Column {
+            Text(modifier = Modifier.padding(16.dp), text = "The rail is $textString.")
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text =
+                    "Note: This demo is for demonstrative purposes. Use a Navigation Bar " +
+                        "instead on compact screens."
+            )
+        }
     }
 }
 
@@ -149,7 +165,13 @@ fun ModalExpandedNavigationRailSample() {
                                 // the rail, you must additionally handle intended state cleanup, if
                                 // any.
                                 scope
-                                    .launch { modalRailState.close() }
+                                    .launch {
+                                        // Add a minimum delay so that the selected state of the
+                                        // item is properly announced to screen readers before the
+                                        // rail closes.
+                                        delay(250)
+                                        modalRailState.close()
+                                    }
                                     .invokeOnCompletion { openModalRail = false }
                             }
                         }
@@ -250,11 +272,16 @@ fun WideNavigationRailArrangementsSample() {
             arrangement = arrangement,
             header = {
                 IconButton(
-                    modifier = Modifier.padding(start = 24.dp),
+                    modifier =
+                        Modifier.padding(start = 24.dp).semantics {
+                            // The button must announce the expanded or collapsed state of the rail
+                            // for accessibility.
+                            stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        },
                     onClick = { expanded = !expanded }
                 ) {
-                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail.")
-                    else Icon(Icons.Filled.Menu, "Expand rail.")
+                    if (expanded) Icon(Icons.AutoMirrored.Filled.MenuOpen, "Collapse rail")
+                    else Icon(Icons.Filled.Menu, "Expand rail")
                 }
             }
         ) {
@@ -291,6 +318,12 @@ fun WideNavigationRailArrangementsSample() {
             ) {
                 Text(changeToString)
             }
+            Text(
+                modifier = Modifier.padding(16.dp),
+                text =
+                    "Note: This demo is for demonstrative purposes. Use a Navigation Bar " +
+                        "instead on compact screens."
+            )
         }
     }
 }
