@@ -66,7 +66,6 @@ import com.android.utils.appendCapitalized
 import java.io.File
 import java.time.Duration
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -127,7 +126,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile
 abstract class AndroidXImplPlugin
 @Inject
 constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Project> {
-    @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
+    @get:Inject abstract val registry: BuildEventsListenerRegistry
 
     override fun apply(project: Project) {
         if (project.isRoot)
@@ -226,6 +225,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.workaroundPrebuiltTakingPrecedenceOverProject()
         project.configureSamplesProject()
+        project.configureMaxDepVersions(androidXExtension)
     }
 
     private fun Project.registerProjectOrArtifact() {
@@ -625,8 +625,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.configureJavaCompilationWarnings(androidXExtension)
-
-        project.addToProjectMap(androidXExtension)
     }
 
     private fun configureWithKotlinMultiplatformAndroidPlugin(
@@ -663,7 +661,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.addToProjectMap(androidXExtension)
         project.afterEvaluate {
             project.addToBuildOnServer("assembleAndroidMain")
             project.addToBuildOnServer("lint")
@@ -899,8 +896,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         project.setUpCheckDocsTask(androidXExtension)
 
-        project.addToProjectMap(androidXExtension)
-
         project.buildOnServerDependsOnAssembleRelease()
         project.buildOnServerDependsOnLint()
     }
@@ -988,8 +983,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
         }
-
-        project.addToProjectMap(androidXExtension)
     }
 
     private fun Project.configureProjectStructureValidation(androidXExtension: AndroidXExtension) {
@@ -1401,9 +1394,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 }
 
-private const val PROJECTS_MAP_KEY = "projects"
-private const val ACCESSED_PROJECTS_MAP_KEY = "accessedProjectsMap"
-
 /** Returns whether the configuration is used for testing. */
 private fun Configuration.isTest(): Boolean = name.lowercase().contains("test")
 
@@ -1422,30 +1412,6 @@ private fun Project.hideJavadocTask() {
     }
 }
 
-private fun Project.addToProjectMap(androidXExtension: AndroidXExtension) {
-    // TODO(alanv): Move this out of afterEvaluate
-    afterEvaluate {
-        if (androidXExtension.shouldRelease()) {
-            val group = androidXExtension.mavenGroup?.group
-            if (group != null) {
-                val module = "$group:$name"
-
-                if (project.rootProject.extra.has(ACCESSED_PROJECTS_MAP_KEY)) {
-                    throw GradleException(
-                        "Attempted to add $project to project map after " +
-                            "the contents of the map were accessed"
-                    )
-                }
-                @Suppress("UNCHECKED_CAST")
-                val projectModules =
-                    project.rootProject.extra.get(PROJECTS_MAP_KEY)
-                        as ConcurrentHashMap<String, String>
-                projectModules[module] = path
-            }
-        }
-    }
-}
-
 val Project.androidExtension: AndroidComponentsExtension<*, *, *>
     get() =
         extensions.findByType<LibraryAndroidComponentsExtension>()
@@ -1460,12 +1426,6 @@ val Project.kotlinExtensionOrNull: KotlinProjectExtension?
 
 val Project.androidXExtension: AndroidXExtension
     get() = extensions.getByType()
-
-@Suppress("UNCHECKED_CAST")
-fun Project.getProjectsMap(): ConcurrentHashMap<String, String> {
-    project.rootProject.extra.set(ACCESSED_PROJECTS_MAP_KEY, true)
-    return rootProject.extra.get(PROJECTS_MAP_KEY) as ConcurrentHashMap<String, String>
-}
 
 /**
  * Configures all non-Studio tasks in a project (see b/153193718 for background) to time out after

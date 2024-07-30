@@ -142,7 +142,7 @@ private fun Project.configureComponentPublishing(
     val androidLibrariesSetProvider: Provider<Set<String>> = provider {
         val androidxAndroidProjects = mutableSetOf<String>()
         // Check every project is the project map to see if they are an Android Library
-        val projectModules = project.getProjectsMap()
+        val projectModules = extension.mavenCoordinatesToProjectPathMap
         for ((mavenCoordinates, projectPath) in projectModules) {
             project.findProject(projectPath)?.plugins?.let { plugins ->
                 if (plugins.hasPlugin(LibraryPlugin::class.java)) {

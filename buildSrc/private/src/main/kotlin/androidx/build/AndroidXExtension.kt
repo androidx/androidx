@@ -36,13 +36,12 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
     @JvmField val AllLibraryGroups: List<LibraryGroup>
 
-    val libraryGroupsByGroupId: Map<String, LibraryGroup>
-    val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
+    private val libraryGroupsByGroupId: Map<String, LibraryGroup>
+    private val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup>
 
     val mavenGroup: LibraryGroup?
 
-    val listProjectsService: Provider<ListProjectsService>
-
+    private val listProjectsService: Provider<ListProjectsService>
     private val versionService: LibraryVersionsService
 
     val deviceTests = DeviceTests.register(project.extensions)
@@ -81,6 +80,24 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
 
         kotlinTarget.set(KotlinTarget.DEFAULT)
         kotlinTestTarget.set(kotlinTarget)
+    }
+
+    /**
+     * Map of maven coordinates (e.g. "androidx.core:core") to a Gradle project path (e.g.
+     * ":core:core")
+     */
+    val mavenCoordinatesToProjectPathMap: Map<String, String> by lazy {
+        val newProjectMap: MutableMap<String, String> = mutableMapOf()
+        listProjectsService.get().allPossibleProjects.forEach {
+            val group =
+                overrideLibraryGroupsByProjectPath[it.gradlePath]
+                    ?: getLibraryGroupFromProjectPath(it.gradlePath, null)
+            if (group != null) {
+                newProjectMap["${group.group}:${substringAfterLastColon(it.gradlePath)}"] =
+                    it.gradlePath
+            }
+        }
+        newProjectMap
     }
 
     var name: Property<String?> = project.objects.property(String::class.java)
@@ -137,6 +154,11 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     private fun substringBeforeLastColon(projectPath: String): String {
         val lastColonIndex = projectPath.lastIndexOf(":")
         return projectPath.substring(0, lastColonIndex)
+    }
+
+    private fun substringAfterLastColon(projectPath: String): String {
+        val lastColonIndex = projectPath.lastIndexOf(":")
+        return projectPath.substring(lastColonIndex + 1)
     }
 
     // gets the library group from the project path, including special cases

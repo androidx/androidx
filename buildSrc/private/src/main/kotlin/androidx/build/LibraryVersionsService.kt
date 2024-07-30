@@ -29,8 +29,6 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     interface Parameters : BuildServiceParameters {
         var tomlFileName: String
         var tomlFileContents: Provider<String>
-        var composeCustomVersion: Provider<String>
-        var composeCustomGroup: Provider<String>
     }
 
     private val parsedTomlFile: TomlParseResult by lazy {
@@ -147,7 +145,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
 }
 
 // a LibraryGroupSpec knows how to associate a LibraryGroup with the appropriate projects
-data class LibraryGroupAssociation(
+private data class LibraryGroupAssociation(
     // the name of the variable to which it is assigned in the toml file
     val declarationName: String,
     // the group
