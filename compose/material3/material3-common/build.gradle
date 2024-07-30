@@ -127,7 +127,6 @@ android {
 
 androidx {
     name = "Compose Material 3 Common components"
-    mavenVersion = LibraryVersions.COMPOSE_MATERIAL3_COMMON
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Compose Material 3 Common Library. This library contains foundational, themeless " +

@@ -196,6 +196,7 @@ COMPOSE_DESKTOP = { group = "org.jetbrains.compose.desktop", atomicGroupVersion 
 COMPOSE_FOUNDATION = { group = "org.jetbrains.compose.foundation", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL = { group = "org.jetbrains.compose.material", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL3 = { group = "org.jetbrains.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
+COMPOSE_MATERIAL3_COMMON = { group = "org.jetbrains.compose.material3.common", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_COMMON", overrideInclude = [ ":compose:material3:material3-common" ] }
 COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.material3-adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
 COMPOSE_RUNTIME = { group = "org.jetbrains.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_UI = { group = "org.jetbrains.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
