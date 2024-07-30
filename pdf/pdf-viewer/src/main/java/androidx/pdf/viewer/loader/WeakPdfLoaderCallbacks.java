@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.pdf.data.DisplayData;
 import androidx.pdf.data.PdfStatus;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
@@ -68,10 +69,10 @@ public class WeakPdfLoaderCallbacks implements PdfLoaderCallbacks {
     }
 
     @Override
-    public void documentLoaded(int numPages) {
+    public void documentLoaded(int numPages, @NonNull DisplayData data) {
         PdfLoaderCallbacks callbacks = getCallbacks();
         if (callbacks != null) {
-            callbacks.documentLoaded(numPages);
+            callbacks.documentLoaded(numPages, data);
         }
     }
 

@@ -19,12 +19,14 @@ package androidx.pdf.viewer.loader
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Rect
+import android.net.Uri
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.fragment.app.FragmentManager
 import androidx.pdf.R
 import androidx.pdf.ViewState
+import androidx.pdf.data.DisplayData
 import androidx.pdf.data.PdfStatus
 import androidx.pdf.data.Range
 import androidx.pdf.models.Dimensions
@@ -73,6 +75,7 @@ class PdfLoaderCallbacksImpl(
     var fileName: String? = null
     var pageViewFactory: PageViewFactory? = null
     var pdfLoader: PdfLoader? = null
+    var uri: Uri? = null
     var onScreen = false
 
     private fun currentPasswordDialog(fm: FragmentManager): PdfPasswordDialog? {
@@ -214,7 +217,7 @@ class PdfLoaderCallbacksImpl(
         }
     }
 
-    override fun documentLoaded(numPages: Int) {
+    override fun documentLoaded(numPages: Int, data: DisplayData) {
         if (numPages <= 0) {
             documentNotLoaded(PdfStatus.PDF_ERROR)
             return
@@ -226,6 +229,9 @@ class PdfLoaderCallbacksImpl(
         // Assume we see at least the first page
         paginatedView.pageRangeHandler.maxPage = 1
         if (viewState.get() != ViewState.NO_VIEW) {
+            if (uri != null && data.uri == uri) {
+                paginatedView.paginationModel.setMaxPages(-1)
+            }
 
             paginatedView.paginationModel.initialize(numPages)
 

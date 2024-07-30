@@ -355,7 +355,7 @@ public class PdfLoader {
                     mLoadedPassword = mPassword;
                     mConnection.setDocumentLoaded();
                     // TODO: Track loaded PDF info.
-                    callbacks.documentLoaded(mNumPages);
+                    callbacks.documentLoaded(mNumPages, mData);
                     break;
                 case REQUIRES_PASSWORD:
                     // TODO: Reflect this in the state of the FileInfo object.
