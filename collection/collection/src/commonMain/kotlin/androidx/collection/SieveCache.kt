@@ -667,6 +667,9 @@ public constructor(
             tail = previousIndex
         }
 
+        if (hand == index) {
+            hand = previousIndex
+        }
         nodes[index] = EmptyNode
     }
 

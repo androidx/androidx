@@ -794,51 +794,66 @@ class SieveCacheTest {
 
     @Test
     fun insertOneRemoveOne() {
-        val map = SieveCache<Int, String>(4)
+        val cache = SieveCache<Int, String>(4)
 
         for (i in 0..1000000) {
-            map[i] = i.toString()
-            map.remove(i)
-            assertTrue(map.capacity < 16, "Map grew larger than 16 after step $i")
+            cache[i] = i.toString()
+            cache.remove(i)
+            assertTrue(cache.capacity < 16, "Map grew larger than 16 after step $i")
         }
     }
 
     @Test
     fun insertManyRemoveMany() {
-        val map = SieveCache<Int, String>(1024)
+        val cache = SieveCache<Int, String>(1024)
 
         for (i in 0..100) {
-            map[i] = i.toString()
+            cache[i] = i.toString()
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map.remove(i)
+                cache.remove(i)
             }
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map[i] = i.toString()
+                cache[i] = i.toString()
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map.remove(i)
+                cache.remove(i)
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map[i] = i.toString()
+                cache[i] = i.toString()
             }
         }
 
-        assertEquals(127, map.capacity)
+        assertEquals(127, cache.capacity)
         for (i in 0..100) {
-            assertTrue(map.contains(i), "Map should contain element $i")
+            assertTrue(cache.contains(i), "Map should contain element $i")
         }
+    }
+
+    @Test
+    fun putReplaceInCacheOfSize1() {
+        val cache = SieveCache<String, String>(1, 1)
+
+        for (i in 0..9) {
+            cache[i.toString()] = (i * 2).toString()
+            if (i % 2 == 0) {
+                cache.remove(i.toString())
+            }
+        }
+
+        assertEquals(cache["9"], "18")
+        assertEquals(1, cache.size)
     }
 
     private fun createCreatingCache(): SieveCache<String, String> {
