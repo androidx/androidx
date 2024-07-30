@@ -554,10 +554,6 @@ class PreviewTest(private val implName: String, private val cameraConfig: Camera
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
     @Test
     fun getsFrame_withHighResolutionEnabled() {
-        // TODO(b/247492645) Remove camera-pipe-integration restriction after porting
-        //  ResolutionSelector logic
-        assumeTrue(implName != CameraPipeConfig::class.simpleName)
-
         val cameraInfo =
             CameraUtil.createCameraUseCaseAdapter(context!!, CameraSelector.DEFAULT_BACK_CAMERA)
                 .cameraInfo
