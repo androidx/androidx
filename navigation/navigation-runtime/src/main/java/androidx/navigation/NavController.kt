@@ -1014,8 +1014,14 @@ public open class NavController(
                         // Include the original deep link Intent so the Destinations can
                         // synthetically generate additional arguments as necessary.
                         args.putParcelable(KEY_DEEP_LINK_INTENT, activity!!.intent)
+                        val currGraph = backQueue.getTopGraph()
                         val matchingDeepLink =
-                            _graph!!.matchDeepLink(NavDeepLinkRequest(activity!!.intent))
+                            currGraph.matchDeepLinkComprehensive(
+                                navDeepLinkRequest = NavDeepLinkRequest(activity!!.intent),
+                                searchChildren = true,
+                                searchParent = true,
+                                lastVisited = currGraph
+                            )
                         if (matchingDeepLink?.matchingArgs != null) {
                             val destinationArgs =
                                 matchingDeepLink.destination.addInDefaultArgs(
@@ -1403,7 +1409,14 @@ public open class NavController(
             globalArgs.putAll(deepLinkExtras)
         }
         if (deepLink == null || deepLink.isEmpty()) {
-            val matchingDeepLink = _graph!!.matchDeepLink(NavDeepLinkRequest(intent))
+            val currGraph = backQueue.getTopGraph()
+            val matchingDeepLink =
+                currGraph.matchDeepLinkComprehensive(
+                    navDeepLinkRequest = NavDeepLinkRequest(intent),
+                    searchChildren = true,
+                    searchParent = true,
+                    lastVisited = currGraph
+                )
             if (matchingDeepLink != null) {
                 val destination = matchingDeepLink.destination
                 deepLink = destination.buildDeepLinkIds()
@@ -1621,9 +1634,17 @@ public open class NavController(
         if (_graph!!.route == route || _graph!!.matchDeepLink(route) != null) {
             return _graph
         }
-        val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
-        val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
-        return currentGraph.findNode(route)
+        return backQueue.getTopGraph().findNode(route)
+    }
+
+    /**
+     * Returns the last NavGraph on the backstack.
+     *
+     * If there are no NavGraphs on the stack, returns [_graph]
+     */
+    private fun ArrayDeque<NavBackStackEntry>.getTopGraph(): NavGraph {
+        val currentNode = lastOrNull()?.destination ?: _graph!!
+        return if (currentNode is NavGraph) currentNode else currentNode.parent!!
     }
 
     // Finds destination within _graph including its children and
@@ -1886,7 +1907,14 @@ public open class NavController(
             "Cannot navigate to $request. Navigation graph has not been set for " +
                 "NavController $this."
         }
-        val deepLinkMatch = _graph!!.matchDeepLink(request)
+        val currGraph = backQueue.getTopGraph()
+        val deepLinkMatch =
+            currGraph.matchDeepLinkComprehensive(
+                navDeepLinkRequest = request,
+                searchChildren = true,
+                searchParent = true,
+                lastVisited = currGraph
+            )
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
             val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()

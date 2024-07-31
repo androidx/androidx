@@ -69,7 +69,8 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
      *
      * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
      */
-    internal fun matchDeepLinkComprehensive(
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchDeepLinkComprehensive(
         navDeepLinkRequest: NavDeepLinkRequest,
         searchChildren: Boolean,
         searchParent: Boolean,

@@ -787,6 +787,98 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateSharedDestination() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "home_nav") {
+                navigation(route = "home_nav", startDestination = "home") {
+                    test("home")
+                    test("shared")
+                }
+                navigation(route = "list_nav", startDestination = "list") {
+                    test("list")
+                    test("shared")
+                }
+            }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("home")
+
+        navController.navigate("shared")
+        val currentDest = navController.currentDestination!!
+        assertThat(currentDest.route).isEqualTo("shared")
+        assertThat(currentDest.parent!!.route).isEqualTo("home_nav")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "home_nav", "home", "shared")
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateNestedSharedDestination() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "home_nav") {
+                navigation(route = "home_nav", startDestination = "home") {
+                    test("home")
+                    navigation(route = "home_nested_nav", startDestination = "home_nested") {
+                        test("home_nested")
+                        test("shared")
+                    }
+                }
+                navigation(route = "list_nav", startDestination = "list") {
+                    test("list")
+                    test("shared")
+                }
+            }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("home")
+
+        navController.navigate("shared")
+        val currentDest = navController.currentDestination!!
+        assertThat(currentDest.route).isEqualTo("shared")
+        assertThat(currentDest.parent!!.route).isEqualTo("home_nested_nav")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "home_nav", "home", "home_nested_nav", "shared")
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateParentSharedDestination() {
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(route = "root", startDestination = "home_nav") {
+                navigation(route = "home_nav", startDestination = "home") {
+                    test("home")
+                    test("shared")
+                    navigation(route = "home_nested_nav", startDestination = "home_nested") {
+                        test("home_nested")
+                    }
+                }
+                navigation(route = "list_nav", startDestination = "list") {
+                    test("list")
+                    test("shared")
+                }
+            }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("home")
+
+        // first navigate into nested graph
+        navController.navigate("home_nested")
+        assertThat(navController.currentDestination!!.route).isEqualTo("home_nested")
+
+        // then navigate to the shared destination that is sibling of parent
+        navController.navigate("shared")
+        val currentDest = navController.currentDestination!!
+        assertThat(currentDest.route).isEqualTo("shared")
+        assertThat(currentDest.parent!!.route).isEqualTo("home_nav")
+        assertThat(navController.currentBackStack.value.map { it.destination.route })
+            .containsExactly("root", "home_nav", "home", "home_nested_nav", "home_nested", "shared")
+            .inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateSingleTopSharedStartDestination() {
         val navController = createNavController()
         navController.graph =
