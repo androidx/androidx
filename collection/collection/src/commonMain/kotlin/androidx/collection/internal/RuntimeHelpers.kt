@@ -26,6 +26,14 @@ internal fun throwIllegalStateException(message: String) {
     throw IllegalStateException(message)
 }
 
+internal fun throwIndexOutOfBoundsException(message: String) {
+    throw IndexOutOfBoundsException(message)
+}
+
+internal fun throwNoSuchElementException(message: String) {
+    throw NoSuchElementException(message)
+}
+
 // Like Kotlin's require() but without the .toString() call
 @OptIn(ExperimentalContracts::class)
 internal inline fun checkPrecondition(value: Boolean, lazyMessage: () -> String) {

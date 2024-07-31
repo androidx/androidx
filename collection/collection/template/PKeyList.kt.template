@@ -19,6 +19,9 @@
 package androidx.collection
 
 import androidx.annotation.IntRange
+import androidx.collection.internal.throwIllegalArgumentException
+import androidx.collection.internal.throwIndexOutOfBoundsException
+import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
@@ -162,7 +165,7 @@ public sealed class PKeyList(initialCapacity: Int) {
      */
     public fun first(): PKey {
         if (isEmpty()) {
-            throw NoSuchElementException("PKeyList is empty.")
+            throwNoSuchElementException("PKeyList is empty.")
         }
         return content[0]
     }
@@ -305,7 +308,7 @@ public sealed class PKeyList(initialCapacity: Int) {
      */
     public operator fun get(@IntRange(from = 0) index: Int): PKey {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -316,7 +319,7 @@ public sealed class PKeyList(initialCapacity: Int) {
      */
     public fun elementAt(@IntRange(from = 0) index: Int): PKey {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -394,7 +397,7 @@ public sealed class PKeyList(initialCapacity: Int) {
      */
     public fun last(): PKey {
         if (isEmpty()) {
-            throw NoSuchElementException("PKeyList is empty.")
+            throwNoSuchElementException("PKeyList is empty.")
         }
         return content[lastIndex]
     }
@@ -567,7 +570,7 @@ public class MutablePKeyList(
      */
     public fun add(@IntRange(from = 0) index: Int, element: PKey) {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         ensureCapacity(_size + 1)
         val content = content
@@ -594,7 +597,7 @@ public class MutablePKeyList(
         elements: PKeyArray
     ): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements.size)
@@ -623,7 +626,7 @@ public class MutablePKeyList(
         elements: PKeyList
     ): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements._size)
@@ -782,7 +785,7 @@ public class MutablePKeyList(
      */
     public fun removeAt(@IntRange(from = 0) index: Int): PKey {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         val content = content
         val item = content[index]
@@ -808,10 +811,10 @@ public class MutablePKeyList(
         @IntRange(from = 0) end: Int
     ) {
         if (start !in 0.._size || end !in 0.._size) {
-            throw IndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
+            throwIndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
         }
         if (end < start) {
-            throw IllegalArgumentException("Start ($start) is more than end ($end)")
+            throwIllegalArgumentException("Start ($start) is more than end ($end)")
         }
         if (end != start) {
             if (end < _size) {
@@ -868,7 +871,7 @@ public class MutablePKeyList(
         element: PKey
     ): PKey {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
+            throwIndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
         }
         val content = content
         val old = content[index]
