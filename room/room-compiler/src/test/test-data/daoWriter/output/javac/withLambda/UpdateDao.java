@@ -5,7 +5,9 @@ import androidx.annotation.Nullable;
 import androidx.room.EntityDeleteOrUpdateAdapter;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
+import androidx.room.RxRoom;
 import androidx.room.util.DBUtil;
+import androidx.room.util.SQLiteConnectionUtil;
 import androidx.sqlite.SQLiteStatement;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
@@ -22,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.Unit;
 
 @Generated("androidx.room.RoomProcessor")
 @SuppressWarnings({"unchecked", "deprecation", "removal"})
@@ -340,60 +343,42 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Completable ageUserAllCompletable() {
-    return Completable.fromCallable(new Callable<Void>() {
-      @Override
-      @Nullable
-      public Void call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
-        try {
-          _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return null;
-        } finally {
-          __db.endTransaction();
-        }
+    final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+    return RxRoom.createCompletable(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        _stmt.step();
+        return Unit.INSTANCE;
+      } finally {
+        _stmt.close();
       }
     });
   }
 
   @Override
   public Single<Integer> ageUserAllSingle() {
-    return Single.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
-        try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
-        } finally {
-          __db.endTransaction();
-        }
+    final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+    return RxRoom.createSingle(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        _stmt.step();
+        return SQLiteConnectionUtil.getTotalChangedRows(_connection);
+      } finally {
+        _stmt.close();
       }
     });
   }
 
   @Override
   public Maybe<Integer> ageUserAllMaybe() {
-    return Maybe.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        __db.beginTransaction();
-        try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
-        } finally {
-          __db.endTransaction();
-        }
+    final String _sql = "UPDATE User SET ageColumn = ageColumn + 1";
+    return RxRoom.createMaybe(__db, false, true, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        _stmt.step();
+        return SQLiteConnectionUtil.getTotalChangedRows(_connection);
+      } finally {
+        _stmt.close();
       }
     });
   }

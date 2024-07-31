@@ -18,10 +18,11 @@ package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
+import androidx.room.solver.prepared.binder.LambdaPreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 
 open class RxPreparedQueryResultBinderProvider
@@ -45,12 +46,11 @@ internal constructor(val context: Context, private val rxType: RxType) :
             context.logger.e(rxType.version.missingArtifactMessage)
         }
         val typeArg = extractTypeArg(declared)
-        return createPreparedBinder(
+        return LambdaPreparedQueryResultBinder(
             returnType = typeArg,
+            functionName = rxType.factoryMethodName,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
-        ) { callableImpl, _ ->
-            addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
-        }
+        )
     }
 
     open fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
@@ -83,16 +83,17 @@ private class RxCompletablePreparedQueryResultBinderProvider(context: Context, r
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void (nullable). Like
-     * this, the generated Callable.call method will return Void.
+     * Since Completable has no type argument, the supported return type is Unit (non-nullable)
+     * since the 'createCompletable" factory method take a Kotlin lambda.
      */
-    override fun extractTypeArg(declared: XType): XType = context.COMMON_TYPES.VOID.makeNullable()
+    override fun extractTypeArg(declared: XType): XType =
+        context.processingEnv.requireType(KotlinTypeNames.UNIT)
 }
 
 private class RxSingleOrMaybePreparedQueryResultBinderProvider(context: Context, rxType: RxType) :
     RxPreparedQueryResultBinderProvider(context, rxType) {
 
-    /** Since Maybe can have null values, the Callable returned must allow for null values. */
+    /** Since Maybe can have null values, the lambda returned must allow for null values. */
     override fun extractTypeArg(declared: XType): XType =
         declared.typeArguments.first().makeNullable()
 }
