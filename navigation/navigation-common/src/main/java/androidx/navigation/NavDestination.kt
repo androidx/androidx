@@ -356,7 +356,12 @@ public open class NavDestination(
         val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
         val matchingDeepLink =
             if (this is NavGraph) {
-                matchDeepLinkExcludingChildren(request)
+                matchDeepLinkComprehensive(
+                    request,
+                    searchChildren = false,
+                    searchParent = false,
+                    lastVisited = this
+                )
             } else {
                 matchDeepLink(request)
             }
