@@ -64,24 +64,48 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         }
     }
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public override fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
+    /**
+     * Matches deeplink with all children and parents recursively.
+     *
+     * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
+     */
+    internal fun matchDeepLinkComprehensive(
+        navDeepLinkRequest: NavDeepLinkRequest,
+        searchChildren: Boolean,
+        searchParent: Boolean,
+        lastVisited: NavDestination
+    ): DeepLinkMatch? {
         // First search through any deep links directly added to this NavGraph
         val bestMatch = super.matchDeepLink(navDeepLinkRequest)
-        // Then search through all child destinations for a matching deep link
-        val bestChildMatch =
-            mapNotNull { child -> child.matchDeepLink(navDeepLinkRequest) }.maxOrNull()
 
-        return listOfNotNull(bestMatch, bestChildMatch).maxOrNull()
+        // If searchChildren is true, search through all child destinations for a matching deeplink
+        val bestChildMatch =
+            if (searchChildren) {
+                mapNotNull { child ->
+                        if (child != lastVisited) child.matchDeepLink(navDeepLinkRequest) else null
+                    }
+                    .maxOrNull()
+            } else null
+
+        // If searchParent is true, search through all parents (and their children) destinations
+        // for a matching deeplink
+        val bestParentMatch =
+            parent?.let {
+                if (searchParent && it != lastVisited)
+                    it.matchDeepLinkComprehensive(navDeepLinkRequest, searchChildren, true, this)
+                else null
+            }
+        return listOfNotNull(bestMatch, bestChildMatch, bestParentMatch).maxOrNull()
     }
 
-    /**
-     * Only searches through deep links added directly to this graph. Does not recursively search
-     * through its children as [matchDeepLink] does.
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun matchDeepLinkExcludingChildren(request: NavDeepLinkRequest): DeepLinkMatch? =
-        super.matchDeepLink(request)
+    public override fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? =
+        matchDeepLinkComprehensive(
+            navDeepLinkRequest,
+            searchChildren = true,
+            searchParent = false,
+            lastVisited = this
+        )
 
     /**
      * Adds a destination to this NavGraph. The destination must have an [NavDestination.id] id}
