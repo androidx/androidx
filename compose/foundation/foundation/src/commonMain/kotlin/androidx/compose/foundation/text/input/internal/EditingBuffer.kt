@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.input.PlacedAnnotation
 import androidx.compose.foundation.text.input.TextHighlightType
 import androidx.compose.runtime.collection.MutableVector
@@ -54,7 +55,7 @@ internal class EditingBuffer(
     /** The inclusive selection start offset */
     var selectionStart = selection.start
         private set(value) {
-            require(value >= 0) { "Cannot set selectionStart to a negative value: $value" }
+            requirePrecondition(value >= 0) { "Cannot set selectionStart to a negative value" }
             field = value
             highlight = null
         }
@@ -62,7 +63,7 @@ internal class EditingBuffer(
     /** The exclusive selection end offset */
     var selectionEnd = selection.end
         private set(value) {
-            require(value >= 0) { "Cannot set selectionEnd to a negative value: $value" }
+            requirePrecondition(value >= 0) { "Cannot set selectionEnd to a negative value" }
             field = value
             highlight = null
         }

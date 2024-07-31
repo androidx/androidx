@@ -33,6 +33,7 @@ import androidx.compose.foundation.gestures.DefaultScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
@@ -118,7 +119,7 @@ internal class SnapFlingBehavior(
                 val initialOffset =
                     snapLayoutInfoProvider.calculateApproachOffset(initialVelocity, decayOffset)
 
-                check(!initialOffset.isNaN()) {
+                checkPrecondition(!initialOffset.isNaN()) {
                     "calculateApproachOffset returned NaN. Please use a valid value."
                 }
 
@@ -136,7 +137,7 @@ internal class SnapFlingBehavior(
                 val finalSnapOffset =
                     snapLayoutInfoProvider.calculateSnapOffset(animationState.velocity)
 
-                check(!finalSnapOffset.isNaN()) {
+                checkPrecondition(!finalSnapOffset.isNaN()) {
                     "calculateSnapOffset returned NaN. Please use a valid value."
                 }
 

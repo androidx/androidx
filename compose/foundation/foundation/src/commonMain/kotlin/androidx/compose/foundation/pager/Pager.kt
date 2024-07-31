@@ -30,6 +30,7 @@ import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateFinalSnappingBound
 import androidx.compose.foundation.gestures.snapping.snapFlingBehavior
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -293,7 +294,7 @@ object PagerDefaults {
             ),
         @FloatRange(from = 0.0, to = 1.0) snapPositionalThreshold: Float = 0.5f
     ): TargetedFlingBehavior {
-        require(snapPositionalThreshold in 0f..1f) {
+        requirePrecondition(snapPositionalThreshold in 0f..1f) {
             "snapPositionalThreshold should be a number between 0 and 1. " +
                 "You've specified $snapPositionalThreshold"
         }

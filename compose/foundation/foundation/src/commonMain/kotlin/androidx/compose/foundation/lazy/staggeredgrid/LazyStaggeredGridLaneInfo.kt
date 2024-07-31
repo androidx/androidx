@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.internal.requirePrecondition
+
 /**
  * Utility class to remember grid lane assignments in a sliding window relative to requested item
  * position (usually reflected by scroll position). Remembers the maximum range of remembered items
@@ -31,7 +33,7 @@ internal class LazyStaggeredGridLaneInfo {
 
     /** Sets given lane for given item index. */
     fun setLane(itemIndex: Int, lane: Int) {
-        require(itemIndex >= 0) { "Negative lanes are not supported" }
+        requirePrecondition(itemIndex >= 0) { "Negative lanes are not supported" }
         ensureValidIndex(itemIndex)
         lanes[itemIndex - anchor] = lane + 1
     }
@@ -185,7 +187,7 @@ internal class LazyStaggeredGridLaneInfo {
     }
 
     private fun ensureCapacity(capacity: Int, newOffset: Int = 0) {
-        require(capacity <= MaxCapacity) {
+        requirePrecondition(capacity <= MaxCapacity) {
             "Requested item capacity $capacity is larger than max supported: $MaxCapacity!"
         }
         if (lanes.size < capacity) {

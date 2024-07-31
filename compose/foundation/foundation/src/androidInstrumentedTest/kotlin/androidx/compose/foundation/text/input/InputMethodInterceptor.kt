@@ -19,6 +19,7 @@ package androidx.compose.foundation.text.input
 import android.os.Looper
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
+import androidx.compose.foundation.internal.checkPreconditionNotNull
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.InterceptPlatformTextInput
@@ -149,7 +150,7 @@ class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
     fun withInputConnection(block: InputConnection.() -> Unit) {
         runOnIdle {
             val inputConnection =
-                checkNotNull(inputConnection) {
+                checkPreconditionNotNull(inputConnection) {
                     "Tried to read inputConnection while no session was active"
                 }
             block(inputConnection)

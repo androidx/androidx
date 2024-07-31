@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.input.TextFieldBuffer.ChangeList
 import androidx.compose.foundation.text.input.internal.ChangeTracker
 import androidx.compose.foundation.text.input.internal.OffsetMappingCalculator
@@ -162,8 +163,10 @@ internal constructor(
         textStart: Int = 0,
         textEnd: Int = text.length
     ) {
-        require(start <= end) { "Expected start=$start <= end=$end" }
-        require(textStart <= textEnd) { "Expected textStart=$textStart <= textEnd=$textEnd" }
+        requirePrecondition(start <= end) { "Expected start=$start <= end=$end" }
+        requirePrecondition(textStart <= textEnd) {
+            "Expected textStart=$textStart <= textEnd=$textEnd"
+        }
         onTextWillChange(start, end, textEnd - textStart)
         buffer.replace(start, end, text, textStart, textEnd)
     }
@@ -341,12 +344,12 @@ internal constructor(
         val start = if (startExclusive) 0 else -1
         val end = if (endExclusive) length else length + 1
 
-        require(index in start until end) { "Expected $index to be in [$start, $end)" }
+        requirePrecondition(index in start until end) { "Expected $index to be in [$start, $end)" }
     }
 
     private fun requireValidRange(range: TextRange) {
         val validRange = TextRange(0, length)
-        require(range in validRange) { "Expected $range to be in $validRange" }
+        requirePrecondition(range in validRange) { "Expected $range to be in $validRange" }
     }
 
     /**

@@ -709,7 +709,7 @@ class CanvasDrawScope : DrawScope {
     internal data class DrawParams(
         var density: Density = DefaultDensity,
         var layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-        var canvas: Canvas = EmptyCanvas(),
+        var canvas: Canvas = EmptyCanvas,
         var size: Size = Size.Zero
     )
 }

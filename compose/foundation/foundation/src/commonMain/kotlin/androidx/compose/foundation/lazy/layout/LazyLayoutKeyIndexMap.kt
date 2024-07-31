@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.layout
 import androidx.collection.MutableObjectIntMap
 import androidx.collection.ObjectIntMap
 import androidx.collection.emptyObjectIntMap
+import androidx.compose.foundation.internal.checkPrecondition
 
 /**
  * A key-index mapping used inside the [LazyLayoutItemProvider]. It might not contain all items in
@@ -58,7 +59,7 @@ internal class NearestRangeKeyIndexMap(
         // all the indexes in the passed [range].
         val list = intervalContent.intervals
         val first = nearestRange.first
-        check(first >= 0) { "negative nearestRange.first" }
+        checkPrecondition(first >= 0) { "negative nearestRange.first" }
         val last = minOf(nearestRange.last, list.size - 1)
         if (last < first) {
             map = emptyObjectIntMap()

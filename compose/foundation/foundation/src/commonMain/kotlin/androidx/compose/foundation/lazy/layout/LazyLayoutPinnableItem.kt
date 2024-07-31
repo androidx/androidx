@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -141,7 +142,7 @@ private class LazyLayoutPinnableItem(
     }
 
     override fun release() {
-        check(pinsCount > 0) { "Release should only be called once" }
+        checkPrecondition(pinsCount > 0) { "Release should only be called once" }
         pinsCount--
         if (pinsCount == 0) {
             pinnedItemList.release(this)

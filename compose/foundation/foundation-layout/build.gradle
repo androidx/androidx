@@ -122,4 +122,7 @@ androidx {
 android {
     compileSdk 35
     namespace "androidx.compose.foundation.layout"
+    buildTypes.configureEach {
+        consumerProguardFiles("proguard-rules.pro")
+    }
 }

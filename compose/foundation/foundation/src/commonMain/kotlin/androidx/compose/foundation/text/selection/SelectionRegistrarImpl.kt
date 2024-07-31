@@ -20,6 +20,7 @@ import androidx.collection.LongObjectMap
 import androidx.collection.emptyLongObjectMap
 import androidx.collection.mutableLongObjectMapOf
 import androidx.compose.foundation.AtomicLong
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
@@ -99,10 +100,10 @@ internal class SelectionRegistrarImpl private constructor(initialIncrementId: Lo
     override var subselections: LongObjectMap<Selection> by mutableStateOf(emptyLongObjectMap())
 
     override fun subscribe(selectable: Selectable): Selectable {
-        require(selectable.selectableId != SelectionRegistrar.InvalidSelectableId) {
+        requirePrecondition(selectable.selectableId != SelectionRegistrar.InvalidSelectableId) {
             "The selectable contains an invalid id: ${selectable.selectableId}"
         }
-        require(!_selectableMap.containsKey(selectable.selectableId)) {
+        requirePrecondition(!_selectableMap.containsKey(selectable.selectableId)) {
             "Another selectable with the id: $selectable.selectableId has already subscribed."
         }
         _selectableMap[selectable.selectableId] = selectable

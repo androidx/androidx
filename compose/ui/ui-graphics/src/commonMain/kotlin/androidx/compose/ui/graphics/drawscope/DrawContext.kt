@@ -47,7 +47,7 @@ interface DrawContext {
 
     /** The target canvas to issue drawing commands */
     var canvas: Canvas
-        get() = EmptyCanvas()
+        get() = EmptyCanvas
         set(_) {}
 
     /** The controller for issuing transformations to the drawing environment */

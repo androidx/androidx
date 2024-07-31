@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.input.PlacedAnnotation
@@ -148,7 +149,7 @@ internal fun EditingBuffer.setComposingText(
  *   be non-negative.
  */
 internal fun EditingBuffer.deleteSurroundingText(lengthBeforeCursor: Int, lengthAfterCursor: Int) {
-    require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
+    requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
     }
@@ -182,7 +183,7 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
     lengthBeforeCursor: Int,
     lengthAfterCursor: Int
 ) {
-    require(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
+    requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
     }

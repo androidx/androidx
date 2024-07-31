@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.graphics.layer.setOutline
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.internal.checkPreconditionNotNull
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.GraphicLayerInfo
 import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.unit.Density
@@ -351,10 +353,12 @@ internal class GraphicsLayerOwnerLayer(
         invalidateParentLayer: () -> Unit
     ) {
         val context =
-            requireNotNull(context) {
+            checkPreconditionNotNull(context) {
                 "currently reuse is only supported when we manage the layer lifecycle"
             }
-        require(graphicsLayer.isReleased) { "layer should have been released before reuse" }
+        requirePrecondition(graphicsLayer.isReleased) {
+            "layer should have been released before reuse"
+        }
 
         // recreate a layer
         graphicsLayer = context.createGraphicsLayer()

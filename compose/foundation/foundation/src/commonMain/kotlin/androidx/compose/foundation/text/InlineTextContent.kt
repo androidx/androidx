@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.text.AnnotatedString
@@ -48,7 +49,7 @@ fun AnnotatedString.Builder.appendInlineContent(
     id: String,
     alternateText: String = REPLACEMENT_CHAR
 ) {
-    require(alternateText.isNotEmpty()) { "alternateText can't be an empty string." }
+    requirePrecondition(alternateText.isNotEmpty()) { "alternateText can't be an empty string." }
     pushStringAnnotation(INLINE_CONTENT_TAG, id)
     append(alternateText)
     pop()

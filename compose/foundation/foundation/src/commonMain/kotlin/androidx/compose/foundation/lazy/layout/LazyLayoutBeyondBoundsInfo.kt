@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.collection.mutableVectorOf
 
 /**
@@ -76,7 +77,7 @@ internal class LazyLayoutBeyondBoundsInfo {
                     minIndex = it.start
                 }
             }
-            require(minIndex >= 0) { "negative minIndex" }
+            requirePrecondition(minIndex >= 0) { "negative minIndex" }
             return minIndex
         }
 
@@ -101,8 +102,8 @@ internal class LazyLayoutBeyondBoundsInfo {
         val end: Int
     ) {
         init {
-            require(start >= 0) { "negative start index" }
-            require(end >= start) { "end index greater than start" }
+            requirePrecondition(start >= 0) { "negative start index" }
+            requirePrecondition(end >= start) { "end index greater than start" }
         }
     }
 }

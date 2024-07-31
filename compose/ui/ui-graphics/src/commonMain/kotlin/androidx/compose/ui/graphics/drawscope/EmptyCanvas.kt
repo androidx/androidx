@@ -36,8 +36,7 @@ import androidx.compose.ui.unit.IntSize
  * thrown at runtime. During normal use, the canvas used within [DrawScope] is consuming a valid
  * Canvas that draws content into a valid destination
  */
-internal class EmptyCanvas : Canvas {
-
+internal object EmptyCanvas : Canvas {
     override fun save() {
         throw UnsupportedOperationException()
     }

@@ -16,7 +16,9 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
@@ -65,7 +67,7 @@ sealed interface LazyLayoutMeasureScope : MeasureScope {
 
     @Stable
     override fun TextUnit.toDp(): Dp {
-        check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        checkPrecondition(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
         return Dp(value * fontScale)
     }
 
@@ -109,7 +111,7 @@ internal constructor(
      * A cache of the previously composed items. It allows us to support [get] re-executions with
      * the same index during the same measure pass.
      */
-    private val placeablesCache = hashMapOf<Int, List<Placeable>>()
+    private val placeablesCache = mutableIntObjectMapOf<List<Placeable>>()
 
     override fun measure(index: Int, constraints: Constraints): List<Placeable> {
         val cachedPlaceable = placeablesCache[index]

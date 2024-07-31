@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.ModifierNodeElement
@@ -205,7 +206,7 @@ private class LazyLayoutSemanticsModifierNode(
             if (userScrollEnabled) {
                 { index ->
                     val itemProvider = itemProviderLambda()
-                    require(index >= 0 && index < itemProvider.itemCount) {
+                    requirePrecondition(index >= 0 && index < itemProvider.itemCount) {
                         "Can't scroll to index $index, it is out of " +
                             "bounds [0, ${itemProvider.itemCount})"
                     }

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.annotation.IntRange
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.runtime.Immutable
 
 /** Represents the span of an item in a [LazyVerticalGrid] or a [LazyHorizontalGrid]. */
@@ -36,7 +37,7 @@ value class GridItemSpan internal constructor(private val packedValue: Long) {
  * an item of a [LazyVerticalGrid] and the vertical span for a [LazyHorizontalGrid].
  */
 fun GridItemSpan(@IntRange(from = 1) currentLineSpan: Int): GridItemSpan {
-    require(currentLineSpan > 0) { "The span value should be higher than 0" }
+    requirePrecondition(currentLineSpan > 0) { "The span value should be higher than 0" }
     return GridItemSpan(currentLineSpan.toLong())
 }
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.layout.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
@@ -218,7 +219,7 @@ internal fun RowColumnMeasurePolicy.measure(
                         parentData?.flowLayoutData?.let {
                             (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
                         }
-                check(weight > 0) { "All weights <= 0 should have placeables" }
+                checkPrecondition(weight > 0) { "All weights <= 0 should have placeables" }
                 // After the weightUnitSpace rounding, the total space going to be occupied
                 // can be smaller or larger than remainingToTarget. Here we distribute the
                 // loss or gain remainder evenly to the first children.

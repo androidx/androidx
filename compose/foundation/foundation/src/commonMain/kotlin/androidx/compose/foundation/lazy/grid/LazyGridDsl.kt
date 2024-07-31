@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -155,7 +156,7 @@ private fun rememberColumnWidthSums(
         contentPadding,
     ) {
         GridSlotCache { constraints ->
-            require(constraints.maxWidth != Constraints.Infinity) {
+            requirePrecondition(constraints.maxWidth != Constraints.Infinity) {
                 "LazyVerticalGrid's width should be bound by parent."
             }
             val horizontalPadding =
@@ -189,7 +190,7 @@ private fun rememberRowHeightSums(
         contentPadding,
     ) {
         GridSlotCache { constraints ->
-            require(constraints.maxHeight != Constraints.Infinity) {
+            requirePrecondition(constraints.maxHeight != Constraints.Infinity) {
                 "LazyHorizontalGrid's height should be bound by parent."
             }
             val verticalPadding =
@@ -269,7 +270,7 @@ interface GridCells {
      */
     class Fixed(private val count: Int) : GridCells {
         init {
-            require(count > 0) { "Provided count $count should be larger than zero" }
+            requirePrecondition(count > 0) { "Provided count should be larger than zero" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -298,7 +299,7 @@ interface GridCells {
      */
     class Adaptive(private val minSize: Dp) : GridCells {
         init {
-            require(minSize > 0.dp) { "Provided min size $minSize should be larger than zero." }
+            requirePrecondition(minSize > 0.dp) { "Provided min size should be larger than zero." }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -331,7 +332,7 @@ interface GridCells {
      */
     class FixedSize(private val size: Dp) : GridCells {
         init {
-            require(size > 0.dp) { "Provided size $size should be larger than zero." }
+            requirePrecondition(size > 0.dp) { "Provided size should be larger than zero." }
         }
 
         override fun Density.calculateCrossAxisCellSizes(

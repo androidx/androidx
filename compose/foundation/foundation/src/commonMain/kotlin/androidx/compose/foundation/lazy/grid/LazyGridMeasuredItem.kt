@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
 import androidx.compose.ui.graphics.layer.GraphicsLayer
@@ -181,7 +182,7 @@ internal class LazyGridMeasuredItem(
         scope: Placeable.PlacementScope,
     ) =
         with(scope) {
-            require(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
             repeat(placeablesCount) { index ->
                 val placeable = placeables[index]
                 val minOffset = minMainAxisOffset - placeable.mainAxisSize

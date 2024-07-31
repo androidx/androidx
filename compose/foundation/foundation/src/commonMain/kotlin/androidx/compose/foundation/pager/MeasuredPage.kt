@@ -17,6 +17,8 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
@@ -67,14 +69,14 @@ internal class MeasuredPage(
             val indexInArray = index * 2
             if (isVertical) {
                 placeableOffsets[indexInArray] =
-                    requireNotNull(horizontalAlignment) { "null horizontalAlignment" }
+                    requirePreconditionNotNull(horizontalAlignment) { "null horizontalAlignment" }
                         .align(placeable.width, layoutWidth, layoutDirection)
                 placeableOffsets[indexInArray + 1] = mainAxisOffset
                 mainAxisOffset += placeable.height
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
                 placeableOffsets[indexInArray + 1] =
-                    requireNotNull(verticalAlignment) { "null verticalAlignment" }
+                    requirePreconditionNotNull(verticalAlignment) { "null verticalAlignment" }
                         .align(placeable.height, layoutHeight)
                 mainAxisOffset += placeable.width
             }
@@ -83,7 +85,7 @@ internal class MeasuredPage(
 
     fun place(scope: Placeable.PlacementScope) =
         with(scope) {
-            require(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
             repeat(placeables.size) { index ->
                 val placeable = placeables[index]
                 var offset = getOffset(index)

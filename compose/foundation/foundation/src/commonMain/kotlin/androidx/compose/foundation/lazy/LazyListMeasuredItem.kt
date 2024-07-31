@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimation.Companion.NotInitialized
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItem
@@ -128,7 +130,7 @@ constructor(
             val indexInArray = index * 2
             if (isVertical) {
                 placeableOffsets[indexInArray] =
-                    requireNotNull(horizontalAlignment) {
+                    requirePreconditionNotNull(horizontalAlignment) {
                             "null horizontalAlignment when isVertical == true"
                         }
                         .align(placeable.width, layoutWidth, layoutDirection)
@@ -137,7 +139,7 @@ constructor(
             } else {
                 placeableOffsets[indexInArray] = mainAxisOffset
                 placeableOffsets[indexInArray + 1] =
-                    requireNotNull(verticalAlignment) {
+                    requirePreconditionNotNull(verticalAlignment) {
                             "null verticalAlignment when isVertical == false"
                         }
                         .align(placeable.height, layoutHeight)
@@ -184,7 +186,7 @@ constructor(
 
     fun place(scope: Placeable.PlacementScope, isLookingAhead: Boolean) =
         with(scope) {
-            require(mainAxisLayoutSize != Unset) { "position() should be called first" }
+            requirePrecondition(mainAxisLayoutSize != Unset) { "position() should be called first" }
             repeat(placeablesCount) { index ->
                 val placeable = placeables[index]
                 val minOffset = minMainAxisOffset - placeable.mainAxisSize

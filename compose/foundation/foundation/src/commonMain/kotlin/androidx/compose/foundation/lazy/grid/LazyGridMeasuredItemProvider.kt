@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasuredItemProvider
@@ -62,7 +63,7 @@ internal abstract class LazyGridMeasuredItemProvider(
             if (constraints.hasFixedWidth) {
                 constraints.minWidth
             } else {
-                require(constraints.hasFixedHeight) { "does not have fixed height" }
+                requirePrecondition(constraints.hasFixedHeight) { "does not have fixed height" }
                 constraints.minHeight
             }
         return createItem(

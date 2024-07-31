@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -397,7 +398,7 @@ internal class TextStringSimpleNode(
 
         val layoutCache = getLayoutCache(this)
         val localParagraph =
-            requireNotNull(layoutCache.paragraph) {
+            requirePreconditionNotNull(layoutCache.paragraph) {
                 "no paragraph (layoutCache=$_layoutCache, textSubstitution=$textSubstitution)"
             }
 

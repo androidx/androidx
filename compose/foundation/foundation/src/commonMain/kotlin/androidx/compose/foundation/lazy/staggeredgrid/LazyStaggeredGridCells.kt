@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.staggeredgrid
 
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Density
@@ -54,7 +55,7 @@ interface StaggeredGridCells {
      */
     class Fixed(private val count: Int) : StaggeredGridCells {
         init {
-            require(count > 0) { "grid with no rows/columns" }
+            requirePrecondition(count > 0) { "grid with no rows/columns" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -84,7 +85,7 @@ interface StaggeredGridCells {
      */
     class Adaptive(private val minSize: Dp) : StaggeredGridCells {
         init {
-            require(minSize > 0.dp) { "invalid minSize" }
+            requirePrecondition(minSize > 0.dp) { "invalid minSize" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(

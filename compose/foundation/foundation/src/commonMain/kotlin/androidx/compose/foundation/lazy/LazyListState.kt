@@ -31,6 +31,7 @@ import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.internal.checkPrecondition
 import androidx.compose.foundation.lazy.LazyListState.Companion.Saver
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
@@ -400,8 +401,8 @@ constructor(
         if (distance < 0 && !canScrollForward || distance > 0 && !canScrollBackward) {
             return 0f
         }
-        check(abs(scrollToBeConsumed) <= 0.5f) {
-            "entered drag with non-zero pending scroll: $scrollToBeConsumed"
+        checkPrecondition(abs(scrollToBeConsumed) <= 0.5f) {
+            "entered drag with non-zero pending scroll"
         }
         scrollToBeConsumed += distance
 

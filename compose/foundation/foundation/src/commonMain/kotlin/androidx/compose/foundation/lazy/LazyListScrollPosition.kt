@@ -17,6 +17,8 @@
 package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
 import androidx.compose.runtime.getValue
@@ -54,7 +56,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
         if (hadFirstNotEmptyLayout || measureResult.totalItemsCount > 0) {
             hadFirstNotEmptyLayout = true
             val scrollOffset = measureResult.firstVisibleItemScrollOffset
-            check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
+            checkPrecondition(scrollOffset >= 0f) { "scrollOffset should be non-negative" }
 
             val firstIndex = measureResult.firstVisibleItem?.index ?: 0
             update(firstIndex, scrollOffset)
@@ -62,7 +64,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
     }
 
     fun updateScrollOffset(scrollOffset: Int) {
-        check(scrollOffset >= 0f) { "scrollOffset should be non-negative ($scrollOffset)" }
+        checkPrecondition(scrollOffset >= 0f) { "scrollOffset should be non-negative" }
         this.scrollOffset = scrollOffset
     }
 
@@ -103,7 +105,7 @@ internal class LazyListScrollPosition(initialIndex: Int = 0, initialScrollOffset
     }
 
     private fun update(index: Int, scrollOffset: Int) {
-        require(index >= 0f) { "Index should be non-negative ($index)" }
+        requirePrecondition(index >= 0f) { "Index should be non-negative ($index)" }
         this.index = index
         nearestRangeState.update(index)
         this.scrollOffset = scrollOffset

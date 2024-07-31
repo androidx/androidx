@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.collection.IntIntPair
 import androidx.collection.mutableIntListOf
 import androidx.collection.mutableIntObjectMapOf
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collection.MutableVector
@@ -254,10 +255,9 @@ interface FlowColumnOverflowScope : FlowColumnScope {
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope {
     override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
-        require(fraction >= 0.0) {
-            "invalid fraction $fraction; must be greater than " + "or equal to zero"
+        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+            "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,
@@ -285,10 +285,9 @@ internal class FlowColumnOverflowScopeImpl(private val state: FlowLayoutOverflow
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope {
     override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
-        require(fraction >= 0.0) {
-            "invalid fraction $fraction; must be greater than or " + "equal to zero"
+        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+            "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,
@@ -1457,7 +1456,7 @@ internal fun MeasureScope.placeHelper(
     var totalCrossAxisSize = crossAxisTotalSize
     // cross axis arrangement
     if (isHorizontal) {
-        with(requireNotNull(verticalArrangement) { "null verticalArrangement" }) {
+        with(verticalArrangement) {
             val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
             totalCrossAxisSize += totalCrossAxisSpacing
             totalCrossAxisSize =
@@ -1465,7 +1464,7 @@ internal fun MeasureScope.placeHelper(
             arrange(totalCrossAxisSize, crossAxisSizes, outPosition)
         }
     } else {
-        with(requireNotNull(horizontalArrangement) { "null horizontalArrangement" }) {
+        with(horizontalArrangement) {
             val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
             totalCrossAxisSize += totalCrossAxisSpacing
             totalCrossAxisSize =
@@ -1477,8 +1476,8 @@ internal fun MeasureScope.placeHelper(
     val finalMainAxisTotalSize =
         mainAxisTotalSize.coerceIn(constraints.mainAxisMin, constraints.mainAxisMax)
 
-    var layoutWidth: Int
-    var layoutHeight: Int
+    val layoutWidth: Int
+    val layoutHeight: Int
     if (isHorizontal) {
         layoutWidth = finalMainAxisTotalSize
         layoutHeight = totalCrossAxisSize

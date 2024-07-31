@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -333,10 +334,9 @@ internal class ContextualFlowRowScopeImpl(
     override val maxHeight: Dp
 ) : RowScope by RowScopeInstance, ContextualFlowRowScope {
     override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
-        require(fraction >= 0.0) {
-            "invalid fraction $fraction; must be greater than " + "or equal to zero"
+        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+            "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,
@@ -353,10 +353,9 @@ internal class ContextualFlowColumnScopeImpl(
     override val maxHeightInLine: Dp
 ) : ColumnScope by ColumnScopeInstance, ContextualFlowColumnScope {
     override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
-        require(fraction >= 0.0) {
-            "invalid fraction $fraction; must be greater than or " + "equal to zero"
+        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+            "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " + "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,

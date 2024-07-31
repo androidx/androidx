@@ -17,6 +17,7 @@
 package androidx.compose.foundation.layout
 
 import androidx.compose.foundation.layout.PaddingValues.Absolute
+import androidx.compose.foundation.layout.internal.requirePrecondition
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
@@ -202,10 +203,10 @@ interface PaddingValues {
     ) : PaddingValues {
 
         init {
-            require(left.value >= 0) { "Left padding must be non-negative" }
-            require(top.value >= 0) { "Top padding must be non-negative" }
-            require(right.value >= 0) { "Right padding must be non-negative" }
-            require(bottom.value >= 0) { "Bottom padding must be non-negative" }
+            requirePrecondition(left.value >= 0) { "Left padding must be non-negative" }
+            requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
+            requirePrecondition(right.value >= 0) { "Right padding must be non-negative" }
+            requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
         }
 
         override fun calculateLeftPadding(layoutDirection: LayoutDirection) = left
@@ -290,10 +291,10 @@ internal class PaddingValuesImpl(
 ) : PaddingValues {
 
     init {
-        require(start.value >= 0) { "Start padding must be non-negative" }
-        require(top.value >= 0) { "Top padding must be non-negative" }
-        require(end.value >= 0) { "End padding must be non-negative" }
-        require(bottom.value >= 0) { "Bottom padding must be non-negative" }
+        requirePrecondition(start.value >= 0) { "Start padding must be non-negative" }
+        requirePrecondition(top.value >= 0) { "Top padding must be non-negative" }
+        requirePrecondition(end.value >= 0) { "End padding must be non-negative" }
+        requirePrecondition(bottom.value >= 0) { "Bottom padding must be non-negative" }
     }
 
     override fun calculateLeftPadding(layoutDirection: LayoutDirection) =
@@ -330,7 +331,7 @@ private class PaddingElement(
 ) : ModifierNodeElement<PaddingNode>() {
 
     init {
-        require(
+        requirePrecondition(
             (start.value >= 0f || start == Dp.Unspecified) &&
                 (top.value >= 0f || top == Dp.Unspecified) &&
                 (end.value >= 0f || end == Dp.Unspecified) &&
@@ -435,7 +436,7 @@ private class PaddingValuesModifier(var paddingValues: PaddingValues) :
         measurable: Measurable,
         constraints: Constraints
     ): MeasureResult {
-        require(
+        requirePrecondition(
             paddingValues.calculateLeftPadding(layoutDirection) >= 0.dp &&
                 paddingValues.calculateTopPadding() >= 0.dp &&
                 paddingValues.calculateRightPadding(layoutDirection) >= 0.dp &&

@@ -21,6 +21,7 @@ import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -243,12 +244,12 @@ private fun rememberLazyListMeasurePolicy(
 
             val spaceBetweenItemsDp =
                 if (isVertical) {
-                    requireNotNull(verticalArrangement) {
+                    requirePreconditionNotNull(verticalArrangement) {
                             "null verticalArrangement when isVertical == true"
                         }
                         .spacing
                 } else {
-                    requireNotNull(horizontalArrangement) {
+                    requirePreconditionNotNull(horizontalArrangement) {
                             "null horizontalAlignment when isVertical == false"
                         }
                         .spacing

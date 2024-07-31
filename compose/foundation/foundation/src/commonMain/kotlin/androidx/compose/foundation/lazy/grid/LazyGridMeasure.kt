@@ -17,6 +17,9 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.internal.checkPrecondition
+import androidx.compose.foundation.internal.requirePrecondition
+import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
@@ -69,8 +72,8 @@ internal fun measureLazyGrid(
     prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyGridMeasureResult {
-    require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
-    require(afterContentPadding >= 0) { "negative afterContentPadding" }
+    requirePrecondition(beforeContentPadding >= 0) { "negative beforeContentPadding" }
+    requirePrecondition(afterContentPadding >= 0) { "negative afterContentPadding" }
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         var layoutWidth = constraints.minWidth
@@ -257,7 +260,7 @@ internal fun measureLazyGrid(
             }
 
         // the initial offset for lines from visibleLines list
-        require(currentFirstLineScrollOffset >= 0) { "negative initial offset" }
+        requirePrecondition(currentFirstLineScrollOffset >= 0) { "negative initial offset" }
         val visibleLinesScrollOffset = -currentFirstLineScrollOffset
         var firstLine = visibleLines.first()
 
@@ -438,24 +441,26 @@ private fun calculateItemsOffsets(
     val mainAxisLayoutSize = if (isVertical) layoutHeight else layoutWidth
     val hasSpareSpace = finalMainAxisOffset < min(mainAxisLayoutSize, maxOffset)
     if (hasSpareSpace) {
-        check(firstLineScrollOffset == 0) { "non-zero firstLineScrollOffset" }
+        checkPrecondition(firstLineScrollOffset == 0) { "non-zero firstLineScrollOffset" }
     }
 
     val positionedItems = ArrayList<LazyGridMeasuredItem>(lines.fastSumBy { it.items.size })
 
     if (hasSpareSpace) {
-        require(itemsBefore.isEmpty() && itemsAfter.isEmpty()) { "no items" }
+        requirePrecondition(itemsBefore.isEmpty() && itemsAfter.isEmpty()) { "no items" }
         val linesCount = lines.size
         fun Int.reverseAware() = if (!reverseLayout) this else linesCount - this - 1
 
         val sizes = IntArray(linesCount) { index -> lines[index.reverseAware()].mainAxisSize }
         val offsets = IntArray(linesCount) { 0 }
         if (isVertical) {
-            with(requireNotNull(verticalArrangement) { "null verticalArrangement" }) {
+            with(requirePreconditionNotNull(verticalArrangement) { "null verticalArrangement" }) {
                 density.arrange(mainAxisLayoutSize, sizes, offsets)
             }
         } else {
-            with(requireNotNull(horizontalArrangement) { "null horizontalArrangement" }) {
+            with(
+                requirePreconditionNotNull(horizontalArrangement) { "null horizontalArrangement" }
+            ) {
                 // Enforces Ltr layout direction as it is mirrored with placeRelative later.
                 density.arrange(mainAxisLayoutSize, sizes, LayoutDirection.Ltr, offsets)
             }
