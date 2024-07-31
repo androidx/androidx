@@ -47,6 +47,7 @@ androidXMultiplatform {
     jvmAndroidTest {
       dependencies {
         implementation(libs.junit)
+        implementation(libs.kotlinTest)
         implementation(libs.truth)
       }
     }
@@ -66,7 +67,12 @@ androidXMultiplatform {
     androidInstrumentedTest {
       dependsOn(jvmAndroidTest)
       dependencies {
+        implementation(libs.testExtJunit)
+        implementation(libs.testRules)
         implementation(libs.testRunner)
+        implementation(libs.espressoCore)
+        implementation(libs.junit)
+        implementation(libs.truth)
       }
     }
   }
@@ -74,6 +80,9 @@ androidXMultiplatform {
 
 android {
   namespace = "androidx.ink.geometry"
+  defaultConfig {
+    minSdkVersion 22 // temporary until API21 emulator issue is resolved
+  }
 }
 
 androidx {
