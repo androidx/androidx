@@ -189,6 +189,18 @@ object SemanticsProperties {
             }
         )
 
+    /**
+     * Marks a link within a text node (a link is represented by a
+     * [androidx.compose.ui.text.LinkAnnotation]) for identification during automated testing. This
+     * property is for internal use only and not intended for general use by developers.
+     */
+    val LinkTestMarker =
+        SemanticsPropertyKey<Unit>(
+            name = "LinkTestMarker",
+            isImportantForAccessibility = false,
+            mergePolicy = { parentValue, _ -> parentValue }
+        )
+
     /** @see SemanticsPropertyReceiver.text */
     val Text =
         AccessibilityKey<List<AnnotatedString>>(

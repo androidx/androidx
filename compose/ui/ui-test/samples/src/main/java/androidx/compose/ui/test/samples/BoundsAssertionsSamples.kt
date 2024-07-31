@@ -17,23 +17,17 @@
 package androidx.compose.ui.test.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getFirstLinkBounds
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performFirstLinkClick
 import androidx.compose.ui.test.performMouseInput
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.LinkAnnotation
 
 @Sampled
 fun touchInputOnFirstSpecificLinkInText() {
     // Example of clicking on a link in test
-    val firstLinkBounds =
-        composeTestRule.onNodeWithText("YOUR_TEXT_WITH_LINK").getFirstLinkBounds {
-            (it.item as? LinkAnnotation.Url)?.url == "YOUR_URL"
-        } ?: throw AssertionError("No link found with url YOUR_URL")
-
-    composeTestRule.onNodeWithText("YOUR_TEXT_WITH_LINK").performTouchInput {
-        click(firstLinkBounds.center)
+    composeTestRule.onNodeWithText("YOUR_TEXT_WITH_LINK").performFirstLinkClick {
+        (it.item as? LinkAnnotation.Url)?.url == "YOUR_URL"
     }
 }
 

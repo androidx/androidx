@@ -149,9 +149,6 @@ internal class SemanticsNodeWithAdjustedBounds(
 internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
     layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
 
-// TODO(mnuzen): refactor `currentSemanticsNodes` in the AccessibilityDelegate file to also use
-// IntObjectMap's. Then ACVADC can also call `getAllUncoveredSemanticsNodesToIntObjectMap` instead
-// of `getAllUncoveredSemanticsNodesToMap` as it does now.
 /**
  * Finds pruned [SemanticsNode]s in the tree owned by this [SemanticsOwner]. A semantics node
  * completely covered by siblings drawn on top of it will be pruned. Return the results in a map.
@@ -207,6 +204,12 @@ internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
             // if block.
             val children = currentNode.replacedChildren
             for (i in children.size - 1 downTo 0) {
+                // Links in text nodes are semantics children. But for Android accessibility support
+                // we don't publish them to the accessibility services because they are exposed
+                // as UrlSpan/ClickableSpan spans instead
+                if (children[i].config.contains(SemanticsProperties.LinkTestMarker)) {
+                    continue
+                }
                 findAllSemanticNodesRecursive(children[i], region)
             }
             if (currentNode.isImportantForAccessibility()) {

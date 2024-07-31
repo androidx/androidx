@@ -389,9 +389,6 @@ internal class TextAnnotatedStringNode(
         getTextLayoutResult(action = localSemanticsTextLayoutResult)
     }
 
-    override val shouldClearDescendantSemantics: Boolean
-        get() = true
-
     fun measureNonExtension(
         measureScope: MeasureScope,
         measurable: Measurable,

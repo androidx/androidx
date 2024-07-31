@@ -29,13 +29,18 @@ import androidx.compose.ui.semantics.SemanticsActions.CustomActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.HorizontalScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsProperties.IndexForKey
 import androidx.compose.ui.semantics.SemanticsProperties.VerticalScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFlatMap
 import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.sign
@@ -679,6 +684,39 @@ fun SemanticsNodeInteraction.performCustomAccessibilityActionWithLabelMatching(
     }
     matchingActions[0].action()
     return this
+}
+
+/**
+ * For a first link matching the [predicate] performs a click on it.
+ *
+ * A link in a Text composable is defined by a [LinkAnnotation] of the [AnnotatedString].
+ *
+ * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
+ * @see getFirstLinkBounds
+ */
+fun SemanticsNodeInteraction.performFirstLinkClick(
+    predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
+): SemanticsNodeInteraction {
+    val errorMessage = "Failed to click the link."
+    val node = fetchSemanticsNode(errorMessage)
+
+    val texts = node.config.getOrNull(SemanticsProperties.Text)
+    if (texts.isNullOrEmpty()) {
+        throw AssertionError("$errorMessage\n Reason: No text found on node.")
+    }
+    val linksInTexts = texts.fastFlatMap { text -> text.getLinkAnnotations(0, text.length) }
+    val linkChildren = node.children.fastFilter { it.isLink() }
+    val matchedLinkIndex = linksInTexts.indexOfFirst(predicate)
+    if (matchedLinkIndex != -1) {
+        linkChildren[matchedLinkIndex].config.getOrNull(SemanticsActions.OnClick)?.action?.invoke()
+    } else {
+        throw AssertionError("$errorMessage\n Reason: No link found that matches the predicate.")
+    }
+    return this
+}
+
+private fun SemanticsNode.isLink(): Boolean {
+    return config.contains(SemanticsProperties.LinkTestMarker)
 }
 
 // TODO(200928505): get a more accurate indication if it is a lazy list

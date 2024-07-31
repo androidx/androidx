@@ -183,13 +183,15 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLi
  * Returns the bounds of the first link matching the [predicate], or if that link spans multiple
  * lines, returns the bounds of the first line of the link.
  *
+ * A link in a Text composable is defined by a [LinkAnnotation] of the [AnnotatedString].
+ *
  * The bounds are in the text node's coordinate system.
  *
  * You can pass an offset from within the bounds to injection methods to operate them on the link,
  * for example [TouchInjectionScope.click] or [MouseInjectionScope.moveTo].
  *
  * @sample androidx.compose.ui.test.samples.hoverFirstLinkInText
- * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
+ * @see performFirstLinkClick
  */
 fun SemanticsNodeInteraction.getFirstLinkBounds(
     predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
