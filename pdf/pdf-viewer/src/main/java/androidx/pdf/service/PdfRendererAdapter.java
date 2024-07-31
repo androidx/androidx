@@ -29,11 +29,15 @@ import androidx.annotation.RestrictTo;
 import androidx.core.util.Supplier;
 
 import java.io.IOException;
+import java.util.Map;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class PdfRendererAdapter implements AutoCloseable {
     private PdfRenderer mPdfRenderer;
     private PdfRendererPreV mPdfRendererPreV;
+    @SuppressLint({"UseSparseArrays", "BanConcurrentHashMap"})
+    private final Map<Integer, PdfPageAdapter> mCachedPageMap =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     PdfRendererAdapter(@NonNull ParcelFileDescriptor parcelFileDescriptor,
@@ -50,13 +54,48 @@ class PdfRendererAdapter implements AutoCloseable {
         }
     }
 
-    /**  */
+    /**
+     * Caller should use {@link #releasePage(PdfPageAdapter, int)} to close the page resource
+     * reliably after usage.
+     */
     @NonNull
-    PdfPageAdapter openPage(int pageNum) {
+    PdfPageAdapter openPage(int pageNum, boolean useCache) {
         if (mPdfRenderer != null) {
+            if (useCache) {
+                return openPageWithCache(pageNum);
+            }
             return new PdfPageAdapter(mPdfRenderer, pageNum);
         }
         return new PdfPageAdapter(mPdfRendererPreV, pageNum);
+    }
+
+    @NonNull
+    private PdfPageAdapter openPageWithCache(int pageNum) {
+        if (mPdfRenderer != null) {
+            // Fetched either from cache or native layer.
+            PdfPageAdapter page = mCachedPageMap.get(pageNum);
+            if (page != null) {
+                return page;
+            }
+            page = new PdfPageAdapter(mPdfRenderer, pageNum);
+            mCachedPageMap.put(pageNum, page);
+            return page;
+        } else {
+            return new PdfPageAdapter(mPdfRendererPreV, pageNum);
+        }
+    }
+
+    /** Closes the page. Also removes and clears the cached instance, if held. */
+    public void releasePage(PdfPageAdapter pageAdapter, int pageNum) {
+        if (mPdfRenderer != null) {
+            if (pageAdapter != null) {
+                pageAdapter.close();
+            }
+            PdfPageAdapter removedPage = mCachedPageMap.remove(pageNum);
+            if (removedPage != null) {
+                removedPage.close();
+            }
+        }
     }
 
     @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release

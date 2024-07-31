@@ -384,6 +384,7 @@ public class PaginatedView extends AbstractPaginatedView {
             // even for pages we can't see right now. Form filling operations should always
             // be executed against the document, even if the user has scrolled away from the page.
             mPdfLoader.cancelExceptSearchAndFormFilling(page);
+            mPdfLoader.releasePage(page);
             if (clearViews) {
                 removeViewAt(page);
             }

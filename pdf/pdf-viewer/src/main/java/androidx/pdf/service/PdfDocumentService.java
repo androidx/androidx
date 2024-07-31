@@ -30,6 +30,7 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.ext.SdkExtensions;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -91,42 +92,49 @@ public class PdfDocumentService extends Service {
 
         @Override
         public Dimensions getPageDimensions(int pageNum) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+            PdfPageAdapter pageAdapter = null;
+            try {
+                pageAdapter = mAdapter.openPage(pageNum, false);
                 return new Dimensions(pageAdapter.getWidth(),
                         pageAdapter.getHeight());
+            } finally {
+                mAdapter.releasePage(pageAdapter, pageNum);
             }
         }
 
         @Override
         public Bitmap renderPage(int pageNum, int pageWidth, int pageHeight,
                 boolean hideTextAnnots) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
-                Bitmap output = Bitmap.createBitmap(pageWidth, pageHeight, Bitmap.Config.ARGB_8888);
-                output.eraseColor(Color.WHITE);
-                pageAdapter.render(output);
-                return output;
-            }
+            Bitmap output = Bitmap.createBitmap(pageWidth, pageHeight, Bitmap.Config.ARGB_8888);
+            output.eraseColor(Color.WHITE);
+            PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum, true);
+            pageAdapter.close();
+            pageAdapter.render(output);
+            return output;
         }
 
         @Override
         public Bitmap renderTile(int pageNum, int tileWidth, int tileHeight, int scaledPageWidth,
                 int scaledPageHeight, int left, int top, boolean hideTextAnnots) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
-                Bitmap output = Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888);
-                output.eraseColor(Color.WHITE);
-                pageAdapter.renderTile(output, left, top, scaledPageWidth, scaledPageHeight);
-                return output;
-            }
+            Bitmap output = Bitmap.createBitmap(tileWidth, tileHeight, Bitmap.Config.ARGB_8888);
+            output.eraseColor(Color.WHITE);
+            mAdapter.openPage(pageNum, true)
+                    .renderTile(output, left, top, scaledPageWidth, scaledPageHeight);
+            return output;
         }
 
 
         @Override
         public String getPageText(int pageNum) {
             if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
-                try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+                PdfPageAdapter pageAdapter = null;
+                try {
+                    pageAdapter = mAdapter.openPage(pageNum, false);
                     List<PdfPageTextContent> textPdfContentList = pageAdapter.getPageTextContents();
                     // TODO: Add list handling instead of taking its first element
                     return textPdfContentList.get(0).getText();
+                } finally {
+                    mAdapter.releasePage(pageAdapter, pageNum);
                 }
             }
             throw new UnsupportedOperationException("Operation support above S");
@@ -135,10 +143,14 @@ public class PdfDocumentService extends Service {
         @Override
         public List<String> getPageAltText(int pageNum) {
             if (SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= 13) {
-                try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+                PdfPageAdapter pageAdapter = null;
+                try {
+                    pageAdapter = mAdapter.openPage(pageNum, false);
                     List<PdfPageImageContent> text = pageAdapter.getPageImageContents();
                     return text.stream().map(PdfPageImageContent::getAltText).collect(
                             Collectors.toList());
+                } finally {
+                    mAdapter.releasePage(pageAdapter, pageNum);
                 }
             }
             throw new UnsupportedOperationException("Operation support above S");
@@ -146,16 +158,22 @@ public class PdfDocumentService extends Service {
 
         @Override
         public MatchRects searchPageText(int pageNum, String query) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+            PdfPageAdapter pageAdapter = null;
+            try {
+                pageAdapter = mAdapter.openPage(pageNum, false);
                 List<PageMatchBounds> searchResultList = pageAdapter.searchPageText(query);
                 return MatchRects.flattenList(searchResultList);
+            } finally {
+                mAdapter.releasePage(pageAdapter, pageNum);
             }
         }
 
         @Override
         public PageSelection selectPageText(int pageNum, SelectionBoundary start,
                 SelectionBoundary stop) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+            PdfPageAdapter pageAdapter = null;
+            try {
+                pageAdapter = mAdapter.openPage(pageNum, false);
                 android.graphics.pdf.models.selection.PageSelection pageSelection =
                         pageAdapter.selectPageText(SelectionBoundary.convert(start),
                                 SelectionBoundary.convert(stop));
@@ -163,20 +181,30 @@ public class PdfDocumentService extends Service {
                     return PageSelection.convert(pageSelection);
                 }
                 return null;
+            } finally {
+                mAdapter.releasePage(pageAdapter, pageNum);
             }
         }
 
         @Override
         public LinkRects getPageLinks(int pageNum) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+            PdfPageAdapter pageAdapter = null;
+            try {
+                Log.d("Here", "getPageLinks " + pageNum);
+                pageAdapter = mAdapter.openPage(pageNum, false);
                 List<PdfPageLinkContent> pageLinks = pageAdapter.getPageLinks();
                 return LinkRects.flattenList(pageLinks);
+            } finally {
+                Log.d("Here", "getPageLinks release" + pageNum);
+                mAdapter.releasePage(pageAdapter, pageNum);
             }
         }
 
         @Override
         public List<GotoLink> getPageGotoLinks(int pageNum) {
-            try (PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum)) {
+            PdfPageAdapter pageAdapter = null;
+            try {
+                pageAdapter = mAdapter.openPage(pageNum, false);
                 List<PdfPageGotoLinkContent> gotoLinks = pageAdapter.getPageGotoLinks();
                 if (!gotoLinks.isEmpty()) {
                     List<GotoLink> list = new ArrayList<>();
@@ -187,7 +215,14 @@ public class PdfDocumentService extends Service {
                     return list;
                 }
                 return null;
+            } finally {
+                mAdapter.releasePage(pageAdapter, pageNum);
             }
+        }
+
+        @Override
+        public void releasePage(int pageNum) {
+            mAdapter.releasePage(null, pageNum);
         }
 
         @Override
