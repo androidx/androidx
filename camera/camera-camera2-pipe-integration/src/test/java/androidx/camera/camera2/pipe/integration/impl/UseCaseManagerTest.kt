@@ -19,11 +19,14 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CameraDevice.TEMPLATE_RECORD
 import android.hardware.camera2.CameraMetadata.CONTROL_CAPTURE_INTENT_PREVIEW
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE
 import android.hardware.camera2.CaptureRequest.CONTROL_CAPTURE_INTENT
 import android.hardware.camera2.params.SessionConfiguration.SESSION_HIGH_SPEED
 import android.os.Build
+import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
@@ -520,6 +523,40 @@ class UseCaseManagerTest {
         assertThat(graphConfig.sessionTemplate).isEqualTo(RequestTemplate(TEMPLATE_RECORD))
         assertThat(graphConfig.sessionParameters)
             .isEqualTo(mapOf(CONTROL_CAPTURE_INTENT to CONTROL_CAPTURE_INTENT_PREVIEW))
+    }
+
+    @Test
+    fun createCameraGraphConfig_setTargetFpsRange() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val fakeUseCase =
+            FakeUseCase().apply {
+                updateSessionConfigForTesting(
+                    SessionConfig.Builder()
+                        .setTemplateType(TEMPLATE_PREVIEW)
+                        .setExpectedFrameRateRange(Range(15, 24))
+                        .build()
+                )
+            }
+        val sessionConfigAdapter = SessionConfigAdapter(setOf(fakeUseCase))
+        val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
+
+        // Act
+        val graphConfig =
+            useCaseManager.createCameraGraphConfig(
+                sessionConfigAdapter,
+                streamConfigMap,
+            )
+
+        // Assert
+        assertThat(graphConfig.sessionTemplate).isEqualTo(RequestTemplate(TEMPLATE_PREVIEW))
+        assertThat(graphConfig.sessionParameters).containsKey(CONTROL_AE_TARGET_FPS_RANGE)
+        assertThat(graphConfig.sessionParameters[CONTROL_AE_TARGET_FPS_RANGE])
+            .isEqualTo(Range(15, 24))
+        assertThat(graphConfig.defaultParameters).containsKey(CONTROL_AE_TARGET_FPS_RANGE)
+        assertThat(graphConfig.defaultParameters[CONTROL_AE_TARGET_FPS_RANGE])
+            .isEqualTo(Range(15, 24))
     }
 
     @Test
