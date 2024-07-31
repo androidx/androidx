@@ -43,6 +43,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -175,10 +176,22 @@ fun ToggleButton(
             Row(
                 Modifier.defaultMinSize(minHeight = ToggleButtonDefaults.MinHeight)
                     .then(
-                        if (buttonShape is CornerBasedShape) {
-                            Modifier.opticalCentering(buttonShape, contentPadding)
-                        } else {
-                            Modifier.padding(contentPadding)
+                        when (buttonShape) {
+                            is ShapeWithOpticalCentering -> {
+                                Modifier.opticalCentering(
+                                    shape = buttonShape,
+                                    basePadding = contentPadding
+                                )
+                            }
+                            is CornerBasedShape -> {
+                                Modifier.opticalCentering(
+                                    shape = buttonShape,
+                                    basePadding = contentPadding
+                                )
+                            }
+                            else -> {
+                                Modifier.padding(contentPadding)
+                            }
                         }
                     ),
                 horizontalArrangement = Arrangement.Center,
@@ -903,7 +916,18 @@ private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
     state.density = density
 
     return remember(density) {
-        object : Shape {
+        object : ShapeWithOpticalCentering {
+            var clampedRange by mutableStateOf(0f..1f)
+
+            override fun offset(): Float {
+                val topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f
+                val topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f
+                val bottomStart = state.bottomStart?.value?.coerceIn(clampedRange) ?: 0f
+                val bottomEnd = state.bottomEnd?.value?.coerceIn(clampedRange) ?: 0f
+                val avgStart = (topStart + bottomStart) / 2
+                val avgEnd = (topEnd + bottomEnd) / 2
+                return OpticalCenteringCoefficient * (avgStart - avgEnd)
+            }
 
             override fun createOutline(
                 size: Size,
@@ -915,7 +939,7 @@ private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
                     state.init()
                 }
 
-                val clampedRange = 0f..size.height / 2
+                clampedRange = 0f..size.height / 2
                 return RoundedCornerShape(
                         topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f,
                         topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f,
