@@ -29,7 +29,6 @@ import org.jetbrains.kotlin.konan.target.Family
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
@@ -39,7 +38,14 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
-    android()
+    androidLibrary {
+        namespace = "androidx.paging.testing"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -131,6 +137,3 @@ androidx {
     metalavaK2UastEnabled = false
 }
 
-android {
-    namespace "androidx.paging.testing"
-}
