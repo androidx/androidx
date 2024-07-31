@@ -23,7 +23,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.TextView
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -36,18 +35,13 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @MediumTest
-// TODO: change to VANILLA_ICE_CREAM when it is ready
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 @RunWith(AndroidJUnit4::class)
 class RecyclerViewScrollFrameRateTest {
     @get:Rule val rule = ActivityTestRule(TestContentViewActivity::class.java)
 
     @Test
     fun smoothScrollFrameRateBoost() {
-        // TODO: Remove when VANILLA_ICE_CREAM is ready and the SdkSuppress is modified
-        if (!BuildCompat.isAtLeastV()) {
-            return
-        }
         val rv = RecyclerView(rule.activity)
         rule.runOnUiThread {
             rv.layoutManager =
