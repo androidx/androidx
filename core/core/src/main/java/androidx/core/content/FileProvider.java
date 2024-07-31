@@ -95,12 +95,11 @@ import java.util.Map;
  * <p>
  * <b>Defining a FileProvider</b>
  * <p>
- * Extend FileProvider with a default constructor, and call super with an XML resource file that
- * specifies the available files (see below for the structure of the XML file):
+ * Extend FileProvider with a default constructor:
  * <pre class="prettyprint">
  * public class MyFileProvider extends FileProvider {
  *    public MyFileProvider() {
- *        super(R.xml.file_paths)
+ *        ...
  *    }
  * }
  * </pre>
