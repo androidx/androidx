@@ -113,4 +113,8 @@
     <string name="m3c_time_picker_minute_text_field">for minutes</string>
     <!-- A label for a textfield that allows the user to input hours. It reads: Edit Box, for hour -->
     <string name="m3c_time_picker_hour_text_field">for hour</string>
+    <!-- Spoken content description of an element which will close the modal rail when clicked. -->
+    <string name="m3c_wide_navigation_rail_close_rail">"Close rail"</string>
+    <!-- Accessibility pane title for the modal rail. -->
+    <string name="m3c_wide_navigation_rail_pane_title">"Navigation rail"</string>
 </resources>

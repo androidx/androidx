@@ -18,19 +18,25 @@ package androidx.compose.material3
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.unit.dp
@@ -200,6 +206,73 @@ class ModalExpandedNavigationRailTest {
         assertThat(railState.isOpen).isTrue()
         // Assert rail is still displayed.
         rule.onNodeWithTag("item").onParent().isDisplayed()
+    }
+
+    @Test
+    fun modalRail_closes_byScrimClick() {
+        lateinit var closeRail: String
+        lateinit var railState: ModalExpandedNavigationRailState
+        rule.setMaterialContentForSizeAssertions {
+            closeRail = getString(Strings.CloseRail)
+            railState = rememberModalExpandedNavigationRailState()
+
+            ModalExpandedNavigationRail(
+                gesturesEnabled = false,
+                onDismissRequest = {},
+                railState = railState,
+            ) {
+                WideNavigationRailItem(
+                    modifier = Modifier.testTag("item"),
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        // The rail should be open.
+        assertThat(railState.isOpen).isTrue()
+
+        rule
+            .onNodeWithContentDescription(closeRail)
+            .assertHasClickAction()
+            .performSemanticsAction(SemanticsActions.OnClick)
+        rule.waitForIdle()
+
+        // Assert rail is not open.
+        assertThat(railState.isOpen).isFalse()
+        // Assert rail is not displayed.
+        rule.onNodeWithTag("item").onParent().isNotDisplayed()
+    }
+
+    @Test
+    fun modalRail_hasPaneTitle() {
+        lateinit var paneTitle: String
+
+        rule.setMaterialContentForSizeAssertions {
+            paneTitle = getString(Strings.WideNavigationRailPaneTitle)
+            ModalExpandedNavigationRail(
+                onDismissRequest = {},
+            ) {
+                WideNavigationRailItem(
+                    modifier = Modifier.testTag("item"),
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag("item")
+            .onParent() // rail.
+            .onParent() // dialog window.
+            .onParent() // parent container that holds dialog and scrim.
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, paneTitle))
     }
 
     @Test

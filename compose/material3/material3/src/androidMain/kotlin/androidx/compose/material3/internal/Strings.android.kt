@@ -239,7 +239,13 @@ internal actual value class Strings constructor(val value: Int) {
         actual inline val CloseDrawer
             get() = Strings(R.string.close_drawer)
 
+        actual inline val CloseRail
+            get() = Strings(MaterialR.string.m3c_wide_navigation_rail_close_rail)
+
         actual inline val CloseSheet
             get() = Strings(R.string.close_sheet)
+
+        actual inline val WideNavigationRailPaneTitle
+            get() = Strings(MaterialR.string.m3c_wide_navigation_rail_pane_title)
     }
 }
