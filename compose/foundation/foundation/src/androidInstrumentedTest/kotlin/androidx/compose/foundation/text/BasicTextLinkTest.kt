@@ -64,7 +64,7 @@ import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.getPartialBoundsOfLinks
+import androidx.compose.ui.test.getFirstLinkBounds
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
@@ -1012,16 +1012,16 @@ class BasicTextLinkTest {
         predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
         block: MouseInjectionScope.(offsetInLink: Offset) -> Unit
     ): SemanticsNodeInteraction {
-        val linkBounds = getPartialBoundsOfLinks(predicate).first()
-        return this.performMouseInput { block(linkBounds.center) }
+        val linkBounds = getFirstLinkBounds(predicate)
+        return this.performMouseInput { block(linkBounds!!.center) }
     }
 
     private fun SemanticsNodeInteraction.performTouchInputOnFirstLink(
         predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true },
         block: TouchInjectionScope.(offsetInLink: Offset) -> Unit
     ): SemanticsNodeInteraction {
-        val linkBounds = getPartialBoundsOfLinks(predicate).first()
-        return this.performTouchInput { block(linkBounds.center) }
+        val linkBounds = getFirstLinkBounds(predicate)
+        return this.performTouchInput { block(linkBounds!!.center) }
     }
 }
 

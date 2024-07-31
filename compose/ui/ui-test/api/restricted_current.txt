@@ -84,7 +84,7 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction assertWidthIsEqualTo(androidx.compose.ui.test.SemanticsNodeInteraction, float expectedWidth);
     method public static float getAlignmentLinePosition(androidx.compose.ui.test.SemanticsNodeInteraction, androidx.compose.ui.layout.AlignmentLine alignmentLine);
     method public static androidx.compose.ui.unit.DpRect getBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
-    method public static java.util.List<androidx.compose.ui.geometry.Rect> getPartialBoundsOfLinks(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
+    method public static androidx.compose.ui.geometry.Rect? getFirstLinkBounds(androidx.compose.ui.test.SemanticsNodeInteraction, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.LinkAnnotation>,java.lang.Boolean> predicate);
     method public static androidx.compose.ui.unit.DpRect getUnclippedBoundsInRoot(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
