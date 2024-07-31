@@ -77,7 +77,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://material.io/components/text-fields#filled-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
  * target="_blank">Material Design filled text field</a>.
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
@@ -255,7 +255,7 @@ fun TextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#filled-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
  * target="_blank">Material Design filled text field</a>.
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
@@ -444,7 +444,7 @@ fun TextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#filled-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#filled-text-field" class="external"
  * target="_blank">Material Design filled text field</a>.
  *
  * Filled text fields have more visual emphasis than outlined text fields, making them stand out
@@ -453,7 +453,8 @@ fun TextField(
  * ![Filled text field
  * image](https://developer.android.com/images/reference/androidx/compose/material/filled-text-field.png)
  *
- * If you are looking for an outlined version, see [OutlinedTextField].
+ * If you are looking for an outlined version, see [OutlinedTextField]. For a text field
+ * specifically designed for passwords or other secure content, see [SecureTextField].
  *
  * This overload provides access to the input text, cursor position, selection range and IME
  * composition. If you only want to observe an input text change, use the TextField overload with

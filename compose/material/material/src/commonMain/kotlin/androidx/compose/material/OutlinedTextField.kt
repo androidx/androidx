@@ -79,7 +79,7 @@ import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
- * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
  * target="_blank">Material Design outlined text field</a>.
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
@@ -88,6 +88,9 @@ import kotlin.math.roundToInt
  *
  * ![Outlined text field
  * image](https://developer.android.com/images/reference/androidx/compose/material/outlined-text-field.png)
+ *
+ * If you are looking for a filled version, see [TextField]. For a text field specifically designed
+ * for passwords or other secure content, see [OutlinedSecureTextField].
  *
  * This overload of [OutlinedTextField] uses [TextFieldState] to keep track of its text content and
  * position of the cursor or selection.
@@ -248,7 +251,7 @@ fun OutlinedTextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
  * target="_blank">Material Design outlined text field</a>.
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
@@ -455,7 +458,7 @@ fun OutlinedTextField(
 }
 
 /**
- * <a href="https://material.io/components/text-fields#outlined-text-field" class="external"
+ * <a href="https://m2.material.io/components/text-fields#outlined-text-field" class="external"
  * target="_blank">Material Design outlined text field</a>.
  *
  * Outlined text fields have less visual emphasis than filled text fields. When they appear in
