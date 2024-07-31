@@ -91,7 +91,7 @@ class PendingIntentHandler {
                             frameworkReq.callingAppInfo.origin
                         ),
                     callingAppInfo =
-                        CallingAppInfo(
+                        CallingAppInfo.create(
                             frameworkReq.callingAppInfo.packageName,
                             frameworkReq.callingAppInfo.signingInfo,
                             frameworkReq.callingAppInfo.origin
@@ -230,7 +230,7 @@ class PendingIntentHandler {
                         )
                     }
                     .collect(Collectors.toList()),
-                CallingAppInfo(
+                CallingAppInfo.create(
                     frameworkReq.callingAppInfo.packageName,
                     frameworkReq.callingAppInfo.signingInfo,
                     frameworkReq.callingAppInfo.origin

@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class CallingAppInfoTest {
+class CallingAppInfoApi28Test {
 
     companion object {
         lateinit var signingInfo: SigningInfo

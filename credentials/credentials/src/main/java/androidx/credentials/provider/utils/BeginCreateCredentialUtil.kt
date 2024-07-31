@@ -44,7 +44,7 @@ internal class BeginCreateCredentialUtil {
                         BeginCreatePasswordCredentialRequest.createFrom(
                             request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
@@ -52,7 +52,7 @@ internal class BeginCreateCredentialUtil {
                         BeginCreatePublicKeyCredentialRequest.createFrom(
                             request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
@@ -61,7 +61,7 @@ internal class BeginCreateCredentialUtil {
                             request.type,
                             request.data,
                             request.callingAppInfo?.let {
-                                CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                             }
                         )
                     }
@@ -71,7 +71,7 @@ internal class BeginCreateCredentialUtil {
                     request.type,
                     request.data,
                     request.callingAppInfo?.let {
-                        CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                        CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                     }
                 )
             }
