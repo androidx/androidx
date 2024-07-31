@@ -81,6 +81,7 @@ import androidx.compose.ui.semantics.isEditable
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.semantics.onLongClick
+import androidx.compose.ui.semantics.password
 import androidx.compose.ui.semantics.pasteText
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
@@ -120,7 +121,8 @@ internal data class TextFieldDecoratorModifier(
     private val keyboardOptions: KeyboardOptions,
     private val keyboardActionHandler: KeyboardActionHandler?,
     private val singleLine: Boolean,
-    private val interactionSource: MutableInteractionSource
+    private val interactionSource: MutableInteractionSource,
+    private val isPassword: Boolean
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
     override fun create(): TextFieldDecoratorModifierNode =
         TextFieldDecoratorModifierNode(
@@ -134,6 +136,7 @@ internal data class TextFieldDecoratorModifier(
             keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
+            isPassword = isPassword
         )
 
     override fun update(node: TextFieldDecoratorModifierNode) {
@@ -148,6 +151,7 @@ internal data class TextFieldDecoratorModifier(
             keyboardActionHandler = keyboardActionHandler,
             singleLine = singleLine,
             interactionSource = interactionSource,
+            isPassword = isPassword
         )
     }
 
@@ -168,7 +172,8 @@ internal class TextFieldDecoratorModifierNode(
     var keyboardOptions: KeyboardOptions,
     var keyboardActionHandler: KeyboardActionHandler?,
     var singleLine: Boolean,
-    var interactionSource: MutableInteractionSource
+    var interactionSource: MutableInteractionSource,
+    var isPassword: Boolean
 ) :
     DelegatingNode(),
     PlatformTextInputModifierNode,
@@ -416,7 +421,8 @@ internal class TextFieldDecoratorModifierNode(
         keyboardOptions: KeyboardOptions,
         keyboardActionHandler: KeyboardActionHandler?,
         singleLine: Boolean,
-        interactionSource: MutableInteractionSource
+        interactionSource: MutableInteractionSource,
+        isPassword: Boolean
     ) {
         // Find the diff: current previous and new values before updating current.
         val previousEditable = this.editable
@@ -427,6 +433,7 @@ internal class TextFieldDecoratorModifierNode(
         val previousKeyboardOptions = this.keyboardOptions
         val previousTextFieldSelectionState = this.textFieldSelectionState
         val previousInteractionSource = this.interactionSource
+        val previousIsPassword = this.isPassword
 
         // Apply the diff.
         this.textFieldState = textFieldState
@@ -439,6 +446,7 @@ internal class TextFieldDecoratorModifierNode(
         this.keyboardActionHandler = keyboardActionHandler
         this.singleLine = singleLine
         this.interactionSource = interactionSource
+        this.isPassword = isPassword
 
         // React to diff.
         // Something about the session changed, restart the session.
@@ -459,7 +467,8 @@ internal class TextFieldDecoratorModifierNode(
         if (
             enabled != previousEnabled ||
                 editable != previousEditable ||
-                keyboardOptions.imeActionOrDefault != previousKeyboardOptions.imeActionOrDefault
+                keyboardOptions.imeActionOrDefault != previousKeyboardOptions.imeActionOrDefault ||
+                isPassword != previousIsPassword
         ) {
             invalidateSemantics()
         }
@@ -490,6 +499,8 @@ internal class TextFieldDecoratorModifierNode(
         textSelectionRange = selection
 
         if (!enabled) disabled()
+        if (isPassword) password()
+
         isEditable = this@TextFieldDecoratorModifierNode.editable
 
         getTextLayoutResult {
@@ -572,7 +583,7 @@ internal class TextFieldDecoratorModifierNode(
             textFieldSelectionState.updateTextToolbarState(TextToolbarState.Selection)
             true
         }
-        if (!selection.collapsed) {
+        if (!selection.collapsed && !isPassword) {
             copyText {
                 textFieldSelectionState.copy()
                 true
