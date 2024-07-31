@@ -77,8 +77,10 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.ScaleFactor
+import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -2640,6 +2642,47 @@ class SharedTransitionTest {
             }
             rule.mainClock.advanceTimeByFrame()
         }
+    }
+
+    @Test
+    fun testPlaceHolderLogicSkippedWhenNoMatch() {
+        var parentSize: IntSize? = null
+        val changeInProgress = true
+        var testSize by mutableStateOf(IntSize.Zero)
+        rule.setContent {
+            AnimatedVisibility(visible = true) {
+                SharedTransitionLayout {
+                    Box(
+                        Modifier.onSizeChanged { parentSize = it }
+                            .sharedBounds(
+                                rememberSharedContentState("test"),
+                                this@AnimatedVisibility
+                            )
+                    ) {
+                        Box(
+                            Modifier.approachLayout(
+                                    isMeasurementApproachInProgress = { changeInProgress }
+                                ) { measurable, constraints ->
+                                    measurable.measure(constraints).run {
+                                        layout(testSize.width, testSize.height) { place(0, 0) }
+                                    }
+                                }
+                                .requiredSize(40.dp, 40.dp)
+                        )
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        assertEquals(testSize, parentSize)
+
+        testSize = IntSize(20, 25)
+        rule.waitForIdle()
+        assertEquals(testSize, parentSize)
+
+        testSize = IntSize(35, 10)
+        rule.waitForIdle()
+        assertEquals(testSize, parentSize)
     }
 
     @Test
