@@ -172,7 +172,40 @@ class ThreePaneScaffoldValue(
     val primary: PaneAdaptedValue,
     val secondary: PaneAdaptedValue,
     val tertiary: PaneAdaptedValue
-) : PaneScaffoldValue<ThreePaneScaffoldRole> {
+) : PaneScaffoldValue<ThreePaneScaffoldRole>, PaneExpansionStateKeyProvider {
+    internal val expandedCount by lazy {
+        var count = 0
+        if (primary == PaneAdaptedValue.Expanded) {
+            count++
+        }
+        if (secondary == PaneAdaptedValue.Expanded) {
+            count++
+        }
+        if (tertiary == PaneAdaptedValue.Expanded) {
+            count++
+        }
+        count
+    }
+
+    override val paneExpansionStateKey by lazy {
+        if (expandedCount != 2) {
+            PaneExpansionStateKey.Default
+        } else {
+            val expandedPanes = Array<ThreePaneScaffoldRole?>(2) { null }
+            var count = 0
+            if (primary == PaneAdaptedValue.Expanded) {
+                expandedPanes[count++] = ThreePaneScaffoldRole.Primary
+            }
+            if (secondary == PaneAdaptedValue.Expanded) {
+                expandedPanes[count++] = ThreePaneScaffoldRole.Secondary
+            }
+            if (tertiary == PaneAdaptedValue.Expanded) {
+                expandedPanes[count] = ThreePaneScaffoldRole.Tertiary
+            }
+            PaneExpansionStateKeyImpl(expandedPanes[0]!!, expandedPanes[1]!!)
+        }
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldValue) return false
@@ -201,20 +234,20 @@ class ThreePaneScaffoldValue(
             ThreePaneScaffoldRole.Secondary -> secondary
             ThreePaneScaffoldRole.Tertiary -> tertiary
         }
-}
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal val ThreePaneScaffoldValue.expandedCount: Int
-    get() {
-        var count = 0
-        if (primary == PaneAdaptedValue.Expanded) {
-            count++
+    private class PaneExpansionStateKeyImpl(
+        val firstExpandedPane: ThreePaneScaffoldRole,
+        val secondExpandedPane: ThreePaneScaffoldRole
+    ) : PaneExpansionStateKey {
+        override fun hashCode(): Int {
+            return firstExpandedPane.hashCode() * 31 + secondExpandedPane.hashCode()
         }
-        if (secondary == PaneAdaptedValue.Expanded) {
-            count++
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            val otherKey = other as? PaneExpansionStateKeyImpl ?: return false
+            return firstExpandedPane == otherKey.firstExpandedPane &&
+                secondExpandedPane == otherKey.secondExpandedPane
         }
-        if (tertiary == PaneAdaptedValue.Expanded) {
-            count++
-        }
-        return count
     }
+}

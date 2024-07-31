@@ -27,12 +27,16 @@ import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.gestures.DragScope
 import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.PaneExpansionState.Companion.UnspecifiedWidth
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -40,41 +44,130 @@ import androidx.compose.ui.unit.isSpecified
 import kotlin.math.abs
 import kotlinx.coroutines.coroutineScope
 
+/**
+ * Interface that provides [PaneExpansionStateKey] to remember and retrieve [PaneExpansionState]
+ * with [rememberPaneExpansionState].
+ */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
-internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor> = emptyList()) :
-    DraggableState {
-    private var firstPaneWidthState by mutableIntStateOf(UnspecifiedWidth)
-    private var firstPanePercentageState by mutableFloatStateOf(Float.NaN)
-    private var currentDraggingOffsetState by mutableIntStateOf(UnspecifiedWidth)
+sealed interface PaneExpansionStateKeyProvider {
+    /** The key that represents the unique state of the provider to index [PaneExpansionState]. */
+    val paneExpansionStateKey: PaneExpansionStateKey
+}
+
+/**
+ * Interface that serves as keys to remember and retrieve [PaneExpansionState] with
+ * [rememberPaneExpansionState].
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Immutable
+sealed interface PaneExpansionStateKey {
+    private class DefaultImpl : PaneExpansionStateKey {
+        override fun equals(other: Any?): Boolean {
+            return this === other
+        }
+
+        override fun hashCode(): Int {
+            return System.identityHashCode(this)
+        }
+    }
+
+    companion object {
+        /**
+         * The default [PaneExpansionStateKey]. If you want to always share the same
+         * [PaneExpansionState] no matter what current scaffold state is, this key can be used. For
+         * example if the default key is used and a user drag the list-detail layout to a 50-50
+         * split, when the layout switches to, say, detail-extra, it will remain the 50-50 split
+         * instead of using a different (default or user-set) split for it.
+         */
+        val Default: PaneExpansionStateKey = DefaultImpl()
+    }
+}
+
+/**
+ * Remembers and returns a [PaneExpansionState] associated to a given
+ * [PaneExpansionStateKeyProvider].
+ *
+ * Note that the remembered [PaneExpansionState] with all keys that have been used will be
+ * persistent through the associated pane scaffold's lifecycles.
+ *
+ * @param keyProvider the provider of [PaneExpansionStateKey]
+ * @param anchors the anchor list of the returned [PaneExpansionState]
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+internal fun rememberPaneExpansionState(
+    keyProvider: PaneExpansionStateKeyProvider,
+    anchors: List<PaneExpansionAnchor> = emptyList()
+): PaneExpansionState = rememberPaneExpansionState(keyProvider.paneExpansionStateKey, anchors)
+
+/**
+ * Remembers and returns a [PaneExpansionState] associated to a given [PaneExpansionStateKey].
+ *
+ * Note that the remembered [PaneExpansionState] with all keys that have been used will be
+ * persistent through the associated pane scaffold's lifecycles.
+ *
+ * @param key the key of [PaneExpansionStateKey]
+ * @param anchors the anchor list of the returned [PaneExpansionState]
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+internal fun rememberPaneExpansionState(
+    key: PaneExpansionStateKey = PaneExpansionStateKey.Default,
+    anchors: List<PaneExpansionAnchor> = emptyList()
+): PaneExpansionState {
+    // TODO(conradchen): Implement this as saveables
+    val dataMap = remember { mutableStateMapOf<PaneExpansionStateKey, PaneExpansionStateData>() }
+    val expansionState = remember {
+        val defaultData = PaneExpansionStateData()
+        dataMap[PaneExpansionStateKey.Default] = defaultData
+        PaneExpansionState(defaultData)
+    }
+    return expansionState.apply {
+        this.data = dataMap[key] ?: PaneExpansionStateData().also { dataMap[key] = it }
+        this.anchors = anchors
+    }
+}
+
+@ExperimentalMaterial3AdaptiveApi
+@Stable
+internal class PaneExpansionState
+internal constructor(
+    // TODO(conradchen): Handle state change during dragging and settling
+    data: PaneExpansionStateData = PaneExpansionStateData(),
+    internal var anchors: List<PaneExpansionAnchor> = emptyList()
+) : DraggableState {
 
     var firstPaneWidth: Int
         set(value) {
-            firstPanePercentageState = Float.NaN
-            currentDraggingOffsetState = UnspecifiedWidth
-            firstPaneWidthState = value.coerceIn(0, maxExpansionWidth)
+            data.firstPanePercentageState = Float.NaN
+            data.currentDraggingOffsetState = UnspecifiedWidth
+            val coercedValue = value.coerceIn(0, maxExpansionWidth)
+            data.firstPaneWidthState = coercedValue
         }
-        get() = firstPaneWidthState
+        get() = data.firstPaneWidthState
 
     var firstPanePercentage: Float
         set(value) {
             require(value in 0f..1f) { "Percentage value needs to be in [0, 1]" }
-            firstPaneWidthState = UnspecifiedWidth
-            currentDraggingOffsetState = UnspecifiedWidth
-            firstPanePercentageState = value
+            data.firstPaneWidthState = UnspecifiedWidth
+            data.currentDraggingOffsetState = UnspecifiedWidth
+            data.firstPanePercentageState = value
         }
-        get() = firstPanePercentageState
+        get() = data.firstPanePercentageState
 
     internal var currentDraggingOffset
-        get() = currentDraggingOffsetState
+        get() = data.currentDraggingOffsetState
         private set(value) {
             val coercedValue = value.coerceIn(0, maxExpansionWidth)
-            if (value == currentDraggingOffsetState) {
+            if (coercedValue == data.currentDraggingOffsetState) {
                 return
             }
-            currentDraggingOffsetState = coercedValue
+            data.currentDraggingOffsetState = coercedValue
             currentMeasuredDraggingOffset = coercedValue
         }
+
+    internal var data by mutableStateOf(data)
 
     internal var isDragging by mutableStateOf(false)
         private set
@@ -105,7 +198,7 @@ internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor
     private val dragMutex = MutatorMutex()
 
     fun isUnspecified(): Boolean =
-        firstPaneWidthState == UnspecifiedWidth &&
+        firstPaneWidth == UnspecifiedWidth &&
             firstPanePercentage.isNaN() &&
             currentDraggingOffset == UnspecifiedWidth
 
@@ -122,6 +215,13 @@ internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor
             dragMutex.mutateWith(dragScope, dragPriority, block)
             isDragging = false
         }
+
+    /** Clears any existing expansion state. */
+    fun clear() {
+        data.firstPaneWidthState = UnspecifiedWidth
+        data.firstPanePercentageState = Float.NaN
+        data.currentDraggingOffsetState = UnspecifiedWidth
+    }
 
     internal fun onMeasured(measuredWidth: Int, density: Density) {
         if (measuredWidth == maxExpansionWidth) {
@@ -143,6 +243,8 @@ internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor
         if (currentAnchorPositions.isEmpty()) {
             return
         }
+
+        // TODO(conradchen): Figure out how to use lookahead here to avoid repeating measuring
         dragMutex.mutate(MutatePriority.PreventUserInput) {
             isSettling = true
             // TODO(conradchen): Use the right animation spec here.
@@ -186,6 +288,13 @@ internal class PaneExpansionState(internal val anchors: List<PaneExpansionAnchor
     }
 }
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal class PaneExpansionStateData {
+    var firstPaneWidthState by mutableIntStateOf(UnspecifiedWidth)
+    var firstPanePercentageState by mutableFloatStateOf(Float.NaN)
+    var currentDraggingOffsetState by mutableIntStateOf(UnspecifiedWidth)
+}
+
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 internal class PaneExpansionAnchor
@@ -196,6 +305,20 @@ private constructor(
     constructor(@IntRange(0, 100) percentage: Int) : this(percentage, Dp.Unspecified)
 
     constructor(startOffset: Dp) : this(Int.MIN_VALUE, startOffset)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PaneExpansionAnchor) return false
+        if (percentage != other.percentage) return false
+        if (startOffset != other.startOffset) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = percentage
+        result = 31 * result + startOffset.hashCode()
+        return result
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
