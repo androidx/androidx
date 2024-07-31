@@ -17,7 +17,6 @@
 package androidx.build
 
 import androidx.build.dependencies.KOTLIN_NATIVE_VERSION
-import com.android.build.api.dsl.CommonExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
@@ -46,10 +45,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             when (plugin) {
                 is AppPlugin,
                 is LibraryPlugin -> {
-                    val commonExtension =
-                        project.extensions.findByType(CommonExtension::class.java)
-                            ?: throw Exception("Failed to find Android extension")
-                    commonExtension.defaultConfig.minSdk = 21
                     project.configureAndroidCommonOptions()
                 }
                 is KotlinBasePluginWrapper -> {
