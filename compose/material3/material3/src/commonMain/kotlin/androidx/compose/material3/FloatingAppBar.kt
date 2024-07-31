@@ -398,6 +398,7 @@ object FloatingAppBarDefaults {
      * @param flingAnimationSpec an [DecayAnimationSpec] that defines how to fling the floating app
      *   bar when the user flings the app bar itself, or the content below it
      */
+    // TODO Load the motionScheme tokens from the component tokens file
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun exitAlwaysScrollBehavior(

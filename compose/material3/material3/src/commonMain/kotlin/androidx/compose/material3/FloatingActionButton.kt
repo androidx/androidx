@@ -903,18 +903,12 @@ private fun ExtendedFloatingActionButton(
     ) {
         val expandTransition = updateTransition(if (expanded) 1f else 0f, label = "expanded state")
         // TODO Load the motionScheme tokens from the component tokens file
+        val sizeAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+        val opacityAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
         val expandedWidthProgress =
-            expandTransition.animateFloat(
-                transitionSpec = { MotionSchemeKeyTokens.FastSpatial.value() }
-            ) {
-                it
-            }
+            expandTransition.animateFloat(transitionSpec = { sizeAnimationSpec }) { it }
         val expandedAlphaProgress =
-            expandTransition.animateFloat(
-                transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() }
-            ) {
-                it
-            }
+            expandTransition.animateFloat(transitionSpec = { opacityAnimationSpec }) { it }
         Row(
             modifier =
                 Modifier.layout { measurable, constraints ->
@@ -1264,7 +1258,6 @@ private val ExtendedFabTextPadding = 20.dp
 
 private val ExtendedFabMinimumWidth = 80.dp
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun extendedFabCollapseAnimation() =
     fadeOut(
@@ -1276,7 +1269,6 @@ private fun extendedFabCollapseAnimation() =
             shrinkTowards = Alignment.Start,
         )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun extendedFabExpandAnimation() =
     fadeIn(

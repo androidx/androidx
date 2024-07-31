@@ -321,7 +321,6 @@ fun rememberDrawerState(
  * @param scrimColor color of the scrim that obscures content when the drawer is open
  * @param content content of the rest of the UI
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ModalNavigationDrawer(
     drawerContent: @Composable () -> Unit,
@@ -450,7 +449,6 @@ fun ModalNavigationDrawer(
  * @param gesturesEnabled whether or not the drawer can be interacted by gestures
  * @param content content of the rest of the UI
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DismissibleNavigationDrawer(
     drawerContent: @Composable () -> Unit,

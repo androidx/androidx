@@ -71,7 +71,6 @@ import androidx.compose.ui.unit.dp
  *   appearance or preview the radio button in different states. Note that if `null` is provided,
  *   interactions will still happen internally.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RadioButton(
     selected: Boolean,
@@ -222,7 +221,6 @@ constructor(
      * @param enabled whether the [RadioButton] is enabled
      * @param selected whether the [RadioButton] is selected
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     internal fun radioColor(enabled: Boolean, selected: Boolean): State<Color> {
         val target =

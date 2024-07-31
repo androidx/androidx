@@ -185,7 +185,7 @@ fun rememberModalExpandedNavigationRailState(
 ): ModalExpandedNavigationRailState {
     val density = LocalDensity.current
     // TODO: Load the motionScheme tokens from the component tokens file.
-    val animationSpec: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultSpatial.value()
+    val animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
     return rememberSaveable(
         saver = ModalExpandedNavigationRailState.Saver(density, animationSpec, confirmValueChange)
     ) {

@@ -22,7 +22,6 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
@@ -314,7 +313,6 @@ fun MultiChoiceSegmentedButtonRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SegmentedButtonContent(
     icon: @Composable () -> Unit,
@@ -326,7 +324,7 @@ private fun SegmentedButtonContent(
     ) {
         val typography = OutlinedSegmentedButtonTokens.LabelTextFont.value
         // TODO Load the motionScheme tokens from the component tokens file
-        val animationSpec: FiniteAnimationSpec<Int> = MotionSchemeKeyTokens.FastSpatial.value()
+        val animationSpec = MotionSchemeKeyTokens.FastSpatial.value<Int>()
         ProvideTextStyle(typography) {
             val scope = rememberCoroutineScope()
             val measurePolicy = remember {
@@ -560,7 +558,6 @@ object SegmentedButtonDefaults {
      * @param inactiveContent typically an icon of [IconSize]. It shows only when the button is not
      *   checked.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     fun Icon(
         active: Boolean,

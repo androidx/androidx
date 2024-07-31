@@ -555,7 +555,7 @@ internal interface TabPositionsHolder {
     fun setTabPositions(positions: List<TabPosition>)
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TabRowImpl(
     modifier: Modifier,
@@ -571,8 +571,7 @@ private fun TabRowImpl(
         contentColor = contentColor
     ) {
         // TODO Load the motionScheme tokens from the component tokens file
-        val tabIndicatorAnimationSpec: FiniteAnimationSpec<Dp> =
-            MotionSchemeKeyTokens.DefaultSpatial.value()
+        val tabIndicatorAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Dp>()
         val scope = remember {
             object : TabIndicatorScope, TabPositionsHolder {
 
@@ -688,7 +687,7 @@ private fun TabRowImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ScrollableTabRowImpl(
     selectedTabIndex: Int,
@@ -714,8 +713,7 @@ private fun ScrollableTabRowImpl(
     ) {
         val coroutineScope = rememberCoroutineScope()
         // TODO Load the motionScheme tokens from the component tokens file
-        val scrollAnimationSpec: FiniteAnimationSpec<Float> =
-            MotionSchemeKeyTokens.DefaultSpatial.value()
+        val scrollAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
         val tabIndicatorAnimationSpec: FiniteAnimationSpec<Dp> =
             MotionSchemeKeyTokens.DefaultSpatial.value()
         val scrollableTabData =
@@ -1023,7 +1021,6 @@ private fun TabRowWithSubcomposeImpl(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ScrollableTabRowWithSubcomposeImpl(
     selectedTabIndex: Int,
@@ -1039,8 +1036,7 @@ private fun ScrollableTabRowWithSubcomposeImpl(
     Surface(modifier = modifier, color = containerColor, contentColor = contentColor) {
         val coroutineScope = rememberCoroutineScope()
         // TODO Load the motionScheme tokens from the component tokens file
-        val scrollAnimationSpec: FiniteAnimationSpec<Float> =
-            MotionSchemeKeyTokens.DefaultSpatial.value()
+        val scrollAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
         val scrollableTabData =
             remember(scrollState, coroutineScope) {
                 ScrollableTabData(
@@ -1285,7 +1281,6 @@ object TabRowDefaults {
      * @param currentTabPosition [TabPosition] of the currently selected tab. This is used to
      *   calculate the offset of the indicator this modifier is applied to, as well as its width.
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     fun Modifier.tabIndicatorOffset(currentTabPosition: TabPosition): Modifier =
         composed(
             inspectorInfo =

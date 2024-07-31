@@ -230,7 +230,6 @@ object TextFieldDefaults {
      * @param unfocusedIndicatorLineThickness thickness of the indicator line when the text field is
      *   not focused
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun Container(
@@ -1044,7 +1043,6 @@ object OutlinedTextFieldDefaults {
      * @param focusedBorderThickness thickness of the border when the text field is focused
      * @param unfocusedBorderThickness thickness of the border when the text field is not focused
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun Container(

@@ -1535,7 +1535,6 @@ internal class ClockDialNode(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ClockFace(
     state: AnalogTimePickerState,
@@ -1669,7 +1668,6 @@ private fun Modifier.drawSelector(
         )
     }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ClockText(
     modifier: Modifier,

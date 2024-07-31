@@ -690,7 +690,6 @@ object DatePickerDefaults {
      * @param lazyListState a [LazyListState]
      * @param decayAnimationSpec the decay to use
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     internal fun rememberSnapFlingBehavior(
         lazyListState: LazyListState,
@@ -787,7 +786,6 @@ internal expect inline fun formatHeadlineDescription(
  * @constructor create an instance with arbitrary colors, see [DatePickerDefaults.colors] for the
  *   default implementation that follows Material specifications.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @ExperimentalMaterial3Api
 @Immutable
 class DatePickerColors

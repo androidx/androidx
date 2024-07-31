@@ -168,7 +168,6 @@ fun NavigationBar(
  *   preview the item in different states. Note that if `null` is provided, interactions will still
  *   happen internally.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun RowScope.NavigationBarItem(
     selected: Boolean,
@@ -183,13 +182,14 @@ fun RowScope.NavigationBarItem(
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    // TODO Load the motionScheme tokens from the component tokens file
+    val colorAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Color>()
     val styledIcon =
         @Composable {
             val iconColor by
                 animateColorAsState(
                     targetValue = colors.iconColor(selected = selected, enabled = enabled),
-                    // TODO Load the motionScheme tokens from the component tokens file
-                    animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+                    animationSpec = colorAnimationSpec
                 )
             // If there's a label, don't have a11y services repeat the icon description.
             val clearSemantics = label != null && (alwaysShowLabel || selected)
@@ -205,8 +205,7 @@ fun RowScope.NavigationBarItem(
                 val textColor by
                     animateColorAsState(
                         targetValue = colors.textColor(selected = selected, enabled = enabled),
-                        // TODO Load the motionScheme tokens from the component tokens file
-                        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
+                        animationSpec = colorAnimationSpec
                     )
                 ProvideContentColorTextStyle(
                     contentColor = textColor,

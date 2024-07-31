@@ -319,7 +319,6 @@ internal fun SnackbarDuration.toMillis(
 
 // TODO: to be replaced with the public customizable implementation
 // it's basically tweaked nullable version of Crossfade
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun FadeInFadeOutWithScale(
     current: SnackbarData?,

@@ -113,7 +113,6 @@ import kotlinx.coroutines.launch
  *   sheet's window behavior.
  * @param content The content to be displayed inside the bottom sheet.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 @ExperimentalMaterial3Api
 fun ModalBottomSheet(
@@ -429,7 +428,6 @@ fun rememberModalBottomSheetState(
         initialValue = Hidden,
     )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) {
     // TODO Load the motionScheme tokens from the component tokens file

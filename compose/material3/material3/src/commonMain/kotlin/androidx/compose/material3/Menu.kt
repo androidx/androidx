@@ -357,7 +357,6 @@ class MenuItemColors(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun DropdownMenuContent(
     modifier: Modifier,
@@ -373,18 +372,16 @@ internal fun DropdownMenuContent(
 ) {
     // Menu open/close animation.
     @Suppress("DEPRECATION") val transition = updateTransition(expandedState, "DropDownMenu")
-
+    // TODO Load the motionScheme tokens from the component tokens file
+    val scaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+    val alphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
     val scale by
-        transition.animateFloat(
-            // TODO Load the motionScheme tokens from the component tokens file
-            transitionSpec = { MotionSchemeKeyTokens.FastSpatial.value() }
-        ) { expanded ->
+        transition.animateFloat(transitionSpec = { scaleAnimationSpec }) { expanded ->
             if (expanded) ExpandedScaleTarget else ClosedScaleTarget
         }
 
     val alpha by
-        transition.animateFloat(transitionSpec = { MotionSchemeKeyTokens.FastEffects.value() }) {
-            expanded ->
+        transition.animateFloat(transitionSpec = { alphaAnimationSpec }) { expanded ->
             if (expanded) ExpandedAlphaTarget else ClosedAlphaTarget
         }
 
