@@ -53,8 +53,8 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ExperimentalRetryPolicy;
-import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.Logger;
 import androidx.camera.core.RetryPolicy;
 import androidx.camera.core.UseCase;
@@ -633,8 +633,8 @@ public final class CameraUtil {
                     null,
                     new RestrictedCameraInfo(camera.getCameraInfoInternal(), cameraConfig),
                     null,
-                    LayoutSettings.DEFAULT,
-                    LayoutSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
                     cameraX.getDefaultConfigFactory());

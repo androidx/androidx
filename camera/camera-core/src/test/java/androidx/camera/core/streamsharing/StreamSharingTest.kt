@@ -37,13 +37,13 @@ import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.LayoutSettings
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraCaptureCallback
@@ -134,8 +134,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1, child2),
                 useCaseConfigFactory
             )
@@ -171,8 +171,8 @@ class StreamSharingTest {
             StreamSharing(
                 frontCamera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
                 useCaseConfigFactory
             )
@@ -207,8 +207,8 @@ class StreamSharingTest {
             StreamSharing(
                 frontCamera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1),
                 useCaseConfigFactory
             )
@@ -230,8 +230,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1),
                 useCaseConfigFactory
             )
@@ -260,8 +260,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1),
                 useCaseConfigFactory
             )
@@ -358,8 +358,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
                 useCaseConfigFactory
             )
@@ -415,8 +415,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(unspecifiedChild, hdrChild),
                 useCaseConfigFactory
             )
@@ -452,8 +452,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(sdrChild, hdrChild),
                 useCaseConfigFactory
             )
@@ -535,8 +535,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
                 useCaseConfigFactory
             )
@@ -569,8 +569,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1, imageCapture),
                 useCaseConfigFactory
             )
@@ -605,8 +605,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1),
                 useCaseConfigFactory
             )
@@ -628,8 +628,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(child1),
                 useCaseConfigFactory
             )
@@ -655,8 +655,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(previewBuilder.build()),
                 Camera2UseCaseConfigFactory(context)
             )
@@ -873,8 +873,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
                 useCaseConfigFactory
             )
@@ -902,8 +902,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, videoCapture),
                 useCaseConfigFactory
             )
@@ -928,8 +928,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture),
                 useCaseConfigFactory
             )
@@ -952,8 +952,8 @@ class StreamSharingTest {
             StreamSharing(
                 camera,
                 secondaryCamera,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, imageCapture, videoCapture),
                 useCaseConfigFactory
             )

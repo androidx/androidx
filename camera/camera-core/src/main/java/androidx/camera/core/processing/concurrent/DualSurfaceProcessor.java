@@ -27,8 +27,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.Logger;
 import androidx.camera.core.ProcessingException;
 import androidx.camera.core.SurfaceOutput;
@@ -81,21 +81,23 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
     private SurfaceTexture mSecondarySurfaceTexture;
 
     DualSurfaceProcessor(@NonNull DynamicRange dynamicRange,
-            @NonNull LayoutSettings primaryLayoutSettings,
-            @NonNull LayoutSettings secondaryLayoutSettings) {
-        this(dynamicRange, Collections.emptyMap(), primaryLayoutSettings, secondaryLayoutSettings);
+            @NonNull CompositionSettings primaryCompositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings) {
+        this(dynamicRange, Collections.emptyMap(),
+                primaryCompositionSettings, secondaryCompositionSettings);
     }
 
     DualSurfaceProcessor(
             @NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides,
-            @NonNull LayoutSettings primaryLayoutSettings,
-            @NonNull LayoutSettings secondaryLayoutSettings) {
+            @NonNull CompositionSettings primaryCompositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
-        mGlRenderer = new DualOpenGlRenderer(primaryLayoutSettings, secondaryLayoutSettings);
+        mGlRenderer = new DualOpenGlRenderer(
+                primaryCompositionSettings, secondaryCompositionSettings);
         try {
             initGlRenderer(dynamicRange, shaderProviderOverrides);
         } catch (RuntimeException e) {
@@ -263,8 +265,9 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         private Factory() {
         }
 
-        private static Function3<DynamicRange, LayoutSettings,
-                LayoutSettings, SurfaceProcessorInternal> sSupplier = DualSurfaceProcessor::new;
+        private static Function3<DynamicRange, CompositionSettings,
+                CompositionSettings, SurfaceProcessorInternal> sSupplier =
+                DualSurfaceProcessor::new;
 
         /**
          * Creates a new {@link DefaultSurfaceProcessor} with no-op shader.
@@ -272,9 +275,10 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         @NonNull
         public static SurfaceProcessorInternal newInstance(
                 @NonNull DynamicRange dynamicRange,
-                @NonNull LayoutSettings primaryLayoutSettings,
-                @NonNull LayoutSettings secondaryLayoutSettings) {
-            return sSupplier.invoke(dynamicRange, primaryLayoutSettings, secondaryLayoutSettings);
+                @NonNull CompositionSettings primaryCompositionSettings,
+                @NonNull CompositionSettings secondaryCompositionSettings) {
+            return sSupplier.invoke(dynamicRange,
+                    primaryCompositionSettings, secondaryCompositionSettings);
         }
 
         /**
@@ -283,8 +287,8 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
         @VisibleForTesting
         public static void setSupplier(
                 @NonNull Function3<DynamicRange,
-                        LayoutSettings,
-                        LayoutSettings,
+                        CompositionSettings,
+                        CompositionSettings,
                         SurfaceProcessorInternal> supplier) {
             sSupplier = supplier;
         }
