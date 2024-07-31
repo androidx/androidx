@@ -216,8 +216,6 @@ dependencies {
     docs("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     docs("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.8.4")
     docs("androidx.loader:loader:1.1.0")
-    // localbroadcastmanager is deprecated
-    docsWithoutApiSince("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
     docs("androidx.media2:media2-common:1.3.0")
     docs("androidx.media2:media2-player:1.3.0")
     docs("androidx.media2:media2-session:1.3.0")
