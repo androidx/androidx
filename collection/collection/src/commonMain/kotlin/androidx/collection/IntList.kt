@@ -19,6 +19,9 @@
 package androidx.collection
 
 import androidx.annotation.IntRange
+import androidx.collection.internal.throwIllegalArgumentException
+import androidx.collection.internal.throwIndexOutOfBoundsException
+import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
@@ -146,7 +149,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public fun first(): Int {
         if (isEmpty()) {
-            throw NoSuchElementException("IntList is empty.")
+            throwNoSuchElementException("IntList is empty.")
         }
         return content[0]
     }
@@ -285,7 +288,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public operator fun get(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -296,7 +299,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public fun elementAt(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -367,7 +370,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public fun last(): Int {
         if (isEmpty()) {
-            throw NoSuchElementException("IntList is empty.")
+            throwNoSuchElementException("IntList is empty.")
         }
         return content[lastIndex]
     }
@@ -530,7 +533,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun add(@IntRange(from = 0) index: Int, element: Int) {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         ensureCapacity(_size + 1)
         val content = content
@@ -555,7 +558,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun addAll(@IntRange(from = 0) index: Int, elements: IntArray): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements.size)
@@ -582,7 +585,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun addAll(@IntRange(from = 0) index: Int, elements: IntList): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements._size)
@@ -728,7 +731,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun removeAt(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         val content = content
         val item = content[index]
@@ -752,10 +755,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
         if (start !in 0.._size || end !in 0.._size) {
-            throw IndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
+            throwIndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
         }
         if (end < start) {
-            throw IllegalArgumentException("Start ($start) is more than end ($end)")
+            throwIllegalArgumentException("Start ($start) is more than end ($end)")
         }
         if (end != start) {
             if (end < _size) {
@@ -812,7 +815,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public operator fun set(@IntRange(from = 0) index: Int, element: Int): Int {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
+            throwIndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
         }
         val content = content
         val old = content[index]

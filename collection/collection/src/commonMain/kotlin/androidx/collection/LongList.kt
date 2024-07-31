@@ -19,6 +19,9 @@
 package androidx.collection
 
 import androidx.annotation.IntRange
+import androidx.collection.internal.throwIllegalArgumentException
+import androidx.collection.internal.throwIndexOutOfBoundsException
+import androidx.collection.internal.throwNoSuchElementException
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
@@ -146,7 +149,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public fun first(): Long {
         if (isEmpty()) {
-            throw NoSuchElementException("LongList is empty.")
+            throwNoSuchElementException("LongList is empty.")
         }
         return content[0]
     }
@@ -285,7 +288,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public operator fun get(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -296,7 +299,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public fun elementAt(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         return content[index]
     }
@@ -368,7 +371,7 @@ public sealed class LongList(initialCapacity: Int) {
      */
     public fun last(): Long {
         if (isEmpty()) {
-            throw NoSuchElementException("LongList is empty.")
+            throwNoSuchElementException("LongList is empty.")
         }
         return content[lastIndex]
     }
@@ -531,7 +534,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun add(@IntRange(from = 0) index: Int, element: Long) {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         ensureCapacity(_size + 1)
         val content = content
@@ -556,7 +559,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun addAll(@IntRange(from = 0) index: Int, elements: LongArray): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements.size)
@@ -583,7 +586,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun addAll(@IntRange(from = 0) index: Int, elements: LongList): Boolean {
         if (index !in 0.._size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$_size")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$_size")
         }
         if (elements.isEmpty()) return false
         ensureCapacity(_size + elements._size)
@@ -730,7 +733,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun removeAt(@IntRange(from = 0) index: Int): Long {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
+            throwIndexOutOfBoundsException("Index $index must be in 0..$lastIndex")
         }
         val content = content
         val item = content[index]
@@ -754,10 +757,10 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
         if (start !in 0.._size || end !in 0.._size) {
-            throw IndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
+            throwIndexOutOfBoundsException("Start ($start) and end ($end) must be in 0..$_size")
         }
         if (end < start) {
-            throw IllegalArgumentException("Start ($start) is more than end ($end)")
+            throwIllegalArgumentException("Start ($start) is more than end ($end)")
         }
         if (end != start) {
             if (end < _size) {
@@ -814,7 +817,7 @@ public class MutableLongList(initialCapacity: Int = 16) : LongList(initialCapaci
      */
     public operator fun set(@IntRange(from = 0) index: Int, element: Long): Long {
         if (index !in 0 until _size) {
-            throw IndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
+            throwIndexOutOfBoundsException("set index $index must be between 0 .. $lastIndex")
         }
         val content = content
         val old = content[index]

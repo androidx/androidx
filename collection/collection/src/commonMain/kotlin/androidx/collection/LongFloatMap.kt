@@ -19,6 +19,7 @@
 package androidx.collection
 
 import androidx.collection.internal.requirePrecondition
+import androidx.collection.internal.throwNoSuchElementException
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
@@ -284,7 +285,7 @@ public sealed class LongFloatMap {
     public operator fun get(key: Long): Float {
         val index = findKeyIndex(key)
         if (index < 0) {
-            throw NoSuchElementException("Cannot find value for key $key")
+            throwNoSuchElementException("Cannot find value for key $key")
         }
         return values[index]
     }

@@ -20,6 +20,7 @@ package androidx.collection
 
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.requirePrecondition
+import androidx.collection.internal.throwNoSuchElementException
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
@@ -282,7 +283,7 @@ public sealed class ObjectLongMap<K> {
     public fun isNotEmpty(): Boolean = _size != 0
 
     /**
-     * Returns the value corresponding to the given [key], or `null` if such a key is not present in
+     * Returns the value corresponding to the given [key], or throws if the key is not present in
      * the map.
      *
      * @throws NoSuchElementException when [key] is not found
@@ -290,7 +291,7 @@ public sealed class ObjectLongMap<K> {
     public operator fun get(key: K): Long {
         val index = findKeyIndex(key)
         if (index < 0) {
-            throw NoSuchElementException("There is no key $key in the map")
+            throwNoSuchElementException("There is no key $key in the map")
         }
         return values[index]
     }
@@ -308,8 +309,8 @@ public sealed class ObjectLongMap<K> {
     }
 
     /**
-     * Returns the value for the given [key] if the value is present and not null. Otherwise,
-     * returns the result of the [defaultValue] function.
+     * Returns the value for the given [key] if the value is present. Otherwise, returns the result
+     * of the [defaultValue] function.
      */
     public inline fun getOrElse(key: K, defaultValue: () -> Long): Long {
         val index = findKeyIndex(key)
@@ -641,9 +642,8 @@ public class MutableObjectLongMap<K>(initialCapacity: Int = DefaultScatterCapaci
     }
 
     /**
-     * Returns the value to which the specified [key] is mapped, if the value is present in the map
-     * and not `null`. Otherwise, calls `defaultValue()` and puts the result in the map associated
-     * with [key].
+     * Returns the value to which the specified [key] is mapped, if the value is present in the map.
+     * Otherwise, calls `defaultValue()` and puts the result in the map associated with [key].
      */
     public inline fun getOrPut(key: K, defaultValue: () -> Long): Long {
         val index = findKeyIndex(key)
