@@ -25,10 +25,6 @@ import org.gradle.api.artifacts.component.ModuleComponentSelector
  */
 internal fun Project.configureMaxDepVersions(extension: AndroidXExtension) {
     if (!usingMaxDepVersions()) return
-    // TODO(153485458) remove most of these exceptions
-    if (name.contains("hilt") || name == "camera-testapp-timing" || name == "room-testapp") {
-        return
-    }
     val projectModules = extension.mavenCoordinatesToProjectPathMap
     configurations.configureEach { configuration ->
         configuration.resolutionStrategy.dependencySubstitution.apply {

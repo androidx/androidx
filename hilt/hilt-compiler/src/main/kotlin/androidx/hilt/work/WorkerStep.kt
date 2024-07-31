@@ -42,6 +42,8 @@ class WorkerStep : XProcessingStep {
         return emptySet()
     }
 
+    // usage of findTypeElement and requireType with -Pandroidx.maxDepVersions=true
+    @Suppress("DEPRECATION")
     private fun parse(env: XProcessingEnv, workerTypeElement: XTypeElement): WorkerElement? {
         var valid = true
 

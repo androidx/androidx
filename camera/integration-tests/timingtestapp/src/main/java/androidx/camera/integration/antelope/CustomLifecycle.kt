@@ -36,9 +36,7 @@ class CustomLifecycle : LifecycleOwner {
         lifecycleRegistry.currentState = Lifecycle.State.CREATED
     }
 
-    override fun getLifecycle(): Lifecycle {
-        return lifecycleRegistry
-    }
+    override val lifecycle: Lifecycle = lifecycleRegistry
 
     fun start() {
         if (Looper.myLooper() != mainHandler.looper) {

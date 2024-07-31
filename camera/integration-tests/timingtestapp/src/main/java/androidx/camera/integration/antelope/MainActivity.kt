@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         // Human readable report
         val humanReadableReportObserver =
-            Observer<String> { newReport -> binding.textLog.text = newReport ?: "" }
+            Observer<String> { newReport -> binding.textLog.text = newReport }
         camViewModel.getHumanReadableReport().observe(this, humanReadableReportObserver)
     }
 
