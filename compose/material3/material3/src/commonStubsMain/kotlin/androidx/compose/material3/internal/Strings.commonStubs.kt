@@ -32,6 +32,7 @@ internal actual value class Strings constructor(val value: Int) {
     actual companion object {
         actual val NavigationMenu: Strings = implementedInJetBrainsFork()
         actual val CloseDrawer: Strings = implementedInJetBrainsFork()
+        actual val CloseRail: Strings = implementedInJetBrainsFork()
         actual val CloseSheet: Strings = implementedInJetBrainsFork()
         actual val DefaultErrorMessage: Strings = implementedInJetBrainsFork()
         actual val SliderRangeStart: Strings = implementedInJetBrainsFork()
@@ -95,6 +96,7 @@ internal actual value class Strings constructor(val value: Int) {
         actual val TooltipPaneDescription: Strings = implementedInJetBrainsFork()
         actual val ExposedDropdownMenu: Strings = implementedInJetBrainsFork()
         actual val ToggleDropdownMenu: Strings = implementedInJetBrainsFork()
+        actual val WideNavigationRailPaneTitle: Strings = implementedInJetBrainsFork()
     }
 }
 

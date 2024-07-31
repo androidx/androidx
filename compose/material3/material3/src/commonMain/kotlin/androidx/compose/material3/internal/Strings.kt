@@ -27,6 +27,7 @@ internal expect value class Strings constructor(val value: Int) {
     companion object {
         val NavigationMenu: Strings
         val CloseDrawer: Strings
+        val CloseRail: Strings
         val CloseSheet: Strings
         val DefaultErrorMessage: Strings
         val ExposedDropdownMenu: Strings
@@ -90,6 +91,7 @@ internal expect value class Strings constructor(val value: Int) {
         val TimePickerHourTextField: Strings
         val TimePickerMinuteTextField: Strings
         val TooltipPaneDescription: Strings
+        val WideNavigationRailPaneTitle: Strings
     }
 }
 

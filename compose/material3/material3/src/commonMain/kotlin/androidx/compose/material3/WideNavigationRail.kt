@@ -37,7 +37,9 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.internal.DraggableAnchors
+import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
+import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -70,6 +72,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -787,12 +790,14 @@ private fun ModalWideNavigationRailContent(
     content: @Composable () -> Unit
 ) {
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val railPaneTitle = getString(string = Strings.WideNavigationRailPaneTitle)
 
     Box(
         modifier =
             modifier
                 .fillMaxHeight()
                 .widthIn(max = openModalRailMaxWidth)
+                .semantics { paneTitle = railPaneTitle }
                 .graphicsLayer {
                     // TODO: Implement predictive back behavior.
                 }
@@ -839,8 +844,7 @@ private fun Scrim(color: Color, onDismissRequest: suspend () -> Unit, visible: B
                 animationSpec = MotionSchemeKeyTokens.DefaultEffects.value()
             )
         var dismiss by remember { mutableStateOf(false) }
-        // TODO: Add this string in Strings.
-        val closeModalRail = "Close modal navigation rail."
+        val closeModalRail = getString(Strings.CloseRail)
         val dismissModalRail =
             if (visible) {
                 Modifier.pointerInput(onDismissRequest) { detectTapGestures { dismiss = true } }
