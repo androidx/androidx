@@ -38,10 +38,12 @@ import kotlin.math.sqrt
  *
  * @param modifier The [CurvedModifier] to apply to this curved composable.
  * @param radialAlignment How to align this component if it's thinner than the container.
- * @param rotationLocked if set to true, doesn't rotate the composable and only moves it into
- *   position. Note that this is not taken into account when computing the size this will take in
- *   the layout, so it's best suited for square/circular things and may require manual sizing when
- *   used in other contexts.
+ * @param rotationLocked by default (when this is false), the component will be rotated as it moves
+ *   around the circle, so its base always faces the center. If set to true, it won't be rotated and
+ *   only moved into position, for example, an upwards pointing arrow will remain pointing upwards
+ *   wherever it appears on the circle. Note that this is not taken into account when computing the
+ *   size this will take in the layout, so it's best suited for square/circular things and may
+ *   require manual sizing when used in other contexts.
  * @param content The composable(s) that will be wrapped and laid out as part of the parent
  *   container. This has a [BoxScope], since it's wrapped inside a Box.
  */
