@@ -27,7 +27,6 @@ val IosBugs = Screen.Selection(
     UIKitViewMatryoshka,
     KeyboardEmptyWhiteSpace,
     KeyboardPasswordType,
-    UIKitRenderSync,
     DispatchersMainDelayCheck,
     StartRecompositionCheck,
     BackspaceIssue,

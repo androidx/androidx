@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.uikit.utils.CMPGestureRecognizer
 import androidx.compose.ui.uikit.utils.CMPGestureRecognizerHandlerProtocol
 import androidx.compose.ui.viewinterop.InteropView
+import androidx.compose.ui.viewinterop.UIKitInteropViewGroup
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
@@ -59,7 +60,26 @@ private val UIGestureRecognizerState.isOngoing: Boolean
         }
 
 /**
- * Implementation of [CMPGestureRecognizerHandlerProtocol] that handles touch events and forwards
+ * Enum class representing the possible hit test result of [InteractionUIViewHitTestResult].
+ * This enum is used solely to determine the strategy of touch event delivery and
+ * doesn't require any additional information about the hit-tested view.
+ *
+ * [SELF] - Hit-tested Compose view.
+ * [COOPERATIVE_CHILD_VIEW] - Hit-tested child view that is okay with Compose receiving touches and
+ * delaying them for the child view.
+ * [UNCOOPERATIVE_CHILD_VIEW] - Hit-tested child view that doesn't want to cooperate with
+ * Compose and receives touches immediately.
+ * [NONE] - Hit test didn't yield any result.
+ */
+private enum class InteractionUIViewHitTestResult {
+    SELF,
+    COOPERATIVE_CHILD_VIEW,
+    UNCOOPERATIVE_CHILD_VIEW,
+    NONE
+}
+
+/**
+ * Implementation of [CMPGestureRecognizer] that handles touch events and forwards
  * them. The main difference from the original [UIView] touches based is that it's built on top of
  * [CMPGestureRecognizer], which play differently with UIKit touches processing and are required
  * for the correct handling of the touch events in interop scenarios, because they rely on
@@ -70,12 +90,12 @@ private class GestureRecognizerHandlerImpl(
     private var onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) -> Unit,
     private var view: UIView?,
     private val onTouchesCountChanged: (by: Int) -> Unit,
-): NSObject(), CMPGestureRecognizerHandlerProtocol {
+) : NSObject(), CMPGestureRecognizerHandlerProtocol {
     /**
      * The actual view that was hit-tested by the first touch in the sequence.
-     * It could be interop view, for example. If there are tracked touches assignment is ignored.
+     * It could be interop view, for example. If there are tracked touches, assignment is ignored.
      */
-    var hitTestView: UIView? = null
+    var hitTestResult = InteractionUIViewHitTestResult.NONE
         set(value) {
             /**
              * Only remember the first hit-tested view in the sequence.
@@ -182,11 +202,20 @@ private class GestureRecognizerHandlerImpl(
      *
      */
     override fun touchesBegan(touches: Set<*>, withEvent: UIEvent?) {
+        if (hitTestResult == InteractionUIViewHitTestResult.UNCOOPERATIVE_CHILD_VIEW) {
+            // If child view doesn't want delay logic applied, we should immediately fail the gesture
+            // and allow touches to go through directly to that view, gesture recognizer should
+            // fail immediately, no touches will be received by Compose and the gesture recognizer after
+            // this point until all fingers are lifted.
+            gestureRecognizerState = UIGestureRecognizerStateFailed
+            return
+        }
+
         val areTouchesInitial = startTrackingTouches(touches)
 
         onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.BEGAN)
 
-        if (gestureRecognizerState.isOngoing || hitTestView == view) {
+        if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, immediately start/continue the gesture recognizer if possible and pass touches.
             when (gestureRecognizerState) {
                 UIGestureRecognizerStatePossible -> {
@@ -222,7 +251,7 @@ private class GestureRecognizerHandlerImpl(
     override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
         onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.MOVED)
 
-        if (gestureRecognizerState.isOngoing || hitTestView == view) {
+        if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state and pass touches to
             // the Compose runtime.
 
@@ -252,17 +281,15 @@ private class GestureRecognizerHandlerImpl(
 
         onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.ENDED)
 
-        if (gestureRecognizerState.isOngoing || hitTestView == view) {
+        if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state and pass touches to
             // the Compose runtime.
 
-            when (gestureRecognizerState) {
-                UIGestureRecognizerStateBegan, UIGestureRecognizerStateChanged -> {
-                    gestureRecognizerState = if (trackedTouches.isEmpty()) {
-                        UIGestureRecognizerStateEnded
-                    } else {
-                        UIGestureRecognizerStateChanged
-                    }
+            if (gestureRecognizerState.isOngoing) {
+                gestureRecognizerState = if (trackedTouches.isEmpty()) {
+                    UIGestureRecognizerStateEnded
+                } else {
+                    UIGestureRecognizerStateChanged
                 }
             }
         } else {
@@ -291,16 +318,14 @@ private class GestureRecognizerHandlerImpl(
 
         onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.CANCELLED)
 
-        if (hitTestView == view) {
+        if (hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state.
 
-            when (gestureRecognizerState) {
-                UIGestureRecognizerStateBegan, UIGestureRecognizerStateChanged -> {
-                    gestureRecognizerState = if (trackedTouches.isEmpty()) {
-                        UIGestureRecognizerStateCancelled
-                    } else {
-                        UIGestureRecognizerStateChanged
-                    }
+            if (gestureRecognizerState.isOngoing) {
+                gestureRecognizerState = if (trackedTouches.isEmpty()) {
+                    UIGestureRecognizerStateCancelled
+                } else {
+                    UIGestureRecognizerStateChanged
                 }
             }
         } else {
@@ -470,28 +495,29 @@ internal class InteractionUIView(
         super.pressesEnded(presses, withEvent)
     }
 
-    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? = savingHitTestResult {
-        if (!inInteractionBounds(point)) {
-            null
-        } else {
-            // Find if a scene contains a [InteropViewAnchorModifierNode] at the given point.
-            val interopView = hitTestInteropView(point, withEvent)
-
-            if (interopView == null) {
-                // Native [hitTest] happens after [pointInside] is checked. If hit testing
-                // inside ComposeScene didn't yield any interop view, then we should return [this]
-                this
+    override fun hitTest(point: CValue<CGPoint>, withEvent: UIEvent?): UIView? =
+        savingHitTestResult {
+            if (!inInteractionBounds(point)) {
+                null
             } else {
-                // Transform the point to the interop view's coordinate system.
-                // And perform native [hitTest] on the interop view.
-                // Return this view if the interop view doesn't handle the hit test.
-                interopView.hitTest(
-                    point = convertPoint(point, toView = interopView),
-                    withEvent = withEvent
-                ) ?: this
+                // Find if a scene contains a [InteropViewAnchorModifierNode] at the given point.
+                val interopView = hitTestInteropView(point, withEvent)
+
+                if (interopView == null) {
+                    // Native [hitTest] happens after [pointInside] is checked. If hit testing
+                    // inside ComposeScene didn't yield any interop view, then we should return [this]
+                    this
+                } else {
+                    // Transform the point to the interop view's coordinate system.
+                    // And perform native [hitTest] on the interop view.
+                    // Return this view if the interop view doesn't handle the hit test.
+                    interopView.hitTest(
+                        point = convertPoint(point, toView = interopView),
+                        withEvent = withEvent
+                    ) ?: this
+                }
             }
         }
-    }
 
     /**
      * Intentionally clean up all dependencies of InteractionUIView to prevent retain cycles that
@@ -516,7 +542,42 @@ internal class InteractionUIView(
      */
     private fun savingHitTestResult(hitTestBlock: () -> UIView?): UIView? {
         val result = hitTestBlock()
-        gestureRecognizerHandler.hitTestView = result
+        gestureRecognizerHandler.hitTestResult = if (result == null) {
+            InteractionUIViewHitTestResult.NONE
+        } else {
+            if (result == this) {
+                InteractionUIViewHitTestResult.SELF
+            } else {
+                // All views beneath are considered to be interop views.
+                // If the hit-tested view is not a descendant of [InteropWrappingView], then it
+                // should be considered as a view that doesn't want to cooperate with Compose.
+
+                val areTouchesDelayed = result.interopViewGroup?.areTouchesDelayed ?: false
+
+                if (areTouchesDelayed) {
+                    InteractionUIViewHitTestResult.COOPERATIVE_CHILD_VIEW
+                } else {
+                    InteractionUIViewHitTestResult.UNCOOPERATIVE_CHILD_VIEW
+                }
+            }
+        }
         return result
     }
 }
+
+/**
+ * There is no way to associate [UIKitInteropViewGroup.areTouchesDelayed] with a given hitTest query.
+ * This extension property allows to find the nearest [UIKitInteropViewGroup] up the view hierarchy
+ * and request the value retroactively.
+ */
+private val UIView.interopViewGroup: UIKitInteropViewGroup?
+    get() {
+        var view: UIView? = this
+        while (view != null) {
+            if (view is UIKitInteropViewGroup) {
+                return view
+            }
+            view = view.superview
+        }
+        return null
+    }

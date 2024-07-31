@@ -22,6 +22,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.State
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
@@ -170,7 +172,7 @@ fun <T : UIView> UIKitView(
     onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
     onResize: (view: T, rect: CValue<CGRect>) -> Unit = DefaultViewResize,
     interactive: Boolean = true,
-    accessibilityEnabled: Boolean = true,
+    accessibilityEnabled: Boolean = true
 ) {
     val interopContainer = LocalInteropContainer.current
     val interopViewHolder = remember {
@@ -178,7 +180,8 @@ fun <T : UIView> UIKitView(
             container = interopContainer,
             createView = factory,
             onResize = onResize,
-            onRelease = onRelease
+            onRelease = onRelease,
+            areTouchesDelayed = true
         )
     }
 
@@ -231,7 +234,7 @@ fun <T : UIViewController> UIKitViewController(
     onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
     onResize: (viewController: T, rect: CValue<CGRect>) -> Unit = DefaultViewControllerResize,
     interactive: Boolean = true,
-    accessibilityEnabled: Boolean = true,
+    accessibilityEnabled: Boolean = true
 ) {
     val interopContainer = LocalInteropContainer.current
     val rootViewController = LocalUIViewController.current
@@ -241,7 +244,8 @@ fun <T : UIViewController> UIKitViewController(
             createViewController = factory,
             rootViewController = rootViewController,
             onResize = onResize,
-            onRelease = onRelease
+            onRelease = onRelease,
+            areTouchesDelayed = true
         )
     }
 
@@ -267,7 +271,8 @@ private abstract class UIKitInteropViewHolder<T : Any>(
     val createUserComponent: () -> T,
     val onResize: (T, rect: CValue<CGRect>) -> Unit,
     val onRelease: (T) -> Unit,
-) : InteropViewHolder(container, group = UIKitInteropViewGroup()) {
+    areTouchesDelayed: Boolean
+) : InteropViewHolder(container, group = UIKitInteropViewGroup(areTouchesDelayed)) {
     private var currentUnclippedRect: IntRect? = null
     private var currentClippedRect: IntRect? = null
     lateinit var userComponent: T
@@ -365,9 +370,10 @@ private class UIKitViewHolder<T : UIView>(
     container: InteropContainer,
     createView: () -> T,
     onResize: (T, rect: CValue<CGRect>) -> Unit,
-    onRelease: (T) -> Unit
-) : UIKitInteropViewHolder<T>(container, createView, onResize, onRelease) {
-    override fun getInteropView(): InteropView? =
+    onRelease: (T) -> Unit,
+    areTouchesDelayed: Boolean
+) : UIKitInteropViewHolder<T>(container, createView, onResize, onRelease, areTouchesDelayed) {
+    override fun getInteropView(): InteropView =
         userComponent
 
     override fun setupViewHierarchy() {
@@ -383,9 +389,10 @@ private class UIKitViewControllerHolder<T : UIViewController>(
     createViewController: () -> T,
     private val rootViewController: UIViewController,
     onResize: (T, rect: CValue<CGRect>) -> Unit,
-    onRelease: (T) -> Unit
-) : UIKitInteropViewHolder<T>(container, createViewController, onResize, onRelease) {
-    override fun getInteropView(): InteropView? =
+    onRelease: (T) -> Unit,
+    areTouchesDelayed: Boolean
+) : UIKitInteropViewHolder<T>(container, createViewController, onResize, onRelease, areTouchesDelayed) {
+    override fun getInteropView(): InteropView =
         userComponent.view
 
     override fun setupViewHierarchy() {

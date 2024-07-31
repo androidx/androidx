@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.compose.mpp.demo.bugs
+package androidx.compose.mpp.demo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.mpp.demo.Screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +28,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.interop.UIKitViewController
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.readValue
@@ -69,37 +69,76 @@ private class TouchReactingView: UIView(frame = CGRectZero.readValue()) {
     }
 }
 
-val UIKitRenderSync = Screen.Example("UIKitRenderSync") {
+val UIKitInteropExample = Screen.Example("UIKitInterop") {
     var text by remember { mutableStateOf("Type something") }
     LazyColumn(Modifier.fillMaxSize()) {
+        item {
+            UIKitView(
+                factory = {
+                    MKMapView()
+                },
+                modifier = Modifier.fillMaxWidth().height(200.dp),
+                areTouchesDelayed = false
+            )
+        }
+
+        item {
+            UIKitViewController(
+                factory = {
+                    object : UIViewController(nibName = null, bundle = null) {
+                        override fun viewDidLoad() {
+                            super.viewDidLoad()
+
+                            view.backgroundColor = UIColor.blueColor
+                        }
+
+                        override fun viewWillAppear(animated: Boolean) {
+                            super.viewWillAppear(animated)
+
+                            println("viewWillAppear animated=$animated")
+                        }
+
+                        override fun viewDidAppear(animated: Boolean) {
+                            super.viewDidAppear(animated)
+
+                            println("viewDidAppear animated=$animated")
+                        }
+
+                        override fun viewDidDisappear(animated: Boolean) {
+                            super.viewDidDisappear(animated)
+
+                            println("viewDidDisappear animated=$animated")
+                        }
+
+                        override fun viewWillDisappear(animated: Boolean) {
+                            super.viewWillDisappear(animated)
+
+                            println("viewWillDisappear animated=$animated")
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().height(100.dp),
+            )
+        }
         items(100) { index ->
-            if (index == 0) {
-                UIKitView(
+            when (index % 5) {
+                0 -> Text("material.Text $index", Modifier.fillMaxSize().height(40.dp))
+                1 -> UIKitView(
                     factory = {
-                        MKMapView()
+                        val label = UILabel(frame = CGRectZero.readValue())
+                        label.text = "UILabel $index"
+                        label.textColor = UIColor.blackColor
+                        label
                     },
-                    modifier = Modifier.fillMaxWidth().height(200.dp)
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
+                    interactive = false
                 )
-            } else {
-                when (index % 5) {
-                    0 -> Text("material.Text $index", Modifier.fillMaxSize().height(40.dp))
-                    1 -> UIKitView(
-                        factory = {
-                            val label = UILabel(frame = CGRectZero.readValue())
-                            label.text = "UILabel $index"
-                            label.textColor = UIColor.blackColor
-                            label
-                        },
-                        modifier = Modifier.fillMaxWidth().height(40.dp),
-                        interactive = false
-                    )
-                    2 -> TextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth())
-                    3 -> ComposeUITextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth().height(40.dp))
-                    4 -> UIKitView(
-                        factory = { TouchReactingView() },
-                        modifier = Modifier.fillMaxWidth().height(40.dp)
-                    )
-                }
+                2 -> TextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth())
+                3 -> ComposeUITextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth().height(40.dp))
+                4 -> UIKitView(
+                    factory = { TouchReactingView() },
+                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                )
             }
         }
     }

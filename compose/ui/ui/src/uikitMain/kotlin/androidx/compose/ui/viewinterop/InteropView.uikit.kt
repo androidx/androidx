@@ -38,8 +38,14 @@ internal actual typealias InteropViewGroup = UIView
 /**
  * A [UIView] that contains underlying interop element, such as an independent [UIView]
  * or [UIViewController]'s root [UIView].
+ *
+ * @param areTouchesDelayed indicates whether the touches are allowed to be delayed by Compose
+ * in attempt to intercept touches, or should get delivered to the interop view immediately without
+ * Compose being aware of them.
  */
-internal class UIKitInteropViewGroup : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
+internal class UIKitInteropViewGroup(
+    val areTouchesDelayed: Boolean
+) : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
 
     init {
