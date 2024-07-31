@@ -56,8 +56,6 @@ class TestScheduler(
     override fun hasLimitedSchedulingSlots() = true
 
     override fun schedule(vararg workSpecs: WorkSpec) {
-        require(clock.currentTimeMillis() != 0L) { "WorkManager's Clock must not start at 0" }
-
         if (workSpecs.isEmpty()) {
             return
         }

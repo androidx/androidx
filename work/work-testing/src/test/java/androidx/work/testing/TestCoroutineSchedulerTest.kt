@@ -70,7 +70,7 @@ class TestCoroutineSchedulerTest {
     private lateinit var workManager: WorkManager
 
     private val shadowLooper = shadowOf(Looper.getMainLooper())
-    private val testCoroutineScheduler = TestCoroutineScheduler().apply { advanceTimeBy(1) }
+    private val testCoroutineScheduler = TestCoroutineScheduler()
     private val testCoroutineDispatcher = StandardTestDispatcher(testCoroutineScheduler)
     private val testRunnableScheduler =
         CoroutineDispatcherRunnableScheduler(testCoroutineDispatcher)
