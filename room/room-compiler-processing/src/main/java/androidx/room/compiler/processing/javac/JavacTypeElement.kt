@@ -142,7 +142,8 @@ internal sealed class JavacTypeElement(env: JavacProcessingEnv, override val ele
     }
 
     override fun isRecordClass(): Boolean {
-        return element.kind == ElementKind.RECORD
+        val recordType = env.findType("java.lang.Record") ?: return false
+        return superClass?.let { recordType.isAssignableFrom(it) } == true
     }
 
     override fun findPrimaryConstructor(): JavacConstructorElement? {
