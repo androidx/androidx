@@ -24,6 +24,9 @@ plugins {
 android {
     compileSdk 35
     namespace "androidx.compose.runtime.benchmark"
+
+    // Experiment to observe effect of minification on noise, see b/354264743
+    buildTypes.release.androidTest.enableMinification = true
 }
 
 dependencies {
