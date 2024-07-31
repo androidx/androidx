@@ -27,10 +27,9 @@ import org.junit.runners.JUnit4
 class MeshTest {
 
     @Test
-    fun rawVertexData_isDirectReadOnlyAndEmpty() {
+    fun rawVertexData_emptyIsReadOnly() {
         val mesh = Mesh()
 
-        assertThat(mesh.rawVertexData.isDirect).isTrue()
         assertThat(mesh.rawVertexData.isReadOnly).isTrue()
         // Fails with different exception type on different API levels.
         assertFails { mesh.rawVertexData.put(5.toByte()) }
@@ -53,10 +52,9 @@ class MeshTest {
     }
 
     @Test
-    fun rawIndexData_isDirectReadOnlyAndEmpty() {
+    fun rawIndexData_emptyIsReadOnly() {
         val mesh = Mesh()
 
-        assertThat(mesh.rawTriangleIndexData.isDirect).isTrue()
         assertThat(mesh.rawTriangleIndexData.isReadOnly).isTrue()
         // Fails with different exception type on different API levels.
         assertFails { mesh.rawTriangleIndexData.put(5) }

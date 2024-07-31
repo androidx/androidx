@@ -80,10 +80,6 @@ androidXMultiplatform {
 
 android {
   namespace = "androidx.ink.geometry"
-  defaultConfig {
-    // TODO - b/356621648: Remove when API 21 emulator issue is fixed.
-    minSdkVersion 22
-  }
 }
 
 androidx {

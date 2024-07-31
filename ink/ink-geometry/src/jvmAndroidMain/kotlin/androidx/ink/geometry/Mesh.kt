@@ -65,7 +65,8 @@ public constructor(
      * become invalid.
      */
     public val rawVertexData: ByteBuffer =
-        MeshNative.createRawVertexBuffer(nativeAddress).asReadOnlyBuffer()
+        (MeshNative.createRawVertexBuffer(nativeAddress) ?: ByteBuffer.allocate(0))
+            .asReadOnlyBuffer()
 
     /** The number of bytes used to represent a vertex in the [rawVertexData]. */
     public val vertexStride: Int = MeshNative.getVertexStride(nativeAddress)
@@ -89,7 +90,9 @@ public constructor(
      * become invalid.
      */
     public val rawTriangleIndexData: ShortBuffer =
-        MeshNative.createRawTriangleIndexBuffer(nativeAddress).asReadOnlyBuffer().asShortBuffer()
+        (MeshNative.createRawTriangleIndexBuffer(nativeAddress) ?: ByteBuffer.allocate(0))
+            .asReadOnlyBuffer()
+            .asShortBuffer()
 
     /**
      * The number of triangles represented in [rawTriangleIndexData]. The number of triangle indices
@@ -177,7 +180,7 @@ private object MeshNative {
      */
     external fun createRawVertexBuffer(
         nativeAddress: Long
-    ): ByteBuffer // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    ): ByteBuffer? // TODO: b/355248266 - @Keep must go in Proguard config file instead.
 
     external fun getVertexStride(
         nativeAddress: Long
@@ -190,7 +193,7 @@ private object MeshNative {
     /** Like [createRawVertexBuffer], but with `ink::Mesh::RawIndexData`. */
     external fun createRawTriangleIndexBuffer(
         nativeAddress: Long
-    ): ByteBuffer // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    ): ByteBuffer? // TODO: b/355248266 - @Keep must go in Proguard config file instead.
 
     external fun getTriangleCount(
         nativeAddress: Long
