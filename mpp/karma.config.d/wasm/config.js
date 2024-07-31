@@ -70,3 +70,13 @@ const KarmaWebpackOutputPlugin = {
 
 config.plugins.push(KarmaWebpackOutputPlugin);
 config.frameworks.push("webpack-output");
+
+
+config.customLaunchers = {
+    ChromeForComposeTests: {
+        base: "Chrome",
+        flags: ["--disable-search-engine-choice-screen"]
+    }
+}
+
+config.browsers = ["ChromeForComposeTests"]
