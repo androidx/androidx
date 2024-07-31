@@ -21,11 +21,9 @@ import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.interaction.FocusInteraction
-import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -45,7 +43,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,15 +60,14 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 /**
  * TODO link to mio page when available.
  *
  * Toggle button is a toggleable button that switches between primary and tonal colors depending on
- * [checked]'s value. It also morphs between the five shapes provided in [shapes] depending on the
- * state of the interaction with the toggle button as long as the five shapes provided our
+ * [checked]'s value. It also morphs between the three shapes provided in [shapes] depending on the
+ * state of the interaction with the toggle button as long as the three shapes provided our
  * [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then toggle button will
  * toggle between the [ButtonShapes] according to user interaction.
  *
@@ -120,8 +116,6 @@ fun ToggleButton(
         ToggleButtonDefaults.shapes(
             ToggleButtonDefaults.shape,
             ToggleButtonDefaults.pressedShape,
-            ToggleButtonDefaults.hoveredShape,
-            ToggleButtonDefaults.focusedShape,
             ToggleButtonDefaults.checkedShape
         ),
     colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
@@ -136,66 +130,31 @@ fun ToggleButton(
     val isCornerBasedShape =
         shapes.shape is CornerBasedShape &&
             shapes.checkedShape is CornerBasedShape &&
-            shapes.pressedShape is CornerBasedShape &&
-            shapes.hoveredShape is CornerBasedShape &&
-            shapes.focusedShape is CornerBasedShape
+            shapes.pressedShape is CornerBasedShape
 
-    var pressed by remember { mutableStateOf(false) }
-    var hovered by remember { mutableStateOf(false) }
-    var focused by remember { mutableStateOf(false) }
+    val pressed by interactionSource.collectIsPressedAsState()
 
     val state: AnimatedShapeState? =
         if (isCornerBasedShape) {
             val defaultShape = shapes.shape as CornerBasedShape
             val pressedShape = shapes.pressedShape as CornerBasedShape
-            val hoveredShape = shapes.hoveredShape as CornerBasedShape
-            val focusedShape = shapes.focusedShape as CornerBasedShape
             val checkedShape = shapes.checkedShape as CornerBasedShape
             remember {
                 AnimatedShapeState(
                     startShape = if (checked) checkedShape else defaultShape,
                     defaultShape = defaultShape,
                     pressedShape = pressedShape,
-                    hoveredShape = hoveredShape,
-                    focusedShape = focusedShape,
                     checkedShape = checkedShape,
                     spring(),
                 )
             }
         } else null
 
-    LaunchedEffect(interactionSource) {
-        interactionSource.interactions.collectLatest { interaction ->
-            when (interaction) {
-                is PressInteraction.Press -> {
-                    pressed = true
-                }
-                is HoverInteraction.Enter -> {
-                    hovered = true
-                }
-                is FocusInteraction.Focus -> {
-                    focused = true
-                }
-                is PressInteraction.Release,
-                is PressInteraction.Cancel -> {
-                    pressed = false
-                }
-                is HoverInteraction.Exit -> {
-                    hovered = false
-                }
-                is FocusInteraction.Unfocus -> {
-                    focused = false
-                }
-            }
-        }
-    }
-
     val containerColor = colors.containerColor(enabled, checked)
     val contentColor = colors.contentColor(enabled, checked)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
 
-    val buttonShape =
-        shapeByInteraction(isCornerBasedShape, state, shapes, pressed, hovered, focused, checked)
+    val buttonShape = shapeByInteraction(isCornerBasedShape, state, shapes, pressed, checked)
 
     Surface(
         checked = checked,
@@ -234,8 +193,8 @@ fun ToggleButton(
  * TODO link to mio page when available.
  *
  * Toggle button is a toggleable button that switches between primary and tonal colors depending on
- * [checked]'s value. It also morphs between the five shapes provided in [shapes] depending on the
- * state of the interaction with the toggle button as long as the five shapes provided our
+ * [checked]'s value. It also morphs between the three shapes provided in [shapes] depending on the
+ * state of the interaction with the toggle button as long as the three shapes provided our
  * [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then toggle button will
  * toggle between the [ButtonShapes] according to user interaction.
  *
@@ -282,8 +241,6 @@ fun ElevatedToggleButton(
         ToggleButtonDefaults.shapes(
             ToggleButtonDefaults.elevatedShape,
             ToggleButtonDefaults.elevatedPressedShape,
-            ToggleButtonDefaults.elevatedHoveredShape,
-            ToggleButtonDefaults.elevatedFocusedShape,
             ToggleButtonDefaults.elevatedCheckedShape
         ),
     colors: ToggleButtonColors = ToggleButtonDefaults.elevatedToggleButtonColors(),
@@ -311,8 +268,8 @@ fun ElevatedToggleButton(
  * TODO link to mio page when available.
  *
  * Toggle button is a toggleable button that switches between primary and tonal colors depending on
- * [checked]'s value. It also morphs between the five shapes provided in [shapes] depending on the
- * state of the interaction with the toggle button as long as the five shapes provided our
+ * [checked]'s value. It also morphs between the three shapes provided in [shapes] depending on the
+ * state of the interaction with the toggle button as long as the three shapes provided our
  * [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then toggle button will
  * toggle between the [ButtonShapes] according to user interaction.
  *
@@ -362,8 +319,6 @@ fun TonalToggleButton(
         ToggleButtonDefaults.shapes(
             ToggleButtonDefaults.tonalShape,
             ToggleButtonDefaults.tonalPressedShape,
-            ToggleButtonDefaults.tonalHoveredShape,
-            ToggleButtonDefaults.tonalFocusedShape,
             ToggleButtonDefaults.tonalCheckedShape
         ),
     colors: ToggleButtonColors = ToggleButtonDefaults.tonalToggleButtonColors(),
@@ -391,8 +346,8 @@ fun TonalToggleButton(
  * TODO link to mio page when available.
  *
  * Toggle button is a toggleable button that switches between primary and tonal colors depending on
- * [checked]'s value. It also morphs between the five shapes provided in [shapes] depending on the
- * state of the interaction with the toggle button as long as the five shapes provided our
+ * [checked]'s value. It also morphs between the three shapes provided in [shapes] depending on the
+ * state of the interaction with the toggle button as long as the three shapes provided our
  * [CornerBasedShape]s. If a shape in [shapes] isn't a [CornerBasedShape], then toggle button will
  * toggle between the [ButtonShapes] according to user interaction.
  *
@@ -440,8 +395,6 @@ fun OutlinedToggleButton(
         ToggleButtonDefaults.shapes(
             ToggleButtonDefaults.outlinedShape,
             ToggleButtonDefaults.outlinedPressedShape,
-            ToggleButtonDefaults.outlinedHoveredShape,
-            ToggleButtonDefaults.outlinedFocusedShape,
             ToggleButtonDefaults.outlinedCheckedShape
         ),
     colors: ToggleButtonColors = ToggleButtonDefaults.outlinedToggleButtonColors(),
@@ -506,17 +459,10 @@ object ToggleButtonDefaults {
      *
      * @param shape the unchecked shape for [ButtonShapes]
      * @param pressedShape the unchecked shape for [ButtonShapes]
-     * @param hoverShape the unchecked shape for [ButtonShapes]
-     * @param focusShape the unchecked shape for [ButtonShapes]
      * @param checkedShape the unchecked shape for [ButtonShapes]
      */
-    fun shapes(
-        shape: Shape,
-        pressedShape: Shape,
-        hoverShape: Shape,
-        focusShape: Shape,
-        checkedShape: Shape
-    ): ButtonShapes = ButtonShapes(shape, pressedShape, hoverShape, focusShape, checkedShape)
+    fun shapes(shape: Shape, pressedShape: Shape, checkedShape: Shape): ButtonShapes =
+        ButtonShapes(shape, pressedShape, checkedShape)
 
     /** A round shape that can be used for all [ToggleButton]s and its variants */
     val roundShape: Shape
@@ -553,30 +499,6 @@ object ToggleButtonDefaults {
 
     /** The default pressed shape for [OutlinedToggleButton] */
     val outlinedPressedShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default hovered shape for [ToggleButton] */
-    val hoveredShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default hovered shape for [ElevatedToggleButton] */
-    val elevatedHoveredShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default hovered shape for [TonalToggleButton] */
-    val tonalHoveredShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default hovered shape for [OutlinedToggleButton] */
-    val outlinedHoveredShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default focused shape for [ToggleButton] */
-    val focusedShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default focused shape for [ElevatedToggleButton] */
-    val elevatedFocusedShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default focused shape for [TonalToggleButton] */
-    val tonalFocusedShape: Shape = RoundedCornerShape(6.dp)
-
-    /** The default focused shape for [OutlinedToggleButton] */
-    val outlinedFocusedShape: Shape = RoundedCornerShape(6.dp)
 
     // TODO: Change this to the new ButtonSmallTokens.SelectedShape when available
     /** The default checked shape for [ToggleButton] */
@@ -939,17 +861,9 @@ class ToggleButtonColors(
  *
  * @property shape is the unchecked shape.
  * @property pressedShape is the pressed shape.
- * @property hoveredShape is the hovered shape.
- * @property focusedShape is the focused shape.
  * @property checkedShape is the checked shape.
  */
-data class ButtonShapes(
-    val shape: Shape,
-    val pressedShape: Shape,
-    val hoveredShape: Shape,
-    val focusedShape: Shape,
-    val checkedShape: Shape
-)
+data class ButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape)
 
 @Composable
 private fun shapeByInteraction(
@@ -957,19 +871,13 @@ private fun shapeByInteraction(
     state: AnimatedShapeState?,
     shapes: ButtonShapes,
     pressed: Boolean,
-    hovered: Boolean,
-    focused: Boolean,
     checked: Boolean
 ): Shape {
     return if (isCornerBasedShape) {
         if (state != null) {
-            LaunchedEffect(pressed, hovered, focused, checked) {
+            LaunchedEffect(pressed, checked) {
                 if (pressed) {
                     state.animateToPressed()
-                } else if (hovered) {
-                    state.animateToHovered()
-                } else if (focused) {
-                    state.animateToFocused()
                 } else if (checked) {
                     state.animateToChecked()
                 } else {
@@ -982,10 +890,6 @@ private fun shapeByInteraction(
         }
     } else if (pressed) {
         shapes.pressedShape
-    } else if (hovered) {
-        shapes.hoveredShape
-    } else if (focused) {
-        shapes.focusedShape
     } else if (checked) {
         shapes.checkedShape
     } else {
@@ -997,6 +901,7 @@ private fun shapeByInteraction(
 private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
     val density = LocalDensity.current
     state.density = density
+
     return remember(density) {
         object : Shape {
 
@@ -1028,8 +933,6 @@ private class AnimatedShapeState(
     val startShape: CornerBasedShape,
     val defaultShape: CornerBasedShape,
     val pressedShape: CornerBasedShape,
-    val hoveredShape: CornerBasedShape,
-    val focusedShape: CornerBasedShape,
     val checkedShape: CornerBasedShape,
     val spec: SpringSpec<Float>,
 ) {
@@ -1062,10 +965,6 @@ private class AnimatedShapeState(
     suspend fun animateToChecked() = animateToShape(checkedShape)
 
     suspend fun animateToDefault() = animateToShape(defaultShape)
-
-    suspend fun animateToHovered() = animateToShape(hoveredShape)
-
-    suspend fun animateToFocused() = animateToShape(focusedShape)
 
     private suspend fun animateToShape(shape: CornerBasedShape) = coroutineScope {
         launch { topStart?.animateTo(shape.topStart.toPx(size, density), spec) }

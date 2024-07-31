@@ -57,8 +57,6 @@ fun RoundToggleButtonSample() {
         ButtonShapes(
             shape = ToggleButtonDefaults.roundShape,
             pressedShape = ToggleButtonDefaults.pressedShape,
-            hoveredShape = ToggleButtonDefaults.hoveredShape,
-            focusedShape = ToggleButtonDefaults.focusedShape,
             checkedShape = ToggleButtonDefaults.squareShape
         )
     ToggleButton(checked = checked, onCheckedChange = { checked = it }, shapes = shapes) {
