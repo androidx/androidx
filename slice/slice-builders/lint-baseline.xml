@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: SliceHints.LARGE_IMAGE, SliceHints.SMALL_IMAGE, SliceHints.ICON_IMAGE, SliceHints.RAW_IMAGE_SMALL, SliceHints.RAW_IMAGE_LARGE, SliceHints.UNKNOWN_IMAGE, SliceHints.ACTION_WITH_LABEL"
+        errorLine1="        mSliceAction = new SliceActionImpl(action, actionIcon, imageMode, actionTitle);"
+        errorLine2="                                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/SliceAction.java"/>
+    </issue>
 
     <issue
         id="WrongConstant"

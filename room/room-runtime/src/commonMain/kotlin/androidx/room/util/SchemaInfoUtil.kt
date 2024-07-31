@@ -20,6 +20,7 @@ import androidx.room.ColumnInfo
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.use
+import kotlin.collections.removeLast as removeLastKt
 
 /**
  * Implements https://www.sqlite.org/datatype3.html section 3.1
@@ -333,7 +334,7 @@ internal fun parseFtsOptions(createStatement: String): Set<String> {
                 if (quoteStack.isEmpty()) {
                     quoteStack.addFirst(value)
                 } else if (quoteStack.firstOrNull() == value) {
-                    quoteStack.removeLast()
+                    quoteStack.removeLastKt()
                 }
             '[' ->
                 if (quoteStack.isEmpty()) {
@@ -341,7 +342,7 @@ internal fun parseFtsOptions(createStatement: String): Set<String> {
                 }
             ']' ->
                 if (!quoteStack.isEmpty() && quoteStack.firstOrNull() == '[') {
-                    quoteStack.removeLast()
+                    quoteStack.removeLastKt()
                 }
             ',' ->
                 if (quoteStack.isEmpty()) {

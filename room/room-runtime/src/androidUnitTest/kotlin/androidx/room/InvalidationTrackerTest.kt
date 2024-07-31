@@ -27,6 +27,7 @@ import java.lang.ref.WeakReference
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.test.assertFailsWith
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.TimeoutCancellationException
@@ -589,7 +590,7 @@ class InvalidationTrackerTest {
                 preparedQueries.add(sql)
                 val invalidatedTables =
                     if (sql == SELECT_INVALIDATED_QUERY && invalidateTablesQueue.isNotEmpty()) {
-                        invalidateTablesQueue.removeFirst()
+                        invalidateTablesQueue.removeFirstKt()
                     } else {
                         null
                     }

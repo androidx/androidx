@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="WrongConstant"
@@ -12,9 +12,36 @@
 
     <issue
         id="WrongConstant"
+        message="Must be one or more of: Authenticators.BIOMETRIC_STRONG, Authenticators.BIOMETRIC_WEAK, Authenticators.DEVICE_CREDENTIAL"
+        errorLine1="            builder.setAllowedAuthenticators(allowedAuthenticators);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/BiometricFragment.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Authenticators.BIOMETRIC_STRONG, Authenticators.BIOMETRIC_WEAK, Authenticators.DEVICE_CREDENTIAL"
+        errorLine1="            return biometricManager.getStrings(authenticators);"
+        errorLine2="                                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/BiometricManager.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
         message="Must be one of: BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED, but could be BiometricManager.BIOMETRIC_SUCCESS, BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE, BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED, BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE, BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED"
         errorLine1="            return biometricManager.canAuthenticate(authenticators);"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/biometric/BiometricManager.java"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: Authenticators.BIOMETRIC_STRONG, Authenticators.BIOMETRIC_WEAK, Authenticators.DEVICE_CREDENTIAL"
+        errorLine1="            return biometricManager.canAuthenticate(authenticators);"
+        errorLine2="                                                    ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/biometric/BiometricManager.java"/>
     </issue>

@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="                stack.removeLastKt()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewGroup.kt"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"

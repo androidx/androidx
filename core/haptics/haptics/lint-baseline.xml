@@ -1,5 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: Composition.PRIMITIVE_CLICK, Composition.PRIMITIVE_THUD, Composition.PRIMITIVE_SPIN, Composition.PRIMITIVE_QUICK_RISE, Composition.PRIMITIVE_SLOW_RISE, Composition.PRIMITIVE_QUICK_FALL, Composition.PRIMITIVE_TICK, Composition.PRIMITIVE_LOW_TICK"
+        errorLine1="                        platformComposition.addPrimitive(atom.type, atom.amplitudeScale, delayMs)"
+        errorLine2="                                                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/haptics/impl/HapticSignalConverter.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: VibrationEffect.EFFECT_TICK, VibrationEffect.EFFECT_CLICK, VibrationEffect.EFFECT_HEAVY_CLICK, VibrationEffect.EFFECT_DOUBLE_CLICK"
+        errorLine1="                VibrationEffectWrapper(VibrationEffect.createPredefined(effect.type))"
+        errorLine2="                                                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/haptics/impl/HapticSignalConverter.kt"/>
+    </issue>
 
     <issue
         id="ObsoleteSdkInt"

@@ -1,5 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        assertThat(calls.removeFirstKt()).isEqualTo(description)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/text/input/FakeInputMethodManager.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="                handles.removeFirstKt().release()"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/pager/PagerPinnableContainerTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="            undoStack.removeFirstKt()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/undo/UndoManager.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        val topOperation = undoStack.removeLastKt()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/undo/UndoManager.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        val topOperation = redoStack.removeLastKt()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/input/internal/undo/UndoManager.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"

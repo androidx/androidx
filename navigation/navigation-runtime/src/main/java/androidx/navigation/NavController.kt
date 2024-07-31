@@ -48,6 +48,8 @@ import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
 import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.collections.removeLast as removeLastKt
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlinx.coroutines.channels.BufferOverflow
@@ -794,7 +796,7 @@ public open class NavController(
             "Attempted to pop ${popUpTo.destination}, which is not the top of the back stack " +
                 "(${entry.destination})"
         }
-        backQueue.removeLast()
+        backQueue.removeLastKt()
         val navigator =
             navigatorProvider.getNavigator<Navigator<NavDestination>>(
                 entry.destination.navigatorName
@@ -957,8 +959,8 @@ public open class NavController(
         val deepLinkArgs = extras.getParcelableArrayList<Bundle>(KEY_DEEP_LINK_ARGS)
 
         // Remove the leaf destination to pop up to one level above it
-        var leafDestinationId = deepLinkIds.removeLast()
-        deepLinkArgs?.removeLast()
+        var leafDestinationId = deepLinkIds.removeLastKt()
+        deepLinkArgs?.removeLastKt()
 
         // Probably deep linked to a single destination only.
         if (deepLinkIds.isEmpty()) {
@@ -1144,10 +1146,10 @@ public open class NavController(
                         upwardStateTransitions[entry] = Lifecycle.State.STARTED
                     }
                 }
-                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirst()
+                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirstKt()
                 nextResumed = nextResumed.parent
             } else if (nextStarted.isNotEmpty() && destination.id == nextStarted.first().id) {
-                val started = nextStarted.removeFirst()
+                val started = nextStarted.removeFirstKt()
                 if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
                     // Downward transitions should be done immediately so children are
                     // paused before their parent navigation graphs
@@ -2004,7 +2006,7 @@ public open class NavController(
         val tempBackQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
         // pop from startDestination back to original node and create a new entry for each
         while (backQueue.lastIndex >= nodeIndex) {
-            val oldEntry = backQueue.removeLast()
+            val oldEntry = backQueue.removeLastKt()
             unlinkChildFromParent(oldEntry)
             val newEntry = NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
             tempBackQueue.addFirst(newEntry)

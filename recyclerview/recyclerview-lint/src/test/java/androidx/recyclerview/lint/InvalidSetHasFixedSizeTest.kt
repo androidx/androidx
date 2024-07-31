@@ -21,6 +21,7 @@ import androidx.recyclerview.lint.Stubs.VIEW
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.xml
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 
 class InvalidSetHasFixedSizeTest {
@@ -349,6 +350,7 @@ class InvalidSetHasFixedSizeTest {
         lint()
             .files(VIEW, RECYCLER_VIEW, layoutFile, resourceIds, source)
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
             .expect(
                 """

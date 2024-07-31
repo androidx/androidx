@@ -21,6 +21,7 @@ import androidx.lifecycle.runtime.lint.stubs.REPEAT_ON_LIFECYCLE_STUBS
 import com.android.tools.lint.checks.infrastructure.TestFiles
 import com.android.tools.lint.checks.infrastructure.TestLintResult
 import com.android.tools.lint.checks.infrastructure.TestLintTask
+import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -119,6 +120,7 @@ class RepeatOnLifecycleDetectorTest(val config: TestConfig) {
         return TestLintTask.lint()
             .files(*REPEAT_ON_LIFECYCLE_STUBS, TestFiles.kt(fileToAdd))
             .issues(RepeatOnLifecycleDetector.ISSUE)
+            .skipTestModes(TestMode.JVM_OVERLOADS)
             .run()
     }
 

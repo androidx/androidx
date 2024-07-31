@@ -41,6 +41,7 @@ import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.streamsharing.StreamSharing
 import javax.inject.Inject
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -457,7 +458,7 @@ constructor(
         private fun ArrayDeque<RequestSignal>.complete(requestNo: Int) {
             while (isNotEmpty() && first().requestNo <= requestNo) {
                 first().signal.complete(Unit)
-                removeFirst()
+                removeFirstKt()
             }
         }
 
@@ -467,7 +468,7 @@ constructor(
         ) {
             while (isNotEmpty() && first().requestNo <= requestNo) {
                 first().signal.completeExceptionally(throwable)
-                removeFirst()
+                removeFirstKt()
             }
         }
     }

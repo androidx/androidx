@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: DeletionRequest.DELETION_MODE_ALL, DeletionRequest.DELETION_MODE_EXCLUDE_INTERNAL_DATA"
+        errorLine1="            .setDeletionMode(deletionMode)"
+        errorLine2="                             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/measurement/DeletionRequest.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: DeletionRequest.MATCH_BEHAVIOR_DELETE, DeletionRequest.MATCH_BEHAVIOR_PRESERVE"
+        errorLine1="            .setMatchBehavior(matchBehavior)"
+        errorLine2="                              ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/measurement/DeletionRequest.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
+        errorLine1="                        request.reportingDestinations"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/adselection/ReportEventRequest.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one or more of: ReportEventRequest.FLAG_REPORTING_DESTINATION_SELLER, ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER"
+        errorLine1="                        request.reportingDestinations"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/privacysandbox/ads/adservices/adselection/ReportEventRequest.kt"/>
+    </issue>
+
+</issues>

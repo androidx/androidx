@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RecyclerView.HORIZONTAL, RecyclerView.VERTICAL"
+        errorLine1="        mLayoutManager.setOrientation(orientation);"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/viewpager2/widget/ViewPager2.java"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"

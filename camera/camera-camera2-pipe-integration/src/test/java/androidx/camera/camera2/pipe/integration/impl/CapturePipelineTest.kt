@@ -83,6 +83,7 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
+import kotlin.collections.removeFirst as removeFirstKt
 import kotlin.test.assertFailsWith
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -506,7 +507,7 @@ class CapturePipelineTest {
         // Assert 1, torch should be turned on.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isTrue()
 
         // Complete the capture request.
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
@@ -515,7 +516,7 @@ class CapturePipelineTest {
         // Assert 2, torch should be turned off.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isFalse()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isFalse()
     }
 
     @Test
@@ -548,7 +549,7 @@ class CapturePipelineTest {
         // Assert 1, torch should be turned on.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isTrue()
 
         // Complete the capture request.
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
@@ -557,7 +558,7 @@ class CapturePipelineTest {
         // Assert 2, torch should be turned off.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isFalse()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isFalse()
     }
 
     @Test
@@ -588,7 +589,7 @@ class CapturePipelineTest {
         // Assert 1, torch should be turned on.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isTrue()
 
         // Complete the capture request.
         assertThat(fakeCameraGraphSession.submitSemaphore.tryAcquire(this)).isTrue()
@@ -597,7 +598,7 @@ class CapturePipelineTest {
         // Assert 2, torch should be turned off.
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
         assertThat(fakeRequestControl.torchUpdateEventList.size).isEqualTo(1)
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst()).isFalse()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isFalse()
     }
 
     @Test
@@ -1082,7 +1083,7 @@ class CapturePipelineTest {
 
     private fun TestScope.verifyTorchState(state: Boolean) {
         assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(this)).isTrue()
-        assertThat(fakeRequestControl.torchUpdateEventList.removeFirst() == state).isTrue()
+        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt() == state).isTrue()
     }
 
     // TODO(b/326170400): port torch related precapture tests
