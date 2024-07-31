@@ -108,6 +108,7 @@ import androidx.compose.material3.samples.LargeAnimatedExtendedFloatingActionBut
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
+import androidx.compose.material3.samples.LargeRoundUniformOutlinedIconButtonSample
 import androidx.compose.material3.samples.LeadingIconTabs
 import androidx.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
@@ -117,6 +118,7 @@ import androidx.compose.material3.samples.MediumAnimatedExtendedFloatingActionBu
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.MediumFloatingActionButtonSample
+import androidx.compose.material3.samples.MediumRoundWideIconButtonSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
@@ -229,6 +231,7 @@ import androidx.compose.material3.samples.WideNavigationRailArrangementsSample
 import androidx.compose.material3.samples.WideNavigationRailCollapsedSample
 import androidx.compose.material3.samples.WideNavigationRailExpandedSample
 import androidx.compose.material3.samples.WideNavigationRailResponsiveSample
+import androidx.compose.material3.samples.XSmallNarrowSquareIconButtonsSample
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -1013,6 +1016,27 @@ val IconButtonExamples =
             sourceUrl = IconButtonExampleSourceUrl,
         ) {
             OutlinedIconToggleButtonSample()
+        },
+        Example(
+            name = "XSmallNarrowSquareIconButtonsSample",
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) {
+            XSmallNarrowSquareIconButtonsSample()
+        },
+        Example(
+            name = "MediumRoundWideIconButtonSample",
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) {
+            MediumRoundWideIconButtonSample()
+        },
+        Example(
+            name = "LargeRoundUniformOutlinedIconButtonSample",
+            description = IconButtonExampleDescription,
+            sourceUrl = IconButtonExampleSourceUrl,
+        ) {
+            LargeRoundUniformOutlinedIconButtonSample()
         }
     )
 

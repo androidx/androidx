@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_4_0
+// VERSION: v0_9_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
 import androidx.compose.ui.unit.dp
 
-internal object IconButtonSmallTokens {
-    val ContainerHeight = 40.0.dp
+internal object LargeIconButtonTokens {
+    val ContainerHeight = 96.0.dp
     val ContainerShapeRound = ShapeKeyTokens.CornerFull
-    val ContainerShapeSquare = ShapeKeyTokens.CornerMedium
-    val IconSize = 24.0.dp
-    val NarrowLeadingSpace = 4.0.dp
-    val NarrowTrailingSpace = 4.0.dp
-    val OutlinedOutlineWidth = 1.0.dp
+    val ContainerShapeSquare = ShapeKeyTokens.CornerExtraLarge
+    val UniformLeadingSpace = 32.0.dp
+    val UniformTrailingSpace = 32.0.dp
+    val IconSize = 32.0.dp
+    val NarrowLeadingSpace = 16.0.dp
+    val NarrowTrailingSpace = 16.0.dp
+    val OutlinedOutlineWidth = 2.0.dp
     val PressedContainerCornerSizeMultiplierPercent = 50.0f
-    val SelectedPressedContainerShape = ShapeKeyTokens.CornerMedium
-    val UniformLeadingSpace = 8.0.dp
-    val UniformTrailingSpace = 8.0.dp
-    val WideLeadingSpace = 14.0.dp
-    val WideTrailingSpace = 14.0.dp
+    val SelectedPressedContainerShape = ShapeKeyTokens.CornerExtraLarge
+    val WideLeadingSpace = 48.0.dp
+    val WideTrailingSpace = 48.0.dp
 }

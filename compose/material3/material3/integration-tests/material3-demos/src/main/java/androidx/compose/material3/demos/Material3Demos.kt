@@ -30,5 +30,12 @@ val Material3Demos =
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
             ComposableDemo("Tooltip") { TooltipDemo() },
             ComposableDemo("Text fields") { MaterialTextFieldDemo() },
+            DemoCategory(
+                "Icon Buttons",
+                listOf(
+                    ComposableDemo("Sizes") { IconButtonMeasurementsDemo() },
+                    ComposableDemo("Corners") { IconButtonCornerRadiusDemo() }
+                )
+            ),
         ),
     )
