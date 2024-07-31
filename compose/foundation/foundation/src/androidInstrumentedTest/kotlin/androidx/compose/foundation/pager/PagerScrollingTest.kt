@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
@@ -944,6 +945,54 @@ class PagerScrollingTest : SingleParamBasePagerTest() {
                 assertThat(pagerState.currentPage - initialPage).isEqualTo(pageDisplacement)
                 initialPage = 90
                 resetTestCase(initialPage)
+            }
+        }
+
+    @Test
+    fun scrollForwardAndBackwards_shouldSettleInZeroPageFraction() =
+        with(rule) {
+            // Arrange
+            setContent {
+                ParameterizedPager(
+                    initialPage = 5,
+                    modifier = Modifier.fillMaxSize(),
+                    orientation = it.orientation,
+                    pageSpacing = it.pageSpacing,
+                    contentPadding = PaddingValues(1.dp)
+                )
+            }
+
+            forEachParameter(ParamsToTest) { param ->
+                val swipeValue = 0.51f
+                val delta = pagerSize * swipeValue * param.scrollForwardSign
+
+                // Act - forward
+                onPager().performTouchInput {
+                    with(param) {
+                        swipeWithVelocityAcrossMainAxis(0.5f * MinFlingVelocityDp.toPx(), delta)
+                    }
+                }
+                waitForIdle()
+
+                // Assert
+                onNodeWithTag("6").assertIsDisplayed()
+                assertThat(pagerState.currentPageOffsetFraction).isZero()
+
+                // Act - backward
+                onPager().performTouchInput {
+                    with(param) {
+                        swipeWithVelocityAcrossMainAxis(
+                            0.5f * MinFlingVelocityDp.toPx(),
+                            delta * -1
+                        )
+                    }
+                }
+                waitForIdle()
+
+                // Assert
+                onNodeWithTag("5").assertIsDisplayed()
+                assertThat(pagerState.currentPageOffsetFraction).isZero()
+                resetTestCase(5)
             }
         }
 
