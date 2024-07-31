@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
@@ -123,26 +124,31 @@ class DaoWriterTest {
                 COMMON.USER,
                 COMMON.MULTI_PKEY_ENTITY,
                 COMMON.BOOK,
-                COMMON.LIVE_DATA,
-                COMMON.COMPUTABLE_LIVE_DATA,
-                COMMON.RX2_SINGLE,
-                COMMON.RX2_MAYBE,
-                COMMON.RX2_COMPLETABLE,
                 COMMON.USER_SUMMARY,
-                COMMON.RX2_ROOM,
                 COMMON.PARENT,
                 COMMON.CHILD1,
                 COMMON.CHILD2,
                 COMMON.INFO,
-                COMMON.LISTENABLE_FUTURE,
-                COMMON.GUAVA_ROOM,
-                COMMON.RX2_FLOWABLE,
-                COMMON.RX3_FLOWABLE,
-                COMMON.RX2_OBSERVABLE,
-                COMMON.RX3_OBSERVABLE,
-                COMMON.PUBLISHER
             ) + inputs
-        runProcessorTest(sources = sources) { invocation ->
+        val libs =
+            compileFiles(
+                listOf(
+                    COMMON.GUAVA_ROOM,
+                    COMMON.LIVE_DATA,
+                    COMMON.COMPUTABLE_LIVE_DATA,
+                    COMMON.RX2_SINGLE,
+                    COMMON.RX2_MAYBE,
+                    COMMON.RX2_COMPLETABLE,
+                    COMMON.LISTENABLE_FUTURE,
+                    COMMON.RX2_ROOM,
+                    COMMON.RX2_FLOWABLE,
+                    COMMON.RX3_FLOWABLE,
+                    COMMON.RX2_OBSERVABLE,
+                    COMMON.RX3_OBSERVABLE,
+                    COMMON.PUBLISHER
+                )
+            )
+        runProcessorTest(sources = sources, classpath = libs) { invocation ->
             if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
                 // Skip KSP backend without lambda syntax, it is a nonsensical combination.
                 return@runProcessorTest

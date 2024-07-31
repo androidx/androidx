@@ -29,8 +29,8 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 
-/** Binder that knows how to write instant (blocking) upsert methods. */
-class InstantUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
+/** Binder that knows how to write instant (blocking) insert or upsert methods. */
+class InstantInsertOrUpsertMethodBinder(adapter: InsertOrUpsertMethodAdapter?) :
     InsertOrUpsertMethodBinder(adapter) {
 
     override fun convertAndReturn(

@@ -950,6 +950,9 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
               @Query("INSERT INTO MyEntity (id) VALUES (:id)")
               fun insertEntityReturnLong(id: Long): Long
 
+              @Query("INSERT INTO MyEntity (id) VALUES (:id)")
+              fun insertEntityReturnVoid(id: Long): Void?
+
               @Query("UPDATE MyEntity SET text = :text")
               fun updateEntity(text: String)
 
@@ -2370,6 +2373,12 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 @Query("SELECT * FROM MyEntity WHERE pk IN (:arg)")
                 fun getListenableFutureNullable(vararg arg: String?): ListenableFuture<MyEntity?>
 
+                @Query("INSERT INTO MyEntity (pk, other) VALUES (:id, :name)")
+                fun insertListenableFuture(id: String, name: String): ListenableFuture<Long>
+
+                @Query("UPDATE MyEntity SET other = :name WHERE pk = :id")
+                fun updateListenableFuture(id: String, name: String): ListenableFuture<Void?>
+
                 @Insert
                 fun insertListenableFuture(vararg entities: MyEntity): ListenableFuture<List<Long>>
 
@@ -2442,9 +2451,8 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     daoSrc,
                     entitySrc,
                     databaseSrc,
-                    COMMON.LISTENABLE_FUTURE,
-                    COMMON.GUAVA_ROOM,
                 ),
+            compiledFiles = compileFiles(listOf(COMMON.LISTENABLE_FUTURE, COMMON.GUAVA_ROOM)),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
     }

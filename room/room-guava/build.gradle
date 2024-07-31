@@ -26,6 +26,7 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
 dependencies {
@@ -36,6 +37,9 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.2.0")
     api("androidx.annotation:annotation:1.8.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(libs.kotlinCoroutinesGuava) {
+        exclude group: "com.google.guava", module: "guava"
+    }
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
 }

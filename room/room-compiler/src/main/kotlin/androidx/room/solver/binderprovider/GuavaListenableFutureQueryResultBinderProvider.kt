@@ -34,7 +34,7 @@ fun GuavaListenableFutureQueryResultBinderProvider(context: Context): QueryResul
     GuavaListenableFutureQueryResultBinderProviderImpl(context = context)
         .requireArtifact(
             context = context,
-            requiredType = RoomGuavaTypeNames.GUAVA_ROOM,
+            requiredType = RoomGuavaTypeNames.GUAVA_ROOM_MARKER,
             missingArtifactErrorMsg = ProcessorErrors.MISSING_ROOM_GUAVA_ARTIFACT
         )
 

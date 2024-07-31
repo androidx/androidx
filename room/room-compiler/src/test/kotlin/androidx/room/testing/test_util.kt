@@ -31,7 +31,6 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.ReactiveStreamsTypeNames
-import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
@@ -172,9 +171,7 @@ object COMMON {
         )
     }
 
-    val GUAVA_ROOM by lazy {
-        loadJavaCode("common/input/GuavaRoom.java", RoomGuavaTypeNames.GUAVA_ROOM.canonicalName)
-    }
+    val GUAVA_ROOM by lazy { loadKotlinCode("common/input/GuavaRoom.kt") }
 
     val LISTENABLE_FUTURE_PAGING_SOURCE by lazy {
         loadKotlinCode("common/input/ListenableFuturePagingSource.kt")

@@ -37,8 +37,7 @@ import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 import androidx.room.solver.shortcut.binder.CoroutineDeleteOrUpdateMethodBinder
-import androidx.room.solver.shortcut.binder.CoroutineInsertMethodBinder
-import androidx.room.solver.shortcut.binder.CoroutineUpsertMethodBinder
+import androidx.room.solver.shortcut.binder.CoroutineInsertOrUpsertMethodBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.solver.transaction.binder.CoroutineTransactionMethodBinder
@@ -210,14 +209,14 @@ class SuspendMethodProcessorDelegate(
         )
 
     override fun findInsertMethodBinder(returnType: XType, params: List<ShortcutQueryParameter>) =
-        CoroutineInsertMethodBinder(
+        CoroutineInsertOrUpsertMethodBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findInsertAdapter(returnType, params),
             continuationParamName = continuationParam.name
         )
 
     override fun findUpsertMethodBinder(returnType: XType, params: List<ShortcutQueryParameter>) =
-        CoroutineUpsertMethodBinder(
+        CoroutineInsertOrUpsertMethodBinder(
             typeArg = returnType,
             adapter = context.typeAdapterStore.findUpsertAdapter(returnType, params),
             continuationParamName = continuationParam.name

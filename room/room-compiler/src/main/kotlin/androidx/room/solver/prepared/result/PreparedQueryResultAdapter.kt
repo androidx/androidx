@@ -111,20 +111,20 @@ class PreparedQueryResultAdapter(private val returnType: XType, private val quer
     fun executeAndReturn(connectionVar: String, statementVar: String, scope: CodeGenScope) {
         scope.builder.apply {
             addStatement("%L.step()", statementVar)
+            val returnPrefix =
+                when (language) {
+                    CodeLanguage.JAVA -> "return "
+                    CodeLanguage.KOTLIN -> ""
+                }
             if (returnType.isVoid() || returnType.isVoidObject() || returnType.isKotlinUnit()) {
                 if (returnType.isVoidObject()) {
-                    addStatement("return null")
+                    addStatement("${returnPrefix}null")
                 } else if (returnType.isVoid() && language == CodeLanguage.JAVA) {
                     addStatement("return null")
                 } else if (returnType.isKotlinUnit() && language == CodeLanguage.JAVA) {
                     addStatement("return %T.INSTANCE", KotlinTypeNames.UNIT)
                 }
             } else {
-                val returnPrefix =
-                    when (language) {
-                        CodeLanguage.JAVA -> "return "
-                        CodeLanguage.KOTLIN -> ""
-                    }
                 val returnFunctionName =
                     when (queryType) {
                         QueryType.INSERT -> "getLastInsertedRowId"

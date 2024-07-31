@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2018 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,12 @@ import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
-import androidx.room.solver.shortcut.binder.CallableUpsertMethodBinder
+import androidx.room.solver.shortcut.binder.CallableInsertOrUpsertMethodBinder.Companion.createInsertOrUpsertBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /** Provider for Rx Callable binders. */
-open class RxCallableUpsertMethodBinderProvider
+open class RxCallableInsertOrUpsertMethodBinderProvider
 internal constructor(val context: Context, private val rxType: RxType) :
     InsertOrUpsertMethodBinderProvider {
 
@@ -44,11 +44,17 @@ internal constructor(val context: Context, private val rxType: RxType) :
 
     override fun provide(
         declared: XType,
-        params: List<ShortcutQueryParameter>
+        params: List<ShortcutQueryParameter>,
+        forUpsert: Boolean
     ): InsertOrUpsertMethodBinder {
         val typeArg = extractTypeArg(declared)
-        val adapter = context.typeAdapterStore.findUpsertAdapter(typeArg, params)
-        return CallableUpsertMethodBinder.createUpsertBinder(typeArg, adapter) { callableImpl, _ ->
+        val adapter =
+            if (forUpsert) {
+                context.typeAdapterStore.findUpsertAdapter(typeArg, params)
+            } else {
+                context.typeAdapterStore.findInsertAdapter(typeArg, params)
+            }
+        return createInsertOrUpsertBinder(typeArg, adapter) { callableImpl, _ ->
             addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
         }
     }
@@ -56,18 +62,18 @@ internal constructor(val context: Context, private val rxType: RxType) :
     companion object {
         fun getAll(context: Context) =
             listOf(
-                RxSingleMaybeUpsertMethodBinderProvider(context, RxType.RX2_SINGLE),
-                RxSingleMaybeUpsertMethodBinderProvider(context, RxType.RX2_MAYBE),
-                RxCompletableUpsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
-                RxSingleMaybeUpsertMethodBinderProvider(context, RxType.RX3_SINGLE),
-                RxSingleMaybeUpsertMethodBinderProvider(context, RxType.RX3_MAYBE),
-                RxCompletableUpsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
+                RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context, RxType.RX2_SINGLE),
+                RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context, RxType.RX2_MAYBE),
+                RxCompletableInsertOrUpsertMethodBinderProvider(context, RxType.RX2_COMPLETABLE),
+                RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context, RxType.RX3_SINGLE),
+                RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context, RxType.RX3_MAYBE),
+                RxCompletableInsertOrUpsertMethodBinderProvider(context, RxType.RX3_COMPLETABLE)
             )
     }
 }
 
-private class RxCompletableUpsertMethodBinderProvider(context: Context, rxType: RxType) :
-    RxCallableUpsertMethodBinderProvider(context, rxType) {
+private class RxCompletableInsertOrUpsertMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableInsertOrUpsertMethodBinderProvider(context, rxType) {
 
     private val completableType: XRawType? by lazy {
         context.processingEnv.findType(rxType.className.canonicalName)?.rawType
@@ -89,8 +95,8 @@ private class RxCompletableUpsertMethodBinderProvider(context: Context, rxType: 
     }
 }
 
-private class RxSingleMaybeUpsertMethodBinderProvider(context: Context, rxType: RxType) :
-    RxCallableUpsertMethodBinderProvider(context, rxType) {
+private class RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context: Context, rxType: RxType) :
+    RxCallableInsertOrUpsertMethodBinderProvider(context, rxType) {
 
     /** Since Maybe can have null values, the Callable returned must allow for null values. */
     override fun extractTypeArg(declared: XType): XType =

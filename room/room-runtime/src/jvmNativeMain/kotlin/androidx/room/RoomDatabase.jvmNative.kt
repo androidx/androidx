@@ -132,7 +132,8 @@ actual abstract class RoomDatabase {
      */
     protected actual abstract fun createInvalidationTracker(): InvalidationTracker
 
-    internal actual fun getCoroutineScope(): CoroutineScope {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual fun getCoroutineScope(): CoroutineScope {
         return coroutineScope
     }
 

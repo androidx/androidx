@@ -25,7 +25,7 @@ import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingState
 import androidx.room.RoomDatabase
 import androidx.room.RoomSQLiteQuery
-import androidx.room.guava.GuavaRoom.createListenableFuture
+import androidx.room.guava.createListenableFuture
 import androidx.room.paging.util.INITIAL_ITEM_COUNT
 import androidx.room.paging.util.INVALID
 import androidx.room.paging.util.ThreadSafeInvalidationObserver
@@ -67,6 +67,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
      */
     override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Value>> {
         return Futures.transformAsync(
+            @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
             createListenableFuture(db, false) { observer.registerIfNecessary(db) },
             {
                 val tempCount = itemCount.get()
@@ -110,6 +111,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
                 )
             }
 
+        @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
         return createListenableFuture(
             db,
             true,
@@ -147,6 +149,7 @@ abstract class LimitOffsetListenableFuturePagingSource<Value : Any>(
                 if (invalid) INVALID as LoadResult.Invalid<Int, Value> else result
             }
 
+        @Suppress("DEPRECATION") // Due to createListenableFuture() with Callable
         return createListenableFuture(
             db,
             false,

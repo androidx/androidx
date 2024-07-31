@@ -20,18 +20,19 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.isVoidObject
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
-import androidx.room.ext.RoomGuavaTypeNames
+import androidx.room.ext.RoomGuavaMemberNames.GUAVA_ROOM_CREATE_LISTENABLE_FUTURE
+import androidx.room.ext.RoomGuavaTypeNames.GUAVA_ROOM_MARKER
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
-import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
+import androidx.room.solver.prepared.binder.LambdaPreparedQueryResultBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 
 class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Context) :
     PreparedQueryResultBinderProvider {
 
     private val hasGuavaRoom by lazy {
-        context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM.canonicalName) != null
+        context.processingEnv.findTypeElement(GUAVA_ROOM_MARKER.canonicalName) != null
     }
 
     override fun matches(declared: XType): Boolean =
@@ -47,17 +48,10 @@ class GuavaListenableFuturePreparedQueryResultBinderProvider(val context: Contex
             context.logger.e(ProcessorErrors.NONNULL_VOID)
         }
 
-        return createPreparedBinder(
+        return LambdaPreparedQueryResultBinder(
             returnType = typeArg,
+            functionName = GUAVA_ROOM_CREATE_LISTENABLE_FUTURE,
             adapter = context.typeAdapterStore.findPreparedQueryResultAdapter(typeArg, query)
-        ) { callableImpl, dbField ->
-            addStatement(
-                "return %T.createListenableFuture(%N, %L, %L)",
-                RoomGuavaTypeNames.GUAVA_ROOM,
-                dbField,
-                "true", // inTransaction
-                callableImpl
-            )
-        }
+        )
     }
 }

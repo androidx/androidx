@@ -27,5 +27,9 @@ interface InsertOrUpsertMethodBinderProvider {
     fun matches(declared: XType): Boolean
 
     /** Provider of [InsertOrUpsertMethodBinder], based on the [XType] and the list of parameters */
-    fun provide(declared: XType, params: List<ShortcutQueryParameter>): InsertOrUpsertMethodBinder
+    fun provide(
+        declared: XType,
+        params: List<ShortcutQueryParameter>,
+        forUpsert: Boolean
+    ): InsertOrUpsertMethodBinder
 }

@@ -1,18 +1,14 @@
-import android.database.Cursor
-import android.os.CancellationSignal
-import androidx.room.EntityDeletionOrUpdateAdapter
-import androidx.room.EntityInsertionAdapter
-import androidx.room.EntityUpsertionAdapter
+import androidx.room.EntityDeleteOrUpdateAdapter
+import androidx.room.EntityInsertAdapter
+import androidx.room.EntityUpsertAdapter
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
-import androidx.room.guava.GuavaRoom
+import androidx.room.guava.createListenableFuture
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
-import androidx.sqlite.db.SupportSQLiteStatement
+import androidx.room.util.getLastInsertedRowId
+import androidx.sqlite.SQLiteStatement
 import com.google.common.util.concurrent.ListenableFuture
-import java.util.concurrent.Callable
+import java.lang.Void
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -29,121 +25,89 @@ public class MyDao_Impl(
 ) : MyDao {
   private val __db: RoomDatabase
 
-  private val __insertionAdapterOfMyEntity: EntityInsertionAdapter<MyEntity>
+  private val __insertAdapterOfMyEntity: EntityInsertAdapter<MyEntity>
 
-  private val __deleteCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __deleteAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
-  private val __updateCompatAdapterOfMyEntity: EntityDeletionOrUpdateAdapter<MyEntity>
+  private val __updateAdapterOfMyEntity: EntityDeleteOrUpdateAdapter<MyEntity>
 
-  private val __upsertionAdapterOfMyEntity: EntityUpsertionAdapter<MyEntity>
+  private val __upsertAdapterOfMyEntity: EntityUpsertAdapter<MyEntity>
   init {
     this.__db = __db
-    this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
+    this.__insertAdapterOfMyEntity = object : EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
       }
     }
-    this.__deleteCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__deleteAdapterOfMyEntity = object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
       }
     }
-    this.__updateCompatAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    this.__updateAdapterOfMyEntity = object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
         statement.bindLong(3, entity.pk.toLong())
       }
     }
-    this.__upsertionAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
-        EntityInsertionAdapter<MyEntity>(__db) {
+    this.__upsertAdapterOfMyEntity = EntityUpsertAdapter<MyEntity>(object :
+        EntityInsertAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
       }
-    }, object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
+    }, object : EntityDeleteOrUpdateAdapter<MyEntity>() {
       protected override fun createQuery(): String =
           "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-      protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
+      protected override fun bind(statement: SQLiteStatement, entity: MyEntity) {
         statement.bindLong(1, entity.pk.toLong())
-        statement.bindString(2, entity.other)
+        statement.bindText(2, entity.other)
         statement.bindLong(3, entity.pk.toLong())
       }
     })
   }
 
   public override fun insertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = GuavaRoom.createListenableFuture(__db, true, object :
-      Callable<List<Long>> {
-    public override fun call(): List<Long> {
-      __db.beginTransaction()
-      try {
-        val _result: List<Long> = __insertionAdapterOfMyEntity.insertAndReturnIdsList(entities)
-        __db.setTransactionSuccessful()
-        return _result
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __insertAdapterOfMyEntity.insertAndReturnIdsList(_connection,
+        entities)
+    _result
+  }
 
   public override fun deleteListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      GuavaRoom.createListenableFuture(__db, true, object : Callable<Int> {
-    public override fun call(): Int {
-      var _total: Int = 0
-      __db.beginTransaction()
-      try {
-        _total += __deleteCompatAdapterOfMyEntity.handle(entity)
-        __db.setTransactionSuccessful()
-        return _total
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      createListenableFuture(__db, false, true) { _connection ->
+    var _result: Int = 0
+    _result += __deleteAdapterOfMyEntity.handle(_connection, entity)
+    _result
+  }
 
   public override fun updateListenableFuture(entity: MyEntity): ListenableFuture<Int> =
-      GuavaRoom.createListenableFuture(__db, true, object : Callable<Int> {
-    public override fun call(): Int {
-      var _total: Int = 0
-      __db.beginTransaction()
-      try {
-        _total += __updateCompatAdapterOfMyEntity.handle(entity)
-        __db.setTransactionSuccessful()
-        return _total
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      createListenableFuture(__db, false, true) { _connection ->
+    var _result: Int = 0
+    _result += __updateAdapterOfMyEntity.handle(_connection, entity)
+    _result
+  }
 
   public override fun upsertListenableFuture(vararg entities: MyEntity):
-      ListenableFuture<List<Long>> = GuavaRoom.createListenableFuture(__db, true, object :
-      Callable<List<Long>> {
-    public override fun call(): List<Long> {
-      __db.beginTransaction()
-      try {
-        val _result: List<Long> = __upsertionAdapterOfMyEntity.upsertAndReturnIdsList(entities)
-        __db.setTransactionSuccessful()
-        return _result
-      } finally {
-        __db.endTransaction()
-      }
-    }
-  })
+      ListenableFuture<List<Long>> = createListenableFuture(__db, false, true) { _connection ->
+    val _result: List<Long> = __upsertAdapterOfMyEntity.upsertAndReturnIdsList(_connection,
+        entities)
+    _result
+  }
 
   public override fun getListenableFuture(vararg arg: String?): ListenableFuture<MyEntity> {
     val _stringBuilder: StringBuilder = StringBuilder()
@@ -152,40 +116,35 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    val _cancellationSignal: CancellationSignal = CancellationSignal()
-    return GuavaRoom.createListenableFuture(__db, false, object : Callable<MyEntity> {
-      public override fun call(): MyEntity {
-        val _cursor: Cursor = query(__db, _statement, false, _cancellationSignal)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return createListenableFuture(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-    }, _statement, true, _cancellationSignal)
+    }
   }
 
   public override fun getListenableFutureNullable(vararg arg: String?):
@@ -196,40 +155,69 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    val _cancellationSignal: CancellationSignal = CancellationSignal()
-    return GuavaRoom.createListenableFuture(__db, false, object : Callable<MyEntity?> {
-      public override fun call(): MyEntity? {
-        val _cursor: Cursor = query(__db, _statement, false, _cancellationSignal)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity?
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return createListenableFuture(__db, true, false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            _result = null
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity?
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          _result = null
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-    }, _statement, true, _cancellationSignal)
+    }
+  }
+
+  public override fun insertListenableFuture(id: String, name: String): ListenableFuture<Long> {
+    val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
+    return createListenableFuture(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, id)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, name)
+        _stmt.step()
+        getLastInsertedRowId(_connection)
+      } finally {
+        _stmt.close()
+      }
+    }
+  }
+
+  public override fun updateListenableFuture(id: String, name: String): ListenableFuture<Void?> {
+    val _sql: String = "UPDATE MyEntity SET other = ? WHERE pk = ?"
+    return createListenableFuture(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, name)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, id)
+        _stmt.step()
+        null
+      } finally {
+        _stmt.close()
+      }
+    }
   }
 
   public companion object {

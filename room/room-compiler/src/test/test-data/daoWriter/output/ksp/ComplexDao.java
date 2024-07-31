@@ -1,7 +1,6 @@
 package foo.bar;
 
 import android.database.Cursor;
-import android.os.CancellationSignal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -581,49 +580,44 @@ public final class ComplexDao_Impl extends ComplexDao {
   @Override
   public ListenableFuture<List<Child1>> getChild1ListListenableFuture() {
     final String _sql = "SELECT * FROM Child1";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-    final CancellationSignal _cancellationSignal = new CancellationSignal();
-    return GuavaRoom.createListenableFuture(__db, false, new Callable<List<Child1>>() {
-      @Override
-      public List<Child1> call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, _cancellationSignal);
-        try {
-          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfSerial = CursorUtil.getColumnIndexOrThrow(_cursor, "serial");
-          final int _cursorIndexOfCode = CursorUtil.getColumnIndexOrThrow(_cursor, "code");
-          final List<Child1> _result = new ArrayList<Child1>();
-          while (_cursor.moveToNext()) {
-            final Child1 _item;
-            final int _tmpId;
-            _tmpId = _cursor.getInt(_cursorIndexOfId);
-            final String _tmpName;
-            if (_cursor.isNull(_cursorIndexOfName)) {
-              _tmpName = null;
-            } else {
-              _tmpName = _cursor.getString(_cursorIndexOfName);
-            }
-            final Info _tmpInfo;
-            if (!(_cursor.isNull(_cursorIndexOfSerial) && _cursor.isNull(_cursorIndexOfCode))) {
-              _tmpInfo = new Info();
-              _tmpInfo.serial = _cursor.getInt(_cursorIndexOfSerial);
-              if (_cursor.isNull(_cursorIndexOfCode)) {
-                _tmpInfo.code = null;
-              } else {
-                _tmpInfo.code = _cursor.getString(_cursorIndexOfCode);
-              }
-            } else {
-              _tmpInfo = null;
-            }
-            _item = new Child1(_tmpId,_tmpName,_tmpInfo);
-            _result.add(_item);
+    return GuavaRoom.createListenableFuture(__db, true, false, (_connection) -> {
+      final SQLiteStatement _stmt = _connection.prepare(_sql);
+      try {
+        final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "id");
+        final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+        final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "serial");
+        final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "code");
+        final List<Child1> _result = new ArrayList<Child1>();
+        while (_stmt.step()) {
+          final Child1 _item;
+          final int _tmpId;
+          _tmpId = (int) (_stmt.getLong(_cursorIndexOfId));
+          final String _tmpName;
+          if (_stmt.isNull(_cursorIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = _stmt.getText(_cursorIndexOfName);
           }
-          return _result;
-        } finally {
-          _cursor.close();
+          final Info _tmpInfo;
+          if (!(_stmt.isNull(_cursorIndexOfSerial) && _stmt.isNull(_cursorIndexOfCode))) {
+            _tmpInfo = new Info();
+            _tmpInfo.serial = (int) (_stmt.getLong(_cursorIndexOfSerial));
+            if (_stmt.isNull(_cursorIndexOfCode)) {
+              _tmpInfo.code = null;
+            } else {
+              _tmpInfo.code = _stmt.getText(_cursorIndexOfCode);
+            }
+          } else {
+            _tmpInfo = null;
+          }
+          _item = new Child1(_tmpId,_tmpName,_tmpInfo);
+          _result.add(_item);
         }
+        return _result;
+      } finally {
+        _stmt.close();
       }
-    }, _statement, true, _cancellationSignal);
+    });
   }
 
   @Override
