@@ -25,7 +25,7 @@ import org.gradle.api.file.FileCollection
 
 /** AndroidX configuration backed by Gradle properties. */
 abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
-    override val buildToolsVersion: String = "35.0.0-rc1"
+    override val buildToolsVersion: String = "35.0.0"
 
     override val compileSdk: Int by lazy {
         val sdkString = project.extraPropertyOrNull(COMPILE_SDK)?.toString()
