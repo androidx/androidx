@@ -3088,7 +3088,14 @@ public abstract class WatchFaceService : WallpaperService() {
         @Suppress("InvalidNullabilityOverride") newConfig: Configuration
     ) {
         Log.i(TAG, "Configuration changed, scheduling redraw")
-        InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.invalidate()
+        InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let { engine ->
+            engine.getWatchFaceImplOrNull()?.let {
+                if (it.updateScreenshotOnConfigurationChange) {
+                    engine.sendPreviewImageNeedsUpdateRequest()
+                }
+            }
+            engine.invalidate()
+        }
     }
 }
 

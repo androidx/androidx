@@ -25,6 +25,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ServiceInfo
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
@@ -699,6 +700,7 @@ public class WatchFaceServiceTest {
                 null
             ),
         complicationCache: MutableMap<String, ByteArray>? = null,
+        requestUpdateScreenshotOnConfigurationChange: Boolean = false
     ) {
         testWatchFaceService =
             TestWatchFaceService(
@@ -721,7 +723,9 @@ public class WatchFaceServiceTest {
                 null,
                 choreographer,
                 mockSystemTimeMillis = looperTimeMillis,
-                complicationCache = complicationCache
+                complicationCache = complicationCache,
+                requestUpdateScreenshotOnConfigurationChange =
+                    requestUpdateScreenshotOnConfigurationChange,
             )
 
         InteractiveInstanceManager
@@ -7124,6 +7128,49 @@ public class WatchFaceServiceTest {
         runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
 
         engineWrapper.onDestroy()
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.R])
+    public fun setUpdateScreenshotOnConfigurationChange() {
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            ),
+            requestUpdateScreenshotOnConfigurationChange = true
+        )
+        var lastPreviewImageUpdateRequestedWatchFaceId: String? = null
+        interactiveWatchFaceInstance.addWatchFaceListener(
+            object : IWatchfaceListener.Stub() {
+                override fun getApiVersion() = 1
+
+                override fun onWatchfaceReady() {}
+
+                override fun onWatchfaceColorsChanged(
+                    watchFaceColors: WatchFaceColorsWireFormat?
+                ) {}
+
+                override fun onPreviewImageUpdateRequested(watchFaceId: String) {
+                    lastPreviewImageUpdateRequestedWatchFaceId = watchFaceId
+                }
+
+                override fun onEngineDetached() {}
+            }
+        )
+
+        testWatchFaceService.onConfigurationChanged(mock<Configuration>())
+
+        assertThat(lastPreviewImageUpdateRequestedWatchFaceId)
+            .isEqualTo(SYSTEM_SUPPORTS_CONSISTENT_IDS_PREFIX + "Interactive")
     }
 
     @Test
