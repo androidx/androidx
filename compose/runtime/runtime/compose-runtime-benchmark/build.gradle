@@ -24,12 +24,6 @@ plugins {
 android {
     compileSdk 35
     namespace "androidx.compose.runtime.benchmark"
-
-    buildTypes {
-        release {
-            minifyEnabled true
-        }
-    }
 }
 
 dependencies {
