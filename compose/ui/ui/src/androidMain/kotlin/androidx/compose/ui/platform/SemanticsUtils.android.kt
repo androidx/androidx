@@ -146,14 +146,8 @@ internal class SemanticsNodeWithAdjustedBounds(
 )
 
 /** This function retrieves the View corresponding to a semanticsId, if it exists. */
-internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? {
-    layoutNodeToHolder.forEach { key, value ->
-        if (key.semanticsId == id) {
-            return value
-        }
-    }
-    return null
-}
+internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
+    layoutNodeToHolder.entries.firstOrNull { it.key.semanticsId == id }?.value
 
 // TODO(mnuzen): refactor `currentSemanticsNodes` in the AccessibilityDelegate file to also use
 // IntObjectMap's. Then ACVADC can also call `getAllUncoveredSemanticsNodesToIntObjectMap` instead

@@ -21,7 +21,6 @@ import androidx.collection.mutableFloatListOf
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
@@ -636,8 +635,7 @@ class RulerTest {
         var rulerChanged = CountDownLatch(1)
         rule.setContent {
             Box(
-                Modifier.fillMaxSize()
-                    .onPlaced { rootX = it.positionInWindow().x }
+                Modifier.onPlaced { rootX = it.positionInWindow().x }
                     .offset { IntOffset(offset, 0) }
             ) {
                 AndroidView(
@@ -661,13 +659,12 @@ class RulerTest {
                                 ) {
                                     Box(
                                         Modifier.layout { measurable, constraints ->
-                                                val p = measurable.measure(constraints)
-                                                layout(p.width, p.height) {
-                                                    rulerValue = verticalRuler.current(Float.NaN)
-                                                    rulerChanged.countDown()
-                                                }
+                                            val p = measurable.measure(constraints)
+                                            layout(p.width, p.height) {
+                                                rulerValue = verticalRuler.current(Float.NaN)
+                                                rulerChanged.countDown()
                                             }
-                                            .fillMaxSize(0.5f)
+                                        }
                                     )
                                 }
                             }
@@ -681,6 +678,7 @@ class RulerTest {
             assertThat(rulerValue).isWithin(0.01f).of(-rootX)
             rulerChanged = CountDownLatch(1)
             offset = 100
+            rule.activity.window.decorView.invalidate()
         }
         assertThat(rulerChanged.await(1, TimeUnit.SECONDS)).isTrue()
         rule.runOnIdle { assertThat(rulerValue).isWithin(0.01f).of(-100f - rootX) }

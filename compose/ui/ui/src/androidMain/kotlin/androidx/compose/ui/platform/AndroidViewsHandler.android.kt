@@ -24,7 +24,6 @@ import android.view.View
 import android.view.View.MeasureSpec.EXACTLY
 import android.view.View.MeasureSpec.getMode
 import android.view.ViewGroup
-import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.viewinterop.AndroidViewHolder
@@ -39,8 +38,8 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
         clipChildren = false
     }
 
-    val holderToLayoutNode = mutableScatterMapOf<AndroidViewHolder, LayoutNode>()
-    val layoutNodeToHolder = mutableScatterMapOf<LayoutNode, AndroidViewHolder>()
+    val holderToLayoutNode = hashMapOf<AndroidViewHolder, LayoutNode>()
+    val layoutNodeToHolder = hashMapOf<LayoutNode, AndroidViewHolder>()
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         // Layout will be handled by component nodes. However, we act like proper measurement
@@ -58,18 +57,14 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
         // Remeasure children, such that, if ViewRootImpl did forceLayout(), the holders
         // will be set PFLAG_LAYOUT_REQUIRED and they will be relaid out during the next layout.
         // This will ensure that the need relayout flags will be cleared correctly.
-        holderToLayoutNode.forEachKey { it.remeasure() }
-    }
-
-    fun layoutChildViewsIfNeeded() {
-        holderToLayoutNode.forEachKey { androidViewHolder -> androidViewHolder.layoutIfNeeded() }
+        holderToLayoutNode.keys.forEach { it.remeasure() }
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         // Layout was already handled by component nodes, but replace here because
         // the View system has forced relayout on children. This method will only be called
         // when forceLayout is called on the Views hierarchy.
-        holderToLayoutNode.forEachKey { it.layout(it.left, it.top, it.right, it.bottom) }
+        holderToLayoutNode.keys.forEach { it.layout(it.left, it.top, it.right, it.bottom) }
     }
 
     // No call to super to avoid invalidating the AndroidComposeView and the handler, and rely on
@@ -96,7 +91,7 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
         // requestLayout() was called by a child, so we have to request remeasurement for
         // their corresponding layout node.
         for (i in 0 until childCount) {
-            val child = getChildAt(i) as AndroidViewHolder
+            val child = getChildAt(i)
             val node = holderToLayoutNode[child]
             if (child.isLayoutRequested && node != null) {
                 node.requestRemeasure()
