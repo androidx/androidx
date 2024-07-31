@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastAll
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
 
@@ -373,17 +374,30 @@ private class PagerWrapperFlingBehavior(
 ) : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
         val scope: ScrollScope = this
-        return with(originalFlingBehavior) {
-            performFling(initialVelocity) { remainingScrollOffset ->
-                val flingPageDisplacement =
-                    if (pagerState.pageSizeWithSpacing != 0) {
-                        remainingScrollOffset / (pagerState.pageSizeWithSpacing)
-                    } else {
-                        0f
-                    }
-                val targetPage = flingPageDisplacement.roundToInt() + pagerState.currentPage
-                with(pagerState) { scope.updateTargetPage(targetPage) }
+        val resultVelocity =
+            with(originalFlingBehavior) {
+                performFling(initialVelocity) { remainingScrollOffset ->
+                    val flingPageDisplacement =
+                        if (pagerState.pageSizeWithSpacing != 0) {
+                            remainingScrollOffset / (pagerState.pageSizeWithSpacing)
+                        } else {
+                            0f
+                        }
+                    val targetPage = flingPageDisplacement.roundToInt() + pagerState.currentPage
+                    with(pagerState) { scope.updateTargetPage(targetPage) }
+                }
             }
+
+        // fling finished, correct snapping for rounding
+        if (
+            pagerState.currentPageOffsetFraction != 0.0f &&
+                pagerState.currentPageOffsetFraction.absoluteValue < 1e-3
+        ) {
+            pagerState.requestScrollToPage(pagerState.currentPage)
+        } else {
+            pagerState.currentPageOffsetFraction
         }
+
+        return resultVelocity
     }
 }
