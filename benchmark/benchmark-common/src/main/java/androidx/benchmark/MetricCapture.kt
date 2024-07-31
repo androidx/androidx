@@ -146,7 +146,7 @@ internal class AllocationCountCapture : MetricCapture(names = listOf("allocation
 internal class CpuEventCounterCapture(
     private val cpuEventCounter: CpuEventCounter,
     private val events: List<CpuEventCounter.Event>
-) : MetricCapture(events.map { it.name }) {
+) : MetricCapture(events.map { it.outputName }) {
     constructor(
         cpuEventCounter: CpuEventCounter,
         mask: Int

@@ -20,6 +20,7 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import java.io.Closeable
+import java.util.Locale
 
 /**
  * Exposes CPU counters from perf_event_open based on libs/utils/src/Profiler.cpp from
@@ -87,6 +88,8 @@ class CpuEventCounter : Closeable {
 
         val flag: Int
             inline get() = 1 shl id
+
+        val outputName = name.replaceFirstChar { it.lowercase(Locale.US) }
     }
 
     /**

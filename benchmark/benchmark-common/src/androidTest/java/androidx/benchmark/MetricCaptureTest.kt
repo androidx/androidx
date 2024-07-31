@@ -44,9 +44,22 @@ class MetricCaptureTest {
     }
 
     @Test
+    fun cpuEventCounterCapture_outputName() {
+        CpuEventCounter().use {
+            assertEquals(
+                listOf("instructions", "cpuCycles"),
+                CpuEventCounterCapture(
+                        it,
+                        listOf(CpuEventCounter.Event.Instructions, CpuEventCounter.Event.CpuCycles)
+                    )
+                    .names
+            )
+        }
+    }
+
+    @Test
     fun cpuEventCounterCapture_multi() {
         try {
-
             // skip test if need root, or event fails to enable
             CpuEventCounter.forceEnable()?.let { errorMessage -> assumeTrue(errorMessage, false) }
 
