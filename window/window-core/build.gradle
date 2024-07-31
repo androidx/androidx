@@ -26,12 +26,18 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
     jvm()
-    android()
+    androidLibrary {
+        namespace = "androidx.window.core"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+    }
     mac()
     linux()
     ios()
@@ -67,10 +73,6 @@ androidXMultiplatform {
     }
 
     enableBinaryCompatibilityValidator = false
-}
-
-android {
-    namespace "androidx.window.core"
 }
 
 androidx {
