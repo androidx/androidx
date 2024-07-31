@@ -95,5 +95,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "add pdf viewing to their apps."
-    legacyDisableKotlinStrictApiMode = true
 }

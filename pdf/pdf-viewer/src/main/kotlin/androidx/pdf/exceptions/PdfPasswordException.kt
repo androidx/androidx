@@ -24,4 +24,4 @@ import java.lang.SecurityException
  * Represents the exception thrown when a password is required or an incorrect password is supplied
  * to a protected document
  */
-class PdfPasswordException(message: String) : SecurityException(message)
+public class PdfPasswordException(message: String) : SecurityException(message)

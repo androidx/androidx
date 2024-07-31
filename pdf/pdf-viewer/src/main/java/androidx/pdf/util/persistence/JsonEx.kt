@@ -21,7 +21,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun JSONArray.toList(): List<JSONObject> {
+public fun JSONArray.toList(): List<JSONObject> {
     // TODO: Simplify
     // jsonArray is not an array so we have to loop and map ourselves
     val list = mutableListOf<JSONObject?>()
@@ -32,13 +32,14 @@ fun JSONArray.toList(): List<JSONObject> {
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-fun Collection<JSONObject>.toJSONArray(): JSONArray = JSONArray().apply { forEach { put(it) } }
+public fun Collection<JSONObject>.toJSONArray(): JSONArray =
+    JSONArray().apply { forEach { put(it) } }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-interface Json {
-    val json: JSONObject
+public interface Json {
+    public val json: JSONObject
 }
 
 @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-val Collection<Json>.jsonString
+public val Collection<Json>.jsonString: String
     get() = map { it.json }.toJSONArray().toString()

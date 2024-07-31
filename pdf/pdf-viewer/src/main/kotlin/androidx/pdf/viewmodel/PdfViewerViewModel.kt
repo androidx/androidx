@@ -30,14 +30,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class PdfLoaderViewModel : ViewModel() {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PdfLoaderViewModel : ViewModel() {
     private val _pdfLoaderStateFlow = MutableStateFlow<PdfLoader?>(null)
-    val pdfLoaderStateFlow: StateFlow<PdfLoader?> = _pdfLoaderStateFlow.asStateFlow()
+    public val pdfLoaderStateFlow: StateFlow<PdfLoader?> = _pdfLoaderStateFlow.asStateFlow()
 
     private var currentData: DisplayData? = null
 
-    fun updatePdfLoader(
+    public fun updatePdfLoader(
         context: Context,
         newData: DisplayData,
         callbacks: PdfLoaderCallbacks,

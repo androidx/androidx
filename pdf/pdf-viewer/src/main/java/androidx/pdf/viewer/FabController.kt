@@ -24,9 +24,9 @@ import androidx.pdf.util.AnnotationUtils
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-class FabController(context: Context, uri: Uri, floatingActionButton: FloatingActionButton) {
+public class FabController(context: Context, uri: Uri, floatingActionButton: FloatingActionButton) {
     private var isAnnotationIntentResolvable: Boolean =
         AnnotationUtils.resolveAnnotationIntent(context, uri)
 
-    var isFabVisible: Boolean = floatingActionButton.visibility == View.VISIBLE
+    public var isFabVisible: Boolean = floatingActionButton.visibility == View.VISIBLE
 }

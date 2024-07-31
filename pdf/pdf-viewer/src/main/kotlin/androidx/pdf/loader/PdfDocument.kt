@@ -32,19 +32,19 @@ import java.io.Closeable
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 /** Represents a PDF document and provides methods to interact with its content. */
-interface PdfDocument : Closeable {
+public interface PdfDocument : Closeable {
 
     /** The total number of pages in the document. */
-    val pageCount: Int
+    public val pageCount: Int
 
     /** Indicates whether the document is linearized (optimized for fast web viewing). */
-    val isLinearized: Boolean
+    public val isLinearized: Boolean
 
     /** The type of form present in the document. */
-    val formType: Int
+    public val formType: Int
 
     /** Indicates whether the document is password-protected. */
-    val isProtected: Boolean
+    public val isProtected: Boolean
 
     /**
      * Asynchronously retrieves information about the specified page.
@@ -52,7 +52,7 @@ interface PdfDocument : Closeable {
      * @param pageNumber The page number (0-based).
      * @return A [PageInfo] object containing information about the page.
      */
-    suspend fun getPageInfo(pageNumber: Int): PageInfo
+    public suspend fun getPageInfo(pageNumber: Int): PageInfo
 
     /**
      * Asynchronously retrieves information about a range of pages.
@@ -60,7 +60,7 @@ interface PdfDocument : Closeable {
      * @param pageRange The range of page numbers (0-based, inclusive).
      * @return A list of {@link PageInfo} objects, one for each page in the range.
      */
-    suspend fun getPageInfos(pageRange: IntRange): List<PageInfo>
+    public suspend fun getPageInfos(pageRange: IntRange): List<PageInfo>
 
     /**
      * Asynchronously searches the document for the specified query within a range of pages.
@@ -70,7 +70,7 @@ interface PdfDocument : Closeable {
      * @return A {@link SparseArray} mapping page numbers to lists of {@link PageMatchBounds}
      *   objects representing the search results on each page.
      */
-    suspend fun searchDocument(
+    public suspend fun searchDocument(
         query: String,
         pageRange: IntRange
     ): SparseArray<List<PageMatchBounds>>
@@ -84,7 +84,10 @@ interface PdfDocument : Closeable {
      * @return A SparseArray mapping page numbers to {@link PageSelection} objects representing the
      *   selection bounds on each page.
      */
-    suspend fun getSelectionBounds(start: PdfPoint, stop: PdfPoint): SparseArray<PageSelection>
+    public suspend fun getSelectionBounds(
+        start: PdfPoint,
+        stop: PdfPoint
+    ): SparseArray<PageSelection>
 
     /**
      * Asynchronously retrieves the content (text and images) of the specified page.
@@ -92,7 +95,7 @@ interface PdfDocument : Closeable {
      * @param pageNumber The page number (0-based).
      * @return A {@link PdfPageContent} object representing the page's content.
      */
-    suspend fun getPageContent(pageNumber: Int): PdfPageContent
+    public suspend fun getPageContent(pageNumber: Int): PdfPageContent
 
     /**
      * Asynchronously retrieves the links (Go To and external) present on the specified page.
@@ -100,7 +103,7 @@ interface PdfDocument : Closeable {
      * @param pageNumber The page number (0-based).
      * @return A [PdfPageLinks] object representing the page's links.
      */
-    suspend fun getPageLinks(pageNumber: Int): PdfPageLinks
+    public suspend fun getPageLinks(pageNumber: Int): PdfPageLinks
 
     /**
      * Gets a [BitmapSource] for retrieving bitmap representations of the specified page.
@@ -108,7 +111,7 @@ interface PdfDocument : Closeable {
      * @param pageNumber The page number (0-based).
      * @return A [BitmapSource] for the specified page, or null if the page number is invalid.
      */
-    fun getPageBitmapSource(pageNumber: Int): BitmapSource
+    public fun getPageBitmapSource(pageNumber: Int): BitmapSource
 
     /**
      * Represents information about a single page in the PDF document.
@@ -117,10 +120,10 @@ interface PdfDocument : Closeable {
      * @property height The height of the page in points.
      * @property width The width of the page in points.
      */
-    class PageInfo(val pageNum: Int, val height: Int, val width: Int)
+    public class PageInfo(public val pageNum: Int, public val height: Int, public val width: Int)
 
     /** A source for retrieving bitmap representations of PDF pages. */
-    interface BitmapSource : Closeable {
+    public interface BitmapSource : Closeable {
         /**
          * Asynchronously retrieves a bitmap representation of the page, optionally constrained to a
          * specific tile region.
@@ -132,7 +135,7 @@ interface PdfDocument : Closeable {
          *   included.
          * @return The bitmap representation of the page.
          */
-        suspend fun getBitmap(scaledPageSizePx: Size, tileRegion: Rect? = null): Bitmap
+        public suspend fun getBitmap(scaledPageSizePx: Size, tileRegion: Rect? = null): Bitmap
     }
 
     /**
@@ -143,9 +146,9 @@ interface PdfDocument : Closeable {
      * @property imageContents A list of {@link PdfPageImageContent} objects representing the image
      *   elements on the page.
      */
-    class PdfPageContent(
-        val textContents: List<PdfPageTextContent>,
-        val imageContents: List<PdfPageImageContent>
+    public class PdfPageContent(
+        public val textContents: List<PdfPageTextContent>,
+        public val imageContents: List<PdfPageImageContent>
     )
 
     /**
@@ -156,9 +159,9 @@ interface PdfDocument : Closeable {
      * @property externalLinks A list of external links (links to web pages or other resources)
      *   represented as `PdfPageLinkContent` objects.
      */
-    class PdfPageLinks(
-        val gotoLinks: List<PdfPageGotoLinkContent>,
-        val externalLinks: List<PdfPageLinkContent>
+    public class PdfPageLinks(
+        public val gotoLinks: List<PdfPageGotoLinkContent>,
+        public val externalLinks: List<PdfPageLinkContent>
     )
 
     /**
@@ -167,5 +170,5 @@ interface PdfDocument : Closeable {
      * @property pageNumber The page number (0-based) where the point is located.
      * @property pagePoint The coordinates (x, y) of the point relative to the page's origin.
      */
-    class PdfPoint(val pageNumber: Int, val pagePoint: PointF)
+    public class PdfPoint(public val pageNumber: Int, public val pagePoint: PointF)
 }
