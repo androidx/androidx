@@ -119,7 +119,8 @@ import kotlin.math.roundToInt
  * ![Filled text field
  * image](https://developer.android.com/images/reference/androidx/compose/material3/filled-text-field.png)
  *
- * If you are looking for an outlined version, see [OutlinedTextField].
+ * If you are looking for an outlined version, see [OutlinedTextField]. For a text field
+ * specifically designed for passwords or other secure content, see [SecureTextField].
  *
  * This overload of [TextField] uses [TextFieldState] to keep track of its text content and position
  * of the cursor or selection.

@@ -30,6 +30,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextObfuscationMode
 import androidx.compose.foundation.text.input.clearText
 import androidx.compose.foundation.text.input.insert
 import androidx.compose.foundation.text.input.maxLength
@@ -47,6 +48,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -69,7 +71,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -238,25 +239,22 @@ fun TextFieldWithSupportingText() {
     )
 }
 
-// TODO: update sample with TextFieldState once we have wrappers for BasicSecureTextField
 @Preview
+@Sampled
 @Composable
 fun PasswordTextField() {
-    var password by rememberSaveable { mutableStateOf("") }
     var passwordHidden by rememberSaveable { mutableStateOf(true) }
-    TextField(
-        value = password,
-        onValueChange = { password = it },
-        singleLine = true,
+    SecureTextField(
+        state = rememberTextFieldState(),
         label = { Text("Enter password") },
-        visualTransformation =
-            if (passwordHidden) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+        textObfuscationMode =
+            if (passwordHidden) TextObfuscationMode.RevealLastTyped
+            else TextObfuscationMode.Visible,
         trailingIcon = {
             IconButton(onClick = { passwordHidden = !passwordHidden }) {
                 val visibilityIcon =
                     if (passwordHidden) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
-                // Please provide localized description for accessibility services
+                // Provide localized description for accessibility services
                 val description = if (passwordHidden) "Show password" else "Hide password"
                 Icon(imageVector = visibilityIcon, contentDescription = description)
             }
