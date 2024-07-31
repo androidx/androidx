@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
 
 /**
@@ -25,7 +24,6 @@ import androidx.ink.nativeloader.NativeLoader
  * x-axis to the positive y-axis. Angle functions manage the conversion of angle values in degrees
  * and radians. Most of Strokes API requires angle values in radians.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public object Angle {
 
     init {

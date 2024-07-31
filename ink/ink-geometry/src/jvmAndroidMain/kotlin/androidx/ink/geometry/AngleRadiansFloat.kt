@@ -16,7 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
 import kotlin.annotation.AnnotationRetention
 import kotlin.annotation.MustBeDocumented
 import kotlin.annotation.Retention
@@ -28,7 +27,6 @@ import kotlin.annotation.Target
  * [Angle.radiansToDegrees] and [Angle.degreesToRadians]. Most of Strokes API requires angle values
  * in radians.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(

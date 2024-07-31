@@ -30,7 +30,6 @@ import kotlin.annotation.Target
  * [Angle.radiansToDegrees] and [Angle.degreesToRadians]. Most of Strokes API requires angle values
  * in radians.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @MustBeDocumented
 @Retention(AnnotationRetention.SOURCE)
 @Target(

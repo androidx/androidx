@@ -1,1 +1,23 @@
 // Signature format: 4.0
+package androidx.ink.geometry {
+
+  public final class Angle {
+    method @androidx.ink.geometry.AngleRadiansFloat public static float degreesToRadians(@androidx.ink.geometry.AngleDegreesFloat float degrees);
+    method @FloatRange(from=0.0, to=androidx.ink.geometry.Angle.FULL_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalized(@androidx.ink.geometry.AngleRadiansFloat float radians);
+    method @FloatRange(from=-3.141592653589793, to=androidx.ink.geometry.Angle.HALF_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalizedAboutZero(@androidx.ink.geometry.AngleRadiansFloat float radians);
+    method @androidx.ink.geometry.AngleDegreesFloat public static float radiansToDegrees(@androidx.ink.geometry.AngleRadiansFloat float radians);
+    field @androidx.ink.geometry.AngleRadiansFloat public static final float FULL_TURN_RADIANS;
+    field @androidx.ink.geometry.AngleRadiansFloat public static final float HALF_TURN_RADIANS;
+    field public static final androidx.ink.geometry.Angle INSTANCE;
+    field @androidx.ink.geometry.AngleRadiansFloat public static final float QUARTER_TURN_RADIANS;
+    field @androidx.ink.geometry.AngleRadiansFloat public static final float ZERO;
+  }
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.FIELD}) public @interface AngleDegreesFloat {
+  }
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.FIELD}) public @interface AngleRadiansFloat {
+  }
+
+}
+
