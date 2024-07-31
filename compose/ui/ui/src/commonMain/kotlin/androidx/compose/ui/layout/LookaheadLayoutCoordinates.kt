@@ -141,20 +141,26 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
                     )
                 }
         } else {
-            val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
             // This is a case of mixed coordinates where `this` is lookahead coords, and
             // `sourceCoordinates` isn't. Therefore we'll break this into two parts:
             // local position in lookahead coords space && local position in regular layout coords
             // space.
+            val rootDelegate = lookaheadDelegate.rootLookaheadDelegate
+
             val localLookaheadPos =
                 localPositionOf(
                     sourceCoordinates = rootDelegate.lookaheadLayoutCoordinates,
                     relativeToSource = relativeToSource,
                     includeMotionFrameOfReference = includeMotionFrameOfReference
-                )
+                ) - rootDelegate.position.toOffset()
+
+            // If Lookahead is the hierarchy's absolute root (no parent), we may use its coordinates
+            // directly
+            val rootDelegateCoordinates =
+                rootDelegate.coordinator.parentCoordinates ?: rootDelegate.coordinator.coordinates
 
             val localPos =
-                rootDelegate.coordinator.coordinates.localPositionOf(
+                rootDelegateCoordinates.localPositionOf(
                     sourceCoordinates = sourceCoordinates,
                     relativeToSource = Offset.Zero,
                     includeMotionFrameOfReference = includeMotionFrameOfReference
