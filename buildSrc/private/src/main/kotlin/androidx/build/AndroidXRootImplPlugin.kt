@@ -35,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.component.ModuleComponentSelector
 import org.gradle.api.file.RelativePath
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Zip
@@ -125,47 +124,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         AffectedModuleDetector.configure(gradle, this)
 
         registerOwnersServiceTasks()
-
-        // If useMaxDepVersions is set, iterate through all the project and substitute any androidx
-        // artifact dependency with the local tip of tree version of the library.
-        if (project.usingMaxDepVersions()) {
-            // This requires evaluating all sub-projects to create the module:project map
-            // and project dependencies.
-            allprojects { project2 ->
-                // evaluationDependsOnChildren isn't transitive so we must call it on each project
-                project2.evaluationDependsOnChildren()
-            }
-            val projectModules = getProjectsMap()
-            subprojects { subproject ->
-                // TODO(153485458) remove most of these exceptions
-                if (
-                    !subproject.name.contains("hilt") &&
-                        subproject.name != "docs-public" &&
-                        subproject.name != "docs-tip-of-tree" &&
-                        subproject.name != "camera-testapp-timing" &&
-                        subproject.name != "room-testapp"
-                ) {
-                    subproject.configurations.configureEach { configuration ->
-                        configuration.resolutionStrategy.dependencySubstitution.apply {
-                            all { dep ->
-                                val requested = dep.requested
-                                if (requested is ModuleComponentSelector) {
-                                    val module = requested.group + ":" + requested.module
-                                    if (
-                                        // todo(b/331800231): remove compiler exception.
-                                        requested.group != "androidx.compose.compiler" &&
-                                            projectModules.containsKey(module)
-                                    ) {
-                                        dep.useTarget(project(projectModules[module]!!))
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         registerStudioTask()
 
         project.tasks.register("listTaskOutputs", ListTaskOutputsTask::class.java) { task ->
