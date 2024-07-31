@@ -371,6 +371,7 @@ package androidx.wear.watchface {
     method @Deprecated public androidx.wear.watchface.WatchFace setOverlayStyle(androidx.wear.watchface.WatchFace.OverlayStyle watchFaceOverlayStyle);
     method public androidx.wear.watchface.WatchFace setOverridePreviewReferenceInstant(java.time.Instant previewReferenceTimeMillis);
     method public androidx.wear.watchface.WatchFace setTapListener(androidx.wear.watchface.WatchFace.TapListener? tapListener);
+    method public androidx.wear.watchface.WatchFace setUpdateScreenshotOnConfigurationChange(boolean updateScreenshotOnConfigurationChange);
     method public void setWatchFaceType(int);
     property public final androidx.wear.watchface.WatchFace.LegacyWatchFaceOverlayStyle legacyWatchFaceStyle;
     property public final java.time.Instant? overridePreviewReferenceInstant;

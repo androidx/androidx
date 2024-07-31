@@ -121,6 +121,7 @@ public class WatchFace(
     internal var tapListener: TapListener? = null
     internal var complicationDeniedDialogIntent: Intent? = null
     internal var complicationRationaleDialogIntent: Intent? = null
+    internal var updateScreenshotOnConfigurationChange = false
 
     public companion object {
         /** Returns whether [LegacyWatchFaceOverlayStyle] is supported on this device. */
@@ -562,6 +563,23 @@ public class WatchFace(
     ): WatchFace = apply {
         this.complicationRationaleDialogIntent = complicationRationaleDialogIntent
     }
+
+    /**
+     * If [updateScreenshotOnConfigurationChange] is true then whenever
+     * [WatchFaceService.onConfigurationChanged] gets called while this watch face is active then a
+     * request will be made for the system to update the watch's screenshot displayed in the picker.
+     *
+     * By default this is off.
+     *
+     * Note if [WatchFaceService.onConfigurationChanged] or
+     * [Renderer.sendPreviewImageNeedsUpdateRequest] get called very frequently then the system may
+     * throttle the rate at which screenshots are taken.
+     */
+    public fun setUpdateScreenshotOnConfigurationChange(
+        updateScreenshotOnConfigurationChange: Boolean
+    ): WatchFace = apply {
+        this.updateScreenshotOnConfigurationChange = updateScreenshotOnConfigurationChange
+    }
 }
 
 internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long) {
@@ -674,6 +692,8 @@ constructor(
     internal var complicationDeniedDialogIntent = watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent = watchface.complicationRationaleDialogIntent
     @Suppress("Deprecation") internal var overlayStyle = watchface.overlayStyle
+    internal val updateScreenshotOnConfigurationChange =
+        watchface.updateScreenshotOnConfigurationChange
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
