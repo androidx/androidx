@@ -17,18 +17,18 @@ package androidx.appsearch.builtintypes {
   @androidx.appsearch.annotation.Document(name="builtin:Alarm") public class Alarm extends androidx.appsearch.builtintypes.Thing {
     method public String? getBlackoutPeriodEndDate();
     method public String? getBlackoutPeriodStartDate();
-    method public int getComputingDevice();
     method public int[]? getDaysOfWeek();
     method @IntRange(from=0, to=23) public int getHour();
     method @IntRange(from=0, to=59) public int getMinute();
     method public androidx.appsearch.builtintypes.AlarmInstance? getNextInstance();
+    method public int getOriginatingDevice();
     method public androidx.appsearch.builtintypes.AlarmInstance? getPreviousInstance();
     method public String? getRingtone();
     method public boolean isEnabled();
     method public boolean shouldVibrate();
-    field public static final int COMPUTING_DEVICE_SMART_PHONE = 1; // 0x1
-    field public static final int COMPUTING_DEVICE_SMART_WATCH = 2; // 0x2
-    field public static final int COMPUTING_DEVICE_UNKNOWN = 0; // 0x0
+    field public static final int ORIGINATING_DEVICE_SMART_PHONE = 1; // 0x1
+    field public static final int ORIGINATING_DEVICE_SMART_WATCH = 2; // 0x2
+    field public static final int ORIGINATING_DEVICE_UNKNOWN = 0; // 0x0
   }
 
   @androidx.appsearch.annotation.Document.BuilderProducer public static final class Alarm.Builder {
@@ -42,7 +42,6 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Alarm.Builder setAlternateNames(java.util.List<java.lang.String!>?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodEndDate(String?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodStartDate(String?);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setComputingDevice(int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setCreationTimestampMillis(long);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDescription(String?);
@@ -54,6 +53,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Alarm.Builder setMinute(@IntRange(from=0, to=59) int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setName(String?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setNextInstance(androidx.appsearch.builtintypes.AlarmInstance?);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setOriginatingDevice(int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setPotentialActions(java.util.List<androidx.appsearch.builtintypes.PotentialAction!>?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setPreviousInstance(androidx.appsearch.builtintypes.AlarmInstance?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setRingtone(String?);
