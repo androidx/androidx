@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import kotlin.math.hypot
 
 /** Represents a directed line segment between two points. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class Segment internal constructor() {
     public abstract val start: Vec
     public abstract val end: Vec
@@ -71,6 +70,7 @@ public abstract class Segment internal constructor() {
      * For performance-sensitive code, prefer to use [computeBoundingBox] with a pre-allocated
      * instance of [MutableBox].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(): ImmutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
@@ -78,6 +78,7 @@ public abstract class Segment internal constructor() {
     }
 
     /** Populates [outBox] with the minimum bounding box containing the [Segment]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(outBox: MutableBox): MutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)

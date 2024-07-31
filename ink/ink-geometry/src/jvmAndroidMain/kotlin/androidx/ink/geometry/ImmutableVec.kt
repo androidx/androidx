@@ -29,7 +29,6 @@ import kotlin.math.sin
  * This object is immutable, so it is inherently thread-safe. See [MutableVec] for a mutable
  * alternative.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableVec(override val x: Float, override val y: Float) : Vec() {
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableVec = this

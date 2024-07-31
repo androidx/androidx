@@ -30,7 +30,6 @@ import kotlin.math.sin
  * synchronization logic or use this object from a single thread. See [ImmutableVec] for an
  * immutable alternative.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableVec(
     override var x:
         Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard

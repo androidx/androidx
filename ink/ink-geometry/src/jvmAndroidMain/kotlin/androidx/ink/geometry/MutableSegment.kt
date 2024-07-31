@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo
  *   construct this with copies of the data to give this [MutableSegment] exclusive ownership of
  *   those copies.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableSegment(override var start: MutableVec, override var end: MutableVec) :
     Segment() {
 

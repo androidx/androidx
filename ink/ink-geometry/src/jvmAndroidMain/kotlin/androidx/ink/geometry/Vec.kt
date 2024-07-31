@@ -27,7 +27,6 @@ import kotlin.math.hypot
  * 1) A two-dimensional offset, i.e. the difference between two points
  * 2) A point in space, i.e. treating the vector as an offset from the origin
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class Vec internal constructor() {
     /** The [Vec]'s offset in the x-direction */
     public abstract val x: Float
@@ -149,6 +148,7 @@ public abstract class Vec internal constructor() {
      * Compares this [Vec] with [other], and returns true if the difference between [x] and
      * [other.x] is less than [tolerance], and likewise for [y].
      */
+    @JvmOverloads
     public fun isAlmostEqual(
         other: Vec,
         @FloatRange(from = 0.0) tolerance: Float = 0.0001f,
