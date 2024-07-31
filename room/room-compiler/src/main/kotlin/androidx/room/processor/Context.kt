@@ -323,4 +323,10 @@ private constructor(
             targetPlatforms.contains(XProcessingEnv.Platform.JVM) &&
             this.processingEnv.findType("android.content.Context") != null
     }
+
+    /** Check if the target platform is JVM. */
+    fun isJvmOnlyTarget(): Boolean {
+        val targetPlatforms = this.processingEnv.targetPlatforms
+        return targetPlatforms.size == 1 && targetPlatforms.contains(XProcessingEnv.Platform.JVM)
+    }
 }
