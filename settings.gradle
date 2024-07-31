@@ -633,6 +633,7 @@ includeProject(":datastore:datastore-benchmark", [BuildType.MAIN, BuildType.INFR
 includeProject(":datastore:datastore-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-core-okio", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-compose-samples", [BuildType.COMPOSE])
+includeProject(":datastore:datastore-guava", [BuildType.MAIN])
 includeProject(":datastore:datastore-preferences", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-preferences-core", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-preferences-external-protobuf", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
