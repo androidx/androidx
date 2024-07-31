@@ -146,7 +146,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "The implementation of SQLite library using the framework code."
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

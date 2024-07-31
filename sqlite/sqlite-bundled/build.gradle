@@ -249,5 +249,4 @@ androidx {
     inceptionYear = "2023"
     description = "The implementation of SQLite library using the bundled SQLite."
     metalavaK2UastEnabled = false
-    legacyDisableKotlinStrictApiMode = true
 }

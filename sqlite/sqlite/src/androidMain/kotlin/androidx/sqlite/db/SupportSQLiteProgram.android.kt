@@ -19,14 +19,14 @@ import java.io.Closeable
 
 /** An interface to map the behavior of [android.database.sqlite.SQLiteProgram]. */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-interface SupportSQLiteProgram : Closeable {
+public interface SupportSQLiteProgram : Closeable {
     /**
      * Bind a NULL value to this statement. The value remains bound until [.clearBindings] is
      * called.
      *
      * @param index The 1-based index to the parameter to bind null to
      */
-    fun bindNull(index: Int)
+    public fun bindNull(index: Int)
 
     /**
      * Bind a long value to this statement. The value remains bound until [clearBindings] is called.
@@ -35,7 +35,7 @@ interface SupportSQLiteProgram : Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */
-    fun bindLong(index: Int, value: Long)
+    public fun bindLong(index: Int, value: Long)
 
     /**
      * Bind a double value to this statement. The value remains bound until [.clearBindings] is
@@ -44,7 +44,7 @@ interface SupportSQLiteProgram : Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind
      */
-    fun bindDouble(index: Int, value: Double)
+    public fun bindDouble(index: Int, value: Double)
 
     /**
      * Bind a String value to this statement. The value remains bound until [.clearBindings] is
@@ -53,7 +53,7 @@ interface SupportSQLiteProgram : Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    fun bindString(index: Int, value: String)
+    public fun bindString(index: Int, value: String)
 
     /**
      * Bind a byte array value to this statement. The value remains bound until [.clearBindings] is
@@ -62,8 +62,8 @@ interface SupportSQLiteProgram : Closeable {
      * @param index The 1-based index to the parameter to bind
      * @param value The value to bind, must not be null
      */
-    fun bindBlob(index: Int, value: ByteArray)
+    public fun bindBlob(index: Int, value: ByteArray)
 
     /** Clears all existing bindings. Unset bindings are treated as NULL. */
-    fun clearBindings()
+    public fun clearBindings()
 }

@@ -19,7 +19,7 @@ import java.util.regex.Pattern
 
 /** A simple query builder to create SQL SELECT queries. */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-class SupportSQLiteQueryBuilder private constructor(private val table: String) {
+public class SupportSQLiteQueryBuilder private constructor(private val table: String) {
     private var distinct = false
     private var columns: Array<out String>? = null
     private var selection: String? = null
@@ -34,7 +34,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      *
      * @return this
      */
-    fun distinct(): SupportSQLiteQueryBuilder = apply { this.distinct = true }
+    public fun distinct(): SupportSQLiteQueryBuilder = apply { this.distinct = true }
 
     /**
      * Sets the given list of columns as the columns that will be returned.
@@ -42,7 +42,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param columns The list of column names that should be returned.
      * @return this
      */
-    fun columns(columns: Array<out String>?): SupportSQLiteQueryBuilder = apply {
+    public fun columns(columns: Array<out String>?): SupportSQLiteQueryBuilder = apply {
         this.columns = columns
     }
 
@@ -53,11 +53,13 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param bindArgs The list of bind arguments to match against these columns
      * @return this
      */
-    fun selection(selection: String?, bindArgs: Array<out Any?>?): SupportSQLiteQueryBuilder =
-        apply {
-            this.selection = selection
-            this.bindArgs = bindArgs
-        }
+    public fun selection(
+        selection: String?,
+        bindArgs: Array<out Any?>?
+    ): SupportSQLiteQueryBuilder = apply {
+        this.selection = selection
+        this.bindArgs = bindArgs
+    }
 
     /**
      * Adds a GROUP BY statement.
@@ -65,7 +67,9 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param groupBy The value of the GROUP BY statement.
      * @return this
      */
-    fun groupBy(groupBy: String?): SupportSQLiteQueryBuilder = apply { this.groupBy = groupBy }
+    public fun groupBy(groupBy: String?): SupportSQLiteQueryBuilder = apply {
+        this.groupBy = groupBy
+    }
 
     /**
      * Adds a HAVING statement. You must also provide [groupBy] for this to work.
@@ -73,7 +77,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param having The having clause.
      * @return this
      */
-    fun having(having: String?): SupportSQLiteQueryBuilder = apply { this.having = having }
+    public fun having(having: String?): SupportSQLiteQueryBuilder = apply { this.having = having }
 
     /**
      * Adds an ORDER BY statement.
@@ -81,7 +85,9 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param orderBy The order clause.
      * @return this
      */
-    fun orderBy(orderBy: String?): SupportSQLiteQueryBuilder = apply { this.orderBy = orderBy }
+    public fun orderBy(orderBy: String?): SupportSQLiteQueryBuilder = apply {
+        this.orderBy = orderBy
+    }
 
     /**
      * Adds a LIMIT statement.
@@ -89,7 +95,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      * @param limit The limit value.
      * @return this
      */
-    fun limit(limit: String): SupportSQLiteQueryBuilder = apply {
+    public fun limit(limit: String): SupportSQLiteQueryBuilder = apply {
         val patternMatches = limitPattern.matcher(limit).matches()
         require(limit.isEmpty() || patternMatches) { "invalid LIMIT clauses:$limit" }
         this.limit = limit
@@ -100,7 +106,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
      *
      * @return a new query
      */
-    fun create(): SupportSQLiteQuery {
+    public fun create(): SupportSQLiteQuery {
         require(!groupBy.isNullOrEmpty() || having.isNullOrEmpty()) {
             "HAVING clauses are only permitted when using a groupBy clause"
         }
@@ -146,7 +152,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
         append(' ')
     }
 
-    companion object {
+    public companion object {
         private val limitPattern = Pattern.compile("\\s*\\d+\\s*(,\\s*\\d+\\s*)?")
 
         /**
@@ -156,7 +162,7 @@ class SupportSQLiteQueryBuilder private constructor(private val table: String) {
          * @return A builder to create a query.
          */
         @JvmStatic
-        fun builder(tableName: String): SupportSQLiteQueryBuilder {
+        public fun builder(tableName: String): SupportSQLiteQueryBuilder {
             return SupportSQLiteQueryBuilder(tableName)
         }
     }

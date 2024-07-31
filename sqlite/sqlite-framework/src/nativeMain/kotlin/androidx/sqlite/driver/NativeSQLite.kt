@@ -52,7 +52,7 @@ import sqlite3.sqlite3_errmsg16
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class OpenFlag
+public annotation class OpenFlag
 
 internal fun CPointer<sqlite3>.getErrorMsg(): String? {
     return sqlite3_errmsg16(this)?.reinterpret<UShortVar>()?.toKStringFromUtf16()

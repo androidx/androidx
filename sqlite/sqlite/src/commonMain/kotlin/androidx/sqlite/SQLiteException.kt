@@ -23,6 +23,6 @@ import androidx.annotation.RestrictTo
  *
  * See [Result and Error codes](https://www.sqlite.org/rescode.html)
  */
-expect class SQLiteException
+public expect class SQLiteException
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(message: String) : RuntimeException

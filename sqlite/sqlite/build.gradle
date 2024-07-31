@@ -90,5 +90,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2017"
     description = "SQLite API"
-    legacyDisableKotlinStrictApiMode = true
 }

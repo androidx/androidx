@@ -47,7 +47,7 @@ import java.util.concurrent.locks.ReentrantLock
  *   can be overridden via the [lock] method.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ProcessLock(name: String, lockDir: File?, private val processLock: Boolean) {
+public class ProcessLock(name: String, lockDir: File?, private val processLock: Boolean) {
     private val lockFile: File? = lockDir?.let { File(it, "$name.lck") }
     private val threadLock: Lock = getThreadLock(name)
     private var lockChannel: FileChannel? = null
@@ -57,7 +57,7 @@ class ProcessLock(name: String, lockDir: File?, private val processLock: Boolean
      *
      * @param [processLock] whether to use file for process level locking or not.
      */
-    fun lock(processLock: Boolean = this.processLock) {
+    public fun lock(processLock: Boolean = this.processLock) {
         threadLock.lock()
         if (processLock) {
             try {
@@ -76,14 +76,14 @@ class ProcessLock(name: String, lockDir: File?, private val processLock: Boolean
     }
 
     /** Releases the lock. */
-    fun unlock() {
+    public fun unlock() {
         try {
             lockChannel?.close()
         } catch (ignored: IOException) {}
         threadLock.unlock()
     }
 
-    companion object {
+    private companion object {
         private const val TAG = "SupportSQLiteLock"
         // in-process lock map
         private val threadLocksMap: MutableMap<String, Lock> = HashMap()

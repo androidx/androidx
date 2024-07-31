@@ -24,7 +24,7 @@ import androidx.sqlite.driver.ResultCode.SQLITE_MISUSE
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-class AndroidSQLiteConnection(val db: SQLiteDatabase) : SQLiteConnection {
+public class AndroidSQLiteConnection(public val db: SQLiteDatabase) : SQLiteConnection {
     override fun prepare(sql: String): SQLiteStatement {
         if (db.isOpen) {
             return AndroidSQLiteStatement.create(db, sql)

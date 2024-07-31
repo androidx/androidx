@@ -27,7 +27,7 @@ import androidx.sqlite.SQLiteDriver
  */
 // TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external
 // functions.
-actual class BundledSQLiteDriver : SQLiteDriver {
+public actual class BundledSQLiteDriver : SQLiteDriver {
 
     /**
      * The thread safe mode SQLite was compiled with.
@@ -35,7 +35,7 @@ actual class BundledSQLiteDriver : SQLiteDriver {
      * See also [SQLite In Multi-Threaded Applications](https://www.sqlite.org/threadsafe.html)
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    actual val threadingMode: Int
+    public actual val threadingMode: Int
         get() = nativeThreadSafeMode()
 
     override fun open(fileName: String): SQLiteConnection {
@@ -51,7 +51,7 @@ actual class BundledSQLiteDriver : SQLiteDriver {
      * @param flags Connection open flags.
      * @return the database connection.
      */
-    actual fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection {
+    public actual fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection {
         val address = nativeOpen(fileName, flags)
         return BundledSQLiteConnection(address)
     }

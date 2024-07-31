@@ -23,7 +23,7 @@ import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual class BundledSQLiteStatement(
+public actual class BundledSQLiteStatement(
     private val connectionPointer: Long,
     private val statementPointer: Long
 ) : SQLiteStatement {
@@ -118,7 +118,7 @@ actual class BundledSQLiteStatement(
         }
     }
 
-    companion object {
+    private companion object {
         private const val COLUMN_TYPE_INTEGER = 1
         private const val COLUMN_TYPE_FLOAT = 2
         private const val COLUMN_TYPE_TEXT = 3

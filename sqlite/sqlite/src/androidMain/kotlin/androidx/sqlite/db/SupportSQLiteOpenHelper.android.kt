@@ -32,12 +32,12 @@ import java.io.IOException
  * create this and [Callback] to implement the methods that should be overridden.
  */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-interface SupportSQLiteOpenHelper : Closeable {
+public interface SupportSQLiteOpenHelper : Closeable {
     /**
      * Return the name of the SQLite database being opened, as given to the constructor. `null`
      * indicates an in-memory database.
      */
-    val databaseName: String?
+    public val databaseName: String?
 
     /**
      * Enables or disables the use of write-ahead logging for the database.
@@ -49,7 +49,7 @@ interface SupportSQLiteOpenHelper : Closeable {
      *
      * @param enabled True if write-ahead logging should be enabled, false if it should be disabled.
      */
-    fun setWriteAheadLoggingEnabled(enabled: Boolean)
+    public fun setWriteAheadLoggingEnabled(enabled: Boolean)
 
     /**
      * Create and/or open a database that will be used for reading and writing. The first time this
@@ -67,7 +67,7 @@ interface SupportSQLiteOpenHelper : Closeable {
      * @return a read/write database object valid until [close] is called
      * @throws SQLiteException if the database cannot be opened for writing
      */
-    val writableDatabase: SupportSQLiteDatabase
+    public val writableDatabase: SupportSQLiteDatabase
 
     /**
      * Create and/or open a database. This will be the same object returned by [writableDatabase]
@@ -82,7 +82,7 @@ interface SupportSQLiteOpenHelper : Closeable {
      * @return a database object valid until [writableDatabase] or [close] is called.
      * @throws SQLiteException if the database cannot be opened
      */
-    val readableDatabase: SupportSQLiteDatabase
+    public val readableDatabase: SupportSQLiteDatabase
 
     /** Close any open database object. */
     override fun close()
@@ -93,13 +93,13 @@ interface SupportSQLiteOpenHelper : Closeable {
      * Handles various lifecycle events for the SQLite connection, similar to
      * [room-runtime.SQLiteOpenHelper].
      */
-    abstract class Callback(
+    public abstract class Callback(
         /**
          * Version number of the database (starting at 1); if the database is older,
          * [Callback.onUpgrade] will be used to upgrade the database; if the database is newer,
          * [Callback.onDowngrade] will be used to downgrade the database.
          */
-        @JvmField val version: Int
+        @JvmField public val version: Int
     ) {
         /**
          * Called when the database connection is being configured, to enable features such as
@@ -117,7 +117,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          *
          * @param db The database.
          */
-        open fun onConfigure(db: SupportSQLiteDatabase) {}
+        public open fun onConfigure(db: SupportSQLiteDatabase) {}
 
         /**
          * Called when the database is created for the first time. This is where the creation of
@@ -125,7 +125,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          *
          * @param db The database.
          */
-        abstract fun onCreate(db: SupportSQLiteDatabase)
+        public abstract fun onCreate(db: SupportSQLiteDatabase)
 
         /**
          * Called when the database needs to be upgraded. The implementation should use this method
@@ -145,7 +145,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          * @param oldVersion The old database version.
          * @param newVersion The new database version.
          */
-        abstract fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int)
+        public abstract fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int)
 
         /**
          * Called when the database needs to be downgraded. This is strictly similar to [onUpgrade]
@@ -160,7 +160,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          * @param oldVersion The old database version.
          * @param newVersion The new database version.
          */
-        open fun onDowngrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
+        public open fun onDowngrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) {
             throw SQLiteException(
                 "Can't downgrade database from version $oldVersion to $newVersion"
             )
@@ -177,7 +177,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          *
          * @param db The database.
          */
-        open fun onOpen(db: SupportSQLiteDatabase) {}
+        public open fun onOpen(db: SupportSQLiteDatabase) {}
 
         /**
          * The method invoked when database corruption is detected. Default implementation will
@@ -186,7 +186,7 @@ interface SupportSQLiteOpenHelper : Closeable {
          * @param db the [SupportSQLiteDatabase] object representing the database on which
          *   corruption is detected.
          */
-        open fun onCorruption(db: SupportSQLiteDatabase) {
+        public open fun onCorruption(db: SupportSQLiteDatabase) {
             // the following implementation is taken from {@link DefaultDatabaseErrorHandler}.
             Log.e(TAG, "Corruption reported by sqlite on database: $db.path")
             // is the corruption detected even before database could be 'opened'?
@@ -245,26 +245,26 @@ interface SupportSQLiteOpenHelper : Closeable {
     }
 
     /** The configuration to create an SQLite open helper object using [Factory]. */
-    class Configuration
+    public class Configuration
     @Suppress("ExecutorRegistration") // For backwards compatibility
     constructor(
         /** Context to use to open or create the database. */
-        @JvmField val context: Context,
+        @JvmField public val context: Context,
         /** Name of the database file, or null for an in-memory database. */
-        @JvmField val name: String?,
+        @JvmField public val name: String?,
         /** The callback class to handle creation, upgrade and downgrade. */
-        @JvmField val callback: Callback,
+        @JvmField public val callback: Callback,
         /** If `true` the database will be stored in the no-backup directory. */
-        @JvmField @Suppress("ListenerLast") val useNoBackupDirectory: Boolean = false,
+        @JvmField @Suppress("ListenerLast") public val useNoBackupDirectory: Boolean = false,
         /**
          * If `true` the database will be delete and its data loss in the case that it cannot be
          * opened.
          */
-        @JvmField @Suppress("ListenerLast") val allowDataLossOnRecovery: Boolean = false
+        @JvmField @Suppress("ListenerLast") public val allowDataLossOnRecovery: Boolean = false
     ) {
 
         /** Builder class for [Configuration]. */
-        open class Builder internal constructor(context: Context) {
+        public open class Builder internal constructor(context: Context) {
             private val context: Context
             private var name: String? = null
             private var callback: Callback? = null
@@ -281,7 +281,7 @@ interface SupportSQLiteOpenHelper : Closeable {
              *
              * @return The [Configuration] instance
              */
-            open fun build(): Configuration {
+            public open fun build(): Configuration {
                 val callback = callback
                 requireNotNull(callback) { "Must set a callback to create the configuration." }
                 require(!useNoBackupDirectory || !name.isNullOrEmpty()) {
@@ -305,13 +305,15 @@ interface SupportSQLiteOpenHelper : Closeable {
              * @param name Name of the database file, or null for an in-memory database.
              * @return This builder instance.
              */
-            open fun name(name: String?): Builder = apply { this.name = name }
+            public open fun name(name: String?): Builder = apply { this.name = name }
 
             /**
              * @param callback The callback class to handle creation, upgrade and downgrade.
              * @return This builder instance.
              */
-            open fun callback(callback: Callback): Builder = apply { this.callback = callback }
+            public open fun callback(callback: Callback): Builder = apply {
+                this.callback = callback
+            }
 
             /**
              * Sets whether to use a no backup directory or not.
@@ -320,7 +322,7 @@ interface SupportSQLiteOpenHelper : Closeable {
              *   no-backup directory.
              * @return This builder instance.
              */
-            open fun noBackupDirectory(useNoBackupDirectory: Boolean): Builder = apply {
+            public open fun noBackupDirectory(useNoBackupDirectory: Boolean): Builder = apply {
                 this.useNoBackupDirectory = useNoBackupDirectory
             }
 
@@ -332,32 +334,33 @@ interface SupportSQLiteOpenHelper : Closeable {
              *   case that it cannot be opened.
              * @return this
              */
-            open fun allowDataLossOnRecovery(allowDataLossOnRecovery: Boolean): Builder = apply {
-                this.allowDataLossOnRecovery = allowDataLossOnRecovery
-            }
+            public open fun allowDataLossOnRecovery(allowDataLossOnRecovery: Boolean): Builder =
+                apply {
+                    this.allowDataLossOnRecovery = allowDataLossOnRecovery
+                }
         }
 
-        companion object {
+        public companion object {
             /**
              * Creates a new Configuration.Builder to create an instance of Configuration.
              *
              * @param context to use to open or create the database.
              */
             @JvmStatic
-            fun builder(context: Context): Builder {
+            public fun builder(context: Context): Builder {
                 return Builder(context)
             }
         }
     }
 
     /** Factory class to create instances of [SupportSQLiteOpenHelper] using [Configuration]. */
-    fun interface Factory {
+    public fun interface Factory {
         /**
          * Creates an instance of [SupportSQLiteOpenHelper] using the given configuration.
          *
          * @param configuration The configuration to use while creating the open helper.
          * @return A SupportSQLiteOpenHelper which can be used to open a database.
          */
-        fun create(configuration: Configuration): SupportSQLiteOpenHelper
+        public fun create(configuration: Configuration): SupportSQLiteOpenHelper
     }
 }

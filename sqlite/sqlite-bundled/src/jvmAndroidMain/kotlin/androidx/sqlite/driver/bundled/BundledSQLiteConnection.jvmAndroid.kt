@@ -24,7 +24,8 @@ import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
 import androidx.sqlite.throwSQLiteException
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual class BundledSQLiteConnection(private val connectionPointer: Long) : SQLiteConnection {
+public actual class BundledSQLiteConnection(private val connectionPointer: Long) :
+    SQLiteConnection {
 
     @OptIn(ExperimentalStdlibApi::class) @Volatile private var isClosed = false
 

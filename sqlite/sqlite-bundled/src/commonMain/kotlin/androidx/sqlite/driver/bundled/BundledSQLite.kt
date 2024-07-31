@@ -23,39 +23,39 @@ import androidx.annotation.RestrictTo
 import kotlin.jvm.JvmName
 
 /** Opens the database in read-only mode. */
-const val SQLITE_OPEN_READONLY = 0x00000001
+public const val SQLITE_OPEN_READONLY: Int = 0x00000001
 
 /** Opens the database for reading and writing. */
-const val SQLITE_OPEN_READWRITE = 0x00000002
+public const val SQLITE_OPEN_READWRITE: Int = 0x00000002
 
 /** Create the database if it does not already exist. */
-const val SQLITE_OPEN_CREATE = 0x00000004
+public const val SQLITE_OPEN_CREATE: Int = 0x00000004
 
 /** Interpret the filename as a URI. */
-const val SQLITE_OPEN_URI = 0x00000040
+public const val SQLITE_OPEN_URI: Int = 0x00000040
 
 /** Opens the database as a in-memory database. */
-const val SQLITE_OPEN_MEMORY = 0x00000080
+public const val SQLITE_OPEN_MEMORY: Int = 0x00000080
 
 /**
  * The database connection will use the "multi-thread" threading mode.
  *
  * See also [SQLite In Multi-Threaded Applications](https://www.sqlite.org/threadsafe.html)
  */
-const val SQLITE_OPEN_NOMUTEX = 0x00008000
+public const val SQLITE_OPEN_NOMUTEX: Int = 0x00008000
 
 /**
  * The database connection will use the "serialized" threading mode.
  *
  * See also [SQLite In Multi-Threaded Applications](https://www.sqlite.org/threadsafe.html)
  */
-const val SQLITE_OPEN_FULLMUTEX = 0x00010000
+public const val SQLITE_OPEN_FULLMUTEX: Int = 0x00010000
 
 /** The filename is not allowed to contain a symbolic link. */
-const val SQLITE_OPEN_NOFOLLOW = 0x01000000
+public const val SQLITE_OPEN_NOFOLLOW: Int = 0x01000000
 
 /** The database connection will use extended result codes. */
-const val SQLITE_OPEN_EXRESCODE = 0x02000000
+public const val SQLITE_OPEN_EXRESCODE: Int = 0x02000000
 
 /** The flags constant that can be used with [BundledSQLiteDriver.open]. */
 @IntDef(
@@ -75,4 +75,4 @@ const val SQLITE_OPEN_EXRESCODE = 0x02000000
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-expect annotation class OpenFlag()
+public expect annotation class OpenFlag()

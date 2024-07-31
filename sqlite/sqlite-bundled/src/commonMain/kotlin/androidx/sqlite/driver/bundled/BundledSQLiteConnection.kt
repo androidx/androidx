@@ -20,4 +20,5 @@ import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteConnection
 
 // Restricted instead of internal due to KT-37316
-@RestrictTo(RestrictTo.Scope.LIBRARY) expect class BundledSQLiteConnection : SQLiteConnection
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public expect class BundledSQLiteConnection : SQLiteConnection
