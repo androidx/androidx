@@ -1,30 +1,24 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.EntityDeleteOrUpdateAdapter;
-import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RxRoom;
 import androidx.room.util.DBUtil;
 import androidx.room.util.SQLiteConnectionUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.SQLiteStatement;
-import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.lang.Class;
-import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
-import java.lang.Void;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.Unit;
 
@@ -34,8 +28,6 @@ public final class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
 
   private final EntityDeleteOrUpdateAdapter<User> __deleteAdapterOfUser;
-
-  private final EntityDeletionOrUpdateAdapter<User> __deleteCompatAdapterOfUser;
 
   private final EntityDeleteOrUpdateAdapter<MultiPKeyEntity> __deleteAdapterOfMultiPKeyEntity;
 
@@ -52,19 +44,6 @@ public final class DeletionDao_Impl implements DeletionDao {
 
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, @NonNull final User entity) {
-        statement.bindLong(1, entity.uid);
-      }
-    };
-    this.__deleteCompatAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `User` WHERE `uid` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -160,57 +139,27 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Completable deleteUserCompletable(final User user) {
-    return Completable.fromCallable(new Callable<Void>() {
-      @Override
-      @Nullable
-      public Void call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return null;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createCompletable(__db, false, true, (_connection) -> {
+      __deleteAdapterOfUser.handle(_connection, user);
+      return Unit.INSTANCE;
     });
   }
 
   @Override
   public Single<Integer> deleteUserSingle(final User user) {
-    return Single.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createSingle(__db, false, true, (_connection) -> {
+      int _result = 0;
+      _result += __deleteAdapterOfUser.handle(_connection, user);
+      return _result;
     });
   }
 
   @Override
   public Maybe<Integer> deleteUserMaybe(final User user) {
-    return Maybe.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createMaybe(__db, false, true, (_connection) -> {
+      int _result = 0;
+      _result += __deleteAdapterOfUser.handle(_connection, user);
+      return _result;
     });
   }
 

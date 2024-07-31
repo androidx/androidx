@@ -2284,13 +2284,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     .trimIndent()
             )
         runTest(
-            sources =
-                listOf(
-                    src,
-                    databaseSrc,
-                    COMMON.RX2_SINGLE,
-                    COMMON.RX2_COMPLETABLE,
-                    COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
+            sources = listOf(src, databaseSrc),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX2_ROOM,
+                        COMMON.RX2_SINGLE,
+                        COMMON.RX2_MAYBE,
+                        COMMON.RX2_COMPLETABLE,
+                        COMMON.RX2_FLOWABLE,
+                        COMMON.RX2_OBSERVABLE,
+                        COMMON.RX2_EMPTY_RESULT_SET_EXCEPTION,
+                        COMMON.PUBLISHER,
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )
@@ -2342,13 +2348,19 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                     .trimIndent()
             )
         runTest(
-            sources =
-                listOf(
-                    src,
-                    databaseSrc,
-                    COMMON.RX3_SINGLE,
-                    COMMON.RX3_COMPLETABLE,
-                    COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION
+            sources = listOf(src, databaseSrc),
+            compiledFiles =
+                compileFiles(
+                    listOf(
+                        COMMON.RX3_ROOM,
+                        COMMON.RX3_SINGLE,
+                        COMMON.RX3_MAYBE,
+                        COMMON.RX3_COMPLETABLE,
+                        COMMON.RX3_FLOWABLE,
+                        COMMON.RX3_OBSERVABLE,
+                        COMMON.RX3_EMPTY_RESULT_SET_EXCEPTION,
+                        COMMON.PUBLISHER,
+                    )
                 ),
             expectedFilePath = getTestGoldenPath(testName.methodName)
         )

@@ -1,28 +1,22 @@
 package foo.bar;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.room.EntityDeleteOrUpdateAdapter;
-import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.RxRoom;
 import androidx.room.util.DBUtil;
 import androidx.room.util.SQLiteConnectionUtil;
 import androidx.sqlite.SQLiteStatement;
-import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.lang.Class;
-import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
-import java.lang.Void;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.Unit;
 
@@ -34,8 +28,6 @@ public final class UpdateDao_Impl implements UpdateDao {
   private final EntityDeleteOrUpdateAdapter<User> __updateAdapterOfUser;
 
   private final EntityDeleteOrUpdateAdapter<User> __updateAdapterOfUser_1;
-
-  private final EntityDeletionOrUpdateAdapter<User> __updateCompatAdapterOfUser;
 
   private final EntityDeleteOrUpdateAdapter<MultiPKeyEntity> __updateAdapterOfMultiPKeyEntity;
 
@@ -86,31 +78,6 @@ public final class UpdateDao_Impl implements UpdateDao {
           statement.bindNull(3);
         } else {
           statement.bindText(3, entity.getLastName());
-        }
-        statement.bindLong(4, entity.age);
-        statement.bindLong(5, entity.uid);
-      }
-    };
-    this.__updateCompatAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "UPDATE OR ABORT `User` SET `uid` = ?,`name` = ?,`lastName` = ?,`ageColumn` = ? WHERE `uid` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement,
-          @NonNull final User entity) {
-        statement.bindLong(1, entity.uid);
-        if (entity.name == null) {
-          statement.bindNull(2);
-        } else {
-          statement.bindString(2, entity.name);
-        }
-        if (entity.getLastName() == null) {
-          statement.bindNull(3);
-        } else {
-          statement.bindString(3, entity.getLastName());
         }
         statement.bindLong(4, entity.age);
         statement.bindLong(5, entity.uid);
@@ -221,57 +188,27 @@ public final class UpdateDao_Impl implements UpdateDao {
 
   @Override
   public Completable updateUserAndReturnCountCompletable(final User user) {
-    return Completable.fromCallable(new Callable<Void>() {
-      @Override
-      @Nullable
-      public Void call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return null;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createCompletable(__db, false, true, (_connection) -> {
+      __updateAdapterOfUser.handle(_connection, user);
+      return Unit.INSTANCE;
     });
   }
 
   @Override
   public Single<Integer> updateUserAndReturnCountSingle(final User user) {
-    return Single.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createSingle(__db, false, true, (_connection) -> {
+      int _result = 0;
+      _result += __updateAdapterOfUser.handle(_connection, user);
+      return _result;
     });
   }
 
   @Override
   public Maybe<Integer> updateUserAndReturnCountMaybe(final User user) {
-    return Maybe.fromCallable(new Callable<Integer>() {
-      @Override
-      @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __updateCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
-      }
+    return RxRoom.createMaybe(__db, false, true, (_connection) -> {
+      int _result = 0;
+      _result += __updateAdapterOfUser.handle(_connection, user);
+      return _result;
     });
   }
 
