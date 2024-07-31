@@ -164,9 +164,13 @@ public final class WindowCompat {
 
         static void setDecorFitsSystemWindows(@NonNull Window window,
                 final boolean decorFitsSystemWindows) {
+            final int stableFlag = View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
+
             final View decorView = window.getDecorView();
             final int sysUiVis = decorView.getSystemUiVisibility();
-            decorView.setSystemUiVisibility(sysUiVis | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+            decorView.setSystemUiVisibility(decorFitsSystemWindows
+                    ? sysUiVis & ~stableFlag
+                    : sysUiVis | stableFlag);
             window.setDecorFitsSystemWindows(decorFitsSystemWindows);
         }
     }
