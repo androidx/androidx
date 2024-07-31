@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicSecureTextField
-import androidx.compose.foundation.text.input.internal.selection.FakeClipboardManager
 import androidx.compose.foundation.text.selection.FakeTextToolbar
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.runtime.CompositionLocalProvider
@@ -32,7 +31,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
@@ -97,9 +95,9 @@ internal class BasicSecureTextFieldTest {
         rule.waitForIdle()
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
         rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.PasteText))
-        // temporarily define copy and cut actions on BasicSecureTextField but make them no-op
-        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CopyText))
-        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CutText))
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
     }
 
     @Test
@@ -371,41 +369,24 @@ internal class BasicSecureTextFieldTest {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_copy() {
         val state = TextFieldState("Hello World!")
-        val clipboardManager = FakeClipboardManager("initial")
         inputMethodInterceptor.setContent {
-            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
-            }
+            BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
         }
 
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
-        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CopyText)
-
-        rule.runOnIdle { assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial") }
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     fun semantics_cut() {
         val state = TextFieldState("Hello World!")
-        val clipboardManager = FakeClipboardManager("initial")
         inputMethodInterceptor.setContent {
-            CompositionLocalProvider(LocalClipboardManager provides clipboardManager) {
-                BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
-            }
+            BasicSecureTextField(state = state, modifier = Modifier.testTag(Tag))
         }
 
-        rule.onNodeWithTag(Tag).performTextInputSelection(TextRange(0, 5))
-        rule.onNodeWithTag(Tag).performSemanticsAction(SemanticsActions.CutText)
-
-        rule.runOnIdle {
-            assertThat(clipboardManager.getText()?.toString()).isEqualTo("initial")
-            assertThat(state.text.toString()).isEqualTo("Hello World!")
-        }
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
     }
 
     @Test

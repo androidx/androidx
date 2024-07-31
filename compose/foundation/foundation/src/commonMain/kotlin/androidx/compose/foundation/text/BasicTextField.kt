@@ -317,7 +317,8 @@ internal fun BasicTextField(
                     keyboardOptions = resolvedKeyboardOptions,
                     keyboardActionHandler = onKeyboardAction,
                     singleLine = singleLine,
-                    interactionSource = interactionSource
+                    interactionSource = interactionSource,
+                    isPassword = isPassword
                 )
             )
             .focusable(interactionSource = interactionSource, enabled = enabled)

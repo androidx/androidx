@@ -682,6 +682,38 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
         rule.onNodeWithTag(Tag).assertKey(10, SemanticsProperties.MaxTextLength)
     }
 
+    @Test
+    fun passwordSemantics_whenIsPassword_isToggled() {
+        var isPassword by mutableStateOf(false)
+        rule.setContent {
+            BasicTextField(
+                state =
+                    rememberTextFieldState(
+                        initialText = "Hello",
+                        initialSelection = TextRange(0, 2)
+                    ),
+                modifier = Modifier.testTag(Tag),
+                isPassword = isPassword
+            )
+        }
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CutText))
+
+        isPassword = true
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsActions.CutText))
+
+        isPassword = false
+
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Password))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CopyText))
+        rule.onNodeWithTag(Tag).assert(SemanticsMatcher.keyIsDefined(SemanticsActions.CutText))
+    }
+
     private fun SemanticsNodeInteraction.assertKey(expected: Int, key: SemanticsPropertyKey<Int>) {
         assertThat(fetchSemanticsNode().config.getOrNull(key)).isEqualTo(expected)
     }
