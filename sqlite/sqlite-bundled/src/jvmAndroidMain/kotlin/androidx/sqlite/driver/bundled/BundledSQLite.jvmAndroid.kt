@@ -36,7 +36,7 @@ import androidx.annotation.RestrictTo
 )
 @Retention(AnnotationRetention.SOURCE)
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-actual annotation class OpenFlag
+public actual annotation class OpenFlag
 
 internal object ResultCode {
     const val SQLITE_MISUSE = 21

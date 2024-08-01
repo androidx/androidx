@@ -20,4 +20,4 @@ package androidx.sqlite.driver.bundled
 
 import androidx.annotation.RestrictTo
 
-actual typealias BundledSQLiteConnection = androidx.sqlite.driver.NativeSQLiteConnection
+public actual typealias BundledSQLiteConnection = androidx.sqlite.driver.NativeSQLiteConnection

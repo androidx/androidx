@@ -15,4 +15,4 @@
  */
 package androidx.sqlite
 
-actual typealias SQLiteException = android.database.SQLException
+public actual typealias SQLiteException = android.database.SQLException

@@ -18,6 +18,6 @@ package androidx.sqlite
 
 import androidx.annotation.RestrictTo
 
-actual class SQLiteException
+public actual class SQLiteException
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 actual constructor(message: String) : RuntimeException(message)

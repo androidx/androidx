@@ -24,14 +24,14 @@ import androidx.sqlite.SQLiteDriver
  * A [SQLiteDriver] that uses a bundled version of SQLite included as a native component of this
  * library.
  */
-expect class BundledSQLiteDriver() : SQLiteDriver {
+public expect class BundledSQLiteDriver() : SQLiteDriver {
 
     /**
      * The thread safe mode SQLite was compiled with.
      *
      * See also [SQLite In Multi-Threaded Applications](https://www.sqlite.org/threadsafe.html)
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) val threadingMode: Int
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public val threadingMode: Int
 
     /**
      * Opens a new database connection.
@@ -42,5 +42,5 @@ expect class BundledSQLiteDriver() : SQLiteDriver {
      * @param flags Connection open flags.
      * @return the database connection.
      */
-    fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection
+    public fun open(fileName: String, @OpenFlag flags: Int): SQLiteConnection
 }

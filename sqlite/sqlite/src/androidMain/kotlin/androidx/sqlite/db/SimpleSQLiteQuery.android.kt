@@ -24,7 +24,7 @@ package androidx.sqlite.db
  * @constructor Creates an SQL query with the sql string and the bind arguments.
  */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-class SimpleSQLiteQuery(
+public class SimpleSQLiteQuery(
     private val query: String,
     @Suppress("ArrayReturn") // Due to legacy API
     private val bindArgs: Array<out Any?>?
@@ -35,7 +35,7 @@ class SimpleSQLiteQuery(
      *
      * @param query The SQL query to execute. Cannot include bind parameters.
      */
-    constructor(query: String) : this(query, null)
+    public constructor(query: String) : this(query, null)
 
     override val sql: String
         get() = this.query
@@ -53,7 +53,7 @@ class SimpleSQLiteQuery(
     override val argCount: Int
         get() = bindArgs?.size ?: 0
 
-    companion object {
+    public companion object {
         /**
          * Binds the given arguments into the given sqlite statement.
          *
@@ -61,7 +61,7 @@ class SimpleSQLiteQuery(
          * @param [bindArgs] The list of bind arguments
          */
         @JvmStatic
-        fun bind(
+        public fun bind(
             @Suppress("AcronymName") // SQL is a known term and should remain capitalized
             statement: SupportSQLiteProgram,
             @Suppress("ArrayReturn") // Due to legacy API

@@ -17,14 +17,14 @@ package androidx.sqlite.db
 
 /** An interface to map the behavior of [android.database.sqlite.SQLiteStatement]. */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-interface SupportSQLiteStatement : SupportSQLiteProgram {
+public interface SupportSQLiteStatement : SupportSQLiteProgram {
     /**
      * Execute this SQL statement, if it is not a SELECT / INSERT / DELETE / UPDATE, for example
      * CREATE / DROP table, view, trigger, index etc.
      *
      * @throws [android.database.SQLException] If the SQL string is invalid for some reason
      */
-    fun execute()
+    public fun execute()
 
     /**
      * Execute this SQL statement, if the the number of rows affected by execution of this SQL
@@ -33,7 +33,7 @@ interface SupportSQLiteStatement : SupportSQLiteProgram {
      * @return the number of rows affected by this SQL statement execution.
      * @throws [android.database.SQLException] If the SQL string is invalid for some reason
      */
-    fun executeUpdateDelete(): Int
+    public fun executeUpdateDelete(): Int
 
     /**
      * Execute this SQL statement and return the ID of the row inserted due to this call. The SQL
@@ -42,7 +42,7 @@ interface SupportSQLiteStatement : SupportSQLiteProgram {
      * @return the row ID of the last row inserted, if this insert is successful. -1 otherwise.
      * @throws [android.database.SQLException] If the SQL string is invalid for some reason
      */
-    fun executeInsert(): Long
+    public fun executeInsert(): Long
 
     /**
      * Execute a statement that returns a 1 by 1 table with a numeric value. For example, SELECT
@@ -51,7 +51,7 @@ interface SupportSQLiteStatement : SupportSQLiteProgram {
      * @return The result of the query.
      * @throws [android.database.sqlite.SQLiteDoneException] if the query returns zero rows
      */
-    fun simpleQueryForLong(): Long
+    public fun simpleQueryForLong(): Long
 
     /**
      * Execute a statement that returns a 1 by 1 table with a text value. For example, SELECT
@@ -60,5 +60,5 @@ interface SupportSQLiteStatement : SupportSQLiteProgram {
      * @return The result of the query.
      * @throws [android.database.sqlite.SQLiteDoneException] if the query returns zero rows
      */
-    fun simpleQueryForString(): String?
+    public fun simpleQueryForString(): String?
 }

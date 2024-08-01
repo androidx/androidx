@@ -57,7 +57,7 @@ import sqlite3.sqlite3_reset
 import sqlite3.sqlite3_step
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
-class NativeSQLiteStatement(
+public class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
     private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {

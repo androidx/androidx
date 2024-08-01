@@ -20,4 +20,4 @@ import androidx.annotation.RestrictTo
 import androidx.sqlite.SQLiteStatement
 
 // Restricted instead of internal due to KT-37316
-@RestrictTo(RestrictTo.Scope.LIBRARY) expect class BundledSQLiteStatement : SQLiteStatement
+@RestrictTo(RestrictTo.Scope.LIBRARY) public expect class BundledSQLiteStatement : SQLiteStatement

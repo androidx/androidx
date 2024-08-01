@@ -16,4 +16,4 @@
 
 package androidx.sqlite.driver.bundled
 
-actual typealias OpenFlag = androidx.sqlite.driver.OpenFlag
+public actual typealias OpenFlag = androidx.sqlite.driver.OpenFlag

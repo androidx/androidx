@@ -23,7 +23,7 @@ package androidx.sqlite.db
  * @param exclusive Run in `EXCLUSIVE` mode when true, `IMMEDIATE` mode otherwise.
  * @param body Lambda to be run in the transaction.
  */
-inline fun <T> SupportSQLiteDatabase.transaction(
+public inline fun <T> SupportSQLiteDatabase.transaction(
     exclusive: Boolean = true,
     body: SupportSQLiteDatabase.() -> T
 ): T {

@@ -30,14 +30,14 @@ import java.util.Locale
  * versions. It mimics the behavior of [android.database.sqlite.SQLiteDatabase]
  */
 @Suppress("AcronymName") // SQL is a known term and should remain capitalized
-interface SupportSQLiteDatabase : Closeable {
+public interface SupportSQLiteDatabase : Closeable {
     /**
      * Compiles the given SQL statement.
      *
      * @param sql The sql query.
      * @return Compiled statement.
      */
-    fun compileStatement(sql: String): SupportSQLiteStatement
+    public fun compileStatement(sql: String): SupportSQLiteStatement
 
     /**
      * Begins a transaction in EXCLUSIVE mode.
@@ -58,7 +58,7 @@ interface SupportSQLiteDatabase : Closeable {
      *  }
      * ```
      */
-    fun beginTransaction()
+    public fun beginTransaction()
 
     /**
      * Begins a transaction in IMMEDIATE mode. Transactions can be nested. When the outer
@@ -78,7 +78,7 @@ interface SupportSQLiteDatabase : Closeable {
      *  }
      *  ```
      */
-    fun beginTransactionNonExclusive()
+    public fun beginTransactionNonExclusive()
 
     /**
      * Begins a transaction in DEFERRED mode, with the android-specific constraint that the
@@ -107,7 +107,7 @@ interface SupportSQLiteDatabase : Closeable {
      * If the implementation does not support read-only transactions then the default implementation
      * delegates to [beginTransaction].
      */
-    fun beginTransactionReadOnly() {
+    public fun beginTransactionReadOnly() {
         beginTransaction()
     }
 
@@ -133,7 +133,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @param transactionListener listener that should be notified when the transaction begins,
      *   commits, or is rolled back, either explicitly or by a call to [yieldIfContendedSafely].
      */
-    fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener)
+    public fun beginTransactionWithListener(transactionListener: SQLiteTransactionListener)
 
     /**
      * Begins a transaction in IMMEDIATE mode. Transactions can be nested. When the outer
@@ -156,7 +156,9 @@ interface SupportSQLiteDatabase : Closeable {
      * @param transactionListener listener that should be notified when the transaction begins,
      *   commits, or is rolled back, either explicitly or by a call to [yieldIfContendedSafely].
      */
-    fun beginTransactionWithListenerNonExclusive(transactionListener: SQLiteTransactionListener)
+    public fun beginTransactionWithListenerNonExclusive(
+        transactionListener: SQLiteTransactionListener
+    )
 
     /**
      * Begins a transaction in read-only mode with a {@link SQLiteTransactionListener} listener. The
@@ -182,7 +184,9 @@ interface SupportSQLiteDatabase : Closeable {
      * delegates to [beginTransactionWithListener].
      */
     @Suppress("ExecutorRegistration")
-    fun beginTransactionWithListenerReadOnly(transactionListener: SQLiteTransactionListener) {
+    public fun beginTransactionWithListenerReadOnly(
+        transactionListener: SQLiteTransactionListener
+    ) {
         beginTransactionWithListener(transactionListener)
     }
 
@@ -190,7 +194,7 @@ interface SupportSQLiteDatabase : Closeable {
      * End a transaction. See beginTransaction for notes about how to use this and when transactions
      * are committed and rolled back.
      */
-    fun endTransaction()
+    public fun endTransaction()
 
     /**
      * Marks the current transaction as successful. Do not do any more database work between calling
@@ -201,14 +205,14 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if the current thread is not in a transaction or the
      *   transaction is already marked as successful.
      */
-    fun setTransactionSuccessful()
+    public fun setTransactionSuccessful()
 
     /**
      * Returns true if the current thread has a transaction pending.
      *
      * @return True if the current thread is in a transaction.
      */
-    fun inTransaction(): Boolean
+    public fun inTransaction(): Boolean
 
     /**
      * True if the current thread is holding an active connection to the database.
@@ -218,7 +222,7 @@ interface SupportSQLiteDatabase : Closeable {
      * longer a true "database lock" although threads may block if they cannot acquire a database
      * connection to perform a particular operation.
      */
-    val isDbLockedByCurrentThread: Boolean
+    public val isDbLockedByCurrentThread: Boolean
 
     /**
      * Temporarily end the transaction to let other threads run. The transaction is assumed to be
@@ -229,7 +233,7 @@ interface SupportSQLiteDatabase : Closeable {
      *
      * @return true if the transaction was yielded
      */
-    fun yieldIfContendedSafely(): Boolean
+    public fun yieldIfContendedSafely(): Boolean
 
     /**
      * Temporarily end the transaction to let other threads run. The transaction is assumed to be
@@ -243,11 +247,11 @@ interface SupportSQLiteDatabase : Closeable {
      *   more progress than they would if we started the transaction immediately.
      * @return true if the transaction was yielded
      */
-    fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean
+    public fun yieldIfContendedSafely(sleepAfterYieldDelayMillis: Long): Boolean
 
     /** Is true if [execPerConnectionSQL] is supported by the implementation. */
     @get:Suppress("AcronymName") // To keep consistency with framework method name.
-    val isExecPerConnectionSQLSupported: Boolean
+    public val isExecPerConnectionSQLSupported: Boolean
         get() = false
 
     /**
@@ -272,15 +276,18 @@ interface SupportSQLiteDatabase : Closeable {
      *   supported use [isExecPerConnectionSQLSupported]
      */
     @Suppress("AcronymName") // To keep consistency with framework method name.
-    fun execPerConnectionSQL(sql: String, @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?) {
+    public fun execPerConnectionSQL(
+        sql: String,
+        @SuppressLint("ArrayReturn") bindArgs: Array<out Any?>?
+    ) {
         throw UnsupportedOperationException()
     }
 
     /** The database version. */
-    var version: Int
+    public var version: Int
 
     /** The maximum size the database may grow to. */
-    val maximumSize: Long
+    public val maximumSize: Long
 
     /**
      * Sets the maximum size the database will grow to. The maximum size cannot be set below the
@@ -289,7 +296,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @param numBytes the maximum database size, in bytes
      * @return the new maximum database size
      */
-    fun setMaximumSize(numBytes: Long): Long
+    public fun setMaximumSize(numBytes: Long): Long
 
     /**
      * The current database page size, in bytes.
@@ -297,7 +304,7 @@ interface SupportSQLiteDatabase : Closeable {
      * The page size must be a power of two. This method does not work if any data has been written
      * to the database file, and must be called right after the database has been created.
      */
-    var pageSize: Long
+    public var pageSize: Long
 
     /**
      * Runs the given query on the database. If you would like to have typed bind arguments, use
@@ -308,7 +315,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that [Cursor]s
      *   are not synchronized, see the documentation for more details.
      */
-    fun query(query: String): Cursor
+    public fun query(query: String): Cursor
 
     /**
      * Runs the given query on the database. If you would like to have bind arguments, use [query].
@@ -319,7 +326,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that [Cursor]s
      *   are not synchronized, see the documentation for more details.
      */
-    fun query(query: String, bindArgs: Array<out Any?>): Cursor
+    public fun query(query: String, bindArgs: Array<out Any?>): Cursor
 
     /**
      * Runs the given query on the database.
@@ -331,7 +338,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that [Cursor]s
      *   are not synchronized, see the documentation for more details.
      */
-    fun query(query: SupportSQLiteQuery): Cursor
+    public fun query(query: SupportSQLiteQuery): Cursor
 
     /**
      * Runs the given query on the database.
@@ -346,7 +353,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that [Cursor]s
      *   are not synchronized, see the documentation for more details.
      */
-    fun query(query: SupportSQLiteQuery, cancellationSignal: CancellationSignal?): Cursor
+    public fun query(query: SupportSQLiteQuery, cancellationSignal: CancellationSignal?): Cursor
 
     /**
      * Convenience method for inserting a row into the database.
@@ -365,7 +372,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws SQLException If the insert fails
      */
     @Throws(SQLException::class)
-    fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long
+    public fun insert(table: String, conflictAlgorithm: Int, values: ContentValues): Long
 
     /**
      * Convenience method for deleting rows in the database.
@@ -378,7 +385,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @return the number of rows affected if a whereClause is passed in, 0 otherwise. To remove all
      *   rows and get a count pass "1" as the whereClause.
      */
-    fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int
+    public fun delete(table: String, whereClause: String?, whereArgs: Array<out Any?>?): Int
 
     /**
      * Convenience method for updating rows in the database.
@@ -399,7 +406,7 @@ interface SupportSQLiteDatabase : Closeable {
      *   from whereArgs. The values will be bound as Strings.
      * @return the number of rows affected
      */
-    fun update(
+    public fun update(
         table: String,
         conflictAlgorithm: Int,
         values: ContentValues,
@@ -420,7 +427,7 @@ interface SupportSQLiteDatabase : Closeable {
      */
     @Suppress("AcronymName") // SQL is a known term and should remain capitalized
     @Throws(SQLException::class)
-    fun execSQL(sql: String)
+    public fun execSQL(sql: String)
 
     /**
      * Execute a single SQL statement that does not return any data.
@@ -436,13 +443,13 @@ interface SupportSQLiteDatabase : Closeable {
      */
     @Suppress("AcronymName") // SQL is a known term and should remain capitalized
     @Throws(SQLException::class)
-    fun execSQL(sql: String, bindArgs: Array<out Any?>)
+    public fun execSQL(sql: String, bindArgs: Array<out Any?>)
 
     /** Is true if the database is opened as read only. */
-    val isReadOnly: Boolean
+    public val isReadOnly: Boolean
 
     /** Is true if the database is currently open. */
-    val isOpen: Boolean
+    public val isOpen: Boolean
 
     /**
      * Returns true if the new version code is greater than the current database version.
@@ -450,10 +457,10 @@ interface SupportSQLiteDatabase : Closeable {
      * @param newVersion The new version code.
      * @return True if the new version code is greater than the current database version.
      */
-    fun needUpgrade(newVersion: Int): Boolean
+    public fun needUpgrade(newVersion: Int): Boolean
 
     /** The path to the database file. */
-    val path: String?
+    public val path: String?
 
     /**
      * Sets the locale for this database. Does nothing if this database has the
@@ -465,7 +472,7 @@ interface SupportSQLiteDatabase : Closeable {
      *   there is no collator available for the locale you requested. In this case the database
      *   remains unchanged.
      */
-    fun setLocale(locale: Locale)
+    public fun setLocale(locale: Locale)
 
     /**
      * Sets the maximum size of the prepared-statement cache for this database. (size of the cache =
@@ -482,7 +489,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if input cacheSize is over the max.
      *   [android.database.sqlite.SQLiteDatabase.MAX_SQL_CACHE_SIZE].
      */
-    fun setMaxSqlCacheSize(cacheSize: Int)
+    public fun setMaxSqlCacheSize(cacheSize: Int)
 
     /**
      * Sets whether foreign key constraints are enabled for the database.
@@ -509,7 +516,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if the are transactions is in progress when this method is
      *   called.
      */
-    fun setForeignKeyConstraintsEnabled(enabled: Boolean)
+    public fun setForeignKeyConstraintsEnabled(enabled: Boolean)
 
     /**
      * This method enables parallel execution of queries from multiple threads on the same database.
@@ -573,7 +580,7 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if there are transactions in progress at the time this method
      *   is called. WAL mode can only be changed when there are no transactions in progress.
      */
-    fun enableWriteAheadLogging(): Boolean
+    public fun enableWriteAheadLogging(): Boolean
 
     /**
      * This method disables the features enabled by [enableWriteAheadLogging].
@@ -581,20 +588,20 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if there are transactions in progress at the time this method
      *   is called. WAL mode can only be changed when there are no transactions in progress.
      */
-    fun disableWriteAheadLogging()
+    public fun disableWriteAheadLogging()
 
     /** Is true if write-ahead logging has been enabled for this database. */
-    val isWriteAheadLoggingEnabled: Boolean
+    public val isWriteAheadLoggingEnabled: Boolean
 
     /**
      * The list of full path names of all attached databases including the main database by
      * executing 'pragma database_list' on the database.
      */
-    @get:Suppress("NullableCollection") val attachedDbs: List<Pair<String, String>>?
+    @get:Suppress("NullableCollection") public val attachedDbs: List<Pair<String, String>>?
 
     /**
      * Is true if the given database (and all its attached databases) pass integrity_check, false
      * otherwise.
      */
-    val isDatabaseIntegrityOk: Boolean
+    public val isDatabaseIntegrityOk: Boolean
 }

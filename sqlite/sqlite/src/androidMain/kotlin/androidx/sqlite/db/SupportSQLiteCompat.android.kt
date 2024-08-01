@@ -26,11 +26,11 @@ import java.io.File
 
 /** Helper for accessing features in [SupportSQLiteOpenHelper]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class SupportSQLiteCompat private constructor() {
+public class SupportSQLiteCompat private constructor() {
     /** Helper for accessing functions that require SDK version 21 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(21)
-    object Api21Impl {
+    public object Api21Impl {
         /**
          * Returns the absolute path to the directory on the filesystem.
          *
@@ -39,7 +39,7 @@ class SupportSQLiteCompat private constructor() {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun getNoBackupFilesDir(context: Context): File {
+        public fun getNoBackupFilesDir(context: Context): File {
             return context.noBackupFilesDir
         }
     }
@@ -47,7 +47,7 @@ class SupportSQLiteCompat private constructor() {
     /** Helper for accessing functions that require SDK version 23 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(23)
-    object Api23Impl {
+    public object Api23Impl {
         /**
          * Sets a [Bundle] that will be returned by [Cursor.getExtras].
          *
@@ -55,7 +55,7 @@ class SupportSQLiteCompat private constructor() {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun setExtras(cursor: Cursor, extras: Bundle) {
+        public fun setExtras(cursor: Cursor, extras: Bundle) {
             cursor.extras = extras
         }
     }
@@ -63,7 +63,7 @@ class SupportSQLiteCompat private constructor() {
     /** Helper for accessing functions that require SDK version 29 and higher. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresApi(29)
-    object Api29Impl {
+    public object Api29Impl {
         /**
          * Similar to [Cursor.setNotificationUri], except this version allows to watch multiple
          * content URIs for changes.
@@ -74,7 +74,7 @@ class SupportSQLiteCompat private constructor() {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun setNotificationUris(cursor: Cursor, cr: ContentResolver, uris: List<Uri?>) {
+        public fun setNotificationUris(cursor: Cursor, cr: ContentResolver, uris: List<Uri?>) {
             cursor.setNotificationUris(cr, uris)
         }
 
@@ -88,7 +88,7 @@ class SupportSQLiteCompat private constructor() {
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun getNotificationUris(cursor: Cursor): List<Uri> {
+        public fun getNotificationUris(cursor: Cursor): List<Uri> {
             return cursor.notificationUris!!
         }
     }
