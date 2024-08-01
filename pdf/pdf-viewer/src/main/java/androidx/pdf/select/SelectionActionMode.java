@@ -73,6 +73,11 @@ public class SelectionActionMode {
                             stopActionMode();
                         } else if (oldValue == null) {
                             startActionMode();
+                        } else {
+                            if (!oldValue.getStart().equals(newValue.getStart())
+                                    && !oldValue.getStop().equals(newValue.getStop())) {
+                                resume();
+                            }
                         }
                     }
                 });
