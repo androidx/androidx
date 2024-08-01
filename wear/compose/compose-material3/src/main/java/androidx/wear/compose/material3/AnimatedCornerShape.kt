@@ -170,7 +170,7 @@ internal class AnimatedMorphShape(
  * @param size The size of the final Composable such as a Button.
  * @param density The density of the composition.
  */
-private fun CornerBasedShape.toRoundedPolygonOrNull(
+internal fun CornerBasedShape.toRoundedPolygonOrNull(
     size: Size,
     density: Density,
     layoutDirection: LayoutDirection
