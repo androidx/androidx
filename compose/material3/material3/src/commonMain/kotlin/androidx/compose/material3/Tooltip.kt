@@ -16,7 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.animateFloat
@@ -571,7 +570,6 @@ internal fun Modifier.textVerticalPadding(subheadExists: Boolean, actionExists: 
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier =
     composed(
         inspectorInfo =
@@ -581,10 +579,8 @@ internal fun Modifier.animateTooltip(transition: Transition<Boolean>): Modifier 
             }
     ) {
         // TODO Load the motionScheme tokens from the component tokens file
-        val inOutScaleAnimationSpec: FiniteAnimationSpec<Float> =
-            MotionSchemeKeyTokens.FastSpatial.value()
-        val inOutAlphaAnimationSpec: FiniteAnimationSpec<Float> =
-            MotionSchemeKeyTokens.FastEffects.value()
+        val inOutScaleAnimationSpec = MotionSchemeKeyTokens.FastSpatial.value<Float>()
+        val inOutAlphaAnimationSpec = MotionSchemeKeyTokens.FastEffects.value<Float>()
         val scale by
             transition.animateFloat(
                 transitionSpec = { inOutScaleAnimationSpec },

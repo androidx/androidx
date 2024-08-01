@@ -1587,7 +1587,6 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun enterAlwaysScrollBehavior(
@@ -1622,7 +1621,6 @@ object TopAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the top
      *   app bar when the user flings the app bar itself, or the content below it
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun exitUntilCollapsedScrollBehavior(
@@ -1994,7 +1992,6 @@ object BottomAppBarDefaults {
      * @param flingAnimationSpec an optional [DecayAnimationSpec] that defined how to fling the
      *   bottom app bar when the user flings the app bar itself, or the content below it
      */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @ExperimentalMaterial3Api
     @Composable
     fun exitAlwaysScrollBehavior(

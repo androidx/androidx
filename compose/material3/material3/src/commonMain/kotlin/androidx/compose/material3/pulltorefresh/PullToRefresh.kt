@@ -479,7 +479,6 @@ object PullToRefreshDefaults {
      *   release
      */
     @Suppress("DEPRECATION")
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     fun Indicator(
         state: PullToRefreshState,
@@ -672,7 +671,6 @@ private constructor(private val anim: Animatable<Float, AnimationVector1D>) : Pu
 }
 
 /** The default pull indicator for [PullToRefreshBox] */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CircularArrowProgressIndicator(
     progress: () -> Float,

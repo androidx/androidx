@@ -1115,7 +1115,6 @@ private fun StyledLabel(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun animateIndicatorProgressAsState(selected: Boolean) =
     animateFloatAsState(
@@ -1124,7 +1123,6 @@ private fun animateIndicatorProgressAsState(selected: Boolean) =
         animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
     )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun animateLabelAlphaProgressAsState(isTargetValue: Boolean) =
     animateFloatAsState(

@@ -257,7 +257,6 @@ object CheckboxDefaults {
         }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun CheckboxImpl(
     enabled: Boolean,
@@ -266,15 +265,15 @@ private fun CheckboxImpl(
     colors: CheckboxColors
 ) {
     val transition = updateTransition(value)
+    val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Float>()
     val checkDrawFraction =
         transition.animateFloat(
             transitionSpec = {
                 when {
                     // TODO Load the motionScheme tokens from the component tokens file
-                    initialState == ToggleableState.Off ->
-                        MotionSchemeKeyTokens.DefaultSpatial.value()
+                    initialState == ToggleableState.Off -> defaultAnimationSpec
                     targetState == ToggleableState.Off -> snap(delayMillis = SnapAnimationDelay)
-                    else -> MotionSchemeKeyTokens.DefaultSpatial.value()
+                    else -> defaultAnimationSpec
                 }
             }
         ) {
@@ -292,7 +291,7 @@ private fun CheckboxImpl(
                     // TODO Load the motionScheme tokens from the component tokens file
                     initialState == ToggleableState.Off -> snap()
                     targetState == ToggleableState.Off -> snap(delayMillis = SnapAnimationDelay)
-                    else -> MotionSchemeKeyTokens.DefaultSpatial.value()
+                    else -> defaultAnimationSpec
                 }
             }
         ) {
@@ -554,7 +553,6 @@ constructor(
     }
 
     /** Returns the color [AnimationSpec] for the given state. */
-    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     private fun colorAnimationSpecForState(state: ToggleableState): AnimationSpec<Color> {
         // TODO Load the motionScheme tokens from the component tokens file

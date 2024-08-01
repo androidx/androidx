@@ -181,29 +181,27 @@ private fun WideNavigationRailLayout(
             LocalMinimumInteractiveComponentSize.current
         }
 
+    // TODO: Load the motionScheme tokens from the component tokens file.
+    val animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value<Dp>()
     val minWidth by
         animateDpAsState(
             targetValue = if (!expanded) CollapsedRailWidth else ExpandedRailMinWidth,
-            // TODO: Load the motionScheme tokens from the component tokens file.
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
+            animationSpec = animationSpec
         )
     val widthFullRange by
         animateDpAsState(
             targetValue = if (!expanded) CollapsedRailWidth else ExpandedRailMaxWidth,
-            // TODO: Load the motionScheme tokens from the component tokens file.
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
+            animationSpec = animationSpec
         )
     val itemVerticalSpacedBy by
         animateDpAsState(
             targetValue = if (!expanded) VerticalPaddingBetweenTopIconItems else 0.dp,
-            // TODO: Load the motionScheme tokens from the component tokens file.
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
+            animationSpec = animationSpec
         )
     val itemMarginStart by
         animateDpAsState(
             targetValue = if (!expanded) 0.dp else ExpandedRailHorizontalItemPadding,
-            // TODO: Load the motionScheme tokens from the component tokens file.
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
+            animationSpec = animationSpec
         )
 
     Surface(

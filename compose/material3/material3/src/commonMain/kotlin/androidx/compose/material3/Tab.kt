@@ -269,7 +269,6 @@ fun Tab(
  * component uses [LocalContentColor] to provide an interpolated value between [activeColor] and
  * [inactiveColor] depending on the animation status.
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun TabTransition(
     activeColor: Color,
