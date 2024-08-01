@@ -1109,6 +1109,30 @@ package androidx.compose.runtime.snapshots {
 
 }
 
+package androidx.compose.runtime.snapshots.tooling {
+
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public final class SnapshotInstanceObservers {
+    ctor public SnapshotInstanceObservers();
+    ctor public SnapshotInstanceObservers(optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver, optional kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver);
+    method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getReadObserver();
+    method public kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? getWriteObserver();
+    property public final kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? readObserver;
+    property public final kotlin.jvm.functions.Function1<java.lang.Object,kotlin.Unit>? writeObserver;
+  }
+
+  @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public interface SnapshotObserver {
+    method public default void onApplied(androidx.compose.runtime.snapshots.Snapshot snapshot, java.util.Set<?> changed);
+    method public default void onCreated(androidx.compose.runtime.snapshots.Snapshot snapshot, androidx.compose.runtime.snapshots.Snapshot? parent, androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers? observers);
+    method public default androidx.compose.runtime.snapshots.tooling.SnapshotInstanceObservers? onCreating(androidx.compose.runtime.snapshots.Snapshot? parent, boolean readonly);
+    method public default void onDisposing(androidx.compose.runtime.snapshots.Snapshot snapshot);
+  }
+
+  public final class SnapshotObserverKt {
+    method @SuppressCompatibility @androidx.compose.runtime.ExperimentalComposeRuntimeApi public static androidx.compose.runtime.snapshots.ObserverHandle observeSnapshots(androidx.compose.runtime.snapshots.Snapshot.Companion, androidx.compose.runtime.snapshots.tooling.SnapshotObserver snapshotObserver);
+  }
+
+}
+
 package androidx.compose.runtime.tooling {
 
   public interface CompositionData {
