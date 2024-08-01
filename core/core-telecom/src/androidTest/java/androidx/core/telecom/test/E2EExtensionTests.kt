@@ -24,11 +24,11 @@ import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.InCallServiceCompat
 import androidx.core.telecom.extensions.CallExtensionCreator
 import androidx.core.telecom.extensions.CallExtensionsScope
-import androidx.core.telecom.extensions.CallsManagerExtensions
 import androidx.core.telecom.extensions.Capability
+import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.Participant
-import androidx.core.telecom.extensions.ParticipantClientExtension
 import androidx.core.telecom.extensions.ParticipantExtension
+import androidx.core.telecom.extensions.ParticipantExtensionRemote
 import androidx.core.telecom.internal.CapabilityExchangeListenerRemote
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControl
 import androidx.core.telecom.test.VoipAppWithExtensions.VoipAppWithExtensionsControlLocal
@@ -77,7 +77,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         // Set up a Capability with all actions supported.
         private val CAPABILITY_PARTICIPANT_WITH_ACTIONS =
             createCapability(
-                id = CallsManagerExtensions.PARTICIPANT,
+                id = Extensions.PARTICIPANT,
                 version = ParticipantExtension.VERSION,
                 actions =
                     setOf(
@@ -136,7 +136,7 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
         }
     }
 
-    internal class CachedRaisedHands(extension: ParticipantClientExtension) {
+    internal class CachedRaisedHands(extension: ParticipantExtensionRemote) {
         private val raisedHands = MutableStateFlow<Set<Participant>>(emptySet())
         val action = extension.addRaiseHandAction(raisedHands::emit)
 

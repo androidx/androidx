@@ -20,92 +20,16 @@ import android.os.Build
 import android.os.Bundle
 import android.os.RemoteException
 import android.util.Log
-import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.internal.CapabilityExchangeListener
 import androidx.core.telecom.internal.CapabilityExchangeRemote
-import androidx.core.telecom.internal.ParticipantStateListenerRemote
+import androidx.core.telecom.internal.CapabilityExchangeRepository
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.launch
-
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-class CallsManagerExtensions {
-    companion object {
-        internal const val LOG_TAG = "CallsManagerE"
-
-        /**
-         * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that
-         * this InCallService supports jetpack extensions
-         */
-        internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
-            "android.telecom.event.CAPABILITY_EXCHANGE"
-
-        /** VERSION used for handling future compatibility in capability exchange. */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
-
-        /**
-         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent as
-         * part of sendCallEvent in the included extras.
-         */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
-
-        /**
-         * Constants used to denote the type of Extension supported by the [Capability] being
-         * registered.
-         */
-        @Target(AnnotationTarget.TYPE)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(PARTICIPANT)
-        annotation class Extensions
-
-        /** Represents the [ParticipantExtension] extension */
-        internal const val PARTICIPANT = 1
-
-        // Represents a null Participant over Binder
-        internal const val NULL_PARTICIPANT_ID = -1
-    }
-}
-
-/**
- * The repository containing the methods used during capability exchange to create each extension.
- * Extensions will use this to register themselves as handlers of these callbacks.
- *
- * @param connectionScope The [CoroutineScope] that governs this connection to the remote. This
- *   scope will be cancelled by this class when the remote notifies us that the connection is being
- *   torn down.
- */
-@ExperimentalAppActions
-internal class CapabilityExchangeRepository(connectionScope: CoroutineScope) {
-    companion object {
-        private const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(CER)"
-    }
-
-    /** A request to create the [ParticipantExtension] has been received */
-    var onCreateParticipantExtension:
-        ((CoroutineScope, Set<Int>, ParticipantStateListenerRemote) -> Unit)? =
-        null
-
-    val listener =
-        CapabilityExchangeListener(
-            onCreateParticipantExtension = { icsActions, binder ->
-                Log.d(LOG_TAG, "onCreateParticipantExtension: actions $icsActions")
-                onCreateParticipantExtension?.invoke(connectionScope, icsActions, binder)
-            },
-            onRemoveExtensions = {
-                Log.d(LOG_TAG, "onRemoveExtensions called")
-                // Cancel any ongoing coroutines associated with this connection once
-                // remove is called.
-                connectionScope.cancel()
-            }
-        )
-}
 
 /**
  * The scope used to initialize extensions that will be used during the call and manage extensions
@@ -120,7 +44,7 @@ internal class CapabilityExchangeRepository(connectionScope: CoroutineScope) {
 @ExperimentalAppActions
 internal class ExtensionInitializationScope {
     private companion object {
-        const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(EIS)"
+        const val LOG_TAG = Extensions.LOG_TAG + "(EIS)"
     }
 
     private var onCreateDelegate: (suspend CallControlScope.() -> Unit)? = null
@@ -216,7 +140,7 @@ internal class ExtensionInitializationScope {
      */
     private fun CoroutineScope.onEvent(callEvent: CallsManager.CallEvent) {
         when (callEvent.event) {
-            CallsManagerExtensions.EVENT_JETPACK_CAPABILITY_EXCHANGE -> {
+            Extensions.EVENT_JETPACK_CAPABILITY_EXCHANGE -> {
                 handleCapabilityExchangeEvent(callEvent.extras)
             }
         }
@@ -228,10 +152,10 @@ internal class ExtensionInitializationScope {
      * @param extras The extras included as part of the Capability Exchange event.
      */
     private fun CoroutineScope.handleCapabilityExchangeEvent(extras: Bundle) {
-        val version = extras.getInt(CallsManagerExtensions.EXTRA_CAPABILITY_EXCHANGE_VERSION)
+        val version = extras.getInt(Extensions.EXTRA_CAPABILITY_EXCHANGE_VERSION)
         val capExchange =
             ICapabilityExchange.Stub.asInterface(
-                    extras.getBinder(CallsManagerExtensions.EXTRA_CAPABILITY_EXCHANGE_BINDER)
+                    extras.getBinder(Extensions.EXTRA_CAPABILITY_EXCHANGE_BINDER)
                 )
                 ?.let { CapabilityExchangeRemote(it) }
         if (capExchange == null) {

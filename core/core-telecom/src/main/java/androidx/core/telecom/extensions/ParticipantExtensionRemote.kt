@@ -48,7 +48,7 @@ internal class ParticipantStateCallbackRepository {
  * Participant action updates.
  */
 @ExperimentalAppActions
-internal data class ActionExchangeResult(
+private data class ActionExchangeResult(
     val onInitialization: (Boolean) -> Unit,
     val onRemoteConnected: (ParticipantActionsRemote?) -> Unit
 )
@@ -67,7 +67,7 @@ internal data class ActionExchangeResult(
 // TODO: Remove old version of ParticipantClientExtension in a follow up CL with this impl.
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-internal class ParticipantClientExtension(
+internal class ParticipantExtensionRemote(
     private val callScope: CoroutineScope,
     private val onActiveParticipantChanged: suspend (Participant?) -> Unit,
     private val onParticipantsUpdated: suspend (Set<Participant>) -> Unit
@@ -127,8 +127,8 @@ internal class ParticipantClientExtension(
      */
     fun addRaiseHandAction(
         onRaisedHandsChanged: suspend (Set<Participant>) -> Unit
-    ): RaiseHandClientAction {
-        val action = RaiseHandClientAction(participants, onRaisedHandsChanged)
+    ): RaiseHandAction {
+        val action = RaiseHandAction(participants, onRaisedHandsChanged)
         registerAction(
             ParticipantExtension.RAISE_HAND_ACTION,
             onRemoteConnected = action::connect
@@ -159,8 +159,8 @@ internal class ParticipantClientExtension(
      *
      * @return The action that is used to send kick Participant event requests to the remote Call.
      */
-    fun addKickParticipantAction(): KickParticipantClientAction {
-        val action = KickParticipantClientAction(participants)
+    fun addKickParticipantAction(): KickParticipantAction {
+        val action = KickParticipantAction(participants)
         registerAction(
             ParticipantExtension.KICK_PARTICIPANT_ACTION,
             onRemoteConnected = action::connect,

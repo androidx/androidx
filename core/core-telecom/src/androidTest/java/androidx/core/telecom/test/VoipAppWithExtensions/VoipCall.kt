@@ -22,11 +22,11 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.CallsManagerExtensions
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ExtensionInitializationScope
+import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.ParticipantExtension
-import androidx.core.telecom.extensions.RaiseHandActionRemote
+import androidx.core.telecom.extensions.RaiseHandState
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
 
@@ -40,7 +40,7 @@ class VoipCall(
     private lateinit var callId: String
     // Participant state updaters
     internal var participantStateUpdater: ParticipantExtension? = null
-    internal var raiseHandStateUpdater: RaiseHandActionRemote? = null
+    internal var raiseHandStateUpdater: RaiseHandState? = null
 
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -68,7 +68,7 @@ class VoipCall(
     private fun ExtensionInitializationScope.createExtensions() {
         for (capability in capabilities) {
             when (capability.featureId) {
-                CallsManagerExtensions.PARTICIPANT -> {
+                Extensions.PARTICIPANT -> {
                     participantStateUpdater = addParticipantExtension()
                     participantStateUpdater!!.initializeActions(capability)
                 }
@@ -80,12 +80,12 @@ class VoipCall(
         for (action in capability.supportedActions) {
             when (action) {
                 ParticipantExtension.RAISE_HAND_ACTION -> {
-                    raiseHandStateUpdater = addRaiseHandAction {
+                    raiseHandStateUpdater = addRaiseHandSupport {
                         callback?.raiseHandStateAction(callId, it)
                     }
                 }
                 ParticipantExtension.KICK_PARTICIPANT_ACTION -> {
-                    addKickParticipantAction { callback?.kickParticipantAction(callId, it) }
+                    addKickParticipantSupport { callback?.kickParticipantAction(callId, it) }
                 }
             }
         }

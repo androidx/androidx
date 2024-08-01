@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:JvmName("CallExtensions")
-
 package androidx.core.telecom.extensions
 
 import android.Manifest
@@ -71,7 +69,7 @@ internal data class CallExtensionCreator(
  * communicate with the remote process.
  */
 @ExperimentalAppActions
-internal data class CapabilityExchangeResult(
+private data class CapabilityExchangeResult(
     val voipCapabilities: Set<Capability>,
     val extensionInitializationBinder: CapabilityExchangeListenerRemote
 )
@@ -159,14 +157,14 @@ internal class CallExtensionsScope(
     fun addParticipantExtension(
         onActiveParticipantChanged: suspend (Participant?) -> Unit,
         onParticipantsUpdated: suspend (Set<Participant>) -> Unit
-    ): ParticipantClientExtension {
+    ): ParticipantExtensionRemote {
         val extension =
-            ParticipantClientExtension(callScope, onActiveParticipantChanged, onParticipantsUpdated)
+            ParticipantExtensionRemote(callScope, onActiveParticipantChanged, onParticipantsUpdated)
         registerExtension {
             CallExtensionCreator(
                 extensionCapability =
                     Capability().apply {
-                        featureId = CallsManagerExtensions.PARTICIPANT
+                        featureId = Extensions.PARTICIPANT
                         featureVersion = ParticipantExtension.VERSION
                         supportedActions = extension.actions
                     },
@@ -386,7 +384,7 @@ internal class CallExtensionsScope(
                 }
             Log.v(TAG, "registerWithRemoteService: sending event")
             val extras = setExtras(binder)
-            call.sendCallEvent(CallsManagerExtensions.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
+            call.sendCallEvent(Extensions.EVENT_JETPACK_CAPABILITY_EXCHANGE, extras)
         }
 
     /**
@@ -415,11 +413,8 @@ internal class CallExtensionsScope(
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setExtras(binder: IBinder): Bundle {
         return Bundle().apply {
-            putBinder(CallsManagerExtensions.EXTRA_CAPABILITY_EXCHANGE_BINDER, binder)
-            putInt(
-                CallsManagerExtensions.EXTRA_CAPABILITY_EXCHANGE_VERSION,
-                CAPABILITY_EXCHANGE_VERSION
-            )
+            putBinder(Extensions.EXTRA_CAPABILITY_EXCHANGE_BINDER, binder)
+            putInt(Extensions.EXTRA_CAPABILITY_EXCHANGE_VERSION, CAPABILITY_EXCHANGE_VERSION)
         }
     }
 

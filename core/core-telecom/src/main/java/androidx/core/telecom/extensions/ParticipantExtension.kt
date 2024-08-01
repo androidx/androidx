@@ -20,57 +20,17 @@ import android.os.Build.VERSION_CODES
 import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.internal.ParticipantActions
+import androidx.core.telecom.internal.CapabilityExchangeRepository
+import androidx.core.telecom.internal.ParticipantActionCallbackRepository
 import androidx.core.telecom.internal.ParticipantStateListenerRemote
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-
-/**
- * Holds the callbacks that are called when the remote InCallService sends a request to perform an
- * action.
- */
-@ExperimentalAppActions
-internal class ParticipantActionCallbackRepository(coroutineScope: CoroutineScope) {
-
-    companion object {
-        private const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(PACR)"
-    }
-
-    /**
-     * The callback that is called when the remote InCallService changes the raised hand state of
-     * this user.
-     */
-    var raiseHandStateCallback: (suspend (Boolean) -> Unit)? = null
-
-    /** The callback that is called when the remote InCallService requests to kick a participant. */
-    var kickParticipantCallback: (suspend (Participant) -> Unit)? = null
-
-    /** Listener used to handle event callbacks from the remote. */
-    val eventListener =
-        ParticipantActions(
-            setHandRaised = { newState, cb ->
-                coroutineScope.launch {
-                    Log.i(LOG_TAG, "from remote: raiseHandStateChanged=$newState")
-                    raiseHandStateCallback?.invoke(newState)
-                    cb.onSuccess()
-                }
-            },
-            kickParticipant = { participant, cb ->
-                coroutineScope.launch {
-                    Log.i(LOG_TAG, "from remote: kickParticipant=$participant")
-                    kickParticipantCallback?.invoke(participant)
-                    cb.onSuccess()
-                }
-            }
-        )
-}
 
 /**
  * Called when a new remove connection to an action is being established. The
@@ -87,6 +47,13 @@ internal typealias ActionConnector =
 /**
  * The participant extension that manages the state of Participants associated with this call as
  * well as allowing participant related actions to register themselves with this extension.
+ *
+ * Along with updating the participants in a call to remote surfaces, this extension also allows the
+ * following optional actions to be supported:
+ * - [addRaiseHandSupport] - Support for allowing a remote surface to show which participants have
+ *   their hands raised to the user as well as update the raised hand state of the user.
+ * - [addKickParticipantSupport] = Support for allowing a user on a remote surface to kick a
+ *   participant.
  *
  * @param initialParticipants The initial set of Participants that are associated with this call.
  * @param initialActiveParticipant The initial active Participant that is associated with this call.
@@ -119,7 +86,7 @@ internal class ParticipantExtension(
         /** Identifier for the kick participant action */
         internal const val KICK_PARTICIPANT_ACTION = 2
 
-        private const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(PE)"
+        private const val LOG_TAG = Extensions.LOG_TAG + "(PE)"
     }
 
     /** StateFlow of the current set of Participants associated with the call */
@@ -153,30 +120,30 @@ internal class ParticipantExtension(
     }
 
     /**
-     * Add an action to notify remote InCallServices of the raised hand state of all Participants in
-     * the call and listen for changes to this user's hand raised state.
+     * Adds support for notifying remote InCallServices of the raised hand state of all Participants
+     * in the call and listening for changes to this user's hand raised state.
      *
      * @param onHandRaisedChanged Called when the raised hand state of this user has changed. If
      *   `true`, the user has raised their hand. If `false`, the user has lowered their hand.
      * @return The interface used to update the current raised hand state of all participants in the
      *   call.
      */
-    fun addRaiseHandAction(onHandRaisedChanged: suspend (Boolean) -> Unit): RaiseHandActionRemote {
-        val raiseHandRemote = RaiseHandActionRemote(participants, onHandRaisedChanged)
-        registerAction(RAISE_HAND_ACTION, connector = raiseHandRemote::connect)
-        return raiseHandRemote
+    fun addRaiseHandSupport(onHandRaisedChanged: suspend (Boolean) -> Unit): RaiseHandState {
+        val state = RaiseHandState(participants, onHandRaisedChanged)
+        registerAction(RAISE_HAND_ACTION, connector = state::connect)
+        return state
     }
 
     /**
-     * Adds the action to support the user kicking participants.
+     * Adds support for allowing the user to kick participants in the call.
      *
      * @param onKickParticipant The action to perform when the user requests to kick a participant
+     * @return The interface used to update the state related to this action. This action contains
+     *   no state today, but is included for forward compatibility
      */
-    fun addKickParticipantAction(onKickParticipant: suspend (Participant) -> Unit) {
-        val kickParticipantAction = KickParticipantActionRemote(participants, onKickParticipant)
-        registerAction(KICK_PARTICIPANT_ACTION) { _, repo, _ ->
-            kickParticipantAction.connect(repo)
-        }
+    fun addKickParticipantSupport(onKickParticipant: suspend (Participant) -> Unit) {
+        val state = KickParticipantState(participants, onKickParticipant)
+        registerAction(KICK_PARTICIPANT_ACTION) { _, repo, _ -> state.connect(repo) }
     }
 
     /**
@@ -186,7 +153,7 @@ internal class ParticipantExtension(
     internal fun onExchangeStarted(callbacks: CapabilityExchangeRepository): Capability {
         callbacks.onCreateParticipantExtension = ::onCreateParticipantExtension
         return Capability().apply {
-            featureId = CallsManagerExtensions.PARTICIPANT
+            featureId = Extensions.PARTICIPANT
             featureVersion = VERSION
             supportedActions = actionRemoteConnector.keys.toIntArray()
         }
@@ -225,7 +192,7 @@ internal class ParticipantExtension(
         if (initActiveParticipant != null && initParticipants.contains(initActiveParticipant)) {
             binder.updateActiveParticipant(initActiveParticipant.id)
         } else {
-            binder.updateActiveParticipant(CallsManagerExtensions.NULL_PARTICIPANT_ID)
+            binder.updateActiveParticipant(Extensions.NULL_PARTICIPANT_ID)
         }
 
         // Setup listeners for changes to state
@@ -242,7 +209,7 @@ internal class ParticipantExtension(
             .distinctUntilChanged()
             .onEach {
                 Log.d(LOG_TAG, "to remote: updateActiveParticipant=$it")
-                binder.updateActiveParticipant(it?.id ?: CallsManagerExtensions.NULL_PARTICIPANT_ID)
+                binder.updateActiveParticipant(it?.id ?: Extensions.NULL_PARTICIPANT_ID)
             }
             .launchIn(coroutineScope)
         Log.d(LOG_TAG, "onCreatePE: finished state update")
@@ -259,116 +226,5 @@ internal class ParticipantExtension(
             Log.d(LOG_TAG, "onCreatePE: calling finishSync")
             binder.finishSync(callbackRepository.eventListener)
         }
-    }
-}
-
-/**
- * Tracks the current raised hand state of all of the Participants of this call and notifies the
- * listener if a remote requests to change the user's raised hand state.
- *
- * @param participants The StateFlow containing the current set of Participants in the call
- * @param onHandRaisedChanged The action to perform when the remote InCallService requests to change
- *   this user's raised hand state.
- */
-@ExperimentalAppActions
-internal class RaiseHandActionRemote(
-    val participants: StateFlow<Set<Participant>>,
-    private val onHandRaisedChanged: suspend (Boolean) -> Unit
-) {
-    companion object {
-        const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(RHAR)"
-    }
-
-    private val raisedHandsState: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
-
-    /**
-     * Notify the remote InCallService of an update to the participants that have their hands raised
-     *
-     * @param raisedHands The new set of Participants that have their hands raised.
-     */
-    suspend fun updateRaisedHands(raisedHands: Set<Participant>) {
-        raisedHandsState.emit(raisedHands)
-    }
-
-    /**
-     * Connect this Action to a new remote that supports listening to this action's state updates.
-     *
-     * @param scope The CoroutineScope to use to update the remote
-     * @param repository The event repository used to listen to state updates from the remote.
-     * @param remote The interface used to communicate with the remote.
-     */
-    internal fun connect(
-        scope: CoroutineScope,
-        repository: ParticipantActionCallbackRepository,
-        remote: ParticipantStateListenerRemote
-    ) {
-        Log.i(LOG_TAG, "initialize: sync state")
-        repository.raiseHandStateCallback = ::raiseHandStateChanged
-        // Send current state
-        remote.updateRaisedHandsAction(raisedHandsState.value.map { it.id }.toIntArray())
-        // Set up updates to the remote when the state changes
-        participants
-            .combine(raisedHandsState) { p, rhs -> p.intersect(rhs) }
-            .distinctUntilChanged()
-            .onEach {
-                Log.i(LOG_TAG, "to remote: updateRaisedHands=$it")
-                remote.updateRaisedHandsAction(it.map { p -> p.id }.toIntArray())
-            }
-            .launchIn(scope)
-    }
-
-    /**
-     * Registered to be called when the remote InCallService has requested to change the raised hand
-     * state of the user.
-     *
-     * @param state The new raised hand state, true if hand is raised, false if it is not.
-     */
-    private suspend fun raiseHandStateChanged(state: Boolean) {
-        Log.d(LOG_TAG, "raisedHandStateChanged: updated state: $state")
-        onHandRaisedChanged(state)
-    }
-}
-
-/**
- * Tracks requests to kick participants from a remote InCallService and invokes the supplied action
- * when a request comes in.
- *
- * @param participants A StateFlow containing the set of Participants in the call, which is used to
- *   validate the participant to kick is valid.
- * @param onKickParticipant The action to perform when a request comes in from the remote
- *   InCallService to kick a participant.
- */
-@ExperimentalAppActions
-internal class KickParticipantActionRemote(
-    val participants: StateFlow<Set<Participant>>,
-    private val onKickParticipant: suspend (Participant) -> Unit
-) {
-    companion object {
-        const val LOG_TAG = CallsManagerExtensions.LOG_TAG + "(KPAR)"
-    }
-
-    /**
-     * Connects this action to the remote in order to listen to kick participant updates.
-     *
-     * @param repository The repository of callbacks this method will use to register for kick
-     *   participant callbacks.
-     */
-    internal fun connect(repository: ParticipantActionCallbackRepository) {
-        Log.i(LOG_TAG, "initialize: register callback from remote")
-        repository.kickParticipantCallback = ::kickParticipant
-    }
-
-    /**
-     * Registered to be called when the remote InCallService has requested to kick a Participant.
-     *
-     * @param participant The participant to kick
-     */
-    private suspend fun kickParticipant(participant: Participant) {
-        if (!participants.value.contains(participant)) {
-            Log.w(LOG_TAG, "kickParticipant: $participant can not be found")
-            return
-        }
-        Log.d(LOG_TAG, "kickParticipant: kicking $participant")
-        onKickParticipant(participant)
     }
 }

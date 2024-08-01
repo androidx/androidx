@@ -45,7 +45,7 @@ import kotlinx.coroutines.flow.onEach
 // TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-internal class RaiseHandClientAction(
+internal class RaiseHandAction(
     private val participants: StateFlow<Set<Participant>>,
     private val onRaisedHandsChanged: suspend (Set<Participant>) -> Unit
 ) {

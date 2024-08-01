@@ -89,6 +89,10 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
      * Connects extensions to the provided [Call], allowing the call to support additional optional
      * behaviors beyond the traditional call state management.
      *
+     * The following extension is supported on a call:
+     * - [CallExtensionsScope.addParticipantExtension] - Adds the ability to represent the
+     *   participants in the call.
+     *
      * For example, an extension may allow the participants of a meeting to be surfaced to this
      * application so that the user can view and manage the participants in the meeting on different
      * surfaces:

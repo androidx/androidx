@@ -294,29 +294,27 @@ class CallsManager constructor(context: Context) {
      *                 // Initialize extensions ...
      *                 // Example: add participants support & associated actions
      *                 val participantExtension = addParticipantExtension(initialParticipants)
-     *                 val raiseHandAction = participantExtension.addRaiseHandAction(
+     *                 val raiseHandState = participantExtension.addRaiseHandSupport(
      *                         initialRaisedHands) { onHandRaisedStateChanged ->
      *                     // handle raised hand state changed
      *                 }
-     *                 val kickParticipantAction = participantExtension.addKickParticipantAction {
+     *                 participantExtension.addKickParticipantSupport {
      *                         participant ->
      *                     // handle kicking the requested participant
      *                 }
      *                 // Call has been set up, perform in-call actions
      *                 onCall {
      *                     // Example: collect call state updates
-     *                     launch {
-     *                         callStateFlow.collect { newState ->
-     *                             // handle call state updates
-     *                         }
-     *                     }
+     *                     callStateFlow.onEach { newState ->
+     *                         // handle call state updates
+     *                     }.launchIn(this)
      *                     // update participant extensions
-     *                     launch {
-     *                         participantsFlow.collect { newParticipants ->
-     *                             participantExtension.updateParticipants(newParticipants)
-     *                             // optionally update raise hand state
-     *                         }
-     *                     }
+     *                     participantsFlow.onEach { newParticipants ->
+     *                         participantExtension.updateParticipants(newParticipants)
+     *                     }.launchIn(this)
+     *                     raisedHandsFlow.onEach { newRaisedHands ->
+     *                         raiseHandState.updateRaisedHands(newRaisedHands)
+     *                     }.launchIn(this)
      *                 }
      *             }
      *         }

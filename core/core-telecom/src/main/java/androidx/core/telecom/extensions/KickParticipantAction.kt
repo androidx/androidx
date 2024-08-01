@@ -36,7 +36,7 @@ import kotlinx.coroutines.flow.StateFlow
 // TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-internal class KickParticipantClientAction(
+internal class KickParticipantAction(
     private val participants: StateFlow<Set<Participant>>,
 ) {
     companion object {
@@ -59,7 +59,9 @@ internal class KickParticipantClientAction(
      * Request to kick a [participant] in the call.
      *
      * Note: This operation succeeding does not mean that the participant was kicked, it only means
-     * that the request was received by the remote application.
+     * that the request was received by the remote application. Any state changes that result from
+     * this operation will be represented by the Set of Participants changing to remove the
+     * requested participant.
      *
      * @param participant The participant to kick
      * @return The result of whether or not this request was successfully sent to the remote
