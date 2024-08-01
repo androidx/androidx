@@ -534,7 +534,7 @@ class TypeAdapterStoreTest {
             val converter =
                 store.typeConverterStore.findTypeConverter(
                     binders[0].from,
-                    invocation.context.COMMON_TYPES.STRING
+                    invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
                 )
             assertThat(converter).isNotNull()
             assertThat(store.typeConverterStore.reverse(converter!!)).isEqualTo(binders[1])
@@ -561,7 +561,7 @@ class TypeAdapterStoreTest {
             val converter =
                 store.typeConverterStore.findTypeConverter(
                     binders[0].from,
-                    invocation.context.COMMON_TYPES.STRING
+                    invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
                 )
             assertThat(converter, notNullValue())
             assertThat(store.typeConverterStore.reverse(converter!!), nullValue())
@@ -1903,7 +1903,10 @@ class TypeAdapterStoreTest {
         val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
         val intListConverter =
             object :
-                SingleStatementTypeConverter(listOfInts, invocation.context.COMMON_TYPES.STRING) {
+                SingleStatementTypeConverter(
+                    listOfInts,
+                    invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
+                ) {
                 override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
                     return XCodeBlock.of(
                         scope.language,
@@ -1916,7 +1919,10 @@ class TypeAdapterStoreTest {
 
         val stringToIntListConverter =
             object :
-                SingleStatementTypeConverter(invocation.context.COMMON_TYPES.STRING, listOfInts) {
+                SingleStatementTypeConverter(
+                    invocation.context.processingEnv.requireType(CommonTypeNames.STRING),
+                    listOfInts
+                ) {
                 override fun buildStatement(inputVarName: String, scope: CodeGenScope): XCodeBlock {
                     return XCodeBlock.of(
                         scope.language,

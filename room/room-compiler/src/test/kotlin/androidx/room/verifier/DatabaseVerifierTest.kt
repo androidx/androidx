@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
@@ -318,7 +319,9 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                             ),
                             field(
                                 "name",
-                                invocation.context.COMMON_TYPES.STRING,
+                                invocation.context.processingEnv.requireType(
+                                    CommonTypeNames.STRING
+                                ),
                                 SQLTypeAffinity.TEXT,
                                 defaultValue = "(NO_SUCH_CONSTANT)"
                             )
@@ -354,8 +357,16 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                         primitive(context, XTypeName.PRIMITIVE_INT),
                         SQLTypeAffinity.INTEGER
                     ),
-                    field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
-                    field("lastName", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT),
+                    field(
+                        "name",
+                        context.processingEnv.requireType(CommonTypeNames.STRING),
+                        SQLTypeAffinity.TEXT
+                    ),
+                    field(
+                        "lastName",
+                        context.processingEnv.requireType(CommonTypeNames.STRING),
+                        SQLTypeAffinity.TEXT
+                    ),
                     field(
                         "ratio",
                         primitive(context, XTypeName.PRIMITIVE_FLOAT),
@@ -372,7 +383,11 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                         primitive(context, XTypeName.PRIMITIVE_INT),
                         SQLTypeAffinity.INTEGER
                     ),
-                    field("name", context.COMMON_TYPES.STRING, SQLTypeAffinity.TEXT)
+                    field(
+                        "name",
+                        context.processingEnv.requireType(CommonTypeNames.STRING),
+                        SQLTypeAffinity.TEXT
+                    )
                 )
             )
         )
