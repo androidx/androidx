@@ -15,5 +15,5 @@
   -->
 
 <resources>
-    <string name="launch_string">Launch AOSP PDF Viewer</string>
+    <string name="launch_string">Open Pdf</string>
 </resources>
