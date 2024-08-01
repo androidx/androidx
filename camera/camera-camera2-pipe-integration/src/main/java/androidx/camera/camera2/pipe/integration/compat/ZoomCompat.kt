@@ -119,6 +119,10 @@ public class AndroidRZoomCompat(
     private val cameraProperties: CameraProperties,
     private val range: Range<Float>,
 ) : ZoomCompat {
+    private val shouldOverrideZoom =
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+            Api34Compat.isZoomOverrideAvailable(cameraProperties)
+
     override val minZoomRatio: Float
         get() = range.lower
 
@@ -127,7 +131,12 @@ public class AndroidRZoomCompat(
 
     override fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit> {
         require(zoomRatio in minZoomRatio..maxZoomRatio)
-        return camera.setParameterAsync(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
+        val parameters: MutableMap<CaptureRequest.Key<*>, Any> =
+            mutableMapOf(CaptureRequest.CONTROL_ZOOM_RATIO to zoomRatio)
+        if (shouldOverrideZoom && Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34Compat.setSettingsOverrideZoom(parameters)
+        }
+        return camera.setParametersAsync(parameters)
     }
 
     override fun getCropSensorRegion(): Rect =
