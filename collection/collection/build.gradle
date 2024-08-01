@@ -40,6 +40,7 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
+    mingwX64()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -81,13 +82,22 @@ androidXMultiplatform {
             dependsOn(commonTest)
         }
 
-        darwinMain {
+        unixMain {
             dependsOn(nativeMain)
         }
 
+        darwinMain {
+            dependsOn(unixMain)
+        }
+
         linuxMain {
+            dependsOn(unixMain)
+        }
+
+        mingwMain {
             dependsOn(nativeMain)
         }
+
 
         targets.configureEach { target ->
             if (target.platformType == KotlinPlatformType.native) {
@@ -100,6 +110,8 @@ androidXMultiplatform {
                         dependsOn(darwinMain)
                     } else if (konanTargetFamily == Family.LINUX) {
                         dependsOn(linuxMain)
+                    } else if (konanTargetFamily == Family.MINGW) {
+                        dependsOn(mingwMain)
                     } else {
                         throw new GradleException("unknown native target ${target}")
                     }
