@@ -18,7 +18,6 @@ package androidx.build
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import java.io.File
 import java.io.FileNotFoundException
-import java.util.Locale
 import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -121,14 +120,11 @@ open class GMavenZipTask : Zip() {
 object Release {
     @Suppress("MemberVisibilityCanBePrivate")
     const val PROJECT_ARCHIVE_ZIP_TASK_NAME = "createProjectZip"
-    const val DIFF_TASK_PREFIX = "createDiffArchive"
-    const val FULL_ARCHIVE_TASK_NAME = "createArchive"
-    const val ALL_ARCHIVES_TASK_NAME = "createAllArchives"
+    private const val FULL_ARCHIVE_TASK_NAME = "createArchive"
+    private const val ALL_ARCHIVES_TASK_NAME = "createAllArchives"
     const val DEFAULT_PUBLISH_CONFIG = "release"
-    const val GROUP_ZIPS_FOLDER = "per-group-zips"
     const val PROJECT_ZIPS_FOLDER = "per-project-zips"
-    const val GROUP_ZIP_PREFIX = "gmaven"
-    const val GLOBAL_ZIP_PREFIX = "top-of-tree-m2repository"
+    private const val GLOBAL_ZIP_PREFIX = "top-of-tree-m2repository"
 
     // lazily created config action params so that we don't keep re-creating them
     private var configActionParams: GMavenZipTask.ConfigAction.Params? = null
@@ -158,12 +154,6 @@ object Release {
             )
             return
         }
-
-        val mavenGroup =
-            androidXExtension.mavenGroup?.group
-                ?: throw IllegalArgumentException(
-                    "Cannot register a project to release if it does not have a mavenGroup set up"
-                )
         if (!androidXExtension.isVersionSet()) {
             throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenVersion set up"
@@ -172,12 +162,7 @@ object Release {
         val version = project.version
 
         val projectZipTask = getProjectZipTask(project)
-        val zipTasks =
-            listOf(
-                projectZipTask,
-                getGroupReleaseZipTask(project, mavenGroup),
-                getGlobalFullZipTask(project)
-            )
+        val zipTasks = listOf(projectZipTask, getGlobalFullZipTask(project))
 
         val artifacts = androidXExtension.publishedArtifacts
         val publishTask = project.tasks.named("publish")
@@ -295,28 +280,6 @@ object Release {
         )
     }
 
-    /** Creates and returns the zip task that includes artifacts only in the given maven group. */
-    private fun getGroupReleaseZipTask(
-        project: Project,
-        group: String
-    ): TaskProvider<GMavenZipTask> {
-        return project.rootProject.maybeRegister(
-            name = "${DIFF_TASK_PREFIX}For${groupToTaskNameSuffix(group)}",
-            onConfigure = { task: GMavenZipTask ->
-                GMavenZipTask.ConfigAction(
-                        getParams(
-                            project = project,
-                            distDir = File(project.getDistributionDirectory(), GROUP_ZIPS_FOLDER),
-                            fileNamePrefix = GROUP_ZIP_PREFIX,
-                            group = group
-                        )
-                    )
-                    .execute(task)
-            },
-            onRegister = { taskProvider -> project.addToAnchorTask(taskProvider) }
-        )
-    }
-
     private fun getProjectZipTask(project: Project): TaskProvider<GMavenZipTask> {
         val taskProvider =
             project.tasks.register(PROJECT_ARCHIVE_ZIP_TASK_NAME, GMavenZipTask::class.java) {
@@ -403,7 +366,7 @@ open class VerifyGMavenZipTask : DefaultTask() {
         }
     }
 
-    fun verifyFiles() {
+    private fun verifyFiles() {
         val missingFiles = mutableListOf<String>()
         val emptyDirs = mutableListOf<String>()
         filesToVerify.forEach { file ->
@@ -478,15 +441,6 @@ private val AndroidXExtension.publishPlatforms: List<String>
         return declaredTargets.toList()
     }
 
-/** Converts the maven group into a readable task name. */
-private fun groupToTaskNameSuffix(group: String): String {
-    return group.split('.').joinToString("") {
-        it.replaceFirstChar { char ->
-            if (char.isLowerCase()) char.titlecase(Locale.getDefault()) else char.toString()
-        }
-    }
-}
-
 private fun Project.projectZipPrefix(): String {
     return "${project.group}-${project.name}"
 }
@@ -508,18 +462,4 @@ fun Project.getProjectZipPath(): String {
         // the getProjectZipTask function
         getZipName(projectZipPrefix(), "") +
         "-${project.version}.zip"
-}
-
-fun Project.getGroupZipPath(): String {
-    return Release.GROUP_ZIPS_FOLDER +
-        "/" +
-        getZipName(Release.GROUP_ZIP_PREFIX, project.group.toString()) +
-        ".zip"
-}
-
-fun Project.getGlobalZipFile(): File {
-    return File(
-        project.getDistributionDirectory(),
-        getZipName(Release.GLOBAL_ZIP_PREFIX, "") + ".zip"
-    )
 }
