@@ -27,6 +27,7 @@ val libs = listOf(
     "https://developer.android.com/jetpack/androidx/releases/annotation",
     "https://developer.android.com/jetpack/androidx/releases/lifecycle",
     "https://developer.android.com/jetpack/androidx/releases/navigation",
+    "https://developer.android.com/jetpack/androidx/releases/window",
 )
 
 val tagPattern = "androidx/*"
