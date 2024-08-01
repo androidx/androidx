@@ -13,25 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_11_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
-import androidx.compose.ui.unit.dp
-
-internal object IconButtonTokens {
-    val DisabledIconColor = ColorSchemeKeyTokens.OnSurface
-    const val DisabledIconOpacity = 0.38f
-    val IconSize = 24.0.dp
-    val SelectedFocusIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedHoverIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedIconColor = ColorSchemeKeyTokens.Primary
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.Primary
-    val StateLayerShape = ShapeKeyTokens.CornerFull
-    val StateLayerSize = 40.0.dp
-    val UnselectedFocusIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoverIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
+internal object StandardIconButtonTokens {
+    val DisabledColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val DisabledOpacity = 0.38f
+    val FocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val HoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val Color = ColorSchemeKeyTokens.OnSurfaceVariant
+    val PressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val SelectedFocusedColor = ColorSchemeKeyTokens.Primary
+    val SelectedHoveredColor = ColorSchemeKeyTokens.Primary
+    val SelectedColor = ColorSchemeKeyTokens.Primary
+    val SelectedPressedColor = ColorSchemeKeyTokens.Primary
+    val UnselectedFocusedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedHoveredColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedPressedColor = ColorSchemeKeyTokens.OnSurfaceVariant
 }

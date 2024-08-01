@@ -28,17 +28,25 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Narrow
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Wide
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.OutlinedIconButton
+import androidx.compose.material3.OutlinedIconToggleButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -469,6 +477,92 @@ fun IconButtonCornerRadiusDemo() {
                     contentDescription = "Localized description",
                     modifier = Modifier.size(IconButtonDefaults.xLargeIconSize)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun IconToggleButtonsDemo() {
+    Column {
+        val rowScrollState = rememberScrollState()
+        val padding = 16.dp
+        // unselected round row
+        Row(
+            modifier =
+                Modifier.height(150.dp)
+                    .horizontalScroll(rowScrollState)
+                    .padding(horizontal = padding),
+            horizontalArrangement = Arrangement.spacedBy(padding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(Modifier.width(72.dp))
+            Text("Filled")
+            Text("Tonal")
+            Text("Outline")
+            Text("Standard")
+        }
+        // unselected round row
+        Row(
+            modifier =
+                Modifier.height(150.dp)
+                    .horizontalScroll(rowScrollState)
+                    .padding(horizontal = padding),
+            horizontalArrangement = Arrangement.spacedBy(padding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Unselected")
+
+            FilledIconToggleButton(checked = false, onCheckedChange = { /* change the state */ }) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            FilledTonalIconToggleButton(
+                checked = false,
+                onCheckedChange = { /* change the state */ }
+            ) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            OutlinedIconToggleButton(
+                checked = false,
+                onCheckedChange = { /* change the state */ }
+            ) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            IconToggleButton(checked = false, onCheckedChange = { /* change the state */ }) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+        }
+
+        // unselected round row
+        Row(
+            modifier =
+                Modifier.height(150.dp)
+                    .horizontalScroll(rowScrollState)
+                    .padding(horizontal = padding),
+            horizontalArrangement = Arrangement.spacedBy(padding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Selected")
+            FilledIconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
+                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            }
+
+            FilledTonalIconToggleButton(
+                checked = true,
+                onCheckedChange = { /* change the state */ }
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            }
+
+            OutlinedIconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
+                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            }
+
+            IconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
+                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
             }
         }
     }

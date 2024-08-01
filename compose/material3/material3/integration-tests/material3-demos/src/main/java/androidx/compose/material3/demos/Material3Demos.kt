@@ -34,7 +34,8 @@ val Material3Demos =
                 "Icon Buttons",
                 listOf(
                     ComposableDemo("Sizes") { IconButtonMeasurementsDemo() },
-                    ComposableDemo("Corners") { IconButtonCornerRadiusDemo() }
+                    ComposableDemo("Corners") { IconButtonCornerRadiusDemo() },
+                    ComposableDemo("Icon toggle buttons") { IconToggleButtonsDemo() },
                 )
             ),
         ),
