@@ -1,12 +1,8 @@
-import android.database.Cursor
 import androidx.lifecycle.LiveData
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
-import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.util.appendPlaceholders
 import androidx.room.util.getColumnIndexOrThrow
-import androidx.room.util.query
-import java.util.concurrent.Callable
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
@@ -32,44 +28,35 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false, object :
-        Callable<MyEntity?> {
-      public override fun call(): MyEntity? {
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity?
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            _result = null
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity?
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          _result = null
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-
-      protected fun finalize() {
-        _statement.release()
-      }
-    })
+    }
   }
 
   public override fun getLiveDataNullable(vararg arg: String?): LiveData<MyEntity?> {
@@ -79,44 +66,35 @@ public class MyDao_Impl(
     appendPlaceholders(_stringBuilder, _inputSize)
     _stringBuilder.append(")")
     val _sql: String = _stringBuilder.toString()
-    val _argCount: Int = 0 + _inputSize
-    val _statement: RoomSQLiteQuery = acquire(_sql, _argCount)
-    var _argIndex: Int = 1
-    for (_item: String? in arg) {
-      if (_item == null) {
-        _statement.bindNull(_argIndex)
-      } else {
-        _statement.bindString(_argIndex, _item)
-      }
-      _argIndex++
-    }
-    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false, object :
-        Callable<MyEntity?> {
-      public override fun call(): MyEntity? {
-        val _cursor: Cursor = query(__db, _statement, false, null)
-        try {
-          val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
-          val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-          val _result: MyEntity?
-          if (_cursor.moveToFirst()) {
-            val _tmpPk: Int
-            _tmpPk = _cursor.getInt(_cursorIndexOfPk)
-            val _tmpOther: String
-            _tmpOther = _cursor.getString(_cursorIndexOfOther)
-            _result = MyEntity(_tmpPk,_tmpOther)
+    return __db.invalidationTracker.createLiveData(arrayOf("MyEntity"), false) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
+      try {
+        var _argIndex: Int = 1
+        for (_item: String? in arg) {
+          if (_item == null) {
+            _stmt.bindNull(_argIndex)
           } else {
-            _result = null
+            _stmt.bindText(_argIndex, _item)
           }
-          return _result
-        } finally {
-          _cursor.close()
+          _argIndex++
         }
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
+        val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
+        val _result: MyEntity?
+        if (_stmt.step()) {
+          val _tmpPk: Int
+          _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
+          val _tmpOther: String
+          _tmpOther = _stmt.getText(_cursorIndexOfOther)
+          _result = MyEntity(_tmpPk,_tmpOther)
+        } else {
+          _result = null
+        }
+        _result
+      } finally {
+        _stmt.close()
       }
-
-      protected fun finalize() {
-        _statement.release()
-      }
-    })
+    }
   }
 
   public companion object {

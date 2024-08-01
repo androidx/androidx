@@ -17,6 +17,7 @@
 package androidx.room
 
 import androidx.lifecycle.LiveData
+import androidx.sqlite.SQLiteConnection
 import java.util.Collections
 import java.util.IdentityHashMap
 import java.util.concurrent.Callable
@@ -33,9 +34,31 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
     fun <T> create(
         tableNames: Array<out String>,
         inTransaction: Boolean,
-        computeFunction: Callable<T?>
+        callableFunction: Callable<T?>
     ): LiveData<T> {
-        return RoomTrackingLiveData(database, this, inTransaction, computeFunction, tableNames)
+        return RoomTrackingLiveData(
+            database = database,
+            container = this,
+            inTransaction = inTransaction,
+            callableFunction = callableFunction,
+            lambdaFunction = null,
+            tableNames = tableNames
+        )
+    }
+
+    fun <T> create(
+        tableNames: Array<out String>,
+        inTransaction: Boolean,
+        lambdaFunction: (SQLiteConnection) -> T?
+    ): LiveData<T> {
+        return RoomTrackingLiveData(
+            database = database,
+            container = this,
+            inTransaction = inTransaction,
+            callableFunction = null,
+            lambdaFunction = lambdaFunction,
+            tableNames = tableNames
+        )
     }
 
     fun onActive(liveData: LiveData<*>) {

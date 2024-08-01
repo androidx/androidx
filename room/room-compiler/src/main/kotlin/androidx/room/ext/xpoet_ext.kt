@@ -410,29 +410,56 @@ fun Function1TypeSpec(
         .build()
 
 /**
+ * Short-hand of [InvokeWithLambdaParameter] whose function call is a member function, i.e. a
+ * top-level function or a companion object function.
+ */
+fun InvokeWithLambdaParameter(
+    scope: CodeGenScope,
+    functionName: XMemberName,
+    argFormat: List<String>,
+    args: List<Any>,
+    continuationParamName: String? = null,
+    lambdaSpec: LambdaSpec
+): XCodeBlock {
+    val functionCall = XCodeBlock.of(scope.language, "%M", functionName)
+    return InvokeWithLambdaParameter(
+        scope,
+        functionCall,
+        argFormat,
+        args,
+        continuationParamName,
+        lambdaSpec
+    )
+}
+
+/**
  * Generates a code block that invokes a function with a functional type as last parameter.
  *
  * For Java (jvmTarget >= 8) it will generate:
  * ```
- * <functionName>(<args>, (<lambdaSpec.paramName>) -> <lambdaSpec.body>);
+ * <functionCall>(<args>, (<lambdaSpec.paramName>) -> <lambdaSpec.body>);
  * ```
  *
  * For Java (jvmTarget < 8) it will generate:
  * ```
- * <functionName>(<args>, new Function1<>() { <lambdaSpec.body> });
+ * <functionCall>(<args>, new Function1<>() { <lambdaSpec.body> });
  * ```
  *
  * For Kotlin it will generate:
  * ```
- * <functionName>(<args>) { <lambdaSpec.body> }
+ * <functionCall>(<args>) { <lambdaSpec.body> }
  * ```
+ *
+ * The [functionCall] must only be an expression up to a function name without the parenthesis. Its
+ * last parameter must also be a functional type. The [argFormat] and [args] are for the arguments
+ * of the function excluding the functional parameter.
  *
  * The ideal usage of this utility function is to generate code that invokes the various
  * `DBUtil.perform*()` APIs for interacting with the database connection in DAOs.
  */
 fun InvokeWithLambdaParameter(
     scope: CodeGenScope,
-    functionName: XMemberName,
+    functionCall: XCodeBlock,
     argFormat: List<String>,
     args: List<Any>,
     continuationParamName: String? = null,
@@ -446,8 +473,8 @@ fun InvokeWithLambdaParameter(
                     if (lambdaSpec.javaLambdaSyntaxAvailable) {
                         val argsFormatString = argFormat.joinToString(separator = ", ")
                         add(
-                            "%M($argsFormatString, (%L) -> {\n",
-                            functionName,
+                            "%L($argsFormatString, (%L) -> {\n",
+                            functionCall,
                             *args.toTypedArray(),
                             lambdaSpec.parameterName
                         )
@@ -491,8 +518,8 @@ fun InvokeWithLambdaParameter(
                             }
                         }
                         add(
-                            "%M($adjustedArgsFormatString);\n",
-                            functionName,
+                            "%L($adjustedArgsFormatString);\n",
+                            functionCall,
                             *adjustedArgs.toTypedArray(),
                         )
                     }
@@ -501,15 +528,15 @@ fun InvokeWithLambdaParameter(
                     val argsFormatString = argFormat.joinToString(separator = ", ")
                     if (lambdaSpec.parameterTypeName.rawTypeName != KotlinTypeNames.CONTINUATION) {
                         add(
-                            "%M($argsFormatString) { %L ->\n",
-                            functionName,
+                            "%L($argsFormatString) { %L ->\n",
+                            functionCall,
                             *args.toTypedArray(),
                             lambdaSpec.parameterName
                         )
                     } else {
                         add(
-                            "%M($argsFormatString) {\n",
-                            functionName,
+                            "%L($argsFormatString) {\n",
+                            functionCall,
                             *args.toTypedArray(),
                         )
                     }
