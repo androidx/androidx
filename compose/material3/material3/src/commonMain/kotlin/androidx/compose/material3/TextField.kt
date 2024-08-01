@@ -44,8 +44,6 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.ContainerId
-import androidx.compose.material3.internal.HorizontalIconPadding
-import androidx.compose.material3.internal.IconDefaultSizeModifier
 import androidx.compose.material3.internal.LabelId
 import androidx.compose.material3.internal.LeadingId
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
@@ -65,6 +63,7 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.internal.subtractConstraintSafely
+import androidx.compose.material3.internal.textFieldHorizontalIconPadding
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.MotionTokens.EasingEmphasizedAccelerateCubicBezier
 import androidx.compose.runtime.Composable
@@ -663,7 +662,7 @@ internal fun TextFieldLayout(
 
             if (leading != null) {
                 Box(
-                    modifier = Modifier.layoutId(LeadingId).then(IconDefaultSizeModifier),
+                    modifier = Modifier.layoutId(LeadingId).minimumInteractiveComponentSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     leading()
@@ -671,7 +670,7 @@ internal fun TextFieldLayout(
             }
             if (trailing != null) {
                 Box(
-                    modifier = Modifier.layoutId(TrailingId).then(IconDefaultSizeModifier),
+                    modifier = Modifier.layoutId(TrailingId).minimumInteractiveComponentSize(),
                     contentAlignment = Alignment.Center
                 ) {
                     trailing()
@@ -681,15 +680,16 @@ internal fun TextFieldLayout(
             val startTextFieldPadding = paddingValues.calculateStartPadding(layoutDirection)
             val endTextFieldPadding = paddingValues.calculateEndPadding(layoutDirection)
 
+            val horizontalIconPadding = textFieldHorizontalIconPadding()
             val startPadding =
                 if (leading != null) {
-                    (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                    (startTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     startTextFieldPadding
                 }
             val endPadding =
                 if (trailing != null) {
-                    (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
+                    (endTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     endTextFieldPadding
                 }
