@@ -27,7 +27,6 @@ import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import com.google.common.truth.StringSubject
 import createVerifierFromEntitiesAndViews
-import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -42,11 +41,11 @@ import org.junit.runners.Parameterized.Parameters
  * For Java default method tests, we have DefaultDaoMethodsTest in TestApp.
  */
 @RunWith(Parameterized::class)
-class DefaultsInDaoTest(private val jvmDefaultMode: JvmDefaultMode) {
+class DefaultsInDaoTest(private val jvmDefaultMode: String) {
     @Test
     fun abstractDao() {
         val defaultWithCompatibilityAnnotation =
-            if (jvmDefaultMode == JvmDefaultMode.ALL_COMPATIBILITY) {
+            if (jvmDefaultMode == "all-compatibility") {
                 "@JvmDefaultWithoutCompatibility"
             } else {
                 ""
@@ -101,7 +100,7 @@ class DefaultsInDaoTest(private val jvmDefaultMode: JvmDefaultMode) {
             )
         compileInEachDefaultsMode(source) { generated ->
             generated.contains("public void upsert(final User obj)")
-            if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
+            if (jvmDefaultMode == "disable") {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
             } else {
                 generated.contains("SubjectDao.super.upsert(")
@@ -137,7 +136,7 @@ class DefaultsInDaoTest(private val jvmDefaultMode: JvmDefaultMode) {
                 "public Object upsert(final User obj, " +
                     "final Continuation<? super Unit> \$completion)"
             )
-            if (jvmDefaultMode == JvmDefaultMode.DISABLE) {
+            if (jvmDefaultMode == "disable") {
                 generated.contains("SubjectDao.DefaultImpls.upsert(SubjectDao_Impl.this")
             } else {
                 generated.contains("SubjectDao.super.upsert(")
@@ -182,8 +181,7 @@ class DefaultsInDaoTest(private val jvmDefaultMode: JvmDefaultMode) {
         runProcessorTestWithK1(
             sources = listOf(source, COMMON.COROUTINES_ROOM, COMMON.ROOM_DATABASE_KTX),
             javacArguments = listOf("-source", jvmTarget),
-            kotlincArguments =
-                listOf("-jvm-target=$jvmTarget", "-Xjvm-default=${jvmDefaultMode.description}")
+            kotlincArguments = listOf("-jvm-target=$jvmTarget", "-Xjvm-default=${jvmDefaultMode}")
         ) { invocation ->
             invocation.roundEnv
                 .getElementsAnnotatedWith(androidx.room.Dao::class.qualifiedName!!)
@@ -223,9 +221,9 @@ class DefaultsInDaoTest(private val jvmDefaultMode: JvmDefaultMode) {
         @Parameters(name = "jvmDefaultMode={0}")
         fun modes() =
             listOf(
-                JvmDefaultMode.ALL_COMPATIBILITY,
-                JvmDefaultMode.ALL,
-                JvmDefaultMode.DISABLE,
+                "all-compatibility",
+                "all",
+                "disable",
             )
     }
 }

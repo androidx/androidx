@@ -23,7 +23,6 @@ import androidx.room.processor.Context
 import androidx.room.runKspTestWithK1
 import java.io.File
 import loadTestSource
-import org.jetbrains.kotlin.config.JvmDefaultMode
 import writeTestSource
 
 abstract class BaseDaoKotlinCodeGenTest {
@@ -35,14 +34,14 @@ abstract class BaseDaoKotlinCodeGenTest {
         sources: List<Source>,
         expectedFilePath: String,
         compiledFiles: List<File> = emptyList(),
-        jvmDefaultMode: JvmDefaultMode = JvmDefaultMode.DISABLE,
+        jvmDefaultMode: String = "disable",
         handler: (XTestInvocation) -> Unit = {}
     ) {
         runKspTestWithK1(
             sources = sources,
             classpath = compiledFiles,
             options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "true"),
-            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode.description}")
+            kotlincArguments = listOf("-Xjvm-default=${jvmDefaultMode}")
         ) {
             val databaseFqn = "androidx.room.Database"
             DatabaseProcessingStep()

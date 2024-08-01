@@ -87,8 +87,6 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
-    // TODO: Use `libs.kotlinCompilerEmbeddable` once AndroidX moves to K2
-    testImplementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:2.0.20-Beta2")
     testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
