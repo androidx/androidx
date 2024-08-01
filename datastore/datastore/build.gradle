@@ -47,7 +47,7 @@ androidXMultiplatform {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api(project(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.1")
                 api(project(":datastore:datastore-core"))
                 api(project(":datastore:datastore-core-okio"))
             }
