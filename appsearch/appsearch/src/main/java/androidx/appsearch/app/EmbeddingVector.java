@@ -43,7 +43,7 @@ import java.util.Objects;
  * <p>For more details on how embedding search works, check {@link AppSearchSession#search} and
  * {@link SearchSpec.Builder#setRankingStrategy(String)}.
  *
- * @see SearchSpec.Builder#addSearchEmbeddings
+ * @see SearchSpec.Builder#addEmbeddingParameters
  * @see GenericDocument.Builder#setPropertyEmbedding
  */
 @RequiresFeature(

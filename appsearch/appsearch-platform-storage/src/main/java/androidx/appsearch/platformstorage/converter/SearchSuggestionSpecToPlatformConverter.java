@@ -78,6 +78,12 @@ public final class SearchSuggestionSpecToPlatformConverter {
                         platformBuilder, entry.getKey(), entry.getValue());
             }
         }
+        if (!jetpackSearchSuggestionSpec.getSearchStringParameters().isEmpty()) {
+            // TODO(b/332620561): Remove this once search parameter strings APIs is supported.
+            throw new UnsupportedOperationException(
+                    Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
+                            + " is not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 

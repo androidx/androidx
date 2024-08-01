@@ -127,10 +127,9 @@ public class SearchSpecInternalTest {
                 new float[]{4.4f, 5.5f, 6.6f, 7.7f}, "my_model_v2");
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(embedding1, embedding2)
+                .addEmbeddingParameters(embedding1, embedding2)
                 .build();
 
         // Check that copy constructor works.
@@ -139,8 +138,8 @@ public class SearchSpecInternalTest {
                 searchSpec.getEnabledFeatures());
         assertThat(searchSpecCopy.getDefaultEmbeddingSearchMetricType()).isEqualTo(
                 searchSpec.getDefaultEmbeddingSearchMetricType());
-        assertThat(searchSpecCopy.getSearchEmbeddings()).containsExactlyElementsIn(
-                searchSpec.getSearchEmbeddings());
+        assertThat(searchSpecCopy.getEmbeddingParameters()).containsExactlyElementsIn(
+                searchSpec.getEmbeddingParameters());
     }
 
     @Test
@@ -190,48 +189,5 @@ public class SearchSpecInternalTest {
                 .build();
         assertThat(searchSpec3.getEnabledFeatures()).containsExactly(
                 Features.VERBATIM_SEARCH, Features.LIST_FILTER_QUERY_LANGUAGE);
-    }
-
-    @Test
-    public void testGetEnabledFeatures_embeddingSearch() {
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setNumericSearchEnabled(true)
-                .setVerbatimSearchEnabled(true)
-                .setListFilterQueryLanguageEnabled(true)
-                .setListFilterHasPropertyFunctionEnabled(true)
-                .setEmbeddingSearchEnabled(true)
-                .build();
-        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
-                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
-                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
-                FeatureConstants.EMBEDDING_SEARCH);
-
-        // Check that copy constructor works.
-        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
-        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
-                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
-                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION,
-                FeatureConstants.EMBEDDING_SEARCH);
-    }
-
-    @Test
-    public void testGetEnabledFeatures_tokenize() {
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setNumericSearchEnabled(true)
-                .setVerbatimSearchEnabled(true)
-                .setListFilterQueryLanguageEnabled(true)
-                .setListFilterTokenizeFunctionEnabled(true)
-                .build();
-        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
-                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
-                Features.LIST_FILTER_QUERY_LANGUAGE,
-                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
-
-        // Check that copy constructor works.
-        SearchSpec searchSpecCopy = new SearchSpec.Builder(searchSpec).build();
-        assertThat(searchSpecCopy.getEnabledFeatures()).containsExactly(
-                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
-                Features.LIST_FILTER_QUERY_LANGUAGE,
-                FeatureConstants.LIST_FILTER_TOKENIZE_FUNCTION);
     }
 }

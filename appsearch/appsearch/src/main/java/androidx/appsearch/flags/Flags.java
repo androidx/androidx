@@ -54,11 +54,6 @@ public final class Flags {
     public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
             FLAG_PREFIX + "enable_list_filter_has_property_function";
 
-    /** Enable the "tokenize" function in list filter query expressions. */
-    public static final String FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION =
-            FLAG_PREFIX + "enable_list_filter_tokenize_function";
-
-
     /** Enable Schema Type Grouping related features. */
     public static final String FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA =
             FLAG_PREFIX + "enable_grouping_type_per_schema";
@@ -78,6 +73,14 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG =
             FLAG_PREFIX + "enable_search_spec_set_search_source_log_tag";
+
+    /**
+     * Enable {@link androidx.appsearch.app.SearchSpec.Builder#addSearchStringParameters} and
+     * {@link androidx.appsearch.app.SearchSuggestionSpec.Builder#addSearchStringParameters}
+     * methods.
+     */
+    public static final String FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS =
+            FLAG_PREFIX + "enable_search_spec_search_spec_strings";
 
     /** Enable addTakenActions API in PutDocumentsRequest. */
     public static final String FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS =
@@ -234,8 +237,8 @@ public final class Flags {
         return true;
     }
 
-    /** Whether the "tokenize" function in list filter query expressions should be enabled. */
-    public static boolean enableListFilterTokenizeFunction() {
+    /** Whether the search parameter APIs should be enabled. */
+    public static boolean enableSearchSpecSearchStringParameters() {
         return true;
     }
 

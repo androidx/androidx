@@ -8713,14 +8713,13 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding)
+                .addEmbeddingParameters(searchEmbedding)
                 .setRankingStrategy(
-                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .build();
         SearchResults searchResults = mDb1.search(
-                "semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
+                "semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpec);
         List<SearchResult> results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
@@ -8798,13 +8797,12 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding)
-                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .build();
         SearchResults searchResults = mDb1.search(
-                "embedding1:semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
+                "embedding1:semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpec);
         List<SearchResult> results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
@@ -8886,15 +8884,14 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding1, searchEmbedding2)
-                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0))) + "
-                        + "sum(this.matchedSemanticScores(getSearchSpecEmbedding(1)))")
+                .addEmbeddingParameters(searchEmbedding1, searchEmbedding2)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getEmbeddingParameter(0))) + "
+                        + "sum(this.matchedSemanticScores(getEmbeddingParameter(1)))")
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .build();
         SearchResults searchResults = mDb1.search(
-                "semanticSearch(getSearchSpecEmbedding(0)) OR "
-                        + "semanticSearch(getSearchSpecEmbedding(1))", searchSpec);
+                "semanticSearch(getEmbeddingParameter(0)) OR "
+                        + "semanticSearch(getEmbeddingParameter(1))", searchSpec);
         List<SearchResult> results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
@@ -8971,13 +8968,12 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding)
-                .setRankingStrategy("sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                .addEmbeddingParameters(searchEmbedding)
+                .setRankingStrategy("sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .build();
         SearchResults searchResults = mDb1.search(
-                "foo OR semanticSearch(getSearchSpecEmbedding(0), -10, -1)", searchSpec);
+                "foo OR semanticSearch(getEmbeddingParameter(0), -10, -1)", searchSpec);
         List<SearchResult> results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(2);
         assertThat(results.get(0).getGenericDocument()).isEqualTo(doc0);
@@ -8988,89 +8984,33 @@ public abstract class AppSearchSessionCtsTestBase {
 
     @Test
     @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
-    public void testEmbeddingSearchWithoutEnablingFeatureFails() throws Exception {
-        assumeTrue(
-                mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
-
-        // Schema registration
-        AppSearchSchema schema = new AppSearchSchema.Builder("Email")
-                .addProperty(new StringPropertyConfig.Builder("body")
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .build())
-                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding1")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .build())
-                .addProperty(new AppSearchSchema.EmbeddingPropertyConfig.Builder("embedding2")
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .build())
-                .build();
-        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
-
-        // Index documents
-        GenericDocument doc =
-                new GenericDocument.Builder<>("namespace", "id0", "Email")
-                        .setPropertyString("body", "foo")
-                        .setCreationTimestampMillis(1000)
-                        .setPropertyEmbedding("embedding1", new EmbeddingVector(
-                                new float[]{0.1f, 0.2f, 0.3f, 0.4f, 0.5f}, "my_model_v1"))
-                        .setPropertyEmbedding("embedding2", new EmbeddingVector(
-                                        new float[]{-0.1f, -0.2f, -0.3f, 0.4f, 0.5f},
-                                        "my_model_v1"),
-                                new EmbeddingVector(
-                                        new float[]{0.6f, 0.7f, 0.8f}, "my_model_v2"))
-                        .build();
-        checkIsBatchResultSuccess(mDb1.putAsync(
-                new PutDocumentsRequest.Builder().addGenericDocuments(doc).build()));
-
-        EmbeddingVector searchEmbedding = new EmbeddingVector(
-                new float[]{1, -1, -1, 1, -1}, "my_model_v1");
-        SearchSpec searchSpec = new SearchSpec.Builder()
-                .setDefaultEmbeddingSearchMetricType(
-                        SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding)
-                .setRankingStrategy(
-                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
-                .setListFilterQueryLanguageEnabled(true)
-                .build();
-        SearchResults searchResults = mDb1.search(
-                "semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec);
-        ExecutionException executionException = assertThrows(ExecutionException.class,
-                () -> searchResults.getNextPageAsync().get());
-        assertThat(executionException).hasCauseThat().isInstanceOf(AppSearchException.class);
-        AppSearchException exception = (AppSearchException) executionException.getCause();
-        assertThat(exception.getResultCode()).isEqualTo(RESULT_INVALID_ARGUMENT);
-        assertThat(exception).hasMessageThat().contains("Attempted use of unenabled feature");
-        assertThat(exception).hasMessageThat().contains("EMBEDDING_SEARCH");
-    }
-
-    @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SCHEMA_EMBEDDING_PROPERTY_CONFIG)
     public void testEmbeddingSearch_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
         assumeFalse(
                 mDb1.getFeatures().isFeatureSupported(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG));
 
+        EmbeddingVector searchEmbedding = new EmbeddingVector(
+                new float[]{-1, -1, 1}, "my_model_v2");
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
+                .addEmbeddingParameters(searchEmbedding)
                 .build();
         UnsupportedOperationException exception = assertThrows(
                 UnsupportedOperationException.class,
-                () -> mDb1.search("semanticSearch(getSearchSpecEmbedding(0), -1, 1)", searchSpec));
+                () -> mDb1.search("semanticSearch(getEmbeddingParameter(0), -1, 1)", searchSpec));
         assertThat(exception).hasMessageThat().contains(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
                 + " is not available on this AppSearch implementation.");
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
-    public void testTokenizeSearch_simple() throws Exception {
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public void testSearchSpecStrings_simple() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
         assumeTrue(
-                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_TOKENIZE_FUNCTION));
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS));
 
         // Schema registration
         AppSearchSchema schema = new AppSearchSchema.Builder("Email")
@@ -9104,45 +9044,67 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .setListFilterQueryLanguageEnabled(true)
-                .setListFilterTokenizeFunctionEnabled(true)
+                .addSearchStringParameters("foo.")
                 .build();
-        SearchResults searchResults = mDb1.search("tokenize(\"foo.\")", searchSpec);
+        SearchResults searchResults = mDb1.search("getSearchStringParameter(0)", searchSpec);
         List<GenericDocument> results = convertSearchResultsToDocuments(searchResults);
         assertThat(results).containsExactly(doc2, doc0);
 
-        searchResults = mDb1.search("tokenize(\"bar, foo\")", searchSpec);
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .addSearchStringParameters("bar, foo")
+                .build();
+        searchResults = mDb1.search("getSearchStringParameter(0)", searchSpec);
         results = convertSearchResultsToDocuments(searchResults);
         assertThat(results).containsExactly(doc0);
 
-        searchResults = mDb1.search("tokenize(\"\\\"bar, \\\"foo\\\"\")", searchSpec);
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .addSearchStringParameters("\\\"bar, \\\"foo\\\"")
+                .build();
+        searchResults = mDb1.search("getSearchStringParameter(0)", searchSpec);
         results = convertSearchResultsToDocuments(searchResults);
         assertThat(results).containsExactly(doc0);
 
-        searchResults = mDb1.search("tokenize(\"bar ) foo\")", searchSpec);
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .addSearchStringParameters("bar ) foo")
+                .build();
+        searchResults = mDb1.search("getSearchStringParameter(0)", searchSpec);
         results = convertSearchResultsToDocuments(searchResults);
         assertThat(results).containsExactly(doc0);
 
-        searchResults = mDb1.search("tokenize(\"bar foo(\")", searchSpec);
+        searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .setListFilterQueryLanguageEnabled(true)
+                .addSearchStringParameters("bar foo(")
+                .build();
+        searchResults = mDb1.search("getSearchStringParameter(0)", searchSpec);
         results = convertSearchResultsToDocuments(searchResults);
         assertThat(results).containsExactly(doc0);
     }
 
     @Test
-    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_LIST_FILTER_TOKENIZE_FUNCTION)
-    public void testTokenizeSearch_notSupported() throws Exception {
+    @RequiresFlagsEnabled(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
+    public void testSearchSpecString_notSupported() throws Exception {
         assumeTrue(
                 mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_QUERY_LANGUAGE));
         assumeFalse(
-                mDb1.getFeatures().isFeatureSupported(Features.LIST_FILTER_TOKENIZE_FUNCTION));
+                mDb1.getFeatures().isFeatureSupported(
+                        Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS));
 
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setListFilterQueryLanguageEnabled(true)
-                .setListFilterTokenizeFunctionEnabled(true)
+                .addSearchStringParameters("bar foo(")
                 .build();
         UnsupportedOperationException exception = assertThrows(
                 UnsupportedOperationException.class,
-                () -> mDb1.search("tokenize(\"foo.\")", searchSpec));
-        assertThat(exception).hasMessageThat().contains(Features.LIST_FILTER_TOKENIZE_FUNCTION
+                () -> mDb1.search("getSearchStringParameter(0)", searchSpec));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
                 + " is not available on this AppSearch implementation.");
     }
 
@@ -9198,17 +9160,16 @@ public abstract class AppSearchSessionCtsTestBase {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setDefaultEmbeddingSearchMetricType(
                         SearchSpec.EMBEDDING_SEARCH_METRIC_TYPE_DOT_PRODUCT)
-                .addSearchEmbeddings(searchEmbedding)
+                .addEmbeddingParameters(searchEmbedding)
                 .setRankingStrategy(
-                        "sum(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        "sum(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                 .addInformationalRankingExpressions(
-                        "len(this.matchedSemanticScores(getSearchSpecEmbedding(0)))")
+                        "len(this.matchedSemanticScores(getEmbeddingParameter(0)))")
                 .addInformationalRankingExpressions("this.documentScore()")
                 .setListFilterQueryLanguageEnabled(true)
-                .setEmbeddingSearchEnabled(true)
                 .build();
         SearchResults searchResults = mDb1.search(
-                "semanticSearch(getSearchSpecEmbedding(0))", searchSpec);
+                "semanticSearch(getEmbeddingParameter(0))", searchSpec);
         List<SearchResult> results = retrieveAllSearchResults(searchResults);
         assertThat(results).hasSize(2);
         // doc0:

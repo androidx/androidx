@@ -224,16 +224,16 @@ public interface AppSearchSession extends Closeable {
      * documentB, regardless of whether a value is actually set.
      *
      * <p>{@link Features#SCHEMA_EMBEDDING_PROPERTY_CONFIG}: This feature covers the
-     * "semanticSearch" and "getSearchSpecEmbedding" functions in query expressions, which are
+     * "semanticSearch" and "getEmbeddingParameter" functions in query expressions, which are
      * used for semantic search.
      *
-     * <p>Usage: semanticSearch(getSearchSpecEmbedding({embedding_index}), {low}, {high}, {metric})
+     * <p>Usage: semanticSearch(getEmbeddingParameter({embedding_index}), {low}, {high}, {metric})
      * <ul>
      *     <li>semanticSearch matches all documents that have at least one embedding vector with
      *     a matching model signature (see {@link EmbeddingVector#getModelSignature()}) and a
      *     similarity score within the range specified based on the provided metric.</li>
-     *     <li>getSearchSpecEmbedding({embedding_index}) retrieves the embedding search passed in
-     *     {@link SearchSpec.Builder#addSearchEmbeddings} based on the index specified, which
+     *     <li>getEmbeddingParameter({embedding_index}) retrieves the embedding search passed in
+     *     {@link SearchSpec.Builder#addEmbeddingParameters} based on the index specified, which
      *     starts from 0.</li>
      *     <li>"low" and "high" are floating point numbers that specify the similarity score
      *     range. If omitted, they default to negative and positive infinity, respectively.</li>
@@ -250,27 +250,27 @@ public interface AppSearchSession extends Closeable {
      *
      * <p>Examples:
      * <ul>
-     *     <li>Basic: semanticSearch(getSearchSpecEmbedding(0), 0.5, 1, "COSINE")</li>
+     *     <li>Basic: semanticSearch(getEmbeddingParameter(0), 0.5, 1, "COSINE")</li>
      *     <li>With a property restriction:
-     *     property1:semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
-     *     <li>Hybrid: foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)</li>
-     *     <li>Complex: (foo OR semanticSearch(getSearchSpecEmbedding(0), 0.5, 1)) AND bar</li>
+     *     property1:semanticSearch(getEmbeddingParameter(0), 0.5, 1)</li>
+     *     <li>Hybrid: foo OR semanticSearch(getEmbeddingParameter(0), 0.5, 1)</li>
+     *     <li>Complex: (foo OR semanticSearch(getEmbeddingParameter(0), 0.5, 1)) AND bar</li>
      * </ul>
      *
-     * <p>{@link Features#LIST_FILTER_TOKENIZE_FUNCTION}: This feature covers the
-     * "tokenize" function in query expressions, which takes a string and treats the entire string
-     * as plain text. This string is then segmented, normalized and stripped of punctuation-only
-     * segments. The remaining tokens are then AND'd together. This function is useful for callers
-     * who wish to provide user input, but want to ensure that that user input does not invoke any
-     * query operators.
+     * <p>{@link Features#SEARCH_SPEC_SEARCH_STRING_PARAMETERS}: This feature covers the
+     * "getSearchStringParameter" function in query expressions, which substitutes the string
+     * provided at the same index in {@link SearchSpec.Builder#addSearchStringParameters} into the
+     * query as plain text. This string is then segmented, normalized and stripped of
+     * punctuation-only segments. The remaining tokens are then AND'd together. This function is
+     * useful for callers who wish to provide user input, but want to ensure that that user input
+     * does not invoke any query operators.
      *
-     * <p>Ex. `foo OR tokenize("bar OR baz.")`. The string "bar OR baz." will be segmented into
-     * "bar", "OR", "baz", ".". Punctuation is removed and the segments are normalized to "bar",
-     * "or", "baz". This query will be equivalent to `foo OR (bar AND or AND baz)`.
+     * <p>Usage: getSearchStringParameter({search_parameter_strings_index})
      *
-     * <p>Ex. `tokenize("\"bar\" OR \\baz")`. Quotation marks and escape characters must be escaped.
-     * This query will be segmented into "\"", "bar", "\"", "OR", "\", "baz". Once stripped of
-     * punctuation and normalized, this will be equivalent to the query `bar AND or AND baz`.
+     * <p>Ex. `foo OR getSearchStringParameter(0)` with {@link SearchSpec#getSearchStringParameters}
+     * returning {"bar OR baz."}. The string "bar OR baz." will be segmented into "bar", "OR",
+     * "baz", ".". Punctuation is removed and the segments are normalized to "bar", "or", "baz".
+     * This query will be equivalent to `foo OR (bar AND or AND baz)`.
      *
      * <p>The availability of each of these features can be checked by calling
      * {@link Features#isFeatureSupported} with the desired feature.

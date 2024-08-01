@@ -87,18 +87,16 @@ public final class SearchSpecToGmsConverter {
             if (jetpackSearchSpec.isListFilterHasPropertyFunctionEnabled()) {
                 gmsBuilder.setListFilterHasPropertyFunctionEnabled(true);
             }
-            // Copy beyond-V features
-            if (jetpackSearchSpec.isEmbeddingSearchEnabled()
-                    || !jetpackSearchSpec.getSearchEmbeddings().isEmpty()) {
-                // TODO(b/326656531): Remove this once embedding search APIs are available.
-                throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
-                        + " is not available on this AppSearch implementation.");
-            }
-            if (jetpackSearchSpec.isListFilterTokenizeFunctionEnabled()) {
-                // TODO(b/332620561): Remove this once 'tokenize' is supported.
-                throw new UnsupportedOperationException(Features.LIST_FILTER_TOKENIZE_FUNCTION
-                        + " is not available on this AppSearch implementation.");
-            }
+        }
+        if (!jetpackSearchSpec.getEmbeddingParameters().isEmpty()) {
+            // TODO(b/326656531): Remove this once embedding search APIs are available.
+            throw new UnsupportedOperationException(Features.SCHEMA_EMBEDDING_PROPERTY_CONFIG
+                    + " is not available on this AppSearch implementation.");
+        }
+        if (!jetpackSearchSpec.getSearchStringParameters().isEmpty()) {
+            // TODO(b/332620561): Remove this once search parameter strings are supported.
+            throw new UnsupportedOperationException(Features.SEARCH_SPEC_SEARCH_STRING_PARAMETERS
+                    + " is not available on this AppSearch implementation.");
         }
 
         if (jetpackSearchSpec.getJoinSpec() != null) {

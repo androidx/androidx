@@ -120,15 +120,6 @@ public interface Features {
     String LIST_FILTER_HAS_PROPERTY_FUNCTION = FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION;
 
     /**
-     * Feature for {@link #isFeatureSupported(String)}. This feature covers the use of the
-     * "tokenize" function in query expressions.
-     *
-     * <p>For details on the "tokenize" function in the query language, see
-     * {@link AppSearchSession#search}.
-     */
-    String LIST_FILTER_TOKENIZE_FUNCTION = "LIST_FILTER_TOKENIZE_FUNCTION";
-
-    /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers whether or not the
      * AppSearch backend can store the descriptions returned by
      * {@link AppSearchSchema#getDescription} and
@@ -170,6 +161,13 @@ public interface Features {
      * {@link SearchSpec.Builder#setRankingStrategy(String)}.
      */
     String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers the support of the
+     * {@link SearchSpec.Builder#addSearchStringParameters} and
+     * {@link SearchSuggestionSpec.Builder#addSearchStringParameters} apis.
+     */
+    String SEARCH_SPEC_SEARCH_STRING_PARAMETERS = "SEARCH_SPEC_SEARCH_STRING_PARAMETERS";
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
