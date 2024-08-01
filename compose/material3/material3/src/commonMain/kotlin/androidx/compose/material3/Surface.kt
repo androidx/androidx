@@ -31,6 +31,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.NonRestartableComposable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -205,6 +206,8 @@ fun Surface(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
@@ -227,7 +230,8 @@ fun Surface(
                         enabled = enabled,
                         onClick = onClick
                     )
-                    .childSemantics(),
+                    .childSemantics()
+                    .interactionSourceData(interactionSource),
             propagateMinConstraints = true
         ) {
             content()
@@ -309,6 +313,8 @@ fun Surface(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
@@ -332,7 +338,8 @@ fun Surface(
                         enabled = enabled,
                         onClick = onClick
                     )
-                    .childSemantics(),
+                    .childSemantics()
+                    .interactionSourceData(interactionSource),
             propagateMinConstraints = true
         ) {
             content()
@@ -414,6 +421,8 @@ fun Surface(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
     CompositionLocalProvider(
         LocalContentColor provides contentColor,
@@ -437,7 +446,8 @@ fun Surface(
                         enabled = enabled,
                         onValueChange = onCheckedChange
                     )
-                    .childSemantics(),
+                    .childSemantics()
+                    .interactionSourceData(interactionSource),
             propagateMinConstraints = true
         ) {
             content()
