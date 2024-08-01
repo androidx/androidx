@@ -359,10 +359,30 @@ class TextMeasurer(
  * @throws IllegalArgumentException if capacity is not a positive integer.
  */
 internal class TextLayoutCache(capacity: Int = DefaultCacheSize) {
-    private val cache = SieveCache<CacheTextLayoutInput, TextLayoutResult>(capacity, capacity)
+    // Do not allocate an LRU cache if the size is just 1.
+    private val cache: SieveCache<CacheTextLayoutInput, TextLayoutResult>? =
+        if (capacity != 1) {
+            // 0 or negative cache size is also handled by SieveCache.
+            SieveCache(capacity, capacity)
+        } else {
+            null
+        }
+
+    private var singleSizeCacheInput: CacheTextLayoutInput? = null
+    private var singleSizeCacheResult: TextLayoutResult? = null
 
     fun get(key: TextLayoutInput): TextLayoutResult? {
-        val resultFromCache = cache[CacheTextLayoutInput(key)] ?: return null
+        val cacheKey = CacheTextLayoutInput(key)
+        val resultFromCache =
+            if (cache != null) {
+                cache[cacheKey]
+            } else if (singleSizeCacheInput == cacheKey) {
+                singleSizeCacheResult
+            } else {
+                return null
+            }
+
+        if (resultFromCache == null) return null
 
         if (resultFromCache.multiParagraph.intrinsics.hasStaleResolvedFonts) {
             // one of the resolved fonts has updated, and this MeasuredText is no longer valid for
@@ -373,12 +393,13 @@ internal class TextLayoutCache(capacity: Int = DefaultCacheSize) {
         return resultFromCache
     }
 
-    fun put(key: TextLayoutInput, value: TextLayoutResult): TextLayoutResult? {
-        return cache.put(CacheTextLayoutInput(key), value)
-    }
-
-    fun remove(key: TextLayoutInput): TextLayoutResult? {
-        return cache.remove(CacheTextLayoutInput(key))
+    fun put(key: TextLayoutInput, value: TextLayoutResult) {
+        if (cache != null) {
+            cache.put(CacheTextLayoutInput(key), value)
+        } else {
+            singleSizeCacheInput = CacheTextLayoutInput(key)
+            singleSizeCacheResult = value
+        }
     }
 }
 
