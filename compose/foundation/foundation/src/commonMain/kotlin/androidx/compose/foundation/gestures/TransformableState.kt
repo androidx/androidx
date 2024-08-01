@@ -194,32 +194,35 @@ suspend fun TransformableState.animatePanBy(
 /**
  * Animate zoom, pan, and rotation simultaneously and suspend until the animation is finished.
  *
- * Zoom is animated by a ratio of [zoomFactor] over the current size. Pan is animated by [offset] in
- * pixels. Rotation is animated by the value of [degrees] clockwise.
+ * Zoom is animated by a ratio of [zoomFactor] over the current size. Pan is animated by [panOffset]
+ * in pixels. Rotation is animated by the value of [rotationDegrees] clockwise. Any of these
+ * parameters can be set to a no-op value that will result in no animation of that parameter. The
+ * no-op values are the following: `1f` for [zoomFactor], `Offset.Zero` for [panOffset], and `0f`
+ * for [rotationDegrees].
  *
  * @sample androidx.compose.foundation.samples.TransformableAnimateBySample
  * @param zoomFactor ratio over the current size by which to zoom. For example, if [zoomFactor] is
  *   `3f`, zoom will be increased 3 fold from the current value.
- * @param offset offset to pan, in pixels
- * @param degrees the degrees by which to rotate clockwise
+ * @param panOffset offset to pan, in pixels
+ * @param rotationDegrees the degrees by which to rotate clockwise
  * @param zoomAnimationSpec [AnimationSpec] to be used for animating zoom
- * @param offsetAnimationSpec [AnimationSpec] to be used for animating offset
+ * @param panAnimationSpec [AnimationSpec] to be used for animating offset
  * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
  */
 @ExperimentalFoundationApi
 suspend fun TransformableState.animateBy(
-    zoomFactor: Float = 1f,
-    offset: Offset = Offset.Zero,
-    degrees: Float = 0f,
+    zoomFactor: Float,
+    panOffset: Offset,
+    rotationDegrees: Float,
     zoomAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow),
-    offsetAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
+    panAnimationSpec: AnimationSpec<Offset> = SpringSpec(stiffness = Spring.StiffnessLow),
     rotationAnimationSpec: AnimationSpec<Float> = SpringSpec(stiffness = Spring.StiffnessLow)
 ) {
     requirePrecondition(zoomFactor > 0) { "zoom value should be greater than 0" }
     var previousState = AnimationData(zoom = 1f, offset = Offset.Zero, degrees = 0f)
-    val targetState = AnimationData(zoomFactor, offset, degrees)
+    val targetState = AnimationData(zoomFactor, panOffset, rotationDegrees)
     val animationSpec =
-        DelegatingAnimationSpec(zoomAnimationSpec, offsetAnimationSpec, rotationAnimationSpec)
+        DelegatingAnimationSpec(zoomAnimationSpec, panAnimationSpec, rotationAnimationSpec)
     transform {
         AnimationState(
                 typeConverter = AnimationDataConverter,

@@ -191,10 +191,10 @@ fun TransformableAnimateBySample() {
                             coroutineScope.launch {
                                 state.animateBy(
                                     zoomFactor = 1.5f,
-                                    offset = Offset(20f, 20f),
-                                    degrees = 90f,
+                                    panOffset = Offset(20f, 20f),
+                                    rotationDegrees = 90f,
                                     zoomAnimationSpec = spring(),
-                                    offsetAnimationSpec = tween(durationMillis = 1000),
+                                    panAnimationSpec = tween(durationMillis = 1000),
                                     rotationAnimationSpec = spring()
                                 )
                             }
