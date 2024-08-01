@@ -85,6 +85,12 @@ public interface CameraController {
     public fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>)
 
     /**
+     * Get the estimated real time latency for an extension session. This method returns null if the
+     * [StreamGraph] is not configured correctly or the CaptureSession is not ready.
+     */
+    public fun getOutputLatency(streamId: StreamId?): StreamGraph.OutputLatency?
+
+    /**
      * ControllerState indicates the internal state of a [CameraController]. These states are needed
      * to make sure we only invoke [CameraController] methods under the right conditions.
      *

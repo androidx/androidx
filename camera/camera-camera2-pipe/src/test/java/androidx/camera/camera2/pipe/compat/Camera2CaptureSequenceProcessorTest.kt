@@ -43,6 +43,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
 import org.robolectric.Shadows
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
@@ -95,9 +96,10 @@ internal class Camera2CaptureSequenceProcessorTest {
             sessionMode = CameraGraph.OperatingMode.HIGH_SPEED
         )
 
-    private val streamGraph = StreamGraphImpl(testCamera.metadata, graphConfig)
+    private val streamGraph = StreamGraphImpl(testCamera.metadata, graphConfig, mock())
 
-    private val highSpeedStreamGraph = StreamGraphImpl(testCamera.metadata, highSpeedGraphConfig)
+    private val highSpeedStreamGraph =
+        StreamGraphImpl(testCamera.metadata, highSpeedGraphConfig, mock())
 
     private val surface1 =
         Surface(

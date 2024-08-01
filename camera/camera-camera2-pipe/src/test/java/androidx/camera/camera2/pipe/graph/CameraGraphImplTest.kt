@@ -59,6 +59,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.kotlin.eq
@@ -108,21 +109,15 @@ internal class CameraGraphImplTest {
         )
     private val cameraContext = CameraBackendsImpl.CameraBackendContext(context, threads, backends)
     private val graphLifecycleManager = GraphLifecycleManager(threads)
-    private val streamGraph = StreamGraphImpl(metadata, graphConfig)
     private val imageSources = ImageReaderImageSources(threads)
-    private val imageSourceMap = ImageSourceMap(graphConfig, streamGraph, imageSources)
     private val frameCaptureQueue = FrameCaptureQueue()
+    private val cameraController =
+        CameraControllerSimulator(cameraContext, graphId, graphConfig, fakeGraphProcessor)
+    private val cameraControllerProvider: () -> CameraControllerSimulator = { cameraController }
+    private val streamGraph = StreamGraphImpl(metadata, graphConfig, cameraControllerProvider)
+    private val imageSourceMap = ImageSourceMap(graphConfig, streamGraph, imageSources)
     private val frameDistributor =
         FrameDistributor(imageSourceMap.imageSources, frameCaptureQueue) {}
-    private val cameraController =
-        CameraControllerSimulator(
-            cameraContext,
-            graphId,
-            graphConfig,
-            fakeGraphProcessor,
-            streamGraph
-        )
-
     private val surfaceGraph =
         SurfaceGraph(streamGraph, cameraController, cameraSurfaceManager, emptyMap())
     private val audioRestriction = FakeAudioRestrictionController()
@@ -156,6 +151,11 @@ internal class CameraGraphImplTest {
 
     init {
         cameraSurfaceManager.addListener(fakeSurfaceListener)
+    }
+
+    @Before
+    fun setUp() {
+        cameraController.streamGraph = streamGraph
     }
 
     @Test fun createCameraGraphImpl() = testScope.runTest { assertThat(cameraGraph).isNotNull() }
@@ -467,5 +467,14 @@ internal class CameraGraphImplTest {
     fun useSession_throwsExceptions() =
         testScope.runTest {
             assertThrows<RuntimeException> { cameraGraph.useSession { throw RuntimeException() } }
+        }
+
+    @Test
+    fun testGetOutputLatency() =
+        testScope.runTest {
+            assertThat(cameraController.getOutputLatency(null)).isNull()
+            cameraController.simulateOutputLatency()
+            assertThat(cameraController.getOutputLatency(null)?.estimatedLatencyNs)
+                .isEqualTo(cameraController.outputLatencySet?.estimatedLatencyNs)
         }
 }

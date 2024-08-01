@@ -33,6 +33,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.RequestProcessor
 import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.graph.GraphListener
@@ -44,7 +45,7 @@ public class ExternalCameraController(
     private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
-    private val requestProcessor: RequestProcessor
+    requestProcessor: RequestProcessor
 ) : CameraController {
     private val sequenceProcessor = ExternalCaptureSequenceProcessor(graphConfig, requestProcessor)
     private val graphProcessor: GraphRequestProcessor =
@@ -82,6 +83,10 @@ public class ExternalCameraController(
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
         sequenceProcessor.surfaceMap = surfaceMap
+    }
+
+    override fun getOutputLatency(streamId: StreamId?): StreamGraph.OutputLatency? {
+        return null
     }
 }
 

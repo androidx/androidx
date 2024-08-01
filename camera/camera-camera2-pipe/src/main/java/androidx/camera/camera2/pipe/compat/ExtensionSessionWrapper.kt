@@ -63,6 +63,8 @@ internal interface CameraExtensionSessionWrapper :
         /** @see CameraExtensionSession.StateCallback.onConfigured */
         fun onConfigured(session: CameraExtensionSessionWrapper)
     }
+
+    fun getRealTimeCaptureLatency(): CameraExtensionSession.StillCaptureLatency?
 }
 
 @RequiresApi(31)
@@ -246,6 +248,13 @@ internal open class AndroidCameraExtensionSession(
 
     override fun close() {
         return cameraExtensionSession.close()
+    }
+
+    override fun getRealTimeCaptureLatency(): CameraExtensionSession.StillCaptureLatency? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return cameraExtensionSession.realtimeStillCaptureLatency
+        }
+        return null
     }
 
     inner class Camera2CaptureSessionCallbackToExtensionCaptureCallback(

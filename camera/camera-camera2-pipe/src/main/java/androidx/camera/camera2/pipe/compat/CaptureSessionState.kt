@@ -17,6 +17,8 @@
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
+import android.hardware.camera2.CameraExtensionSession
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.CameraGraph
@@ -136,6 +138,14 @@ internal class CaptureSessionState(
             }
             scope.launch { tryCreateCaptureSession() }
         }
+    }
+
+    fun getRealtimeCaptureLatency(): CameraExtensionSession.StillCaptureLatency? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val extensionSession = cameraCaptureSession?.session as? AndroidCameraExtensionSession
+            return extensionSession?.getRealTimeCaptureLatency()
+        }
+        return null
     }
 
     override fun onActive(session: CameraCaptureSessionWrapper) {

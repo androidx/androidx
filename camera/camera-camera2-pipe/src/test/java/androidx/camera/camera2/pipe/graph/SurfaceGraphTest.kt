@@ -45,7 +45,7 @@ class SurfaceGraphTest {
     private val graphId = CameraGraphId.nextId()
     private val fakeCameraController = FakeCameraController(graphId)
 
-    private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig)
+    private val streamMap = StreamGraphImpl(config.fakeMetadata, config.graphConfig, mock())
 
     private val fakeSurfaceListener: CameraSurfaceManager.SurfaceListener = mock()
     private val cameraSurfaceManager =
