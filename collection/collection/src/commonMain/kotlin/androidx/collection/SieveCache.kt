@@ -267,18 +267,20 @@ public constructor(
         values[index] = value
         keys[index] = key
 
-        moveNodeToHead(index)
-
         _size += sizeOf(key, value)
 
         if (previousValue != null) {
             _size -= sizeOf(key, previousValue)
             onEntryRemoved(key, previousValue, value, false)
+            trimToSize(_maxSize)
+            return previousValue
         }
 
         // TODO: We should trim to size before doing the insertion. The insertion might cause
         //       the underlying storage to resize unnecessarily.
         trimToSize(_maxSize)
+        // We need to make sure we update the linked list after eviction
+        moveNodeToHead(index)
 
         return previousValue
     }

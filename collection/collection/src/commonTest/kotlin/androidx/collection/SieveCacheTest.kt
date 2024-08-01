@@ -856,6 +856,19 @@ class SieveCacheTest {
         assertEquals(1, cache.size)
     }
 
+    @Test
+    fun evictionInCacheOfSize1() {
+        val cache = SieveCache<String, String>(1, 1)
+        cache["1"] = "a"
+
+        // Visit the entry
+        assertEquals("a", cache["1"])
+
+        cache["2"] = "b"
+        assertFalse("1" in cache)
+        assertEquals("b", cache["2"])
+    }
+
     private fun createCreatingCache(): SieveCache<String, String> {
         return SieveCache(4, createValueFromKey = { key -> "created-$key" })
     }
