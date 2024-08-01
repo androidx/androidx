@@ -546,8 +546,11 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
     private fun processConstructorObject(element: XTypeElement): XTypeElement? {
         val annotation = element.getAnnotation(androidx.room.ConstructedBy::class)
         if (annotation == null) {
+            // If no @ConstructedBy is present then validate target is JVM (including Android)
+            // since reflection is available in those platforms and a database constructor is not
+            // needed.
             context.checker.check(
-                predicate = context.isAndroidOnlyTarget(),
+                predicate = context.isJvmOnlyTarget(),
                 element = element,
                 errorMsg = ProcessorErrors.MISSING_CONSTRUCTED_BY_ANNOTATION
             )
