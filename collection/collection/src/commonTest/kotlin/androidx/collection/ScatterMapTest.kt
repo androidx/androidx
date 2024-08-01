@@ -25,6 +25,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
 class ScatterMapTest {
     @Test
@@ -626,6 +627,8 @@ class ScatterMapTest {
 
         assertEquals(0, map.size)
         assertEquals(capacity, map.capacity)
+
+        map.forEach { _, _ -> fail() }
     }
 
     @Test

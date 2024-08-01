@@ -1835,6 +1835,49 @@ package androidx.collection {
     method public int trim();
   }
 
+  public final class MutableOrderedScatterSet<E> extends androidx.collection.OrderedScatterSet<E> {
+    ctor public MutableOrderedScatterSet();
+    ctor public MutableOrderedScatterSet(optional int initialCapacity);
+    method public boolean add(E element);
+    method public boolean addAll(androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(androidx.collection.OrderedScatterSet<E> elements);
+    method public boolean addAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean addAll(E[] elements);
+    method public boolean addAll(Iterable<? extends E> elements);
+    method public boolean addAll(kotlin.sequences.Sequence<? extends E> elements);
+    method public java.util.Set<E> asMutableSet();
+    method public void clear();
+    method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void minusAssign(androidx.collection.OrderedScatterSet<E> elements);
+    method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
+    method public operator void minusAssign(E element);
+    method public operator void minusAssign(E[] elements);
+    method public operator void minusAssign(Iterable<? extends E> elements);
+    method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void plusAssign(androidx.collection.OrderedScatterSet<E> elements);
+    method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
+    method public operator void plusAssign(E element);
+    method public operator void plusAssign(E[] elements);
+    method public operator void plusAssign(Iterable<? extends E> elements);
+    method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
+    method public boolean remove(E element);
+    method public boolean removeAll(androidx.collection.ObjectList<E> elements);
+    method public boolean removeAll(androidx.collection.OrderedScatterSet<E> elements);
+    method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean removeAll(E[] elements);
+    method public boolean removeAll(Iterable<? extends E> elements);
+    method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
+    method @kotlin.PublishedApi internal void removeElementAt(int index);
+    method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public boolean retainAll(androidx.collection.OrderedScatterSet<E> elements);
+    method public boolean retainAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean retainAll(java.util.Collection<? extends E> elements);
+    method public boolean retainAll(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method @IntRange(from=0L) public int trim();
+    method public void trimToSize(int maxSize);
+  }
+
   public final class MutableScatterMap<K, V> extends androidx.collection.ScatterMap<K,V> {
     ctor public MutableScatterMap();
     ctor public MutableScatterMap(optional int initialCapacity);
@@ -1874,6 +1917,7 @@ package androidx.collection {
     ctor public MutableScatterSet(optional int initialCapacity);
     method public boolean add(E element);
     method public boolean addAll(androidx.collection.ObjectList<E> elements);
+    method public boolean addAll(androidx.collection.OrderedScatterSet<E> elements);
     method public boolean addAll(androidx.collection.ScatterSet<E> elements);
     method public boolean addAll(E[] elements);
     method public boolean addAll(Iterable<? extends E> elements);
@@ -1881,12 +1925,14 @@ package androidx.collection {
     method public java.util.Set<E> asMutableSet();
     method public void clear();
     method public operator void minusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void minusAssign(androidx.collection.OrderedScatterSet<E> elements);
     method public operator void minusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void minusAssign(E element);
     method public operator void minusAssign(E[] elements);
     method public operator void minusAssign(Iterable<? extends E> elements);
     method public operator void minusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public operator void plusAssign(androidx.collection.ObjectList<E> elements);
+    method public operator void plusAssign(androidx.collection.OrderedScatterSet<E> elements);
     method public operator void plusAssign(androidx.collection.ScatterSet<E> elements);
     method public operator void plusAssign(E element);
     method public operator void plusAssign(E[] elements);
@@ -1894,12 +1940,17 @@ package androidx.collection {
     method public operator void plusAssign(kotlin.sequences.Sequence<? extends E> elements);
     method public boolean remove(E element);
     method public boolean removeAll(androidx.collection.ObjectList<E> elements);
+    method public boolean removeAll(androidx.collection.OrderedScatterSet<E> elements);
     method public boolean removeAll(androidx.collection.ScatterSet<E> elements);
     method public boolean removeAll(E[] elements);
     method public boolean removeAll(Iterable<? extends E> elements);
     method public boolean removeAll(kotlin.sequences.Sequence<? extends E> elements);
     method @kotlin.PublishedApi internal void removeElementAt(int index);
     method public inline void removeIf(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public boolean retainAll(androidx.collection.OrderedScatterSet<E> elements);
+    method public boolean retainAll(androidx.collection.ScatterSet<E> elements);
+    method public boolean retainAll(java.util.Collection<? extends E> elements);
+    method public boolean retainAll(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method @IntRange(from=0L) public int trim();
   }
 
@@ -2143,6 +2194,60 @@ package androidx.collection {
     method public static <K> androidx.collection.ObjectLongMap<K> objectLongMapOf(K key1, long value1, K key2, long value2, K key3, long value3, K key4, long value4, K key5, long value5);
   }
 
+  public abstract sealed class OrderedScatterSet<E> {
+    method public final inline boolean all(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean any();
+    method public final inline boolean any(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final java.util.Set<E> asSet();
+    method public final operator boolean contains(E element);
+    method @IntRange(from=0L) public final int count();
+    method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final E first();
+    method public final E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method public final inline void forEachReverse(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method @IntRange(from=0L) public final int getCapacity();
+    method @IntRange(from=0L) public final int getSize();
+    method public final boolean isEmpty();
+    method public final boolean isNotEmpty();
+    method public final String joinToString();
+    method public final String joinToString(optional CharSequence separator);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
+    method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function1<? super E,? extends java.lang.CharSequence>? transform);
+    method public final E last();
+    method public final E last(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final boolean none();
+    method public final inline java.util.List<E> toList();
+    method @kotlin.PublishedApi internal final inline void unorderedForEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
+    method @kotlin.PublishedApi internal final inline void unorderedForEachIndex(kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> block);
+    property @IntRange(from=0L) public final int capacity;
+    property @IntRange(from=0L) public final int size;
+    field @kotlin.PublishedApi internal Object?[] elements;
+    field @kotlin.PublishedApi internal int head;
+    field @kotlin.PublishedApi internal long[] metadata;
+    field @kotlin.PublishedApi internal long[] nodes;
+    field @kotlin.PublishedApi internal int tail;
+  }
+
+  public final class OrderedScatterSetKt {
+    method public static <E> androidx.collection.OrderedScatterSet<E> emptyOrderedScatterSet();
+    method public static <E> androidx.collection.MutableOrderedScatterSet<E> mutableOrderedScatterSetOf();
+    method public static <E> androidx.collection.MutableOrderedScatterSet<E> mutableOrderedScatterSetOf(E element1);
+    method public static <E> androidx.collection.MutableOrderedScatterSet<E> mutableOrderedScatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.MutableOrderedScatterSet<E> mutableOrderedScatterSetOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.MutableOrderedScatterSet<E> mutableOrderedScatterSetOf(E... elements);
+    method public static <E> androidx.collection.OrderedScatterSet<E> orderedScatterSetOf();
+    method public static <E> androidx.collection.OrderedScatterSet<E> orderedScatterSetOf(E element1);
+    method public static <E> androidx.collection.OrderedScatterSet<E> orderedScatterSetOf(E element1, E element2);
+    method public static <E> androidx.collection.OrderedScatterSet<E> orderedScatterSetOf(E element1, E element2, E element3);
+    method public static <E> androidx.collection.OrderedScatterSet<E> orderedScatterSetOf(E... elements);
+  }
+
   public abstract sealed class ScatterMap<K, V> {
     method public final inline boolean all(kotlin.jvm.functions.Function2<? super K,? super V,java.lang.Boolean> predicate);
     method public final boolean any();
@@ -2294,6 +2399,11 @@ package androidx.collection {
     field @kotlin.PublishedApi internal Object?[] keys;
     field @kotlin.PublishedApi internal long[] metadata;
     field @kotlin.PublishedApi internal Object?[] values;
+  }
+
+  public final class SieveCacheKt {
+    field @kotlin.PublishedApi internal static final int NodeInvalidLink = 2147483647; // 0x7fffffff
+    field @kotlin.PublishedApi internal static final long NodeLinkMask = 2147483647L; // 0x7fffffffL
   }
 
   public class SimpleArrayMap<K, V> {

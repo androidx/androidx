@@ -16,6 +16,7 @@
 package androidx.collection
 
 import kotlin.test.Test
+import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -23,25 +24,26 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.test.fail
 
-class ScatterSetTest {
+class OrderedScatterSetTest {
     @Test
     fun emptyScatterSetConstructor() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         assertEquals(7, set.capacity)
         assertEquals(0, set.size)
     }
 
     @Test
     fun immutableEmptyScatterSet() {
-        val set: ScatterSet<String> = emptyScatterSet()
+        val set = emptyOrderedScatterSet<String>()
         assertEquals(0, set.capacity)
         assertEquals(0, set.size)
     }
 
     @Test
     fun zeroCapacityScatterSet() {
-        val set = MutableScatterSet<String>(0)
+        val set = MutableOrderedScatterSet<String>(0)
         assertEquals(0, set.capacity)
         assertEquals(0, set.size)
     }
@@ -50,17 +52,17 @@ class ScatterSetTest {
     fun emptyScatterSetWithCapacity() {
         // When unloading the suggested capacity, we'll fall outside of the
         // expected bucket of 2047 entries, and we'll get 4095 instead
-        val set = MutableScatterSet<String>(1800)
+        val set = MutableOrderedScatterSet<String>(1800)
         assertEquals(4095, set.capacity)
         assertEquals(0, set.size)
     }
 
     @Test
     fun mutableScatterSetBuilder() {
-        val empty = mutableScatterSetOf<String>()
+        val empty = mutableOrderedScatterSetOf<String>()
         assertEquals(0, empty.size)
 
-        val withElements = mutableScatterSetOf("Hello", "World")
+        val withElements = mutableOrderedScatterSetOf("Hello", "World")
         assertEquals(2, withElements.size)
         assertTrue("Hello" in withElements)
         assertTrue("World" in withElements)
@@ -68,7 +70,7 @@ class ScatterSetTest {
 
     @Test
     fun addToScatterSet() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set += "Hello"
         assertTrue(set.add("World"))
 
@@ -83,7 +85,7 @@ class ScatterSetTest {
 
     @Test
     fun addToSizedScatterSet() {
-        val set = MutableScatterSet<String>(12)
+        val set = MutableOrderedScatterSet<String>(12)
         set += "Hello"
 
         assertEquals(1, set.size)
@@ -92,7 +94,7 @@ class ScatterSetTest {
 
     @Test
     fun addExistingElement() {
-        val set = MutableScatterSet<String>(12)
+        val set = MutableOrderedScatterSet<String>(12)
         set += "Hello"
         assertFalse(set.add("Hello"))
         set += "Hello"
@@ -103,7 +105,7 @@ class ScatterSetTest {
 
     @Test
     fun addAllArray() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         assertFalse(set.addAll(arrayOf("Hello")))
         assertEquals(1, set.size)
         assertTrue(set.addAll(arrayOf("Hello", "World")))
@@ -113,7 +115,7 @@ class ScatterSetTest {
 
     @Test
     fun addAllIterable() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         assertFalse(set.addAll(listOf("Hello")))
         assertEquals(1, set.size)
         assertTrue(set.addAll(listOf("Hello", "World")))
@@ -123,7 +125,7 @@ class ScatterSetTest {
 
     @Test
     fun addAllSequence() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         assertFalse(set.addAll(listOf("Hello").asSequence()))
         assertEquals(1, set.size)
         assertTrue(set.addAll(listOf("Hello", "World").asSequence()))
@@ -133,17 +135,17 @@ class ScatterSetTest {
 
     @Test
     fun addAllScatterSet() {
-        val set = mutableScatterSetOf("Hello")
-        assertFalse(set.addAll(mutableScatterSetOf("Hello")))
+        val set = mutableOrderedScatterSetOf("Hello")
+        assertFalse(set.addAll(mutableOrderedScatterSetOf("Hello")))
         assertEquals(1, set.size)
-        assertTrue(set.addAll(mutableScatterSetOf("Hello", "World")))
+        assertTrue(set.addAll(mutableOrderedScatterSetOf("Hello", "World")))
         assertEquals(2, set.size)
         assertTrue("World" in set)
     }
 
     @Test
     fun addAllObjectList() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         assertFalse(set.addAll(objectListOf("Hello")))
         assertEquals(1, set.size)
         assertTrue(set.addAll(objectListOf("Hello", "World")))
@@ -153,7 +155,7 @@ class ScatterSetTest {
 
     @Test
     fun plusAssignArray() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         set += arrayOf("Hello")
         assertEquals(1, set.size)
         set += arrayOf("Hello", "World")
@@ -163,7 +165,7 @@ class ScatterSetTest {
 
     @Test
     fun plusAssignIterable() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         set += listOf("Hello")
         assertEquals(1, set.size)
         set += listOf("Hello", "World")
@@ -173,7 +175,7 @@ class ScatterSetTest {
 
     @Test
     fun plusAssignSequence() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         set += listOf("Hello").asSequence()
         assertEquals(1, set.size)
         set += listOf("Hello", "World").asSequence()
@@ -183,17 +185,17 @@ class ScatterSetTest {
 
     @Test
     fun plusAssignScatterSet() {
-        val set = mutableScatterSetOf("Hello")
-        set += mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
+        set += mutableOrderedScatterSetOf("Hello")
         assertEquals(1, set.size)
-        set += mutableScatterSetOf("Hello", "World")
+        set += mutableOrderedScatterSetOf("Hello", "World")
         assertEquals(2, set.size)
         assertTrue("World" in set)
     }
 
     @Test
     fun plusAssignObjectList() {
-        val set = mutableScatterSetOf("Hello")
+        val set = mutableOrderedScatterSetOf("Hello")
         set += objectListOf("Hello")
         assertEquals(1, set.size)
         set += objectListOf("Hello", "World")
@@ -203,7 +205,7 @@ class ScatterSetTest {
 
     @Test
     fun nullElement() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         set += null
 
         assertEquals(1, set.size)
@@ -212,7 +214,7 @@ class ScatterSetTest {
 
     @Test
     fun firstWithValue() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set += "Hello"
         set += "World"
         var element: String? = null
@@ -226,16 +228,18 @@ class ScatterSetTest {
     @Test
     fun firstEmpty() {
         assertFailsWith(NoSuchElementException::class) {
-            val set = MutableScatterSet<String>()
+            val set = MutableOrderedScatterSet<String>()
             set.first()
         }
     }
 
     @Test
     fun firstMatching() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set += "Hello"
+        set += "Hallo"
         set += "World"
+        set += "Welt"
         assertEquals("Hello", set.first { it.contains('H') })
         assertEquals("World", set.first { it.contains('W') })
     }
@@ -243,7 +247,7 @@ class ScatterSetTest {
     @Test
     fun firstMatchingEmpty() {
         assertFailsWith(NoSuchElementException::class) {
-            val set = MutableScatterSet<String>()
+            val set = MutableOrderedScatterSet<String>()
             set.first { it.contains('H') }
         }
     }
@@ -251,7 +255,7 @@ class ScatterSetTest {
     @Test
     fun firstMatchingNoMatch() {
         assertFailsWith(NoSuchElementException::class) {
-            val set = MutableScatterSet<String>()
+            val set = MutableOrderedScatterSet<String>()
             set += "Hello"
             set += "World"
             set.first { it.startsWith("Q") }
@@ -260,10 +264,12 @@ class ScatterSetTest {
 
     @Test
     fun firstOrNull() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         assertNull(set.firstOrNull { it.startsWith('H') })
         set += "Hello"
+        set += "Hallo"
         set += "World"
+        set += "Welt"
         var element: String? = null
         set.forEach { if (element == null) element = it }
         assertEquals(element, set.firstOrNull { it.contains('l') })
@@ -273,8 +279,74 @@ class ScatterSetTest {
     }
 
     @Test
+    fun lastWithValue() {
+        val set = MutableOrderedScatterSet<String>()
+        set += "Hello"
+        set += "World"
+        var element: String? = null
+        var otherElement: String? = null
+        set.forEach { if (otherElement == null) otherElement = it else element = it }
+        assertEquals(element, set.last())
+        set -= element!!
+        assertEquals(otherElement, set.last())
+    }
+
+    @Test
+    fun lastEmpty() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutableOrderedScatterSet<String>()
+            set.last()
+        }
+    }
+
+    @Test
+    fun lastMatching() {
+        val set = MutableOrderedScatterSet<String>()
+        set += "Hello"
+        set += "Hallo"
+        set += "World"
+        set += "Welt"
+        assertEquals("Hallo", set.last { it.contains('H') })
+        assertEquals("Welt", set.last { it.contains('W') })
+    }
+
+    @Test
+    fun lastMatchingEmpty() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutableOrderedScatterSet<String>()
+            set.last { it.contains('H') }
+        }
+    }
+
+    @Test
+    fun lastMatchingNoMatch() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutableOrderedScatterSet<String>()
+            set += "Hello"
+            set += "World"
+            set.last { it.startsWith("Q") }
+        }
+    }
+
+    @Test
+    fun lastOrNull() {
+        val set = MutableOrderedScatterSet<String>()
+        assertNull(set.lastOrNull { it.startsWith('H') })
+        set += "Hello"
+        set += "Hallo"
+        set += "World"
+        set += "Welt"
+        var element: String? = null
+        set.forEachReverse { if (element == null) element = it }
+        assertEquals(element, set.lastOrNull { it.contains('l') })
+        assertEquals("Hallo", set.lastOrNull { it.contains('H') })
+        assertEquals("Welt", set.lastOrNull { it.contains('W') })
+        assertNull(set.lastOrNull { it.startsWith('Q') })
+    }
+
+    @Test
     fun remove() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         assertFalse(set.remove("Hello"))
 
         set += "Hello"
@@ -297,7 +369,7 @@ class ScatterSetTest {
     @Test
     fun removeThenAdd() {
         // Use a size of 6 to fit in a single entry in the metadata table
-        val set = MutableScatterSet<String?>(6)
+        val set = MutableOrderedScatterSet<String?>(6)
         set += "Hello"
         set += "Bonjour"
         set += "Hallo"
@@ -327,7 +399,7 @@ class ScatterSetTest {
 
     @Test
     fun removeAllArray() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         assertFalse(set.removeAll(arrayOf("Hola", "Bonjour")))
         assertEquals(2, set.size)
         assertTrue(set.removeAll(arrayOf("Hola", "Hello", "Bonjour")))
@@ -337,7 +409,7 @@ class ScatterSetTest {
 
     @Test
     fun removeAllIterable() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         assertFalse(set.removeAll(listOf("Hola", "Bonjour")))
         assertEquals(2, set.size)
         assertTrue(set.removeAll(listOf("Hola", "Hello", "Bonjour")))
@@ -347,7 +419,7 @@ class ScatterSetTest {
 
     @Test
     fun removeAllSequence() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         assertFalse(set.removeAll(sequenceOf("Hola", "Bonjour")))
         assertEquals(2, set.size)
         assertTrue(set.removeAll(sequenceOf("Hola", "Hello", "Bonjour")))
@@ -357,17 +429,17 @@ class ScatterSetTest {
 
     @Test
     fun removeAllScatterSet() {
-        val set = mutableScatterSetOf("Hello", "World")
-        assertFalse(set.removeAll(mutableScatterSetOf("Hola", "Bonjour")))
+        val set = mutableOrderedScatterSetOf("Hello", "World")
+        assertFalse(set.removeAll(mutableOrderedScatterSetOf("Hola", "Bonjour")))
         assertEquals(2, set.size)
-        assertTrue(set.removeAll(mutableScatterSetOf("Hola", "Hello", "Bonjour")))
+        assertTrue(set.removeAll(mutableOrderedScatterSetOf("Hola", "Hello", "Bonjour")))
         assertEquals(1, set.size)
         assertFalse("Hello" in set)
     }
 
     @Test
     fun removeAllObjectList() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         assertFalse(set.removeAll(objectListOf("Hola", "Bonjour")))
         assertEquals(2, set.size)
         assertTrue(set.removeAll(objectListOf("Hola", "Hello", "Bonjour")))
@@ -377,7 +449,7 @@ class ScatterSetTest {
 
     @Test
     fun removeDoesNotCauseGrowthOnInsert() {
-        val set = MutableScatterSet<String>(10) // Must be > GroupWidth (8)
+        val set = MutableOrderedScatterSet<String>(10) // Must be > GroupWidth (8)
         assertEquals(15, set.capacity)
 
         set += "Hello"
@@ -406,7 +478,7 @@ class ScatterSetTest {
 
     @Test
     fun minusAssignArray() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         set -= arrayOf("Hola", "Bonjour")
         assertEquals(2, set.size)
         set -= arrayOf("Hola", "Hello", "Bonjour")
@@ -416,7 +488,7 @@ class ScatterSetTest {
 
     @Test
     fun minusAssignIterable() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         set -= listOf("Hola", "Bonjour")
         assertEquals(2, set.size)
         set -= listOf("Hola", "Hello", "Bonjour")
@@ -426,7 +498,7 @@ class ScatterSetTest {
 
     @Test
     fun minusAssignSequence() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         set -= sequenceOf("Hola", "Bonjour")
         assertEquals(2, set.size)
         set -= sequenceOf("Hola", "Hello", "Bonjour")
@@ -436,17 +508,17 @@ class ScatterSetTest {
 
     @Test
     fun minusAssignScatterSet() {
-        val set = mutableScatterSetOf("Hello", "World")
-        set -= mutableScatterSetOf("Hola", "Bonjour")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
+        set -= mutableOrderedScatterSetOf("Hola", "Bonjour")
         assertEquals(2, set.size)
-        set -= mutableScatterSetOf("Hola", "Hello", "Bonjour")
+        set -= mutableOrderedScatterSetOf("Hola", "Hello", "Bonjour")
         assertEquals(1, set.size)
         assertFalse("Hello" in set)
     }
 
     @Test
     fun minusAssignObjectList() {
-        val set = mutableScatterSetOf("Hello", "World")
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         set -= objectListOf("Hola", "Bonjour")
         assertEquals(2, set.size)
         set -= objectListOf("Hola", "Hello", "Bonjour")
@@ -456,7 +528,7 @@ class ScatterSetTest {
 
     @Test
     fun insertManyEntries() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
 
         for (i in 0 until 1700) {
             set += i.toString()
@@ -467,8 +539,8 @@ class ScatterSetTest {
 
     @Test
     fun forEach() {
-        for (i in 0..48) {
-            val set = MutableScatterSet<Int>()
+        for (i in 8..24) {
+            val set = MutableOrderedScatterSet<Int>()
 
             for (j in 0 until i) {
                 set += j
@@ -476,8 +548,10 @@ class ScatterSetTest {
 
             val elements = Array(i) { -1 }
             var index = 0
-            set.forEach { element -> elements[index++] = element }
-            elements.sort()
+            set.forEach { element ->
+                println(element)
+                elements[index++] = element
+            }
 
             index = 0
             elements.forEach { element ->
@@ -488,8 +562,140 @@ class ScatterSetTest {
     }
 
     @Test
+    fun forEachIsOrdered() {
+        val expected =
+            mutableListOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+            )
+        val set = mutableOrderedScatterSetOf<String>()
+
+        set += expected
+        assertContentEquals(expected, set.toList())
+
+        // Removing an item should preserve order
+        expected -= "Hallo"
+        set -= "Hallo"
+        assertContentEquals(expected, set.toList())
+
+        // Adding an item should preserve order
+        expected += "Barev"
+        set += "Barev"
+        assertContentEquals(expected, set.toList())
+
+        // Causing a resize should preserve order
+        val extra = listOf("Welt", "Konnichiwa", "Sekai", "Ciao", "Mondo", "Annyeong", "Sesang")
+        expected += extra
+        set += extra
+        assertContentEquals(expected, set.toList())
+
+        // Trimming preserves order
+        set.trim()
+        assertContentEquals(expected, set.toList())
+
+        // Trimming to a new size preserves order
+        expected.clear()
+        expected += listOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde", "Barev")
+        set.trimToSize(7)
+        assertContentEquals(expected, set.toList())
+
+        set.clear()
+        assertContentEquals(listOf(), set.toList())
+    }
+
+    @Test
+    fun iteratorIsOrdered() {
+        val expected =
+            mutableListOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+            )
+        val set = mutableOrderedScatterSetOf<String>()
+
+        set += expected
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        // Removing an item should preserve order
+        expected -= "Hallo"
+        set -= "Hallo"
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        // Adding an item should preserve order
+        expected += "Barev"
+        set += "Barev"
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        // Causing a resize should preserve order
+        val extra = listOf("Welt", "Konnichiwa", "Sekai", "Ciao", "Mondo", "Annyeong", "Sesang")
+        expected += extra
+        set += extra
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        // Trimming preserves order
+        set.trim()
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        // Trimming to a new size preserves order
+        expected.clear()
+        expected += listOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde", "Barev")
+        set.trimToSize(7)
+        assertContentEquals(expected, set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(expected, set.asSet().iterator().asSequence().toList())
+
+        set.clear()
+        assertContentEquals(listOf(), set.asMutableSet().iterator().asSequence().toList())
+        assertContentEquals(listOf(), set.asSet().iterator().asSequence().toList())
+    }
+
+    @Test
+    fun trimToSize() {
+        val set =
+            mutableOrderedScatterSetOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo"
+            )
+
+        val size = set.size
+        set.trimToSize(size)
+        assertEquals(size, set.size)
+
+        set.trimToSize(4)
+        assertEquals(4, set.size)
+
+        set.trimToSize(17)
+        assertEquals(4, set.size)
+
+        set.trimToSize(0)
+        assertEquals(0, set.size)
+
+        set += listOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde", "Hallo")
+        set.trimToSize(-1)
+        assertEquals(0, set.size)
+    }
+
+    @Test
     fun clear() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
 
         for (i in 0 until 32) {
             set += i.toString()
@@ -500,11 +706,13 @@ class ScatterSetTest {
 
         assertEquals(0, set.size)
         assertEquals(capacity, set.capacity)
+
+        set.forEach { fail() }
     }
 
     @Test
     fun string() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         assertEquals("[]", set.toString())
 
         set += "Hello"
@@ -517,7 +725,7 @@ class ScatterSetTest {
 
         set.clear()
 
-        val selfAsElement = MutableScatterSet<Any>()
+        val selfAsElement = MutableOrderedScatterSet<Any>()
         selfAsElement.add(selfAsElement)
         assertEquals("[(this)]", selfAsElement.toString())
     }
@@ -549,7 +757,7 @@ class ScatterSetTest {
 
     @Test
     fun hashCodeAddValues() {
-        val set = mutableScatterSetOf<String?>()
+        val set = mutableOrderedScatterSetOf<String?>()
         assertEquals(217, set.hashCode())
         set += null
         assertEquals(218, set.hashCode())
@@ -561,7 +769,7 @@ class ScatterSetTest {
 
     @Test
     fun equals() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         set += "Hello"
         set += null
         set += "Bonjour"
@@ -569,7 +777,7 @@ class ScatterSetTest {
         assertFalse(set.equals(null))
         assertEquals(set, set)
 
-        val set2 = MutableScatterSet<String?>()
+        val set2 = MutableOrderedScatterSet<String?>()
         set2 += "Bonjour"
         set2 += null
 
@@ -581,7 +789,7 @@ class ScatterSetTest {
 
     @Test
     fun contains() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         set += "Hello"
         set += null
         set += "Bonjour"
@@ -593,7 +801,7 @@ class ScatterSetTest {
 
     @Test
     fun empty() {
-        val set = MutableScatterSet<String?>()
+        val set = MutableOrderedScatterSet<String?>()
         assertTrue(set.isEmpty())
         assertFalse(set.isNotEmpty())
         assertTrue(set.none())
@@ -609,7 +817,7 @@ class ScatterSetTest {
 
     @Test
     fun count() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         assertEquals(0, set.count())
 
         set += "Hello"
@@ -627,7 +835,7 @@ class ScatterSetTest {
 
     @Test
     fun any() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set += "Hello"
         set += "Bonjour"
         set += "Hallo"
@@ -641,7 +849,7 @@ class ScatterSetTest {
 
     @Test
     fun all() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set += "Hello"
         set += "Bonjour"
         set += "Hallo"
@@ -655,7 +863,7 @@ class ScatterSetTest {
 
     @Test
     fun asSet() {
-        val scatterSet = mutableScatterSetOf("Hello", "World")
+        val scatterSet = mutableOrderedScatterSetOf("Hello", "World")
         val set = scatterSet.asSet()
         assertEquals(2, set.size)
         assertTrue(set.containsAll(listOf("Hello", "World")))
@@ -673,7 +881,7 @@ class ScatterSetTest {
 
     @Test
     fun asMutableSet() {
-        val scatterSet = mutableScatterSetOf("Hello", "World")
+        val scatterSet = mutableOrderedScatterSetOf("Hello", "World")
         val set = scatterSet.asMutableSet()
         assertTrue("Hello" in set)
         assertTrue("World" in set)
@@ -721,7 +929,7 @@ class ScatterSetTest {
 
     @Test
     fun trim() {
-        val set = mutableScatterSetOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde")
+        val set = mutableOrderedScatterSetOf("Hello", "World", "Hola", "Mundo", "Bonjour", "Monde")
         val capacity = set.capacity
         assertEquals(0, set.trim())
         set.clear()
@@ -754,7 +962,7 @@ class ScatterSetTest {
 
     @Test
     fun scatterSetOfEmpty() {
-        assertSame(emptyScatterSet<String>(), scatterSetOf<String>())
+        assertSame(emptyScatterSet(), scatterSetOf<String>())
         assertEquals(0, scatterSetOf<String>().size)
     }
 
@@ -796,15 +1004,15 @@ class ScatterSetTest {
     }
 
     @Test
-    fun mutableScatterSetOfOne() {
-        val set = mutableScatterSetOf("Hello")
+    fun mutableOrderedScatterSetOfOne() {
+        val set = mutableOrderedScatterSetOf("Hello")
         assertEquals(1, set.size)
         assertEquals("Hello", set.first())
     }
 
     @Test
-    fun mutableScatterSetOfTwo() {
-        val set = mutableScatterSetOf("Hello", "World")
+    fun mutableOrderedScatterSetOfTwo() {
+        val set = mutableOrderedScatterSetOf("Hello", "World")
         assertEquals(2, set.size)
         assertTrue("Hello" in set)
         assertTrue("World" in set)
@@ -812,8 +1020,8 @@ class ScatterSetTest {
     }
 
     @Test
-    fun mutableScatterSetOfThree() {
-        val set = mutableScatterSetOf("Hello", "World", "Hola")
+    fun mutableOrderedScatterSetOfThree() {
+        val set = mutableOrderedScatterSetOf("Hello", "World", "Hola")
         assertEquals(3, set.size)
         assertTrue("Hello" in set)
         assertTrue("World" in set)
@@ -822,8 +1030,8 @@ class ScatterSetTest {
     }
 
     @Test
-    fun mutableScatterSetOfFour() {
-        val set = mutableScatterSetOf("Hello", "World", "Hola", "Mundo")
+    fun mutableOrderedScatterSetOfFour() {
+        val set = mutableOrderedScatterSetOf("Hello", "World", "Hola", "Mundo")
         assertEquals(4, set.size)
         assertTrue("Hello" in set)
         assertTrue("World" in set)
@@ -834,7 +1042,7 @@ class ScatterSetTest {
 
     @Test
     fun removeIf() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set.add("Hello")
         set.add("Bonjour")
         set.add("Hallo")
@@ -853,7 +1061,7 @@ class ScatterSetTest {
 
     @Test
     fun insertOneRemoveOne() {
-        val set = MutableScatterSet<Int>()
+        val set = MutableOrderedScatterSet<Int>()
 
         for (i in 0..1000000) {
             set.add(i)
@@ -864,45 +1072,45 @@ class ScatterSetTest {
 
     @Test
     fun insertManyRemoveMany() {
-        val map = MutableScatterMap<Int, String>()
+        val map = MutableOrderedScatterSet<String>()
 
         for (i in 0..100) {
-            map[i] = i.toString()
+            map.add(i.toString())
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map.remove(i)
+                map.remove(i.toString())
             }
         }
 
         for (i in 0..100) {
             if (i % 2 == 0) {
-                map[i] = i.toString()
+                map.add(i.toString())
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map.remove(i)
+                map.remove(i.toString())
             }
         }
 
         for (i in 0..100) {
             if (i % 2 != 0) {
-                map[i] = i.toString()
+                map.add(i.toString())
             }
         }
 
         assertEquals(127, map.capacity)
         for (i in 0..100) {
-            assertTrue(map.contains(i), "Map should contain element $i")
+            assertTrue(map.contains(i.toString()), "Map should contain element $i")
         }
     }
 
     @Test
     fun removeWhenIterating() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set.add("Hello")
         set.add("Bonjour")
         set.add("Hallo")
@@ -921,7 +1129,7 @@ class ScatterSetTest {
 
     @Test
     fun removeWhenForEach() {
-        val set = MutableScatterSet<String>()
+        val set = MutableOrderedScatterSet<String>()
         set.add("Hello")
         set.add("Bonjour")
         set.add("Hallo")
@@ -932,5 +1140,131 @@ class ScatterSetTest {
         set.forEach { element -> set.remove(element) }
 
         assertEquals(0, set.size)
+    }
+
+    @Test
+    fun removeWhenForEachReverse() {
+        val set = MutableOrderedScatterSet<String>()
+        set.add("Hello")
+        set.add("Bonjour")
+        set.add("Hallo")
+        set.add("Konnichiwa")
+        set.add("Ciao")
+        set.add("Annyeong")
+
+        set.forEachReverse { element -> set.remove(element) }
+
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun retainAllCollection() {
+        val set = mutableOrderedScatterSetOf<String>()
+
+        set.retainAll(listOf())
+        assertTrue(set.isEmpty())
+
+        set.retainAll(listOf("Monde", "Hallo", "Welt", "Konnichiwa"))
+        assertTrue(set.isEmpty())
+
+        set +=
+            listOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+                "Welt",
+                "Konnichiwa",
+                "Sekai",
+                "Ciao",
+                "Mondo",
+                "Annyeong",
+                "Sesang"
+            )
+
+        val content = listOf("Monde", "Hallo", "Sekai", "Ciao")
+        set.retainAll(content)
+        assertContentEquals(content, set.toList())
+
+        set.retainAll(listOf())
+        assertTrue(set.isEmpty())
+        set.forEach { fail() }
+    }
+
+    @Test
+    fun retainAllSet() {
+        val set = mutableOrderedScatterSetOf<String>()
+
+        set.retainAll(listOf())
+        assertTrue(set.isEmpty())
+
+        set.retainAll(orderedScatterSetOf("Monde", "Hallo", "Welt", "Konnichiwa"))
+        assertTrue(set.isEmpty())
+
+        set +=
+            listOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+                "Welt",
+                "Konnichiwa",
+                "Sekai",
+                "Ciao",
+                "Mondo",
+                "Annyeong",
+                "Sesang"
+            )
+
+        val content = orderedScatterSetOf("Monde", "Hallo", "Sekai", "Ciao")
+        set.retainAll(content)
+        assertContentEquals(content.toList(), set.toList())
+
+        set.retainAll(listOf())
+        assertTrue(set.isEmpty())
+        set.forEach { fail() }
+    }
+
+    @Test
+    fun retainAllPredicate() {
+        val set = mutableOrderedScatterSetOf<String>()
+
+        set.retainAll { false }
+        assertTrue(set.isEmpty())
+
+        set.retainAll { true }
+        assertTrue(set.isEmpty())
+
+        set +=
+            listOf(
+                "Hello",
+                "World",
+                "Hola",
+                "Mundo",
+                "Bonjour",
+                "Monde",
+                "Hallo",
+                "Welt",
+                "Konnichiwa",
+                "Sekai",
+                "Ciao",
+                "Mondo",
+                "Annyeong",
+                "Sesang"
+            )
+
+        val content = listOf("World", "Welt")
+        set.retainAll { it.startsWith('W') }
+        assertContentEquals(content.toList(), set.toList())
+
+        set.retainAll { false }
+        assertTrue(set.isEmpty())
+        set.forEach { fail() }
     }
 }

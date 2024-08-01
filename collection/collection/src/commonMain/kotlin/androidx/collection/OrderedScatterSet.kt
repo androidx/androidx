@@ -33,85 +33,96 @@ import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 
-// This is a copy of ScatterMap, but without values
-
 // Default empty set to avoid allocations
-private val EmptyScatterSet = MutableScatterSet<Any?>(0)
+private val EmptyOrderedScatterSet = MutableOrderedScatterSet<Any?>(0)
 
-/** Returns an empty, read-only [ScatterSet]. */
+/** Returns an empty, read-only [OrderedScatterSet]. */
 @Suppress("UNCHECKED_CAST")
-public fun <E> emptyScatterSet(): ScatterSet<E> = EmptyScatterSet as ScatterSet<E>
+public fun <E> emptyOrderedScatterSet(): OrderedScatterSet<E> =
+    EmptyOrderedScatterSet as OrderedScatterSet<E>
 
-/** Returns an empty, read-only [ScatterSet]. */
+/** Returns an empty, read-only [OrderedScatterSet]. */
 @Suppress("UNCHECKED_CAST")
-public fun <E> scatterSetOf(): ScatterSet<E> = EmptyScatterSet as ScatterSet<E>
+public fun <E> orderedScatterSetOf(): OrderedScatterSet<E> =
+    EmptyOrderedScatterSet as OrderedScatterSet<E>
 
-/** Returns a new read-only [ScatterSet] with only [element1] in it. */
+/** Returns a new read-only [OrderedScatterSet] with only [element1] in it. */
 @Suppress("UNCHECKED_CAST")
-public fun <E> scatterSetOf(element1: E): ScatterSet<E> = mutableScatterSetOf(element1)
+public fun <E> orderedScatterSetOf(element1: E): OrderedScatterSet<E> =
+    mutableOrderedScatterSetOf(element1)
 
-/** Returns a new read-only [ScatterSet] with only [element1] and [element2] in it. */
+/** Returns a new read-only [OrderedScatterSet] with only [element1] and [element2] in it. */
 @Suppress("UNCHECKED_CAST")
-public fun <E> scatterSetOf(element1: E, element2: E): ScatterSet<E> =
-    mutableScatterSetOf(element1, element2)
+public fun <E> orderedScatterSetOf(element1: E, element2: E): OrderedScatterSet<E> =
+    mutableOrderedScatterSetOf(element1, element2)
 
-/** Returns a new read-only [ScatterSet] with only [element1], [element2], and [element3] in it. */
+/**
+ * Returns a new read-only [OrderedScatterSet] with only [element1], [element2], and [element3] in
+ * it.
+ */
 @Suppress("UNCHECKED_CAST")
-public fun <E> scatterSetOf(element1: E, element2: E, element3: E): ScatterSet<E> =
-    mutableScatterSetOf(element1, element2, element3)
+public fun <E> orderedScatterSetOf(element1: E, element2: E, element3: E): OrderedScatterSet<E> =
+    mutableOrderedScatterSetOf(element1, element2, element3)
 
-/** Returns a new read-only [ScatterSet] with only [elements] in it. */
+/** Returns a new read-only [OrderedScatterSet] with only [elements] in it. */
 @Suppress("UNCHECKED_CAST")
-public fun <E> scatterSetOf(vararg elements: E): ScatterSet<E> =
-    MutableScatterSet<E>(elements.size).apply { plusAssign(elements) }
+public fun <E> orderedScatterSetOf(vararg elements: E): OrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(elements.size).apply { plusAssign(elements) }
 
-/** Returns a new [MutableScatterSet]. */
-public fun <E> mutableScatterSetOf(): MutableScatterSet<E> = MutableScatterSet()
+/** Returns a new [MutableOrderedScatterSet]. */
+public fun <E> mutableOrderedScatterSetOf(): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet()
 
-/** Returns a new [MutableScatterSet] with only [element1] in it. */
-public fun <E> mutableScatterSetOf(element1: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(1).apply { plusAssign(element1) }
+/** Returns a new [MutableOrderedScatterSet] with only [element1] in it. */
+public fun <E> mutableOrderedScatterSetOf(element1: E): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(1).apply { plusAssign(element1) }
 
-/** Returns a new [MutableScatterSet] with only [element1] and [element2] in it. */
-public fun <E> mutableScatterSetOf(element1: E, element2: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(2).apply {
+/** Returns a new [MutableOrderedScatterSet] with only [element1] and [element2] in it. */
+public fun <E> mutableOrderedScatterSetOf(element1: E, element2: E): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(2).apply {
         plusAssign(element1)
         plusAssign(element2)
     }
 
-/** Returns a new [MutableScatterSet] with only [element1], [element2], and [element3] in it. */
-public fun <E> mutableScatterSetOf(element1: E, element2: E, element3: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(3).apply {
+/**
+ * Returns a new [MutableOrderedScatterSet] with only [element1], [element2], and [element3] in it.
+ */
+public fun <E> mutableOrderedScatterSetOf(
+    element1: E,
+    element2: E,
+    element3: E
+): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(3).apply {
         plusAssign(element1)
         plusAssign(element2)
         plusAssign(element3)
     }
 
-/** Returns a new [MutableScatterSet] with the specified contents. */
-public fun <E> mutableScatterSetOf(vararg elements: E): MutableScatterSet<E> =
-    MutableScatterSet<E>(elements.size).apply { plusAssign(elements) }
+/** Returns a new [MutableOrderedScatterSet] with the specified contents. */
+public fun <E> mutableOrderedScatterSetOf(vararg elements: E): MutableOrderedScatterSet<E> =
+    MutableOrderedScatterSet<E>(elements.size).apply { plusAssign(elements) }
 
 /**
- * [ScatterSet] is a container with a [Set]-like interface based on a flat hash table
- * implementation. The underlying implementation is designed to avoid all allocations on insertion,
- * removal, retrieval, and iteration. Allocations may still happen on insertion when the underlying
- * storage needs to grow to accommodate newly added elements to the set.
+ * [OrderedScatterSet] is a container with a [Set]-like interface based on a flat hash table
+ * implementation that preserves the insertion order for iteration. The underlying implementation is
+ * designed to avoid all allocations on insertion, removal, retrieval, and iteration. Allocations
+ * may still happen on insertion when the underlying storage needs to grow to accommodate newly
+ * added elements to the set.
  *
- * This implementation makes no guarantee as to the order of the elements, nor does it make
- * guarantees that the order remains constant over time. If the order of the elements must be
- * preserved, please refer to [OrderedScatterSet].
+ * This implementation guarantees the order of the elements when iterating over them using [forEach]
+ * or the iterator provided by [asSet].
  *
- * Though [ScatterSet] offers a read-only interface, it is always backed by a [MutableScatterSet].
- * Read operations alone are thread-safe. However, any mutations done through the backing
- * [MutableScatterSet] while reading on another thread are not safe and the developer must protect
- * the set from such changes during read operations.
+ * Though [OrderedScatterSet] offers a read-only interface, it is always backed by a
+ * [MutableOrderedScatterSet]. Read operations alone are thread-safe. However, any mutations done
+ * through the backing [MutableScatterSet] while reading on another thread are not safe and the
+ * developer must protect the set from such changes during read operations.
  *
  * **Note**: when a [Set] is absolutely necessary, you can use the method [asSet] to create a thin
- * wrapper around a [ScatterSet]. Please refer to [asSet] for more details and caveats.
+ * wrapper around an [OrderedScatterSet]. Please refer to [asSet] for more details and caveats.
  *
- * @see [MutableScatterSet]
+ * @see [MutableOrderedScatterSet]
  */
-public sealed class ScatterSet<E> {
+public sealed class OrderedScatterSet<E> {
     // NOTE: Our arrays are marked internal to implement inlined forEach{}
     // The backing array for the metadata bytes contains
     // `capacity + 1 + ClonedMetadataCount` elements, including when
@@ -119,6 +130,10 @@ public sealed class ScatterSet<E> {
     @PublishedApi @JvmField internal var metadata: LongArray = EmptyGroup
 
     @PublishedApi @JvmField internal var elements: Array<Any?> = EMPTY_OBJECTS
+
+    @PublishedApi @JvmField internal var nodes: LongArray = EmptyNodes
+    @PublishedApi @JvmField internal var head: Int = NodeInvalidLink
+    @PublishedApi @JvmField internal var tail: Int = NodeInvalidLink
 
     // We use a backing field for capacity to avoid invokevirtual calls
     // every time we need to look at the capacity
@@ -158,30 +173,31 @@ public sealed class ScatterSet<E> {
      *
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): E {
+    public fun first(): E {
         forEach {
             return it
         }
-        throw NoSuchElementException("The ScatterSet is empty")
+        throw NoSuchElementException("The OrderedScatterSet is empty")
     }
 
     /**
-     * Returns the first element in the collection for which [predicate] returns `true`
+     * Returns the first element in insertion order in the collection for which [predicate] returns
+     * `true`.
      *
      * @param predicate called with each element until it returns `true`.
      * @return The element for which [predicate] returns `true`.
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      *   collection is empty.
      */
-    public inline fun first(predicate: (element: E) -> Boolean): E {
+    public fun first(predicate: (element: E) -> Boolean): E {
         contract { callsInPlace(predicate) }
         forEach { if (predicate(it)) return it }
         throw NoSuchElementException("Could not find a match")
     }
 
     /**
-     * Returns the first element in the collection for which [predicate] returns `true` or `null` if
-     * there are no elements that match [predicate].
+     * Returns the first element in insertion order in the collection for which [predicate] returns
+     * `true` or `null` if there are no elements that match [predicate].
      *
      * @param predicate called with each element until it returns `true`.
      * @return The element for which [predicate] returns `true` or `null` if there are no elements
@@ -193,9 +209,62 @@ public sealed class ScatterSet<E> {
         return null
     }
 
+    /**
+     * Returns the last element in the collection.
+     *
+     * @throws NoSuchElementException if the collection is empty
+     */
+    public fun last(): E {
+        forEachReverse {
+            return it
+        }
+        throw NoSuchElementException("The OrderedScatterSet is empty")
+    }
+
+    /**
+     * Returns the last element in insertion order in the collection for which [predicate] returns
+     * `true`.
+     *
+     * @param predicate called with each element until it returns `true`.
+     * @return The element for which [predicate] returns `true`.
+     * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
+     *   collection is empty.
+     */
+    public fun last(predicate: (element: E) -> Boolean): E {
+        contract { callsInPlace(predicate) }
+        forEachReverse { if (predicate(it)) return it }
+        throw NoSuchElementException("Could not find a match")
+    }
+
+    /**
+     * Returns the first element in insertion order in the collection for which [predicate] returns
+     * `true` or `null` if there are no elements that match [predicate].
+     *
+     * @param predicate called with each element until it returns `true`.
+     * @return The element for which [predicate] returns `true` or `null` if there are no elements
+     *   in the set or [predicate] returned `false` for every element in the set.
+     */
+    public inline fun lastOrNull(predicate: (element: E) -> Boolean): E? {
+        contract { callsInPlace(predicate) }
+        forEachReverse { if (predicate(it)) return it }
+        return null
+    }
+
+    internal inline fun forEachIndex(block: (index: Int) -> Unit) {
+        contract { callsInPlace(block) }
+        val nodes = nodes
+
+        var candidate = tail
+        while (candidate != NodeInvalidLink) {
+            val previousNode = nodes[candidate].previousNode
+            @Suppress("UNCHECKED_CAST") block(candidate)
+            candidate = previousNode
+        }
+    }
+
     /** Iterates over every element stored in this set by invoking the specified [block] lambda. */
     @PublishedApi
-    internal inline fun forEachIndex(block: (index: Int) -> Unit) {
+    internal inline fun unorderedForEachIndex(block: (index: Int) -> Unit) {
         contract { callsInPlace(block) }
         val m = metadata
         val lastIndex = m.size - 2 // We always have 0 or at least 2 elements
@@ -221,39 +290,89 @@ public sealed class ScatterSet<E> {
     }
 
     /**
-     * Iterates over every element stored in this set by invoking the specified [block] lambda. It
-     * is safe to remove the element passed to [block] during iteration.
+     * Iterates over every element stored in this set by invoking the specified [block] lambda. The
+     * iteration order is the same as the insertion order. It is safe to remove the element passed
+     * to [block] during iteration.
      *
      * @param block called with each element in the set
      */
     public inline fun forEach(block: (element: E) -> Unit) {
         contract { callsInPlace(block) }
         val elements = elements
-        forEachIndex { index -> @Suppress("UNCHECKED_CAST") block(elements[index] as E) }
+        val nodes = nodes
+
+        var candidate = tail
+        while (candidate != NodeInvalidLink) {
+            val previousNode = nodes[candidate].previousNode
+            @Suppress("UNCHECKED_CAST") block(elements[candidate] as E)
+            candidate = previousNode
+        }
+    }
+
+    /**
+     * Iterates over every element stored in this set by invoking the specified [block] lambda. The
+     * iteration order is the reverse of the insertion order. It is safe to remove the element
+     * passed to [block] during iteration.
+     *
+     * @param block called with each element in the set
+     */
+    public inline fun forEachReverse(block: (element: E) -> Unit) {
+        contract { callsInPlace(block) }
+        val elements = elements
+        val nodes = nodes
+
+        var candidate = head
+        while (candidate != NodeInvalidLink) {
+            val nextNode = nodes[candidate].nextNode
+            @Suppress("UNCHECKED_CAST") block(elements[candidate] as E)
+            candidate = nextNode
+        }
+    }
+
+    /**
+     * Iterates over every element stored in this set by invoking the specified [block] lambda. The
+     * elements are iterated in arbitrary order.
+     *
+     * @param block called with each element in the set
+     */
+    @PublishedApi
+    internal inline fun unorderedForEach(block: (element: E) -> Unit) {
+        contract { callsInPlace(block) }
+        val elements = elements
+        unorderedForEachIndex { index -> @Suppress("UNCHECKED_CAST") block(elements[index] as E) }
+    }
+
+    /** Returns a new list containing this set's entries, in insertion order. */
+    public inline fun toList(): List<E> {
+        return ArrayList<E>(size).apply {
+            this@OrderedScatterSet.forEach { element -> add(element) }
+        }
     }
 
     /**
      * Returns true if all elements match the given [predicate]. If there are no elements in the
-     * set, `true` is returned.
+     * set, `true` is returned. The order in which the predicate is called over the elements is
+     * arbitrary.
      *
      * @param predicate called for elements in the set to determine if it returns return `true` for
      *   all elements.
      */
     public inline fun all(predicate: (element: E) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element -> if (!predicate(element)) return false }
+        unorderedForEach { element -> if (!predicate(element)) return false }
         return true
     }
 
     /**
-     * Returns true if at least one element matches the given [predicate].
+     * Returns true if at least one element matches the given [predicate]. The order in which the
+     * predicate is called over the elements is arbitrary.
      *
      * @param predicate called for elements in the set to determine if it returns `true` for any
      *   elements.
      */
     public inline fun any(predicate: (element: E) -> Boolean): Boolean {
         contract { callsInPlace(predicate) }
-        forEach { element -> if (predicate(element)) return true }
+        unorderedForEach { element -> if (predicate(element)) return true }
         return false
     }
 
@@ -261,7 +380,8 @@ public sealed class ScatterSet<E> {
     @IntRange(from = 0) public fun count(): Int = size
 
     /**
-     * Returns the number of elements matching the given [predicate].
+     * Returns the number of elements matching the given [predicate].The order in which the
+     * predicate is called over the elements is arbitrary.
      *
      * @param predicate Called for all elements in the set to count the number for which it returns
      *   `true`.
@@ -270,7 +390,7 @@ public sealed class ScatterSet<E> {
     public inline fun count(predicate: (element: E) -> Boolean): Int {
         contract { callsInPlace(predicate) }
         var count = 0
-        forEach { element -> if (predicate(element)) count++ }
+        unorderedForEach { element -> if (predicate(element)) count++ }
         return count
     }
 
@@ -302,7 +422,7 @@ public sealed class ScatterSet<E> {
     ): String = buildString {
         append(prefix)
         var index = 0
-        this@ScatterSet.forEach { element ->
+        this@OrderedScatterSet.forEach { element ->
             if (index == limit) {
                 append(truncated)
                 return@buildString
@@ -329,7 +449,7 @@ public sealed class ScatterSet<E> {
         var hash = _capacity
         hash = 31 * hash + _size
 
-        forEach { element ->
+        unorderedForEach { element ->
             if (element != this) {
                 hash += element.hashCode()
             }
@@ -341,7 +461,7 @@ public sealed class ScatterSet<E> {
     /**
      * Compares the specified object [other] with this hash set for equality. The two objects are
      * considered equal if [other]:
-     * - Is a [ScatterSet]
+     * - Is a [OrderedScatterSet]
      * - Has the same [size] as this set
      * - Contains elements equal to this set's elements
      */
@@ -350,16 +470,16 @@ public sealed class ScatterSet<E> {
             return true
         }
 
-        if (other !is ScatterSet<*>) {
+        if (other !is OrderedScatterSet<*>) {
             return false
         }
         if (other.size != size) {
             return false
         }
 
-        @Suppress("UNCHECKED_CAST") val o = other as ScatterSet<Any?>
+        @Suppress("UNCHECKED_CAST") val o = other as OrderedScatterSet<Any?>
 
-        forEach { element ->
+        unorderedForEach { element ->
             if (element !in o) {
                 return false
             }
@@ -415,24 +535,26 @@ public sealed class ScatterSet<E> {
     }
 
     /**
-     * Wraps this [ScatterSet] with a [Set] interface. The [Set] is backed by the [ScatterSet], so
-     * changes to the [ScatterSet] are reflected in the [Set]. If the [ScatterSet] is modified while
-     * an iteration over the [Set] is in progress, the results of the iteration are undefined.
+     * Wraps this [OrderedScatterSet] with a [Set] interface. The [Set] is backed by the
+     * [OrderedScatterSet], so changes to the [OrderedScatterSet] are reflected in the [Set]. If the
+     * [OrderedScatterSet] is modified while an iteration over the [Set] is in progress, the results
+     * of the iteration are undefined.
      *
-     * **Note**: while this method is useful to use this [ScatterSet] with APIs accepting [Set]
-     * interfaces, it is less efficient to do so than to use [ScatterSet]'s APIs directly. While the
-     * [Set] implementation returned by this method tries to be as efficient as possible, the
-     * semantics of [Set] may require the allocation of temporary objects for access and iteration.
+     * **Note**: while this method is useful to use this [OrderedScatterSet] with APIs accepting
+     * [Set] interfaces, it is less efficient to do so than to use [OrderedScatterSet]'s APIs
+     * directly. While the [Set] implementation returned by this method tries to be as efficient as
+     * possible, the semantics of [Set] may require the allocation of temporary objects for access
+     * and iteration.
      */
     public fun asSet(): Set<E> = SetWrapper()
 
     internal open inner class SetWrapper : Set<E> {
         override val size: Int
-            get() = this@ScatterSet._size
+            get() = this@OrderedScatterSet._size
 
         override fun containsAll(elements: Collection<E>): Boolean {
             elements.forEach { element ->
-                if (!this@ScatterSet.contains(element)) {
+                if (!this@OrderedScatterSet.contains(element)) {
                     return false
                 }
             }
@@ -441,44 +563,47 @@ public sealed class ScatterSet<E> {
 
         @Suppress("KotlinOperator")
         override fun contains(element: E): Boolean {
-            return this@ScatterSet.contains(element)
+            return this@OrderedScatterSet.contains(element)
         }
 
-        override fun isEmpty(): Boolean = this@ScatterSet.isEmpty()
+        override fun isEmpty(): Boolean = this@OrderedScatterSet.isEmpty()
 
         override fun iterator(): Iterator<E> {
-            return iterator { this@ScatterSet.forEach { element -> yield(element) } }
+            return iterator { this@OrderedScatterSet.forEach { element -> yield(element) } }
         }
     }
 }
 
 /**
- * [MutableScatterSet] is a container with a [MutableSet]-like interface based on a flat hash table
- * implementation. The underlying implementation is designed to avoid all allocations on insertion,
- * removal, retrieval, and iteration. Allocations may still happen on insertion when the underlying
- * storage needs to grow to accommodate newly added elements to the set.
+ * [MutableOrderedScatterSet] is a container with a [MutableSet]-like interface based on a flat hash
+ * table implementation that preserves the insertion order for iteration. The underlying
+ * implementation is designed to avoid all allocations on insertion, removal, retrieval, and
+ * iteration. Allocations may still happen on insertion when the underlying storage needs to grow to
+ * accommodate newly added elements to the set.
  *
- * This implementation makes no guarantee as to the order of the elements stored, nor does it make
- * guarantees that the order remains constant over time.
+ * This implementation guarantees the order of the elements when iterating over them using [forEach]
+ * or the iterator provided by [asMutableSet].
  *
  * This implementation is not thread-safe: if multiple threads access this container concurrently,
  * and one or more threads modify the structure of the set (insertion or removal for instance), the
  * calling code must provide the appropriate synchronization. Concurrent reads are however safe.
  *
  * **Note**: when a [Set] is absolutely necessary, you can use the method [asSet] to create a thin
- * wrapper around a [MutableScatterSet]. Please refer to [asSet] for more details and caveats.
+ * wrapper around a [MutableOrderedScatterSet]. Please refer to [asSet] for more details and
+ * caveats.
  *
  * **Note**: when a [MutableSet] is absolutely necessary, you can use the method [asMutableSet] to
- * create a thin wrapper around a [MutableScatterSet]. Please refer to [asMutableSet] for more
- * details and caveats.
+ * create a thin wrapper around a [MutableOrderedScatterSet]. Please refer to [asMutableSet] for
+ * more details and caveats.
  *
  * @param initialCapacity The initial desired capacity for this container. the container will honor
  *   this value by guaranteeing its internal structures can hold that many elements without
  *   requiring any allocations. The initial capacity can be set to 0.
- * @constructor Creates a new [MutableScatterSet]
+ * @constructor Creates a new [MutableOrderedScatterSet]
  * @see Set
  */
-public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity) : ScatterSet<E>() {
+public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity) :
+    OrderedScatterSet<E>() {
     // Number of elements we can add before we need to grow
     private var growthLimit = 0
 
@@ -499,6 +624,8 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
         _capacity = newCapacity
         initializeMetadata(newCapacity)
         elements = if (newCapacity == 0) EMPTY_OBJECTS else arrayOfNulls(newCapacity)
+        nodes =
+            if (newCapacity == 0) EmptyNodes else LongArray(newCapacity).apply { fill(EmptyNode) }
     }
 
     private fun initializeMetadata(capacity: Int) {
@@ -529,6 +656,7 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
         val oldSize = size
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
+        moveNodeToHead(index)
         return size != oldSize
     }
 
@@ -540,6 +668,7 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     public operator fun plusAssign(element: E) {
         val index = findAbsoluteInsertIndex(element)
         elements[index] = element
+        moveNodeToHead(index)
     }
 
     /**
@@ -584,11 +713,11 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Adds all the elements in the [elements] set into this set.
      *
-     * @param elements A [ScatterSet] whose elements are to be added to the set
+     * @param elements A [OrderedScatterSet] whose elements are to be added to the set
      * @return `true` if any of the specified elements were added to the collection, `false` if the
      *   collection was not modified.
      */
-    public fun addAll(elements: ScatterSet<E>): Boolean {
+    public fun addAll(elements: OrderedScatterSet<E>): Boolean {
         val oldSize = size
         plusAssign(elements)
         return oldSize != size
@@ -597,11 +726,11 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Adds all the elements in the [elements] set into this set.
      *
-     * @param elements A [OrderedScatterSet] whose elements are to be added to the set
+     * @param elements A [ScatterSet] whose elements are to be added to the set
      * @return `true` if any of the specified elements were added to the collection, `false` if the
      *   collection was not modified.
      */
-    public fun addAll(elements: OrderedScatterSet<E>): Boolean {
+    public fun addAll(elements: ScatterSet<E>): Boolean {
         val oldSize = size
         plusAssign(elements)
         return oldSize != size
@@ -650,18 +779,18 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Adds all the elements in the [elements] set into this set.
      *
-     * @param elements A [ScatterSet] whose elements are to be added to the set
+     * @param elements A [OrderedScatterSet] whose elements are to be added to the set
      */
-    public operator fun plusAssign(elements: ScatterSet<E>) {
+    public operator fun plusAssign(elements: OrderedScatterSet<E>) {
         elements.forEach { element -> plusAssign(element) }
     }
 
     /**
      * Adds all the elements in the [elements] set into this set.
      *
-     * @param elements A [OrderedScatterSet] whose elements are to be added to the set
+     * @param elements A [ScatterSet] whose elements are to be added to the set
      */
-    public operator fun plusAssign(elements: OrderedScatterSet<E>) {
+    public operator fun plusAssign(elements: ScatterSet<E>) {
         elements.forEach { element -> plusAssign(element) }
     }
 
@@ -741,10 +870,10 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A [ScatterSet] whose elements should be removed from the set.
+     * @param elements A [OrderedScatterSet] whose elements should be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public fun removeAll(elements: ScatterSet<E>): Boolean {
+    public fun removeAll(elements: OrderedScatterSet<E>): Boolean {
         val oldSize = size
         minusAssign(elements)
         return oldSize != size
@@ -753,10 +882,10 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A [OrderedScatterSet] whose elements should be removed from the set.
+     * @param elements A [ScatterSet] whose elements should be removed from the set.
      * @return `true` if the set was changed or `false` if none of the elements were present.
      */
-    public fun removeAll(elements: OrderedScatterSet<E>): Boolean {
+    public fun removeAll(elements: ScatterSet<E>): Boolean {
         val oldSize = size
         minusAssign(elements)
         return oldSize != size
@@ -804,18 +933,18 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A [ScatterSet] whose elements should be removed from the set.
+     * @param elements A [OrderedScatterSet] whose elements should be removed from the set.
      */
-    public operator fun minusAssign(elements: ScatterSet<E>) {
+    public operator fun minusAssign(elements: OrderedScatterSet<E>) {
         elements.forEach { element -> minusAssign(element) }
     }
 
     /**
      * Removes the specified [elements] from the set, if present.
      *
-     * @param elements A [OrderedScatterSet] whose elements should be removed from the set.
+     * @param elements A [ScatterSet] whose elements should be removed from the set.
      */
-    public operator fun minusAssign(elements: OrderedScatterSet<E>) {
+    public operator fun minusAssign(elements: ScatterSet<E>) {
         elements.forEach { element -> minusAssign(element) }
     }
 
@@ -831,7 +960,7 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     /** Removes any values for which the specified [predicate] returns true. */
     public inline fun removeIf(predicate: (E) -> Boolean) {
         val elements = elements
-        forEachIndex { index ->
+        unorderedForEachIndex { index ->
             @Suppress("UNCHECKED_CAST")
             if (predicate(elements[index] as E)) {
                 removeElementAt(index)
@@ -848,26 +977,8 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     public fun retainAll(elements: Collection<E>): Boolean {
         val internalElements = this.elements
         val startSize = _size
-        forEachIndex { index ->
+        unorderedForEachIndex { index ->
             if (internalElements[index] !in elements) {
-                removeElementAt(index)
-            }
-        }
-        return startSize != _size
-    }
-
-    /**
-     * Removes all the entries in this set that are not contained in [elements].
-     *
-     * @params elements A set of elements to preserve in this set.
-     * @return `true` if this set was modified, `false` otherwise.
-     */
-    public fun retainAll(elements: ScatterSet<E>): Boolean {
-        val internalElements = this.elements
-        val startSize = _size
-        forEachIndex { index ->
-            @Suppress("UNCHECKED_CAST")
-            if (internalElements[index] as E !in elements) {
                 removeElementAt(index)
             }
         }
@@ -883,7 +994,25 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     public fun retainAll(elements: OrderedScatterSet<E>): Boolean {
         val internalElements = this.elements
         val startSize = _size
-        forEachIndex { index ->
+        unorderedForEachIndex { index ->
+            @Suppress("UNCHECKED_CAST")
+            if (internalElements[index] as E !in elements) {
+                removeElementAt(index)
+            }
+        }
+        return startSize != _size
+    }
+
+    /**
+     * Removes all the entries in this set that are not contained in [elements].
+     *
+     * @params elements A set of elements to preserve in this set.
+     * @return `true` if this set was modified, `false` otherwise.
+     */
+    public fun retainAll(elements: ScatterSet<E>): Boolean {
+        val internalElements = this.elements
+        val startSize = _size
+        unorderedForEachIndex { index ->
             @Suppress("UNCHECKED_CAST")
             if (internalElements[index] as E !in elements) {
                 removeElementAt(index)
@@ -903,7 +1032,7 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     public fun retainAll(predicate: (E) -> Boolean): Boolean {
         val elements = elements
         val startSize = _size
-        forEachIndex { index ->
+        unorderedForEachIndex { index ->
             @Suppress("UNCHECKED_CAST")
             if (!predicate(elements[index] as E)) {
                 removeElementAt(index)
@@ -920,6 +1049,42 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
         //       window around this element that was already empty
         writeMetadata(metadata, _capacity, index, Deleted)
         elements[index] = null
+
+        removeNode(index)
+    }
+
+    private inline fun moveNodeToHead(index: Int) {
+        nodes[index] = createLinkToNext(head)
+
+        if (head != NodeInvalidLink) {
+            nodes[head] = setLinkToPrevious(nodes[head], index)
+        }
+        head = index
+
+        if (tail == NodeInvalidLink) {
+            tail = index
+        }
+    }
+
+    private inline fun removeNode(index: Int) {
+        val nodes = nodes
+        val node = nodes[index]
+        val previousIndex = node.previousNode
+        val nextIndex = node.nextNode
+
+        if (previousIndex != NodeInvalidLink) {
+            nodes[previousIndex] = setLinkToNext(nodes[previousIndex], nextIndex)
+        } else {
+            head = nextIndex
+        }
+
+        if (nextIndex != NodeInvalidLink) {
+            nodes[nextIndex] = setLinkToPrevious(nodes[nextIndex], previousIndex)
+        } else {
+            tail = previousIndex
+        }
+
+        nodes[index] = EmptyNode
     }
 
     /** Removes all elements from this set. */
@@ -930,6 +1095,9 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
             writeRawMetadata(metadata, _capacity, Sentinel)
         }
         elements.fill(null, 0, _capacity)
+        nodes.fill(EmptyNode)
+        head = NodeInvalidLink
+        tail = NodeInvalidLink
         initializeGrowth()
     }
 
@@ -1000,8 +1168,8 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     }
 
     /**
-     * Trims this [MutableScatterSet]'s storage so it is sized appropriately to hold the current
-     * elements.
+     * Trims this [MutableOrderedScatterSet]'s storage so it is sized appropriately to hold the
+     * current elements.
      *
      * Returns the number of empty elements removed from this set's storage. Returns 0 if no
      * trimming is necessary or possible.
@@ -1015,6 +1183,21 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
             return previousCapacity - _capacity
         }
         return 0
+    }
+
+    /**
+     * Remove entries until the total size of the remaining entries is less than or equal to
+     * [maxSize]. Entries added last are removed first. Calling this method has no effect if
+     * [maxSize] is greater than [size].
+     */
+    public fun trimToSize(maxSize: Int) {
+        val nodes = nodes
+        var candidate = head
+        while (candidate != NodeInvalidLink && _size > maxSize && _size != 0) {
+            val nextNode = nodes[candidate].nextNode
+            removeElementAt(candidate)
+            candidate = nextNode
+        }
     }
 
     /**
@@ -1034,8 +1217,15 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
     // Internal to prevent inlining
     internal fun dropDeletes() {
         val metadata = metadata
+        // TODO: This shouldn't be required, but without it the compiler generates an extra
+        //       200+ aarch64 instructions to generate a NullPointerException.
+        @Suppress("SENSELESS_COMPARISON") if (metadata == null) return
+
         val capacity = _capacity
         val elements = elements
+        val nodes = nodes
+
+        val indexMapping = IntArray(capacity)
 
         // Converts Sentinel and Deleted to Empty, and Full to Deleted
         convertMetadataForCleanup(metadata, capacity)
@@ -1075,9 +1265,10 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
                 val hash2 = h2(hash)
                 writeRawMetadata(metadata, index, hash2.toLong())
 
+                indexMapping[index] = index
+
                 // Copies the metadata into the clone area
-                metadata[metadata.lastIndex] =
-                    (Empty shl 56) or (metadata[0] and 0x00ffffff_ffffffffL)
+                metadata[metadata.size - 1] = metadata[0]
 
                 index++
                 continue
@@ -1092,6 +1283,11 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
 
                 elements[targetIndex] = elements[index]
                 elements[index] = null
+
+                nodes[targetIndex] = nodes[index]
+                nodes[index] = EmptyNode
+
+                indexMapping[index] = targetIndex
 
                 swapIndex = index
             } else /* m == Deleted */ {
@@ -1108,73 +1304,104 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
                 elements[targetIndex] = elements[index]
                 elements[index] = elements[swapIndex]
 
+                nodes[swapIndex] = nodes[targetIndex]
+                nodes[targetIndex] = nodes[index]
+                nodes[index] = nodes[swapIndex]
+
+                indexMapping[index] = targetIndex
+                indexMapping[targetIndex] = index
+
                 // Since we exchanged two slots we must repeat the process with
                 // element we just moved in the current location
                 index--
             }
 
             // Copies the metadata into the clone area
-            metadata[metadata.lastIndex] = (Empty shl 56) or (metadata[0] and 0x00ffffff_ffffffffL)
+            metadata[metadata.size - 1] = metadata[0]
 
             index++
         }
 
         initializeGrowth()
+
+        fixupNodes(indexMapping)
     }
 
     // Internal to prevent inlining
     internal fun resizeStorage(newCapacity: Int) {
         val previousMetadata = metadata
         val previousElements = elements
+        val previousNodes = nodes
         val previousCapacity = _capacity
+
+        val indexMapping = IntArray(previousCapacity)
 
         initializeStorage(newCapacity)
 
         val newMetadata = metadata
         val newElements = elements
+        val newNodes = nodes
         val capacity = _capacity
 
         for (i in 0 until previousCapacity) {
             if (isFull(previousMetadata, i)) {
-                val previousElement = previousElements[i]
-                val hash = hash(previousElement)
+                val previousKey = previousElements[i]
+                val hash = hash(previousKey)
                 val index = findFirstAvailableSlot(h1(hash))
 
                 writeMetadata(newMetadata, capacity, index, h2(hash).toLong())
-                newElements[index] = previousElement
+                newElements[index] = previousKey
+                newNodes[index] = previousNodes[i]
+
+                indexMapping[i] = index
             }
         }
+
+        fixupNodes(indexMapping)
+    }
+
+    private fun fixupNodes(mapping: IntArray) {
+        val nodes = nodes
+        for (i in nodes.indices) {
+            val node = nodes[i]
+            val previous = node.previousNode
+            val next = node.nextNode
+            nodes[i] = createLinks(node, previous, next, mapping)
+        }
+        if (head != NodeInvalidLink) head = mapping[head]
+        if (tail != NodeInvalidLink) tail = mapping[tail]
     }
 
     /**
-     * Wraps this [ScatterSet] with a [MutableSet] interface. The [MutableSet] is backed by the
-     * [ScatterSet], so changes to the [ScatterSet] are reflected in the [MutableSet] and
-     * vice-versa. If the [ScatterSet] is modified while an iteration over the [MutableSet] is in
-     * progress (and vice- versa), the results of the iteration are undefined.
+     * Wraps this [OrderedScatterSet] with a [MutableSet] interface. The [MutableSet] is backed by
+     * the [OrderedScatterSet], so changes to the [OrderedScatterSet] are reflected in the
+     * [MutableSet] and vice-versa. If the [OrderedScatterSet] is modified while an iteration over
+     * the [MutableSet] is in progress (and vice- versa), the results of the iteration are
+     * undefined.
      *
-     * **Note**: while this method is useful to use this [MutableScatterSet] with APIs accepting
-     * [MutableSet] interfaces, it is less efficient to do so than to use [MutableScatterSet]'s APIs
-     * directly. While the [MutableSet] implementation returned by this method tries to be as
-     * efficient as possible, the semantics of [MutableSet] may require the allocation of temporary
-     * objects for access and iteration.
+     * **Note**: while this method is useful to use this [MutableOrderedScatterSet] with APIs
+     * accepting [MutableSet] interfaces, it is less efficient to do so than to use
+     * [MutableOrderedScatterSet]'s APIs directly. While the [MutableSet] implementation returned by
+     * this method tries to be as efficient as possible, the semantics of [MutableSet] may require
+     * the allocation of temporary objects for access and iteration.
      */
     public fun asMutableSet(): MutableSet<E> = MutableSetWrapper()
 
     private inner class MutableSetWrapper : SetWrapper(), MutableSet<E> {
-        override fun add(element: E): Boolean = this@MutableScatterSet.add(element)
+        override fun add(element: E): Boolean = this@MutableOrderedScatterSet.add(element)
 
         override fun addAll(elements: Collection<E>): Boolean =
-            this@MutableScatterSet.addAll(elements)
+            this@MutableOrderedScatterSet.addAll(elements)
 
         override fun clear() {
-            this@MutableScatterSet.clear()
+            this@MutableOrderedScatterSet.clear()
         }
 
         override fun iterator(): MutableIterator<E> =
             object : MutableIterator<E> {
                 var current = -1
                 val iterator = iterator {
-                    this@MutableScatterSet.forEachIndex { index ->
+                    this@MutableOrderedScatterSet.forEachIndex { index ->
                         current = index
                         @Suppress("UNCHECKED_CAST") yield(elements[index] as E)
                     }
@@ -1186,18 +1413,18 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
 
                 override fun remove() {
                     if (current != -1) {
-                        this@MutableScatterSet.removeElementAt(current)
+                        this@MutableOrderedScatterSet.removeElementAt(current)
                         current = -1
                     }
                 }
             }
 
-        override fun remove(element: E): Boolean = this@MutableScatterSet.remove(element)
+        override fun remove(element: E): Boolean = this@MutableOrderedScatterSet.remove(element)
 
         override fun retainAll(elements: Collection<E>): Boolean =
-            this@MutableScatterSet.retainAll(elements)
+            this@MutableOrderedScatterSet.retainAll(elements)
 
         override fun removeAll(elements: Collection<E>): Boolean =
-            this@MutableScatterSet.removeAll(elements)
+            this@MutableOrderedScatterSet.removeAll(elements)
     }
 }
