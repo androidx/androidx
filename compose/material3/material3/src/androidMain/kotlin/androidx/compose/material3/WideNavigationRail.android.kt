@@ -127,6 +127,7 @@ internal actual fun ModalWideNavigationRailDialog(
     properties: ModalExpandedNavigationRailProperties,
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
+    predictiveBackState: RailPredictiveBackState,
     content: @Composable () -> Unit
 ) {
     val view = LocalView.current
@@ -147,6 +148,7 @@ internal actual fun ModalWideNavigationRailDialog(
                     dialogId,
                     onPredictiveBack,
                     onPredictiveBackCancelled,
+                    predictiveBackState,
                     darkThemeEnabled,
                 )
                 .apply {
@@ -188,6 +190,8 @@ private class ModalWideNavigationRailDialogLayout(
     private val onDismissRequest: () -> Unit,
     private val onPredictiveBack: (Float) -> Unit,
     private val onPredictiveBackCancelled: () -> Unit,
+    private val predictiveBackState: RailPredictiveBackState,
+    private val layoutDirection: LayoutDirection,
 ) : AbstractComposeView(context), DialogWindowProvider {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
@@ -232,9 +236,11 @@ private class ModalWideNavigationRailDialogLayout(
             backCallback =
                 if (Build.VERSION.SDK_INT >= 34) {
                     Api34Impl.createBackCallback(
-                        onDismissRequest,
-                        onPredictiveBack,
-                        onPredictiveBackCancelled,
+                        onDismissRequest = onDismissRequest,
+                        onPredictiveBack = onPredictiveBack,
+                        onPredictiveBackCancelled = onPredictiveBackCancelled,
+                        predictiveBackState = predictiveBackState,
+                        layoutDirection = layoutDirection
                     )
                 } else {
                     Api33Impl.createBackCallback(onDismissRequest)
@@ -258,13 +264,23 @@ private class ModalWideNavigationRailDialogLayout(
             onDismissRequest: () -> Unit,
             onPredictiveBack: (Float) -> Unit,
             onPredictiveBackCancelled: () -> Unit,
+            predictiveBackState: RailPredictiveBackState,
+            layoutDirection: LayoutDirection
         ) =
             object : OnBackAnimationCallback {
                 override fun onBackStarted(backEvent: BackEvent) {
+                    predictiveBackState.update(
+                        isSwipeEdgeLeft = backEvent.swipeEdge == BackEvent.EDGE_LEFT,
+                        isRtl = layoutDirection == LayoutDirection.Rtl
+                    )
                     onPredictiveBack(PredictiveBack.transform(backEvent.progress))
                 }
 
                 override fun onBackProgressed(backEvent: BackEvent) {
+                    predictiveBackState.update(
+                        isSwipeEdgeLeft = backEvent.swipeEdge == BackEvent.EDGE_LEFT,
+                        isRtl = layoutDirection == LayoutDirection.Rtl
+                    )
                     onPredictiveBack(PredictiveBack.transform(backEvent.progress))
                 }
 
@@ -321,6 +337,7 @@ private class ModalWideNavigationRailDialogWrapper(
     dialogId: UUID,
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
+    predictiveBackState: RailPredictiveBackState,
     darkThemeEnabled: Boolean,
 ) :
     ComponentDialog(
@@ -347,12 +364,14 @@ private class ModalWideNavigationRailDialogWrapper(
         WindowCompat.setDecorFitsSystemWindows(window, false)
         dialogLayout =
             ModalWideNavigationRailDialogLayout(
-                    context,
-                    window,
-                    properties.shouldDismissOnBackPress,
-                    onDismissRequest,
-                    onPredictiveBack,
-                    onPredictiveBackCancelled,
+                    context = context,
+                    window = window,
+                    shouldDismissOnBackPress = properties.shouldDismissOnBackPress,
+                    onDismissRequest = onDismissRequest,
+                    onPredictiveBack = onPredictiveBack,
+                    onPredictiveBackCancelled = onPredictiveBackCancelled,
+                    predictiveBackState = predictiveBackState,
+                    layoutDirection = layoutDirection,
                 )
                 .apply {
                     // Set unique id for AbstractComposeView. This allows state restoration for the

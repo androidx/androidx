@@ -39,5 +39,6 @@ internal actual fun ModalWideNavigationRailDialog(
     properties: ModalExpandedNavigationRailProperties,
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
+    predictiveBackState: RailPredictiveBackState,
     content: @Composable () -> Unit
 ): Unit = implementedInJetBrainsFork()
