@@ -18,8 +18,6 @@ package androidx.kruth
 
 import kotlin.jvm.JvmStatic
 
-typealias CharSubject = Subject<Char>
-
 /**
  * In a fluent assertion chain, an object with which you can do any of the following:
  * - Set an optional message with [withMessage].
@@ -27,22 +25,13 @@ typealias CharSubject = Subject<Char>
  *   [withMessage].
  */
 @Suppress("StaticFinalBuilder") // Cannot be final for binary compatibility.
-open class StandardSubjectBuilder
-internal constructor(
-    metadata: FailureMetadata,
-) : PlatformStandardSubjectBuilder by PlatformStandardSubjectBuilderImpl(metadata) {
-    internal val metadata = metadata
-        get() {
-            checkStatePreconditions()
-            return field
-        }
+expect open class StandardSubjectBuilder internal constructor(metadata: FailureMetadata) {
+    internal val metadata: FailureMetadata
 
     companion object {
         /** Returns a new instance that invokes the given [FailureStrategy] when a check fails. */
         @JvmStatic
-        fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder {
-            return StandardSubjectBuilder(FailureMetadata(failureStrategy = failureStrategy))
-        }
+        fun forCustomFailureStrategy(failureStrategy: FailureStrategy): StandardSubjectBuilder
     }
 
     /**
@@ -50,75 +39,59 @@ internal constructor(
      * this method is called multiple times, the messages will appear in the order that they were
      * specified.
      */
-    fun withMessage(messageToPrepend: String): StandardSubjectBuilder =
-        StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
+    fun withMessage(messageToPrepend: String): StandardSubjectBuilder
 
-    fun <T> that(actual: T?): Subject<T> = Subject(actual = actual, metadata = metadata, null)
+    fun <T> that(actual: T?): Subject<T>
 
     // actual cannot be made nullable due to autoboxing and this overload is necessary to allow
     // StandardSubjectBuilder.that(char) from Java to resolve properly as an Object
     // (otherwise it is source-incompatibly interpreted as Int).
     // See: NumericComparisonTest#testNumericPrimitiveTypes_isNotEqual_shouldFail_charToInt
-    fun that(actual: Char): Subject<Char> = Subject(actual = actual, metadata = metadata, null)
+    fun that(actual: Char): Subject<Char>
 
-    fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T> =
-        ComparableSubject(actual = actual, metadata = metadata)
+    fun <T : Comparable<T>> that(actual: T?): ComparableSubject<T>
 
-    fun <T : Throwable> that(actual: T?): ThrowableSubject<T> =
-        ThrowableSubject(actual = actual, metadata = metadata, "throwable")
+    fun <T : Throwable> that(actual: T?): ThrowableSubject<T>
 
-    fun that(actual: Boolean?): BooleanSubject =
-        BooleanSubject(actual = actual, metadata = metadata)
+    fun that(actual: Boolean?): BooleanSubject
 
-    fun that(actual: Long): LongSubject = LongSubject(actual = actual, metadata = metadata)
+    fun that(actual: Long): LongSubject
 
     // Workaround for https://youtrack.jetbrains.com/issue/KT-645
-    fun <T : Long?> that(actual: T): LongSubject = LongSubject(actual = actual, metadata = metadata)
+    fun <T : Long?> that(actual: T): LongSubject
 
-    fun that(actual: Double?): DoubleSubject = DoubleSubject(actual = actual, metadata = metadata)
+    fun that(actual: Double?): DoubleSubject
 
-    fun that(actual: Float?): FloatSubject = FloatSubject(actual = actual, metadata = metadata)
+    fun that(actual: Float?): FloatSubject
 
-    fun that(actual: Int): IntegerSubject = IntegerSubject(actual = actual, metadata = metadata)
+    fun that(actual: Int): IntegerSubject
 
     // Workaround for https://youtrack.jetbrains.com/issue/KT-645
-    fun <T : Int?> that(actual: T): IntegerSubject =
-        IntegerSubject(actual = actual, metadata = metadata)
+    fun <T : Int?> that(actual: T): IntegerSubject
 
-    fun that(actual: String?): StringSubject = StringSubject(actual = actual, metadata = metadata)
+    fun that(actual: String?): StringSubject
 
-    fun <T> that(actual: Iterable<T>?): IterableSubject<T> =
-        IterableSubject(actual = actual, metadata = metadata)
+    fun <T> that(actual: Iterable<T>?): IterableSubject<T>
 
-    fun <T> that(actual: Array<out T>?): ObjectArraySubject<T> =
-        ObjectArraySubject(actual = actual, metadata = metadata)
+    fun <T> that(actual: Array<out T>?): ObjectArraySubject<T>
 
-    fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject =
-        PrimitiveBooleanArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: BooleanArray?): PrimitiveBooleanArraySubject
 
-    fun that(actual: ShortArray?): PrimitiveShortArraySubject =
-        PrimitiveShortArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: ShortArray?): PrimitiveShortArraySubject
 
-    fun that(actual: IntArray?): PrimitiveIntArraySubject =
-        PrimitiveIntArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: IntArray?): PrimitiveIntArraySubject
 
-    fun that(actual: LongArray?): PrimitiveLongArraySubject =
-        PrimitiveLongArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: LongArray?): PrimitiveLongArraySubject
 
-    fun that(actual: ByteArray?): PrimitiveByteArraySubject =
-        PrimitiveByteArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: ByteArray?): PrimitiveByteArraySubject
 
-    fun that(actual: CharArray?): PrimitiveCharArraySubject =
-        PrimitiveCharArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: CharArray?): PrimitiveCharArraySubject
 
-    fun that(actual: FloatArray?): PrimitiveFloatArraySubject =
-        PrimitiveFloatArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: FloatArray?): PrimitiveFloatArraySubject
 
-    fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject =
-        PrimitiveDoubleArraySubject(actual = actual, metadata = metadata)
+    fun that(actual: DoubleArray?): PrimitiveDoubleArraySubject
 
-    fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V> =
-        MapSubject(actual = actual, metadata = metadata)
+    fun <K, V> that(actual: Map<K, V>?): MapSubject<K, V>
 
     /**
      * Given a factory for some [Subject] class, returns [SimpleSubjectBuilder] whose
@@ -127,8 +100,7 @@ internal constructor(
      */
     fun <T, S : Subject<T>> about(
         subjectFactory: Subject.Factory<S, T>,
-    ): SimpleSubjectBuilder<S, T> =
-        SimpleSubjectBuilder(metadata = metadata, subjectFactory = subjectFactory)
+    ): SimpleSubjectBuilder<S, T>
 
     /**
      * Reports a failure.
@@ -136,16 +108,104 @@ internal constructor(
      * To set a message, first call [withMessage] (or, more commonly, use the shortcut
      * [assertWithMessage].
      */
-    fun fail() {
-        metadata.fail()
-    }
+    fun fail()
 
-    internal open fun checkStatePreconditions() {}
+    internal open fun checkStatePreconditions()
 }
 
-/** Platform-specific additions for [StandardSubjectBuilder]. */
-internal expect interface PlatformStandardSubjectBuilder
+internal fun commonForCustomFailureStrategy(
+    failureStrategy: FailureStrategy
+): StandardSubjectBuilder {
+    return StandardSubjectBuilder(FailureMetadata(failureStrategy = failureStrategy))
+}
 
-internal expect class PlatformStandardSubjectBuilderImpl(
-    metadata: FailureMetadata,
-) : PlatformStandardSubjectBuilder
+internal fun StandardSubjectBuilder.commonWithMessage(
+    messageToPrepend: String
+): StandardSubjectBuilder =
+    StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
+
+internal fun <T> StandardSubjectBuilder.commonThat(actual: T?): Subject<T> =
+    Subject(actual = actual, metadata = metadata, null)
+
+// actual cannot be made nullable due to autoboxing and this overload is necessary to allow
+// StandardSubjectBuilder.that(char) from Java to resolve properly as an Object
+// (otherwise it is source-incompatibly interpreted as Int).
+// See: NumericComparisonTest#testNumericPrimitiveTypes_isNotEqual_shouldFail_charToInt
+internal fun StandardSubjectBuilder.commonThat(actual: Char): Subject<Char> =
+    Subject(actual = actual, metadata = metadata, null)
+
+internal fun <T : Comparable<T>> StandardSubjectBuilder.commonThat(
+    actual: T?
+): ComparableSubject<T> = ComparableSubject(actual = actual, metadata = metadata)
+
+internal fun <T : Throwable> StandardSubjectBuilder.commonThat(actual: T?): ThrowableSubject<T> =
+    ThrowableSubject(actual = actual, metadata = metadata, "throwable")
+
+internal fun StandardSubjectBuilder.commonThat(actual: Boolean?): BooleanSubject =
+    BooleanSubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: Long): LongSubject =
+    LongSubject(actual = actual, metadata = metadata)
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-645
+internal fun <T : Long?> StandardSubjectBuilder.commonThat(actual: T): LongSubject =
+    LongSubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: Double?): DoubleSubject =
+    DoubleSubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: Float?): FloatSubject =
+    FloatSubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: Int): IntegerSubject =
+    IntegerSubject(actual = actual, metadata = metadata)
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-645
+internal fun <T : Int?> StandardSubjectBuilder.commonThat(actual: T): IntegerSubject =
+    IntegerSubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: String?): StringSubject =
+    StringSubject(actual = actual, metadata = metadata)
+
+internal fun <T> StandardSubjectBuilder.commonThat(actual: Iterable<T>?): IterableSubject<T> =
+    IterableSubject(actual = actual, metadata = metadata)
+
+internal fun <T> StandardSubjectBuilder.commonThat(actual: Array<out T>?): ObjectArraySubject<T> =
+    ObjectArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(
+    actual: BooleanArray?
+): PrimitiveBooleanArraySubject = PrimitiveBooleanArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: ShortArray?): PrimitiveShortArraySubject =
+    PrimitiveShortArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: IntArray?): PrimitiveIntArraySubject =
+    PrimitiveIntArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: LongArray?): PrimitiveLongArraySubject =
+    PrimitiveLongArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: ByteArray?): PrimitiveByteArraySubject =
+    PrimitiveByteArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: CharArray?): PrimitiveCharArraySubject =
+    PrimitiveCharArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: FloatArray?): PrimitiveFloatArraySubject =
+    PrimitiveFloatArraySubject(actual = actual, metadata = metadata)
+
+internal fun StandardSubjectBuilder.commonThat(actual: DoubleArray?): PrimitiveDoubleArraySubject =
+    PrimitiveDoubleArraySubject(actual = actual, metadata = metadata)
+
+internal fun <K, V> StandardSubjectBuilder.commonThat(actual: Map<K, V>?): MapSubject<K, V> =
+    MapSubject(actual = actual, metadata = metadata)
+
+internal fun <T, S : Subject<T>> StandardSubjectBuilder.commonAbout(
+    subjectFactory: Subject.Factory<S, T>,
+): SimpleSubjectBuilder<S, T> =
+    SimpleSubjectBuilder(metadata = metadata, subjectFactory = subjectFactory)
+
+internal fun StandardSubjectBuilder.commonFail() {
+    metadata.fail()
+}

@@ -85,12 +85,6 @@ CallbackMethodName: androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback#
     Callback method names must follow the on<Something> style: invokeAssertion
 
 
-DocumentExceptions: androidx.kruth.ExpectFailure#getFailure():
-    Method ExpectFailure.getFailure appears to be throwing java.lang.AssertionError; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-DocumentExceptions: androidx.kruth.ExpectFailure#whenTesting():
-    Method ExpectFailure.whenTesting appears to be throwing androidx.kruth.AssertionErrorWithFacts; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
-
-
 ExecutorRegistration: androidx.kruth.ExpectFailure#expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback):
     Registration methods should have overload that accepts delivery Executor: `expectFailure`
 ExecutorRegistration: androidx.kruth.ExpectFailure.Companion#expectFailure(androidx.kruth.ExpectFailure.StandardSubjectBuilderCallback):
@@ -98,13 +92,13 @@ ExecutorRegistration: androidx.kruth.ExpectFailure.Companion#expectFailure(andro
 
 
 InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
-    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runners.model.Statement in parameter `base` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.kruth.Expect#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
-    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runner.Description in parameter `description` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.kruth.ExpectFailure#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #0:
-    Invalid nullability on parameter `base` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runners.model.Statement in parameter `base` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 InvalidNullabilityOverride: androidx.kruth.ExpectFailure#apply(org.junit.runners.model.Statement, org.junit.runner.Description) parameter #1:
-    Invalid nullability on parameter `description` in method `apply`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
+    Invalid nullability on type org.junit.runner.Description in parameter `description` in method `apply`. Parameter in method override cannot use a non-null type when the corresponding type from the super method is platform-nullness.
 
 
 MissingBuildMethod: androidx.kruth.SimpleSubjectBuilder:

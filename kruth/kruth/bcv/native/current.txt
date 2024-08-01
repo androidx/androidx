@@ -207,7 +207,7 @@ open class <#A: kotlin/Any?> androidx.kruth/IterableSubject : androidx.kruth/Sub
     open fun isNoneOf(kotlin/Any?, kotlin/Any?, kotlin/Array<out kotlin/Any?>...) // androidx.kruth/IterableSubject.isNoneOf|isNoneOf(kotlin.Any?;kotlin.Any?;kotlin.Array<out|kotlin.Any?>...){}[0]
     open fun isNotIn(kotlin.collections/Iterable<*>?) // androidx.kruth/IterableSubject.isNotIn|isNotIn(kotlin.collections.Iterable<*>?){}[0]
 }
-open class <#A: kotlin/Comparable<#A>> androidx.kruth/ComparableSubject : androidx.kruth/PlatformComparableSubject<#A>, androidx.kruth/Subject<#A> { // androidx.kruth/ComparableSubject|null[0]
+open class <#A: kotlin/Comparable<#A>> androidx.kruth/ComparableSubject : androidx.kruth/Subject<#A> { // androidx.kruth/ComparableSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, #A?) // androidx.kruth/ComparableSubject.<init>|<init>(androidx.kruth.FailureMetadata;1:0?){}[0]
     final fun isAtLeast(#A?) // androidx.kruth/ComparableSubject.isAtLeast|isAtLeast(1:0?){}[0]
     final fun isAtMost(#A?) // androidx.kruth/ComparableSubject.isAtMost|isAtMost(1:0?){}[0]
@@ -264,7 +264,7 @@ open class androidx.kruth/LongSubject : androidx.kruth/ComparableSubject<kotlin/
     final fun isWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isWithin|isWithin(kotlin.Long){}[0]
     open fun isEquivalentAccordingToCompareTo(kotlin/Long?) // androidx.kruth/LongSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(kotlin.Long?){}[0]
 }
-open class androidx.kruth/StandardSubjectBuilder : androidx.kruth/PlatformStandardSubjectBuilder { // androidx.kruth/StandardSubjectBuilder|null[0]
+open class androidx.kruth/StandardSubjectBuilder { // androidx.kruth/StandardSubjectBuilder|null[0]
     final fun <#A1: kotlin/Any?, #B1: androidx.kruth/Subject<#A1>> about(androidx.kruth/Subject.Factory<#B1, #A1>): androidx.kruth/SimpleSubjectBuilder<#B1, #A1> // androidx.kruth/StandardSubjectBuilder.about|about(androidx.kruth.Subject.Factory<0:1,0:0>){0§<kotlin.Any?>;1§<androidx.kruth.Subject<0:0>>}[0]
     final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> that(kotlin.collections/Map<#A1, #B1>?): androidx.kruth/MapSubject<#A1, #B1> // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.collections.Map<0:0,0:1>?){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> that(#A1?): androidx.kruth/Subject<#A1> // androidx.kruth/StandardSubjectBuilder.that|that(0:0?){0§<kotlin.Any?>}[0]
@@ -295,7 +295,7 @@ open class androidx.kruth/StandardSubjectBuilder : androidx.kruth/PlatformStanda
         final fun forCustomFailureStrategy(androidx.kruth/FailureStrategy): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.Companion.forCustomFailureStrategy|forCustomFailureStrategy(androidx.kruth.FailureStrategy){}[0]
     }
 }
-open class androidx.kruth/StringSubject : androidx.kruth/ComparableSubject<kotlin/String>, androidx.kruth/PlatformStringSubject { // androidx.kruth/StringSubject|null[0]
+open class androidx.kruth/StringSubject : androidx.kruth/ComparableSubject<kotlin/String> { // androidx.kruth/StringSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, kotlin/String?) // androidx.kruth/StringSubject.<init>|<init>(androidx.kruth.FailureMetadata;kotlin.String?){}[0]
     final fun containsMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.containsMatch|containsMatch(kotlin.text.Regex){}[0]
     final fun doesNotContainMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.doesNotContainMatch|doesNotContainMatch(kotlin.text.Regex){}[0]
