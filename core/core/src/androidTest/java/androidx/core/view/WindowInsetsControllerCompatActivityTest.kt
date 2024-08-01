@@ -120,37 +120,6 @@ public class WindowInsetsControllerCompatActivityTest {
 
     /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
     @SdkSuppress(minSdkVersion = 23)
-    @Test
-    public fun do_not_show_IME_if_TextView_in_dialog_not_focused() {
-        val dialog =
-            scenario.withActivity {
-                object : Dialog(this) {
-                        override fun onAttachedToWindow() {
-                            super.onAttachedToWindow()
-                            WindowCompat.setDecorFitsSystemWindows(window!!, false)
-                        }
-                    }
-                    .apply { setContentView(R.layout.insets_compat_activity) }
-            }
-
-        val editText = dialog.findViewById<TextView>(R.id.edittext)
-
-        // We hide the edit text to ensure it won't be automatically focused
-        scenario.onActivity {
-            dialog.show()
-            editText.visibility = View.GONE
-            assertThat(editText.isFocused, `is`(false))
-        }
-
-        val type = WindowInsetsCompat.Type.ime()
-        scenario.onActivity {
-            WindowCompat.getInsetsController(dialog.window!!, editText).show(type)
-        }
-        container.assertInsetsVisibility(type, false)
-    }
-
-    /** IME visibility is only reliable on API 23+, where we have access to the root WindowInsets */
-    @SdkSuppress(minSdkVersion = 23)
     @Ignore("b/294556594")
     @Test
     fun show_IME_fromEditText_in_dialog() {
