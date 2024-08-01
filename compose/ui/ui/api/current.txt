@@ -1790,10 +1790,12 @@ package androidx.compose.ui.input.pointer {
     method public androidx.compose.ui.input.pointer.PointerEvent copy(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, android.view.MotionEvent? motionEvent);
     method public int getButtons();
     method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> getChanges();
+    method public int getClassification();
     method public int getKeyboardModifiers();
     method public int getType();
     property public final int buttons;
     property public final java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes;
+    property public final int classification;
     property public final int keyboardModifiers;
     property public final int type;
   }

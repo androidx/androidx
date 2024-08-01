@@ -17,6 +17,7 @@
 package androidx.compose.ui.input.pointer
 
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.view.InputDevice
@@ -35,11 +36,13 @@ import android.view.MotionEvent.ACTION_POINTER_INDEX_SHIFT
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
 import android.view.MotionEvent.ACTION_UP
+import android.view.MotionEvent.PointerCoords
 import android.view.MotionEvent.TOOL_TYPE_FINGER
 import android.view.MotionEvent.TOOL_TYPE_MOUSE
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
@@ -91,6 +94,7 @@ import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -1030,9 +1034,7 @@ class AndroidPointerInputTest {
                     action,
                     1,
                     0,
-                    arrayOf(
-                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
-                    ),
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
                     arrayOf(PointerCoords(pos.x, pos.y, scrollDelta.x, scrollDelta.y))
                 )
 
@@ -1095,9 +1097,7 @@ class AndroidPointerInputTest {
                     action,
                     1,
                     0,
-                    arrayOf(
-                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER }
-                    ),
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_FINGER }),
                     arrayOf(PointerCoords(pos.x, pos.y))
                 )
 
@@ -1497,9 +1497,7 @@ class AndroidPointerInputTest {
                     ACTION_HOVER_EXIT,
                     1,
                     0,
-                    arrayOf(
-                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
-                    ),
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
                     arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y))
                 )
 
@@ -1510,9 +1508,7 @@ class AndroidPointerInputTest {
                     ACTION_SCROLL,
                     1,
                     0,
-                    arrayOf(
-                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
-                    ),
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
                     arrayOf(PointerCoords(pos.x, pos.y, scrollDelta.x, scrollDelta.y))
                 )
 
@@ -1526,6 +1522,212 @@ class AndroidPointerInputTest {
             assertThat(scrollBox1).isTrue()
             assertThat(pointerEvent).isNotNull()
             assertThat(eventsThatShouldNotTrigger).isFalse()
+        }
+    }
+
+    /*
+     * Tests that all valid combinations of MotionEvent.CLASSIFICATION_* are returned from
+     * Compose's [PointerInput].
+     * NOTE 1: We do NOT test invalid MotionEvent Classifications, because you can actually pass an
+     * invalid classification value to [MotionEvent.obtain()] and it is not rejected. Therefore,
+     * to maintain the same behavior, we just return whatever is set in [MotionEvent].
+     * NOTE 2: The [MotionEvent.obtain()] that allows you to set classification, is only available
+     * in U. (Thus, why this test request at least that version.)
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun motionEventDispatch_withValidClassification_shouldMatchInPointerEvent() {
+        // Skips this test if the SDK is below Android U
+        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+
+        // --> Arrange
+        var boxLayoutCoordinates: LayoutCoordinates? = null
+        val setUpFinishedLatch = CountDownLatch(1)
+        var motionEventClassification = MotionEvent.CLASSIFICATION_NONE
+        var pointerEvent: PointerEvent? = null
+
+        rule.runOnUiThread {
+            container.setContent {
+                Box(
+                    Modifier.fillMaxSize()
+                        .onGloballyPositioned {
+                            setUpFinishedLatch.countDown()
+                            boxLayoutCoordinates = it
+                        }
+                        .pointerInput(Unit) {
+                            awaitPointerEventScope {
+                                while (true) {
+                                    pointerEvent = awaitPointerEvent()
+                                }
+                            }
+                        }
+                ) {}
+            }
+        }
+
+        // Ensure Arrange (setup) step is finished
+        assertTrue(setUpFinishedLatch.await(2, TimeUnit.SECONDS))
+
+        // Set up values to be used for creation of all MotionEvents.
+        var position: Offset?
+        var eventTime = 0
+        val numPointers = 1
+        val actionIndex = 0
+        val pointerProperties =
+            arrayOf(PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER })
+        var pointerCoords: Array<PointerCoords>? = null
+        val buttonState = 0
+
+        // --> Act
+        rule.runOnUiThread {
+            // Set up pointerCoords to be used for the rest of the events
+            val root = boxLayoutCoordinates!!.findRootCoordinates()
+            position = root.localPositionOf(boxLayoutCoordinates!!, Offset.Zero)
+            pointerCoords =
+                arrayOf(PointerCoords(position!!.x, position!!.y, Offset.Zero.x, Offset.Zero.y))
+
+            val downEvent =
+                MotionEvent(
+                    eventTime = eventTime,
+                    action = ACTION_DOWN,
+                    numPointers = numPointers,
+                    actionIndex = actionIndex,
+                    pointerProperties = pointerProperties,
+                    pointerCoords = pointerCoords!!,
+                    buttonState = buttonState,
+                    classification = motionEventClassification
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchTouchEvent(downEvent)
+        }
+
+        // --> Assert
+        rule.runOnUiThread {
+            assertThat(pointerEvent).isNotNull()
+            // This will be MotionEvent.CLASSIFICATION_NONE (set in the beginning).
+            assertThat(pointerEvent!!.classification).isEqualTo(motionEventClassification)
+        }
+
+        eventTime += 500
+        motionEventClassification = MotionEvent.CLASSIFICATION_AMBIGUOUS_GESTURE
+
+        // --> Act
+        rule.runOnUiThread {
+            val upEvent =
+                MotionEvent(
+                    eventTime = eventTime,
+                    action = ACTION_UP,
+                    numPointers = numPointers,
+                    actionIndex = actionIndex,
+                    pointerProperties = pointerProperties,
+                    pointerCoords = pointerCoords!!,
+                    buttonState = buttonState,
+                    classification = motionEventClassification
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchTouchEvent(upEvent)
+        }
+
+        // --> Assert
+        rule.runOnUiThread {
+            assertThat(pointerEvent).isNotNull()
+            assertThat(pointerEvent!!.classification).isEqualTo(motionEventClassification)
+        }
+
+        eventTime += 500
+        motionEventClassification = MotionEvent.CLASSIFICATION_DEEP_PRESS
+
+        // --> Act
+        rule.runOnUiThread {
+            val downEvent =
+                MotionEvent(
+                    eventTime = eventTime,
+                    action = ACTION_DOWN,
+                    numPointers = numPointers,
+                    actionIndex = actionIndex,
+                    pointerProperties = pointerProperties,
+                    pointerCoords = pointerCoords!!,
+                    buttonState = buttonState,
+                    classification = motionEventClassification
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchTouchEvent(downEvent)
+        }
+
+        // --> Assert
+        rule.runOnUiThread {
+            assertThat(pointerEvent).isNotNull()
+            assertThat(pointerEvent!!.classification).isEqualTo(motionEventClassification)
+        }
+
+        eventTime += 500
+        motionEventClassification = MotionEvent.CLASSIFICATION_TWO_FINGER_SWIPE
+
+        // --> Act
+        rule.runOnUiThread {
+            val upEvent =
+                MotionEvent(
+                    eventTime = eventTime,
+                    action = ACTION_UP,
+                    numPointers = numPointers,
+                    actionIndex = actionIndex,
+                    pointerProperties = pointerProperties,
+                    pointerCoords = pointerCoords!!,
+                    buttonState = buttonState,
+                    classification = motionEventClassification
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchTouchEvent(upEvent)
+        }
+
+        // --> Assert
+        rule.runOnUiThread {
+            assertThat(pointerEvent).isNotNull()
+            assertThat(pointerEvent!!.classification).isEqualTo(motionEventClassification)
+        }
+
+        eventTime += 500
+        motionEventClassification = MotionEvent.CLASSIFICATION_PINCH
+
+        // --> Act
+        rule.runOnUiThread {
+            val downEvent =
+                MotionEvent(
+                    eventTime = eventTime,
+                    action = ACTION_DOWN,
+                    numPointers = numPointers,
+                    actionIndex = actionIndex,
+                    pointerProperties = pointerProperties,
+                    pointerCoords = pointerCoords!!,
+                    buttonState = buttonState,
+                    classification = motionEventClassification
+                )
+
+            val androidComposeView = findAndroidComposeView(container) as AndroidComposeView
+            androidComposeView.dispatchTouchEvent(downEvent)
+        }
+
+        // --> Assert
+        rule.runOnUiThread {
+            assertThat(pointerEvent).isNotNull()
+            assertThat(pointerEvent!!.classification).isEqualTo(motionEventClassification)
+        }
+    }
+
+    /*
+     * Tests that [PointerEvent] without a [MotionEvent] will return a NONE classification.
+     */
+    @Test
+    fun pointerInput_withoutMotionEvent_classificationShouldBeNone() {
+        val pointerEventWithoutMotionEvent = PointerEvent(listOf(), internalPointerEvent = null)
+
+        rule.runOnUiThread {
+            assertThat(pointerEventWithoutMotionEvent.classification)
+                .isEqualTo(MotionEvent.CLASSIFICATION_NONE)
         }
     }
 
@@ -3551,9 +3753,7 @@ class AndroidPointerInputTest {
                         ACTION_HOVER_EXIT,
                         1,
                         0,
-                        arrayOf(
-                            PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
-                        ),
+                        arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
                         arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y))
                     )
 
@@ -3564,9 +3764,7 @@ class AndroidPointerInputTest {
                         ACTION_DOWN,
                         1,
                         0,
-                        arrayOf(
-                            PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_MOUSE }
-                        ),
+                        arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_MOUSE }),
                         arrayOf(PointerCoords(pos.x, pos.y, Offset.Zero.x, Offset.Zero.y))
                     )
 
@@ -4273,9 +4471,7 @@ class AndroidPointerInputTest {
                     ACTION_DOWN,
                     1,
                     0,
-                    arrayOf(
-                        PointerProperties(0).also { it.toolType = MotionEvent.TOOL_TYPE_FINGER }
-                    ),
+                    arrayOf(PointerProperties(0).also { it.toolType = TOOL_TYPE_FINGER }),
                     arrayOf(PointerCoords(pos.x, pos.y))
                 )
             androidComposeView.dispatchTouchEvent(down)
@@ -4745,6 +4941,52 @@ private fun MotionEvent(
         source,
         0
     )
+}
+
+/*
+ * Version of MotionEvent() that accepts classification.
+ */
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private fun MotionEvent(
+    eventTime: Int,
+    action: Int,
+    numPointers: Int,
+    actionIndex: Int,
+    pointerProperties: Array<MotionEvent.PointerProperties>,
+    pointerCoords: Array<MotionEvent.PointerCoords>,
+    buttonState: Int =
+        if (
+            pointerProperties[0].toolType == TOOL_TYPE_MOUSE &&
+                (action == ACTION_DOWN || action == ACTION_MOVE)
+        )
+            MotionEvent.BUTTON_PRIMARY
+        else 0,
+    classification: Int
+): MotionEvent {
+    val source =
+        if (pointerProperties[0].toolType == TOOL_TYPE_MOUSE) {
+            InputDevice.SOURCE_MOUSE
+        } else {
+            InputDevice.SOURCE_TOUCHSCREEN
+        }
+    return MotionEvent.obtain(
+        0,
+        eventTime.toLong(),
+        action + (actionIndex shl ACTION_POINTER_INDEX_SHIFT),
+        numPointers,
+        pointerProperties,
+        pointerCoords,
+        0,
+        buttonState,
+        0f,
+        0f,
+        0,
+        0,
+        source,
+        0,
+        0,
+        classification
+    )!!
 }
 
 internal fun findRootView(view: View): View {
