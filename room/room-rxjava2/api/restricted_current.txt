@@ -2,19 +2,40 @@
 package androidx.room {
 
   public class EmptyResultSetException extends java.lang.RuntimeException {
-    ctor public EmptyResultSetException(String!);
+    ctor public EmptyResultSetException(String message);
   }
 
   public class RxRoom {
     ctor @Deprecated public RxRoom();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Flowable<T!>! createFlowable(androidx.room.RoomDatabase!, boolean, String![]!, java.util.concurrent.Callable<T!>!);
-    method public static io.reactivex.Flowable<java.lang.Object!>! createFlowable(androidx.room.RoomDatabase!, java.lang.String!...!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Flowable<T!>! createFlowable(androidx.room.RoomDatabase!, String![]!, java.util.concurrent.Callable<T!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Observable<T!>! createObservable(androidx.room.RoomDatabase!, boolean, String![]!, java.util.concurrent.Callable<T!>!);
-    method public static io.reactivex.Observable<java.lang.Object!>! createObservable(androidx.room.RoomDatabase!, java.lang.String!...!);
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Observable<T!>! createObservable(androidx.room.RoomDatabase!, String![]!, java.util.concurrent.Callable<T!>!);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.Single<T!>! createSingle(java.util.concurrent.Callable<? extends T!>!);
-    field public static final Object! NOTHING;
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final io.reactivex.Completable createCompletable(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,kotlin.Unit> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public static final io.reactivex.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase database, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Maybe<T> createMaybe(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public static final io.reactivex.Observable<java.lang.Object> createObservable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase database, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Single<T> createSingle(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final <T> io.reactivex.Single<T> createSingle(java.util.concurrent.Callable<? extends T> callable);
+    field public static final androidx.room.RxRoom.Companion Companion;
+    field public static final Object NOTHING;
+  }
+
+  public static final class RxRoom.Companion {
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public io.reactivex.Completable createCompletable(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,kotlin.Unit> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public io.reactivex.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Flowable<T> createFlowable(androidx.room.RoomDatabase database, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Maybe<T> createMaybe(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public io.reactivex.Observable<java.lang.Object> createObservable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Observable<T> createObservable(androidx.room.RoomDatabase database, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Single<T> createSingle(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public <T> io.reactivex.Single<T> createSingle(java.util.concurrent.Callable<? extends T> callable);
   }
 
 }

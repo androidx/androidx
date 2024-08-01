@@ -30,7 +30,7 @@ import androidx.room.paging.util.ThreadSafeInvalidationObserver
 import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.paging.util.queryDatabase
 import androidx.room.paging.util.queryItemCount
-import androidx.room.rxjava3.RxRoom.createSingle
+import androidx.room.rxjava3.createSingle
 import androidx.sqlite.db.SupportSQLiteQuery
 import io.reactivex.rxjava3.core.Single
 import io.reactivex.rxjava3.schedulers.Schedulers

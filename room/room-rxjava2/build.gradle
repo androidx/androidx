@@ -36,6 +36,7 @@ dependencies {
 
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesRx2)
 
     testImplementation(project(":kruth:kruth"))
     testImplementation(libs.kotlinTest)

@@ -19,20 +19,25 @@ package androidx.room.solver.query.result
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
+import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
 import androidx.room.compiler.codegen.XPropertySpec
+import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.AndroidTypeNames.CURSOR
 import androidx.room.ext.CallableTypeSpecBuilder
+import androidx.room.ext.InvokeWithLambdaParameter
+import androidx.room.ext.LambdaSpec
 import androidx.room.ext.RoomMemberNames.DB_UTIL_QUERY
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 
-/** Generic Result binder for Rx classes that accept a callable. */
-internal class RxCallableQueryResultBinder(
+/** Generic result binder for Rx classes that are not reactive. */
+internal class RxLambdaQueryResultBinder(
     private val rxType: RxType,
     val typeArg: XType,
     adapter: QueryResultAdapter?
@@ -68,7 +73,7 @@ internal class RxCallableQueryResultBinder(
                 .build()
         scope.builder.apply {
             if (rxType.isSingle()) {
-                addStatement("return %T.createSingle(%L)", rxType.version.rxRoomClassName, callable)
+                addStatement("return %M(%L)", rxType.factoryMethodName, callable)
             } else {
                 addStatement("return %T.fromCallable(%L)", rxType.className, callable)
             }
@@ -159,5 +164,58 @@ internal class RxCallableQueryResultBinder(
                 .apply { addStatement("%L.release()", roomSQLiteQueryVar) }
                 .build()
         )
+    }
+
+    override fun isMigratedToDriver() = adapter?.isMigratedToDriver() == true
+
+    override fun convertAndReturn(
+        sqlQueryVar: String,
+        dbProperty: XPropertySpec,
+        bindStatement: CodeGenScope.(String) -> Unit,
+        returnTypeName: XTypeName,
+        inTransaction: Boolean,
+        scope: CodeGenScope
+    ) {
+        val connectionVar = scope.getTmpVar("_connection")
+        val performBlock =
+            InvokeWithLambdaParameter(
+                scope = scope,
+                functionName = rxType.factoryMethodName,
+                argFormat = listOf("%N", "%L", "%L"),
+                args = listOf(dbProperty, /* isReadOnly= */ true, inTransaction),
+                lambdaSpec =
+                    object :
+                        LambdaSpec(
+                            parameterTypeName = SQLiteDriverTypeNames.CONNECTION,
+                            parameterName = connectionVar,
+                            returnTypeName = typeArg.asTypeName(),
+                            javaLambdaSyntaxAvailable = scope.javaLambdaSyntaxAvailable
+                        ) {
+                        override fun XCodeBlock.Builder.body(scope: CodeGenScope) {
+                            val returnPrefix =
+                                when (language) {
+                                    CodeLanguage.JAVA -> "return "
+                                    CodeLanguage.KOTLIN -> ""
+                                }
+                            val statementVar = scope.getTmpVar("_stmt")
+                            addLocalVal(
+                                statementVar,
+                                SQLiteDriverTypeNames.STATEMENT,
+                                "%L.prepare(%L)",
+                                connectionVar,
+                                sqlQueryVar
+                            )
+                            beginControlFlow("try")
+                            bindStatement(scope, statementVar)
+                            val outVar = scope.getTmpVar("_result")
+                            adapter?.convert(outVar, statementVar, scope)
+                            addStatement("$returnPrefix%L", outVar)
+                            nextControlFlow("finally")
+                            addStatement("%L.close()", statementVar)
+                            endControlFlow()
+                        }
+                    }
+            )
+        scope.builder.add("return %L", performBlock)
     }
 }

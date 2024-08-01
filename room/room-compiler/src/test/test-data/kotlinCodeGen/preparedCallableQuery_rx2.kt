@@ -1,10 +1,12 @@
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteStatement
+import androidx.room.RxRoom.Companion.createCompletable
+import androidx.room.RxRoom.Companion.createMaybe
+import androidx.room.RxRoom.Companion.createSingle
+import androidx.room.util.getLastInsertedRowId
+import androidx.sqlite.SQLiteStatement
 import io.reactivex.Completable
 import io.reactivex.Maybe
 import io.reactivex.Single
-import java.lang.Void
-import java.util.concurrent.Callable
 import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.Long
@@ -23,65 +25,55 @@ public class MyDao_Impl(
     this.__db = __db
   }
 
-  public override fun insertPublisherSingle(id: String, name: String): Single<Long> =
-      Single.fromCallable(object : Callable<Long?> {
-    public override fun call(): Long? {
-      val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
-      val _stmt: SupportSQLiteStatement = __db.compileStatement(_sql)
-      var _argIndex: Int = 1
-      _stmt.bindString(_argIndex, id)
-      _argIndex = 2
-      _stmt.bindString(_argIndex, name)
-      __db.beginTransaction()
+  public override fun insertPublisherSingle(id: String, name: String): Single<Long> {
+    val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
+    return createSingle(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _result: Long? = _stmt.executeInsert()
-        __db.setTransactionSuccessful()
-        return _result
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, id)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, name)
+        _stmt.step()
+        getLastInsertedRowId(_connection)
       } finally {
-        __db.endTransaction()
+        _stmt.close()
       }
     }
-  })
+  }
 
-  public override fun insertPublisherMaybe(id: String, name: String): Maybe<Long> =
-      Maybe.fromCallable(object : Callable<Long?> {
-    public override fun call(): Long? {
-      val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
-      val _stmt: SupportSQLiteStatement = __db.compileStatement(_sql)
-      var _argIndex: Int = 1
-      _stmt.bindString(_argIndex, id)
-      _argIndex = 2
-      _stmt.bindString(_argIndex, name)
-      __db.beginTransaction()
+  public override fun insertPublisherMaybe(id: String, name: String): Maybe<Long> {
+    val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
+    return createMaybe(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        val _result: Long? = _stmt.executeInsert()
-        __db.setTransactionSuccessful()
-        return _result
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, id)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, name)
+        _stmt.step()
+        getLastInsertedRowId(_connection)
       } finally {
-        __db.endTransaction()
+        _stmt.close()
       }
     }
-  })
+  }
 
-  public override fun insertPublisherCompletable(id: String, name: String): Completable =
-      Completable.fromCallable(object : Callable<Void?> {
-    public override fun call(): Void? {
-      val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
-      val _stmt: SupportSQLiteStatement = __db.compileStatement(_sql)
-      var _argIndex: Int = 1
-      _stmt.bindString(_argIndex, id)
-      _argIndex = 2
-      _stmt.bindString(_argIndex, name)
-      __db.beginTransaction()
+  public override fun insertPublisherCompletable(id: String, name: String): Completable {
+    val _sql: String = "INSERT INTO MyEntity (pk, other) VALUES (?, ?)"
+    return createCompletable(__db, false, true) { _connection ->
+      val _stmt: SQLiteStatement = _connection.prepare(_sql)
       try {
-        _stmt.executeInsert()
-        __db.setTransactionSuccessful()
-        return null
+        var _argIndex: Int = 1
+        _stmt.bindText(_argIndex, id)
+        _argIndex = 2
+        _stmt.bindText(_argIndex, name)
+        _stmt.step()
       } finally {
-        __db.endTransaction()
+        _stmt.close()
       }
     }
-  })
+  }
 
   public companion object {
     public fun getRequiredConverters(): List<KClass<*>> = emptyList()

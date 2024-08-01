@@ -18,10 +18,11 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.KotlinTypeNames
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
-import androidx.room.solver.shortcut.binder.CallableInsertOrUpsertMethodBinder.Companion.createInsertOrUpsertBinder
 import androidx.room.solver.shortcut.binder.InsertOrUpsertMethodBinder
+import androidx.room.solver.shortcut.binder.LambdaInsertOrUpsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
 
 /** Provider for Rx Callable binders. */
@@ -54,9 +55,11 @@ internal constructor(val context: Context, private val rxType: RxType) :
             } else {
                 context.typeAdapterStore.findInsertAdapter(typeArg, params)
             }
-        return createInsertOrUpsertBinder(typeArg, adapter) { callableImpl, _ ->
-            addStatement("return %T.fromCallable(%L)", rxType.className, callableImpl)
-        }
+        return LambdaInsertOrUpsertMethodBinder(
+            typeArg = typeArg,
+            functionName = rxType.factoryMethodName,
+            adapter = adapter
+        )
     }
 
     companion object {
@@ -80,25 +83,24 @@ private class RxCompletableInsertOrUpsertMethodBinderProvider(context: Context, 
     }
 
     /**
-     * Since Completable is not a generic, the supported return type should be Void (nullable). Like
-     * this, the generated Callable.call method will return Void.
+     * Since Completable has no type argument, the supported return type is Unit (non-nullable)
+     * since the 'createCompletable" factory method take a Kotlin lambda.
      */
-    override fun extractTypeArg(declared: XType): XType = context.COMMON_TYPES.VOID.makeNullable()
+    override fun extractTypeArg(declared: XType): XType =
+        context.processingEnv.requireType(KotlinTypeNames.UNIT)
 
     override fun matches(declared: XType): Boolean = isCompletable(declared)
 
     private fun isCompletable(declared: XType): Boolean {
-        if (completableType == null) {
-            return false
-        }
-        return declared.rawType.isAssignableFrom(completableType!!)
+        val completableType = this.completableType ?: return false
+        return declared.rawType.isAssignableFrom(completableType)
     }
 }
 
 private class RxSingleOrMaybeInsertOrUpsertMethodBinderProvider(context: Context, rxType: RxType) :
     RxCallableInsertOrUpsertMethodBinderProvider(context, rxType) {
 
-    /** Since Maybe can have null values, the Callable returned must allow for null values. */
+    /** Since Maybe can have null values, the lambda returned must allow for null values. */
     override fun extractTypeArg(declared: XType): XType =
         declared.typeArguments.first().makeNullable()
 }

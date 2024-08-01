@@ -2,15 +2,20 @@
 package androidx.room.rxjava3 {
 
   public final class EmptyResultSetException extends java.lang.RuntimeException {
-    ctor public EmptyResultSetException(String);
+    ctor public EmptyResultSetException(String message);
   }
 
   public final class RxRoom {
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Flowable<T!> createFlowable(androidx.room.RoomDatabase, boolean, String![], java.util.concurrent.Callable<T!>);
-    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object!> createFlowable(androidx.room.RoomDatabase, java.lang.String!...);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Observable<T!> createObservable(androidx.room.RoomDatabase, boolean, String![], java.util.concurrent.Callable<T!>);
-    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object!> createObservable(androidx.room.RoomDatabase, java.lang.String!...);
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Single<T!> createSingle(java.util.concurrent.Callable<? extends T!>);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static io.reactivex.rxjava3.core.Completable createCompletable(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,kotlin.Unit> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Flowable<T> createFlowable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Flowable<T> createFlowable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Maybe<T> createMaybe(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Observable<T> createObservable(androidx.room.RoomDatabase database, boolean inTransaction, String[] tableNames, java.util.concurrent.Callable<? extends T> callable);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Observable<T> createObservable(androidx.room.RoomDatabase db, boolean inTransaction, String[] tableNames, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object> createObservable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Single<T> createSingle(androidx.room.RoomDatabase db, boolean isReadOnly, boolean inTransaction, kotlin.jvm.functions.Function1<? super androidx.sqlite.SQLiteConnection,? extends T?> block);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static <T> io.reactivex.rxjava3.core.Single<T> createSingle(java.util.concurrent.Callable<? extends T> callable);
     field public static final Object NOTHING;
   }
 

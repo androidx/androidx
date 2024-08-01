@@ -54,9 +54,9 @@ import androidx.room.solver.binderprovider.InstantQueryResultBinderProvider
 import androidx.room.solver.binderprovider.ListenableFuturePagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.LiveDataQueryResultBinderProvider
 import androidx.room.solver.binderprovider.PagingSourceQueryResultBinderProvider
-import androidx.room.solver.binderprovider.RxCallableQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxJava2PagingSourceQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxJava3PagingSourceQueryResultBinderProvider
+import androidx.room.solver.binderprovider.RxLambdaQueryResultBinderProvider
 import androidx.room.solver.binderprovider.RxQueryResultBinderProvider
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.prepared.binderprovider.GuavaListenableFuturePreparedQueryResultBinderProvider
@@ -208,7 +208,7 @@ private constructor(
             add(LiveDataQueryResultBinderProvider(context))
             add(GuavaListenableFutureQueryResultBinderProvider(context))
             addAll(RxQueryResultBinderProvider.getAll(context))
-            addAll(RxCallableQueryResultBinderProvider.getAll(context))
+            addAll(RxLambdaQueryResultBinderProvider.getAll(context))
             add(DataSourceQueryResultBinderProvider(context))
             add(DataSourceFactoryQueryResultBinderProvider(context))
             add(RxJava2PagingSourceQueryResultBinderProvider(context))

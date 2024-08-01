@@ -3,19 +3,17 @@ package foo.bar;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.room.EntityDeleteOrUpdateAdapter;
-import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
+import androidx.room.RxRoom;
 import androidx.room.util.DBUtil;
 import androidx.room.util.SQLiteConnectionUtil;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.SQLiteConnection;
 import androidx.sqlite.SQLiteStatement;
-import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
 import java.lang.Class;
-import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
@@ -24,8 +22,8 @@ import java.lang.SuppressWarnings;
 import java.lang.Void;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
+import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 @Generated("androidx.room.RoomProcessor")
@@ -34,8 +32,6 @@ public final class DeletionDao_Impl implements DeletionDao {
   private final RoomDatabase __db;
 
   private final EntityDeleteOrUpdateAdapter<User> __deleteAdapterOfUser;
-
-  private final EntityDeletionOrUpdateAdapter<User> __deleteCompatAdapterOfUser;
 
   private final EntityDeleteOrUpdateAdapter<MultiPKeyEntity> __deleteAdapterOfMultiPKeyEntity;
 
@@ -52,18 +48,6 @@ public final class DeletionDao_Impl implements DeletionDao {
 
       @Override
       protected void bind(@NonNull final SQLiteStatement statement, final User entity) {
-        statement.bindLong(1, entity.uid);
-      }
-    };
-    this.__deleteCompatAdapterOfUser = new EntityDeletionOrUpdateAdapter<User>(__db) {
-      @Override
-      @NonNull
-      protected String createQuery() {
-        return "DELETE FROM `User` WHERE `uid` = ?";
-      }
-
-      @Override
-      protected void bind(@NonNull final SupportSQLiteStatement statement, final User entity) {
         statement.bindLong(1, entity.uid);
       }
     };
@@ -194,56 +178,38 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Completable deleteUserCompletable(final User user) {
-    return Completable.fromCallable(new Callable<Void>() {
+    return RxRoom.createCompletable(__db, false, true, new Function1<SQLiteConnection, Unit>() {
       @Override
-      @Nullable
-      public Void call() throws Exception {
-        __db.beginTransaction();
-        try {
-          __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return null;
-        } finally {
-          __db.endTransaction();
-        }
+      @NonNull
+      public Unit invoke(@NonNull final SQLiteConnection _connection) {
+        __deleteAdapterOfUser.handle(_connection, user);
+        return Unit.INSTANCE;
       }
     });
   }
 
   @Override
   public Single<Integer> deleteUserSingle(final User user) {
-    return Single.fromCallable(new Callable<Integer>() {
+    return RxRoom.createSingle(__db, false, true, new Function1<SQLiteConnection, Integer>() {
       @Override
       @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handle(_connection, user);
+        return _result;
       }
     });
   }
 
   @Override
   public Maybe<Integer> deleteUserMaybe(final User user) {
-    return Maybe.fromCallable(new Callable<Integer>() {
+    return RxRoom.createMaybe(__db, false, true, new Function1<SQLiteConnection, Integer>() {
       @Override
       @Nullable
-      public Integer call() throws Exception {
-        int _total = 0;
-        __db.beginTransaction();
-        try {
-          _total += __deleteCompatAdapterOfUser.handle(user);
-          __db.setTransactionSuccessful();
-          return _total;
-        } finally {
-          __db.endTransaction();
-        }
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        int _result = 0;
+        _result += __deleteAdapterOfUser.handle(_connection, user);
+        return _result;
       }
     });
   }
@@ -296,21 +262,19 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Completable deleteByUidCompletable(final int uid) {
-    return Completable.fromCallable(new Callable<Void>() {
+    final String _sql = "DELETE FROM user where uid = ?";
+    return RxRoom.createCompletable(__db, false, true, new Function1<SQLiteConnection, Unit>() {
       @Override
-      @Nullable
-      public Void call() throws Exception {
-        final String _sql = "DELETE FROM user where uid = ?";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, uid);
-        __db.beginTransaction();
+      @NonNull
+      public Unit invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
         try {
-          _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return null;
+          int _argIndex = 1;
+          _stmt.bindLong(_argIndex, uid);
+          _stmt.step();
+          return Unit.INSTANCE;
         } finally {
-          __db.endTransaction();
+          _stmt.close();
         }
       }
     });
@@ -318,21 +282,19 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Single<Integer> deleteByUidSingle(final int uid) {
-    return Single.fromCallable(new Callable<Integer>() {
+    final String _sql = "DELETE FROM user where uid = ?";
+    return RxRoom.createSingle(__db, false, true, new Function1<SQLiteConnection, Integer>() {
       @Override
       @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "DELETE FROM user where uid = ?";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, uid);
-        __db.beginTransaction();
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
         try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
+          int _argIndex = 1;
+          _stmt.bindLong(_argIndex, uid);
+          _stmt.step();
+          return SQLiteConnectionUtil.getTotalChangedRows(_connection);
         } finally {
-          __db.endTransaction();
+          _stmt.close();
         }
       }
     });
@@ -340,21 +302,19 @@ public final class DeletionDao_Impl implements DeletionDao {
 
   @Override
   public Maybe<Integer> deleteByUidMaybe(final int uid) {
-    return Maybe.fromCallable(new Callable<Integer>() {
+    final String _sql = "DELETE FROM user where uid = ?";
+    return RxRoom.createMaybe(__db, false, true, new Function1<SQLiteConnection, Integer>() {
       @Override
       @Nullable
-      public Integer call() throws Exception {
-        final String _sql = "DELETE FROM user where uid = ?";
-        final SupportSQLiteStatement _stmt = __db.compileStatement(_sql);
-        int _argIndex = 1;
-        _stmt.bindLong(_argIndex, uid);
-        __db.beginTransaction();
+      public Integer invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
         try {
-          final Integer _result = _stmt.executeUpdateDelete();
-          __db.setTransactionSuccessful();
-          return _result;
+          int _argIndex = 1;
+          _stmt.bindLong(_argIndex, uid);
+          _stmt.step();
+          return SQLiteConnectionUtil.getTotalChangedRows(_connection);
         } finally {
-          __db.endTransaction();
+          _stmt.close();
         }
       }
     });

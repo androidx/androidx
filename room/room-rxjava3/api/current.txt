@@ -2,12 +2,12 @@
 package androidx.room.rxjava3 {
 
   public final class EmptyResultSetException extends java.lang.RuntimeException {
-    ctor public EmptyResultSetException(String);
+    ctor public EmptyResultSetException(String message);
   }
 
   public final class RxRoom {
-    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object!> createFlowable(androidx.room.RoomDatabase, java.lang.String!...);
-    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object!> createObservable(androidx.room.RoomDatabase, java.lang.String!...);
+    method public static io.reactivex.rxjava3.core.Flowable<java.lang.Object> createFlowable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
+    method public static io.reactivex.rxjava3.core.Observable<java.lang.Object> createObservable(androidx.room.RoomDatabase database, java.lang.String... tableNames);
     field public static final Object NOTHING;
   }
 
