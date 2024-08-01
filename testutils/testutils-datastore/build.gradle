@@ -32,6 +32,8 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    watchos()
+    tvos()
 
     sourceSets {
         commonMain {
