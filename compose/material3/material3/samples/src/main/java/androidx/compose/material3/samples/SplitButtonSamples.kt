@@ -18,9 +18,7 @@ package androidx.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Edit
@@ -40,7 +38,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,7 +65,6 @@ fun SplitButtonSample() {
         },
         trailingButton = {
             SplitButtonDefaults.AnimatedTrailingButton(
-                modifier = Modifier.fillMaxHeight(),
                 onClick = { expanded = !expanded },
                 expanded = expanded,
             ) {
@@ -116,16 +112,14 @@ fun FilledSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(modifier = Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    modifier =
-                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                            this.rotationZ = rotation
-                        },
-                    contentDescription = "Localized description"
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                modifier =
+                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                        this.rotationZ = rotation
+                    },
+                contentDescription = "Localized description"
+            )
         }
     )
 }
@@ -156,16 +150,14 @@ fun TonalSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    modifier =
-                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                            this.rotationZ = rotation
-                        },
-                    contentDescription = "Localized description"
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                modifier =
+                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                        this.rotationZ = rotation
+                    },
+                contentDescription = "Localized description"
+            )
         }
     )
 }
@@ -196,16 +188,14 @@ fun ElevatedSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    modifier =
-                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                            this.rotationZ = rotation
-                        },
-                    contentDescription = "Localized description"
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                modifier =
+                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                        this.rotationZ = rotation
+                    },
+                contentDescription = "Localized description"
+            )
         }
     )
 }
@@ -236,16 +226,14 @@ fun OutlinedSplitButtonSample() {
                     targetValue = if (expanded) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Outlined.KeyboardArrowDown,
-                    modifier =
-                        Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
-                            this.rotationZ = rotation
-                        },
-                    contentDescription = "Localized description"
-                )
-            }
+            Icon(
+                Icons.Outlined.KeyboardArrowDown,
+                modifier =
+                    Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                        this.rotationZ = rotation
+                    },
+                contentDescription = "Localized description"
+            )
         }
     )
 }
@@ -269,7 +257,6 @@ fun SplitButtonWithTextSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
-                modifier = Modifier.fillMaxHeight()
             ) {
                 val rotation: Float by
                     animateFloatAsState(
@@ -312,7 +299,6 @@ fun SplitButtonWithIconSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
-                modifier = Modifier.fillMaxHeight()
             ) {
                 val rotation: Float by
                     animateFloatAsState(

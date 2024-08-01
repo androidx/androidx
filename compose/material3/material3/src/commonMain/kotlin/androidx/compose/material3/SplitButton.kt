@@ -54,7 +54,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
@@ -414,19 +417,34 @@ private fun SplitButtonLayout(
         },
         modifier,
         measurePolicy = { measurables, constraints ->
-            // TODO(b/355553502) Handle split button modifier constraints
+            val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+
             val leadingButtonPlaceable =
-                measurables.fastFirst { it.layoutId == LeadingButtonLayoutId }.measure(constraints)
+                measurables
+                    .fastFirst { it.layoutId == LeadingButtonLayoutId }
+                    .measure(looseConstraints)
 
             val trailingButtonPlaceable =
                 measurables
                     .fastFirst { it.layoutId == TrailingButtonLayoutId }
-                    .measure(constraints.copy(maxHeight = leadingButtonPlaceable.height))
+                    .measure(
+                        looseConstraints
+                            .offset(
+                                horizontal = -(leadingButtonPlaceable.width + spacing.roundToPx())
+                            )
+                            .copy(
+                                minHeight = leadingButtonPlaceable.height,
+                                maxHeight = leadingButtonPlaceable.height
+                            )
+                    )
 
             val placeables = listOf(leadingButtonPlaceable, trailingButtonPlaceable)
 
-            val width = placeables.fastSumBy { it.width } + spacing.roundToPx()
-            val height = placeables.fastMaxOfOrNull { it.height } ?: 0
+            val contentWidth = placeables.fastSumBy { it.width } + spacing.roundToPx()
+            val contentHeight = placeables.fastMaxOfOrNull { it.height } ?: 0
+
+            val width = constraints.constrainWidth(contentWidth)
+            val height = constraints.constrainHeight(contentHeight)
 
             layout(width, height) {
                 leadingButtonPlaceable.placeRelative(0, 0)
