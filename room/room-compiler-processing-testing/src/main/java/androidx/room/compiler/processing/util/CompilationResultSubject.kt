@@ -68,7 +68,7 @@ internal constructor(
     override fun toString(): String {
         return buildString {
             appendLine("CompilationResult (with $testRunnerName)")
-            Diagnostic.Kind.entries.forEach { kind ->
+            Diagnostic.Kind.values().forEach { kind ->
                 val messages = diagnosticsOfKind(kind)
                 appendLine("${kind.name}: ${messages.size}")
                 messages.forEach { appendLine(it) }
@@ -98,7 +98,10 @@ internal constructor(
                 "Scripting plugin will not be loaded: not",
                 "Using JVM IR backend",
                 "Configuring the compilation environment",
-                "Loading modules:"
+                "Loading modules:",
+                // TODO: Remove once we use a Kotlin 2.x version that has
+                // https://github.com/JetBrains/kotlin/commit/7e9d6e601d007bc1250e1b47c6b2e55e3399145b
+                "Kapt currently doesn't support language version"
             )
     }
 }
@@ -474,7 +477,7 @@ internal constructor(
 @ExperimentalProcessingApi
 internal class JavaCompileTestingCompilationResult(
     testRunner: CompilationTestRunner,
-    private val delegate: Compilation,
+    @Suppress("unused") private val delegate: Compilation,
     processor: SyntheticJavacProcessor,
     diagnostics: Map<Diagnostic.Kind, List<DiagnosticMessage>>,
     override val generatedSources: List<Source>,
@@ -494,7 +497,8 @@ internal class JavaCompileTestingCompilationResult(
 }
 
 @ExperimentalProcessingApi
-internal class KotlinCompilationResult(
+internal class KotlinCompilationResult
+constructor(
     testRunner: CompilationTestRunner,
     processor: SyntheticProcessor,
     private val delegate: TestCompilationResult

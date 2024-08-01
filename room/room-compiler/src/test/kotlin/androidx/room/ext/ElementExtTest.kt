@@ -24,8 +24,8 @@ import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runKspTest
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runKspTestWithK1
+import androidx.room.runProcessorTestWithK1
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -232,7 +232,7 @@ class ElementExtTest(private val preCompile: Boolean) {
             """
                     .trimIndent()
             )
-        runKspTest(
+        runKspTestWithK1(
             sources = listOf(src),
             config =
                 XProcessingEnvConfig.DEFAULT.copy(excludeMethodsWithInvalidJvmSourceNames = false)
@@ -255,7 +255,7 @@ class ElementExtTest(private val preCompile: Boolean) {
             } else {
                 sources to emptyList()
             }
-        runProcessorTest(sources = sources, classpath = classpath, handler = handler)
+        runProcessorTestWithK1(sources = sources, classpath = classpath, handler = handler)
     }
 
     private fun XTestInvocation.objectMethodNames(): List<String> {

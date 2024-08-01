@@ -19,17 +19,15 @@ package androidx.room.compiler.processing.util.compiler.steps
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
 import java.io.File
 import org.jetbrains.kotlin.cli.common.ExitCode
-import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 
 /**
- * Compiles kotlin sources.
+ * Compiles Kotlin sources.
  *
- * Note that annotation/symbol processors are not run by this step.
+ * Note that annotation / symbol processors are not run by this step.
  */
 internal object KotlinSourceCompilationStep : KotlinCompilationStep {
     override val name = "kotlinSourceCompilation"
 
-    @OptIn(ExperimentalCompilerApi::class)
     override fun execute(
         workingDir: File,
         arguments: CompilationStepArguments
@@ -41,7 +39,6 @@ internal object KotlinSourceCompilationStep : KotlinCompilationStep {
             KotlinCliRunner.runKotlinCli(
                 arguments = arguments,
                 destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
-                pluginRegistrars = emptyList()
             )
         val diagnostics =
             resolveDiagnostics(diagnostics = result.diagnostics, sourceSets = arguments.sourceSets)
@@ -55,7 +52,8 @@ internal object KotlinSourceCompilationStep : KotlinCompilationStep {
                         listOf(workingDir.resolve(CLASS_OUT_FOLDER_NAME)) +
                             arguments.additionalClasspaths,
                     // NOTE: ideally, we should remove kotlin sources but we know that there are no
-                    // more kotlin steps so we skip unnecessary work
+                    // more
+                    // kotlin steps so we skip unnecessary work
                     sourceSets = arguments.sourceSets
                 ),
             outputClasspath = listOf(result.compiledClasspath),

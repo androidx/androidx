@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package androidx.room.compiler.processing.util.compiler
 
 import com.google.devtools.ksp.AbstractKotlinSymbolProcessingExtension
@@ -64,15 +63,12 @@ internal class TestKspRegistrar(
                     ?: kspWorkingDir.resolve(KspCliOption.RESOURCE_OUTPUT_DIR_OPTION.optionName)
             cachesDir =
                 cachesDir ?: kspWorkingDir.resolve(KspCliOption.CACHES_DIR_OPTION.optionName)
-
             kspOutputDir =
                 kspOutputDir ?: kspWorkingDir.resolve(KspCliOption.KSP_OUTPUT_DIR_OPTION.optionName)
             val contentRoots = configuration[CLIConfigurationKeys.CONTENT_ROOTS] ?: emptyList()
-
             compileClasspath.addAll(
                 contentRoots.filterIsInstance<JvmClasspathRoot>().map { it.file }
             )
-
             javaSourceRoots.addAll(contentRoots.filterIsInstance<JavaSourceRoot>().map { it.file })
         }
         val logger =

@@ -25,11 +25,12 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
-import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context.BooleanProcessorOptions.USE_NULL_AWARE_CONVERTER
 import androidx.room.processor.CustomConverterProcessor
 import androidx.room.processor.DaoProcessor
+import androidx.room.runKspTestWithK1
+import androidx.room.runProcessorTestWithK1
 import androidx.room.solver.types.CustomTypeConverterWrapper
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.context
@@ -405,7 +406,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = listOf(user, day, converters, dao),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -604,7 +605,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = listOf(source),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -680,7 +681,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runKspTest(
+        runKspTestWithK1(
             sources = listOf(converters),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -738,7 +739,7 @@ class NullabilityAwareTypeConverterStoreTest {
         """
                     .trimIndent()
             )
-        runKspTest(sources = listOf(source)) { invocation ->
+        runKspTestWithK1(sources = listOf(source)) { invocation ->
             val store = invocation.createStore("TimeConverter", "AwesomenessConverter")
             val instantType = invocation.processingEnv.requireType("java.time.Instant")
             val stringType = invocation.processingEnv.requireType("java.lang.String")
@@ -752,7 +753,7 @@ class NullabilityAwareTypeConverterStoreTest {
     /** Collect results for conversion from String to our type */
     private fun collectStringConversionResults(vararg selectedConverters: String): String {
         val result = StringBuilder()
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = listOf(source),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->
@@ -800,7 +801,7 @@ class NullabilityAwareTypeConverterStoreTest {
     /** Collect results for conversion from an unknown cursor type to our type */
     private fun collectCursorResults(vararg selectedConverters: String): String {
         val result = StringBuilder()
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources = listOf(source),
             options = mapOf(USE_NULL_AWARE_CONVERTER.argName to "true")
         ) { invocation ->

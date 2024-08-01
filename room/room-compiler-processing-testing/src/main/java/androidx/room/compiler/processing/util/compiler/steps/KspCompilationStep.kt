@@ -16,92 +16,31 @@
 
 package androidx.room.compiler.processing.util.compiler.steps
 
-import androidx.room.compiler.processing.util.FileResource
-import androidx.room.compiler.processing.util.compiler.DiagnosticsMessageCollector
 import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
-import androidx.room.compiler.processing.util.compiler.TestKspRegistrar
-import androidx.room.compiler.processing.util.compiler.toSourceSet
-import com.google.devtools.ksp.KspOptions
+import androidx.room.compiler.processing.util.compiler.Ksp1Compilation
+import androidx.room.compiler.processing.util.compiler.Ksp2Compilation
 import com.google.devtools.ksp.processing.SymbolProcessorProvider
 import java.io.File
-import org.jetbrains.kotlin.cli.common.ExitCode
-import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
+import org.jetbrains.kotlin.config.LanguageVersion
 
-/** Runs the Symbol Processors */
+/** Runs KSP to run the Symbol Processors */
 internal class KspCompilationStep(
     private val symbolProcessorProviders: List<SymbolProcessorProvider>,
     private val processorOptions: Map<String, String>
 ) : KotlinCompilationStep {
     override val name: String = "ksp"
 
-    private fun createKspOptions(workingDir: File): KspOptions.Builder {
-        return KspOptions.Builder().apply {
-            this.javaOutputDir = workingDir.resolve(JAVA_OUT_DIR)
-            this.kotlinOutputDir = workingDir.resolve(KOTLIN_OUT_DIR)
-            this.processingOptions.putAll(processorOptions)
-        }
-    }
-
-    @OptIn(ExperimentalCompilerApi::class)
     override fun execute(
         workingDir: File,
         arguments: CompilationStepArguments
     ): CompilationStepResult {
-        if (symbolProcessorProviders.isEmpty()) {
-            return CompilationStepResult.skip(arguments)
+        val languageVersion = KotlinCliRunner.getLanguageVersion(arguments.kotlincArguments)
+        return if (languageVersion < LanguageVersion.KOTLIN_2_0) {
+            Ksp1Compilation(name, symbolProcessorProviders, processorOptions)
+                .execute(workingDir, arguments)
+        } else {
+            Ksp2Compilation(name, symbolProcessorProviders, processorOptions)
+                .execute(workingDir, arguments)
         }
-        val kspMessages = DiagnosticsMessageCollector(name)
-        val result =
-            KotlinCliRunner.runKotlinCli(
-                arguments = arguments,
-                destinationDir = workingDir.resolve(CLASS_OUT_FOLDER_NAME),
-                pluginRegistrars =
-                    listOf(
-                        TestKspRegistrar(
-                            kspWorkingDir = workingDir.resolve("ksp-compiler"),
-                            baseOptions = createKspOptions(workingDir),
-                            processorProviders = symbolProcessorProviders,
-                            messageCollector = kspMessages
-                        )
-                    ),
-            )
-        // workaround for https://github.com/google/ksp/issues/623
-        val failureDueToWarnings =
-            result.kotlinCliArguments.allWarningsAsErrors && kspMessages.hasWarnings()
-
-        val generatedSources =
-            listOfNotNull(
-                workingDir.resolve(KOTLIN_OUT_DIR).toSourceSet(),
-                workingDir.resolve(JAVA_OUT_DIR).toSourceSet(),
-            )
-        val diagnostics =
-            resolveDiagnostics(
-                diagnostics = result.diagnostics + kspMessages.getDiagnostics(),
-                sourceSets = arguments.sourceSets + generatedSources
-            )
-        val outputResources = workingDir.resolve(RESOURCES_OUT_FOLDER_NAME)
-        val outputClasspath = listOf(result.compiledClasspath) + outputResources
-        val generatedResources =
-            outputResources
-                .walkTopDown()
-                .filter { it.isFile }
-                .map { FileResource(it.relativeTo(outputResources).path, it) }
-                .toList()
-        return CompilationStepResult(
-            success = result.exitCode == ExitCode.OK && !failureDueToWarnings,
-            generatedSourceRoots = generatedSources,
-            diagnostics = diagnostics,
-            nextCompilerArguments =
-                arguments.copy(sourceSets = arguments.sourceSets + generatedSources),
-            outputClasspath = outputClasspath,
-            generatedResources = generatedResources
-        )
-    }
-
-    companion object {
-        private const val JAVA_OUT_DIR = "generatedJava"
-        private const val KOTLIN_OUT_DIR = "generatedKotlin"
-        private const val CLASS_OUT_FOLDER_NAME = "class-out"
-        private const val RESOURCES_OUT_FOLDER_NAME = "ksp-compiler/resourceOutputDir"
     }
 }

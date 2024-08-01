@@ -25,9 +25,9 @@ import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.javac.JavacBasicAnnotationProcessor
 import androidx.room.compiler.processing.ksp.KspBasicAnnotationProcessor
+import androidx.room.compiler.processing.util.compiler.KotlinCliRunner
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.compile
-import androidx.room.compiler.processing.util.compiler.steps.KaptCompilationStep
 import com.google.common.truth.Truth.assertThat
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
@@ -318,7 +318,10 @@ class TestRunnerTest {
             )
         runProcessorTest(
             sources = listOf(src),
-            kotlincArguments = listOf("-Werror"),
+            // TODO(kuanyingchou): Remove the "1.9" args when we move to KAPT4. Our processor
+            //  doesn't get to run with KAPT3 and K2 as we pass "-Werror" and we got warning:
+            //  "Kapt currently doesn't support language version 2.0+. Falling back to 1.9."
+            kotlincArguments = listOf("-Werror", "-language-version=1.9", "-api-version=1.9"),
             javacArguments = listOf("-Werror") // needed for kapt as it uses javac,
         ) { invocation ->
             invocation.processingEnv.messager.printMessage(Diagnostic.Kind.WARNING, "some warning")
@@ -364,47 +367,46 @@ class TestRunnerTest {
 
     @Test
     fun testPluginOptions() {
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
             )
             .let { options -> assertThat(options).containsExactly("correctErrorTypes", "true") }
 
         // zero args
-        KaptCompilationStep.getPluginOptions("org.jetbrains.kotlin.kapt3", emptyList()).let {
-            options ->
+        KotlinCliRunner.getPluginOptions("org.jetbrains.kotlin.kapt3", emptyList()).let { options ->
             assertThat(options).isEmpty()
         }
 
         // odd number of args
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true", "-verbose")
             )
             .let { options -> assertThat(options).containsExactly("correctErrorTypes", "true") }
 
         // illegal format (missing "=")
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
             )
             .let { options -> assertThat(options).isEmpty() }
 
         // illegal format (missing "-P")
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf("plugin:org.jetbrains.kotlin.kapt3:correctErrorTypestrue")
             )
             .let { options -> assertThat(options).isEmpty() }
 
         // illegal format (wrong plugin id)
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf("-P", "plugin:abc:correctErrorTypes=true")
             )
             .let { options -> assertThat(options).isEmpty() }
 
-        KaptCompilationStep.getPluginOptions(
+        KotlinCliRunner.getPluginOptions(
                 "org.jetbrains.kotlin.kapt3",
                 listOf(
                     "-P",

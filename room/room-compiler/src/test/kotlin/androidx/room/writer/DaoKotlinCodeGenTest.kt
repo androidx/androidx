@@ -21,7 +21,6 @@ import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
-import org.jetbrains.kotlin.config.JvmDefaultMode
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -1033,8 +1032,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun delegatingFunctions_defaultImplBridge(
-        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
-        jvmDefaultMode: JvmDefaultMode
+        @TestParameter("disable", "all-compatibility", "all") jvmDefaultMode: String
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name
@@ -1110,8 +1108,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
     @Test
     fun transactionMethodAdapter_interface(
-        @TestParameter("DISABLE", "ALL_COMPATIBILITY", "ALL_INCOMPATIBLE")
-        jvmDefaultMode: JvmDefaultMode
+        @TestParameter("disable", "all-compatibility", "all") jvmDefaultMode: String
     ) {
         // For parametrized tests, use method name from reflection
         val testName = object {}.javaClass.enclosingMethod!!.name

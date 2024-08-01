@@ -87,7 +87,6 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
-    testImplementation(libs.kotlinCompilerEmbeddable)
     testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))

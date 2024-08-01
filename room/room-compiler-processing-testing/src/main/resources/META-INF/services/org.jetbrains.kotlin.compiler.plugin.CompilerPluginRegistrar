@@ -14,4 +14,4 @@
 # limitations under the License.
 #
 
-androidx.room.compiler.processing.util.compiler.DelegatingTestRegistrar$K1Registrar
+androidx.room.compiler.processing.util.compiler.DelegatingTestRegistrar$K2Registrar

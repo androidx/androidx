@@ -19,9 +19,9 @@ package androidx.room.processor
 import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.verifier.ColumnInfo
 import androidx.room.vo.DatabaseView
@@ -235,7 +235,7 @@ class DatabaseViewProcessorTest {
         verify: Boolean = true,
         handler: (view: DatabaseView, invocation: XTestInvocation) -> Unit
     ) {
-        runProcessorTest(sources = sources + Source.java(name, DATABASE_PREFIX + input)) {
+        runProcessorTestWithK1(sources = sources + Source.java(name, DATABASE_PREFIX + input)) {
             invocation ->
             val view = invocation.processingEnv.requireTypeElement(name)
             val verifier =

@@ -23,7 +23,6 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.MISSING_POJO_CONSTRUCTOR
@@ -33,6 +32,7 @@ import androidx.room.processor.ProcessorErrors.relationCannotFindEntityField
 import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionEntityField
 import androidx.room.processor.ProcessorErrors.relationCannotFindJunctionParentField
 import androidx.room.processor.ProcessorErrors.relationCannotFindParentEntityField
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
@@ -84,7 +84,7 @@ class PojoProcessorTest {
                 public void setBaseField(String baseField){ }
             }
         """
-        runProcessorTest(
+        runProcessorTestWithK1(
             sources =
                 listOf(
                     Source.java(
@@ -1054,7 +1054,7 @@ class PojoProcessorTest {
             $FOOTER
             """
             )
-        runProcessorTest(sources = listOf(pojo)) { invocation ->
+        runProcessorTestWithK1(sources = listOf(pojo)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement(MY_POJO)
             val pojo1 =
                 PojoProcessor.createFor(
@@ -1706,7 +1706,7 @@ class PojoProcessorTest {
                 "foo.bar.TestData.WithJvmOverloads"
             )
             .forEach {
-                runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
+                runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
                     PojoProcessor.createFor(
                             context = invocation.context,
                             element = invocation.processingEnv.requireTypeElement(it),
@@ -1721,7 +1721,7 @@ class PojoProcessorTest {
 
     @Test
     fun dataClass_withJvmOverloads_primaryConstructor() {
-        runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
+        runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
             PojoProcessor.createFor(
                     context = invocation.context,
                     element =
@@ -1751,7 +1751,7 @@ class PojoProcessorTest {
             }
             """
             )
-        runProcessorTest(sources = listOf(source)) { invocation ->
+        runProcessorTestWithK1(sources = listOf(source)) { invocation ->
             val pojo =
                 PojoProcessor.createFor(
                         context = invocation.context,
@@ -1767,7 +1767,7 @@ class PojoProcessorTest {
 
     @Test
     fun ignoredColumns_noConstructor() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1806,7 +1806,7 @@ class PojoProcessorTest {
 
     @Test
     fun ignoredColumns_noSetterGetter() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1843,7 +1843,7 @@ class PojoProcessorTest {
 
     @Test
     fun ignoredColumns_columnInfo() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1875,7 +1875,7 @@ class PojoProcessorTest {
 
     @Test
     fun ignoredColumns_missing() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1909,7 +1909,7 @@ class PojoProcessorTest {
 
     @Test
     fun noSetter_scopeBindStmt() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1938,7 +1938,7 @@ class PojoProcessorTest {
 
     @Test
     fun noSetter_scopeTwoWay() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -1970,7 +1970,7 @@ class PojoProcessorTest {
 
     @Test
     fun noSetter_scopeReadFromCursor() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -2002,7 +2002,7 @@ class PojoProcessorTest {
 
     @Test
     fun noGetter_scopeBindStmt() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -2034,7 +2034,7 @@ class PojoProcessorTest {
 
     @Test
     fun noGetter_scopeTwoWay() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -2066,7 +2066,7 @@ class PojoProcessorTest {
 
     @Test
     fun noGetter_scopeReadCursor() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.java(
                     MY_POJO.canonicalName,
@@ -2095,7 +2095,7 @@ class PojoProcessorTest {
 
     @Test
     fun setterStartsWithIs() {
-        runProcessorTest(
+        runProcessorTestWithK1(
             listOf(
                 Source.kotlin(
                     "Book.kt",
@@ -2163,7 +2163,7 @@ class PojoProcessorTest {
     @Test
     fun embedded_nullability() {
         listOf("foo.bar.TestData.SomeEmbeddedVals").forEach {
-            runProcessorTest(sources = listOf(TEST_DATA)) { invocation ->
+            runProcessorTestWithK1(sources = listOf(TEST_DATA)) { invocation ->
                 val result =
                     PojoProcessor.createFor(
                             context = invocation.context,
@@ -2211,7 +2211,7 @@ class PojoProcessorTest {
     ) {
         val pojoSource = Source.java(MY_POJO.canonicalName, code)
         val all = sources.toList() + pojoSource
-        runProcessorTest(sources = all, classpath = classpath) { invocation ->
+        runProcessorTestWithK1(sources = all, classpath = classpath) { invocation ->
             handler.invoke(
                 PojoProcessor.createFor(
                         context = invocation.context,

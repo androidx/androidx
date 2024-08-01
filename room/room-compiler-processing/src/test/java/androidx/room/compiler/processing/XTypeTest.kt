@@ -27,6 +27,7 @@ import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.ksp.ERROR_JTYPE_NAME
 import androidx.room.compiler.processing.ksp.ERROR_KTYPE_NAME
 import androidx.room.compiler.processing.ksp.KspTypeArgumentType
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asJClassName
@@ -1084,7 +1085,10 @@ class XTypeTest {
             """
                     .trimIndent()
             )
-        runProcessorTest(sources = listOf(src, javaSource)) { invocation ->
+        runProcessorTest(
+            sources = listOf(src, javaSource),
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+        ) { invocation ->
             val styleApplier = invocation.processingEnv.requireType("StyleApplier")
             val styleBuilder = invocation.processingEnv.requireType("StyleBuilder")
             assertThat(styleApplier.typeName.dumpToString(5))
@@ -1618,7 +1622,8 @@ class XTypeTest {
                             .trimIndent()
                     )
                 ),
-            createProcessingSteps = { listOf(WildcardProcessingStep()) }
+            createProcessingSteps = { listOf(WildcardProcessingStep()) },
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { result ->
             result.hasError()
             result.hasErrorCount(1)
@@ -2326,7 +2331,8 @@ class XTypeTest {
                     compileFiles(listOf(kotlinSrc, javaSrc))
                 } else {
                     emptyList()
-                }
+                },
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")
             kotlinElm.getMethodByJvmName("kotlinValueClassDirectUsage").apply {

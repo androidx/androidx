@@ -549,3 +549,6 @@ private inline fun withTempDir(block: (tmpDir: File) -> Unit) {
         tmpDir.deleteRecursively()
     }
 }
+
+/** Kotlin compiler arguments for K1 */
+val KOTLINC_LANGUAGE_1_9_ARGS = listOf("-language-version=1.9", "-api-version=1.9")

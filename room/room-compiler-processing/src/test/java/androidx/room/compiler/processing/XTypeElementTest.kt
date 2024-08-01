@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
@@ -53,7 +54,11 @@ import org.junit.runners.Parameterized
 class XTypeElementTest(
     private val isPreCompiled: Boolean,
 ) {
-    private fun runTest(sources: List<Source>, handler: (XTestInvocation) -> Unit) {
+    private fun runTest(
+        sources: List<Source>,
+        kotlincArgs: List<String> = emptyList(),
+        handler: (XTestInvocation) -> Unit
+    ) {
         if (isPreCompiled) {
             val compiled = compileFiles(sources)
             val hasKotlinSources = sources.any { it is Source.KotlinSource }
@@ -66,9 +71,14 @@ class XTypeElementTest(
             val newSources =
                 kotlinSources +
                     Source.java("PlaceholderJava", "public class " + "PlaceholderJava {}")
-            runProcessorTest(sources = newSources, handler = handler, classpath = compiled)
+            runProcessorTest(
+                sources = newSources,
+                handler = handler,
+                classpath = compiled,
+                kotlincArguments = kotlincArgs
+            )
         } else {
-            runProcessorTest(sources = sources, handler = handler)
+            runProcessorTest(sources = sources, handler = handler, kotlincArguments = kotlincArgs)
         }
     }
 
@@ -1348,6 +1358,7 @@ class XTypeElementTest(
                             .trimIndent()
                     )
                 ),
+            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val appSubject = invocation.processingEnv.requireTypeElement("test.Subject")
             val methodNames = appSubject.getAllMethods().map { it.name }.toList()
@@ -1614,7 +1625,7 @@ class XTypeElementTest(
             """
                     .trimIndent()
             )
-        runTest(sources = listOf(src)) { invocation ->
+        runTest(sources = listOf(src), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
             val defaultArgsConstructors =
                 invocation.processingEnv
                     .requireTypeElement("DefaultArgs")
@@ -1648,24 +1659,45 @@ class XTypeElementTest(
                     )
                     .inOrder()
             } else {
-                assertThat(defaultArgsConstructors)
-                    .containsExactly(
-                        "DefaultArgs(int,double,long)",
-                        "DefaultArgs(double)",
-                        "DefaultArgs(int,double)"
-                    )
-                    .inOrder()
+                if (invocation.isKsp) {
+                    assertThat(defaultArgsConstructors)
+                        .containsExactly(
+                            "DefaultArgs(int,double,long)",
+                            "DefaultArgs(double)",
+                            "DefaultArgs(int,double)",
+                        )
+                        .inOrder()
+                } else {
+                    assertThat(defaultArgsConstructors)
+                        .containsExactly(
+                            "DefaultArgs(double)",
+                            "DefaultArgs(int,double)",
+                            "DefaultArgs(int,double,long)",
+                        )
+                        .inOrder()
+                }
                 assertThat(noDefaultArgsConstructors)
                     .containsExactly("NoDefaultArgs(int,double,long)")
                     .inOrder()
-                assertThat(allDefaultArgsConstructors)
-                    .containsExactly(
-                        "AllDefaultArgs(int,double,long)",
-                        "AllDefaultArgs()",
-                        "AllDefaultArgs(int)",
-                        "AllDefaultArgs(int,double)"
-                    )
-                    .inOrder()
+                if (invocation.isKsp) {
+                    assertThat(allDefaultArgsConstructors)
+                        .containsExactly(
+                            "AllDefaultArgs(int,double,long)",
+                            "AllDefaultArgs()",
+                            "AllDefaultArgs(int)",
+                            "AllDefaultArgs(int,double)",
+                        )
+                        .inOrder()
+                } else {
+                    assertThat(allDefaultArgsConstructors)
+                        .containsExactly(
+                            "AllDefaultArgs()",
+                            "AllDefaultArgs(int)",
+                            "AllDefaultArgs(int,double)",
+                            "AllDefaultArgs(int,double,long)",
+                        )
+                        .inOrder()
+                }
             }
 
             val subjects = listOf("DefaultArgs", "NoDefaultArgs", "AllDefaultArgs")

@@ -18,6 +18,7 @@ package androidx.privacysandbox.tools.testing
 
 import androidx.room.compiler.processing.util.DiagnosticLocation
 import androidx.room.compiler.processing.util.DiagnosticMessage
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compiler.TestCompilationArguments
 import androidx.room.compiler.processing.util.compiler.TestCompilationResult
@@ -50,6 +51,7 @@ object CompilationTestHelper {
                 classpath = extraClasspath,
                 symbolProcessorProviders = symbolProcessorProviders,
                 processorOptions = processorOptions,
+                kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
             )
         )
     }

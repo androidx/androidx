@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -461,7 +461,7 @@ class PojoProcessorTargetMethodTest {
     }
 
     private fun singleRun(vararg sources: Source, handler: ((XTestInvocation) -> Unit)? = null) {
-        runProcessorTest(sources = sources.toList()) { invocation ->
+        runProcessorTestWithK1(sources = sources.toList()) { invocation ->
             PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_POJO),
@@ -506,7 +506,7 @@ class PojoProcessorTargetMethodTest {
         val pojoSource = Source.java(MY_POJO.canonicalName, pojoCode)
         val autoValuePojoSource = Source.java(AUTOVALUE_MY_POJO.canonicalName, autoValuePojoCode)
         val all = sources.toList() + pojoSource + autoValuePojoSource
-        return runProcessorTest(sources = all) { invocation ->
+        return runProcessorTestWithK1(sources = all) { invocation ->
             PojoProcessor.createFor(
                     context = invocation.context,
                     element = invocation.processingEnv.requireTypeElement(MY_POJO),

@@ -21,6 +21,7 @@ import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.util.CompilationTestCapabilities
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -103,7 +104,11 @@ class KspTypeNamesGoldenTest {
             collectSignaturesInto(invocation, golden)
         }
         val ksp = mutableMapOf<String, List<TypeName>>()
-        runKspTest(sources = sources, classpath = classpath) { invocation ->
+        runKspTest(
+            sources = sources,
+            classpath = classpath,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+        ) { invocation ->
             collectSignaturesInto(invocation, ksp)
         }
 

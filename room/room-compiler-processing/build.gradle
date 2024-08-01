@@ -71,7 +71,7 @@ configurations {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
+    api(libs.kotlinStdlibJdk8)
     api(libs.javapoet)
     api(libs.kotlinPoet)
     api(libs.kotlinPoetJavaPoet)
@@ -82,14 +82,12 @@ dependencies {
         exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
     }
     implementation(libs.kspApi)
-    implementation(libs.kotlinStdlibJdk8) // KSP defines older version as dependency, force update.
 
     testImplementation("androidx.annotation:annotation:1.8.1")
     testImplementation(libs.googleCompileTesting)
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
-    testImplementation(libs.ksp)
-    testImplementation(libs.kotlinMetadataJvm)
+    testImplementation(libs.kotlinMetadataJvm) // Due to being shadowed in main dependency
     testImplementation(libs.testParameterInjector)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-common"))
@@ -109,6 +107,9 @@ tasks.withType(KotlinCompile).configureEach {
 tasks.withType(Test).configureEach { test ->
     test.maxParallelForks(2)
     test.systemProperty("androidx.room.compiler.processing.strict", "true")
+    // With the move to K2 and KSP2 the memory usage has increased so we enlarge the heap
+    // to prevent OOM while running all the tests in one go.
+    test.maxHeapSize("8g")
 }
 
 androidx {

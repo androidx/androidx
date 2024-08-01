@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
-import androidx.room.compiler.processing.util.runKspTest
+import androidx.room.runKspTestWithK1
 import androidx.room.testing.context
 import org.junit.Test
 
@@ -136,7 +136,7 @@ class DatabaseConstructorProcessorTest {
     }
 
     private fun runTest(constructorSource: Source, handler: (XTestInvocation) -> Unit = { _ -> }) {
-        runKspTest(sources = listOf(databaseSource, constructorSource)) { invocation ->
+        runKspTestWithK1(sources = listOf(databaseSource, constructorSource)) { invocation ->
             val entity =
                 invocation.roundEnv
                     .getElementsAnnotatedWith(androidx.room.Database::class.qualifiedName!!)

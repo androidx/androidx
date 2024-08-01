@@ -23,9 +23,9 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeName.Companion.PRIMITIVE_LONG
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
@@ -2093,16 +2093,9 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             sources = listOf(COMMON.USER)
         ) { _, invocation ->
             invocation.assertCompilationResult {
-                // TODO: https://github.com/google/ksp/issues/603
-                // KSP validator does not validate annotation types so we will get another error
-                // down the line.
-                if (invocation.isKsp) {
-                    hasErrorContaining(ProcessorErrors.foreignKeyNotAnEntity("<Error>")).onLine(11)
-                } else {
-                    hasErrorContaining(
-                        "Element 'foo.bar.MyEntity' references a type that is not present"
-                    )
-                }
+                hasErrorContaining(
+                    "Element 'foo.bar.MyEntity' references a type that is not present"
+                )
             }
         }
     }
@@ -2637,7 +2630,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             """
                     .trimIndent()
             )
-        runProcessorTest(sources = listOf(src)) { invocation ->
+        runProcessorTestWithK1(sources = listOf(src)) { invocation ->
             val parser =
                 TableEntityProcessor(
                     invocation.context,

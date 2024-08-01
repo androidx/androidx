@@ -26,6 +26,7 @@ import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.testcode.TestSuppressWarnings
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getDeclaredField
@@ -34,7 +35,6 @@ import androidx.room.compiler.processing.util.runKaptTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
-import com.google.devtools.ksp.common.impl.KSNameImpl
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.JavaFile
@@ -562,7 +562,10 @@ class XConvertersTest {
 
     @Test
     fun annotationValues() {
-        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+        runProcessorTest(
+            sources = listOf(kotlinSrc, javaSrc),
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
+        ) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 
@@ -858,7 +861,7 @@ class XConvertersTest {
         (this.processingEnv as JavacProcessingEnv).delegate.elementUtils.getTypeElement(fqn)
 
     private fun XTestInvocation.getKspTypeElement(fqn: String) =
-        (this.processingEnv as KspProcessingEnv)
-            .resolver
-            .getClassDeclarationByName(KSNameImpl.getCached(fqn))!!
+        (this.processingEnv as KspProcessingEnv).resolver.let { resolver ->
+            resolver.getClassDeclarationByName(resolver.getKSNameFromString(fqn))
+        }!!
 }

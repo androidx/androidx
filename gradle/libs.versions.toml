@@ -225,6 +225,8 @@ kotlinPoetJavaPoet = { module = "com.squareup:kotlinpoet-javapoet", version = "1
 kotlinXHtml = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version = "0.7.3" }
 ksp = { module = "com.google.devtools.ksp:symbol-processing", version.ref = "ksp" }
 kspApi = { module = "com.google.devtools.ksp:symbol-processing-api", version.ref = "ksp" }
+kspCommon = { module = "com.google.devtools.ksp:symbol-processing-common-deps", version.ref = "ksp" }
+kspEmbeddable = { module = "com.google.devtools.ksp:symbol-processing-aa-embeddable", version.ref = "ksp" }
 kspGradlePluginz = { module = "com.google.devtools.ksp:symbol-processing-gradle-plugin", version.ref = "ksp" }
 ktfmt = { module = "com.facebook:ktfmt", version.ref = "ktfmt" }
 kxml2 = { module = "net.sf.kxml:kxml2", version = "2.3.0" }

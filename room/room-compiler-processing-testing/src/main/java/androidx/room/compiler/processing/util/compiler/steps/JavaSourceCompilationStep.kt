@@ -25,9 +25,11 @@ import java.io.File
 import javax.tools.JavaFileObject
 
 /**
- * Compiles java sources. Note that this does not run java annotation processors. They are run in
- * the KAPT step for consistency. When a test is run with purely java sources, it uses the google
- * compile testing library directly instead of the kotlin compilation pipeline.
+ * Compiles Java sources.
+ *
+ * Note that this does not run Java annotation processors. They are run in the KAPT step for
+ * consistency. When a test is run with purely Java sources, it uses google-compile-testing library
+ * directly instead of the Kotlin compilation pipeline.
  */
 internal object JavaSourceCompilationStep : KotlinCompilationStep {
     override val name = "javaSourceCompilation"

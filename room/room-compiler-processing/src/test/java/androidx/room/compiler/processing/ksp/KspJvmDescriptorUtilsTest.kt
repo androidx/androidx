@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.isConstructor
 import androidx.room.compiler.processing.isField
 import androidx.room.compiler.processing.isMethod
 import androidx.room.compiler.processing.isTypeElement
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -51,7 +52,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_simple() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly("emptyMethod()V")
             }
@@ -82,8 +83,8 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
 
     @Test
     fun descriptor_field() {
-        fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+        fun checkSources(vararg sources: Source, kotlincArgs: List<String> = emptyList()) {
+            runTest(sources = sources, kotlincArgs = kotlincArgs) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "field1:I",
@@ -108,7 +109,8 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
                     @Describe List<String> field4;
                 }
                 """
-            )
+            ),
+            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         )
         checkSources(
             Source.kotlin(
@@ -129,7 +131,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_erasured() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsAtLeast(
                         "method1(Landroidx/room/test/Foo;)V",
@@ -204,7 +206,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_class_erasured() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1(Ljava/lang/Object;)Ljava/lang/Object;",
@@ -277,7 +279,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_primitiveParams() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly("method1(ZI)V", "method2(C)B", "method3(DF)V", "method4(JS)V")
             }
@@ -315,7 +317,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_classParam_javaTypes() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1(Ljava/lang/Object;)V",
@@ -363,7 +365,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_classParam_testClass() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1(Landroidx/room/test/DataClass;)V",
@@ -408,7 +410,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_classParam_innerTestClass() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1(Landroidx/room/test/DataClass\$MemberInnerData;)V",
@@ -467,7 +469,7 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
     @Test
     fun descriptor_method_arrayParams() {
         fun checkSources(vararg sources: Source) {
-            runTest(sources = sources) { invocation ->
+            runTest(sources = sources, kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
                 assertThat(invocation.annotatedElements().map(this::descriptor))
                     .containsExactly(
                         "method1([Landroidx/room/test/DataClass;)V",
@@ -515,7 +517,11 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
         )
     }
 
-    private fun runTest(vararg sources: Source, handler: (XTestInvocation) -> Unit) {
+    private fun runTest(
+        vararg sources: Source,
+        kotlincArgs: List<String> = emptyList(),
+        handler: (XTestInvocation) -> Unit
+    ) {
         if (isPreCompiled) {
             val compiled = compileFiles(listOf(*sources) + describeAnnotation)
             val hasKotlinSources = sources.any { it is Source.KotlinSource }
@@ -528,9 +534,18 @@ class KspJvmDescriptorUtilsTest(private val isPreCompiled: Boolean) {
             val newSources =
                 kotlinSources +
                     Source.java("PlaceholderJava", "public class " + "PlaceholderJava {}")
-            runProcessorTest(sources = newSources, handler = handler, classpath = compiled)
+            runProcessorTest(
+                sources = newSources,
+                handler = handler,
+                classpath = compiled,
+                kotlincArguments = kotlincArgs
+            )
         } else {
-            runProcessorTest(sources = listOf(*sources) + describeAnnotation, handler = handler)
+            runProcessorTest(
+                sources = listOf(*sources) + describeAnnotation,
+                handler = handler,
+                kotlincArguments = kotlincArgs
+            )
         }
     }
 

@@ -23,9 +23,9 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.ext.RoomTypeNames.ROOM_DB
 import androidx.room.processor.DaoProcessor
+import androidx.room.runProcessorTestWithK1
 import androidx.room.testing.context
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -148,10 +148,10 @@ class DaoWriterTest {
                     COMMON.PUBLISHER
                 )
             )
-        runProcessorTest(sources = sources, classpath = libs) { invocation ->
+        runProcessorTestWithK1(sources = sources, classpath = libs) { invocation ->
             if (invocation.isKsp && !javaLambdaSyntaxAvailable) {
                 // Skip KSP backend without lambda syntax, it is a nonsensical combination.
-                return@runProcessorTest
+                return@runProcessorTestWithK1
             }
             val dao =
                 invocation.roundEnv

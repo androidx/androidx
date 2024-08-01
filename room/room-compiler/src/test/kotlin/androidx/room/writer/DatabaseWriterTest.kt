@@ -22,8 +22,8 @@ import androidx.room.RoomProcessor
 import androidx.room.compiler.processing.util.CompilationResultSubject
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.processor.Context
+import androidx.room.runProcessorTestWithK1
 import androidx.testutils.generateAllEnumerations
 import loadTestSource
 import org.junit.Test
@@ -159,7 +159,7 @@ private fun singleDb(
                 COMMON.LISTENABLE_FUTURE
             )
         )
-    runProcessorTest(
+    runProcessorTestWithK1(
         sources = sources,
         classpath = libs,
         options = mapOf(Context.BooleanProcessorOptions.GENERATE_KOTLIN.argName to "false"),
