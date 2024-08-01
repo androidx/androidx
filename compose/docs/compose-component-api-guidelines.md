@@ -632,7 +632,7 @@ fun ColoredCanvas(
 The order of parameters in a component must be as follows:
 
 1. Required parameters.
-2. Single` modifier: Modifier = Modifier`.
+2. Single `modifier: Modifier = Modifier`.
 3. Optional parameters.
 4. (optional) trailing `@Composable` lambda.
 
