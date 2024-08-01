@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.collection.IntList
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
@@ -61,6 +62,9 @@ internal abstract class LazyListMeasuredItemProvider(
      */
     val keyIndexMap: LazyLayoutKeyIndexMap
         get() = itemProvider.keyIndexMap
+
+    val headerIndexes: IntList
+        get() = itemProvider.headerIndexes
 
     abstract fun createItem(
         index: Int,

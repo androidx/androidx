@@ -23,6 +23,9 @@ import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
+import androidx.compose.foundation.lazy.layout.applyStickyItems
+import androidx.compose.foundation.lazy.layout.updatedVisibleItems
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -32,7 +35,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -58,7 +60,6 @@ internal fun measureLazyList(
     scrollToBeConsumed: Float,
     constraints: Constraints,
     isVertical: Boolean,
-    headerIndexes: List<Int>,
     verticalArrangement: Arrangement.Vertical?,
     horizontalArrangement: Arrangement.Horizontal?,
     reverseLayout: Boolean,
@@ -72,10 +73,12 @@ internal fun measureLazyList(
     coroutineScope: CoroutineScope,
     placementScopeInvalidator: ObservableScopeInvalidator,
     graphicsContext: GraphicsContext,
+    stickyItemsPlacement: StickyItemsPlacement?,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyListMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "invalid beforeContentPadding" }
     requirePrecondition(afterContentPadding >= 0) { "invalid afterContentPadding" }
+
     if (itemsCount <= 0) {
         // empty data set. reset the current scroll and report zero size
         var layoutWidth = constraints.minWidth
@@ -392,18 +395,17 @@ internal fun measureLazyList(
             }
         }
 
-        val headerItem =
-            if (headerIndexes.isNotEmpty()) {
-                findOrComposeLazyListHeader(
-                    composedVisibleItems = positionedItems,
-                    itemProvider = measuredItemProvider,
-                    headerIndexes = headerIndexes,
-                    beforeContentPadding = beforeContentPadding,
-                    layoutWidth = layoutWidth,
-                    layoutHeight = layoutHeight
-                )
-            } else {
-                null
+        // apply sticky items logic.
+        val stickingItems =
+            stickyItemsPlacement.applyStickyItems(
+                positionedItems,
+                measuredItemProvider.headerIndexes,
+                beforeContentPadding,
+                afterContentPadding,
+                layoutWidth,
+                layoutHeight
+            ) {
+                measuredItemProvider.getAndMeasure(it)
             }
 
         return LazyListMeasureResult(
@@ -413,24 +415,22 @@ internal fun measureLazyList(
             consumedScroll = consumedScroll,
             measureResult =
                 layout(layoutWidth, layoutHeight) {
-                    positionedItems.fastForEach {
-                        if (it !== headerItem) {
-                            it.place(this, isLookingAhead)
-                        }
-                    }
-                    // the header item should be placed (drawn) after all other items
-                    headerItem?.place(this, isLookingAhead)
+                    // place normal items
+                    positionedItems.fastForEach { it.place(this, isLookingAhead) }
+                    // stickingItems should be placed after all other items
+                    stickingItems.fastForEach { it.place(this, isLookingAhead) }
+
                     // we attach it during the placement so LazyListState can trigger re-placement
                     placementScopeInvalidator.attachToScope()
                 },
             scrollBackAmount = scrollBackAmount,
             visibleItemsInfo =
-                if (noExtraItems) positionedItems
-                else
-                    positionedItems.fastFilter {
-                        (it.index >= visibleItems.first().index &&
-                            it.index <= visibleItems.last().index) || it === headerItem
-                    },
+                updatedVisibleItems(
+                    noExtraItems = noExtraItems,
+                    currentVisibleItems = visibleItems,
+                    positionedItems = positionedItems,
+                    stickingItems = stickingItems
+                ),
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = maxOffset + afterContentPadding,
             totalItemsCount = itemsCount,

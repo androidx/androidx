@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
@@ -102,7 +103,7 @@ internal fun LazyList(
             verticalArrangement,
             coroutineScope,
             graphicsContext,
-            stickyHeadersEnabled = stickyHeadersEnabled,
+            if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null
         )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -179,7 +180,8 @@ private fun rememberLazyListMeasurePolicy(
     coroutineScope: CoroutineScope,
     /** Used for creating graphics layers */
     graphicsContext: GraphicsContext,
-    stickyHeadersEnabled: Boolean,
+    /** Scroll behavior for sticky items */
+    stickyItemsPlacement: StickyItemsPlacement?
 ) =
     remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
         state,
@@ -191,7 +193,7 @@ private fun rememberLazyListMeasurePolicy(
         horizontalArrangement,
         verticalArrangement,
         graphicsContext,
-        stickyHeadersEnabled,
+        stickyItemsPlacement,
     ) {
         { containerConstraints ->
             state.measurementScopeInvalidator.attachToScope()
@@ -343,14 +345,6 @@ private fun rememberLazyListMeasurePolicy(
                     state.scrollDeltaBetweenPasses
                 }
 
-            @Suppress("PrimitiveInCollection")
-            val headerIndexes =
-                if (stickyHeadersEnabled) {
-                    itemProvider.headerIndexes
-                } else {
-                    emptyList()
-                }
-
             // todo: wrap with snapshot when b/341782245 is resolved
             val measureResult =
                 measureLazyList(
@@ -365,7 +359,6 @@ private fun rememberLazyListMeasurePolicy(
                     scrollToBeConsumed = scrollToBeConsumed,
                     constraints = contentConstraints,
                     isVertical = isVertical,
-                    headerIndexes = headerIndexes,
                     verticalArrangement = verticalArrangement,
                     horizontalArrangement = horizontalArrangement,
                     reverseLayout = reverseLayout,
@@ -379,6 +372,7 @@ private fun rememberLazyListMeasurePolicy(
                     coroutineScope = coroutineScope,
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     graphicsContext = graphicsContext,
+                    stickyItemsPlacement = stickyItemsPlacement,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),

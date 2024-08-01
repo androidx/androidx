@@ -18,6 +18,7 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastForEach
 
 internal interface LazyLayoutMeasuredItem {
     val index: Int
@@ -40,3 +41,33 @@ internal interface LazyLayoutMeasuredItem {
 internal interface LazyLayoutMeasuredItemProvider<T : LazyLayoutMeasuredItem> {
     fun getAndMeasure(index: Int, lane: Int, span: Int, constraints: Constraints): T
 }
+
+internal fun <T : LazyLayoutMeasuredItem> updatedVisibleItems(
+    noExtraItems: Boolean,
+    currentVisibleItems: List<T>,
+    positionedItems: List<T>,
+    stickingItems: List<T>
+): List<T> {
+    if (positionedItems.isEmpty() || currentVisibleItems.isEmpty()) return emptyList()
+    val firstVisibleIndex =
+        if (noExtraItems) positionedItems.first().index else currentVisibleItems.first().index
+    val lastVisibleIndex =
+        if (noExtraItems) positionedItems.last().index else currentVisibleItems.last().index
+
+    val finalVisibleItems = stickingItems.toMutableList()
+
+    // positioned items between firstVisibleIndex and lastVisibleIndex
+    positionedItems.fastForEach {
+        if (it.index in firstVisibleIndex..lastVisibleIndex) finalVisibleItems.add(it)
+    }
+
+    finalVisibleItems.sortWith(LazyLayoutMeasuredItemIndexComparator)
+
+    return finalVisibleItems
+}
+
+private val LazyLayoutMeasuredItem.mainAxisOffset
+    get() = getOffset(0).let { if (isVertical) it.y else it.x }
+
+private val LazyLayoutMeasuredItemIndexComparator =
+    Comparator<LazyLayoutMeasuredItem> { a, b -> a.index.compareTo(b.index) }

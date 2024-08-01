@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.collection.IntList
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
@@ -31,7 +32,7 @@ import androidx.compose.runtime.rememberUpdatedState
 internal interface LazyListItemProvider : LazyLayoutItemProvider {
     val keyIndexMap: LazyLayoutKeyIndexMap
     /** The list of indexes of the sticky header items */
-    val headerIndexes: List<Int>
+    val headerIndexes: IntList
     /** The scope used by the item content lambdas */
     val itemScope: LazyItemScopeImpl
 }
@@ -90,7 +91,7 @@ constructor(
 
     override fun getContentType(index: Int): Any? = intervalContent.getContentType(index)
 
-    override val headerIndexes: List<Int>
+    override val headerIndexes: IntList
         get() = intervalContent.headerIndexes
 
     override fun getIndex(key: Any): Int = keyIndexMap.getIndex(key)
