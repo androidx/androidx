@@ -393,6 +393,8 @@ public final class WindowInsetsControllerCompat {
     }
 
     private static class Impl {
+        static final int KEY_BEHAVIOR = 356039078;
+
         Impl() {
             //private
         }
@@ -412,7 +414,7 @@ public final class WindowInsetsControllerCompat {
         }
 
         int getSystemBarsBehavior() {
-            return 0;
+            return BEHAVIOR_DEFAULT;
         }
 
         public boolean isAppearanceLightStatusBars() {
@@ -533,6 +535,7 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         void setSystemBarsBehavior(int behavior) {
+            mWindow.getDecorView().setTag(KEY_BEHAVIOR, behavior);
             switch (behavior) {
                 case BEHAVIOR_DEFAULT:
                     unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
@@ -551,7 +554,8 @@ public final class WindowInsetsControllerCompat {
 
         @Override
         int getSystemBarsBehavior() {
-            return 0;
+            final Object behaviorTag = mWindow.getDecorView().getTag(KEY_BEHAVIOR);
+            return behaviorTag != null ? (int) behaviorTag : BEHAVIOR_DEFAULT;
         }
 
         @Override
@@ -777,7 +781,28 @@ public final class WindowInsetsControllerCompat {
          */
         @Override
         void setSystemBarsBehavior(@Behavior int behavior) {
-            mInsetsController.setSystemBarsBehavior(behavior);
+            if (mWindow != null) {
+                // Use the legacy way to control the behavior as a workaround because API 30 has a
+                // bug that the behavior might be cleared unexpectedly after setting a LayoutParam
+                // to a window.
+                mWindow.getDecorView().setTag(KEY_BEHAVIOR, behavior);
+                switch (behavior) {
+                    case BEHAVIOR_DEFAULT:
+                        unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                        setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                        break;
+                    case BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE:
+                        unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE);
+                        setSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                        break;
+                    case BEHAVIOR_SHOW_BARS_BY_TOUCH:
+                        unsetSystemUiFlag(View.SYSTEM_UI_FLAG_IMMERSIVE
+                                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                        break;
+                }
+            } else {
+                mInsetsController.setSystemBarsBehavior(behavior);
+            }
         }
 
         /**
@@ -790,7 +815,12 @@ public final class WindowInsetsControllerCompat {
         @Override
         @Behavior
         int getSystemBarsBehavior() {
-            return mInsetsController.getSystemBarsBehavior();
+            if (mWindow != null) {
+                final Object behaviorTag = mWindow.getDecorView().getTag(KEY_BEHAVIOR);
+                return behaviorTag != null ? (int) behaviorTag : BEHAVIOR_DEFAULT;
+            } else {
+                return mInsetsController.getSystemBarsBehavior();
+            }
         }
 
         @Override
@@ -839,8 +869,48 @@ public final class WindowInsetsControllerCompat {
         }
     }
 
+    @RequiresApi(31)
+    private static class Impl31 extends Impl30 {
+
+        Impl31(@NonNull Window window,
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(window, compatController, softwareKeyboardControllerCompat);
+        }
+
+        Impl31(@NonNull WindowInsetsController insetsController,
+                @NonNull WindowInsetsControllerCompat compatController,
+                @NonNull SoftwareKeyboardControllerCompat softwareKeyboardControllerCompat) {
+            super(insetsController, compatController, softwareKeyboardControllerCompat);
+        }
+
+        /**
+         * Controls the behavior of system bars.
+         *
+         * @param behavior Determines how the bars behave when being hidden by the application.
+         * @see #getSystemBarsBehavior
+         */
+        @Override
+        void setSystemBarsBehavior(@Behavior int behavior) {
+            mInsetsController.setSystemBarsBehavior(behavior);
+        }
+
+        /**
+         * Retrieves the requested behavior of system bars.
+         *
+         * @return the system bar behavior controlled by this window.
+         * @see #setSystemBarsBehavior(int)
+         */
+        @SuppressLint("WrongConstant")
+        @Override
+        @Behavior
+        int getSystemBarsBehavior() {
+            return mInsetsController.getSystemBarsBehavior();
+        }
+    }
+
     @RequiresApi(35)
-    private static class Impl35 extends Impl30 {
+    private static class Impl35 extends Impl31 {
 
         Impl35(@NonNull Window window,
                 @NonNull WindowInsetsControllerCompat compatController,
