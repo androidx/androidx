@@ -32,7 +32,7 @@ internal fun String.toSnakeCase(): String =
  * This functionality is a stopgap as we migrate to actually using JSON in CI.
  */
 internal fun String.toOutputMetricName() =
-    this.replaceFirstChar { it.lowercase(Locale.getDefault()) }
+    this.replaceFirstChar { it.lowercase(Locale.US) }
         .toSnakeCase()
         .replace(Regex("_ns$"), "_nanos")
         .replace(Regex("_ms$"), "_millis")
