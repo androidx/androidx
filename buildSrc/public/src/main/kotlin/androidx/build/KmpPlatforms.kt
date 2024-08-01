@@ -46,12 +46,10 @@ enum class PlatformGroup {
         val native = listOf(MAC, LINUX, WINDOWS, ANDROID_NATIVE)
 
         /**
-         * Target platform groups which are enabled by default.
-         *
-         * Do *not* enable [JS] unless you have read and understand this:
-         * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
+         * Target platform groups which are enabled by default. We currently enable all platforms by
+         * default.
          */
-        val enabledByDefault = listOf(JVM, DESKTOP, MAC, LINUX, WINDOWS, ANDROID_NATIVE, WASM)
+        val enabledByDefault = listOf(ANDROID_NATIVE, DESKTOP, JS, JVM, LINUX, MAC, WASM, WINDOWS)
     }
 }
 

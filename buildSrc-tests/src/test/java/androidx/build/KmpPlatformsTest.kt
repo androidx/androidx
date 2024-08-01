@@ -32,7 +32,10 @@ class KmpPlatformsTest {
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE))
+                    PlatformGroup.ANDROID_NATIVE,
+                    PlatformGroup.JS
+                )
+            )
     }
 
     @Test
@@ -47,7 +50,9 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                ))
+                    PlatformGroup.JS,
+                )
+            )
     }
 
     @Test
@@ -62,12 +67,14 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                ))
+                    PlatformGroup.JS,
+                )
+            )
     }
 
     @Test
     fun withNoPlatforms_itParsesTheFlagCorrectly() {
-        assertThat(parseTargetPlatformsFlag("-jvm,-desktop,-native,-wasm"))
+        assertThat(parseTargetPlatformsFlag("-jvm,-desktop,-native,-wasm,-js"))
             .isEqualTo(emptySet<PlatformGroup>())
     }
 
@@ -84,7 +91,9 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                ))
+                    PlatformGroup.JS,
+                )
+            )
     }
 
     @Test
@@ -100,12 +109,14 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                ))
+                    PlatformGroup.JS,
+                )
+            )
     }
 
     @Test
     fun withNegativeFlags_itParsesTheFlagCorrectly() {
-        assertThat(parseTargetPlatformsFlag("-jvm,+mac,-wasm"))
+        assertThat(parseTargetPlatformsFlag("-jvm,+mac,-wasm,-js"))
             .isEqualTo(
                 setOf(
                     PlatformGroup.MAC,
@@ -113,7 +124,8 @@ class KmpPlatformsTest {
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
                     PlatformGroup.ANDROID_NATIVE,
-                ))
+                )
+            )
     }
 
     @Test
@@ -127,7 +139,10 @@ class KmpPlatformsTest {
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE))
+                    PlatformGroup.ANDROID_NATIVE,
+                    PlatformGroup.JS
+                )
+            )
     }
 
     @Test
@@ -140,18 +155,22 @@ class KmpPlatformsTest {
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE))
+                    PlatformGroup.ANDROID_NATIVE
+                )
+            )
     }
 
     @Test
     fun withRedundentFlags_itParsesTheFlagCorrectly() {
-        assertThat(parseTargetPlatformsFlag("-wasm,-jvm,+native,+linux,+mac,+linux,-wasm"))
+        assertThat(parseTargetPlatformsFlag("-wasm,-jvm,+native,+linux,+mac,+linux,-wasm,-js"))
             .isEqualTo(
                 setOf(
                     PlatformGroup.MAC,
                     PlatformGroup.WINDOWS,
                     PlatformGroup.LINUX,
                     PlatformGroup.DESKTOP,
-                    PlatformGroup.ANDROID_NATIVE))
+                    PlatformGroup.ANDROID_NATIVE
+                )
+            )
     }
 }

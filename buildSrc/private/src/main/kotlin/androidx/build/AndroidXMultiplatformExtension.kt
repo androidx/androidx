@@ -669,7 +669,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun js(block: Action<KotlinJsTargetDsl>? = null): KotlinJsTargetDsl? {
         supportedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
-            kotlinExtension.js { block?.execute(this) }
+            kotlinExtension.js() {
+                block?.execute(this)
+                binaries.library()
+                browser {}
+                project.configureJs()
+            }
         } else {
             null
         }
@@ -702,20 +707,19 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     }
 }
 
+private fun Project.configureJs() {
+    configureNode()
+    // Use DSL API when https://youtrack.jetbrains.com/issue/KT-70029 is closed for all tasks below
+    tasks.named("jsDevelopmentLibraryCompileSync", DefaultIncrementalSyncTask::class.java) {
+        it.destinationDirectory.set(file(layout.buildDirectory.dir("js/packages/js/dev/kotlin")))
+    }
+    tasks.named("jsProductionLibraryCompileSync", DefaultIncrementalSyncTask::class.java) {
+        it.destinationDirectory.set(file(layout.buildDirectory.dir("js/packages/js/prod/kotlin")))
+    }
+}
+
 private fun Project.configureWasm() {
-    rootProject.extensions.findByType<NodeJsRootExtension>()?.let {
-        it.version = getVersionByName("node")
-        it.downloadBaseUrl =
-            File(project.getPrebuiltsRoot(), "androidx/external/org/nodejs/node").toURI().toString()
-    }
-
-    rootProject.extensions.findByType(YarnRootExtension::class.java)?.let {
-        it.version = getVersionByName("yarn")
-        it.lockFileDirectory =
-            File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
-        it.yarnLockMismatchReport = YarnLockMismatchReport.WARNING
-    }
-
+    configureNode()
     // Use DSL API when https://youtrack.jetbrains.com/issue/KT-70029 is closed for all tasks below
     tasks.named("wasmJsDevelopmentLibraryCompileSync", DefaultIncrementalSyncTask::class.java) {
         it.destinationDirectory.set(
@@ -733,6 +737,21 @@ private fun Project.configureWasm() {
         if (task.name.lowercase().contains("test")) {
             task.compilerOptions.freeCompilerArgs.add("-Xwasm-enable-array-range-checks")
         }
+    }
+}
+
+private fun Project.configureNode() {
+    rootProject.extensions.findByType<NodeJsRootExtension>()?.let {
+        it.version = getVersionByName("node")
+        it.downloadBaseUrl =
+            File(project.getPrebuiltsRoot(), "androidx/external/org/nodejs/node").toURI().toString()
+    }
+
+    rootProject.extensions.findByType(YarnRootExtension::class.java)?.let {
+        it.version = getVersionByName("yarn")
+        it.lockFileDirectory =
+            File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+        it.yarnLockMismatchReport = YarnLockMismatchReport.FAIL
     }
 }
 
