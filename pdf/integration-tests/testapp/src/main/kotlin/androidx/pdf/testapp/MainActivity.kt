@@ -34,10 +34,15 @@ import com.google.android.material.button.MaterialButton
 class MainActivity : AppCompatActivity() {
 
     private var pdfViewerFragment: PdfViewerFragment? = null
+    private var isPdfViewInitialized = false
 
     @VisibleForTesting
     var filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { uri: Uri? ->
+            if (!isPdfViewInitialized) {
+                setPdfView()
+                isPdfViewInitialized = true
+            }
             uri?.let { pdfViewerFragment?.documentUri = uri }
         }
 
@@ -56,9 +61,6 @@ class MainActivity : AppCompatActivity() {
 
         getContentButton.setOnClickListener { filePicker.launch(MIME_TYPE_PDF) }
         searchButton.setOnClickListener { setFindInFileViewVisible() }
-        if (savedInstanceState == null) {
-            setPdfView()
-        }
     }
 
     private fun setPdfView() {
