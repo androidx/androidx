@@ -40,7 +40,6 @@ android {
 
     defaultConfig {
         minSdk 31
-        buildToolsVersion "35.0.0-rc1"
         compileSdk 35
     }
 }
