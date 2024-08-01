@@ -31,7 +31,7 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -44,7 +44,7 @@ class CredentialProviderBeginSignInControllerTest {
     fun convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
         val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            assumeFalse(deviceHasGMS(getApplicationContext()))
+            assumeTrue(deviceHasGMS(getApplicationContext()))
             val actualResponse =
                 getInstance(activity!!)
                     .convertRequestToPlayServices(GetCredentialRequest(listOf(GetPasswordOption())))
@@ -57,7 +57,7 @@ class CredentialProviderBeginSignInControllerTest {
     fun convertRequestToPlayServices_setPasswordOptionRequestAndTrueAutoSelect_success() {
         val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            assumeFalse(deviceHasGMS(getApplicationContext()))
+            assumeTrue(deviceHasGMS(getApplicationContext()))
             val actualResponse =
                 getInstance(activity!!)
                     .convertRequestToPlayServices(
@@ -83,7 +83,7 @@ class CredentialProviderBeginSignInControllerTest {
                 .build()
 
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            assumeFalse(deviceHasGMS(getApplicationContext()))
+            assumeTrue(deviceHasGMS(getApplicationContext()))
             val actualRequest =
                 getInstance(activity!!)
                     .convertRequestToPlayServices(GetCredentialRequest(listOf(option)))
@@ -106,7 +106,7 @@ class CredentialProviderBeginSignInControllerTest {
     fun duplicateGetInstance_shouldBeUnequal() {
         val activityScenario = ActivityScenario.launch(TestCredentialsActivity::class.java)
         activityScenario.onActivity { activity: TestCredentialsActivity? ->
-            assumeFalse(deviceHasGMS(getApplicationContext()))
+            assumeTrue(deviceHasGMS(getApplicationContext()))
             val firstInstance = getInstance(activity!!)
             val secondInstance = getInstance(activity)
             assertThat(firstInstance).isNotEqualTo(secondInstance)
