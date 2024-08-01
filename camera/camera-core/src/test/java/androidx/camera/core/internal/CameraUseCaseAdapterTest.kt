@@ -30,6 +30,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringAction.FLAG_AE
@@ -37,7 +38,6 @@ import androidx.camera.core.FocusMeteringAction.FLAG_AF
 import androidx.camera.core.FocusMeteringAction.FLAG_AWB
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.LayoutSettings
 import androidx.camera.core.Preview
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.TorchState
@@ -317,8 +317,8 @@ class CameraUseCaseAdapterTest {
                 null,
                 RestrictedCameraInfo(fakeCamera.cameraInfoInternal, extensionsConfig),
                 null,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 FakeCameraCoordinator(),
                 fakeManager,
                 FakeUseCaseConfigFactory(),
@@ -364,8 +364,8 @@ class CameraUseCaseAdapterTest {
             StreamSharing(
                 fakeCamera,
                 null,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 setOf(preview, video),
                 useCaseConfigFactory
             )
@@ -1388,8 +1388,8 @@ class CameraUseCaseAdapterTest {
                 RestrictedCameraInfo(camera.cameraInfoInternal, cameraConfig),
                 if (secondaryCamera == null) null
                 else RestrictedCameraInfo(secondaryCamera.cameraInfoInternal, cameraConfig),
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 cameraCoordinator,
                 fakeCameraDeviceSurfaceManager,
                 useCaseConfigFactory

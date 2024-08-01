@@ -71,8 +71,8 @@ import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -985,8 +985,8 @@ public final class Camera2CameraImplTest {
 
         StreamSharing streamSharing =
                 new StreamSharing(mCamera2CameraImpl, null,
-                        LayoutSettings.DEFAULT,
-                        LayoutSettings.DEFAULT,
+                        CompositionSettings.DEFAULT,
+                        CompositionSettings.DEFAULT,
                         children, useCaseConfigFactory);
 
         FakeUseCaseConfig.Builder configBuilder =

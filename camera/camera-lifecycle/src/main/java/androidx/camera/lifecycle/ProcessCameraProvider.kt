@@ -32,13 +32,13 @@ import androidx.camera.core.CameraInfoUnavailableException
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
+import androidx.camera.core.CompositionSettings
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
 import androidx.camera.core.ExperimentalCameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.InitializationException
-import androidx.camera.core.LayoutSettings
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
@@ -214,8 +214,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                     lifecycleOwner,
                     cameraSelector,
                     null,
-                    LayoutSettings.DEFAULT,
-                    LayoutSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
                     null,
                     emptyList<CameraEffect>(),
                     *useCases
@@ -254,8 +254,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                     lifecycleOwner,
                     cameraSelector,
                     null,
-                    LayoutSettings.DEFAULT,
-                    LayoutSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
+                    CompositionSettings.DEFAULT,
                     useCaseGroup.viewPort,
                     useCaseGroup.effects,
                     *useCaseGroup.useCases.toTypedArray<UseCase>()
@@ -285,7 +285,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * If the concurrent logical cameras are binding the same preview and video capture use cases,
      * the concurrent cameras video recording will be supported. The concurrent camera preview
      * stream will be shared with video capture and record the concurrent cameras as a whole. The
-     * [LayoutSettings] can be used to configure the position of each camera stream.
+     * [CompositionSettings] can be used to configure the position of each camera stream.
      *
      * If we want to open concurrent physical cameras, which are two front cameras or two back
      * cameras, the device needs to support physical cameras and the capability could be checked via
@@ -381,8 +381,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                         lifecycleOwner,
                         cameraSelector,
                         null,
-                        LayoutSettings.DEFAULT,
-                        LayoutSettings.DEFAULT,
+                        CompositionSettings.DEFAULT,
+                        CompositionSettings.DEFAULT,
                         viewPort,
                         effects,
                         *useCases.toTypedArray<UseCase>()
@@ -446,8 +446,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                             firstCameraConfig.lifecycleOwner,
                             firstCameraConfig.cameraSelector,
                             secondCameraConfig.cameraSelector,
-                            firstCameraConfig.layoutSettings,
-                            secondCameraConfig.layoutSettings,
+                            firstCameraConfig.compositionSettings,
+                            secondCameraConfig.compositionSettings,
                             firstCameraConfig.useCaseGroup.viewPort,
                             firstCameraConfig.useCaseGroup.effects,
                             *firstCameraConfig.useCaseGroup.useCases.toTypedArray<UseCase>(),
@@ -460,8 +460,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                                 config!!.lifecycleOwner,
                                 config.cameraSelector,
                                 null,
-                                LayoutSettings.DEFAULT,
-                                LayoutSettings.DEFAULT,
+                                CompositionSettings.DEFAULT,
+                                CompositionSettings.DEFAULT,
                                 config.useCaseGroup.viewPort,
                                 config.useCaseGroup.effects,
                                 *config.useCaseGroup.useCases.toTypedArray<UseCase>()
@@ -530,8 +530,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * @param primaryCameraSelector The primary camera selector which determines the camera to use
      *   for set of use cases.
      * @param secondaryCameraSelector The secondary camera selector in dual camera case.
-     * @param primaryLayoutSettings The layout settings for the primary camera.
-     * @param secondaryLayoutSettings The layout settings for the secondary camera.
+     * @param primaryCompositionSettings The composition settings for the primary camera.
+     * @param secondaryCompositionSettings The composition settings for the secondary camera.
      * @param viewPort The viewPort which represents the visible camera sensor rect.
      * @param effects The effects applied to the camera outputs.
      * @param useCases The use cases to bind to a lifecycle.
@@ -548,8 +548,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         lifecycleOwner: LifecycleOwner,
         primaryCameraSelector: CameraSelector,
         secondaryCameraSelector: CameraSelector?,
-        primaryLayoutSettings: LayoutSettings,
-        secondaryLayoutSettings: LayoutSettings,
+        primaryCompositionSettings: CompositionSettings,
+        secondaryCompositionSettings: CompositionSettings,
         viewPort: ViewPort?,
         effects: List<CameraEffect?>,
         vararg useCases: UseCase?
@@ -611,8 +611,8 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
                             secondaryCameraInternal,
                             primaryRestrictedCameraInfo,
                             secondaryRestrictedCameraInfo,
-                            primaryLayoutSettings,
-                            secondaryLayoutSettings,
+                            primaryCompositionSettings,
+                            secondaryCompositionSettings,
                             mCameraX!!.cameraFactory.cameraCoordinator,
                             mCameraX!!.cameraDeviceSurfaceManager,
                             mCameraX!!.defaultConfigFactory

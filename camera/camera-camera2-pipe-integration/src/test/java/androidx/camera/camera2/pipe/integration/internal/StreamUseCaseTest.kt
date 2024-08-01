@@ -26,10 +26,10 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.CompositionSettings
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.CaptureMode
-import androidx.camera.core.LayoutSettings
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraMode
@@ -644,8 +644,8 @@ class StreamUseCaseTest() {
             StreamSharing(
                 FakeCamera(),
                 null,
-                LayoutSettings.DEFAULT,
-                LayoutSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
+                CompositionSettings.DEFAULT,
                 children,
                 useCaseConfigFactory
             )

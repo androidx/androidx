@@ -68,13 +68,13 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ExperimentalCameraInfo;
 import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.FocusMeteringAction;
-import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.Preview;
@@ -483,23 +483,19 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
                 SingleCameraConfig primary = new SingleCameraConfig(
                         cameraSelectorPrimary,
                         useCaseGroup,
-                        new LayoutSettings.Builder()
+                        new CompositionSettings.Builder()
                                 .setAlpha(1.0f)
-                                .setOffsetX(0.0f)
-                                .setOffsetY(0.0f)
-                                .setWidth(1.0f)
-                                .setHeight(1.0f)
+                                .setOffset(0.0f, 0.0f)
+                                .setScale(1.0f, 1.0f)
                                 .build(),
                         lifecycleOwner);
                 SingleCameraConfig secondary = new SingleCameraConfig(
                         cameraSelectorSecondary,
                         useCaseGroup,
-                        new LayoutSettings.Builder()
+                        new CompositionSettings.Builder()
                                 .setAlpha(1.0f)
-                                .setOffsetX(-0.3f)
-                                .setOffsetY(-0.4f)
-                                .setWidth(0.3f)
-                                .setHeight(0.3f)
+                                .setOffset(-0.3f, -0.4f)
+                                .setScale(0.3f, 0.3f)
                                 .build(),
                         lifecycleOwner);
                 cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));

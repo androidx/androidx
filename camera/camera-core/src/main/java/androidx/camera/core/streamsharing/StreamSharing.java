@@ -44,8 +44,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
+import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.LayoutSettings;
 import androidx.camera.core.MirrorMode;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -89,12 +89,12 @@ public class StreamSharing extends UseCase {
 
     @NonNull
     private final VirtualCameraAdapter mVirtualCameraAdapter;
-    // The layout settings of primary camera in dual camera case.
+    // The composition settings of primary camera in dual camera case.
     @NonNull
-    private final LayoutSettings mLayoutSettings;
-    // The layout settings of secondary camera in dual camera case.
+    private final CompositionSettings mCompositionSettings;
+    // The composition settings of secondary camera in dual camera case.
     @NonNull
-    private final LayoutSettings mSecondaryLayoutSettings;
+    private final CompositionSettings mSecondaryCompositionSettings;
     // Node that applies effect to the input.
     @Nullable
     private SurfaceProcessorNode mEffectNode;
@@ -149,14 +149,14 @@ public class StreamSharing extends UseCase {
      */
     public StreamSharing(@NonNull CameraInternal camera,
             @Nullable CameraInternal secondaryCamera,
-            @NonNull LayoutSettings layoutSettings,
-            @NonNull LayoutSettings secondaryLayoutSettings,
+            @NonNull CompositionSettings compositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings,
             @NonNull Set<UseCase> children,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         super(getDefaultConfig(children));
         mDefaultConfig = getDefaultConfig(children);
-        mLayoutSettings = layoutSettings;
-        mSecondaryLayoutSettings = secondaryLayoutSettings;
+        mCompositionSettings = compositionSettings;
+        mSecondaryCompositionSettings = secondaryCompositionSettings;
         mVirtualCameraAdapter = new VirtualCameraAdapter(
                 camera, secondaryCamera, children, useCaseConfigFactory,
                 (jpegQuality, rotationDegrees) -> {
@@ -316,8 +316,8 @@ public class StreamSharing extends UseCase {
                     getCamera(),
                     getSecondaryCamera(),
                     primaryStreamSpec, // use primary stream spec
-                    mLayoutSettings,
-                    mSecondaryLayoutSettings);
+                    mCompositionSettings,
+                    mSecondaryCompositionSettings);
             boolean isViewportSet = getViewPortCropRect() != null;
             Map<UseCase, DualOutConfig> outConfigMap =
                     mVirtualCameraAdapter.getChildrenOutConfigs(
@@ -511,14 +511,14 @@ public class StreamSharing extends UseCase {
             @NonNull CameraInternal primaryCamera,
             @NonNull CameraInternal secondaryCamera,
             @NonNull StreamSpec streamSpec,
-            @NonNull LayoutSettings primaryLayoutSettings,
-            @NonNull LayoutSettings secondaryLayoutSettings) {
+            @NonNull CompositionSettings primaryCompositionSettings,
+            @NonNull CompositionSettings secondaryCompositionSettings) {
         // TODO: handle EffectNode for dual camera case
         return new DualSurfaceProcessorNode(primaryCamera, secondaryCamera,
                 DualSurfaceProcessor.Factory.newInstance(
                         streamSpec.getDynamicRange(),
-                        primaryLayoutSettings,
-                        secondaryLayoutSettings));
+                        primaryCompositionSettings,
+                        secondaryCompositionSettings));
     }
 
     private int getRotationAppliedByEffect() {
