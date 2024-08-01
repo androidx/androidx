@@ -237,6 +237,8 @@ class Camera2CaptureRequestBuilder {
         applyTemplateParamsOverrideWorkaround(builder, captureConfig.getTemplateType(),
                 templateParamsOverride);
 
+        applyAeFpsRange(captureConfig, builder);
+
         applyImplementationOptionToCaptureBuilder(builder,
                 captureConfig.getImplementationOptions());
 

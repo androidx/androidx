@@ -874,6 +874,8 @@ constructor(
                 }
             }
 
+            // Set fps range to capture request
+            val targetFpsRange = sessionConfigAdapter.getExpectedFrameRateRange()
             val defaultParameters =
                 buildMap<Any, Any?> {
                     if (isExtensions) {
@@ -884,7 +886,13 @@ constructor(
                         CameraPipeKeys.camera2CaptureRequestTag,
                         "android.hardware.camera2.CaptureRequest.setTag.CX"
                     )
+                    targetFpsRange?.let {
+                        set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, targetFpsRange)
+                    }
                 }
+            targetFpsRange?.let {
+                sessionParameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = targetFpsRange
+            }
 
             // TODO: b/327517884 - Add a quirk to not abort captures on stop for certain OEMs during
             //   extension sessions.

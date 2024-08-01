@@ -141,11 +141,6 @@ class CaptureOptionSubmissionTest(
     @Test
     fun canSubmitSupportedAeTargetFpsRanges_whenTargetFrameRateSetToPreviewOnly() = runBlocking {
         assumeTrue(
-            "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
-            implName != CameraPipeConfig::class.simpleName
-        )
-
-        assumeTrue(
             "TODO(b/332235883): Enable for legacy when the bug is resolved",
             !isHwLevelLegacy()
         )
@@ -183,11 +178,6 @@ class CaptureOptionSubmissionTest(
     @Test
     fun canSubmitSupportedAeTargetFpsRanges_whenTargetFrameRateSetToVideoCaptureOnly() =
         runBlocking {
-            assumeTrue(
-                "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
-                implName != CameraPipeConfig::class.simpleName
-            )
-
             assumeTrue(
                 "TODO(b/332235883): Enable for legacy when the bug is resolved",
                 !isHwLevelLegacy()
@@ -232,11 +222,6 @@ class CaptureOptionSubmissionTest(
 
     @Test
     fun canSetAeTargetFpsRangeWithCamera2Interop() = runBlocking {
-        assumeTrue(
-            "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
-            implName != CameraPipeConfig::class.simpleName
-        )
-
         assumeTrue(
             "TODO(b/332235883): Enable for legacy when the bug is resolved",
             !isHwLevelLegacy()
@@ -291,11 +276,6 @@ class CaptureOptionSubmissionTest(
 
     @Test
     fun canOverwriteFpsRangeWithCamera2Interop_whenAnotherSetViaSetTargetFrameRate() = runBlocking {
-        assumeTrue(
-            "TODO(b/331900702): Enable when the bug is fixed at camera-pipe",
-            implName != CameraPipeConfig::class.simpleName
-        )
-
         assumeTrue(
             "TODO(b/332235883): Enable for legacy when the bug is resolved",
             !isHwLevelLegacy()
