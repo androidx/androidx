@@ -458,6 +458,8 @@ class FocusMeteringControl {
      */
     @ExecutedBy("mExecutor")
     void triggerAePrecapture(@Nullable Completer<Void> completer) {
+        Logger.d(TAG, "triggerAePrecapture");
+
         if (!mIsActive) {
             if (completer != null) {
                 completer.setException(
