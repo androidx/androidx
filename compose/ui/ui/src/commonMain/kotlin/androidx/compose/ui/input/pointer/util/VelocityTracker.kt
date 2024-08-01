@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.input.pointer.util
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
@@ -357,7 +358,52 @@ private fun Array<DataPointAtTime?>.set(index: Int, time: Long, dataPoint: Float
  *
  * @param event Pointer change to track.
  */
+@OptIn(ExperimentalComposeUiApi::class)
 fun VelocityTracker.addPointerInputChange(event: PointerInputChange) {
+    if (VelocityTrackerAddPointsFix) {
+        addPointerInputChangeWithFix(event)
+    } else {
+        addPointerInputChangeLegacy(event)
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+private fun VelocityTracker.addPointerInputChangeLegacy(event: PointerInputChange) {
+
+    // Register down event as the starting point for the accumulator
+    if (event.changedToDownIgnoreConsumed()) {
+        currentPointerPositionAccumulator = event.position
+        resetTracking()
+    }
+
+    // To calculate delta, for each step we want to  do currentPosition - previousPosition.
+    // Initially the previous position is the previous position of the current event
+    var previousPointerPosition = event.previousPosition
+    @OptIn(ExperimentalComposeUiApi::class)
+    event.historical.fastForEach {
+        // Historical data happens within event.position and event.previousPosition
+        // That means, event.previousPosition < historical data < event.position
+        // Initially, the first delta will happen between the previousPosition and
+        // the first position in historical delta. For subsequent historical data, the
+        // deltas happen between themselves. That's why we need to update previousPointerPosition
+        // everytime.
+        val historicalDelta = it.position - previousPointerPosition
+        previousPointerPosition = it.position
+
+        // Update the current position with the historical delta and add it to the tracker
+        currentPointerPositionAccumulator += historicalDelta
+        addPosition(it.uptimeMillis, currentPointerPositionAccumulator)
+    }
+
+    // For the last position in the event
+    // If there's historical data, the delta is event.position - lastHistoricalPoint
+    // If there's no historical data, the delta is event.position - event.previousPosition
+    val delta = event.position - previousPointerPosition
+    currentPointerPositionAccumulator += delta
+    addPosition(event.uptimeMillis, currentPointerPositionAccumulator)
+}
+
+private fun VelocityTracker.addPointerInputChangeWithFix(event: PointerInputChange) {
     // If this is ACTION_DOWN: Reset the tracking.
     if (event.changedToDownIgnoreConsumed()) {
         resetTracking()
@@ -622,6 +668,21 @@ private inline operator fun Matrix.get(row: Int, col: Int): Float = this[row][co
 private inline operator fun Matrix.set(row: Int, col: Int, value: Float) {
     this[row][col] = value
 }
+
+/**
+ * A flag to indicate that we'll use the fix of how we add points to the velocity tracker.
+ *
+ * This is an experiment flag and will be removed once the experiments with the fix a finished. The
+ * final goal is that we will use the true path once the flag is removed. If you find any issues
+ * with the new fix, flip this flag to false to confirm they are newly introduced then file a bug.
+ * Tracking bug: (b/318621681)
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerAddPointsFix: Boolean = true
 
 /**
  * Selecting flag to enable impulse strategy for the velocity trackers. This is an experiment flag

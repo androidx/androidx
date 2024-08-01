@@ -33,9 +33,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.tests.R
@@ -70,10 +72,12 @@ class VelocityTrackingListParityTest {
     private var latestComposeVelocity = 0f
     private var latestRVState = -1
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Before
     fun setUp() {
         layoutManager = null
         latestComposeVelocity = 0f
+        VelocityTrackerAddPointsFix = true
     }
 
     @Test
