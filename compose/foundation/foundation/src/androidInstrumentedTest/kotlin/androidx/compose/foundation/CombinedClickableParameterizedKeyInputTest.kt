@@ -23,6 +23,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,10 +33,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -45,6 +49,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.pressKey
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CoroutineScope
@@ -229,6 +234,57 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
         rule.runOnIdle {
             assertThat(longClickCounter).isEqualTo(1)
             assertThat(clickCounter).isEqualTo(0)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun longClickWithKey_doesNotTriggerHapticFeedback() {
+        var clickCounter = 0
+        var longClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        val performedHaptics = mutableListOf<HapticFeedbackType>()
+
+        val hapticFeedback: HapticFeedback =
+            object : HapticFeedback {
+                override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+                    performedHaptics += hapticFeedbackType
+                }
+            }
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            CompositionLocalProvider(LocalHapticFeedback provides hapticFeedback) {
+                BasicText(
+                    "ClickableText",
+                    modifier =
+                        Modifier.testTag("myClickable")
+                            .focusRequester(focusRequester)
+                            .combinedClickable(
+                                onLongClick = { ++longClickCounter },
+                                onClick = { ++clickCounter },
+                                hapticFeedbackEnabled = true
+                            )
+                )
+            }
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            assertThat(inputModeManager.inputMode).isEqualTo(Keyboard)
+            // The press duration is 100ms longer than the minimum required for a long press.
+            val durationMillis: Long = viewConfiguration.longPressTimeoutMillis + 100
+            pressKey(key, durationMillis)
+        }
+
+        rule.runOnIdle {
+            assertThat(longClickCounter).isEqualTo(1)
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(performedHaptics).isEmpty()
         }
     }
 

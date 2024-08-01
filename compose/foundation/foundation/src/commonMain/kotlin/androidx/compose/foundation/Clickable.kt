@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.focus.Focusability
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.key
@@ -48,6 +50,7 @@ import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateSemantics
 import androidx.compose.ui.node.traverseAncestors
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.semantics.Role
@@ -228,8 +231,59 @@ fun Modifier.clickable(
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
+ * @param hapticFeedbackEnabled whether to use the default [HapticFeedback] behavior
  * @param onClick will be called when user clicks on the element
  */
+fun Modifier.combinedClickable(
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onLongClickLabel: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    hapticFeedbackEnabled: Boolean = true,
+    onClick: () -> Unit
+) =
+    composed(
+        inspectorInfo =
+            debugInspectorInfo {
+                name = "combinedClickable"
+                properties["enabled"] = enabled
+                properties["onClickLabel"] = onClickLabel
+                properties["role"] = role
+                properties["onClick"] = onClick
+                properties["onDoubleClick"] = onDoubleClick
+                properties["onLongClick"] = onLongClick
+                properties["onLongClickLabel"] = onLongClickLabel
+                properties["hapticFeedbackEnabled"] = hapticFeedbackEnabled
+            }
+    ) {
+        val localIndication = LocalIndication.current
+        val interactionSource =
+            if (localIndication is IndicationNodeFactory) {
+                // We can fast path here as it will be created inside clickable lazily
+                null
+            } else {
+                // We need an interaction source to pass between the indication modifier and
+                // clickable, so
+                // by creating here we avoid another composed down the line
+                remember { MutableInteractionSource() }
+            }
+        Modifier.combinedClickable(
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick,
+            onDoubleClick = onDoubleClick,
+            onClick = onClick,
+            role = role,
+            indication = localIndication,
+            interactionSource = interactionSource,
+            hapticFeedbackEnabled = hapticFeedbackEnabled
+        )
+    }
+
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 fun Modifier.combinedClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
@@ -272,7 +326,8 @@ fun Modifier.combinedClickable(
             onClick = onClick,
             role = role,
             indication = localIndication,
-            interactionSource = interactionSource
+            interactionSource = interactionSource,
+            hapticFeedbackEnabled = true
         )
     }
 
@@ -322,8 +377,40 @@ fun Modifier.combinedClickable(
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
+ * @param hapticFeedbackEnabled whether to use the default [HapticFeedback] behavior
  * @param onClick will be called when user clicks on the element
  */
+fun Modifier.combinedClickable(
+    interactionSource: MutableInteractionSource?,
+    indication: Indication?,
+    enabled: Boolean = true,
+    onClickLabel: String? = null,
+    role: Role? = null,
+    onLongClickLabel: String? = null,
+    onLongClick: (() -> Unit)? = null,
+    onDoubleClick: (() -> Unit)? = null,
+    hapticFeedbackEnabled: Boolean = true,
+    onClick: () -> Unit
+) =
+    clickableWithIndicationIfNeeded(
+        interactionSource = interactionSource,
+        indication = indication
+    ) { intSource, indicationNodeFactory ->
+        CombinedClickableElement(
+            interactionSource = intSource,
+            indicationNodeFactory = indicationNodeFactory,
+            enabled = enabled,
+            onClickLabel = onClickLabel,
+            role = role,
+            onClick = onClick,
+            onLongClickLabel = onLongClickLabel,
+            onLongClick = onLongClick,
+            onDoubleClick = onDoubleClick,
+            hapticFeedbackEnabled = hapticFeedbackEnabled
+        )
+    }
+
+@Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
 fun Modifier.combinedClickable(
     interactionSource: MutableInteractionSource?,
     indication: Indication?,
@@ -348,7 +435,8 @@ fun Modifier.combinedClickable(
             onClick = onClick,
             onLongClickLabel = onLongClickLabel,
             onLongClick = onLongClick,
-            onDoubleClick = onDoubleClick
+            onDoubleClick = onDoubleClick,
+            hapticFeedbackEnabled = true
         )
     }
 
@@ -481,7 +569,8 @@ private class CombinedClickableElement(
     private val onClick: () -> Unit,
     private val onLongClickLabel: String?,
     private val onLongClick: (() -> Unit)?,
-    private val onDoubleClick: (() -> Unit)?
+    private val onDoubleClick: (() -> Unit)?,
+    private val hapticFeedbackEnabled: Boolean,
 ) : ModifierNodeElement<CombinedClickableNodeImpl>() {
     override fun create() =
         CombinedClickableNodeImpl(
@@ -489,6 +578,7 @@ private class CombinedClickableElement(
             onLongClickLabel,
             onLongClick,
             onDoubleClick,
+            hapticFeedbackEnabled,
             interactionSource,
             indicationNodeFactory,
             enabled,
@@ -497,6 +587,7 @@ private class CombinedClickableElement(
         )
 
     override fun update(node: CombinedClickableNodeImpl) {
+        node.hapticFeedbackEnabled = hapticFeedbackEnabled
         node.update(
             onClick,
             onLongClickLabel,
@@ -521,6 +612,7 @@ private class CombinedClickableElement(
         properties["onDoubleClick"] = onDoubleClick
         properties["onLongClick"] = onLongClick
         properties["onLongClickLabel"] = onLongClickLabel
+        properties["hapticFeedbackEnabled"] = hapticFeedbackEnabled
     }
 
     override fun equals(other: Any?): Boolean {
@@ -539,6 +631,7 @@ private class CombinedClickableElement(
         if (onLongClickLabel != other.onLongClickLabel) return false
         if (onLongClick !== other.onLongClick) return false
         if (onDoubleClick !== other.onDoubleClick) return false
+        if (hapticFeedbackEnabled != other.hapticFeedbackEnabled) return false
 
         return true
     }
@@ -553,6 +646,7 @@ private class CombinedClickableElement(
         result = 31 * result + (onLongClickLabel?.hashCode() ?: 0)
         result = 31 * result + (onLongClick?.hashCode() ?: 0)
         result = 31 * result + (onDoubleClick?.hashCode() ?: 0)
+        result = 31 * result + hapticFeedbackEnabled.hashCode()
         return result
     }
 }
@@ -645,6 +739,7 @@ fun CombinedClickableNode(
         onLongClickLabel,
         onLongClick,
         onDoubleClick,
+        hapticFeedbackEnabled = true,
         interactionSource,
         indicationNodeFactory,
         enabled,
@@ -696,6 +791,7 @@ private class CombinedClickableNodeImpl(
     private var onLongClickLabel: String?,
     private var onLongClick: (() -> Unit)?,
     private var onDoubleClick: (() -> Unit)?,
+    var hapticFeedbackEnabled: Boolean,
     interactionSource: MutableInteractionSource?,
     indicationNodeFactory: IndicationNodeFactory?,
     enabled: Boolean,
@@ -722,7 +818,13 @@ private class CombinedClickableNodeImpl(
                 } else null,
             onLongPress =
                 if (enabled && onLongClick != null) {
-                    { onLongClick?.invoke() }
+                    {
+                        onLongClick?.invoke()
+                        if (hapticFeedbackEnabled) {
+                            currentValueOf(LocalHapticFeedback)
+                                .performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                    }
                 } else null,
             onPress = { offset ->
                 if (enabled) {

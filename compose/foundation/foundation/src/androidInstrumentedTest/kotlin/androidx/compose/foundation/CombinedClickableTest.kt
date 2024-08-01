@@ -50,6 +50,8 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
@@ -57,6 +59,7 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
 import androidx.compose.ui.platform.testTag
@@ -315,6 +318,107 @@ class CombinedClickableTest {
         rule.onNodeWithTag("myClickable").performTouchInput { longClick() }
 
         rule.runOnIdle { assertThat(counter).isEqualTo(2) }
+    }
+
+    @Test
+    @LargeTest
+    fun longClick_hapticFeedbackEnabled() {
+        var counter = 0
+        val onClick: () -> Unit = { ++counter }
+        val performedHaptics = mutableListOf<HapticFeedbackType>()
+
+        val hapticFeedback: HapticFeedback =
+            object : HapticFeedback {
+                override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+                    performedHaptics += hapticFeedbackType
+                }
+            }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalHapticFeedback provides hapticFeedback) {
+                Box {
+                    BasicText(
+                        "ClickableText",
+                        modifier =
+                            Modifier.testTag("myClickable").combinedClickable(
+                                onLongClick = onClick,
+                                hapticFeedbackEnabled = true
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        // Advance a small amount of time
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("myClickable").performTouchInput { up() }
+
+        // Releasing the press before the long click timeout shouldn't trigger haptic feedback
+        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
+        rule.runOnIdle { assertThat(performedHaptics).isEmpty() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        // Advance past the long press timeout
+        rule.mainClock.advanceTimeBy(1000)
+
+        // Long press haptic feedback should be invoked
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
+        rule.runOnIdle {
+            assertThat(performedHaptics).containsExactly(HapticFeedbackType.LongPress)
+        }
+    }
+
+    @Test
+    @LargeTest
+    fun longClick_hapticFeedbackDisabled() {
+        var counter = 0
+        val onClick: () -> Unit = { ++counter }
+        val performedHaptics = mutableListOf<HapticFeedbackType>()
+
+        val hapticFeedback: HapticFeedback =
+            object : HapticFeedback {
+                override fun performHapticFeedback(hapticFeedbackType: HapticFeedbackType) {
+                    performedHaptics += hapticFeedbackType
+                }
+            }
+
+        rule.setContent {
+            CompositionLocalProvider(LocalHapticFeedback provides hapticFeedback) {
+                Box {
+                    BasicText(
+                        "ClickableText",
+                        modifier =
+                            Modifier.testTag("myClickable").combinedClickable(
+                                onLongClick = onClick,
+                                hapticFeedbackEnabled = false
+                            ) {}
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        // Advance a small amount of time
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNodeWithTag("myClickable").performTouchInput { up() }
+
+        rule.runOnIdle { assertThat(counter).isEqualTo(0) }
+        rule.runOnIdle { assertThat(performedHaptics).isEmpty() }
+
+        rule.onNodeWithTag("myClickable").performTouchInput { down(center) }
+
+        // Advance past the long press timeout
+        rule.mainClock.advanceTimeBy(1000)
+
+        // Long press should be invoked, without any haptics
+        rule.runOnIdle { assertThat(counter).isEqualTo(1) }
+        rule.runOnIdle { assertThat(performedHaptics).isEmpty() }
     }
 
     @Test
@@ -1808,7 +1912,8 @@ class CombinedClickableTest {
                     "onClick",
                     "onDoubleClick",
                     "onLongClick",
-                    "onLongClickLabel"
+                    "onLongClickLabel",
+                    "hapticFeedbackEnabled"
                 )
         }
     }
@@ -1836,7 +1941,8 @@ class CombinedClickableTest {
                     "onLongClick",
                     "onLongClickLabel",
                     "indicationNodeFactory",
-                    "interactionSource"
+                    "interactionSource",
+                    "hapticFeedbackEnabled"
                 )
         }
     }
