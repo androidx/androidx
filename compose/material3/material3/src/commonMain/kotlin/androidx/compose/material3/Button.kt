@@ -33,6 +33,7 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.animateElevation
+import androidx.compose.material3.tokens.BaselineButtonTokens
 import androidx.compose.material3.tokens.ButtonSmallTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
@@ -475,8 +476,8 @@ fun TextButton(
  */
 object ButtonDefaults {
 
-    // TODO use default content padding from tokens once available
-    private val ButtonHorizontalPadding = 24.dp
+    private val ButtonLeadingSpace = BaselineButtonTokens.LeadingSpace
+    private val ButtonTrailingSpace = BaselineButtonTokens.TrailingSpace
     private val ButtonWithIconStartpadding = 16.dp
     private val SmallButtonStartPadding = ButtonSmallTokens.LeadingSpace
     private val SmallButtonEndPadding = ButtonSmallTokens.TrailingSpace
@@ -492,9 +493,9 @@ object ButtonDefaults {
      */
     val ContentPadding =
         PaddingValues(
-            start = ButtonHorizontalPadding,
+            start = ButtonLeadingSpace,
             top = ButtonVerticalPadding,
-            end = ButtonHorizontalPadding,
+            end = ButtonTrailingSpace,
             bottom = ButtonVerticalPadding
         )
 
@@ -503,7 +504,7 @@ object ButtonDefaults {
         PaddingValues(
             start = ButtonWithIconStartpadding,
             top = ButtonVerticalPadding,
-            end = ButtonHorizontalPadding,
+            end = ButtonTrailingSpace,
             bottom = ButtonVerticalPadding
         )
 
@@ -557,7 +558,8 @@ object ButtonDefaults {
     val MinHeight = ButtonSmallTokens.ContainerHeight
 
     /** The default size of the icon when used inside any button. */
-    val IconSize = FilledButtonTokens.IconSize
+    // TODO update with the correct value in BaselineButtonTokens when available
+    val IconSize = 18.dp
 
     /**
      * The default size of the spacing between an icon and a text when they used inside any button.
@@ -827,8 +829,8 @@ object ButtonDefaults {
     fun buttonElevation(
         defaultElevation: Dp = FilledButtonTokens.ContainerElevation,
         pressedElevation: Dp = FilledButtonTokens.PressedContainerElevation,
-        focusedElevation: Dp = FilledButtonTokens.FocusContainerElevation,
-        hoveredElevation: Dp = FilledButtonTokens.HoverContainerElevation,
+        focusedElevation: Dp = FilledButtonTokens.FocusedContainerElevation,
+        hoveredElevation: Dp = FilledButtonTokens.HoveredContainerElevation,
         disabledElevation: Dp = FilledButtonTokens.DisabledContainerElevation,
     ): ButtonElevation =
         ButtonElevation(

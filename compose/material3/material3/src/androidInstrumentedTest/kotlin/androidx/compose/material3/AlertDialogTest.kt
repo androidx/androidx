@@ -24,7 +24,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material3.tokens.DialogTokens
+import androidx.compose.material3.tokens.TextButtonTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -91,7 +91,7 @@ class AlertDialogTest {
                     TextButton(onClick = { /* doSomething() */ }) {
                         Text("Confirm")
                         buttonContentColor = LocalContentColor.current
-                        expectedButtonContentColor = DialogTokens.ActionLabelTextColor.value
+                        expectedButtonContentColor = TextButtonTokens.LabelColor.value
                     }
                 },
                 containerColor = Color.Yellow,

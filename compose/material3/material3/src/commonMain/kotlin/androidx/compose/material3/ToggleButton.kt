@@ -34,9 +34,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.ButtonSmallTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
+import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
-import androidx.compose.material3.tokens.PrimaryButtonTokens
 import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -516,25 +516,21 @@ object ToggleButtonDefaults {
     /** The default pressed shape for [OutlinedToggleButton] */
     val outlinedPressedShape: Shape = RoundedCornerShape(6.dp)
 
-    // TODO: Change this to the new ButtonSmallTokens.SelectedShape when available
     /** The default checked shape for [ToggleButton] */
     val checkedShape: Shape
-        @Composable get() = ButtonSmallTokens.ContainerShapeRound.value
+        @Composable get() = ButtonSmallTokens.SelectedContainerShapeRound.value
 
-    // TODO: Change this to the new ButtonSmallTokens.SelectedShape when available
     /** The default checked shape for [ElevatedToggleButton] */
     val elevatedCheckedShape: Shape
-        @Composable get() = ButtonSmallTokens.ContainerShapeRound.value
+        @Composable get() = ButtonSmallTokens.SelectedContainerShapeRound.value
 
-    // TODO: Change this to the new ButtonSmallTokens.SelectedShape when available
     /** The default checked shape for [TonalToggleButton] */
     val tonalCheckedShape: Shape
-        @Composable get() = ButtonSmallTokens.ContainerShapeRound.value
+        @Composable get() = ButtonSmallTokens.SelectedContainerShapeRound.value
 
-    // TODO: Change this to the new ButtonSmallTokens.SelectedShape when available
     /** The default checked shape for [OutlinedToggleButton] */
     val outlinedCheckedShape: Shape
-        @Composable get() = ButtonSmallTokens.ContainerShapeRound.value
+        @Composable get() = ButtonSmallTokens.SelectedContainerShapeRound.value
 
     /**
      * Creates a [ToggleButtonColors] that represents the default container and content colors used
@@ -571,24 +567,23 @@ object ToggleButtonDefaults {
             checkedContentColor = checkedContentColor
         )
 
-    // TODO need to change this to filled token file
     internal val ColorScheme.defaultToggleButtonColors: ToggleButtonColors
         get() {
             return defaultToggleButtonColorsCached
                 ?: ToggleButtonColors(
-                        containerColor = fromToken(PrimaryButtonTokens.UnselectedContainerColor),
+                        containerColor = fromToken(FilledButtonTokens.UnselectedContainerColor),
                         contentColor =
-                            fromToken(PrimaryButtonTokens.UnselectedPressedLabelTextColor),
+                            fromToken(FilledButtonTokens.UnselectedPressedLabelTextColor),
                         disabledContainerColor =
-                            fromToken(PrimaryButtonTokens.DisabledContainerColor)
-                                .copy(alpha = PrimaryButtonTokens.DisabledContainerOpacity),
+                            fromToken(FilledButtonTokens.DisabledContainerColor)
+                                .copy(alpha = FilledButtonTokens.DisabledContainerOpacity),
                         disabledContentColor =
-                            fromToken(PrimaryButtonTokens.DisabledLabelTextColor)
-                                .copy(alpha = PrimaryButtonTokens.DisabledLabelTextOpacity),
+                            fromToken(FilledButtonTokens.DisabledLabelTextColor)
+                                .copy(alpha = FilledButtonTokens.DisabledLabelTextOpacity),
                         checkedContainerColor =
-                            fromToken(PrimaryButtonTokens.SelectedContainerColor),
+                            fromToken(FilledButtonTokens.SelectedContainerColor),
                         checkedContentColor =
-                            fromToken(PrimaryButtonTokens.SelectedPressedLabelTextColor)
+                            fromToken(FilledButtonTokens.SelectedPressedLabelTextColor)
                     )
                     .also { defaultToggleButtonColorsCached = it }
         }

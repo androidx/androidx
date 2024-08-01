@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_7_0
+// VERSION: v0_11_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -23,10 +23,10 @@ internal object TonalButtonTokens {
     val ContainerElevation = ElevationTokens.Level0
     val DisabledContainerColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContainerElevation = ElevationTokens.Level0
-    val DisabledContainerOpacity = 0.12f
-    val DisabledIconColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledContainerOpacity = 0.1f
+    val DisabledIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val DisabledIconOpacity = 0.38f
-    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurface
+    val DisabledLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
     val DisabledLabelTextOpacity = 0.38f
     val FocusedContainerElevation = ElevationTokens.Level0
     val FocusedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
@@ -40,21 +40,21 @@ internal object TonalButtonTokens {
     val PressedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val PressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val SelectedContainerColor = ColorSchemeKeyTokens.Secondary
-    val SelectedFocusedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedHoveredIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val SelectedFocusedIconColor = ColorSchemeKeyTokens.OnSecondary
+    val SelectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSecondary
+    val SelectedHoveredIconColor = ColorSchemeKeyTokens.OnSecondary
+    val SelectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSecondary
     val SelectedIconColor = ColorSchemeKeyTokens.OnSecondary
     val SelectedLabelTextColor = ColorSchemeKeyTokens.OnSecondary
-    val SelectedPressedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val SelectedPressedIconColor = ColorSchemeKeyTokens.OnSecondary
+    val SelectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSecondary
     val UnselectedContainerColor = ColorSchemeKeyTokens.SecondaryContainer
-    val UnselectedFocusedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedFocusedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val UnselectedFocusedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val UnselectedHoveredIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val UnselectedHoveredLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val UnselectedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
     val UnselectedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
-    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+    val UnselectedPressedIconColor = ColorSchemeKeyTokens.OnSecondaryContainer
+    val UnselectedPressedLabelTextColor = ColorSchemeKeyTokens.OnSecondaryContainer
 }
