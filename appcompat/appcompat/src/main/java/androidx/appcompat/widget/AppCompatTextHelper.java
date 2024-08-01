@@ -23,6 +23,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
@@ -40,8 +41,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.UiThread;
 import androidx.appcompat.R;
+import androidx.collection.LruCache;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.util.Pair;
 import androidx.core.util.TypedValueCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.inputmethod.EditorInfoCompat;
@@ -84,6 +88,14 @@ class AppCompatTextHelper {
     AppCompatTextHelper(@NonNull TextView view) {
         mView = view;
         mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
+    }
+
+    @RequiresApi(26)
+    @UiThread
+    @NonNull
+    static Typeface createVariationInstance(@NonNull Typeface baseTypeface,
+            @NonNull String fontVariationSettings) {
+        return Api26Impl.createVariationInstance(baseTypeface, fontVariationSettings);
     }
 
     @SuppressLint("NewApi")
@@ -772,6 +784,17 @@ class AppCompatTextHelper {
 
     @RequiresApi(26)
     static class Api26Impl {
+        /**
+         * Cache for variation instances created based on an existing Typeface
+         */
+        private static final LruCache<Pair<Typeface, String>, Typeface> sVariationsCache =
+                new LruCache<>(30);
+
+        /**
+         * Used to create variation instances; initialized lazily
+         */
+        private static @Nullable Paint sPaint;
+
         private Api26Impl() {
             // This class is not instantiable.
         }
@@ -786,6 +809,54 @@ class AppCompatTextHelper {
                 textView.setFontVariationSettings("");
             }
             return textView.setFontVariationSettings(fontVariationSettings);
+        }
+
+        /**
+         * Create a new Typeface based on {@code baseTypeFace} with the specified variation
+         * settings.  Uses a cache to avoid memory scaling with the number of AppCompatTextViews.
+         *
+         * @param baseTypeface the original typeface, preferably without variations applied
+         *                     (used both to create the new instance, and as a cache key).
+         *                     Note: this method will correctly handle instances with variations
+         *                     applied, as we have no way of detecting that.  However, cache hit
+         *                     rates may be decreased.
+         * @param fontVariationSettings the new font variation settings.
+         *                              This is used as a cache key without sorting, to avoid
+         *                              additional per-TextView allocations to parse and sort the
+         *                              variation settings.  App developers should strive to provide
+         *                              the settings in the same order every time within their app,
+         *                              in order to get the best cache performance.
+         * @return the new instance, or {@code null} if
+         *         {@link Paint#setFontVariationSettings(String)} would return null for this
+         *         Typeface and font variation settings string.
+         */
+        @Nullable
+        @UiThread
+        static Typeface createVariationInstance(@Nullable Typeface baseTypeface,
+                @Nullable String fontVariationSettings) {
+            Pair<Typeface, String> cacheKey = new Pair<>(baseTypeface, fontVariationSettings);
+
+            Typeface result = sVariationsCache.get(cacheKey);
+            if (result != null) {
+                return result;
+            }
+            Paint paint = sPaint != null ? sPaint : (sPaint = new Paint());
+
+            // Work around b/353609778
+            if (Objects.equals(paint.getFontVariationSettings(), fontVariationSettings)) {
+                paint.setFontVariationSettings(null);
+            }
+
+            // Use Paint to create a new Typeface based on an existing one
+            paint.setTypeface(baseTypeface);
+            boolean effective = paint.setFontVariationSettings(fontVariationSettings);
+            if (effective) {
+                result = paint.getTypeface();
+                sVariationsCache.put(cacheKey, result);
+                return result;
+            } else {
+                return null;
+            }
         }
 
         static int getAutoSizeStepGranularity(TextView textView) {

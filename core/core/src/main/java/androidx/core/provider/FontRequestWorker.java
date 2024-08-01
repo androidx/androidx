@@ -58,6 +58,9 @@ class FontRequestWorker {
 
     private FontRequestWorker() {}
 
+    /**
+     * Keyed by {@link #createCacheId(List, int)}
+     */
     static final LruCache<String, Typeface> sTypefaceCache = new LruCache<>(16);
 
     private static final ExecutorService DEFAULT_EXECUTOR_SERVICE = RequestExecutor
