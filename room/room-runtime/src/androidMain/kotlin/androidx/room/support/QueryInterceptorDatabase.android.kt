@@ -51,7 +51,7 @@ internal class QueryInterceptorDatabase(
 
     override fun beginTransactionNonExclusive() {
         queryCallbackScope.launch {
-            queryCallback.onQuery("BEGIN DEFERRED TRANSACTION", emptyList())
+            queryCallback.onQuery("BEGIN IMMEDIATE TRANSACTION", emptyList())
         }
         delegate.beginTransactionNonExclusive()
     }
@@ -67,7 +67,7 @@ internal class QueryInterceptorDatabase(
         transactionListener: SQLiteTransactionListener
     ) {
         queryCallbackScope.launch {
-            queryCallback.onQuery("BEGIN DEFERRED TRANSACTION", emptyList())
+            queryCallback.onQuery("BEGIN IMMEDIATE TRANSACTION", emptyList())
         }
         delegate.beginTransactionWithListenerNonExclusive(transactionListener)
     }

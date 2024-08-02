@@ -35,7 +35,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -242,8 +241,9 @@ class QueryInterceptorTest {
 
     private fun assertTransactionQueries() {
         testCoroutineScope.testScheduler.advanceUntilIdle()
-        assertNotNull(queryAndArgs.any { it.equals("BEGIN TRANSACTION") })
-        assertNotNull(queryAndArgs.any { it.equals("TRANSACTION SUCCESSFUL") })
-        assertNotNull(queryAndArgs.any { it.equals("END TRANSACTION") })
+        val queries = queryAndArgs.map { it.first }
+        assertThat(queries).contains("BEGIN IMMEDIATE TRANSACTION")
+        assertThat(queries).contains("TRANSACTION SUCCESSFUL")
+        assertThat(queries).contains("END TRANSACTION")
     }
 }
