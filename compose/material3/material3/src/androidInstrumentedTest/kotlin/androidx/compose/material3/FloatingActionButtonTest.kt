@@ -128,9 +128,7 @@ class FloatingActionButtonTest {
     fun smallFabHasSizeFromSpec() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     SmallFloatingActionButton(onClick = {}) {
                         Icon(Icons.Filled.Favorite, null, modifier = Modifier.testTag("icon"))
                     }
