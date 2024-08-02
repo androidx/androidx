@@ -106,5 +106,4 @@ androidx {
     description = "Provides backward-compatible implementations of Android platform APIs and " +
             "features."
     failOnDeprecationWarnings = false
-    legacyDisableKotlinStrictApiMode = true
 }

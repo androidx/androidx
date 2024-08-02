@@ -17,4 +17,4 @@
 package androidx.core.uwb.exceptions
 
 /** The uwb hardware is not available on the device. */
-class UwbHardwareNotAvailableException(message: String) : UwbApiException(message)
+public class UwbHardwareNotAvailableException(message: String) : UwbApiException(message)

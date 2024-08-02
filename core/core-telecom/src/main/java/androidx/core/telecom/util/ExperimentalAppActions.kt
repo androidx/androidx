@@ -20,4 +20,6 @@ package androidx.core.telecom.util
  * This API is still experimental. Any features associated with this annotation are unstable and
  * should not be used in production.
  */
-@RequiresOptIn @Retention(AnnotationRetention.BINARY) annotation class ExperimentalAppActions
+@RequiresOptIn
+@Retention(AnnotationRetention.BINARY)
+public annotation class ExperimentalAppActions

@@ -21,7 +21,7 @@ import androidx.core.util.Consumer
 /**
  * Interface for components that can dispatch calls from [Activity.onPictureInPictureModeChanged].
  */
-interface OnPictureInPictureModeChangedProvider {
+public interface OnPictureInPictureModeChangedProvider {
     /**
      * Add a new listener that will get a callback associated with
      * [Activity.onPictureInPictureModeChanged] with the new [PictureInPictureModeChangedInfo].
@@ -29,7 +29,7 @@ interface OnPictureInPictureModeChangedProvider {
      * @param listener The listener that should be called whenever
      *   [Activity.onPictureInPictureModeChanged] was called.
      */
-    fun addOnPictureInPictureModeChangedListener(
+    public fun addOnPictureInPictureModeChangedListener(
         listener: Consumer<PictureInPictureModeChangedInfo>
     )
 
@@ -39,7 +39,7 @@ interface OnPictureInPictureModeChangedProvider {
      * @param listener The listener previously added with [addOnPictureInPictureModeChangedListener]
      *   that should be removed.
      */
-    fun removeOnPictureInPictureModeChangedListener(
+    public fun removeOnPictureInPictureModeChangedListener(
         listener: Consumer<PictureInPictureModeChangedInfo>
     )
 }

@@ -20,11 +20,11 @@ package androidx.core.util
  *
  * @param T the type of the input to the operation
  */
-fun interface Supplier<T> {
+public fun interface Supplier<T> {
     /**
      * Gets a result.
      *
      * @return a result
      */
-    fun get(): T
+    public fun get(): T
 }

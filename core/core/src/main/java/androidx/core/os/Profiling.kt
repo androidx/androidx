@@ -48,14 +48,14 @@ private const val VALUE_BUFFER_FILL_POLICY_RING_BUFFER: Int = 2
 // End section: Keep in sync with ProfilingManager
 
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-enum class BufferFillPolicy(val value: Int) {
+public enum class BufferFillPolicy(public val value: Int) {
     DISCARD(VALUE_BUFFER_FILL_POLICY_DISCARD),
     RING_BUFFER(VALUE_BUFFER_FILL_POLICY_RING_BUFFER),
 }
 
 /** Obtain a flow to be called with all profiling results for this UID. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun registerForAllProfilingResults(context: Context): Flow<ProfilingResult> = callbackFlow {
+public fun registerForAllProfilingResults(context: Context): Flow<ProfilingResult> = callbackFlow {
     val listener = Consumer<ProfilingResult> { result -> trySend(result) }
 
     val service = context.getSystemService(ProfilingManager::class.java)
@@ -66,7 +66,7 @@ fun registerForAllProfilingResults(context: Context): Flow<ProfilingResult> = ca
 
 /** Register a listener to be called with all profiling results for this UID. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun registerForAllProfilingResults(
+public fun registerForAllProfilingResults(
     context: Context,
     executor: Executor,
     listener: Consumer<ProfilingResult>
@@ -77,7 +77,7 @@ fun registerForAllProfilingResults(
 
 /** Unregister a listener that was to be called for all profiling results. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun unregisterForAllProfilingResults(context: Context, listener: Consumer<ProfilingResult>) {
+public fun unregisterForAllProfilingResults(context: Context, listener: Consumer<ProfilingResult>) {
     val service = context.getSystemService(ProfilingManager::class.java)
     service.unregisterForAllProfilingResults(listener)
 }
@@ -88,7 +88,7 @@ fun unregisterForAllProfilingResults(context: Context, listener: Consumer<Profil
  * Request is submitted by calling {@link JavaHeapDumpRequestBuilder#request}.
  */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun requestJavaHeapDump(): JavaHeapDumpRequestBuilder {
+public fun requestJavaHeapDump(): JavaHeapDumpRequestBuilder {
     return JavaHeapDumpRequestBuilder()
 }
 
@@ -98,7 +98,7 @@ fun requestJavaHeapDump(): JavaHeapDumpRequestBuilder {
  * Request is submitted by calling {@link HeapProfileRequestBuilder#request}.
  */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun requestHeapProfile(): HeapProfileRequestBuilder {
+public fun requestHeapProfile(): HeapProfileRequestBuilder {
     return HeapProfileRequestBuilder()
 }
 
@@ -108,7 +108,7 @@ fun requestHeapProfile(): HeapProfileRequestBuilder {
  * Request is submitted by calling {@link StackSamplingRequestBuilder#request}.
  */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun requestStackSampling(): StackSamplingRequestBuilder {
+public fun requestStackSampling(): StackSamplingRequestBuilder {
     return StackSamplingRequestBuilder()
 }
 
@@ -118,14 +118,14 @@ fun requestStackSampling(): StackSamplingRequestBuilder {
  * Request is submitted by calling {@link SystemTraceRequestBuilder#request}.
  */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-fun requestSystemTrace(): SystemTraceRequestBuilder {
+public fun requestSystemTrace(): SystemTraceRequestBuilder {
     return SystemTraceRequestBuilder()
 }
 
 /** Base class for request builders. */
 @SuppressWarnings("StaticFinalBuilder", "MissingBuildMethod", "TopLevelBuilder")
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
+public abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
     private var mTag: String? = null
     private var mCancellationSignal: CancellationSignal? = null
 
@@ -133,7 +133,7 @@ abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
      * Add data to help identify the output. The first 20 alphanumeric characters, plus dashes, will
      * be lowercased and included in the output filename.
      */
-    fun setTag(tag: String): T {
+    public fun setTag(tag: String): T {
         mTag = tag
         return getThis()
     }
@@ -142,7 +142,7 @@ abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
      * Set a CancellationSignal to request cancellation of the requested trace. Results will be
      * returned if available.
      */
-    fun setCancellationSignal(cancellationSignal: CancellationSignal): T {
+    public fun setCancellationSignal(cancellationSignal: CancellationSignal): T {
         mCancellationSignal = cancellationSignal
         return getThis()
     }
@@ -154,7 +154,11 @@ abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
      * are registered using {@link registerForAllProfilingResults}, the request will be dropped.
      */
     @SuppressWarnings("BuilderSetStyle")
-    fun request(context: Context, executor: Executor?, listener: Consumer<ProfilingResult>?) {
+    public fun request(
+        context: Context,
+        executor: Executor?,
+        listener: Consumer<ProfilingResult>?
+    ) {
         val service = context.getSystemService(ProfilingManager::class.java)
         service.requestProfiling(
             getProfilingType(),
@@ -181,7 +185,7 @@ abstract class RequestBuilder<T : RequestBuilder<T>> internal constructor() {
 
 /** Request builder for a java heap dump. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-class JavaHeapDumpRequestBuilder internal constructor() :
+public class JavaHeapDumpRequestBuilder internal constructor() :
     RequestBuilder<JavaHeapDumpRequestBuilder>() {
     private val mParams: Bundle = Bundle()
 
@@ -201,7 +205,7 @@ class JavaHeapDumpRequestBuilder internal constructor() :
     }
 
     /** Set the buffer size in kilobytes for this profiling request. */
-    fun setBufferSizeKb(bufferSizeKb: Int): JavaHeapDumpRequestBuilder {
+    public fun setBufferSizeKb(bufferSizeKb: Int): JavaHeapDumpRequestBuilder {
         mParams.putInt(KEY_SIZE_KB, bufferSizeKb)
         return this
     }
@@ -209,7 +213,7 @@ class JavaHeapDumpRequestBuilder internal constructor() :
 
 /** Request builder for a heap profile. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-class HeapProfileRequestBuilder internal constructor() :
+public class HeapProfileRequestBuilder internal constructor() :
     RequestBuilder<HeapProfileRequestBuilder>() {
     private val mParams: Bundle = Bundle()
 
@@ -229,25 +233,25 @@ class HeapProfileRequestBuilder internal constructor() :
     }
 
     /** Set the buffer size in kilobytes for this profiling request. */
-    fun setBufferSizeKb(bufferSizeKb: Int): HeapProfileRequestBuilder {
+    public fun setBufferSizeKb(bufferSizeKb: Int): HeapProfileRequestBuilder {
         mParams.putInt(KEY_SIZE_KB, bufferSizeKb)
         return this
     }
 
     /** Set the duration in milliseconds for this profiling request. */
-    fun setDurationMs(durationMs: Int): HeapProfileRequestBuilder {
+    public fun setDurationMs(durationMs: Int): HeapProfileRequestBuilder {
         mParams.putInt(KEY_DURATION_MS, durationMs)
         return this
     }
 
     /** Set the sampling interval in bytes for this profiling request. */
-    fun setSamplingIntervalBytes(samplingIntervalBytes: Long): HeapProfileRequestBuilder {
+    public fun setSamplingIntervalBytes(samplingIntervalBytes: Long): HeapProfileRequestBuilder {
         mParams.putLong(KEY_SAMPLING_INTERVAL_BYTES, samplingIntervalBytes)
         return this
     }
 
     /** Set whether to track Java allocations rather than native ones. */
-    fun setTrackJavaAllocations(traceJavaAllocations: Boolean): HeapProfileRequestBuilder {
+    public fun setTrackJavaAllocations(traceJavaAllocations: Boolean): HeapProfileRequestBuilder {
         mParams.putBoolean(KEY_TRACK_JAVA_ALLOCATIONS, traceJavaAllocations)
         return this
     }
@@ -255,7 +259,7 @@ class HeapProfileRequestBuilder internal constructor() :
 
 /** Request builder for stack sampling. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-class StackSamplingRequestBuilder internal constructor() :
+public class StackSamplingRequestBuilder internal constructor() :
     RequestBuilder<StackSamplingRequestBuilder>() {
     private val mParams: Bundle = Bundle()
 
@@ -275,19 +279,19 @@ class StackSamplingRequestBuilder internal constructor() :
     }
 
     /** Set the buffer size in kilobytes for this profiling request. */
-    fun setBufferSizeKb(bufferSizeKb: Int): StackSamplingRequestBuilder {
+    public fun setBufferSizeKb(bufferSizeKb: Int): StackSamplingRequestBuilder {
         mParams.putInt(KEY_SIZE_KB, bufferSizeKb)
         return this
     }
 
     /** Set the duration in milliseconds for this profiling request. */
-    fun setDurationMs(durationMs: Int): StackSamplingRequestBuilder {
+    public fun setDurationMs(durationMs: Int): StackSamplingRequestBuilder {
         mParams.putInt(KEY_DURATION_MS, durationMs)
         return this
     }
 
     /** Set the cpu sampling frequency. */
-    fun setSamplingFrequencyHz(samplingFrequencyHz: Int): StackSamplingRequestBuilder {
+    public fun setSamplingFrequencyHz(samplingFrequencyHz: Int): StackSamplingRequestBuilder {
         mParams.putInt(KEY_FREQUENCY_HZ, samplingFrequencyHz)
         return this
     }
@@ -295,7 +299,7 @@ class StackSamplingRequestBuilder internal constructor() :
 
 /** Request builder for a system trace. */
 @RequiresApi(api = Build.VERSION_CODES.VANILLA_ICE_CREAM)
-class SystemTraceRequestBuilder internal constructor() :
+public class SystemTraceRequestBuilder internal constructor() :
     RequestBuilder<SystemTraceRequestBuilder>() {
     private val mParams: Bundle = Bundle()
 
@@ -315,19 +319,19 @@ class SystemTraceRequestBuilder internal constructor() :
     }
 
     /** Set the buffer size in kilobytes for this profiling request. */
-    fun setBufferSizeKb(bufferSizeKb: Int): SystemTraceRequestBuilder {
+    public fun setBufferSizeKb(bufferSizeKb: Int): SystemTraceRequestBuilder {
         mParams.putInt(KEY_SIZE_KB, bufferSizeKb)
         return this
     }
 
     /** Set the duration in milliseconds for this profiling request. */
-    fun setDurationMs(durationMs: Int): SystemTraceRequestBuilder {
+    public fun setDurationMs(durationMs: Int): SystemTraceRequestBuilder {
         mParams.putInt(KEY_DURATION_MS, durationMs)
         return this
     }
 
     /** Set the buffer fill policy. */
-    fun setBufferFillPolicy(bufferFillPolicy: BufferFillPolicy): SystemTraceRequestBuilder {
+    public fun setBufferFillPolicy(bufferFillPolicy: BufferFillPolicy): SystemTraceRequestBuilder {
         mParams.putInt(KEY_BUFFER_FILL_POLICY, bufferFillPolicy.value)
         return this
     }

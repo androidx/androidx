@@ -54,5 +54,4 @@ androidx {
     mavenVersion = LibraryVersions.CORE
     inceptionYear = "2023"
     description = "Provides extensions for tests using Core APIs."
-    legacyDisableKotlinStrictApiMode = true
 }

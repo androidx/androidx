@@ -23,13 +23,13 @@ import androidx.annotation.RequiresApi
  * Class that encapsulates the information that is delivered when
  * [Activity.onMultiWindowModeChanged] is dispatched to a [OnMultiWindowModeChangedProvider].
  */
-class MultiWindowModeChangedInfo(
+public class MultiWindowModeChangedInfo(
     /**
      * Gets the new multi-window mode.
      *
      * @return True if the activity is in multi-window mode.
      */
-    val isInMultiWindowMode: Boolean,
+    public val isInMultiWindowMode: Boolean,
 ) {
     @RequiresApi(26) private var newConfiguration: Configuration? = null
 
@@ -42,7 +42,7 @@ class MultiWindowModeChangedInfo(
      *   isInMultiWindowMode}.
      */
     @RequiresApi(26)
-    constructor(
+    public constructor(
         isInMultiWindowMode: Boolean,
         newConfig: Configuration
     ) : this(isInMultiWindowMode) {
@@ -50,7 +50,7 @@ class MultiWindowModeChangedInfo(
     }
 
     @get:RequiresApi(26)
-    val newConfig: Configuration
+    public val newConfig: Configuration
         /**
          * Gets the new [Configuration] of the with activity with the state [isInMultiWindowMode]
          * applied.

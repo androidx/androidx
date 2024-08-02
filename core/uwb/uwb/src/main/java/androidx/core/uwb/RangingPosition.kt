@@ -28,9 +28,9 @@ package androidx.core.uwb
  * @property elapsedRealtimeNanos The elapsed realtime in nanos from when the system booted up to
  *   this position measurement.
  */
-class RangingPosition(
-    val distance: RangingMeasurement?,
-    val azimuth: RangingMeasurement?,
-    val elevation: RangingMeasurement?,
-    val elapsedRealtimeNanos: Long
+public class RangingPosition(
+    public val distance: RangingMeasurement?,
+    public val azimuth: RangingMeasurement?,
+    public val elevation: RangingMeasurement?,
+    public val elapsedRealtimeNanos: Long
 )

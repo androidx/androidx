@@ -66,12 +66,12 @@ import kotlinx.coroutines.flow.Flow
  * **Note:** Each [Flow] must be wrapped in an individual launch block or the [Flow] will not be
  * collected.
  */
-interface CallControlScope : CoroutineScope {
+public interface CallControlScope : CoroutineScope {
     /**
      * @return the 128-bit universally unique identifier Telecom assigned to this CallControlScope.
      *   This id can be helpful for debugging when dumping the telecom system.
      */
-    fun getCallId(): ParcelUuid
+    public fun getCallId(): ParcelUuid
 
     /**
      * Inform Telecom that your app wants to make this call active. This method should be called
@@ -83,7 +83,7 @@ interface CallControlScope : CoroutineScope {
      *   and telecom cannot set this call active until the other call is held or disconnected) with
      *   an error code indicating why setActive failed.
      */
-    suspend fun setActive(): CallControlResult
+    public suspend fun setActive(): CallControlResult
 
     /**
      * Inform Telecom that your app wants to make this call inactive. This the same as hold for two
@@ -93,7 +93,7 @@ interface CallControlScope : CoroutineScope {
      *   inactive. Otherwise, [CallControlResult.Error] will be returned with an error code
      *   indicating why setInActive failed.
      */
-    suspend fun setInactive(): CallControlResult
+    public suspend fun setInactive(): CallControlResult
 
     /**
      * Inform Telecom that your app wants to make this incoming call active. For outgoing calls and
@@ -106,7 +106,9 @@ interface CallControlScope : CoroutineScope {
      *   the other call is held or disconnected). This means that your app cannot answer this call
      *   at this time.
      */
-    suspend fun answer(@CallAttributesCompat.Companion.CallType callType: Int): CallControlResult
+    public suspend fun answer(
+        @CallAttributesCompat.Companion.CallType callType: Int
+    ): CallControlResult
 
     /**
      * Inform Telecom that your app wishes to disconnect the call and remove the call from telecom
@@ -123,7 +125,9 @@ interface CallControlScope : CoroutineScope {
      *   call successfully. Otherwise [CallControlResult.Error] will be returned with an error code
      *   indicating why disconnect failed.
      */
-    suspend fun disconnect(disconnectCause: android.telecom.DisconnectCause): CallControlResult
+    public suspend fun disconnect(
+        disconnectCause: android.telecom.DisconnectCause
+    ): CallControlResult
 
     /**
      * Request a [CallEndpointCompat] change. Clients should not define their own
@@ -135,20 +139,20 @@ interface CallControlScope : CoroutineScope {
      *   requested endpoint successfully. Otherwise, [CallControlResult.Error] will be returned with
      *   an error code indicating why disconnect failed.
      */
-    suspend fun requestEndpointChange(endpoint: CallEndpointCompat): CallControlResult
+    public suspend fun requestEndpointChange(endpoint: CallEndpointCompat): CallControlResult
 
     /**
      * Collect the new [CallEndpointCompat] through which call media flows (i.e. speaker, bluetooth,
      * etc.).
      */
-    val currentCallEndpoint: Flow<CallEndpointCompat>
+    public val currentCallEndpoint: Flow<CallEndpointCompat>
 
     /** Collect the set of available [CallEndpointCompat]s reported by Telecom. */
-    val availableEndpoints: Flow<List<CallEndpointCompat>>
+    public val availableEndpoints: Flow<List<CallEndpointCompat>>
 
     /**
      * Collect the current mute state of the call. This Flow is updated every time the mute state
      * changes.
      */
-    val isMuted: Flow<Boolean>
+    public val isMuted: Flow<Boolean>
 }

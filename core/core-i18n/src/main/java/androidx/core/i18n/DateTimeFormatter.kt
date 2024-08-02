@@ -38,12 +38,12 @@ import java.util.Locale
  * @param locale the locale used for formatting. If missing then the application locale will be
  *   used.
  */
-class DateTimeFormatter {
+public class DateTimeFormatter {
 
     private val dateFormatter: IDateTimeFormatterImpl
 
     @JvmOverloads
-    constructor(
+    public constructor(
         context: Context,
         options: DateTimeFormatterSkeletonOptions,
         locale: Locale = getDefaultFormattingLocale()
@@ -58,7 +58,7 @@ class DateTimeFormatter {
     }
 
     @JvmOverloads
-    constructor(
+    public constructor(
         options: DateTimeFormatterJdkStyleOptions,
         locale: Locale = getDefaultFormattingLocale()
     ) {
@@ -126,7 +126,7 @@ class DateTimeFormatter {
      *   1970, 00:00:00 GMT.
      * @return the formatted date / time string.
      */
-    fun format(milliseconds: Long): String {
+    public fun format(milliseconds: Long): String {
         val calendar = Calendar.getInstance()
         calendar.timeInMillis = milliseconds
         return format(calendar)
@@ -138,7 +138,7 @@ class DateTimeFormatter {
      * @param date the date / time to format.
      * @return the formatted date / time string.
      */
-    fun format(date: Date): String {
+    public fun format(date: Date): String {
         val calendar = Calendar.getInstance()
         calendar.time = date
         return format(calendar)
@@ -150,7 +150,7 @@ class DateTimeFormatter {
      * @param calendar the date / time to format.
      * @return the formatted date / time string.
      */
-    fun format(calendar: Calendar): String {
+    public fun format(calendar: Calendar): String {
         return dateFormatter.format(calendar)
     }
 

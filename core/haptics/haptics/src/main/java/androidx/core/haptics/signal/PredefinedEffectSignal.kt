@@ -32,7 +32,7 @@ import androidx.core.haptics.impl.HapticSignalConverter
  *
  * @sample androidx.core.haptics.samples.PlaySystemStandardClick
  */
-class PredefinedEffectSignal
+public class PredefinedEffectSignal
 private constructor(
 
     /** The type of haptic effect to be played. */
@@ -51,9 +51,9 @@ private constructor(
         HEAVY_CLICK,
         DOUBLE_CLICK,
     )
-    annotation class Type
+    public annotation class Type
 
-    companion object {
+    public companion object {
         internal const val TICK = 2 // VibrationEffect.EFFECT_TICK
         internal const val CLICK = 0 // VibrationEffect.EFFECT_CLICK
         internal const val HEAVY_CLICK = 5 // VibrationEffect.EFFECT_HEAVY_CLICK
@@ -87,24 +87,24 @@ private constructor(
          *
          * This effect is less strong than the [predefinedClick].
          */
-        @JvmStatic fun predefinedTick() = Tick
+        @JvmStatic public fun predefinedTick(): PredefinedEffectSignal = Tick
 
         /**
          * A standard click effect.
          *
          * Use this effect as a baseline, as it's the most common type of click effect.
          */
-        @JvmStatic fun predefinedClick() = Click
+        @JvmStatic public fun predefinedClick(): PredefinedEffectSignal = Click
 
         /**
          * A heavy click effect.
          *
          * This effect is stronger than the [predefinedClick].
          */
-        @JvmStatic fun predefinedHeavyClick() = HeavyClick
+        @JvmStatic public fun predefinedHeavyClick(): PredefinedEffectSignal = HeavyClick
 
         /** A double-click effect. */
-        @JvmStatic fun predefinedDoubleClick() = DoubleClick
+        @JvmStatic public fun predefinedDoubleClick(): PredefinedEffectSignal = DoubleClick
     }
 
     override fun equals(other: Any?): Boolean {

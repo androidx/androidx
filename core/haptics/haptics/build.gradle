@@ -53,6 +53,5 @@ androidx {
     inceptionYear = "2023"
     description = "Core Haptics Libraries to help navigate different device and Android SDK " +
             "functionalities and create reliable haptic effects across all of Android."
-    legacyDisableKotlinStrictApiMode = true
     samples(project(":core:haptics:haptics-samples"))
 }

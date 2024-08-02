@@ -21,12 +21,12 @@ package androidx.core.util
  * @param T the type of the input to the operation
  * @param R the type of the output of the function
  */
-fun interface Function<T, R> {
+public fun interface Function<T, R> {
     /**
      * Applies the function to the argument parameter.
      *
      * @param value the argument for the function
      * @return the result after applying function
      */
-    fun apply(value: T): R
+    public fun apply(value: T): R
 }

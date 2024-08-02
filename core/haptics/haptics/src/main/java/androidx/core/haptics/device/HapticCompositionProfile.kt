@@ -30,7 +30,7 @@ import java.util.Objects
  * @property supportedPrimitiveTypes A set of [Int] values defined by
  *   [CompositionSignal.PrimitiveAtom.Type] representing composition primitive types supported.
  */
-class HapticCompositionProfile
+public class HapticCompositionProfile
 @JvmOverloads
 constructor(
 
@@ -60,7 +60,7 @@ constructor(
      * supported primitive types to check individual [PrimitiveAtom] durations within a
      * [CompositionSignal].
      */
-    val isPrimitiveDurationReported: Boolean
+    public val isPrimitiveDurationReported: Boolean
         get() = _primitiveDurationMillisMap != null
 
     /**
@@ -73,7 +73,7 @@ constructor(
      * the device reports no supported primitive, or if the required APIs are not available in this
      * SDK level.
      */
-    val supportedPrimitiveTypes: Set<Int>
+    public val supportedPrimitiveTypes: Set<Int>
 
     private val _primitiveDurationMillisMap: Map<Int, Long>?
 
@@ -105,7 +105,7 @@ constructor(
      *   in a [CompositionSignal], or null if the primitive type is not supported or the hardware
      *   does not report primitive durations.
      */
-    fun getPrimitiveDurationMillis(@PrimitiveAtom.Type primitiveType: Int): Long =
+    public fun getPrimitiveDurationMillis(@PrimitiveAtom.Type primitiveType: Int): Long =
         _primitiveDurationMillisMap?.get(primitiveType) ?: 0L
 
     override fun equals(other: Any?): Boolean {

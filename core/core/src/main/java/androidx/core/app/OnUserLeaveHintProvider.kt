@@ -19,14 +19,14 @@ package androidx.core.app
 import android.app.Activity
 
 /** Interface for components that can dispatch calls from [Activity.onUserLeaveHint]. */
-interface OnUserLeaveHintProvider {
+public interface OnUserLeaveHintProvider {
     /**
      * Add a new listener that will get a callback associated with [Activity.onUserLeaveHint]
      *
      * @param listener The listener that should be called whenever [Activity.onUserLeaveHint] was
      *   called.
      */
-    fun addOnUserLeaveHintListener(listener: Runnable)
+    public fun addOnUserLeaveHintListener(listener: Runnable)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
@@ -34,5 +34,5 @@ interface OnUserLeaveHintProvider {
      * @param listener The listener previously added with [addOnUserLeaveHintListener] that should
      *   be removed.
      */
-    fun removeOnUserLeaveHintListener(listener: Runnable)
+    public fun removeOnUserLeaveHintListener(listener: Runnable)
 }

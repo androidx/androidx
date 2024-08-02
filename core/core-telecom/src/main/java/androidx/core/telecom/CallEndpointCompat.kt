@@ -35,7 +35,11 @@ import java.util.UUID
  * @param identifier A unique identifier for this endpoint on the device
  */
 @RequiresApi(VERSION_CODES.O)
-class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: ParcelUuid) {
+public class CallEndpointCompat(
+    public val name: CharSequence,
+    public val type: Int,
+    public val identifier: ParcelUuid
+) {
     internal var mMackAddress: String = "-1"
 
     override fun toString(): String {
@@ -56,7 +60,7 @@ class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: 
         return Objects.hash(name, type, identifier)
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
@@ -68,27 +72,27 @@ class CallEndpointCompat(val name: CharSequence, val type: Int, val identifier: 
             TYPE_STREAMING
         )
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-        annotation class EndpointType
+        public annotation class EndpointType
 
         /** Indicates that the type of endpoint through which call media flows is unknown type. */
-        const val TYPE_UNKNOWN = -1
+        public const val TYPE_UNKNOWN: Int = -1
 
         /** Indicates that the type of endpoint through which call media flows is an earpiece. */
-        const val TYPE_EARPIECE = 1
+        public const val TYPE_EARPIECE: Int = 1
 
         /** Indicates that the type of endpoint through which call media flows is a Bluetooth. */
-        const val TYPE_BLUETOOTH = 2
+        public const val TYPE_BLUETOOTH: Int = 2
 
         /**
          * Indicates that the type of endpoint through which call media flows is a wired headset.
          */
-        const val TYPE_WIRED_HEADSET = 3
+        public const val TYPE_WIRED_HEADSET: Int = 3
 
         /** Indicates that the type of endpoint through which call media flows is a speakerphone. */
-        const val TYPE_SPEAKER = 4
+        public const val TYPE_SPEAKER: Int = 4
 
         /** Indicates that the type of endpoint through which call media flows is an external. */
-        const val TYPE_STREAMING = 5
+        public const val TYPE_STREAMING: Int = 5
     }
 
     internal constructor(

@@ -21,4 +21,4 @@ package androidx.core.uwb
  *
  * @property value the value of this measurement.
  */
-class RangingMeasurement(val value: Float)
+public class RangingMeasurement(public val value: Float)

@@ -35,7 +35,7 @@ import androidx.lifecycle.ReportFragment
  * `androidx.activity.ComponentActivity`.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispatcher.Component {
+public open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispatcher.Component {
     /**
      * Storage for [ExtraData] instances.
      *
@@ -60,7 +60,7 @@ open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispatcher.Co
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Suppress("DEPRECATION")
     @Deprecated("Use {@link View#setTag(int, Object)} with the window's decor view.")
-    open fun putExtraData(extraData: ExtraData) {
+    public open fun putExtraData(extraData: ExtraData) {
         extraDataMap.put(extraData.javaClass, extraData)
     }
 
@@ -83,7 +83,7 @@ open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispatcher.Co
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Suppress("DEPRECATION", "UNCHECKED_CAST")
     @Deprecated("Use {@link View#getTag(int)} with the window's decor view.")
-    open fun <T : ExtraData> getExtraData(extraDataClass: Class<T>): T? {
+    public open fun <T : ExtraData> getExtraData(extraDataClass: Class<T>): T? {
         return extraDataMap[extraDataClass] as T?
     }
 
@@ -154,5 +154,5 @@ open class ComponentActivity : Activity(), LifecycleOwner, KeyEventDispatcher.Co
         """Store the object you want to save directly by using
       {@link View#setTag(int, Object)} with the window's decor view."""
     )
-    open class ExtraData
+    public open class ExtraData
 }

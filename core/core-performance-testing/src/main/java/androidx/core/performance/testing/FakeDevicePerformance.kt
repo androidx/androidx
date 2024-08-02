@@ -23,4 +23,4 @@ import androidx.core.performance.DevicePerformance
  *
  * @param mediaPerformanceClass The media performance class value to return.
  */
-class FakeDevicePerformance(override val mediaPerformanceClass: Int) : DevicePerformance
+public class FakeDevicePerformance(override val mediaPerformanceClass: Int) : DevicePerformance

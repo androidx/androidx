@@ -23,10 +23,10 @@ package androidx.core.uwb
  * @property ntfProximityNearCm the proximity near distance in centimeters.
  * @property ntfProximityFarCm the proximity far distance in centimeters.
  */
-class UwbRangeDataNtfConfig(
-    val configType: Int,
-    val ntfProximityNearCm: Int,
-    val ntfProximityFarCm: Int
+public class UwbRangeDataNtfConfig(
+    public val configType: Int,
+    public val ntfProximityNearCm: Int,
+    public val ntfProximityFarCm: Int
 ) {
     override fun hashCode(): Int {
         var result = configType

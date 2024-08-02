@@ -17,4 +17,4 @@
 package androidx.core.uwb.exceptions
 
 /** The service was not available on the device. */
-class UwbServiceNotAvailableException(message: String) : UwbApiException(message)
+public class UwbServiceNotAvailableException(message: String) : UwbApiException(message)

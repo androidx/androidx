@@ -20,7 +20,8 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
 /** This class defines exceptions that can be thrown when using [androidx.core.telecom] APIs. */
-class CallException(@CallErrorCode val code: Int = ERROR_UNKNOWN) : RuntimeException() {
+public class CallException(@CallErrorCode public val code: Int = ERROR_UNKNOWN) :
+    RuntimeException() {
 
     override fun toString(): String {
         return "CallException(code=[$code])"
@@ -34,7 +35,7 @@ class CallException(@CallErrorCode val code: Int = ERROR_UNKNOWN) : RuntimeExcep
         return code.hashCode()
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
@@ -47,52 +48,52 @@ class CallException(@CallErrorCode val code: Int = ERROR_UNKNOWN) : RuntimeExcep
             ERROR_CALL_DOES_NOT_SUPPORT_HOLD,
             ERROR_BLUETOOTH_DEVICE_IS_NULL
         )
-        annotation class CallErrorCode
+        public annotation class CallErrorCode
 
         /** The operation has failed due to an unknown or unspecified error. */
-        const val ERROR_UNKNOWN = 1
+        public const val ERROR_UNKNOWN: Int = 1
 
         /**
          * The operation has failed due to Telecom failing to hold the current active call for the
          * call attempting to become the new active call. The client should end the current active
          * call and re-try the failed operation.
          */
-        const val ERROR_CANNOT_HOLD_CURRENT_ACTIVE_CALL = 2
+        public const val ERROR_CANNOT_HOLD_CURRENT_ACTIVE_CALL: Int = 2
 
         /**
          * The operation has failed because Telecom has already removed the call from the server
          * side and destroyed all the objects associated with it. The client should re-add the call.
          */
-        const val ERROR_CALL_IS_NOT_BEING_TRACKED = 3
+        public const val ERROR_CALL_IS_NOT_BEING_TRACKED: Int = 3
 
         /**
          * The operation has failed because Telecom cannot set the requested call as the current
          * active call. The client should end the current active call and re-try the operation.
          */
-        const val ERROR_CALL_CANNOT_BE_SET_TO_ACTIVE = 4
+        public const val ERROR_CALL_CANNOT_BE_SET_TO_ACTIVE: Int = 4
 
         /**
          * The operation has failed because there is either no PhoneAccount registered with Telecom
          * for the given operation, or the limit of calls has been reached. The client should end
          * the current active call and re-try the failed operation.
          */
-        const val ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME = 5
+        public const val ERROR_CALL_NOT_PERMITTED_AT_PRESENT_TIME: Int = 5
 
         /** The operation has failed because the operation failed to complete before the timeout */
-        const val ERROR_OPERATION_TIMED_OUT = 6
+        public const val ERROR_OPERATION_TIMED_OUT: Int = 6
 
         /**
          * The [CallControlScope.setInactive] or [CallsManager.addCall#onSetInactive] failed because
          * the [CallAttributesCompat.SUPPORTS_SET_INACTIVE] was not set. Please re-add the call with
          * the [CallAttributesCompat.SUPPORTS_SET_INACTIVE] if the call should be able to hold.
          */
-        const val ERROR_CALL_DOES_NOT_SUPPORT_HOLD = 7
+        public const val ERROR_CALL_DOES_NOT_SUPPORT_HOLD: Int = 7
 
         /**
          * Telecom was not able to switch the audio route to Bluetooth because the Bluetooth device
          * is null. The user should reconnect the Bluetooth device and retry the audio route switch.
          */
-        const val ERROR_BLUETOOTH_DEVICE_IS_NULL = 8
+        public const val ERROR_BLUETOOTH_DEVICE_IS_NULL: Int = 8
 
         internal fun fromTelecomCode(code: Int): Int {
             when (code) {

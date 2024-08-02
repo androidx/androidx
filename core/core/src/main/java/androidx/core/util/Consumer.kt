@@ -20,11 +20,11 @@ package androidx.core.util
  *
  * @param T the type of the input to the operation
  */
-fun interface Consumer<T> {
+public fun interface Consumer<T> {
     /**
      * Performs this operation on the given argument.
      *
      * @param value the input argument
      */
-    fun accept(value: T)
+    public fun accept(value: T)
 }

@@ -64,5 +64,4 @@ androidx {
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"
     description = "Provides compatibility APIs concerning location altitudes."
-    legacyDisableKotlinStrictApiMode = true
 }

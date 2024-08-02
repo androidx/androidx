@@ -31,18 +31,18 @@ import kotlinx.coroutines.withTimeout
 @ExperimentalAppActions
 @RequiresApi(Build.VERSION_CODES.O)
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-class ActionsResultCallback : IActionsResultCallback.Stub() {
+public class ActionsResultCallback : IActionsResultCallback.Stub() {
     internal lateinit var result: CallControlResult
     internal var errorMessage = "No error occurred"
 
     internal val waitForActionResultLatch = CountDownLatch(1)
 
-    companion object {
+    public companion object {
         private val TAG = ActionsResultCallback::class.simpleName
         internal const val ACTION_RESULT_RESPONSE_TIMEOUT = 1000L
     }
 
-    suspend fun waitForResponse(): CallControlResult {
+    public suspend fun waitForResponse(): CallControlResult {
         try {
             withTimeout(ACTION_RESULT_RESPONSE_TIMEOUT) {
                 // Wait for VOIP app to return the result

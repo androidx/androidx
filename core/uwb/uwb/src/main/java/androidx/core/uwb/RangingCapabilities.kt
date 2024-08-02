@@ -35,18 +35,18 @@ import androidx.annotation.RestrictTo
  * @property isBackgroundRangingSupported - Whether a ranging can be started when the app is in
  *   background
  */
-class RangingCapabilities
+public class RangingCapabilities
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 constructor(
-    val isDistanceSupported: Boolean,
-    val isAzimuthalAngleSupported: Boolean,
-    val isElevationAngleSupported: Boolean,
-    val minRangingInterval: Int,
-    val supportedChannels: Set<Int>,
-    val supportedNtfConfigs: Set<Int>,
-    val supportedConfigIds: Set<Int>,
-    val supportedSlotDurations: Set<Int>,
-    val supportedRangingUpdateRates: Set<Int>,
-    val isRangingIntervalReconfigureSupported: Boolean,
-    val isBackgroundRangingSupported: Boolean
+    public val isDistanceSupported: Boolean,
+    public val isAzimuthalAngleSupported: Boolean,
+    public val isElevationAngleSupported: Boolean,
+    public val minRangingInterval: Int,
+    public val supportedChannels: Set<Int>,
+    public val supportedNtfConfigs: Set<Int>,
+    public val supportedConfigIds: Set<Int>,
+    public val supportedSlotDurations: Set<Int>,
+    public val supportedRangingUpdateRates: Set<Int>,
+    public val isRangingIntervalReconfigureSupported: Boolean,
+    public val isBackgroundRangingSupported: Boolean
 )

@@ -48,7 +48,6 @@ androidx {
     mavenVersion = LibraryVersions.CORE_I18N
     inceptionYear = "2022"
     description = "This library provides functionality for good internationalization (messages, plurals, date / time formatting)."
-    legacyDisableKotlinStrictApiMode = true
 }
 
 android {

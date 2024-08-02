@@ -21,22 +21,22 @@ package androidx.core.uwb
  *
  * @property address the device address (e.g., MAC address).
  */
-class UwbDevice(val address: UwbAddress) {
+public class UwbDevice(public val address: UwbAddress) {
 
-    companion object {
+    public companion object {
         /**
          * Creates a new UwbDevice for a given address.
          *
          * @throws [IllegalArgumentException] if address is invalid.
          */
         @JvmStatic
-        fun createForAddress(address: String): UwbDevice {
+        public fun createForAddress(address: String): UwbDevice {
             return UwbDevice(UwbAddress(address))
         }
 
         /** Creates a new UwbDevice for a given address. */
         @JvmStatic
-        fun createForAddress(address: ByteArray): UwbDevice {
+        public fun createForAddress(address: ByteArray): UwbDevice {
             return UwbDevice(UwbAddress(address))
         }
     }

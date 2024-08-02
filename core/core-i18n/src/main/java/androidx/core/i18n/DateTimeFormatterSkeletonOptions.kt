@@ -40,7 +40,7 @@ import java.util.regex.Pattern
  * You can still build these options from a string by using the
  * [DateTimeFormatterSkeletonOptions.fromString] method.
  */
-class DateTimeFormatterSkeletonOptions
+public class DateTimeFormatterSkeletonOptions
 internal constructor(
     private val era: Era,
     private val year: Year,
@@ -58,22 +58,22 @@ internal constructor(
     // Date fields
 
     /** Era name. Era string for the date. */
-    class Era private constructor(val value: String) {
-        companion object {
+    public class Era private constructor(public val value: String) {
+        public companion object {
             /** E.g. "Anno Domini". */
-            @JvmField val WIDE = Era("GGGG")
+            @JvmField public val WIDE: Era = Era("GGGG")
 
             /** E.g. "AD". */
-            @JvmField val ABBREVIATED = Era("G")
+            @JvmField public val ABBREVIATED: Era = Era("G")
 
             /** E.g. "A". */
-            @JvmField val NARROW = Era("GGGGG")
+            @JvmField public val NARROW: Era = Era("GGGGG")
 
             /** Produces no output. */
-            @JvmField val NONE = Era("")
+            @JvmField public val NONE: Era = Era("")
 
             @JvmStatic
-            fun fromString(value: String): Era {
+            public fun fromString(value: String): Era {
                 return when (value) {
                     "G",
                     "GG",
@@ -87,21 +87,21 @@ internal constructor(
     }
 
     /** Calendar year (numeric). */
-    class Year private constructor(val value: String) {
-        companion object {
+    public class Year private constructor(public val value: String) {
+        public companion object {
             /** As many digits as needed to show the full value. E.g. "2021" or "2009". */
-            @JvmField val NUMERIC = Year("y")
+            @JvmField public val NUMERIC: Year = Year("y")
 
             /**
              * The two low-order digits of the year, zero-padded as necessary. E.g. "21" or "09".
              */
-            @JvmField val TWO_DIGITS = Year("yy")
+            @JvmField public val TWO_DIGITS: Year = Year("yy")
 
             /** Produces no output. */
-            @JvmField val NONE = Year("")
+            @JvmField public val NONE: Year = Year("")
 
             @JvmStatic
-            fun fromString(value: String): Year {
+            public fun fromString(value: String): Year {
                 return when (value) {
                     "y" -> NUMERIC
                     "yy" -> TWO_DIGITS
@@ -112,28 +112,28 @@ internal constructor(
     }
 
     /** Month number/name. */
-    class Month private constructor(val value: String) {
-        companion object {
+    public class Month private constructor(public val value: String) {
+        public companion object {
             /** e.g. "September". */
-            @JvmField val WIDE = Month("MMMM")
+            @JvmField public val WIDE: Month = Month("MMMM")
 
             /** e.g. "Sep". */
-            @JvmField val ABBREVIATED = Month("MMM")
+            @JvmField public val ABBREVIATED: Month = Month("MMM")
 
             /** Might be soo short that it is confusing. E.g. "S". */
-            @JvmField val NARROW = Month("MMMMM")
+            @JvmField public val NARROW: Month = Month("MMMMM")
 
             /** E.g. "9". */
-            @JvmField val NUMERIC = Month("M")
+            @JvmField public val NUMERIC: Month = Month("M")
 
             /** Numeric: 2 digits, zero pad if needed. May not be good i18n. E.g. "09". */
-            @JvmField val TWO_DIGITS = Month("MM")
+            @JvmField public val TWO_DIGITS: Month = Month("MM")
 
             /** Produces no output. */
-            @JvmField val NONE = Month("")
+            @JvmField public val NONE: Month = Month("")
 
             @JvmStatic
-            fun fromString(value: String): Month {
+            public fun fromString(value: String): Month {
                 return when (value) {
                     "M" -> NUMERIC
                     "MM" -> TWO_DIGITS
@@ -147,19 +147,19 @@ internal constructor(
     }
 
     /** Day of month (numeric). */
-    class Day private constructor(val value: String) {
-        companion object {
+    public class Day private constructor(public val value: String) {
+        public companion object {
             /** As many digits as needed to show the full value. E.g. "1" or "17". */
-            @JvmField val NUMERIC = Day("d")
+            @JvmField public val NUMERIC: Day = Day("d")
 
             /** Two digits, zero pad if needed. E.g. "01" or "17". */
-            @JvmField val TWO_DIGITS = Day("dd")
+            @JvmField public val TWO_DIGITS: Day = Day("dd")
 
             /** Produces no output. */
-            @JvmField val NONE = Day("")
+            @JvmField public val NONE: Day = Day("")
 
             @JvmStatic
-            fun fromString(value: String): Day {
+            public fun fromString(value: String): Day {
                 return when (value) {
                     "d" -> NUMERIC
                     "dd" -> TWO_DIGITS
@@ -170,28 +170,28 @@ internal constructor(
     }
 
     /** Day of week name. */
-    class WeekDay private constructor(val value: String) {
-        companion object {
+    public class WeekDay private constructor(public val value: String) {
+        public companion object {
             /** E.g. "Tuesday". */
-            @JvmField val WIDE = WeekDay("EEEE")
+            @JvmField public val WIDE: WeekDay = WeekDay("EEEE")
 
             /** E.g. "Tue". */
-            @JvmField val ABBREVIATED = WeekDay("E")
+            @JvmField public val ABBREVIATED: WeekDay = WeekDay("E")
 
             /** E.g. "Tu". */
-            @JvmField val SHORT = WeekDay("EEEEEE")
+            @JvmField public val SHORT: WeekDay = WeekDay("EEEEEE")
 
             /**
              * E.g. "T". Two weekdays may have the same narrow style for some locales. E.g. the
              * narrow style for both "Tuesday" and "Thursday" is "T".
              */
-            @JvmField val NARROW = WeekDay("EEEEE")
+            @JvmField public val NARROW: WeekDay = WeekDay("EEEEE")
 
             /** Produces no output. */
-            @JvmField val NONE = WeekDay("")
+            @JvmField public val NONE: WeekDay = WeekDay("")
 
             @JvmStatic
-            fun fromString(value: String): WeekDay {
+            public fun fromString(value: String): WeekDay {
                 return when (value) {
                     "E",
                     "EE",
@@ -208,28 +208,28 @@ internal constructor(
     // Time fields
 
     /** The period of the day, if the hour is not 23h or 24h style. */
-    class Period private constructor(val value: String) {
-        companion object {
+    public class Period private constructor(public val value: String) {
+        public companion object {
             /** E.g. "12 a.m.". */
-            @JvmField val WIDE = Period("aaaa")
+            @JvmField public val WIDE: Period = Period("aaaa")
 
             /** E.g. "12 a.m.". */
-            @JvmField val ABBREVIATED = Period("a")
+            @JvmField public val ABBREVIATED: Period = Period("a")
 
             /** E.g. "12 a". */
-            @JvmField val NARROW = Period("aaaaa")
+            @JvmField public val NARROW: Period = Period("aaaaa")
 
             /**
              * Flexible day periods. May be upper or lowercase depending on the locale and other
              * options. Often there is only one width that is customarily used. E.g. "3:00 at night"
              */
-            @JvmField val FLEXIBLE = Period("B")
+            @JvmField public val FLEXIBLE: Period = Period("B")
 
             /** Produces no output. */
-            @JvmField val NONE = Period("")
+            @JvmField public val NONE: Period = Period("")
 
             @JvmStatic
-            fun fromString(value: String): Period {
+            public fun fromString(value: String): Period {
                 return when (value) {
                     "a",
                     "aa",
@@ -244,46 +244,46 @@ internal constructor(
     }
 
     /** Hour (numeric). */
-    class Hour private constructor(val value: String) {
-        companion object {
+    public class Hour private constructor(public val value: String) {
+        public companion object {
             /**
              * As many digits as needed to show the full value. Day period if used. E.g. "8", "8
              * AM", "13", "1 PM".
              */
-            @JvmField val NUMERIC = Hour("j")
+            @JvmField public val NUMERIC: Hour = Hour("j")
 
             /**
              * Two digits, zero pad if needed. DayPeriod if used. Might be bad i18n. E.g. "08", "08
              * AM", "13", "01 PM".
              */
-            @JvmField val TWO_DIGITS = Hour("jj")
+            @JvmField public val TWO_DIGITS: Hour = Hour("jj")
 
             /**
              * Bad i18n. As many digits as needed to show the full value. Day period added
              * automatically. E.g. "8 AM", "1 PM".
              */
-            @JvmField val FORCE_12H_NUMERIC = Hour("h")
+            @JvmField public val FORCE_12H_NUMERIC: Hour = Hour("h")
 
             /**
              * Bad i18n. Two digits, zero pad if needed. Day period added automatically. E.g. "08
              * AM", "01 PM".
              */
-            @JvmField val FORCE_12H_TWO_DIGITS = Hour("hh")
+            @JvmField public val FORCE_12H_TWO_DIGITS: Hour = Hour("hh")
 
             /**
              * Bad i18n. As many digits as needed to show the full value. No day period. E.g. "8",
              * "13".
              */
-            @JvmField val FORCE_24H_NUMERIC = Hour("H")
+            @JvmField public val FORCE_24H_NUMERIC: Hour = Hour("H")
 
             /** Bad i18n. Two digits, zero pad if needed. No day period. E.g. "08", "13". */
-            @JvmField val FORCE_24H_TWO_DIGITS = Hour("HH")
+            @JvmField public val FORCE_24H_TWO_DIGITS: Hour = Hour("HH")
 
             /** Produces no output. */
-            @JvmField val NONE = Hour("")
+            @JvmField public val NONE: Hour = Hour("")
 
             @JvmStatic
-            fun fromString(value: String): Hour {
+            public fun fromString(value: String): Hour {
                 return when (value) {
                     "j" -> NUMERIC
                     "jj" -> TWO_DIGITS
@@ -298,19 +298,19 @@ internal constructor(
     }
 
     /** Minute (numeric). Truncated, not rounded. */
-    class Minute private constructor(val value: String) {
-        companion object {
+    public class Minute private constructor(public val value: String) {
+        public companion object {
             /** As many digits as needed to show the full value. E.g. "8", "59" */
-            @JvmField val NUMERIC = Minute("m")
+            @JvmField public val NUMERIC: Minute = Minute("m")
 
             /** Two digits, zero pad if needed. E.g. "08", "59" */
-            @JvmField val TWO_DIGITS = Minute("mm")
+            @JvmField public val TWO_DIGITS: Minute = Minute("mm")
 
             /** Produces no output. */
-            @JvmField val NONE = Minute("")
+            @JvmField public val NONE: Minute = Minute("")
 
             @JvmStatic
-            fun fromString(value: String): Minute {
+            public fun fromString(value: String): Minute {
                 return when (value) {
                     "m" -> NUMERIC
                     "mm" -> TWO_DIGITS
@@ -321,19 +321,19 @@ internal constructor(
     }
 
     /** Second (numeric). Truncated, not rounded. */
-    class Second private constructor(val value: String) {
-        companion object {
+    public class Second private constructor(public val value: String) {
+        public companion object {
             /** As many digits as needed to show the full value. E.g. "8", "59". */
-            @JvmField val NUMERIC = Second("s")
+            @JvmField public val NUMERIC: Second = Second("s")
 
             /** Two digits, zero pad if needed. E.g. "08", "59". */
-            @JvmField val TWO_DIGITS = Second("ss")
+            @JvmField public val TWO_DIGITS: Second = Second("ss")
 
             /** Produces no output. */
-            @JvmField val NONE = Second("")
+            @JvmField public val NONE: Second = Second("")
 
             @JvmStatic
-            fun fromString(value: String): Second {
+            public fun fromString(value: String): Second {
                 return when (value) {
                     "s" -> NUMERIC
                     "ss" -> TWO_DIGITS
@@ -347,24 +347,24 @@ internal constructor(
      * Fractional Second (numeric). Truncates, like other numeric time fields, but in this case to
      * the number of digits specified by the field length.
      */
-    class FractionalSecond private constructor(val value: String) {
-        companion object {
+    public class FractionalSecond private constructor(public val value: String) {
+        public companion object {
             /** Fractional part represented as 3 digits. E.g. "12.345". */
-            @JvmField val NUMERIC_3_DIGITS = FractionalSecond("SSS")
+            @JvmField public val NUMERIC_3_DIGITS: FractionalSecond = FractionalSecond("SSS")
 
             /** Fractional part represented as 2 digits. E.g. "12.34". */
-            @JvmField val NUMERIC_2_DIGITS = FractionalSecond("SS")
+            @JvmField public val NUMERIC_2_DIGITS: FractionalSecond = FractionalSecond("SS")
 
             /** Fractional part represented as 1 digit. E.g. "12.3". */
-            @JvmField val NUMERIC_1_DIGIT = FractionalSecond("S")
+            @JvmField public val NUMERIC_1_DIGIT: FractionalSecond = FractionalSecond("S")
 
             /**
              * Fractional part dropped. Produces no output. E.g. "12" (seconds, without fractions).
              */
-            @JvmField val NONE = FractionalSecond("")
+            @JvmField public val NONE: FractionalSecond = FractionalSecond("")
 
             @JvmStatic
-            fun fromString(value: String): FractionalSecond {
+            public fun fromString(value: String): FractionalSecond {
 
                 return when (value) {
                     "S" -> NUMERIC_1_DIGIT
@@ -377,37 +377,37 @@ internal constructor(
     }
 
     /** The localized representation of the time zone name. */
-    class Timezone private constructor(val value: String) {
-        companion object {
+    public class Timezone private constructor(public val value: String) {
+        public companion object {
             /** Short localized form. E.g. "PST", "GMT-8". */
-            @JvmField val SHORT = Timezone("z")
+            @JvmField public val SHORT: Timezone = Timezone("z")
 
             /**
              * Long localized form. E.g. "Pacific Standard Time", "Nordamerikanische
              * Westküsten-Normalzeit".
              */
-            @JvmField val LONG = Timezone("zzzz")
+            @JvmField public val LONG: Timezone = Timezone("zzzz")
 
             /** Short localized GMT format. E.g. "GMT-8". */
-            @JvmField val SHORT_OFFSET = Timezone("O")
+            @JvmField public val SHORT_OFFSET: Timezone = Timezone("O")
 
             /** Long localized GMT format. E.g. "GMT-0800". */
-            @JvmField val LONG_OFFSET = Timezone("OOOO")
+            @JvmField public val LONG_OFFSET: Timezone = Timezone("OOOO")
 
             /** Short generic non-location format. E.g. "PT", "Los Angeles Zeit". */
-            @JvmField val SHORT_GENERIC = Timezone("v")
+            @JvmField public val SHORT_GENERIC: Timezone = Timezone("v")
 
             /**
              * Long generic non-location format. E.g. "Pacific Time", "Nordamerikanische
              * Westküstenzeit".
              */
-            @JvmField val LONG_GENERIC = Timezone("vvvv")
+            @JvmField public val LONG_GENERIC: Timezone = Timezone("vvvv")
 
             /** Produces no output. */
-            @JvmField val NONE = Timezone("")
+            @JvmField public val NONE: Timezone = Timezone("")
 
             @JvmStatic
-            fun fromString(value: String): Timezone {
+            public fun fromString(value: String): Timezone {
                 return when (value) {
                     "z",
                     "zz",
@@ -424,37 +424,37 @@ internal constructor(
     }
 
     /** Returns the era option. */
-    fun getEra(): Era = era
+    public fun getEra(): Era = era
 
     /** Returns the year option. */
-    fun getYear(): Year = year
+    public fun getYear(): Year = year
 
     /** Returns the month option. */
-    fun getMonth(): Month = month
+    public fun getMonth(): Month = month
 
     /** Returns the day option. */
-    fun getDay(): Day = day
+    public fun getDay(): Day = day
 
     /** Returns the day of week option. */
-    fun getWeekDay(): WeekDay = weekDay
+    public fun getWeekDay(): WeekDay = weekDay
 
     /** Returns the day period option. */
-    fun getPeriod(): Period = period
+    public fun getPeriod(): Period = period
 
     /** Returns the hour option. */
-    fun getHour(): Hour = hour
+    public fun getHour(): Hour = hour
 
     /** Returns the minutes option. */
-    fun getMinute(): Minute = minute
+    public fun getMinute(): Minute = minute
 
     /** Returns the seconds option. */
-    fun getSecond(): Second = second
+    public fun getSecond(): Second = second
 
     /** Returns the fractional second option. */
-    fun getFractionalSecond(): FractionalSecond = fractionalSecond
+    public fun getFractionalSecond(): FractionalSecond = fractionalSecond
 
     /** Returns the timezone option. */
-    fun getTimezone(): Timezone = timezone
+    public fun getTimezone(): Timezone = timezone
 
     override fun toString(): String {
         return era.value +
@@ -470,7 +470,7 @@ internal constructor(
             timezone.value
     }
 
-    companion object {
+    public companion object {
         // WARNING: if you change this regexp also update the switch in [fromString]
         private val pattern =
             Pattern.compile(
@@ -491,7 +491,7 @@ internal constructor(
          * @throws RuntimeException library error (unknown skeleton field encountered).
          */
         @JvmStatic
-        fun fromString(value: String): DateTimeFormatterSkeletonOptions {
+        public fun fromString(value: String): DateTimeFormatterSkeletonOptions {
             val result = Builder()
             if (value.isEmpty()) {
                 return result.build()
@@ -537,7 +537,7 @@ internal constructor(
      * The `Builder` class used to construct a [DateTimeFormatterSkeletonOptions] in a way that is
      * safe and discoverable.
      */
-    class Builder(
+    public class Builder(
         private var era: Era = Era.NONE,
         private var year: Year = Year.NONE,
         private var month: Month = Month.NONE,
@@ -556,7 +556,7 @@ internal constructor(
          *
          * @param era the era style to use.
          */
-        fun setEra(era: Era): Builder {
+        public fun setEra(era: Era): Builder {
             this.era = era
             return this
         }
@@ -566,7 +566,7 @@ internal constructor(
          *
          * @param year the era style to use.
          */
-        fun setYear(year: Year): Builder {
+        public fun setYear(year: Year): Builder {
             this.year = year
             return this
         }
@@ -576,7 +576,7 @@ internal constructor(
          *
          * @param month the era style to use.
          */
-        fun setMonth(month: Month): Builder {
+        public fun setMonth(month: Month): Builder {
             this.month = month
             return this
         }
@@ -586,7 +586,7 @@ internal constructor(
          *
          * @param day the era style to use.
          */
-        fun setDay(day: Day): Builder {
+        public fun setDay(day: Day): Builder {
             this.day = day
             return this
         }
@@ -596,7 +596,7 @@ internal constructor(
          *
          * @param weekDay the era style to use.
          */
-        fun setWeekDay(weekDay: WeekDay): Builder {
+        public fun setWeekDay(weekDay: WeekDay): Builder {
             this.weekDay = weekDay
             return this
         }
@@ -606,7 +606,7 @@ internal constructor(
          *
          * @param period the era style to use.
          */
-        fun setPeriod(period: Period): Builder {
+        public fun setPeriod(period: Period): Builder {
             this.period = period
             return this
         }
@@ -616,7 +616,7 @@ internal constructor(
          *
          * @param hour the era style to use.
          */
-        fun setHour(hour: Hour): Builder {
+        public fun setHour(hour: Hour): Builder {
             this.hour = hour
             return this
         }
@@ -626,7 +626,7 @@ internal constructor(
          *
          * @param minute the era style to use.
          */
-        fun setMinute(minute: Minute): Builder {
+        public fun setMinute(minute: Minute): Builder {
             this.minute = minute
             return this
         }
@@ -636,7 +636,7 @@ internal constructor(
          *
          * @param second the era style to use.
          */
-        fun setSecond(second: Second): Builder {
+        public fun setSecond(second: Second): Builder {
             this.second = second
             return this
         }
@@ -646,7 +646,7 @@ internal constructor(
          *
          * @param fractionalSecond the era style to use.
          */
-        fun setFractionalSecond(fractionalSecond: FractionalSecond): Builder {
+        public fun setFractionalSecond(fractionalSecond: FractionalSecond): Builder {
             this.fractionalSecond = fractionalSecond
             return this
         }
@@ -656,7 +656,7 @@ internal constructor(
          *
          * @param timezone the era style to use.
          */
-        fun setTimezone(timezone: Timezone): Builder {
+        public fun setTimezone(timezone: Timezone): Builder {
             this.timezone = timezone
             return this
         }
@@ -666,7 +666,7 @@ internal constructor(
          *
          * return the [DateTimeFormatterSkeletonOptions] options.
          */
-        fun build(): DateTimeFormatterSkeletonOptions {
+        public fun build(): DateTimeFormatterSkeletonOptions {
             return DateTimeFormatterSkeletonOptions(
                 era,
                 year,

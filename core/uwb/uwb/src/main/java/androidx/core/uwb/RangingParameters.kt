@@ -55,21 +55,21 @@ import androidx.annotation.IntRange
  * @property isAoaDisabled The indicator of whether angle of arrival (AoA) is disabled. Default to
  *   false.
  */
-class RangingParameters
+public class RangingParameters
 @JvmOverloads
 constructor(
-    val uwbConfigType: Int,
-    val sessionId: Int,
-    val subSessionId: Int,
-    val sessionKeyInfo: ByteArray?,
-    val subSessionKeyInfo: ByteArray?,
-    val complexChannel: UwbComplexChannel?,
-    val peerDevices: List<UwbDevice>,
-    val updateRateType: Int,
-    val uwbRangeDataNtfConfig: UwbRangeDataNtfConfig? = null,
+    public val uwbConfigType: Int,
+    public val sessionId: Int,
+    public val subSessionId: Int,
+    public val sessionKeyInfo: ByteArray?,
+    public val subSessionKeyInfo: ByteArray?,
+    public val complexChannel: UwbComplexChannel?,
+    public val peerDevices: List<UwbDevice>,
+    public val updateRateType: Int,
+    public val uwbRangeDataNtfConfig: UwbRangeDataNtfConfig? = null,
     @IntRange(from = RANGING_SLOT_DURATION_1_MILLIS, to = RANGING_SLOT_DURATION_2_MILLIS)
-    val slotDurationMillis: Long = RANGING_SLOT_DURATION_2_MILLIS,
-    val isAoaDisabled: Boolean = false
+    public val slotDurationMillis: Long = RANGING_SLOT_DURATION_2_MILLIS,
+    public val isAoaDisabled: Boolean = false
 ) {
     init {
         if (
@@ -97,7 +97,7 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
 
         /**
          * Pre-defined unicast STATIC STS DS-TWR ranging.
@@ -109,7 +109,7 @@ constructor(
          *
          * <p> Typical use case: device tracking tags
          */
-        const val CONFIG_UNICAST_DS_TWR = 1
+        public const val CONFIG_UNICAST_DS_TWR: Int = 1
 
         /**
          * Pre-defined one-to-many STATIC STS DS-TWR ranging
@@ -121,30 +121,30 @@ constructor(
          *
          * <p> Typical use case: smart phone interacts with many smart devices
          */
-        const val CONFIG_MULTICAST_DS_TWR = 2
+        public const val CONFIG_MULTICAST_DS_TWR: Int = 2
 
         /** Same as CONFIG_UNICAST_DS_TWR, except AoA data is not reported. */
         internal const val CONFIG_UNICAST_DS_TWR_NO_AOA = 3
 
         /** Same as CONFIG_UNICAST_DS_TWR, except P-STS security mode is enabled. */
-        const val CONFIG_PROVISIONED_UNICAST_DS_TWR = 4
+        public const val CONFIG_PROVISIONED_UNICAST_DS_TWR: Int = 4
 
         /** Same as CONFIG_MULTICAST_DS_TWR, except P-STS security mode is enabled. */
-        const val CONFIG_PROVISIONED_MULTICAST_DS_TWR = 5
+        public const val CONFIG_PROVISIONED_MULTICAST_DS_TWR: Int = 5
 
         /** Same as CONFIG_UNICAST_DS_TWR_NO_AOA, except P-STS security mode is enabled. */
-        internal const val CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA = 6
+        internal const val CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA: Int = 6
 
         /**
          * Same as CONFIG_MULTICAST_DS_TWR, except P-STS individual controlee key mode is enabled.
          */
-        const val CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR = 7
+        public const val CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR: Int = 7
 
         /**
          * When the screen is on, the reporting interval is hundreds of milliseconds. When the
          * screen is off, the reporting interval is a few seconds.
          */
-        const val RANGING_UPDATE_RATE_AUTOMATIC = 1
+        public const val RANGING_UPDATE_RATE_AUTOMATIC: Int = 1
 
         /**
          * The reporting interval is the same as in the AUTOMATIC screen-off case. The The power
@@ -152,7 +152,7 @@ constructor(
          * implementation is hardware and software dependent and it may change between different
          * versions.)
          */
-        const val RANGING_UPDATE_RATE_INFREQUENT = 2
+        public const val RANGING_UPDATE_RATE_INFREQUENT: Int = 2
 
         /**
          * The reporting interval is the same as in the AUTOMATIC screen-on case.
@@ -160,12 +160,12 @@ constructor(
          * The actual reporting interval is UwbConfigId related. Different configuration may use
          * different values. (The default reporting interval at INFREQUENT mode is 4 seconds)
          */
-        const val RANGING_UPDATE_RATE_FREQUENT = 3
+        public const val RANGING_UPDATE_RATE_FREQUENT: Int = 3
 
         /** 1 millisecond slot duration */
-        const val RANGING_SLOT_DURATION_1_MILLIS = 1L
+        public const val RANGING_SLOT_DURATION_1_MILLIS: Long = 1L
 
         /** 2 millisecond slot duration */
-        const val RANGING_SLOT_DURATION_2_MILLIS = 2L
+        public const val RANGING_SLOT_DURATION_2_MILLIS: Long = 2L
     }
 }
