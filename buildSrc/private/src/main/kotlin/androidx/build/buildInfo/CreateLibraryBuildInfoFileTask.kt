@@ -108,6 +108,9 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     /** Whether the artifact is from a KMP project. */
     @get:Input abstract val kmp: Property<Boolean>
 
+    /** The project's build target */
+    @get:Input abstract val target: Property<String>
+
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         val resolvedOutputFile: File = outputFile.get()
         val outputDir = resolvedOutputFile.parentFile
@@ -146,6 +149,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             else ArrayList()
         libraryBuildInfoFile.shouldPublishDocs = shouldPublishDocs.get()
         libraryBuildInfoFile.isKmp = kmp.get()
+        libraryBuildInfoFile.target = target.get()
         return libraryBuildInfoFile
     }
 
@@ -171,6 +175,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             shaProvider: Provider<String>,
             shouldPublishDocs: Boolean,
             isKmp: Boolean,
+            target: String,
         ): TaskProvider<CreateLibraryBuildInfoFileTask> {
             return project.tasks.register(
                 TASK_NAME + variant.taskSuffix,
@@ -211,6 +216,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 )
                 task.shouldPublishDocs.set(shouldPublishDocs)
                 task.kmp.set(isKmp)
+                task.target.set(target)
             }
         }
 
@@ -330,6 +336,7 @@ private fun Project.createBuildInfoTask(
         // suffix is listed in docs-public/build.gradle.
         shouldPublishDocs = shouldPublishDocs && kmpTaskSuffix == "",
         isKmp = isKmp,
+        target = resolveTarget(isKmp),
     )
 }
 
@@ -350,3 +357,16 @@ fun computeTaskSuffix(projectName: String, artifactId: String) =
     artifactId.substringAfter(projectName).split("-").joinToString("") { word ->
         word.replaceFirstChar { it.uppercase() }
     }
+
+/**
+ * Select the appropriate target based on if the project is KMP
+ *
+ * All non-Kotlin multiplatform projects use the `androidx` target. Projects that are KMP are built
+ * for various platforms; specifically, the `iosarm64` and `iosx64` platforms can only be built on
+ * the `androidx_multiplatform_mac` target.
+ *
+ * @param isKmp indicates if the project is KMP
+ * @return target
+ */
+@VisibleForTesting
+fun resolveTarget(isKmp: Boolean) = if (isKmp) "androidx_multiplatform_mac" else "androidx"
