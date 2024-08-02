@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.dependencies.KOTLIN_NATIVE_VERSION
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.gradle.AppPlugin
 import com.android.build.gradle.LibraryPlugin
@@ -29,7 +28,6 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.kotlin.dsl.create
 import org.jetbrains.kotlin.gradle.plugin.CompilerPluginConfig
 import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -49,10 +47,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                 }
                 is KotlinBasePluginWrapper -> {
                     configureComposeCompilerPlugin(project, extension)
-
-                    if (plugin is KotlinMultiplatformPluginWrapper) {
-                        project.configureForMultiplatform()
-                    }
                 }
             }
         }
@@ -60,10 +54,10 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
 
     companion object {
         private fun Project.configureAndroidCommonOptions() {
-            extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl {
+            extensions.findByType(AndroidComponentsExtension::class.java)!!.finalizeDsl { android ->
                 val isPublished = androidXExtension.shouldPublish()
 
-                it.lint {
+                android.lint {
                     // These lint checks are normally a warning (or lower), but we ignore (in
                     // AndroidX)
                     // warnings in Lint, so we make it an error here so it will fail the build.
@@ -107,54 +101,6 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
                         )
                     )
                 )
-            }
-        }
-
-        /**
-         * General configuration for MPP projects. In the future, these workarounds should either be
-         * generified and added to AndroidXPlugin, or removed as/when the underlying issues have
-         * been resolved.
-         */
-        private fun Project.configureForMultiplatform() {
-            // This is to allow K/N not matching the kotlinVersion
-            this.rootProject.extensions.extraProperties.set(
-                "kotlin.native.version",
-                KOTLIN_NATIVE_VERSION
-            )
-
-            val multiplatformExtension =
-                checkNotNull(multiplatformExtension) {
-                    "Unable to configureForMultiplatform() when " +
-                        "multiplatformExtension is null (multiplatform plugin not enabled?)"
-                }
-
-            /*
-            The following configures source sets - note:
-
-            1. The common unit test source set, commonTest, is included by default in both android
-            unit and instrumented tests. This causes unnecessary duplication, so we explicitly do
-            _not_ use commonTest, instead choosing to just use the unit test variant.
-            TODO: Consider using commonTest for unit tests if a usable feature is added for
-            https://youtrack.jetbrains.com/issue/KT-34662.
-
-            2. The default (android) unit test source set is named 'androidTest', which conflicts / is
-            confusing as this shares the same name / expected directory as AGP's 'androidTest', which
-            represents _instrumented_ tests.
-            TODO: Consider changing unitTest to androidLocalTest and androidAndroidTest to
-            androidDeviceTest when https://github.com/JetBrains/kotlin/pull/2829 rolls in.
-            */
-            multiplatformExtension.sourceSets.configureEach {
-                // Allow all experimental APIs, since MPP projects are themselves experimental
-                it.languageSettings.apply { optIn("kotlin.ExperimentalMultiplatform") }
-            }
-
-            afterEvaluate {
-                if (multiplatformExtension.targets.findByName("jvm") != null) {
-                    tasks.named("jvmTestClasses").also(::addToBuildOnServer)
-                }
-                if (multiplatformExtension.targets.findByName("desktop") != null) {
-                    tasks.named("desktopTestClasses").also(::addToBuildOnServer)
-                }
             }
         }
     }
@@ -308,7 +254,7 @@ private fun KotlinCompile.disableFeatureFlag(featureFlag: ComposeFeatureFlag) {
     addPluginOption(ComposeCompileOptions.FeatureFlagOption, "-${featureFlag.featureName}")
 }
 
-public fun Project.zipComposeCompilerMetrics() {
+internal fun Project.zipComposeCompilerMetrics() {
     if (project.enableComposeCompilerMetrics()) {
         val zipComposeMetrics =
             project.tasks.register(zipComposeMetricsTaskName, Zip::class.java) { zipTask ->
@@ -320,7 +266,7 @@ public fun Project.zipComposeCompilerMetrics() {
     }
 }
 
-public fun Project.zipComposeCompilerReports() {
+internal fun Project.zipComposeCompilerReports() {
     if (project.enableComposeCompilerReports()) {
         val zipComposeReports =
             project.tasks.register(zipComposeReportsTaskName, Zip::class.java) { zipTask ->
@@ -332,21 +278,21 @@ public fun Project.zipComposeCompilerReports() {
     }
 }
 
-fun Project.compilerMetricsIntermediatesDir(): File {
+private fun Project.compilerMetricsIntermediatesDir(): File {
     return project.rootProject.layout.buildDirectory
         .dir("libraryreports/composemetrics")
         .get()
-        .getAsFile()
+        .asFile
 }
 
-fun Project.compilerReportsIntermediatesDir(): File {
+private fun Project.compilerReportsIntermediatesDir(): File {
     return project.rootProject.layout.buildDirectory
         .dir("libraryreports/composereports")
         .get()
-        .getAsFile()
+        .asFile
 }
 
-fun Project.composeCompilerDataDir(): File {
+private fun Project.composeCompilerDataDir(): File {
     return File(getDistributionDirectory(), "compose-compiler-data")
 }
 

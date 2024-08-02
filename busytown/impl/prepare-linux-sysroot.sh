@@ -7,7 +7,7 @@ SCRIPT_DIR="$(cd $(dirname $0) && pwd)"
 SYSROOT_DIR=$1
 mkdir -p $SYSROOT_DIR
 # TODO Can we find a more reliable way to get the kotlin native version?
-KOTLIN_NATIVE_VERSION=$(grep "kotlinNative =" gradle/libs.versions.toml| cut -d "=" -f2|tr -d '"'|cut -d " " -f2)
+KOTLIN_NATIVE_VERSION=$(grep "kotlin =" gradle/libs.versions.toml| cut -d "=" -f2|tr -d '"'|cut -d " " -f2)
 # extract it into the out dir
 $SCRIPT_DIR/../../../../prebuilts/androidx/konan/copy-linux-sysroot.sh \
     --kotlin-version $KOTLIN_NATIVE_VERSION \
