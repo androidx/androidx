@@ -34,12 +34,6 @@ android {
         buildConfig = true
     }
 
-    sourceSets {
-        androidTestWithKapt.assets.srcDirs += files("$projectDir/schemas".toString())
-        androidTestWithKspGenJava.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
-        androidTestWithKspGenKotlin.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
-    }
-
     flavorDimensions "processorConfiguration"
     productFlavors {
         withKapt {

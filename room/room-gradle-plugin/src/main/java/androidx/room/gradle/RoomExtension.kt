@@ -159,5 +159,8 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
 
     companion object {
         internal val ALL_MATCH = MatchName("")
+
+        internal fun <V> Map<MatchName, V>.findPair(key: String) =
+            MatchName(key).let { if (containsKey(it)) it to getValue(it) else null }
     }
 }

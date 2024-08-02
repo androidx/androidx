@@ -74,9 +74,6 @@ constructor(
             }
         }
 
-        internal fun <V> Map<RoomExtension.MatchName, V>.findPair(key: String) =
-            RoomExtension.MatchName(key).let { if (containsKey(it)) it to getValue(it) else null }
-
         private fun Project.isGradleSyncRunning() =
             gradleSyncProps.any {
                 it in this.properties && this.properties[it].toString().toBoolean()

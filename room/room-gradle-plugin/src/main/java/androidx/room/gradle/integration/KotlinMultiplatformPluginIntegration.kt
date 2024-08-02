@@ -18,8 +18,8 @@ package androidx.room.gradle.integration
 
 import androidx.room.gradle.RoomArgumentProvider
 import androidx.room.gradle.RoomExtension
+import androidx.room.gradle.RoomExtension.Companion.findPair
 import androidx.room.gradle.RoomGradlePlugin.Companion.check
-import androidx.room.gradle.RoomGradlePlugin.Companion.findPair
 import com.google.devtools.ksp.gradle.KspTask
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -64,30 +64,39 @@ internal class KotlinMultiplatformPluginIntegration(private val common: CommonIn
         if (target.platformType == KotlinPlatformType.androidJvm) return
 
         val configureTask: (Task) -> RoomArgumentProvider = { task ->
-            val schemaDirectories = roomExtension.schemaDirectories
-            val matchedPair =
-                schemaDirectories.findPair(target.targetName)
-                    ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
-            project.check(matchedPair != null, isFatal = true) {
-                "No matching Room schema directory for the KSP target '${target.targetName}'."
-            }
-            val (matchedName, schemaDirectoryProvider) = matchedPair
-            val schemaDirectory = schemaDirectoryProvider.get()
-            project.check(schemaDirectory.isNotEmpty()) {
-                "The Room schema directory path for the KSP target '${target.targetName}' must " +
-                    "not be empty."
-            }
+            val (matchedName, schemaDirectory) = findSchemaDirectory(project, roomExtension, target)
             common.configureTaskWithSchema(
                 project,
                 roomExtension,
                 matchedName,
-                schemaDirectoryProvider.get(),
+                schemaDirectory,
                 task
             )
         }
         target.compilations.configureEach { kotlinCompilation ->
             configureKspTasks(project, kotlinCompilation, configureTask)
         }
+    }
+
+    private fun findSchemaDirectory(
+        project: Project,
+        roomExtension: RoomExtension,
+        target: KotlinTarget
+    ): Pair<RoomExtension.MatchName, String> {
+        val schemaDirectories = roomExtension.schemaDirectories
+        val matchedPair =
+            schemaDirectories.findPair(target.targetName)
+                ?: schemaDirectories.findPair(RoomExtension.ALL_MATCH.actual)
+        project.check(matchedPair != null, isFatal = true) {
+            "No matching Room schema directory for the KSP target '${target.targetName}'."
+        }
+        val (matchedName, schemaDirectoryProvider) = matchedPair
+        val schemaDirectory = schemaDirectoryProvider.get()
+        project.check(schemaDirectory.isNotEmpty()) {
+            "The Room schema directory path for the KSP target '${target.targetName}' must " +
+                "not be empty."
+        }
+        return matchedName to schemaDirectory
     }
 
     private fun configureKspTasks(

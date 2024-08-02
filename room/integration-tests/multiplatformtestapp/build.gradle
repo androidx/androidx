@@ -107,10 +107,6 @@ dependencies {
 
 android {
     namespace "androidx.room.integration.multiplatformtestapp"
-    // TODO(b/317909626): Should be configured by Room Gradle Plugin
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/schemas-ksp".toString())
-    }
 }
 
 // Copy schema files to the iOS binary output test directory that will be part of the bundle's
