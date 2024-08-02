@@ -32,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -51,6 +52,39 @@ class TextLayoutCacheTest {
     @Test(expected = IllegalArgumentException::class)
     fun capacity_cannot_be_negative() {
         TextLayoutCache(-2)
+    }
+
+    @Test
+    fun capacity_one_shouldEvictTheCache_forEveryDifferentLayoutInput() {
+        val textLayoutCache = TextLayoutCache(1)
+
+        val input1 =
+            textLayoutInput(text = AnnotatedString("W"), style = TextStyle(color = Color.Red))
+        textLayoutCache.put(input1, layoutText(input1))
+
+        val input2 =
+            textLayoutInput(text = AnnotatedString("Wo"), style = TextStyle(color = Color.Red))
+        textLayoutCache.put(input2, layoutText(input2))
+        assertThat(textLayoutCache.get(input2)).isNotNull()
+        assertThat(textLayoutCache.get(input1)).isNull()
+
+        val input3 =
+            textLayoutInput(text = AnnotatedString("Wor"), style = TextStyle(color = Color.Red))
+        textLayoutCache.put(input3, layoutText(input3))
+        assertThat(textLayoutCache.get(input3)).isNotNull()
+        assertThat(textLayoutCache.get(input2)).isNull()
+
+        val input4 =
+            textLayoutInput(text = AnnotatedString("Worl"), style = TextStyle(color = Color.Red))
+        textLayoutCache.put(input4, layoutText(input4))
+        assertThat(textLayoutCache.get(input4)).isNotNull()
+        assertThat(textLayoutCache.get(input3)).isNull()
+
+        val input5 =
+            textLayoutInput(text = AnnotatedString("World"), style = TextStyle(color = Color.Red))
+        textLayoutCache.put(input5, layoutText(input5))
+        assertThat(textLayoutCache.get(input5)).isNotNull()
+        assertThat(textLayoutCache.get(input4)).isNull()
     }
 
     @Test
