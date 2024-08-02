@@ -373,7 +373,7 @@ internal fun AnimatedNavigationItem(
     ) {
         val isIconPositionTop = iconPosition == NavigationItemIconPosition.Top
         val indicatorAnimationProgress = animateIndicatorProgressAsState(selected)
-        val iconPositionProgress =
+        val iconPositionProgress by
             animateFloatAsState(
                 targetValue = if (isIconPositionTop) 0f else 1f,
                 // TODO Load the motionScheme tokens from the component tokens file
@@ -382,34 +382,47 @@ internal fun AnimatedNavigationItem(
 
         // We'll always display only one label, but for the animation to be correct we need two
         // separate composables that will fade in/out appropriately.
-        val labelTopIconAlphaProgress = animateLabelAlphaProgressAsState(isIconPositionTop)
-        val labelStartIconAlphaProgress = animateLabelAlphaProgressAsState(!isIconPositionTop)
-        val labelTopIconModifier =
-            if (!isIconPositionTop) {
-                Modifier.graphicsLayer { alpha = labelTopIconAlphaProgress.value }
-                    // If this label is not being displayed, remove semantics so item's label isn't
-                    // announced twice.
-                    .clearAndSetSemantics {}
-            } else {
-                Modifier.graphicsLayer { alpha = labelTopIconAlphaProgress.value }
-            }
+        val labelTopIconAlphaProgress by
+            animateFloatAsState(
+                targetValue = if (isIconPositionTop) 1f else 0f,
+                // TODO Load the motionScheme tokens from the component tokens file
+                animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
+                visibilityThreshold =
+                    if (isIconPositionTop) Spring.DefaultDisplacementThreshold
+                    else LabelAnimationVisibilityThreshold
+            )
         val labelTopIcon: @Composable (() -> Unit) = {
-            Box(modifier = labelTopIconModifier) {
+            Box(
+                modifier =
+                    Modifier.graphicsLayer { alpha = labelTopIconAlphaProgress }
+                        .then(
+                            if (isIconPositionTop) {
+                                Modifier
+                            } else {
+                                // If this label is not being displayed, remove semantics so item's
+                                // label isn't announced twice.
+                                Modifier.clearAndSetSemantics {}
+                            }
+                        )
+            ) {
                 StyledLabel(selected, topIconLabelTextStyle, colors, enabled, label)
             }
         }
-        val labelStartIconModifier =
-            if (isIconPositionTop) {
-                Modifier.graphicsLayer { alpha = labelStartIconAlphaProgress.value }
-                    // If this label is not being displayed, remove semantics so item's label isn't
-                    // announced twice.
-                    .clearAndSetSemantics {}
-            } else {
-                Modifier.graphicsLayer { alpha = labelStartIconAlphaProgress.value }
-            }
         val labelStartIcon =
             @Composable {
-                Box(modifier = labelStartIconModifier) {
+                Box(
+                    modifier =
+                        Modifier.graphicsLayer { alpha = 1f - labelTopIconAlphaProgress }
+                            .then(
+                                if (isIconPositionTop) {
+                                    // If this label is not being displayed, remove semantics so
+                                    // item's label isn't announced twice.
+                                    Modifier.clearAndSetSemantics {}
+                                } else {
+                                    Modifier
+                                }
+                            )
+                ) {
                     StyledLabel(selected, startIconLabelTextStyle, colors, enabled, label)
                 }
             }
@@ -440,7 +453,7 @@ internal fun AnimatedNavigationItem(
             indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
             icon = iconWithBadge,
             iconPosition = iconPosition,
-            iconPositionProgress = { iconPositionProgress.value.coerceAtLeast(0f) },
+            iconPositionProgress = { iconPositionProgress.coerceAtLeast(0f) },
             labelTopIcon = labelTopIcon,
             labelStartIcon = labelStartIcon,
             topIconIndicatorHorizontalPadding = topIconIndicatorHorizontalPadding,
@@ -1121,17 +1134,6 @@ private fun animateIndicatorProgressAsState(selected: Boolean) =
         targetValue = if (selected) 1f else 0f,
         // TODO Load the motionScheme tokens from the component tokens file
         animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value()
-    )
-
-@Composable
-private fun animateLabelAlphaProgressAsState(isTargetValue: Boolean) =
-    animateFloatAsState(
-        targetValue = if (isTargetValue) 1f else 0f,
-        // TODO Load the motionScheme tokens from the component tokens file
-        animationSpec = MotionSchemeKeyTokens.DefaultEffects.value(),
-        visibilityThreshold =
-            if (isTargetValue) Spring.DefaultDisplacementThreshold
-            else LabelAnimationVisibilityThreshold
     )
 
 @Composable
