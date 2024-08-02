@@ -422,10 +422,17 @@ internal fun measureLazyList(
             consumedScroll = consumedScroll,
             measureResult =
                 layout(layoutWidth, layoutHeight) {
-                    // place normal items
-                    positionedItems.fastForEach { it.place(this, isLookingAhead) }
-                    // stickingItems should be placed after all other items
-                    stickingItems.fastForEach { it.place(this, isLookingAhead) }
+                    // Tagging as motion frame of reference placement, meaning the placement
+                    // contains scrolling. This allows the consumer of this placement offset to
+                    // differentiate this offset vs. offsets from structural changes. Generally
+                    // speaking, this signals a preference to directly apply changes rather than
+                    // animating, to avoid a chasing effect to scrolling.
+                    withMotionFrameOfReferencePlacement {
+                        // place normal items
+                        positionedItems.fastForEach { it.place(this, isLookingAhead) }
+                        // stickingItems should be placed after all other items
+                        stickingItems.fastForEach { it.place(this, isLookingAhead) }
+                    }
 
                     // we attach it during the placement so LazyListState can trigger re-placement
                     placementScopeInvalidator.attachToScope()
