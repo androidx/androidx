@@ -28,6 +28,7 @@ val libs = listOf(
     "https://developer.android.com/jetpack/androidx/releases/lifecycle",
     "https://developer.android.com/jetpack/androidx/releases/navigation",
     "https://developer.android.com/jetpack/androidx/releases/window",
+    "https://developer.android.com/jetpack/androidx/releases/compose-material3-adaptive",
 )
 
 val tagPattern = "androidx/*"
