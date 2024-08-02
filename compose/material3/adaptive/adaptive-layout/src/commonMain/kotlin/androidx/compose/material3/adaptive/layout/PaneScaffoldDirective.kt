@@ -206,6 +206,7 @@ class PaneScaffoldDirective(
         if (maxVerticalPartitions != other.maxVerticalPartitions) return false
         if (verticalPartitionSpacerSize != other.verticalPartitionSpacerSize) return false
         if (defaultPanePreferredWidth != other.defaultPanePreferredWidth) return false
+        if (excludedBounds != other.excludedBounds) return false
         return true
     }
 
@@ -215,6 +216,7 @@ class PaneScaffoldDirective(
         result = 31 * result + maxVerticalPartitions
         result = 31 * result + verticalPartitionSpacerSize.hashCode()
         result = 31 * result + defaultPanePreferredWidth.hashCode()
+        result = 31 * result + excludedBounds.hashCode()
         return result
     }
 
