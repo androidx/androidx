@@ -31,7 +31,7 @@ import java.util.function.Function;
 
 /**
  * An implementation of the framework API's {@link android.app.appsearch.BatchResultCallback} which
- * return the result as a {@link com.google.common.util.concurrent.ListenableFuture}.
+ * returns the result as a {@link com.google.common.util.concurrent.ListenableFuture}.
  *
  * @param <K>             The type of key in the batch result (both Framework and Jetpack)
  * @param <PlatformValue> The type of value in the Framework's
@@ -45,12 +45,45 @@ public final class BatchResultCallbackAdapter<K, PlatformValue, JetpackValue>
         implements BatchResultCallback<K, PlatformValue> {
     private final ResolvableFuture<AppSearchBatchResult<K, JetpackValue>> mFuture;
     private final Function<PlatformValue, JetpackValue> mValueMapper;
+    @Nullable
+    private final Function<AppSearchBatchResult<K, JetpackValue>, AppSearchBatchResult<K,
+            JetpackValue>>
+            mResultTransformer;
 
+    /**
+     * Creates a {@link BatchResultCallbackAdapter} that sets the given future with the result of
+     * the callback. The result is transformed from a Framework
+     * {@link android.app.appsearch.AppSearchBatchResult} with Platform value type to a Jetpack
+     * {@link AppSearchBatchResult} with Jetpack value type with the help of the given value mapper.
+     *
+     * @param future The future to set with the result of the callback.
+     * @param valueMapper The function that maps Platform types to Jetpack types.
+     */
     public BatchResultCallbackAdapter(
             @NonNull ResolvableFuture<AppSearchBatchResult<K, JetpackValue>> future,
             @NonNull Function<PlatformValue, JetpackValue> valueMapper) {
+        this(future, valueMapper, null);
+    }
+
+    /**
+     * Creates a {@link BatchResultCallbackAdapter} that sets the given future with the result of
+     * the callback. The result is transformed from a Framework
+     * {@link android.app.appsearch.AppSearchBatchResult} with Platform value type to a Jetpack
+     * {@link AppSearchBatchResult} with Jetpack value type using the given value mapper.
+     * The result will be further transformed if a result transformer is provided.
+     *
+     * @param future The future to set with the result of the callback.
+     * @param valueMapper The function that maps Platform types to Jetpack types.
+     * @param resultTransformer An optional function that transforms the result of the callback.
+     */
+    public BatchResultCallbackAdapter(
+            @NonNull ResolvableFuture<AppSearchBatchResult<K, JetpackValue>> future,
+            @NonNull Function<PlatformValue, JetpackValue> valueMapper,
+            @Nullable Function<AppSearchBatchResult<K, JetpackValue>, AppSearchBatchResult<K,
+                    JetpackValue>> resultTransformer) {
         mFuture = Preconditions.checkNotNull(future);
         mValueMapper = Preconditions.checkNotNull(valueMapper);
+        mResultTransformer = resultTransformer;
     }
 
     @Override
@@ -59,6 +92,9 @@ public final class BatchResultCallbackAdapter<K, PlatformValue, JetpackValue>
         AppSearchBatchResult<K, JetpackValue> jetpackResult =
                 AppSearchResultToPlatformConverter.platformAppSearchBatchResultToJetpack(
                         platformResult, mValueMapper);
+        if (mResultTransformer != null) {
+            jetpackResult = mResultTransformer.apply(jetpackResult);
+        }
         mFuture.set(jetpackResult);
     }
 
