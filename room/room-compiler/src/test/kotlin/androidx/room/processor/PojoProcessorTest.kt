@@ -23,6 +23,7 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.MISSING_POJO_CONSTRUCTOR
@@ -1108,7 +1109,7 @@ class PojoProcessorTest {
                     .process()
             assertThat(pojo5, sameInstance(pojo4))
 
-            val type = invocation.context.COMMON_TYPES.STRING
+            val type = invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
             val mockElement = mock(XFieldElement::class.java)
             doReturn(type).`when`(mockElement).type
             val fakeField =
@@ -2119,7 +2120,7 @@ class PojoProcessorTest {
                     )
                     .process()
             val fields = result.fields.associateBy { it.name }
-            val stringType = invocation.context.COMMON_TYPES.STRING
+            val stringType = invocation.context.processingEnv.requireType(CommonTypeNames.STRING)
             assertThat(fields["isbn"]?.getter)
                 .isEqualTo(
                     FieldGetter(

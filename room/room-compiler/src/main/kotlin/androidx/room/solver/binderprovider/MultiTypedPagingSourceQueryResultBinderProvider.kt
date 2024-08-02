@@ -20,6 +20,7 @@ import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.ParsedQuery
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
@@ -64,7 +65,8 @@ class MultiTypedPagingSourceQueryResultBinderProvider(
     }
 
     override fun matches(declared: XType): Boolean {
-        val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
+        val collectionTypeRaw =
+            context.processingEnv.requireType(CommonTypeNames.COLLECTION).rawType
 
         if (pagingSourceType == null) {
             return false

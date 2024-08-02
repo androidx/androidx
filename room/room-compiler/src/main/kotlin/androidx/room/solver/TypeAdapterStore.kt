@@ -795,12 +795,13 @@ private constructor(
         mapInfo: MapInfo?,
         mapValueTypeArg: XType
     ): MapValueResultAdapter? {
-        val collectionTypeRaw = context.COMMON_TYPES.READONLY_COLLECTION.rawType
+        val collectionTypeRaw =
+            context.processingEnv.requireType(CommonTypeNames.COLLECTION).rawType
         if (collectionTypeRaw.isAssignableFrom(mapValueTypeArg.rawType)) {
             // The Map's value type argument is assignable to a Collection, we need to make
             // sure it is either a list or a set.
-            val listTypeRaw = context.COMMON_TYPES.LIST.rawType
-            val setTypeRaw = context.COMMON_TYPES.SET.rawType
+            val listTypeRaw = context.processingEnv.requireType(CommonTypeNames.LIST).rawType
+            val setTypeRaw = context.processingEnv.requireType(CommonTypeNames.SET).rawType
             val collectionValueType =
                 when {
                     mapValueTypeArg.rawType.isAssignableFrom(listTypeRaw) ->
@@ -1021,7 +1022,8 @@ private constructor(
         typeMirror: XType,
         isMultipleParameter: Boolean
     ): QueryParameterAdapter? {
-        if (context.COMMON_TYPES.READONLY_COLLECTION.rawType.isAssignableFrom(typeMirror)) {
+        val collectionType = context.processingEnv.requireType(CommonTypeNames.COLLECTION)
+        if (collectionType.rawType.isAssignableFrom(typeMirror)) {
             val typeArg = typeMirror.typeArguments.first().extendsBoundOrSelf()
             // An adapter for the collection type arg wrapped in the built-in collection adapter.
             val wrappedCollectionAdapter =

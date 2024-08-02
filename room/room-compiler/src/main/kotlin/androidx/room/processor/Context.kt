@@ -20,8 +20,6 @@ import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XType
-import androidx.room.ext.CommonTypeNames
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
@@ -42,7 +40,6 @@ private constructor(
     private val canRewriteQueriesToDropUnusedColumns: Boolean,
 ) {
     val checker: Checks = Checks(logger)
-    val COMMON_TYPES = CommonTypes(processingEnv)
 
     /**
      * Checks whether we should use the TypeConverter store that has a specific heuristic for
@@ -130,16 +127,6 @@ private constructor(
             ),
         canRewriteQueriesToDropUnusedColumns = false
     )
-
-    class CommonTypes(val processingEnv: XProcessingEnv) {
-        val VOID: XType by lazy { processingEnv.requireType(CommonTypeNames.VOID) }
-        val STRING: XType by lazy { processingEnv.requireType(CommonTypeNames.STRING) }
-        val READONLY_COLLECTION: XType by lazy {
-            processingEnv.requireType(CommonTypeNames.COLLECTION)
-        }
-        val LIST: XType by lazy { processingEnv.requireType(CommonTypeNames.LIST) }
-        val SET: XType by lazy { processingEnv.requireType(CommonTypeNames.SET) }
-    }
 
     val schemaInFolderPath by lazy {
         val internalInputFolder =

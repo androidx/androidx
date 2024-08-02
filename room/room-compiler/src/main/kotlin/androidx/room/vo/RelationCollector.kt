@@ -410,7 +410,7 @@ data class RelationCollector(
                             )
                         } else {
                             val keyTypeMirror = context.processingEnv.requireType(keyTypeName)
-                            val set = checkNotNull(context.COMMON_TYPES.SET.typeElement)
+                            val set = context.processingEnv.requireTypeElement(CommonTypeNames.SET)
                             val keySet = context.processingEnv.getDeclaredType(set, keyTypeMirror)
                             QueryParameter(
                                 name = RelationCollectorFunctionWriter.KEY_SET_VARIABLE,
@@ -575,8 +575,9 @@ data class RelationCollector(
             relation.field.type.let { fieldType ->
                 if (fieldType.typeArguments.isNotEmpty()) {
                     val rawType = fieldType.rawType
+                    val setType = context.processingEnv.requireType(CommonTypeNames.SET)
                     val paramTypeName =
-                        if (context.COMMON_TYPES.SET.rawType.isAssignableFrom(rawType)) {
+                        if (setType.rawType.isAssignableFrom(rawType)) {
                             when (context.codeLanguage) {
                                 CodeLanguage.KOTLIN ->
                                     CommonTypeNames.MUTABLE_SET.parametrizedBy(

@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runProcessorTest
+import androidx.room.ext.CommonTypeNames
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.runProcessorTestWithK1
@@ -601,7 +602,10 @@ class FieldProcessorTest {
                     `is`(
                         Field(
                             name = "code",
-                            type = invocation.context.COMMON_TYPES.STRING.makeNullable(),
+                            type =
+                                invocation.context.processingEnv
+                                    .requireType(CommonTypeNames.STRING)
+                                    .makeNullable(),
                             element = field.element,
                             columnName = "code",
                             collate = collate,
