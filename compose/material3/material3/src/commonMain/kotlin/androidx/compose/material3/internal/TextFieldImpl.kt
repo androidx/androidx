@@ -37,6 +37,7 @@ import androidx.compose.material3.TextFieldLayout
 import androidx.compose.material3.outlineCutout
 import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -57,6 +58,7 @@ import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -65,7 +67,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.isUnspecified
-import androidx.compose.ui.unit.sp
 
 internal enum class TextFieldType {
     Filled,
@@ -491,9 +492,15 @@ internal fun textFieldHorizontalIconPadding(): Dp {
     return ((interactiveSize - IconButtonTokens.IconSize) / 2).coerceAtLeast(0.dp)
 }
 
+@Composable
+internal fun minimizedLabelHalfHeight(): Dp {
+    val compositionLocalValue = MaterialTheme.typography.bodySmall.lineHeight
+    val fallbackValue = TypeScaleTokens.BodySmallLineHeight
+    val value = if (compositionLocalValue.isSp) compositionLocalValue else fallbackValue
+    return with(LocalDensity.current) { value.toDp() / 2 }
+}
+
 internal val TextFieldPadding = 16.dp
-// SP not DP because it should scale with font size. Value equal to bodySmall line height / 2.
-internal val TextFieldLabelExtraPadding = 8.sp
 internal val AboveLabelHorizontalPadding = 4.dp
 internal val AboveLabelBottomPadding = 4.dp
 internal val SupportingTopPadding = 4.dp
