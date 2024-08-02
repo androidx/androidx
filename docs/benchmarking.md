@@ -219,7 +219,8 @@ in Studio.
 As many Android apps don't yet enable R8, the default for microbenchmarks in
 AndroidX is to run with R8 disabled to measure worst-case performance. It may
 still be useful to run your microbenchmarks with R8 enabled locally however, and
-that is supported experimentally. To enable, in your microbench module:
+that is supported experimentally. To do this in your microbench module, set the
+**androidTest** minification property:
 
 ```
 android {
