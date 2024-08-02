@@ -342,6 +342,33 @@ actual constructor(
         return invalidationLiveDataContainer.create(tableNames, inTransaction, computeFunction)
     }
 
+    /**
+     * Creates a LiveData that computes the given function once and for every other invalidation of
+     * the database.
+     *
+     * Holds a strong reference to the created LiveData as long as it is active.
+     *
+     * @param tableNames The list of tables to observe
+     * @param inTransaction True if the computeFunction will be done in a transaction, false
+     *   otherwise.
+     * @param computeFunction The function that calculates the value
+     * @param T The return type
+     * @return A new LiveData that computes the given function when the given list of tables
+     *   invalidates.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    fun <T> createLiveData(
+        tableNames: Array<out String>,
+        inTransaction: Boolean,
+        computeFunction: (SQLiteConnection) -> T?
+    ): LiveData<T> {
+        // Validate names early to fail fast as actual observer subscription is done once LiveData
+        // is observed.
+        implementation.validateTableNames(tableNames)
+        // TODO(329315924): Could we use createFlow(...).asLiveData() ?
+        return invalidationLiveDataContainer.create(tableNames, inTransaction, computeFunction)
+    }
+
     internal fun initMultiInstanceInvalidation(
         context: Context,
         name: String,
@@ -399,7 +426,7 @@ actual constructor(
      *
      * This class will automatically unsubscribe when the wrapped observer goes out of memory.
      */
-    private class WeakObserver(
+    internal class WeakObserver(
         val tracker: InvalidationTracker,
         val coroutineScope: CoroutineScope,
         delegate: Observer

@@ -5,7 +5,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.RoomDatabase;
-import androidx.room.RoomSQLiteQuery;
 import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
@@ -17,7 +16,6 @@ import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.lang.Boolean;
 import java.lang.Class;
-import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
 import java.lang.String;
@@ -26,7 +24,6 @@ import java.lang.SuppressWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
 import kotlin.jvm.functions.Function1;
 
@@ -426,48 +423,42 @@ public final class ComplexDao_Impl extends ComplexDao {
   @Override
   public LiveData<User> getByIdLive(final int id) {
     final String _sql = "SELECT * FROM user where uid = ?";
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 1);
-    int _argIndex = 1;
-    _statement.bindLong(_argIndex, id);
-    return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Callable<User>() {
+    return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Function1<SQLiteConnection, User>() {
       @Override
       @Nullable
-      public User call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+      public User invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
         try {
-          final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
-          final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
+          int _argIndex = 1;
+          _stmt.bindLong(_argIndex, id);
+          final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
+          final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+          final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
+          final int _cursorIndexOfAge = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "ageColumn");
           final User _result;
-          if (_cursor.moveToFirst()) {
+          if (_stmt.step()) {
             _result = new User();
-            _result.uid = _cursor.getInt(_cursorIndexOfUid);
-            if (_cursor.isNull(_cursorIndexOfName)) {
+            _result.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+            if (_stmt.isNull(_cursorIndexOfName)) {
               _result.name = null;
             } else {
-              _result.name = _cursor.getString(_cursorIndexOfName);
+              _result.name = _stmt.getText(_cursorIndexOfName);
             }
             final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
+            if (_stmt.isNull(_cursorIndexOfLastName)) {
               _tmpLastName = null;
             } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+              _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
             }
             _result.setLastName(_tmpLastName);
-            _result.age = _cursor.getInt(_cursorIndexOfAge);
+            _result.age = (int) (_stmt.getLong(_cursorIndexOfAge));
           } else {
             _result = null;
           }
           return _result;
         } finally {
-          _cursor.close();
+          _stmt.close();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
       }
     });
   }
@@ -480,56 +471,49 @@ public final class ComplexDao_Impl extends ComplexDao {
     StringUtil.appendPlaceholders(_stringBuilder, _inputSize);
     _stringBuilder.append(")");
     final String _sql = _stringBuilder.toString();
-    final int _argCount = 0 + _inputSize;
-    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, _argCount);
-    int _argIndex = 1;
-    if (ids == null) {
-      _statement.bindNull(_argIndex);
-    } else {
-      for (int _item : ids) {
-        _statement.bindLong(_argIndex, _item);
-        _argIndex++;
-      }
-    }
-    return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Callable<List<User>>() {
+    return __db.getInvalidationTracker().createLiveData(new String[] {"user"}, false, new Function1<SQLiteConnection, List<User>>() {
       @Override
       @Nullable
-      public List<User> call() throws Exception {
-        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+      public List<User> invoke(@NonNull final SQLiteConnection _connection) {
+        final SQLiteStatement _stmt = _connection.prepare(_sql);
         try {
-          final int _cursorIndexOfUid = CursorUtil.getColumnIndexOrThrow(_cursor, "uid");
-          final int _cursorIndexOfName = CursorUtil.getColumnIndexOrThrow(_cursor, "name");
-          final int _cursorIndexOfLastName = CursorUtil.getColumnIndexOrThrow(_cursor, "lastName");
-          final int _cursorIndexOfAge = CursorUtil.getColumnIndexOrThrow(_cursor, "ageColumn");
+          int _argIndex = 1;
+          if (ids == null) {
+            _stmt.bindNull(_argIndex);
+          } else {
+            for (int _item : ids) {
+              _stmt.bindLong(_argIndex, _item);
+              _argIndex++;
+            }
+          }
+          final int _cursorIndexOfUid = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "uid");
+          final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "name");
+          final int _cursorIndexOfLastName = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "lastName");
+          final int _cursorIndexOfAge = SQLiteStatementUtil.getColumnIndexOrThrow(_stmt, "ageColumn");
           final List<User> _result = new ArrayList<User>();
-          while (_cursor.moveToNext()) {
+          while (_stmt.step()) {
             final User _item_1;
             _item_1 = new User();
-            _item_1.uid = _cursor.getInt(_cursorIndexOfUid);
-            if (_cursor.isNull(_cursorIndexOfName)) {
+            _item_1.uid = (int) (_stmt.getLong(_cursorIndexOfUid));
+            if (_stmt.isNull(_cursorIndexOfName)) {
               _item_1.name = null;
             } else {
-              _item_1.name = _cursor.getString(_cursorIndexOfName);
+              _item_1.name = _stmt.getText(_cursorIndexOfName);
             }
             final String _tmpLastName;
-            if (_cursor.isNull(_cursorIndexOfLastName)) {
+            if (_stmt.isNull(_cursorIndexOfLastName)) {
               _tmpLastName = null;
             } else {
-              _tmpLastName = _cursor.getString(_cursorIndexOfLastName);
+              _tmpLastName = _stmt.getText(_cursorIndexOfLastName);
             }
             _item_1.setLastName(_tmpLastName);
-            _item_1.age = _cursor.getInt(_cursorIndexOfAge);
+            _item_1.age = (int) (_stmt.getLong(_cursorIndexOfAge));
             _result.add(_item_1);
           }
           return _result;
         } finally {
-          _cursor.close();
+          _stmt.close();
         }
-      }
-
-      @Override
-      protected void finalize() {
-        _statement.release();
       }
     });
   }
