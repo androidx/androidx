@@ -16,13 +16,16 @@
 
 package androidx.window.core.layout
 
+import androidx.window.core.ExperimentalWindowCoreApi
 import kotlin.jvm.JvmStatic
 
 /**
- * [WindowSizeClass] provides breakpoints for a viewport. Designers should design around the
- * different combinations of width and height buckets. Developers should use the different buckets
- * to specify the layouts. Ideally apps will work well in each bucket and by extension work well
- * across multiple devices. If two devices are in similar buckets they should behave similarly.
+ * [WindowSizeClass] represents breakpoints for a viewport. The recommended width and height break
+ * points are presented through [windowWidthSizeClass] and [windowHeightSizeClass]. Designers
+ * should design around the different combinations of width and height buckets. Developers should
+ * use the different buckets to specify the layouts. Ideally apps will work well in each bucket and
+ * by extension work well across multiple devices. If two devices are in similar buckets they
+ * should behave similarly.
  *
  * This class is meant to be a common definition that can be shared across different device types.
  * Application developers can use WindowSizeClass to have standard window buckets and design the UI
@@ -39,23 +42,34 @@ import kotlin.jvm.JvmStatic
  * detail side by side. If all apps follow this guidance then it will present a very consistent user
  * experience.
  *
+ * In some cases developers or UI systems may decide to create their own break points. A developer
+ * might optimize for a window that is smaller than the supported break points or larger. A UI
+ * system might find that some break points are better suited than the recommended break points.
+ * In these cases developers may wish to specify their own custom break points and match using
+ * a `when` statement.
+ *
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
 class WindowSizeClass private constructor(
+    /**
+     * Returns the [WindowWidthSizeClass] that corresponds to the widthDp of the window.
+     */
     val windowWidthSizeClass: WindowWidthSizeClass,
+    /**
+     * Returns the [WindowHeightSizeClass] that corresponds to the heightDp of the window.
+     */
     val windowHeightSizeClass: WindowHeightSizeClass
 ) {
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null) return false
-        if (this::class != other::class) return false
+        if (javaClass != other?.javaClass) return false
 
-        val that = other as WindowSizeClass
+        other as WindowSizeClass
 
-        if (windowWidthSizeClass != that.windowWidthSizeClass) return false
-        if (windowHeightSizeClass != that.windowHeightSizeClass) return false
+        if (windowWidthSizeClass != other.windowWidthSizeClass) return false
+        if (windowHeightSizeClass != other.windowHeightSizeClass) return false
 
         return true
     }
@@ -67,13 +81,15 @@ class WindowSizeClass private constructor(
     }
 
     override fun toString(): String {
-        return "SizeClass { widthSizeClass: $windowWidthSizeClass," +
-            " heightSizeClass: $windowHeightSizeClass }"
+        return "WindowSizeClass {" +
+            "windowWidthSizeClass=$windowWidthSizeClass, " +
+            "windowHeightSizeClass=$windowHeightSizeClass }"
     }
 
     companion object {
+
         /**
-         * Computes the [WindowSizeClass] for the given width and height in DP.
+         * Computes the recommended [WindowSizeClass] for the given width and height in DP.
          * @param dpWidth width of a window in DP.
          * @param dpHeight height of a window in DP.
          * @return [WindowSizeClass] that is recommended for the given dimensions.
@@ -82,9 +98,27 @@ class WindowSizeClass private constructor(
          */
         @JvmStatic
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
-            val windowWidthSizeClass = WindowWidthSizeClass.compute(dpWidth)
-            val windowHeightSizeClass = WindowHeightSizeClass.compute(dpHeight)
-            return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
+            return WindowSizeClass(
+                WindowWidthSizeClass.compute(dpWidth),
+                WindowHeightSizeClass.compute(dpHeight)
+            )
+        }
+
+        /**
+         * Computes the [WindowSizeClass] for the given width and height in pixels with density.
+         * @param widthPx width of a window in PX.
+         * @param heightPx height of a window in PX.
+         * @param density density of the display where the window is shown.
+         * @return [WindowSizeClass] that is recommended for the given dimensions.
+         * @throws IllegalArgumentException if [widthPx], [heightPx], or [density] is
+         * negative.
+         */
+        @JvmStatic
+        @ExperimentalWindowCoreApi
+        fun compute(widthPx: Int, heightPx: Int, density: Float): WindowSizeClass {
+            val widthDp = widthPx / density
+            val heightDp = heightPx / density
+            return compute(widthDp, heightDp)
         }
     }
 }

@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+RemovedClass: androidx.window.core.layout.WindowSizeClassScoreCalculator:
+    Removed class androidx.window.core.layout.WindowSizeClassScoreCalculator
+RemovedClass: androidx.window.core.layout.WindowSizeClassSelectors:
+    Removed class androidx.window.core.layout.WindowSizeClassSelectors
+
+
+RemovedMethod: androidx.window.core.layout.WindowSizeClass#WindowSizeClass(int, int):
+    Removed constructor androidx.window.core.layout.WindowSizeClass(int,int)
+RemovedMethod: androidx.window.core.layout.WindowSizeClass#getHeightDp():
+    Removed method androidx.window.core.layout.WindowSizeClass.getHeightDp()
+RemovedMethod: androidx.window.core.layout.WindowSizeClass#getWidthDp():
+    Removed method androidx.window.core.layout.WindowSizeClass.getWidthDp()

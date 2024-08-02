@@ -18,14 +18,15 @@ package androidx.window.extensions.area;
 
 import android.content.Context;
 import android.view.View;
+import android.view.Window;
 
 import androidx.annotation.NonNull;
+import androidx.window.extensions.RequiresVendorApiLevel;
 
 /**
  * An interface representing a container in an extension window area in which app content can be
  * shown.
  *
- * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_3}
  * @see WindowAreaComponent#getRearDisplayPresentation()
  */
 public interface ExtensionWindowAreaPresentation {
@@ -34,11 +35,23 @@ public interface ExtensionWindowAreaPresentation {
      * Returns the {@link Context} for the window that is being used
      * to display the additional content provided from the application.
      */
+    @RequiresVendorApiLevel(level = 3)
     @NonNull
     Context getPresentationContext();
 
     /**
      * Sets the {@link View} that the application wants to display in the extension window area.
      */
+    @RequiresVendorApiLevel(level = 3)
     void setPresentationView(@NonNull View view);
+
+    /**
+     * Returns the {@link Window} for the rear display presentation area.
+     */
+    @RequiresVendorApiLevel(level = 4)
+    @NonNull
+    default Window getWindow() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }

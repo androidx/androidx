@@ -24,7 +24,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Predicate;
 import androidx.window.extensions.embedding.SplitAttributes.SplitType;
 
@@ -110,11 +110,11 @@ public abstract class SplitRule extends EmbeddingRule {
     }
 
     /**
-     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-     * {@link #getDefaultSplitAttributes()} can't be called on
-     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with vendor API
+     * level 2. Only used if {@link #getDefaultSplitAttributes()} can't be called on vendor API
+     * level 1.
      */
+    @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
     @Deprecated
     public float getSplitRatio() {
         final SplitType splitType = mDefaultSplitAttributes.getSplitType();
@@ -126,11 +126,11 @@ public abstract class SplitRule extends EmbeddingRule {
     }
 
     /**
-     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-     * {@link #getDefaultSplitAttributes()} can't be called on
-     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * @deprecated Use {@link #getDefaultSplitAttributes()} instead starting with vendor API
+     * level 2. Only used if {@link #getDefaultSplitAttributes()} can't be called on vendor API
+     * level 1.
      */
+    @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
     @Deprecated
     @SplitAttributes.ExtLayoutDirection
     public int getLayoutDirection() {
@@ -140,9 +140,8 @@ public abstract class SplitRule extends EmbeddingRule {
     /**
      * Returns the default {@link SplitAttributes} which is applied if
      * {@link #checkParentMetrics(WindowMetrics)} is {@code true}.
-     *
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
+    @RequiresVendorApiLevel(level = 2)
     @NonNull
     public SplitAttributes getDefaultSplitAttributes() {
         return mDefaultSplitAttributes;

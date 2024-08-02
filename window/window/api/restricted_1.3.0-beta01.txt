@@ -1,0 +1,470 @@
+// Signature format: 4.0
+package androidx.window {
+
+  @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.PROPERTY}) public @interface RequiresWindowSdkExtension {
+    method public abstract int version();
+    property public abstract int version;
+  }
+
+  public final class WindowProperties {
+    field public static final androidx.window.WindowProperties INSTANCE;
+    field public static final String PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE = "android.window.PROPERTY_ACTIVITY_EMBEDDING_ALLOW_SYSTEM_OVERRIDE";
+    field public static final String PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED = "android.window.PROPERTY_ACTIVITY_EMBEDDING_SPLITS_ENABLED";
+    field public static final String PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED = "android.window.PROPERTY_COMPAT_ALLOW_IGNORING_ORIENTATION_REQUEST_WHEN_LOOP_DETECTED";
+    field public static final String PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE = "android.window.PROPERTY_COMPAT_ALLOW_MIN_ASPECT_RATIO_OVERRIDE";
+    field public static final String PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES = "android.window.PROPERTY_COMPAT_ALLOW_RESIZEABLE_ACTIVITY_OVERRIDES";
+  }
+
+  public abstract class WindowSdkExtensions {
+    method @IntRange(from=0L) public int getExtensionVersion();
+    method public static final androidx.window.WindowSdkExtensions getInstance();
+    property @IntRange(from=0L) public int extensionVersion;
+    field public static final androidx.window.WindowSdkExtensions.Companion Companion;
+  }
+
+  public static final class WindowSdkExtensions.Companion {
+    method public androidx.window.WindowSdkExtensions getInstance();
+  }
+
+}
+
+package androidx.window.area {
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaCapability {
+    method public androidx.window.area.WindowAreaCapability.Operation getOperation();
+    method public androidx.window.area.WindowAreaCapability.Status getStatus();
+    property public final androidx.window.area.WindowAreaCapability.Operation operation;
+    property public final androidx.window.area.WindowAreaCapability.Status status;
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaCapability.Operation {
+    field public static final androidx.window.area.WindowAreaCapability.Operation.Companion Companion;
+    field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_PRESENT_ON_AREA;
+    field public static final androidx.window.area.WindowAreaCapability.Operation OPERATION_TRANSFER_ACTIVITY_TO_AREA;
+  }
+
+  public static final class WindowAreaCapability.Operation.Companion {
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaCapability.Status {
+    field public static final androidx.window.area.WindowAreaCapability.Status.Companion Companion;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_ACTIVE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_AVAILABLE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_UNAVAILABLE;
+    field public static final androidx.window.area.WindowAreaCapability.Status WINDOW_AREA_STATUS_UNSUPPORTED;
+  }
+
+  public static final class WindowAreaCapability.Status.Companion {
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaController {
+    method public static androidx.window.area.WindowAreaController getOrCreate();
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
+    method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
+    method public void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
+    property public abstract kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> windowAreaInfos;
+    field public static final androidx.window.area.WindowAreaController.Companion Companion;
+  }
+
+  public static final class WindowAreaController.Companion {
+    method public androidx.window.area.WindowAreaController getOrCreate();
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaInfo {
+    method public androidx.window.area.WindowAreaSession? getActiveSession(androidx.window.area.WindowAreaCapability.Operation operation);
+    method public androidx.window.area.WindowAreaCapability getCapability(androidx.window.area.WindowAreaCapability.Operation operation);
+    method public androidx.window.layout.WindowMetrics getMetrics();
+    method public android.os.Binder getToken();
+    method public androidx.window.area.WindowAreaInfo.Type getType();
+    method public void setMetrics(androidx.window.layout.WindowMetrics);
+    property public final androidx.window.layout.WindowMetrics metrics;
+    property public final android.os.Binder token;
+    property public final androidx.window.area.WindowAreaInfo.Type type;
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class WindowAreaInfo.Type {
+    field public static final androidx.window.area.WindowAreaInfo.Type.Companion Companion;
+    field public static final androidx.window.area.WindowAreaInfo.Type TYPE_REAR_FACING;
+  }
+
+  public static final class WindowAreaInfo.Type.Companion {
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaPresentationSessionCallback {
+    method public void onContainerVisibilityChanged(boolean isVisible);
+    method public void onSessionEnded(Throwable? t);
+    method public void onSessionStarted(androidx.window.area.WindowAreaSessionPresenter session);
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSession {
+    method public void close();
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionCallback {
+    method public void onSessionEnded(Throwable? t);
+    method public void onSessionStarted(androidx.window.area.WindowAreaSession session);
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public interface WindowAreaSessionPresenter extends androidx.window.area.WindowAreaSession {
+    method public android.content.Context getContext();
+    method public void setContentView(android.view.View view);
+    property public abstract android.content.Context context;
+  }
+
+}
+
+package androidx.window.core {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
+  }
+
+}
+
+package androidx.window.embedding {
+
+  public final class ActivityEmbeddingController {
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
+    method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+    method public boolean isActivityEmbedded(android.app.Activity activity);
+    field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
+  }
+
+  public static final class ActivityEmbeddingController.Companion {
+    method public androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
+  }
+
+  public final class ActivityFilter {
+    ctor public ActivityFilter(android.content.ComponentName componentName, String? intentAction);
+    method public android.content.ComponentName getComponentName();
+    method public String? getIntentAction();
+    method public boolean matchesActivity(android.app.Activity activity);
+    method public boolean matchesIntent(android.content.Intent intent);
+    property public final android.content.ComponentName componentName;
+    property public final String? intentAction;
+  }
+
+  public final class ActivityRule extends androidx.window.embedding.EmbeddingRule {
+    method public boolean getAlwaysExpand();
+    method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
+    property public final boolean alwaysExpand;
+    property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
+  }
+
+  public static final class ActivityRule.Builder {
+    ctor public ActivityRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters);
+    method public androidx.window.embedding.ActivityRule build();
+    method public androidx.window.embedding.ActivityRule.Builder setAlwaysExpand(boolean alwaysExpand);
+    method public androidx.window.embedding.ActivityRule.Builder setTag(String? tag);
+  }
+
+  public final class ActivityStack {
+    method public operator boolean contains(android.app.Activity activity);
+    method public boolean isEmpty();
+    property public final boolean isEmpty;
+  }
+
+  public final class EmbeddingAspectRatio {
+    method public static androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+    field public static final androidx.window.embedding.EmbeddingAspectRatio ALWAYS_ALLOW;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio ALWAYS_DISALLOW;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio.Companion Companion;
+  }
+
+  public static final class EmbeddingAspectRatio.Companion {
+    method public androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+  }
+
+  public abstract class EmbeddingRule {
+    method public final String? getTag();
+    property public final String? tag;
+  }
+
+  public final class RuleController {
+    method public void addRule(androidx.window.embedding.EmbeddingRule rule);
+    method public void clearRules();
+    method public static androidx.window.embedding.RuleController getInstance(android.content.Context context);
+    method public java.util.Set<androidx.window.embedding.EmbeddingRule> getRules();
+    method public static java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(android.content.Context context, @XmlRes int staticRuleResourceId);
+    method public void removeRule(androidx.window.embedding.EmbeddingRule rule);
+    method public void setRules(java.util.Set<? extends androidx.window.embedding.EmbeddingRule> rules);
+    field public static final androidx.window.embedding.RuleController.Companion Companion;
+  }
+
+  public static final class RuleController.Companion {
+    method public androidx.window.embedding.RuleController getInstance(android.content.Context context);
+    method public java.util.Set<androidx.window.embedding.EmbeddingRule> parseRules(android.content.Context context, @XmlRes int staticRuleResourceId);
+  }
+
+  public final class SplitAttributes {
+    method public androidx.window.embedding.SplitAttributes.LayoutDirection getLayoutDirection();
+    method public androidx.window.embedding.SplitAttributes.SplitType getSplitType();
+    property public final androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection;
+    property public final androidx.window.embedding.SplitAttributes.SplitType splitType;
+    field public static final androidx.window.embedding.SplitAttributes.Companion Companion;
+  }
+
+  public static final class SplitAttributes.Builder {
+    ctor public SplitAttributes.Builder();
+    method public androidx.window.embedding.SplitAttributes build();
+    method public androidx.window.embedding.SplitAttributes.Builder setLayoutDirection(androidx.window.embedding.SplitAttributes.LayoutDirection layoutDirection);
+    method public androidx.window.embedding.SplitAttributes.Builder setSplitType(androidx.window.embedding.SplitAttributes.SplitType type);
+  }
+
+  public static final class SplitAttributes.Companion {
+  }
+
+  public static final class SplitAttributes.LayoutDirection {
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection BOTTOM_TO_TOP;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection.Companion Companion;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection LEFT_TO_RIGHT;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection LOCALE;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection RIGHT_TO_LEFT;
+    field public static final androidx.window.embedding.SplitAttributes.LayoutDirection TOP_TO_BOTTOM;
+  }
+
+  public static final class SplitAttributes.LayoutDirection.Companion {
+  }
+
+  public static final class SplitAttributes.SplitType {
+    method public static androidx.window.embedding.SplitAttributes.SplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
+    field public static final androidx.window.embedding.SplitAttributes.SplitType.Companion Companion;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_EQUAL;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_EXPAND;
+    field public static final androidx.window.embedding.SplitAttributes.SplitType SPLIT_TYPE_HINGE;
+  }
+
+  public static final class SplitAttributes.SplitType.Companion {
+    method public androidx.window.embedding.SplitAttributes.SplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
+  }
+
+  public final class SplitAttributesCalculatorParams {
+    method public boolean areDefaultConstraintsSatisfied();
+    method public androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public androidx.window.layout.WindowMetrics getParentWindowMetrics();
+    method public String? getSplitRuleTag();
+    property public final boolean areDefaultConstraintsSatisfied;
+    property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final android.content.res.Configuration parentConfiguration;
+    property public final androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo;
+    property public final androidx.window.layout.WindowMetrics parentWindowMetrics;
+    property public final String? splitRuleTag;
+  }
+
+  public final class SplitController {
+    method @androidx.window.RequiresWindowSdkExtension(version=2) public void clearSplitAttributesCalculator();
+    method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
+    method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
+    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void invalidateTopVisibleSplitAttributes();
+    method @androidx.window.RequiresWindowSdkExtension(version=2) public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
+    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=3) @androidx.window.core.ExperimentalWindowApi public void updateSplitAttributes(androidx.window.embedding.SplitInfo splitInfo, androidx.window.embedding.SplitAttributes splitAttributes);
+    property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
+    field public static final androidx.window.embedding.SplitController.Companion Companion;
+  }
+
+  public static final class SplitController.Companion {
+    method public androidx.window.embedding.SplitController getInstance(android.content.Context context);
+  }
+
+  public static final class SplitController.SplitSupportStatus {
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus.Companion Companion;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_AVAILABLE;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_ERROR_PROPERTY_NOT_DECLARED;
+    field public static final androidx.window.embedding.SplitController.SplitSupportStatus SPLIT_UNAVAILABLE;
+  }
+
+  public static final class SplitController.SplitSupportStatus.Companion {
+  }
+
+  public final class SplitInfo {
+    method public operator boolean contains(android.app.Activity activity);
+    method public androidx.window.embedding.ActivityStack getPrimaryActivityStack();
+    method public androidx.window.embedding.ActivityStack getSecondaryActivityStack();
+    method public androidx.window.embedding.SplitAttributes getSplitAttributes();
+    property public final androidx.window.embedding.ActivityStack primaryActivityStack;
+    property public final androidx.window.embedding.ActivityStack secondaryActivityStack;
+    property public final androidx.window.embedding.SplitAttributes splitAttributes;
+  }
+
+  public final class SplitPairFilter {
+    ctor public SplitPairFilter(android.content.ComponentName primaryActivityName, android.content.ComponentName secondaryActivityName, String? secondaryActivityIntentAction);
+    method public android.content.ComponentName getPrimaryActivityName();
+    method public String? getSecondaryActivityIntentAction();
+    method public android.content.ComponentName getSecondaryActivityName();
+    method public boolean matchesActivityIntentPair(android.app.Activity primaryActivity, android.content.Intent secondaryActivityIntent);
+    method public boolean matchesActivityPair(android.app.Activity primaryActivity, android.app.Activity secondaryActivity);
+    property public final android.content.ComponentName primaryActivityName;
+    property public final String? secondaryActivityIntentAction;
+    property public final android.content.ComponentName secondaryActivityName;
+  }
+
+  public final class SplitPairRule extends androidx.window.embedding.SplitRule {
+    method public boolean getClearTop();
+    method public java.util.Set<androidx.window.embedding.SplitPairFilter> getFilters();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishPrimaryWithSecondary();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishSecondaryWithPrimary();
+    property public final boolean clearTop;
+    property public final java.util.Set<androidx.window.embedding.SplitPairFilter> filters;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithSecondary;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishSecondaryWithPrimary;
+  }
+
+  public static final class SplitPairRule.Builder {
+    ctor public SplitPairRule.Builder(java.util.Set<androidx.window.embedding.SplitPairFilter> filters);
+    method public androidx.window.embedding.SplitPairRule build();
+    method public androidx.window.embedding.SplitPairRule.Builder setClearTop(boolean clearTop);
+    method public androidx.window.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithSecondary);
+    method public androidx.window.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(androidx.window.embedding.SplitRule.FinishBehavior finishSecondaryWithPrimary);
+    method public androidx.window.embedding.SplitPairRule.Builder setMaxAspectRatioInLandscape(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPairRule.Builder setMaxAspectRatioInPortrait(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPairRule.Builder setMinHeightDp(@IntRange(from=0L) int minHeightDp);
+    method public androidx.window.embedding.SplitPairRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
+    method public androidx.window.embedding.SplitPairRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
+    method public androidx.window.embedding.SplitPairRule.Builder setTag(String? tag);
+  }
+
+  public final class SplitPlaceholderRule extends androidx.window.embedding.SplitRule {
+    method public java.util.Set<androidx.window.embedding.ActivityFilter> getFilters();
+    method public androidx.window.embedding.SplitRule.FinishBehavior getFinishPrimaryWithPlaceholder();
+    method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
+    property public final java.util.Set<androidx.window.embedding.ActivityFilter> filters;
+    property public final androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithPlaceholder;
+    property public final boolean isSticky;
+    property public final android.content.Intent placeholderIntent;
+  }
+
+  public static final class SplitPlaceholderRule.Builder {
+    ctor public SplitPlaceholderRule.Builder(java.util.Set<androidx.window.embedding.ActivityFilter> filters, android.content.Intent placeholderIntent);
+    method public androidx.window.embedding.SplitPlaceholderRule build();
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.embedding.SplitAttributes defaultSplitAttributes);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(androidx.window.embedding.SplitRule.FinishBehavior finishPrimaryWithPlaceholder);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMaxAspectRatioInLandscape(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMaxAspectRatioInPortrait(androidx.window.embedding.EmbeddingAspectRatio aspectRatio);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinHeightDp(@IntRange(from=0L) int minHeightDp);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinSmallestWidthDp(@IntRange(from=0L) int minSmallestWidthDp);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setMinWidthDp(@IntRange(from=0L) int minWidthDp);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setSticky(boolean isSticky);
+    method public androidx.window.embedding.SplitPlaceholderRule.Builder setTag(String? tag);
+  }
+
+  public class SplitRule extends androidx.window.embedding.EmbeddingRule {
+    method public final androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public final androidx.window.embedding.EmbeddingAspectRatio getMaxAspectRatioInLandscape();
+    method public final androidx.window.embedding.EmbeddingAspectRatio getMaxAspectRatioInPortrait();
+    method public final int getMinHeightDp();
+    method public final int getMinSmallestWidthDp();
+    method public final int getMinWidthDp();
+    property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final androidx.window.embedding.EmbeddingAspectRatio maxAspectRatioInLandscape;
+    property public final androidx.window.embedding.EmbeddingAspectRatio maxAspectRatioInPortrait;
+    property public final int minHeightDp;
+    property public final int minSmallestWidthDp;
+    property public final int minWidthDp;
+    field public static final androidx.window.embedding.SplitRule.Companion Companion;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio SPLIT_MAX_ASPECT_RATIO_LANDSCAPE_DEFAULT;
+    field public static final androidx.window.embedding.EmbeddingAspectRatio SPLIT_MAX_ASPECT_RATIO_PORTRAIT_DEFAULT;
+    field public static final int SPLIT_MIN_DIMENSION_ALWAYS_ALLOW = 0; // 0x0
+    field public static final int SPLIT_MIN_DIMENSION_DP_DEFAULT = 600; // 0x258
+  }
+
+  public static final class SplitRule.Companion {
+  }
+
+  public static final class SplitRule.FinishBehavior {
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior ADJACENT;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior ALWAYS;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior.Companion Companion;
+    field public static final androidx.window.embedding.SplitRule.FinishBehavior NEVER;
+  }
+
+  public static final class SplitRule.FinishBehavior.Companion {
+  }
+
+}
+
+package androidx.window.layout {
+
+  public interface DisplayFeature {
+    method public android.graphics.Rect getBounds();
+    property public abstract android.graphics.Rect bounds;
+  }
+
+  public interface FoldingFeature extends androidx.window.layout.DisplayFeature {
+    method public androidx.window.layout.FoldingFeature.OcclusionType getOcclusionType();
+    method public androidx.window.layout.FoldingFeature.Orientation getOrientation();
+    method public androidx.window.layout.FoldingFeature.State getState();
+    method public boolean isSeparating();
+    property public abstract boolean isSeparating;
+    property public abstract androidx.window.layout.FoldingFeature.OcclusionType occlusionType;
+    property public abstract androidx.window.layout.FoldingFeature.Orientation orientation;
+    property public abstract androidx.window.layout.FoldingFeature.State state;
+  }
+
+  public static final class FoldingFeature.OcclusionType {
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType FULL;
+    field public static final androidx.window.layout.FoldingFeature.OcclusionType NONE;
+  }
+
+  public static final class FoldingFeature.OcclusionType.Companion {
+  }
+
+  public static final class FoldingFeature.Orientation {
+    field public static final androidx.window.layout.FoldingFeature.Orientation.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.Orientation HORIZONTAL;
+    field public static final androidx.window.layout.FoldingFeature.Orientation VERTICAL;
+  }
+
+  public static final class FoldingFeature.Orientation.Companion {
+  }
+
+  public static final class FoldingFeature.State {
+    field public static final androidx.window.layout.FoldingFeature.State.Companion Companion;
+    field public static final androidx.window.layout.FoldingFeature.State FLAT;
+    field public static final androidx.window.layout.FoldingFeature.State HALF_OPENED;
+  }
+
+  public static final class FoldingFeature.State.Companion {
+  }
+
+  public interface WindowInfoTracker {
+    method public static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
+    method public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
+    field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
+  }
+
+  public static final class WindowInfoTracker.Companion {
+    method public androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+  }
+
+  public final class WindowLayoutInfo {
+    method public java.util.List<androidx.window.layout.DisplayFeature> getDisplayFeatures();
+    property public final java.util.List<androidx.window.layout.DisplayFeature> displayFeatures;
+  }
+
+  public final class WindowMetrics {
+    method public android.graphics.Rect getBounds();
+    method @SuppressCompatibility @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
+    property public final android.graphics.Rect bounds;
+  }
+
+  public interface WindowMetricsCalculator {
+    method public androidx.window.layout.WindowMetrics computeCurrentWindowMetrics(android.app.Activity activity);
+    method public default androidx.window.layout.WindowMetrics computeCurrentWindowMetrics(@UiContext android.content.Context context);
+    method public androidx.window.layout.WindowMetrics computeMaximumWindowMetrics(android.app.Activity activity);
+    method public default androidx.window.layout.WindowMetrics computeMaximumWindowMetrics(@UiContext android.content.Context context);
+    method public static androidx.window.layout.WindowMetricsCalculator getOrCreate();
+    field public static final androidx.window.layout.WindowMetricsCalculator.Companion Companion;
+  }
+
+  public static final class WindowMetricsCalculator.Companion {
+    method public androidx.window.layout.WindowMetricsCalculator getOrCreate();
+  }
+
+}
+
