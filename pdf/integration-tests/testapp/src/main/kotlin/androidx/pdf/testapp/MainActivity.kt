@@ -19,8 +19,10 @@ package androidx.pdf.testapp
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.os.Bundle
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts.GetContent
 import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -33,7 +35,8 @@ class MainActivity : AppCompatActivity() {
 
     private var pdfViewerFragment: PdfViewerFragment? = null
 
-    private val filePicker =
+    @VisibleForTesting
+    var filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { uri: Uri? ->
             uri?.let { pdfViewerFragment?.documentUri = uri }
         }
