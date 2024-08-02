@@ -26,8 +26,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.util.VelocityTrackerAddPointsFix
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -44,6 +46,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+@OptIn(ExperimentalComposeUiApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class MoveWithHistoryTest {
@@ -114,9 +117,18 @@ class MoveWithHistoryTest {
             val from = topCenter + Offset(0f, 120f)
             val to = topCenter + Offset(0f, 100f)
 
-            val historicalTimes = listOf(-16L, -12L, -8L)
+            val historicalTimes =
+                if (VelocityTrackerAddPointsFix) {
+                    listOf(-16L, -12L, -8L)
+                } else {
+                    listOf(-16L, -8L)
+                }
             val historicalCoordinates =
-                listOf(to + Offset(0f, 70f), to + Offset(0f, 55f), to + Offset(0f, 35f))
+                if (VelocityTrackerAddPointsFix) {
+                    listOf(to + Offset(0f, 70f), to + Offset(0f, 55f), to + Offset(0f, 35f))
+                } else {
+                    listOf(to + Offset(0f, 70f), to + Offset(0f, 35f))
+                }
             val delayMillis = 100L
 
             down(from)
