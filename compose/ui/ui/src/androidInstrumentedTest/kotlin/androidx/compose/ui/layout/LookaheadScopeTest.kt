@@ -25,6 +25,7 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Arrangement.Absolute.SpaceAround
 import androidx.compose.foundation.layout.Box
@@ -54,9 +55,15 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collection.MutableVector
@@ -72,6 +79,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -83,7 +91,10 @@ import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -2828,6 +2839,195 @@ class LookaheadScopeTest {
 
         assertEquals(200f, regularPositions[1].y)
         assertEquals(200f, excludedManipulationPositions[1].y)
+    }
+
+    @Test
+    fun testPlacementChangeInLookahead() {
+        @Composable
+        fun TestItem(tall: Boolean) {
+            Box(Modifier.requiredSize(20.dp)) {
+                Column(Modifier.requiredSize(20.dp)) {
+                    Box(Modifier.size(10.dp))
+                    if (tall) {
+                        Box(Modifier.size(10.dp))
+                    }
+                }
+            }
+        }
+
+        var tall by mutableStateOf(false)
+        var placeLastInApproach by mutableStateOf(false)
+        var placeInLookahead by mutableStateOf(true)
+        rule.setContent {
+            LookaheadScope {
+                Layout(
+                    content = {
+                        TestItem(tall)
+                        TestItem(tall)
+                        TestItem(tall)
+                    },
+                    Modifier.requiredHeight(60.dp).fillMaxWidth()
+                ) { measurables, constraints ->
+                    val placeables = measurables.map { it.measure(constraints) }
+                    layout(100, 100) {
+                        if (isLookingAhead) {
+                            if (placeInLookahead) {
+                                placeables.forEachIndexed { id, placeable ->
+                                    placeable.place(0, id * 10)
+                                }
+                            }
+                        } else if (placeLastInApproach) {
+                            placeables.forEachIndexed { id, placeable ->
+                                placeable.place(0, id * 10)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        placeInLookahead = false
+        rule.waitForIdle()
+        tall = true
+        rule.waitForIdle()
+
+        placeInLookahead = true
+        rule.waitForIdle()
+        placeLastInApproach = true
+        rule.waitForIdle()
+    }
+
+    @Test
+    fun testPlacementInLazyWithAnimatedItem() {
+        var expandedHeaders by mutableStateOf(setOf<String>())
+        fun generateItems() = buildList {
+            repeat(5) { header ->
+                add(Element.Header(header.toString()))
+                if (expandedHeaders.contains(header.toString())) {
+                    repeat(100) {
+                        add(Element.Item(header.toString(), it.toString(), Random.nextBoolean()))
+                    }
+                }
+                add(Element.Divider("$header-divider"))
+            }
+        }
+
+        var items by mutableStateOf(generateItems())
+
+        fun update(headers: Set<String>) {
+            expandedHeaders = headers
+            items = generateItems()
+        }
+
+        rule.setContent {
+            LookaheadScope {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = { Box(modifier = Modifier.fillMaxWidth().height(100.dp)) }
+                ) { innerPadding ->
+                    LazyColumn(Modifier.padding(innerPadding)) {
+                        items(items, key = { it.id }, contentType = { it.javaClass.simpleName }) {
+                            element ->
+                            when (element) {
+                                is Element.Header ->
+                                    Box(
+                                        modifier =
+                                            Modifier.animateItem()
+                                                .testTag(element.title)
+                                                .clickable {
+                                                    if (expandedHeaders.contains(element.title)) {
+                                                        update(
+                                                            expandedHeaders
+                                                                .filter { it != element.title }
+                                                                .toSet()
+                                                        )
+                                                    } else {
+                                                        update(expandedHeaders + element.title)
+                                                    }
+                                                }
+                                    ) {
+                                        Text(text = "Header ${element.title}")
+                                    }
+                                is Element.Item -> {
+                                    Row(Modifier.animateItem().padding(16.dp)) {
+                                        Box(
+                                            modifier =
+                                                Modifier.padding(16.dp)
+                                                    .height(48.dp)
+                                                    .aspectRatio(1f, true)
+                                                    .background(Color.Red, CircleShape)
+                                        ) {
+                                            Text(
+                                                modifier = Modifier.align(Alignment.Center),
+                                                text = "A"
+                                            )
+                                            if (element.hasCheckmark) {
+                                                Box(
+                                                    modifier =
+                                                        Modifier.align(Alignment.BottomEnd)
+                                                            .clip(CircleShape),
+                                                ) {
+                                                    Icon(
+                                                        modifier = Modifier.size(16.dp),
+                                                        imageVector = Icons.Rounded.CheckCircle,
+                                                        contentDescription = null,
+                                                    )
+                                                }
+                                            }
+                                        }
+                                        Text(text = element.text)
+                                    }
+                                }
+                                is Element.Divider -> {
+                                    Box(Modifier.animateItem().fillMaxWidth().height(5.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+
+        rule.onNodeWithTag("1").performClick()
+        rule.waitUntil { expandedHeaders.size > 0 }
+        rule.mainClock.advanceTimeBy(200)
+
+        rule.onNodeWithTag("0").performClick()
+        rule.waitUntil { expandedHeaders.size > 1 }
+        rule.mainClock.advanceTimeBy(300)
+
+        rule.onNodeWithTag("0").performClick()
+        rule.waitUntil { expandedHeaders.size < 2 }
+        rule.mainClock.advanceTimeBy(400)
+
+        rule.onNodeWithTag("1").performClick()
+        rule.waitUntil { expandedHeaders.size < 1 }
+        rule.mainClock.advanceTimeBy(400)
+    }
+
+    private sealed interface Element {
+        val id: String
+
+        data class Header(
+            val title: String,
+        ) : Element {
+            override val id = title
+        }
+
+        data class Divider(
+            override val id: String,
+        ) : Element
+
+        data class Item(
+            private val headerId: String,
+            val text: String,
+            val hasCheckmark: Boolean,
+        ) : Element {
+            override val id = "$headerId-$text"
+        }
     }
 
     @Test

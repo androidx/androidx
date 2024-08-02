@@ -1688,8 +1688,13 @@ internal class LayoutNodeLayoutDelegate(
                 // that
                 // before the parent became not placed this child was placed. we need to restore
                 // that
-                if (it.placeOrder != NotPlacedPlaceOrder) {
-                    it.lookaheadPassDelegate!!.markNodeAndSubtreeAsPlaced()
+                val childDelegate =
+                    requireNotNull(it.lookaheadPassDelegate) {
+                        "Error: Child node's lookahead pass delegate cannot be null " +
+                            "when in a lookahead scope."
+                    }
+                if (childDelegate.placeOrder != NotPlacedPlaceOrder) {
+                    childDelegate.markNodeAndSubtreeAsPlaced()
                     it.rescheduleRemeasureOrRelayout(it)
                 }
             }
