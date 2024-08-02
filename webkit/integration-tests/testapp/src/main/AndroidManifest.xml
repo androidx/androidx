@@ -50,7 +50,7 @@
             android:name=".MediumInterstitialActivity"
             android:exported="true" />
         <activity
-            android:name=".LoudInterstitialActivity"
+            android:name=".FullPageInterstitialActivity"
             android:exported="true" />
         <activity
             android:name=".GiantInterstitialActivity"
@@ -153,7 +153,12 @@
         <activity
             android:name=".MuteAudioActivity"
             android:exported="true" />
-
+        <activity
+            android:name=".RestrictedContentActivity"
+            android:exported="true" />
+        <activity
+            android:name=".TinyInterstitialActivity"
+            android:exported="true" />
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"
             android:name="androidx.webkit.DropDataContentProvider"

@@ -32,7 +32,6 @@ import androidx.webkit.WebViewFeature;
  * An {@link Activity} to exercise Safe Browsing functionality.
  */
 public class SafeBrowsingActivity extends AppCompatActivity {
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,7 +79,9 @@ public class SafeBrowsingActivity extends AppCompatActivity {
         MenuListView.MenuItem[] menuItems = new MenuListView.MenuItem[] {
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.small_interstitial_activity_title),
-                        new Intent(activityContext, SmallInterstitialActivity.class)),
+                        new Intent(activityContext, SmallInterstitialActivity.class)
+                                .putExtra(SmallInterstitialActivity.CONTENT_TYPE,
+                                        ContentType.MALICIOUS_CONTENT)),
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.medium_wide_interstitial_activity_title),
                         new Intent(activityContext, MediumInterstitialActivity.class)
@@ -91,7 +92,9 @@ public class SafeBrowsingActivity extends AppCompatActivity {
                                 .putExtra(MediumInterstitialActivity.LAYOUT_HORIZONTAL, true)),
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.loud_interstitial_activity_title),
-                        new Intent(activityContext, LoudInterstitialActivity.class)),
+                        new Intent(activityContext, FullPageInterstitialActivity.class)
+                                .putExtra(FullPageInterstitialActivity.CONTENT_TYPE,
+                                        ContentType.MALICIOUS_CONTENT)),
                 new MenuListView.MenuItem(
                         getResources().getString(R.string.giant_interstitial_activity_title),
                         new Intent(activityContext, GiantInterstitialActivity.class)),
