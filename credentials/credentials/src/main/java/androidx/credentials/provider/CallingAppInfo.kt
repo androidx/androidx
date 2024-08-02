@@ -16,11 +16,13 @@
 
 package androidx.credentials.provider
 
+import android.content.pm.PackageInfo
 import android.content.pm.Signature
 import android.content.pm.SigningInfo
 import android.os.Build
+import androidx.annotation.DeprecatedSinceApi
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.credentials.provider.utils.PrivilegedApp
 import androidx.credentials.provider.utils.RequestValidationUtil
 import java.security.MessageDigest
@@ -30,26 +32,110 @@ import org.json.JSONObject
 /**
  * Information pertaining to the calling application.
  *
- * @param packageName the calling package name of the calling app
- * @param signingInfo the signingInfo associated with the calling app
- * @param origin the origin of the calling app. This is only set when a privileged app like a
- *   browser, calls on behalf of another application.
- * @constructor constructs an instance of [CallingAppInfo]
- * @throws NullPointerException If [packageName] or [signingInfo] is null
- * @throws IllegalArgumentException If [packageName] is empty
- *
- * Note : Credential providers are not expected to utilize the constructor in this class for any
- * production flow. This constructor must only be used for testing purposes.
+ * @property packageName the calling package name of the calling app
+ * @property signingInfo the signingInfo associated with the calling app, added at API level 28
+ * @property signingInfoCompat the signing information associated with the calling app, which can be
+ *   used across all Android API levels
  */
 class CallingAppInfo
-@JvmOverloads
-constructor(
+private constructor(
     val packageName: String,
-    val signingInfo: SigningInfo,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY) val origin: String? = null
+    internal val origin: String?,
+    val signingInfoCompat: SigningInfoCompat,
+    signingInfo: SigningInfo?,
 ) {
+
+    lateinit var signingInfo: SigningInfo
+        private set
+        @RequiresApi(28) get
+
+    init {
+        if (Build.VERSION.SDK_INT >= 28) {
+            this.signingInfo = signingInfo!!
+        }
+    }
+
+    /**
+     * Constructs an instance of [CallingAppInfo]
+     *
+     * @param packageName the calling package name of the calling app
+     * @param signingInfo the signingInfo associated with the calling app
+     * @param origin the origin of the calling app. This is only set when a privileged app like a
+     *   browser, calls on behalf of another application.
+     * @throws NullPointerException If [packageName] is null
+     * @throws NullPointerException If the class is initialized with a null [signingInfo] on Android
+     *   P and above
+     * @throws IllegalArgumentException If [packageName] is empty
+     */
+    @RequiresApi(28)
+    @VisibleForTesting
+    @JvmOverloads
+    constructor(
+        packageName: String,
+        signingInfo: SigningInfo,
+        origin: String? = null
+    ) : this(
+        packageName = packageName,
+        signingInfo = signingInfo,
+        origin = origin,
+        signingInfoCompat = SigningInfoCompat.fromSigningInfo(signingInfo)
+    )
+
+    /**
+     * Constructs an instance of [CallingAppInfo]
+     *
+     * @param packageName the calling package name of the calling app
+     * @param signatures the app signatures, which should be retrieved from the app's
+     *   [PackageInfo.signatures]
+     * @param origin the origin of the calling app. This is only set when a privileged app like a
+     *   browser, calls on behalf of another application.
+     * @throws NullPointerException If [packageName] is null
+     * @throws NullPointerException If the class is initialized with a null [signingInfo] on Android
+     *   API 28 and above
+     * @throws IllegalArgumentException If [packageName] is empty
+     */
+    @JvmOverloads
+    @VisibleForTesting
+    @DeprecatedSinceApi(28, "Use the SigningInfo based constructor instead")
+    constructor(
+        packageName: String,
+        signatures: List<Signature>,
+        origin: String? = null
+    ) : this(packageName, origin, SigningInfoCompat.fromSignatures(signatures), null)
+
     internal companion object {
-        private const val TAG = "CallingAppInfo"
+        /**
+         * Constructs an instance of [CallingAppInfo]
+         *
+         * @param packageName the calling package name of the calling app
+         * @param signingInfo the signingInfo associated with the calling app
+         * @param origin the origin of the calling app. This is only set when a privileged app like
+         *   a browser, calls on behalf of another application.
+         * @throws NullPointerException If [packageName] is null
+         * @throws NullPointerException If the class is initialized with a null [signingInfo] on
+         *   Android P and above
+         * @throws IllegalArgumentException If [packageName] is empty
+         */
+        @RequiresApi(28)
+        fun create(packageName: String, signingInfo: SigningInfo, origin: String? = null) =
+            CallingAppInfo(packageName, signingInfo, origin)
+
+        /**
+         * Constructs an instance of [CallingAppInfo]
+         *
+         * @param packageName the calling package name of the calling app
+         * @param signatures the app signatures, which should be retrieved from the app's
+         *   [PackageInfo.signatures]
+         * @param origin the origin of the calling app. This is only set when a privileged app like
+         *   a browser, calls on behalf of another application.
+         * @throws NullPointerException If [packageName] is null
+         * @throws NullPointerException If the class is initialized with a null [signingInfo] on
+         *   Android API 28 and above
+         * @throws IllegalArgumentException If [packageName] is empty
+         */
+        @DeprecatedSinceApi(28, "Use the SigningInfo based constructor instead")
+        fun create(packageName: String, signatures: List<Signature>, origin: String? = null) =
+            CallingAppInfo(packageName, signatures, origin)
     }
 
     /**
@@ -143,33 +229,30 @@ constructor(
     }
 
     private fun isAppPrivileged(candidateFingerprints: Set<String>): Boolean {
-        if (Build.VERSION.SDK_INT >= 28) {
-            return SignatureVerifierApi28(signingInfo)
-                .verifySignatureFingerprints(candidateFingerprints)
-        }
-        // TODO("Extend to <= 28 if needed")
-        return false
+        return SignatureVerifier(signingInfoCompat)
+            .verifySignatureFingerprints(candidateFingerprints)
     }
 
     init {
         require(packageName.isNotEmpty()) { "packageName must not be empty" }
     }
 
-    @RequiresApi(28)
-    private class SignatureVerifierApi28(private val signingInfo: SigningInfo) {
+    private class SignatureVerifier(private val signingInfoCompat: SigningInfoCompat) {
+
         private fun getSignatureFingerprints(): Set<String> {
             val fingerprints = mutableSetOf<String>()
-            if (signingInfo.hasMultipleSigners() && signingInfo.apkContentsSigners != null) {
-                fingerprints.addAll(convertToFingerprints(signingInfo.apkContentsSigners))
-            } else if (signingInfo.signingCertificateHistory != null) {
+            val apkContentsSigners = signingInfoCompat.apkContentsSigners
+            if (signingInfoCompat.hasMultipleSigners && apkContentsSigners.isNotEmpty()) {
+                fingerprints.addAll(convertToFingerprints(apkContentsSigners))
+            } else if (signingInfoCompat.signingCertificateHistory.isNotEmpty()) {
                 fingerprints.addAll(
-                    convertToFingerprints(arrayOf(signingInfo.signingCertificateHistory[0]))
+                    convertToFingerprints(listOf(signingInfoCompat.signingCertificateHistory[0]))
                 )
             }
             return fingerprints
         }
 
-        private fun convertToFingerprints(signatures: Array<Signature>): Set<String> {
+        private fun convertToFingerprints(signatures: List<Signature>): Set<String> {
             val fingerprints = mutableSetOf<String>()
             for (signature in signatures) {
                 val md = MessageDigest.getInstance("SHA-256")
@@ -181,7 +264,7 @@ constructor(
 
         fun verifySignatureFingerprints(candidateSigFingerprints: Set<String>): Boolean {
             val appSigFingerprints = getSignatureFingerprints()
-            return if (signingInfo.hasMultipleSigners()) {
+            return if (signingInfoCompat.hasMultipleSigners) {
                 candidateSigFingerprints.containsAll(appSigFingerprints)
             } else {
                 candidateSigFingerprints.intersect(appSigFingerprints).isNotEmpty()

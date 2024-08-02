@@ -47,7 +47,7 @@ class BeginGetCredentialUtil {
             return BeginGetCredentialRequest(
                 callingAppInfo =
                     request.callingAppInfo?.let {
-                        CallingAppInfo(it.packageName, it.signingInfo, it.origin)
+                        CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                     },
                 beginGetCredentialOptions = beginGetCredentialOptions
             )

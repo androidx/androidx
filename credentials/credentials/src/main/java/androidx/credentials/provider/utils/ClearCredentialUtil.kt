@@ -32,7 +32,7 @@ class ClearCredentialUtil {
         ): ProviderClearCredentialStateRequest {
 
             return ProviderClearCredentialStateRequest(
-                CallingAppInfo(
+                CallingAppInfo.create(
                     request.callingAppInfo.packageName,
                     request.callingAppInfo.signingInfo,
                     request.callingAppInfo.origin

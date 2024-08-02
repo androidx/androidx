@@ -16,7 +16,9 @@
 
 package androidx.credentials.provider;
 
+import android.content.pm.Signature;
 import android.content.pm.SigningInfo;
+import android.os.Build;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -26,42 +28,79 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 28)
 public class CallingAppInfoJavaTest {
 
     @Test
     public void constructor_success() {
-        new CallingAppInfo("name", new SigningInfo());
+        if (Build.VERSION.SDK_INT >= 28) {
+            new CallingAppInfo("name", new SigningInfo());
+        } else {
+            List<Signature> signatures =  new ArrayList<>();
+            signatures.add(new Signature(new byte[10]));
+            new CallingAppInfo("name", signatures);
+        }
     }
 
     @Test
     public void constructor_success_withOrigin() {
-        new CallingAppInfo("name", new SigningInfo(), "origin");
+        if (Build.VERSION.SDK_INT >= 28) {
+            new CallingAppInfo("name", new SigningInfo(), "origin");
+        } else {
+            List<Signature> signatures =  new ArrayList<>();
+            signatures.add(new Signature(new byte[10]));
+            new CallingAppInfo("name", signatures, "origin");
+        }
     }
 
     @Test
     public void constructor_fail_emptyPackageName() {
-        Assert.assertThrows(
-                "Expected exception from no package name",
-                IllegalArgumentException.class,
-                () -> new CallingAppInfo("", new SigningInfo(), "origin"));
+        if (Build.VERSION.SDK_INT >= 28) {
+            Assert.assertThrows(
+                    "Expected exception from no package name",
+                    IllegalArgumentException.class,
+                    () -> new CallingAppInfo("", new SigningInfo(), "origin"));
+        } else {
+            Assert.assertThrows(
+                    "Expected exception from no package name",
+                    IllegalArgumentException.class,
+                    () -> new CallingAppInfo("", new ArrayList<>(), "origin"));
+        }
     }
 
     @Test
     public void constructor_fail_nullPackageName() {
-        Assert.assertThrows(
-                "Expected exception from null package name",
-                NullPointerException.class,
-                () -> new CallingAppInfo(null, new SigningInfo(), "origin"));
+        if (Build.VERSION.SDK_INT >= 28) {
+            Assert.assertThrows(
+                    "Expected exception from null package name",
+                    NullPointerException.class,
+                    () -> new CallingAppInfo(null, new SigningInfo(), "origin"));
+        } else {
+            Assert.assertThrows(
+                    "Expected exception from null package name",
+                    NullPointerException.class,
+                    () -> new CallingAppInfo(null, new ArrayList<>(), "origin"));
+
+        }
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = 28)
     public void constructor_fail_nullSigningInfo() {
         Assert.assertThrows(
                 "Expected exception from null signing info",
                 NullPointerException.class,
-                () -> new CallingAppInfo("package", null, "origin"));
+                () -> new CallingAppInfo("package", (SigningInfo) null, "origin"));
+    }
+
+    @Test
+    public void constructor_fail_nullSignatures() {
+        Assert.assertThrows(
+                NullPointerException.class,
+                () -> new CallingAppInfo("package", (List<Signature>) null, "origin"));
     }
 }
