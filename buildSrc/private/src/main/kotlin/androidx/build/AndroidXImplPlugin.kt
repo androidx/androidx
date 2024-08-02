@@ -638,7 +638,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project,
             kotlinMultiplatformAndroidComponentsExtension
         )
-        kotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(project, androidXExtension)
+        // Propagate the compileSdk value into minCompileSdk.
+        kotlinMultiplatformAndroidTarget.aarMetadata.minCompileSdk =
+            kotlinMultiplatformAndroidTarget.compileSdk
+        project.disableStrictVersionConstraints()
 
         project.configureProjectForApiTasks(AndroidMultiplatformApiTaskConfig, androidXExtension)
 
@@ -849,7 +852,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.disableStrictVersionConstraints()
-        project.setPublishProperty(androidXExtension)
         project.configureVersionFileWriter(libraryAndroidComponentsExtension, androidXExtension)
         project.configureJavaCompilationWarnings(androidXExtension)
 
@@ -1135,16 +1137,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.configureFtlRunner(componentsExtension)
     }
 
-    private fun KotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
-        project: Project,
-        androidXExtension: AndroidXExtension
-    ) {
-        // Propagate the compileSdk value into minCompileSdk.
-        aarMetadata.minCompileSdk = compileSdk
-        project.disableStrictVersionConstraints()
-        project.setPublishProperty(androidXExtension)
-    }
-
     /**
      * Adds a module handler replacement rule that treats full Guava (of any version) as an upgrade
      * to ListenableFuture-only Guava. This prevents irreconcilable versioning conflicts and/or
@@ -1189,14 +1181,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                         versionConstraint.require(strictVersion)
                     }
                 }
-            }
-        }
-    }
-
-    private fun Project.setPublishProperty(androidXExtension: AndroidXExtension) {
-        afterEvaluate {
-            if (androidXExtension.shouldRelease()) {
-                project.extra.set("publish", true)
             }
         }
     }
