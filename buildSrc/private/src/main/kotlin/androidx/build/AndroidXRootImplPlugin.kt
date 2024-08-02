@@ -154,7 +154,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
     private fun Project.setDependencyVersions() {
         androidx.build.dependencies.kotlinGradlePluginVersion = getVersionByName("kotlin")
-        androidx.build.dependencies.kotlinNativeVersion = getVersionByName("kotlinNative")
         androidx.build.dependencies.kspVersion = getVersionByName("ksp")
         androidx.build.dependencies.agpVersion = getVersionByName("androidGradlePlugin")
         androidx.build.dependencies.guavaVersion = getVersionByName("guavaJre")
