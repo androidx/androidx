@@ -81,14 +81,13 @@ fun NavigationSuiteScaffoldCustomConfigSample() {
     val navItems = listOf("Songs", "Artists", "Playlists")
     val adaptiveInfo = currentWindowAdaptiveInfo()
     // Custom configuration that shows a navigation drawer in large screens.
-    val customNavSuiteType =
-        with(adaptiveInfo) {
-            if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
-                NavigationSuiteType.NavigationDrawer
-            } else {
-                NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
-            }
+    val customNavSuiteType = with(adaptiveInfo) {
+        if (windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED) {
+            NavigationSuiteType.NavigationDrawer
+        } else {
+            NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
         }
+    }
 
     NavigationSuiteScaffold(
         layoutType = customNavSuiteType,
