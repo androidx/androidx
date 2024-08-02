@@ -36,7 +36,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)
-                api(project(":paging:paging-common"))
+                api("androidx.paging:paging-common:3.3.2")
                 api(project(":room:room-runtime"))
             }
         }
@@ -62,7 +62,7 @@ androidXMultiplatform {
                 implementation(libs.testCore)
                 implementation(libs.testRunner)
                 implementation("androidx.arch.core:core-testing:2.2.0")
-                implementation(projectOrArtifact(":paging:paging-testing"))
+                implementation("androidx.paging:paging-testing:3.3.2")
             }
         }
     }
