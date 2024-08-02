@@ -303,8 +303,8 @@ internal class GraphicsViewLayer(
         }
     override var ambientShadowColor: Color = Color.Black
         set(value) {
-            field = value
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                field = value
                 ViewLayerVerificationHelper28.setOutlineAmbientShadowColor(
                     viewLayer,
                     value.toArgb()
@@ -313,8 +313,8 @@ internal class GraphicsViewLayer(
         }
     override var spotShadowColor: Color = Color.Black
         set(value) {
-            field = value
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                field = value
                 ViewLayerVerificationHelper28.setOutlineSpotShadowColor(viewLayer, value.toArgb())
             }
         }

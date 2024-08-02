@@ -23,29 +23,41 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.assertPixels
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastForEachReversed
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -53,6 +65,7 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -2467,5 +2480,123 @@ class SeekableTransitionStateTest {
             assertEquals(1000, animatedValue)
             assertFalse(transition.isRunning)
         }
+    }
+
+    @Test
+    fun testCleanupAfterDispose() {
+        fun isObserving(): Boolean {
+            var active = false
+            SeekableStateObserver.clearIf {
+                active = true
+                false
+            }
+            return active
+        }
+
+        var seekableState: SeekableTransitionState<*>?
+        var disposed by mutableStateOf(false)
+
+        rule.setContent {
+            seekableState = remember { SeekableTransitionState(true) }
+
+            if (!disposed) {
+                rememberTransition(transitionState = seekableState!!)
+            }
+        }
+        rule.waitForIdle()
+        assertTrue(isObserving())
+
+        disposed = true
+        rule.waitForIdle()
+        assertFalse(isObserving())
+    }
+
+    @OptIn(ExperimentalTransitionApi::class)
+    @Test
+    fun quickAddAndRemove() {
+        @Stable
+        class ScreenState(
+            val label: String,
+            removing: Boolean = false,
+        ) {
+            var removing by mutableStateOf(removing)
+        }
+
+        var labelIndex = 1
+        val screenStates = mutableStateListOf(ScreenState("1"))
+        val seekableScreenTransitionState = SeekableTransitionState(screenStates.toList())
+
+        rule.setContent {
+            val screenTransition = rememberTransition(seekableScreenTransitionState)
+            LaunchedEffect(Unit) {
+                snapshotFlow { screenStates.toList().filter { !it.removing } }
+                    .collectLatest { capturedScreenStates ->
+                        seekableScreenTransitionState.animateTo(capturedScreenStates)
+                        // Done animating
+                        screenStates.fastForEachReversed {
+                            if (it.removing) {
+                                screenStates.remove(it)
+                            }
+                        }
+                    }
+            }
+
+            Column(Modifier.fillMaxSize()) {
+                Box(Modifier.fillMaxWidth().weight(1f)) {
+                    var lastVisibleIndex = screenStates.size - 1
+                    while (lastVisibleIndex >= 0 && screenStates[lastVisibleIndex].removing) {
+                        lastVisibleIndex--
+                    }
+
+                    screenStates.forEach { screenState ->
+                        key(screenState) {
+                            val visibleTransition =
+                                screenTransition.createChildTransition {
+                                    screenState === it.lastOrNull() && !screenState.removing
+                                }
+                            visibleTransition.AnimatedVisibility(
+                                visible = { it },
+                            ) {
+                                Text(
+                                    "Hello ${screenState.label}",
+                                    Modifier.testTag(screenState.label)
+                                )
+                            }
+                        }
+                    }
+                    Text(
+                        "screenStates:\n${
+                            screenStates.reversed().joinToString("\n") {
+                                it.label +
+                                    if (it.removing) " (removing)" else ""
+                            }
+                        }",
+                        Modifier.align(Alignment.BottomStart)
+                    )
+                }
+            }
+        }
+        fun removeState() {
+            rule.runOnUiThread { screenStates.last { !it.removing }.removing = true }
+        }
+        fun addState() {
+            rule.runOnUiThread { screenStates += ScreenState(label = "${++labelIndex}") }
+        }
+
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        addState()
+        rule.mainClock.advanceTimeBy(50)
+        removeState()
+        rule.mainClock.advanceTimeBy(50)
+        addState()
+        rule.mainClock.advanceTimeBy(50)
+        removeState()
+        rule.mainClock.autoAdvance = true
+        rule.waitForIdle()
+
+        rule.onNodeWithTag("1").assertIsDisplayed()
+        rule.onNodeWithTag("2").assertIsNotDisplayed()
+        rule.onNodeWithTag("3").assertIsNotDisplayed()
     }
 }
