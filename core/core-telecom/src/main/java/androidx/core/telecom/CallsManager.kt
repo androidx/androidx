@@ -37,6 +37,7 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
@@ -44,6 +45,7 @@ import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
+import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.UUID
 import java.util.concurrent.CancellationException
 import java.util.concurrent.Executor
@@ -51,8 +53,11 @@ import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.job
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 
 /**
@@ -91,52 +96,12 @@ class CallsManager constructor(context: Context) {
         @Retention(AnnotationRetention.SOURCE)
         annotation class Capability
 
-        /** Constants used to denote the type of [Capability] being registered. */
-        @Target(AnnotationTarget.TYPE)
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(PARTICIPANT, CALL_ICON, CALL_SILENCE)
-        annotation class ExtensionType
-
-        internal const val PARTICIPANT = 1
-        internal const val CALL_ICON = 2
-        internal const val CALL_SILENCE = 3
-
-        // Todo: Support additional capabilities
-
-        /**
-         * Constants used to denote the type of action supported by the [Capability] being
-         * registered.
-         */
-        @Target(AnnotationTarget.TYPE)
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(RAISE_HAND_ACTION, KICK_PARTICIPANT_ACTION)
-        annotation class ExtensionSupportedActions
-
-        internal const val RAISE_HAND_ACTION = 1
-        internal const val KICK_PARTICIPANT_ACTION = 2
-        // Todo: Support additional actions
-
-        // Represents a null Participant over Binder
-        internal const val NULL_PARTICIPANT_ID = -1
-
-        /** Set on Connections that are using ConnectionService+AUTO specific extension layer. */
-        internal const val EXTRA_VOIP_API_VERSION = "android.telecom.extra.VOIP_API_VERSION"
-
         /**
          * Set on Jetpack Connections that are emulating the transactional APIs using
          * ConnectionService.
          */
         internal const val EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED =
             "android.telecom.extra.VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED"
-
-        /**
-         * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that
-         * this InCallService supports jetpack extensions
-         */
-        internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
-            "android.telecom.event.CAPABILITY_EXCHANGE"
 
         /**
          * The connection is using transactional call APIs.
@@ -308,6 +273,94 @@ class CallsManager constructor(context: Context) {
     /** Represents an event sent from an InCallService to this Call. */
     @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
     data class CallEvent(val event: String, val extras: Bundle)
+
+    /**
+     * Adds a call with extensions support, which allows an app to implement optional additional
+     * actions that go beyond the scope of a call, such as information about meeting participants
+     * and icons.
+     *
+     * Supported Extensions:
+     * - The ability to show meeting participants and information about those participants using
+     *   [ExtensionInitializationScope.addParticipantExtension]
+     *
+     * For example, using Participants as an example of extensions:
+     * ```
+     * scope.launch {
+     *         mCallsManager.addCallWithExtensions(attributes,
+     *             onAnswerLambda,
+     *             onDisconnectLambda,
+     *             onSetActiveLambda,
+     *             onSetInactiveLambda) {
+     *                 // Initialize extensions ...
+     *                 // Example: add participants support & associated actions
+     *                 val participantExtension = addParticipantExtension(initialParticipants)
+     *                 val raiseHandState = participantExtension.addRaiseHandSupport(
+     *                         initialRaisedHands) { onHandRaisedStateChanged ->
+     *                     // handle raised hand state changed
+     *                 }
+     *                 participantExtension.addKickParticipantSupport {
+     *                         participant ->
+     *                     // handle kicking the requested participant
+     *                 }
+     *                 // Call has been set up, perform in-call actions
+     *                 onCall {
+     *                     // Example: collect call state updates
+     *                     callStateFlow.onEach { newState ->
+     *                         // handle call state updates
+     *                     }.launchIn(this)
+     *                     // update participant extensions
+     *                     participantsFlow.onEach { newParticipants ->
+     *                         participantExtension.updateParticipants(newParticipants)
+     *                     }.launchIn(this)
+     *                     raisedHandsFlow.onEach { newRaisedHands ->
+     *                         raiseHandState.updateRaisedHands(newRaisedHands)
+     *                     }.launchIn(this)
+     *                 }
+     *             }
+     *         }
+     * }
+     * ```
+     *
+     * @param init The scope used to first initialize Extensions that will be used when the call is
+     *   first notified to the platform and UX surfaces. Once the call is set up, the user's
+     *   implementation of [ExtensionInitializationScope.onCall] will be called.
+     * @see CallsManager.addCall
+     */
+    // TODO: Refactor to Public API
+    @RequiresApi(VERSION_CODES.O)
+    @ExperimentalAppActions
+    internal suspend fun addCallWithExtensions(
+        callAttributes: CallAttributesCompat,
+        onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
+        onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
+        onSetActive: suspend () -> Unit,
+        onSetInactive: suspend () -> Unit,
+        init: suspend ExtensionInitializationScope.() -> Unit
+    ) = coroutineScope {
+        Log.v(TAG, "addCall: begin")
+        val eventFlow = MutableSharedFlow<CallEvent>()
+        val scope = ExtensionInitializationScope()
+        scope.init()
+        val extensionJob = launch {
+            Log.d(TAG, "addCall: connecting extensions")
+            scope.collectEvents(this, eventFlow)
+        }
+        Log.v(TAG, "addCall: init complete")
+        addCall(
+            callAttributes,
+            onAnswer,
+            onDisconnect,
+            onSetActive,
+            onSetInactive,
+            onEvent = { event, extras -> eventFlow.emit(CallEvent(event, extras)) }
+        ) {
+            Log.d(TAG, "addCall: invoking delegates")
+            scope.invokeDelegate(this)
+        }
+        // Ensure that when the call ends, we also cancel any ongoing coroutines/flows as part of
+        // extension work
+        extensionJob.cancelAndJoin()
+    }
 
     /**
      * Internal version of addCall, which also allows components in the library to consume generic

@@ -30,7 +30,6 @@ import android.telecom.PhoneAccountHandle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Participant
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.core.telecom.test.ITestAppControlCallback
@@ -383,10 +382,6 @@ object TestUtils {
         p.name = "Gemini"
         p.speakerIconUri = null
         return p
-    }
-
-    fun getDefaultParticipantSupportedActions(): IntArray {
-        return intArrayOf(CallsManager.RAISE_HAND_ACTION, CallsManager.KICK_PARTICIPANT_ACTION)
     }
 
     @ExperimentalAppActions

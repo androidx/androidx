@@ -24,12 +24,9 @@ import androidx.core.telecom.CallControlScope
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ExtensionInitializationScope
+import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.ParticipantExtension
-import androidx.core.telecom.extensions.RaiseHandActionState
-import androidx.core.telecom.extensions.addCallWithExtensions
-import androidx.core.telecom.extensions.addKickParticipantAction
-import androidx.core.telecom.extensions.addParticipantExtension
-import androidx.core.telecom.extensions.addRaiseHandAction
+import androidx.core.telecom.extensions.RaiseHandState
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
 
@@ -42,8 +39,8 @@ class VoipCall(
 ) {
     private lateinit var callId: String
     // Participant state updaters
-    var participantStateUpdater: ParticipantExtension? = null
-    var raiseHandStateUpdater: RaiseHandActionState? = null
+    internal var participantStateUpdater: ParticipantExtension? = null
+    internal var raiseHandStateUpdater: RaiseHandState? = null
 
     suspend fun addCall(
         callAttributes: CallAttributesCompat,
@@ -71,15 +68,9 @@ class VoipCall(
     private fun ExtensionInitializationScope.createExtensions() {
         for (capability in capabilities) {
             when (capability.featureId) {
-                CallsManager.PARTICIPANT -> {
+                Extensions.PARTICIPANT -> {
                     participantStateUpdater = addParticipantExtension()
                     participantStateUpdater!!.initializeActions(capability)
-                }
-                CallsManager.CALL_ICON -> {
-                    TODO("Implement call icons once implemented")
-                }
-                CallsManager.CALL_SILENCE -> {
-                    TODO("implement call silence once implemented")
                 }
             }
         }
@@ -88,13 +79,13 @@ class VoipCall(
     private fun ParticipantExtension.initializeActions(capability: Capability) {
         for (action in capability.supportedActions) {
             when (action) {
-                CallsManager.RAISE_HAND_ACTION -> {
-                    raiseHandStateUpdater = addRaiseHandAction {
+                ParticipantExtension.RAISE_HAND_ACTION -> {
+                    raiseHandStateUpdater = addRaiseHandSupport {
                         callback?.raiseHandStateAction(callId, it)
                     }
                 }
-                CallsManager.KICK_PARTICIPANT_ACTION -> {
-                    addKickParticipantAction { callback?.kickParticipantAction(callId, it) }
+                ParticipantExtension.KICK_PARTICIPANT_ACTION -> {
+                    addKickParticipantSupport { callback?.kickParticipantAction(callId, it) }
                 }
             }
         }

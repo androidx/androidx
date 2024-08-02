@@ -21,51 +21,22 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallException
-import androidx.core.telecom.CallsManager
 import androidx.core.telecom.internal.ParticipantActionsRemote
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.properties.Delegates
 import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Adds the ability for the user to kick participants.
+ * Implements the action to kick a Participant that part of the call and is being tracked via
+ * [CallExtensionsScope.addParticipantExtension]
  *
- * ```
- * connectExtensions(call) {
- *     val participantExtension = addParticipantExtension(
- *         // consume participant changed events
- *     )
- *     val kickParticipantAction = participantExtension.addKickParticipantAction()
- *
- *     onConnected {
- *         // extensions have been negotiated and actions are ready to be used
- *         ...
- *         // kick a participant
- *         val kickResult = kickParticipantAction.kickParticipant(participant)
- *     }
- * }
- * ```
+ * @param participants A [StateFlow] representing the current Set of Participants that are in the
+ *   call.
  */
 // TODO: Refactor to Public API
 @RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-internal fun ParticipantClientExtension.addKickParticipantAction(): KickParticipantClientAction {
-    val action = KickParticipantClientAction(participants)
-    registerAction(CallsManager.KICK_PARTICIPANT_ACTION, action::connect) { _, isSupported ->
-        action.initialize(isSupported)
-    }
-    return action
-}
-
-/**
- * Implements the action to kick a participant
- *
- * @param participants The current set of participants
- */
-// TODO: Refactor to Public API
-@RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalAppActions
-internal class KickParticipantClientAction(
+internal class KickParticipantAction(
     private val participants: StateFlow<Set<Participant>>,
 ) {
     companion object {
@@ -88,7 +59,9 @@ internal class KickParticipantClientAction(
      * Request to kick a [participant] in the call.
      *
      * Note: This operation succeeding does not mean that the participant was kicked, it only means
-     * that the request was received by the remote application.
+     * that the request was received by the remote application. Any state changes that result from
+     * this operation will be represented by the Set of Participants changing to remove the
+     * requested participant.
      *
      * @param participant The participant to kick
      * @return The result of whether or not this request was successfully sent to the remote
@@ -113,7 +86,7 @@ internal class KickParticipantClientAction(
     }
 
     /** Called when capability exchange has completed and we can initialize this action */
-    fun initialize(isSupported: Boolean) {
+    internal fun initialize(isSupported: Boolean) {
         Log.d(TAG, "initialize: isSupported=$isSupported")
         this.isSupported = isSupported
     }
