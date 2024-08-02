@@ -84,6 +84,7 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
 
     @Override
     protected void onDragHandleMove(int deltaX, int deltaY) {
+        mSelectionActionMode.stopActionMode();
         SelectionBoundary updated = SelectionBoundary.atPoint(mDragging.getX() + deltaX,
                 mDragging.getY() + deltaY);
         mSelectionModel.updateSelectionAsync(mFixed, updated);
@@ -92,6 +93,5 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
     @Override
     protected void onDragHandleUp() {
         mSelectionActionMode.resume();
-        // Nothing required.
     }
 }
