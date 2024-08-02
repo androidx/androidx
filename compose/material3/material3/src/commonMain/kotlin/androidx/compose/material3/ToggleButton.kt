@@ -18,8 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
-import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.ButtonSmallTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
 import androidx.compose.material3.tokens.PrimaryButtonTokens
 import androidx.compose.material3.tokens.TonalButtonTokens
@@ -131,7 +131,10 @@ fun ToggleButton(
         shapes.shape is CornerBasedShape &&
             shapes.checkedShape is CornerBasedShape &&
             shapes.pressedShape is CornerBasedShape
-
+    // TODO Load the motionScheme tokens from the component tokens file
+    // MotionSchemeKeyTokens.DefaultEffects is intentional here to prevent
+    // any bounce in this component.
+    val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
     val pressed by interactionSource.collectIsPressedAsState()
 
     val state: AnimatedShapeState? =
@@ -145,7 +148,7 @@ fun ToggleButton(
                     defaultShape = defaultShape,
                     pressedShape = pressedShape,
                     checkedShape = checkedShape,
-                    spring(),
+                    spec = defaultAnimationSpec,
                 )
             }
         } else null
@@ -934,7 +937,7 @@ private class AnimatedShapeState(
     val defaultShape: CornerBasedShape,
     val pressedShape: CornerBasedShape,
     val checkedShape: CornerBasedShape,
-    val spec: SpringSpec<Float>,
+    val spec: FiniteAnimationSpec<Float>,
 ) {
     var size: Size = Size.Zero
     var density: Density = Density(0f, 0f)

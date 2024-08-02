@@ -24,6 +24,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.tokens.ButtonGroupSmallTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -86,6 +87,10 @@ fun ButtonGroup(
         Arrangement.spacedBy(ButtonGroupDefaults.spaceBetween),
     content: @Composable ButtonGroupScope.() -> Unit
 ) {
+    // TODO Load the motionScheme tokens from the component tokens file
+    // MotionSchemeKeyTokens.DefaultEffects is intentional here to prevent
+    // any bounce in this component.
+    val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
     val anim = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
     var pressedIndex by remember { mutableIntStateOf(-1) }
@@ -116,12 +121,20 @@ fun ButtonGroup(
                         when (interaction) {
                             is PressInteraction.Press -> {
                                 pressedIndex = index
-                                coroutineScope.launch { anim.animateTo(animateFraction) }
+                                coroutineScope.launch {
+                                    anim.animateTo(
+                                        targetValue = animateFraction,
+                                        animationSpec = defaultAnimationSpec
+                                    )
+                                }
                             }
                             is PressInteraction.Release,
                             is PressInteraction.Cancel -> {
                                 coroutineScope.launch {
-                                    anim.animateTo(0f)
+                                    anim.animateTo(
+                                        targetValue = 0f,
+                                        animationSpec = defaultAnimationSpec
+                                    )
                                     pressedIndex = -1
                                 }
                             }
