@@ -271,8 +271,9 @@ public class VisibilityToDocumentConverter {
         return builder.build();
     }
 
+    /**  Convert {@link VisibilityConfigProto} into {@link SchemaVisibilityConfig}.     */
     @NonNull
-    private static SchemaVisibilityConfig convertVisibilityConfigFromProto(
+    public static SchemaVisibilityConfig convertVisibilityConfigFromProto(
             @NonNull VisibilityConfigProto proto) {
         SchemaVisibilityConfig.Builder builder = new SchemaVisibilityConfig.Builder();
 
@@ -301,7 +302,9 @@ public class VisibilityToDocumentConverter {
         return builder.build();
     }
 
-    private static VisibilityConfigProto convertSchemaVisibilityConfigToProto(
+    /**  Convert {@link SchemaVisibilityConfig} into {@link VisibilityConfigProto}.     */
+    @NonNull
+    public static VisibilityConfigProto convertSchemaVisibilityConfigToProto(
             @NonNull SchemaVisibilityConfig schemaVisibilityConfig) {
         VisibilityConfigProto.Builder builder = VisibilityConfigProto.newBuilder();
 
