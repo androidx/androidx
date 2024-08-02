@@ -213,7 +213,7 @@ private class GestureRecognizerHandlerImpl(
 
         val areTouchesInitial = startTrackingTouches(touches)
 
-        onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.BEGAN)
+        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.BEGAN)
 
         if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, immediately start/continue the gesture recognizer if possible and pass touches.
@@ -249,7 +249,7 @@ private class GestureRecognizerHandlerImpl(
      * 2. An interop view is hit-tested. In this case we should check if the pan intent is met.
      */
     override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
-        onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.MOVED)
+        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.MOVED)
 
         if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state and pass touches to
@@ -277,9 +277,9 @@ private class GestureRecognizerHandlerImpl(
      * we need to allow all the touches to be passed to the interop view by failing explicitly.
      */
     override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
-        stopTrackingTouches(touches)
+        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.ENDED)
 
-        onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.ENDED)
+        stopTrackingTouches(touches)
 
         if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state and pass touches to
@@ -314,9 +314,9 @@ private class GestureRecognizerHandlerImpl(
      * we need to allow all the touches to be passed to the interop view by failing explicitly.
      */
     override fun touchesCancelled(touches: Set<*>, withEvent: UIEvent?) {
+        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.CANCELLED)
+        
         stopTrackingTouches(touches)
-
-        onTouchesEvent(touches, withEvent, CupertinoTouchesPhase.CANCELLED)
 
         if (hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state.
