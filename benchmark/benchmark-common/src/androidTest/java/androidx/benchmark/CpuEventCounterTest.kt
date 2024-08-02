@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -23,6 +24,7 @@ import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -36,6 +38,8 @@ class CpuEventCounterTest {
     fun before() {
         // skip test if need root, or event fails to enable
         CpuEventCounter.forceEnable()?.let { errorMessage -> assumeTrue(errorMessage, false) }
+
+        assumeFalse(DeviceInfo.isEmulator && Build.VERSION.SDK_INT == 28) // see b/357101113
     }
 
     @After

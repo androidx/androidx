@@ -126,8 +126,8 @@ class CpuEventCounter : Closeable {
          * Reset still required if failure occurs partway through
          */
         fun forceEnable(): String? {
-            if (Build.VERSION.SDK_INT >= 29) {
-                Api29Enabler.forceEnable()?.let {
+            if (Build.VERSION.SDK_INT >= 23) {
+                Api23Enabler.forceEnable()?.let {
                     return it
                 }
             }
@@ -135,16 +135,19 @@ class CpuEventCounter : Closeable {
         }
 
         fun reset() {
-            if (Build.VERSION.SDK_INT >= 29) {
-                Api29Enabler.reset()
+            if (Build.VERSION.SDK_INT >= 23) {
+                Api23Enabler.reset()
             }
         }
 
         /**
-         * Enable setenforce 0 and setprop perf_harden to 0, only observed this required on API 29+
+         * Enable setenforce 0 and setprop perf_harden to 0, have observed this required on API 23+
+         *
+         * Lower APIs not tested, but selinux is documented to be enforced starting in Android 5
+         * (API 23).
          */
-        @RequiresApi(29)
-        object Api29Enabler {
+        @RequiresApi(23)
+        object Api23Enabler {
             private val perfHardenProp = PropOverride("security.perf_harden", "0")
             private var shouldResetEnforce1 = false
 
