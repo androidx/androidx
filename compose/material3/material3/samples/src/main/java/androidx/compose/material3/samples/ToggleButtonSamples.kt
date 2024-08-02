@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.ButtonShapes
 import androidx.compose.material3.ElevatedToggleButton
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -105,7 +106,7 @@ fun ToggleButtonWithIconSample() {
     var checked by remember { mutableStateOf(false) }
     ToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Icon(
-            Icons.Filled.Favorite,
+            if (checked) Icons.Filled.Favorite else Icons.Outlined.Favorite,
             contentDescription = "Localized description",
             modifier = Modifier.size(ToggleButtonDefaults.IconSize)
         )

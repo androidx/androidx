@@ -23,6 +23,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.tokens.ButtonGroupSmallTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
@@ -45,6 +47,7 @@ import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMapIndexed
@@ -70,6 +73,12 @@ import kotlinx.coroutines.launch
  * TODO link to an image when available
  *
  * @sample androidx.compose.material3.samples.ButtonGroupSample
+ *
+ * A connected button group is a variant of a button group that have leading and trailing buttons
+ * that are asymmetric in shape and are used to make a selection.
+ *
+ * @sample androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
+ * @sample androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
  * @param modifier the [Modifier] to be applied to the button group.
  * @param animateFraction the percentage, represented by a float, of the width of the interacted
  *   child element that will be used to expand the interacted child element as well as compress the
@@ -167,6 +176,7 @@ fun ButtonGroup(
 }
 
 /** Default values used by [ButtonGroup] */
+@ExperimentalMaterial3ExpressiveApi
 object ButtonGroupDefaults {
     /**
      * The default percentage, represented as a float, of the width of the interacted child element
@@ -177,6 +187,50 @@ object ButtonGroupDefaults {
 
     /** The default spacing used between children. */
     val spaceBetween = ButtonGroupSmallTokens.BetweenSpace
+
+    /** The default spacing used between children for connected button group */
+    // TODO replace with token value
+    val connectedSpaceBetween = 2.dp
+
+    /** Default shape for the leading button in a connected button group */
+    val connectedLeadingButtonShape: Shape =
+        // TODO replace with token value
+        RoundedCornerShape(
+            topStart = ShapeDefaults.CornerFull,
+            bottomStart = ShapeDefaults.CornerFull,
+            topEnd = ShapeDefaults.CornerSmall,
+            bottomEnd = ShapeDefaults.CornerSmall
+        )
+
+    /** Default shape for the pressed state for the leading button in a connected button group. */
+    val connectedLeadingButtonPressShape: Shape =
+        // TODO replace with token value
+        RoundedCornerShape(
+            topStart = ShapeDefaults.CornerFull,
+            bottomStart = ShapeDefaults.CornerFull,
+            topEnd = ShapeDefaults.CornerExtraSmall,
+            bottomEnd = ShapeDefaults.CornerExtraSmall
+        )
+
+    /** Default shape for the trailing button in a connected button group */
+    val connectedTrailingButtonShape: Shape =
+        // TODO replace with token value
+        RoundedCornerShape(
+            topEnd = ShapeDefaults.CornerFull,
+            bottomEnd = ShapeDefaults.CornerFull,
+            topStart = ShapeDefaults.CornerSmall,
+            bottomStart = ShapeDefaults.CornerSmall
+        )
+
+    /** Default shape for the pressed state for the trailing button in a connected button group. */
+    val connectedTrailingButtonPressShape: Shape =
+        // TODO replace with token value
+        RoundedCornerShape(
+            topEnd = ShapeDefaults.CornerFull,
+            bottomEnd = ShapeDefaults.CornerFull,
+            topStart = ShapeDefaults.CornerExtraSmall,
+            bottomStart = ShapeDefaults.CornerExtraSmall
+        )
 }
 
 private class ButtonGroupMeasurePolicy(
