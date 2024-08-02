@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.aggregate
 
+import androidx.annotation.RestrictTo
 import java.time.Duration
 
 /**
@@ -135,7 +136,8 @@ internal constructor(
             )
     }
 
-    internal val metricKey: String
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    val metricKey: String
         get() {
             val aggregationTypeString = aggregationType.aggregationTypeString
             return if (aggregationField == null) {

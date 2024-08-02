@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.aggregate
 
+import androidx.annotation.RestrictTo
 import java.time.Instant
 import java.time.ZoneOffset
 
@@ -30,7 +31,8 @@ import java.time.ZoneOffset
  * @see [androidx.health.connect.client.HealthConnectClient.aggregateGroupByDuration]
  */
 class AggregationResultGroupedByDuration
-internal constructor(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
     public val result: AggregationResult,
     public val startTime: Instant,
     public val endTime: Instant,

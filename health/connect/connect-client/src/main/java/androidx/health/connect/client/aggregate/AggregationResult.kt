@@ -15,6 +15,7 @@
  */
 package androidx.health.connect.client.aggregate
 
+import androidx.annotation.RestrictTo
 import androidx.health.connect.client.aggregate.AggregateMetric.Converter
 import androidx.health.connect.client.records.metadata.DataOrigin
 
@@ -33,9 +34,10 @@ import androidx.health.connect.client.records.metadata.DataOrigin
  * @see [androidx.health.connect.client.HealthConnectClient.aggregate]
  */
 class AggregationResult
-internal constructor(
-    internal val longValues: Map<String, Long>,
-    internal val doubleValues: Map<String, Double>,
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val longValues: Map<String, Long>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) val doubleValues: Map<String, Double>,
     /** Set of [DataOrigin]s that contributed to the aggregation result. */
     public val dataOrigins: Set<DataOrigin>
 ) {

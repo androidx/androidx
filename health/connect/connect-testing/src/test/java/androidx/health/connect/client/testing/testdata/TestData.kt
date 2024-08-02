@@ -20,8 +20,15 @@ import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.HydrationRecord
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
+import androidx.health.connect.client.request.AggregateGroupByDurationRequest
+import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
+import androidx.health.connect.client.request.AggregateRequest
+import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.testing.FakeHealthConnectClient
+import androidx.health.connect.client.time.TimeRangeFilter
 import androidx.health.connect.client.units.Volume
+import java.time.Duration
+import java.time.Period
 import java.time.ZonedDateTime
 
 // Arbitrary start time in the past
@@ -100,3 +107,34 @@ fun generateRunningRecords(
         )
     }
 }
+
+/* Test dummies */
+
+val dummyAggregateRequest =
+    AggregateRequest(
+        metrics = emptySet(),
+        timeRangeFilter =
+            TimeRangeFilter(startTime = runRecord1.startTime, endTime = runRecord1.endTime)
+    )
+
+val dummyReadRecordsRequest =
+    ReadRecordsRequest(
+        timeRangeFilter =
+            TimeRangeFilter(startTime = runRecord1.startTime, endTime = runRecord1.endTime),
+        recordType = runRecord1::class
+    )
+
+val dummyAggregateGbpRequest =
+    AggregateGroupByPeriodRequest(
+        metrics = emptySet(),
+        timeRangeFilter = TimeRangeFilter(),
+        timeRangeSlicer = Period.ofDays(1)
+    )
+
+val dummyAggregateGbdRequest =
+    AggregateGroupByDurationRequest(
+        metrics = emptySet(),
+        timeRangeFilter =
+            TimeRangeFilter(startTime = runRecord1.startTime, endTime = runRecord1.endTime),
+        timeRangeSlicer = Duration.ofMillis(98765),
+    )

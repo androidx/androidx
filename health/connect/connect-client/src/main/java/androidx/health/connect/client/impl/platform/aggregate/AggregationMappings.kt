@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @file:RequiresApi(api = 34)
 
 package androidx.health.connect.client.impl.platform.aggregate
@@ -203,7 +203,7 @@ internal val GRAMS_AGGREGATION_METRIC_TYPE_MAP:
         }
     )
 
-internal val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
+val KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP:
     Map<AggregateMetric<Mass>, PlatformAggregateMetric<PlatformMass>> =
     mapOf(
         WeightRecord.WEIGHT_AVG to PlatformWeightRecord.WEIGHT_AVG,
