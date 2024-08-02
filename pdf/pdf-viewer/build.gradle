@@ -24,7 +24,6 @@ plugins {
 }
 
 dependencies {
-    api(libs.rxjava2)
     api(libs.guavaAndroid)
     api(libs.kotlinCoroutinesCore)
     api("androidx.fragment:fragment-ktx:1.8.1")
