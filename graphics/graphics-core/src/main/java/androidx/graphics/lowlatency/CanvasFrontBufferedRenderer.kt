@@ -69,10 +69,13 @@ import kotlin.math.max
 class CanvasFrontBufferedRenderer<T>
 @JvmOverloads
 constructor(
-    private val surfaceView: SurfaceView,
+    surfaceView: SurfaceView,
     private val callback: Callback<T>,
     @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
 ) {
+
+    /** Target SurfaceView for rendering */
+    private var mSurfaceView: SurfaceView? = null
 
     /**
      * Executor used to deliver callbacks for rendering as well as issuing surface control
@@ -159,7 +162,7 @@ constructor(
                 width: Int,
                 height: Int
             ) {
-                update(surfaceView, width, height)
+                mSurfaceView?.let { update(it, width, height) }
             }
 
             override fun surfaceDestroyed(p0: SurfaceHolder) {
@@ -181,6 +184,7 @@ constructor(
         }
 
     init {
+        mSurfaceView = surfaceView
         surfaceView.holder.addCallback(mHolderCallback)
         with(surfaceView.holder) {
             if (surface != null && surface.isValid) {
@@ -446,7 +450,7 @@ constructor(
                         mPendingClear.set(true)
                         val result = mCommitCount.updateAndGet { value -> max(value - 1, 0) }
                         if (result != 0) {
-                            surfaceView.post { commitInternal() }
+                            mSurfaceView?.post { commitInternal() }
                         } else {
                             flushPendingFrontBufferRenders()
                         }
@@ -664,7 +668,8 @@ constructor(
     @JvmOverloads
     fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)? = null) {
         if (!mIsReleased) {
-            surfaceView.holder.removeCallback(mHolderCallback)
+            mSurfaceView?.holder?.removeCallback(mHolderCallback)
+            mSurfaceView = null
             releaseInternal(cancelPending) {
                 onReleaseComplete?.invoke()
                 mHandlerThread.quit()
