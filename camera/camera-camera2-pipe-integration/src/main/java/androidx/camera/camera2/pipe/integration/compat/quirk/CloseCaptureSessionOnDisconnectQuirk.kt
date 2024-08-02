@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isInfinixDevice
 import androidx.camera.core.impl.Quirk
 import java.util.Locale
 
@@ -84,7 +85,7 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
                 // significant memory, including the _foreground_ test applications. Closing the
                 // capture session ensures that we finalize every CameraGraph session, slightly
                 // lowering the peak memory.
-                Build.BRAND.lowercase(Locale.getDefault()) == "infinix"
+                isInfinixDevice()
             }
         }
     }

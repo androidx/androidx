@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isGoogleDevice
 import androidx.camera.core.impl.Quirk
 import java.util.Locale
 
@@ -45,7 +46,7 @@ class PreviewPixelHDRnetQuirk : Quirk {
         private val SUPPORTED_DEVICES = listOf("sunfish", "bramble", "redfin", "barbet")
 
         fun isEnabled(): Boolean =
-            "Google".equals(Build.MANUFACTURER, ignoreCase = true) &&
+            isGoogleDevice() &&
                 SUPPORTED_DEVICES.contains(Build.DEVICE.lowercase(Locale.getDefault()))
     }
 }

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -91,9 +92,6 @@ class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
     }
 
     companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            val level = cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-            return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        }
+        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
     }
 }

@@ -16,12 +16,14 @@
 
 package androidx.camera.camera2.pipe.graph
 
-import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelExternal
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLimited
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
@@ -544,12 +546,11 @@ internal class StreamGraphImplTest {
         cameraMetadata: CameraMetadata,
         graphConfig: CameraGraph.Config
     ): Boolean {
-        val hardwareLevel = cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             graphConfig.sessionMode == CameraGraph.OperatingMode.NORMAL &&
-            hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-            hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED &&
+            !cameraMetadata.isHardwareLevelLegacy &&
+            !cameraMetadata.isHardwareLevelLimited &&
             (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
-                hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL)
+                !cameraMetadata.isHardwareLevelExternal)
     }
 }

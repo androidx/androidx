@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
-import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
 import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
 
 /**
@@ -49,8 +49,6 @@ class PreviewDelayWhenVideoCaptureIsBoundQuirk : CaptureIntentPreviewQuirk, Surf
      */
 
     companion object {
-        fun isEnabled(): Boolean {
-            return "Huawei".equals(Build.MANUFACTURER, ignoreCase = true)
-        }
+        fun isEnabled() = isHuaweiDevice()
     }
 }

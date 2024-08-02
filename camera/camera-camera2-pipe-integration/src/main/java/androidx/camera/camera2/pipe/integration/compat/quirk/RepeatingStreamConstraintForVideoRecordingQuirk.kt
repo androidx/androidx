@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -34,7 +35,6 @@ class RepeatingStreamConstraintForVideoRecordingQuirk : Quirk {
         fun isEnabled() = isHuaweiMate9()
 
         private fun isHuaweiMate9() =
-            "Huawei".equals(Build.BRAND, ignoreCase = true) &&
-                "mha-l29".equals(Build.MODEL, ignoreCase = true)
+            isHuaweiDevice() && "mha-l29".equals(Build.MODEL, ignoreCase = true)
     }
 }

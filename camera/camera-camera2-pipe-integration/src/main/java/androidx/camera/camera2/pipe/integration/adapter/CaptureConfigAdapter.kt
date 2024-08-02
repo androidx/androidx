@@ -16,10 +16,10 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.OptIn
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.FrameInfo
 import androidx.camera.camera2.pipe.InputRequest
 import androidx.camera.camera2.pipe.Request
@@ -54,9 +54,7 @@ constructor(
     private val threads: UseCaseThreads,
     private val templateParamsOverride: TemplateParamsOverride,
 ) {
-    private val isLegacyDevice =
-        cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    private val isLegacyDevice = cameraProperties.metadata.isHardwareLevelLegacy
 
     /**
      * Maps [CaptureConfig] to [Request].

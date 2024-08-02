@@ -16,10 +16,6 @@
 
 package androidx.camera.camera2.pipe.graph
 
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -27,6 +23,9 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelExternal
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLimited
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.InputStream
 import androidx.camera.camera2.pipe.InputStreamId
@@ -272,13 +271,12 @@ constructor(
         cameraMetadata: CameraMetadata,
         graphConfig: CameraGraph.Config
     ): Boolean {
-        val hardwareLevel = cameraMetadata[INFO_SUPPORTED_HARDWARE_LEVEL]
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
             graphConfig.sessionMode == CameraGraph.OperatingMode.NORMAL &&
-            hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-            hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED &&
+            !cameraMetadata.isHardwareLevelLegacy &&
+            !cameraMetadata.isHardwareLevelLimited &&
             (Build.VERSION.SDK_INT < Build.VERSION_CODES.P ||
-                hardwareLevel != INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL)
+                !cameraMetadata.isHardwareLevelExternal)
     }
 
     override fun toString(): String {

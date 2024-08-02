@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.EncoderProfilesProviderAdapter
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -68,10 +69,6 @@ class CamcorderProfileResolutionQuirk(
     }
 
     companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            val level = cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-            return level != null &&
-                level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        }
+        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
     }
 }

@@ -17,6 +17,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isGoogleDevice
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.Quirk
 
@@ -40,7 +41,7 @@ class ImageCapturePixelHDRPlusQuirk : Quirk {
 
         fun isEnabled(): Boolean {
             return BUILD_MODELS.contains(Build.MODEL) &&
-                "Google" == Build.MANUFACTURER &&
+                isGoogleDevice() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
         }
     }

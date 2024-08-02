@@ -27,6 +27,7 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsLogicalMultiCamera
 import androidx.camera.camera2.pipe.CameraMetadata.Companion.supportsPrivateReprocessing
 import androidx.camera.camera2.pipe.CameraPipe
@@ -108,10 +109,7 @@ constructor(
         }
     }
 
-    private val isLegacyDevice by lazy {
-        cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-    }
+    private val isLegacyDevice by lazy { cameraProperties.metadata.isHardwareLevelLegacy }
 
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {

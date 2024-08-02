@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 
@@ -77,7 +78,7 @@ class ExtraCroppingQuirk : Quirk {
         internal val isSamsungDistortion: Boolean
             get() {
                 val isDeviceModelContained =
-                    ("samsung".equals(Build.BRAND, ignoreCase = true) &&
+                    (isSamsungDevice() &&
                         SAMSUNG_DISTORTION_MODELS_TO_API_LEVEL_MAP.containsKey(
                             Build.MODEL.uppercase()
                         ))

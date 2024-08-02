@@ -16,8 +16,8 @@
 
 package androidx.camera.camera2.pipe.integration.compat.workaround
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter.Companion.getStillCaptureTemplate
@@ -54,9 +54,7 @@ constructor(
     private val threads: UseCaseThreads,
     private val torchControl: TorchControl,
 ) : CapturePipeline {
-    private val isLegacyDevice =
-        cameraProperties.metadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL] ==
-            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    private val isLegacyDevice = cameraProperties.metadata.isHardwareLevelLegacy
 
     override suspend fun submitStillCaptures(
         configs: List<CaptureConfig>,

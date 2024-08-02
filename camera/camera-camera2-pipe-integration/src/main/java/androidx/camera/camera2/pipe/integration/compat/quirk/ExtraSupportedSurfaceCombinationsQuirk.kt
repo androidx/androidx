@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isGoogleDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
@@ -96,7 +98,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                     "heroqltetmo".equals(Build.DEVICE, ignoreCase = true)
 
         internal fun supportExtraLevel3ConfigurationsGoogleDevice(): Boolean {
-            if (!"google".equals(Build.BRAND, ignoreCase = true)) {
+            if (!isGoogleDevice()) {
                 return false
             }
             val capitalModelName = Build.MODEL.uppercase()
@@ -104,7 +106,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         }
 
         internal fun supportExtraLevel3ConfigurationsSamsungDevice(): Boolean {
-            if (!"samsung".equals(Build.BRAND, ignoreCase = true)) {
+            if (!isSamsungDevice()) {
                 return false
             }
 

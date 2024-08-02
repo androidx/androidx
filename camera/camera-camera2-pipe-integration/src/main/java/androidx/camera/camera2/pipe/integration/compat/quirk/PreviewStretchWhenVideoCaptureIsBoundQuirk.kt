@@ -18,6 +18,9 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isOppoDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 
 /**
  * QuirkSummary
@@ -39,32 +42,27 @@ class PreviewStretchWhenVideoCaptureIsBoundQuirk : CaptureIntentPreviewQuirk {
         }
 
         private fun isHuaweiP8Lite(): Boolean {
-            return "HUAWEI".equals(Build.MANUFACTURER, true) &&
-                "HUAWEI ALE-L04".equals(Build.MODEL, true)
+            return isHuaweiDevice() && "HUAWEI ALE-L04".equals(Build.MODEL, true)
         }
 
         private fun isSamsungJ3(): Boolean {
-            return "Samsung".equals(Build.MANUFACTURER, true) &&
-                "sm-j320f".equals(Build.MODEL, true)
+            return isSamsungDevice() && "sm-j320f".equals(Build.MODEL, true)
         }
 
         private fun isSamsungJ5(): Boolean {
-            return "Samsung".equals(Build.MANUFACTURER, true) &&
-                "sm-j510fn".equals(Build.MODEL, true)
+            return isSamsungDevice() && "sm-j510fn".equals(Build.MODEL, true)
         }
 
         private fun isSamsungJ7(): Boolean {
-            return "Samsung".equals(Build.MANUFACTURER, true) &&
-                "sm-j700f".equals(Build.MODEL, true)
+            return isSamsungDevice() && "sm-j700f".equals(Build.MODEL, true)
         }
 
         private fun isSamsungJ1AceNeo(): Boolean {
-            return "Samsung".equals(Build.MANUFACTURER, true) &&
-                "sm-j111f".equals(Build.MODEL, true)
+            return isSamsungDevice() && "sm-j111f".equals(Build.MODEL, true)
         }
 
         private fun isOppoA37F(): Boolean {
-            return "OPPO".equals(Build.MANUFACTURER, true) && "A37F".equals(Build.MODEL, true)
+            return isOppoDevice() && "A37F".equals(Build.MODEL, true)
         }
     }
 }
