@@ -27,11 +27,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.SplitButtonDefaults.InnerCornerRadiusPercentage
-import androidx.compose.material3.SplitButtonDefaults.LeadingButtonShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.SplitButtonSmallTokens
 import androidx.compose.runtime.Composable
@@ -48,10 +46,12 @@ import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -124,6 +124,8 @@ fun SplitButton(
  * @param enabled controls the enabled state of the split button. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
+ * @param innerCornerSize The size for leading button's end corners and trailing button's start
+ *   corners
  * @param spacing The spacing between the leading and trailing buttons
  * @see OutlinedSplitButton for a medium-emphasis split button with a border.
  * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
@@ -141,7 +143,8 @@ fun FilledSplitButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    spacing: Dp = SplitButtonDefaults.Spacing,
+    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
+    spacing: Dp = SplitButtonDefaults.Spacing
 ) {
     SplitButton(
         modifier = modifier,
@@ -150,6 +153,7 @@ fun FilledSplitButton(
             SplitButtonDefaults.LeadingButton(
                 onClick = onLeadingButtonClick,
                 enabled = enabled,
+                shape = SplitButtonDefaults.leadingButtonShape(innerCornerSize),
                 content = leadingContent
             )
         },
@@ -159,6 +163,7 @@ fun FilledSplitButton(
                 modifier = Modifier,
                 enabled = enabled,
                 expanded = expanded,
+                startCornerSize = innerCornerSize,
                 content = trailingContent,
             )
         },
@@ -191,6 +196,8 @@ fun FilledSplitButton(
  * @param enabled controls the enabled state of the split button. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
+ * @param innerCornerSize The size for leading button's end corners and trailing button's start
+ *   corners
  * @param spacing The spacing between the leading and trailing buttons
  * @see FilledSplitButton for a high-emphasis split button without a shadow.
  * @see OutlinedSplitButton for a medium-emphasis split button with a border.
@@ -208,13 +215,15 @@ fun TonalSplitButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    spacing: Dp = SplitButtonDefaults.Spacing,
+    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
+    spacing: Dp = SplitButtonDefaults.Spacing
 ) {
     SplitButton(
         leadingButton = {
             TonalLeadingButton(
                 onClick = onLeadingButtonClick,
                 enabled = enabled,
+                endCornerSize = innerCornerSize,
                 content = leadingContent,
             )
         },
@@ -223,6 +232,7 @@ fun TonalSplitButton(
                 onClick = onTrailingButtonClick,
                 modifier = Modifier,
                 enabled = enabled,
+                startCornerSize = innerCornerSize,
                 expanded = expanded,
                 content = trailingContent,
             )
@@ -259,6 +269,8 @@ fun TonalSplitButton(
  * @param enabled controls the enabled state of the split button. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
+ * @param innerCornerSize The size for leading button's end corners and trailing button's start
+ *   corners
  * @param spacing The spacing between the leading and trailing buttons
  * @see FilledSplitButton for a high-emphasis split button without a shadow.
  * @see OutlinedSplitButton for a medium-emphasis split button with a border.
@@ -276,6 +288,7 @@ fun ElevatedSplitButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
     spacing: Dp = SplitButtonDefaults.Spacing
 ) {
     SplitButton(
@@ -283,6 +296,7 @@ fun ElevatedSplitButton(
             ElevatedLeadingButton(
                 onClick = onLeadingButtonClick,
                 enabled = enabled,
+                endCornerSize = innerCornerSize,
                 content = leadingContent,
             )
         },
@@ -291,6 +305,7 @@ fun ElevatedSplitButton(
                 onClick = onTrailingButtonClick,
                 modifier = Modifier,
                 enabled = enabled,
+                startCornerSize = innerCornerSize,
                 expanded = expanded,
                 content = trailingContent
             )
@@ -327,6 +342,8 @@ fun ElevatedSplitButton(
  * @param enabled controls the enabled state of the split button. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
+ * @param innerCornerSize The size for leading button's end corners and trailing button's start
+ *   corners
  * @param spacing The spacing between the leading and trailing buttons
  * @see FilledSplitButton for a high-emphasis split button without a shadow.
  * @see TonalSplitButton for a middle ground between [OutlinedSplitButton] and [FilledSplitButton].
@@ -344,6 +361,7 @@ fun OutlinedSplitButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
     spacing: Dp = SplitButtonDefaults.Spacing
 ) {
     SplitButton(
@@ -351,6 +369,7 @@ fun OutlinedSplitButton(
             OutlinedLeadingButton(
                 onClick = onLeadingButtonClick,
                 enabled = enabled,
+                endCornerSize = innerCornerSize,
                 content = leadingContent,
             )
         },
@@ -359,6 +378,7 @@ fun OutlinedSplitButton(
                 onClick = onTrailingButtonClick,
                 modifier = Modifier,
                 enabled = enabled,
+                startCornerSize = innerCornerSize,
                 expanded = expanded,
                 content = trailingContent
             )
@@ -432,19 +452,13 @@ object SplitButtonDefaults {
     /** Default spacing between the `leading` and `trailing` button */
     val Spacing = SplitButtonSmallTokens.BetweenSpace
 
+    /** Default size for the leading button end corners and trailing button start corners */
+    val InnerCornerSize = CornerSize(4.dp)
+
     /**
-     * Default corner radius percentage for the inner corners, a.k.a. leading button `end` corners
-     * and trailing button `start` corners
+     * Default percentage size for the leading button start corners and trailing button end corners
      */
-    internal const val InnerCornerRadiusPercentage = 14
-
-    /** Default shape of the trailing button */
-    val TrailingButtonShape: CornerBasedShape =
-        RoundedCornerShape(InnerCornerRadiusPercentage, 50, 50, InnerCornerRadiusPercentage)
-
-    /** Default shape of the leading button */
-    val LeadingButtonShape: CornerBasedShape =
-        RoundedCornerShape(50, InnerCornerRadiusPercentage, InnerCornerRadiusPercentage, 50)
+    val OuterCornerSize = CornerSize(50)
 
     /** Default shape of the leading button */
     val LeadingButtonContentPadding = PaddingValues(16.dp, 10.dp, 12.dp, 10.dp)
@@ -462,6 +476,22 @@ object SplitButtonDefaults {
 
     /** Default minimum width of the [TrailingButton]. */
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
+
+    /**
+     * Default shape of the leading button.
+     *
+     * @param endCornerSize the size for top end corner and bottom end corner
+     */
+    fun leadingButtonShape(endCornerSize: CornerSize = InnerCornerSize) =
+        RoundedCornerShape(OuterCornerSize, endCornerSize, endCornerSize, OuterCornerSize)
+
+    /**
+     * Default shape of the trailing button
+     *
+     * @param startCornerSize the size for top start corner and bottom start corner
+     */
+    fun trailingButtonShape(startCornerSize: CornerSize = InnerCornerSize) =
+        RoundedCornerShape(startCornerSize, OuterCornerSize, OuterCornerSize, startCornerSize)
 
     /**
      * Create a default `leading` button that has the same visual as a Filled[Button]. To create a
@@ -497,7 +527,7 @@ object SplitButtonDefaults {
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
-        shape: Shape = LeadingButtonShape,
+        shape: Shape = leadingButtonShape(),
         colors: ButtonColors = ButtonDefaults.buttonColors(),
         elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
         border: BorderStroke? = null,
@@ -543,9 +573,9 @@ object SplitButtonDefaults {
      * The default text style for internal [Text] components will be set to [Typography.labelLarge].
      *
      * @param onClick called when the button is clicked
+     * @param modifier the [Modifier] to be applied to this button.
      * @param shape defines the shape of this button's container, border (when [border] is not
      *   null), and shadow (when using [elevation]). [TrailingButton]
-     * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
      *   will
      * @param colors [ButtonColors] that will be used to resolve the colors for this button in
@@ -565,8 +595,8 @@ object SplitButtonDefaults {
     @Composable
     fun TrailingButton(
         onClick: () -> Unit,
-        shape: Shape,
         modifier: Modifier = Modifier,
+        shape: Shape = trailingButtonShape(),
         enabled: Boolean = true,
         colors: ButtonColors = ButtonDefaults.buttonColors(),
         elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
@@ -620,6 +650,7 @@ object SplitButtonDefaults {
      * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
      *   will
+     * @param startCornerSize The size for top start corner and bottom start corner
      * @param colors [ButtonColors] that will be used to resolve the colors for this button in
      *   different states. See [ButtonDefaults.buttonColors].
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
@@ -640,6 +671,7 @@ object SplitButtonDefaults {
         expanded: Boolean,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
+        startCornerSize: CornerSize = InnerCornerSize,
         colors: ButtonColors = ButtonDefaults.buttonColors(),
         elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
         border: BorderStroke? = null,
@@ -650,6 +682,7 @@ object SplitButtonDefaults {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
         val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        val density = LocalDensity.current
 
         TrailingButton(
             onClick = onClick,
@@ -659,7 +692,10 @@ object SplitButtonDefaults {
             elevation = elevation,
             border = border,
             interactionSource = interactionSource,
-            shape = rememberTrailingButtonShape(isRtl) { cornerMorphProgress },
+            shape =
+                rememberTrailingButtonShape(isRtl, density, startCornerSize) {
+                    cornerMorphProgress
+                },
             content = content,
         )
     }
@@ -667,32 +703,43 @@ object SplitButtonDefaults {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun rememberTrailingButtonShape(isRtl: Boolean, progress: () -> Float) =
-    remember(isRtl, progress) {
+private fun rememberTrailingButtonShape(
+    isRtl: Boolean,
+    density: Density,
+    startCornerSize: CornerSize,
+    progress: () -> Float
+) =
+    remember(isRtl, density, progress) {
         GenericShape { size, _ ->
             val rect = Rect(Offset.Zero, size)
-            val originalStartCornerRadius =
-                CornerRadius((size.height * InnerCornerRadiusPercentage / 100))
+            val startCornerSizePx = startCornerSize.toPx(size, density)
+            val originalStartCornerRadius = CornerRadius(startCornerSizePx)
+            val endCornerRadius =
+                CornerRadius(SplitButtonDefaults.OuterCornerSize.toPx(size, density))
             val originalRoundRect =
                 if (isRtl) {
                     RoundRect(
                         rect,
-                        CornerRadius(size.height / 2),
+                        endCornerRadius,
                         originalStartCornerRadius,
                         originalStartCornerRadius,
-                        CornerRadius(size.height / 2)
+                        endCornerRadius
                     )
                 } else {
                     RoundRect(
                         rect,
                         originalStartCornerRadius,
-                        CornerRadius(size.height / 2),
-                        CornerRadius(size.height / 2),
+                        endCornerRadius,
+                        endCornerRadius,
                         originalStartCornerRadius
                     )
                 }
 
-            val endRoundRect = RoundRect(rect, CornerRadius(size.height / 2))
+            val endRoundRect =
+                RoundRect(
+                    rect,
+                    CornerRadius(SplitButtonDefaults.OuterCornerSize.toPx(size, density))
+                )
 
             val roundRect = lerp(originalRoundRect, endRoundRect, progress.invoke())
             addRoundRect(roundRect)
@@ -705,14 +752,15 @@ private fun TonalLeadingButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.LeadingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        shape = SplitButtonDefaults.leadingButtonShape(endCornerSize),
         colors = ButtonDefaults.filledTonalButtonColors(),
-        shape = LeadingButtonShape,
         elevation = ButtonDefaults.filledTonalButtonElevation(),
         border = null,
         content = content,
@@ -726,12 +774,14 @@ private fun TonalTrailingButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.AnimatedTrailingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        startCornerSize = startCornerSize,
         expanded = expanded,
         colors = ButtonDefaults.filledTonalButtonColors(),
         elevation = ButtonDefaults.filledTonalButtonElevation(),
@@ -746,14 +796,15 @@ private fun OutlinedLeadingButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.LeadingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        shape = SplitButtonDefaults.leadingButtonShape(endCornerSize),
         colors = ButtonDefaults.outlinedButtonColors(),
-        shape = LeadingButtonShape,
         elevation = null,
         border = ButtonDefaults.outlinedButtonBorder(enabled),
         content = content
@@ -767,12 +818,14 @@ private fun OutlinedTrailingButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.AnimatedTrailingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        startCornerSize = startCornerSize,
         expanded = expanded,
         colors = ButtonDefaults.outlinedButtonColors(),
         elevation = null,
@@ -787,14 +840,15 @@ private fun ElevatedLeadingButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.LeadingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        shape = SplitButtonDefaults.leadingButtonShape(endCornerSize),
         colors = ButtonDefaults.elevatedButtonColors(),
-        shape = LeadingButtonShape,
         elevation = ButtonDefaults.elevatedButtonElevation(),
         border = null,
         content = content
@@ -808,12 +862,14 @@ private fun ElevatedTrailingButton(
     expanded: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
     SplitButtonDefaults.AnimatedTrailingButton(
         modifier = modifier,
         onClick = onClick,
         enabled = enabled,
+        startCornerSize = startCornerSize,
         expanded = expanded,
         colors = ButtonDefaults.elevatedButtonColors(),
         elevation = ButtonDefaults.elevatedButtonElevation(),
