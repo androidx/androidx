@@ -369,6 +369,9 @@ internal class GraphicsLayerOwnerLayer(
         this.invalidateParentLayer = invalidateParentLayer
 
         // reset mutable variables to their initial values
+        isMatrixDirty = false
+        isInverseMatrixDirty = false
+        isIdentity = true
         transformOrigin = TransformOrigin.Center
         drawnWithEnabledZ = false
         size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
