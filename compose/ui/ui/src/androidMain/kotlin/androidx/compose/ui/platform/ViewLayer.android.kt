@@ -364,17 +364,22 @@ internal class ViewLayer(
 
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
-            matrixCache.mapInverse(this, point)
+            matrixCache.calculateInverseMatrix(this)?.map(point) ?: Offset.Infinite
         } else {
-            matrixCache.map(this, point)
+            matrixCache.calculateMatrix(this).map(point)
         }
     }
 
     override fun mapBounds(rect: MutableRect, inverse: Boolean) {
         if (inverse) {
-            matrixCache.mapInverse(this, rect)
+            val matrix = matrixCache.calculateInverseMatrix(this)
+            if (matrix != null) {
+                matrix.map(rect)
+            } else {
+                rect.set(0f, 0f, 0f, 0f)
+            }
         } else {
-            matrixCache.map(this, rect)
+            matrixCache.calculateMatrix(this).map(rect)
         }
     }
 

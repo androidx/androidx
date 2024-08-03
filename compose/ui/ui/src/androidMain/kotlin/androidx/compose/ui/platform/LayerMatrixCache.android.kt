@@ -17,10 +17,7 @@
 package androidx.compose.ui.platform
 
 import android.graphics.Matrix as AndroidMatrix
-import androidx.compose.ui.geometry.MutableRect
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.graphics.setFrom
 
 /**
@@ -36,13 +33,12 @@ internal class LayerMatrixCache<T>(
 ) {
     private var androidMatrixCache: AndroidMatrix? = null
     private var previousAndroidMatrix: AndroidMatrix? = null
-    private var matrixCache: Matrix = Matrix()
-    private var inverseMatrixCache: Matrix = Matrix()
+    private var matrixCache: Matrix? = null
+    private var inverseMatrixCache: Matrix? = null
 
-    private var isDirty = false
-    private var isInverseDirty = false
+    private var isDirty = true
+    private var isInverseDirty = true
     private var isInverseValid = true
-    private var isIdentity = true
 
     /** Reset the cache to the identity matrix. */
     fun reset() {
@@ -68,7 +64,7 @@ internal class LayerMatrixCache<T>(
      * Returns the cached [Matrix], updating it if required (if [invalidate] was previously called).
      */
     fun calculateMatrix(target: T): Matrix {
-        val matrix = matrixCache
+        val matrix = matrixCache ?: Matrix().also { matrixCache = it }
         if (!isDirty) {
             return matrix
         }
@@ -85,7 +81,6 @@ internal class LayerMatrixCache<T>(
         }
 
         isDirty = false
-        isIdentity = matrix.isIdentity()
         return matrix
     }
 
@@ -95,48 +90,12 @@ internal class LayerMatrixCache<T>(
      * when scaling is 0.
      */
     fun calculateInverseMatrix(target: T): Matrix? {
-        val matrix = inverseMatrixCache
+        val matrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
         if (isInverseDirty) {
             val normalMatrix = calculateMatrix(target)
             isInverseValid = normalMatrix.invertTo(matrix)
             isInverseDirty = false
         }
         return if (isInverseValid) matrix else null
-    }
-
-    fun map(target: T, rect: MutableRect) {
-        val matrix = calculateMatrix(target)
-        if (!isIdentity) {
-            matrix.map(rect)
-        }
-    }
-
-    fun mapInverse(target: T, rect: MutableRect) {
-        val matrix = calculateInverseMatrix(target)
-        if (matrix == null) {
-            rect.set(0f, 0f, 0f, 0f)
-        } else if (!isIdentity) {
-            matrix.map(rect)
-        }
-    }
-
-    fun map(target: T, offset: Offset): Offset {
-        val matrix = calculateMatrix(target)
-        return if (!isIdentity) {
-            matrix.map(offset)
-        } else {
-            offset
-        }
-    }
-
-    fun mapInverse(target: T, offset: Offset): Offset {
-        val matrix = calculateInverseMatrix(target)
-        return if (matrix == null) {
-            Offset.Infinite
-        } else if (!isIdentity) {
-            matrix.map(offset)
-        } else {
-            offset
-        }
     }
 }
