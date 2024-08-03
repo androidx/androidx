@@ -18,6 +18,7 @@ package androidx.appsearch.localstorage;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 
 /**
@@ -92,5 +93,11 @@ public class AlwaysSupportedFeatures implements Features {
     @Override
     public int getMaxIndexedProperties() {
         return 64;
+    }
+
+    @ExperimentalAppSearchApi
+    @Override
+    public int getMaxIndexedDocumentCountPerPackage() {
+        return (1 << 22) - 2;
     }
 }

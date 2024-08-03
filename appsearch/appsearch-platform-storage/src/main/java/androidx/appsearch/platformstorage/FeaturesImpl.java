@@ -19,6 +19,8 @@ import android.content.Context;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.appsearch.app.ExperimentalAppSearchApi;
 import androidx.appsearch.app.Features;
 import androidx.appsearch.platformstorage.util.AppSearchVersionUtil;
 import androidx.core.util.Preconditions;
@@ -119,5 +121,13 @@ final class FeaturesImpl implements Features {
         } else {
             return 16;
         }
+    }
+
+    @Override
+    @RequiresApi(Build.VERSION_CODES.S)
+    @ExperimentalAppSearchApi
+    public int getMaxIndexedDocumentCountPerPackage() {
+        return AppSearchVersionUtil.getAppSearchVersionCode(mContext)
+                >= AppSearchVersionUtil.APPSEARCH_M2024_08_VERSION_CODE ? 80000 : 20000;
     }
 }

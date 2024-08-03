@@ -792,6 +792,79 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(cause.getMessage()).contains("Too many properties to be indexed");
     }
 
+    @Test
+    public void testPutDocuments_tooManyDocuments() throws Exception {
+        // Insert maxDocuments and test that the put succeeds
+        AppSearchSchema.Builder schemaBuilder = new AppSearchSchema.Builder("testSchema");
+        AppSearchSchema schema = schemaBuilder.addProperty(
+                new AppSearchSchema.StringPropertyConfig.Builder("string")
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+        Set<AppSearchSchema> actual1 = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual1).containsExactly(schema);
+
+        int maxDocuments = mDb1.getFeatures().getMaxIndexedDocumentCountPerPackage();
+        List<GenericDocument> documents = new ArrayList<>();
+        for (int i = 0; i < maxDocuments; i++) {
+            documents.add(new GenericDocument.Builder<>("namespace", "id" + i, "testSchema")
+                    .setPropertyString("string", "value")
+                    .build());
+        }
+
+        AppSearchBatchResult<String, Void> result = mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(documents).build()).get();
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getSuccesses()).hasSize(maxDocuments);
+        assertThat(result.getFailures()).hasSize(0);
+
+        // Try adding one more document
+        result = mDb1.putAsync(new PutDocumentsRequest.Builder().addGenericDocuments(
+                new GenericDocument.Builder<>("namespace", "idmax", "testSchema")
+                        .setPropertyString("string", "value").build()).build()).get();
+
+        // Adding one more document shouldn't work
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getFailures()).hasSize(1);
+        for (String key : result.getFailures().keySet()) {
+            assertThat(result.getFailures().get(key).getErrorMessage()).isEqualTo("Package \""
+                    + mContext.getPackageName() + "\" exceeded limit of " + maxDocuments
+                    + " documents. Some documents must be removed to index additional ones.");
+        }
+    }
+
+    @Test
+    public void testPutDocuments_maxDocuments() throws Exception {
+        int maxDocuments = mDb1.getFeatures().getMaxIndexedDocumentCountPerPackage();
+
+        AppSearchSchema.Builder schemaBuilder = new AppSearchSchema.Builder("testSchema");
+        AppSearchSchema schema = schemaBuilder.addProperty(
+                new AppSearchSchema.StringPropertyConfig.Builder(
+                        "string")
+                        .setIndexingType(
+                                AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(
+                                AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()).build();
+        mDb1.setSchemaAsync(new SetSchemaRequest.Builder().addSchemas(schema).build()).get();
+        Set<AppSearchSchema> actual1 = mDb1.getSchemaAsync().get().getSchemas();
+        assertThat(actual1).containsExactly(schema);
+
+        List<GenericDocument> documents = new ArrayList<>();
+        for (int i = 0; i < maxDocuments; i++) {
+            documents.add(new GenericDocument.Builder<>("namespace", "id" + i, "testSchema")
+                    .setPropertyString("string", "value")
+                    .build());
+        }
+
+        // This should be fine
+        assertThat(mDb1.putAsync(new PutDocumentsRequest.Builder()
+                .addGenericDocuments(documents).build()).get().isSuccess()).isTrue();
+    }
+
 // @exportToFramework:startStrip()
 
     @Test
