@@ -68,7 +68,7 @@ class PrintToStringTest {
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
             """
                     .trimIndent()
@@ -87,11 +87,11 @@ class PrintToStringTest {
                 Printing with useUnmergedTree = 'false'
                 1) Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
                 2) Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[World]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
             """
                     .trimIndent()
@@ -134,11 +134,11 @@ class PrintToStringTest {
                     |    Focused = 'false'
                     |    Role = 'Button'
                     |    Text = '[Button]'
-                    |    Actions = [OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                    |    Actions = [ClearTextSubstitution, GetTextLayoutResult, OnClick, RequestFocus, SetTextSubstitution, ShowTextSubstitution]
                     |    MergeDescendants = 'true'
                     |-Node #X at (l=X, t=X, r=X, b=X)px
                       Text = '[Hello]'
-                      Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                      Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
             """
                     .trimIndent()
             )
@@ -234,7 +234,7 @@ class PrintToStringTest {
                 Printing with useUnmergedTree = 'false'
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[first, second]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 MergeDescendants = 'true'
             """
                     .trimIndent()
@@ -260,10 +260,10 @@ class PrintToStringTest {
                 MergeDescendants = 'true'
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                  | Text = '[first]'
-                 | Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                 | Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                  |-Node #X at (l=X, t=X, r=X, b=X)px
                    Text = '[second]'
-                   Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                   Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
             """
                     .trimIndent()
             )

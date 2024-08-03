@@ -1172,9 +1172,10 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
 
         override fun iterator(): MutableIterator<E> =
             object : MutableIterator<E> {
+                val parent = this@MutableScatterSet
                 var current = -1
                 val iterator = iterator {
-                    this@MutableScatterSet.forEachIndex { index ->
+                    parent.forEachIndex { index ->
                         current = index
                         @Suppress("UNCHECKED_CAST") yield(elements[index] as E)
                     }
@@ -1186,7 +1187,7 @@ public class MutableScatterSet<E>(initialCapacity: Int = DefaultScatterCapacity)
 
                 override fun remove() {
                     if (current != -1) {
-                        this@MutableScatterSet.removeElementAt(current)
+                        parent.removeElementAt(current)
                         current = -1
                     }
                 }
