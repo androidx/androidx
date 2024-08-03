@@ -23,6 +23,7 @@ import androidx.room.concurrent.ifNotClosed
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteException
 import androidx.sqlite.execSQL
+import androidx.sqlite.use
 import kotlin.jvm.JvmSuppressWildcards
 import kotlinx.atomicfu.atomic
 import kotlinx.atomicfu.locks.reentrantLock
@@ -196,9 +197,20 @@ internal class TriggerBasedInvalidationTracker(
      * though the one we really care about is the single write connection.
      */
     fun configureConnection(connection: SQLiteConnection) {
-        connection.execSQL("PRAGMA temp_store = MEMORY")
-        connection.execSQL("PRAGMA recursive_triggers = 1")
-        connection.execSQL(CREATE_TRACKING_TABLE_SQL)
+        val isReadConnection =
+            connection.prepare("PRAGMA query_only").use {
+                it.step()
+                it.getBoolean(0)
+            }
+        if (!isReadConnection) {
+            connection.execSQL("PRAGMA temp_store = MEMORY")
+            connection.execSQL("PRAGMA recursive_triggers = 1")
+            connection.execSQL(CREATE_TRACKING_TABLE_SQL)
+            // When a connection is configured the temporary triggers need to be synced since it is
+            // possible that a new write connection is being configured because a previous one
+            // was lost along with its installed triggers.
+            observedTableStates.forceNeedSync()
+        }
     }
 
     /**
@@ -535,6 +547,10 @@ internal class ObservedTableStates(size: Int) {
             tableObservedState.fill(element = false)
             needsSync = true
         }
+
+    internal fun forceNeedSync() {
+        lock.withLock { needsSync = true }
+    }
 
     internal enum class ObserveOp {
         NO_OP, // Don't change observation / tracking state for a table
