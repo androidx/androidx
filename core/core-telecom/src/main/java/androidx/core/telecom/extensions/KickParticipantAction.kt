@@ -16,84 +16,42 @@
 
 package androidx.core.telecom.extensions
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallControlResult
-import androidx.core.telecom.CallException
-import androidx.core.telecom.internal.ParticipantActionsRemote
 import androidx.core.telecom.util.ExperimentalAppActions
-import kotlin.properties.Delegates
-import kotlinx.coroutines.flow.StateFlow
 
 /**
- * Implements the action to kick a Participant that part of the call and is being tracked via
- * [CallExtensionsScope.addParticipantExtension]
- *
- * @param participants A [StateFlow] representing the current Set of Participants that are in the
- *   call.
+ * The action used to determine if the calling application supports kicking participants and request
+ * to kick [Participant]s in the call.
  */
-// TODO: Refactor to Public API
-@RequiresApi(Build.VERSION_CODES.O)
 @ExperimentalAppActions
-internal class KickParticipantAction(
-    private val participants: StateFlow<Set<Participant>>,
-) {
-    companion object {
-        const val TAG = CallExtensionsScope.TAG + "(KPCA)"
-    }
+public interface KickParticipantAction {
 
     /**
-     * Whether or not kicking participants is supported by the remote.
+     * Whether or not kicking participants is supported by the calling application.
      *
-     * if `true`, then requests to kick participants will be sent to the remote application. If
-     * `false`, then the remote doesn't support this action and requests will fail.
+     * if `true`, then requests to kick participants will be sent to the calling application. If
+     * `false`, then the calling application doesn't support this action and requests will fail.
      *
-     * Should not be queried until [CallExtensionsScope.onConnected] is called.
+     * Must not be queried until [CallExtensionScope.onConnected] is called.
      */
-    var isSupported by Delegates.notNull<Boolean>()
-    // The binder interface that allows this action to send events to the remote
-    private var remoteActions: ParticipantActionsRemote? = null
+    public var isSupported: Boolean
 
     /**
      * Request to kick a [participant] in the call.
      *
-     * Note: This operation succeeding does not mean that the participant was kicked, it only means
-     * that the request was received by the remote application. Any state changes that result from
-     * this operation will be represented by the Set of Participants changing to remove the
-     * requested participant.
+     * Whether or not the [Participant] is allowed to be kicked is up to the calling application, so
+     * requesting to kick a [Participant] may result in no action being taken. For example, the
+     * calling application may choose not to complete a request to kick the host of the call or kick
+     * the [Participant] representing this user.
      *
-     * @param participant The participant to kick
+     * Note: This operation succeeding does not mean that the participant was kicked, it only means
+     * that the request was received and processed by the remote application. If the [Participant]
+     * is indeed kicked, the [CallExtensionScope.addParticipantExtension] `onParticipantsUpdated`
+     * callback will be updated to remove the kicked [Participant].
+     *
+     * @param participant The [Participant] to kick from the call.
      * @return The result of whether or not this request was successfully sent to the remote
-     *   application
+     *   application and processed.
      */
-    suspend fun requestKickParticipant(participant: Participant): CallControlResult {
-        Log.d(TAG, "kickParticipant: participant=$participant")
-        if (remoteActions == null) {
-            Log.w(TAG, "kickParticipant: no binder, isSupported=$isSupported")
-            // TODO: This needs to have its own CallException result
-            return CallControlResult.Error(CallException.ERROR_UNKNOWN)
-        }
-        if (!participants.value.contains(participant)) {
-            Log.d(TAG, "kickParticipant: couldn't find participant=$participant")
-            return CallControlResult.Success()
-        }
-        val cb = ActionsResultCallback()
-        remoteActions?.kickParticipant(participant, cb)
-        val result = cb.waitForResponse()
-        Log.d(TAG, "kickParticipant: participant=$participant, result=$result")
-        return result
-    }
-
-    /** Called when capability exchange has completed and we can initialize this action */
-    internal fun initialize(isSupported: Boolean) {
-        Log.d(TAG, "initialize: isSupported=$isSupported")
-        this.isSupported = isSupported
-    }
-
-    /** Called when the remote application has connected and will receive action event requests */
-    internal fun connect(remote: ParticipantActionsRemote?) {
-        Log.d(TAG, "connect: remote is null=${remote == null}")
-        remoteActions = remote
-    }
+    public suspend fun requestKickParticipant(participant: Participant): CallControlResult
 }

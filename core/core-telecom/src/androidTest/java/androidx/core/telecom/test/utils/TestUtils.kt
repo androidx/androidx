@@ -31,6 +31,8 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.extensions.Participant
+import androidx.core.telecom.extensions.ParticipantParcelable
+import androidx.core.telecom.extensions.toParticipant
 import androidx.core.telecom.internal.utils.BuildVersionAdapter
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -375,20 +377,31 @@ object TestUtils {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE
     }
 
+    /** Generate a List of [Participant]s, where each ID corresponds to a range of 1 to [num] */
     @ExperimentalAppActions
-    fun getDefaultParticipant(): Participant {
-        val p = Participant()
-        p.id = 123
-        p.name = "Gemini"
-        p.speakerIconUri = null
-        return p
+    fun generateParticipants(num: Int): List<Participant> {
+        val participants = ArrayList<Participant>()
+        for (i in 1..num) {
+            participants.add(Participant(i.toString(), "part-$i"))
+        }
+        return participants
     }
 
     @ExperimentalAppActions
-    fun printParticipants(participants: Set<Participant>, tag: String) {
+    fun getDefaultParticipant(): Participant {
+        return Participant("123", "Gemini")
+    }
+
+    @ExperimentalAppActions
+    fun getDefaultParticipantParcelable(): ParticipantParcelable {
+        return getDefaultParticipant().toParticipantParcelable()
+    }
+
+    @ExperimentalAppActions
+    fun printParticipants(participants: Collection<Participant>, tag: String) {
         Log.i(LOG_TAG, tag + ": printParticipants: set size=${participants.size}")
         for (v in participants) {
-            Log.i(LOG_TAG, "id=${v.id} name=${v.name}, uri=${v.speakerIconUri}")
+            Log.i(LOG_TAG, "\t $v")
         }
     }
 }
@@ -405,9 +418,9 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
         scope.launch { raisedHandFlow.emit(Pair(callId, isHandRaised)) }
     }
 
-    override fun kickParticipantAction(callId: String?, participant: Participant?) {
+    override fun kickParticipantAction(callId: String?, participant: ParticipantParcelable?) {
         if (callId == null) return
-        scope.launch { kickParticipantFlow.emit(Pair(callId, participant)) }
+        scope.launch { kickParticipantFlow.emit(Pair(callId, participant?.toParticipant())) }
     }
 
     suspend fun waitForRaiseHandState(callId: String, expectedState: Boolean) {

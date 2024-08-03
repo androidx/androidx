@@ -18,6 +18,7 @@ package androidx.core.telecom.test.VoipAppWithExtensions
 
 import android.os.Build
 import android.telecom.DisconnectCause
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
@@ -26,6 +27,7 @@ import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.ParticipantExtension
+import androidx.core.telecom.extensions.ParticipantExtensionImpl
 import androidx.core.telecom.extensions.RaiseHandState
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -37,6 +39,10 @@ class VoipCall(
     private val callback: ITestAppControlCallback?,
     private val capabilities: List<Capability>
 ) {
+    companion object {
+        private const val TAG = "VoipCall"
+    }
+
     private lateinit var callId: String
     // Participant state updaters
     internal var participantStateUpdater: ParticipantExtension? = null
@@ -50,6 +56,7 @@ class VoipCall(
         onSetInactive: suspend () -> Unit,
         init: CallControlScope.() -> Unit
     ) {
+        Log.i(TAG, "addCall: capabilities=$capabilities")
         callsManager.addCallWithExtensions(
             callAttributes,
             onAnswer,
@@ -79,13 +86,15 @@ class VoipCall(
     private fun ParticipantExtension.initializeActions(capability: Capability) {
         for (action in capability.supportedActions) {
             when (action) {
-                ParticipantExtension.RAISE_HAND_ACTION -> {
+                ParticipantExtensionImpl.RAISE_HAND_ACTION -> {
                     raiseHandStateUpdater = addRaiseHandSupport {
                         callback?.raiseHandStateAction(callId, it)
                     }
                 }
-                ParticipantExtension.KICK_PARTICIPANT_ACTION -> {
-                    addKickParticipantSupport { callback?.kickParticipantAction(callId, it) }
+                ParticipantExtensionImpl.KICK_PARTICIPANT_ACTION -> {
+                    addKickParticipantSupport {
+                        callback?.kickParticipantAction(callId, it.toParticipantParcelable())
+                    }
                 }
             }
         }

@@ -25,7 +25,7 @@ import androidx.core.telecom.extensions.ICapabilityExchangeListener
 import androidx.core.telecom.extensions.IParticipantActions
 import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.core.telecom.extensions.Participant
-import androidx.core.telecom.extensions.ParticipantExtension
+import androidx.core.telecom.extensions.ParticipantParcelable
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -52,8 +52,11 @@ internal class ParticipantActionCallbackRepository(coroutineScope: CoroutineScop
      */
     var raiseHandStateCallback: (suspend (Boolean) -> Unit)? = null
 
-    /** The callback that is called when the remote InCallService requests to kick a participant. */
-    var kickParticipantCallback: (suspend (Participant) -> Unit)? = null
+    /**
+     * The callback that is called when the remote InCallService requests to kick a participant
+     * using its id.
+     */
+    var kickParticipantCallback: (suspend (String) -> Unit)? = null
 
     /** Listener used to handle event callbacks from the remote. */
     val eventListener =
@@ -68,11 +71,11 @@ internal class ParticipantActionCallbackRepository(coroutineScope: CoroutineScop
                 }
             }
 
-            override fun kickParticipant(participant: Participant, cb: IActionsResultCallback?) {
+            override fun kickParticipant(participantId: String, cb: IActionsResultCallback?) {
                 cb?.let {
                     coroutineScope.launch {
-                        Log.i(LOG_TAG, "from remote: kickParticipant=$participant")
-                        kickParticipantCallback?.invoke(participant)
+                        Log.i(LOG_TAG, "from remote: kickParticipant=$participantId")
+                        kickParticipantCallback?.invoke(participantId)
                         ActionsResultCallbackRemote(cb).onSuccess()
                     }
                 }
@@ -83,7 +86,11 @@ internal class ParticipantActionCallbackRepository(coroutineScope: CoroutineScop
 /** Remote interface used by InCallServices to send action events to the VOIP application. */
 @ExperimentalAppActions
 internal class ParticipantActionsRemote(binder: IParticipantActions) :
-    IParticipantActions by binder
+    IParticipantActions by binder {
+    fun kickParticipant(participant: Participant, cb: IActionsResultCallback?) {
+        kickParticipant(participant.id, cb)
+    }
+}
 
 /**
  * Remote interface used to notify the ICS of participant state information
@@ -91,8 +98,25 @@ internal class ParticipantActionsRemote(binder: IParticipantActions) :
  * @param binder The remote binder interface to wrap
  */
 @ExperimentalAppActions
-internal class ParticipantStateListenerRemote(binder: IParticipantStateListener) :
-    IParticipantStateListener by binder
+internal class ParticipantStateListenerRemote(private val binder: IParticipantStateListener) {
+    fun updateParticipants(participants: Set<Participant>) {
+        binder.updateParticipants(
+            participants.map(Participant::toParticipantParcelable).toTypedArray()
+        )
+    }
+
+    fun updateActiveParticipant(activeParticipant: Participant?) {
+        binder.updateActiveParticipant(activeParticipant?.id)
+    }
+
+    fun updateRaisedHandsAction(participants: List<Participant>) {
+        binder.updateRaisedHandsAction(participants.map { it.id }.toTypedArray())
+    }
+
+    fun finishSync(actions: IParticipantActions) {
+        binder.finishSync(actions)
+    }
+}
 
 /**
  * The remote interface used to begin capability exchange with the InCallService.
@@ -117,24 +141,22 @@ internal class CapabilityExchangeListenerRemote(binder: ICapabilityExchangeListe
 @ExperimentalAppActions
 internal class ParticipantStateListener(
     private val updateParticipants: (Set<Participant>) -> Unit,
-    private val updateActiveParticipant: (Int?) -> Unit,
-    private val updateRaisedHands: (Set<Int>) -> Unit,
+    private val updateActiveParticipantId: (String?) -> Unit,
+    private val updateRaisedHandIds: (List<String>) -> Unit,
     private val finishSync: (ParticipantActionsRemote?) -> Unit
 ) : IParticipantStateListener.Stub() {
-    override fun updateParticipants(participants: Array<out Participant>?) {
-        updateParticipants.invoke(participants?.toSet() ?: emptySet())
+    override fun updateParticipants(participants: Array<out ParticipantParcelable>?) {
+        updateParticipants.invoke(
+            participants?.map { Participant(it.id, it.name) }?.toSet() ?: emptySet()
+        )
     }
 
-    override fun updateActiveParticipant(activeParticipant: Int) {
-        if (activeParticipant < 0) {
-            updateActiveParticipant.invoke(null)
-        } else {
-            updateActiveParticipant.invoke(activeParticipant)
-        }
+    override fun updateActiveParticipant(activeParticipantId: String?) {
+        updateActiveParticipantId.invoke(activeParticipantId)
     }
 
-    override fun updateRaisedHandsAction(participants: IntArray?) {
-        updateRaisedHands.invoke(participants?.toSet() ?: emptySet())
+    override fun updateRaisedHandsAction(participants: Array<out String>?) {
+        updateRaisedHandIds.invoke(participants?.toList() ?: emptyList())
     }
 
     override fun finishSync(cb: IParticipantActions?) {
@@ -154,12 +176,9 @@ internal class ParticipantStateListener(
  *   torn down.
  */
 @ExperimentalAppActions
-internal class CapabilityExchangeRepository(connectionScope: CoroutineScope) {
-    companion object {
-        private const val LOG_TAG = Extensions.LOG_TAG + "(CER)"
-    }
+internal class CapabilityExchangeRepository(private val connectionScope: CoroutineScope) {
 
-    /** A request to create the [ParticipantExtension] has been received */
+    /** A request to create the ParticipantExtension has been received */
     var onCreateParticipantExtension:
         ((CoroutineScope, Set<Int>, ParticipantStateListenerRemote) -> Unit)? =
         null

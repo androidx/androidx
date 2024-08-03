@@ -53,10 +53,13 @@ public class ActionsResultCallback : IActionsResultCallback.Stub() {
                     )
                 ) {
                     Log.i(TAG, "waitForResponse: VoIP app returned a result")
+                } else {
+                    Log.i(TAG, "waitForResponse: latch timeout reached")
+                    result = CallControlResult.Error(CallException.ERROR_OPERATION_TIMED_OUT)
                 }
             }
         } catch (e: TimeoutCancellationException) {
-            Log.i(TAG, "waitForResponse: timeout reached")
+            Log.i(TAG, "waitForResponse: coroutine timeout reached")
             result = CallControlResult.Error(CallException.ERROR_OPERATION_TIMED_OUT)
         }
         return result

@@ -24,11 +24,10 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlResult
 import androidx.core.telecom.CallsManager
-import androidx.core.telecom.extensions.CallExtensionsScope
+import androidx.core.telecom.extensions.CallExtensionScopeImpl
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
-import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -54,11 +53,10 @@ import org.junit.runner.RunWith
  * or if the [CallsManager.EXTRA_VOIP_BACKWARDS_COMPATIBILITY_SUPPORTED] key is present in the call
  * extras (pre-U devices). In the future, this will be expanded to be provide more robust testing to
  * verify binder functionality as well as supporting the case for auto
- * ([CallsManager.EXTRA_VOIP_API_VERSION]).
+ * ([CallExtensionScopeImpl.EXTRA_VOIP_API_VERSION]).
  */
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 @RequiresApi(Build.VERSION_CODES.O)
-@OptIn(ExperimentalAppActions::class)
 @RunWith(AndroidJUnit4::class)
 class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     companion object {
@@ -164,7 +162,7 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
                         try {
                             val call = TestUtils.waitOnInCallServiceToReachXCalls(ics, 1)
                             Assert.assertNotNull("The returned Call object is <NULL>", call!!)
-                            val extensions = CallExtensionsScope(mContext, this, call)
+                            val extensions = CallExtensionScopeImpl(mContext, this, call)
                             // Assert the call extra or call property from the details
                             assertCallExtraOrProperty(extensions, call)
                         } finally {
@@ -181,9 +179,9 @@ class E2ECallExtensionExtrasTests : BaseTelecomTest() {
     }
 
     /** Helper to assert the call extra or property set on the call coming from Telecom. */
-    private suspend fun assertCallExtraOrProperty(extensions: CallExtensionsScope, call: Call) {
+    private suspend fun assertCallExtraOrProperty(extensions: CallExtensionScopeImpl, call: Call) {
         val type = extensions.resolveCallExtensionsType()
-        assertEquals(CallExtensionsScope.CAPABILITY_EXCHANGE, type)
+        assertEquals(CallExtensionScopeImpl.CAPABILITY_EXCHANGE, type)
         // Assert the specifics of the extensions are correct. Note, resolveCallExtensionsType also
         // internally assures the details are set properly
         val callDetails = call.details!!
