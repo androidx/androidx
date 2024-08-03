@@ -37,7 +37,7 @@ android {
 
 dependencies {
     // Internal library
-    implementation(project(":camera:camera-viewfinder"))
+    implementation(project(":camera:viewfinder:viewfinder-view"))
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.7.0")
