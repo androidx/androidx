@@ -25,6 +25,7 @@ import androidx.wear.compose.integration.demos.common.Material3DemoCategory
 import androidx.wear.compose.material3.samples.AnimatedTextSample
 import androidx.wear.compose.material3.samples.AnimatedTextSampleButtonResponse
 import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegistry
+import androidx.wear.compose.material3.samples.ButtonGroupSample
 import androidx.wear.compose.material3.samples.EdgeButtonListSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
@@ -63,6 +64,13 @@ val WearMaterial3Demos =
                             ComposableDemo("Edge Button Below SLC") {
                                 EdgeButtonBelowScalingLazyColumnDemo()
                             },
+                        )
+                    ),
+                    Material3DemoCategory(
+                        "Button Group",
+                        listOf(
+                            ComposableDemo("Button Group") { ButtonGroupDemo() },
+                            ComposableDemo("Button Group Sample") { ButtonGroupSample() },
                         )
                     ),
                     ComposableDemo("Button") { ButtonDemo() },
