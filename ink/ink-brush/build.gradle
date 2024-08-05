@@ -37,35 +37,43 @@ androidXMultiplatform {
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {
+    commonMain {}
+
+    commonTest {}
+
+    jvmAndroidMain {
+      dependsOn(commonMain)
       dependencies {
-        api(project(":compose:ui:ui-graphics"))
+        implementation(libs.kotlinStdlib)
+        api(libs.androidx.annotation)
+        implementation(project(":collection:collection"))
       }
     }
 
-    commonTest {
+    jvmAndroidTest {
+      dependsOn(commonTest)
       dependencies {
         implementation(libs.kotlinTest)
       }
     }
 
     androidMain {
-      dependsOn(commonMain)
+      dependsOn(jvmAndroidMain)
     }
 
     androidInstrumentedTest {
-      dependsOn(commonTest)
+      dependsOn(jvmAndroidTest)
       dependencies {
         implementation(libs.testRunner)
       }
     }
 
     jvmMain {
-      dependsOn(commonMain)
+      dependsOn(jvmAndroidMain)
     }
 
     jvmTest {
-      dependsOn(commonTest)
+      dependsOn(jvmAndroidTest)
     }
   }
 }
