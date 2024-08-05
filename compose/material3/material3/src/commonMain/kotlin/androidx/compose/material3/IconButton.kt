@@ -24,13 +24,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.internal.childSemantics
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
-import androidx.compose.material3.tokens.IconButtonTokens
 import androidx.compose.material3.tokens.LargeIconButtonTokens
 import androidx.compose.material3.tokens.MediumIconButtonTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
 import androidx.compose.material3.tokens.SmallIconButtonTokens
+import androidx.compose.material3.tokens.StandardIconButtonTokens
 import androidx.compose.material3.tokens.XLargeIconButtonTokens
 import androidx.compose.material3.tokens.XSmallIconButtonTokens
 import androidx.compose.runtime.Composable
@@ -96,6 +97,7 @@ import kotlin.jvm.JvmInline
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Deprecated(
     message = "Use overload with `shape`",
     replaceWith =
@@ -119,7 +121,7 @@ fun IconButton(
         enabled,
         colors,
         interactionSource,
-        IconButtonTokens.StateLayerShape.value,
+        IconButtonDefaults.standardShape,
         content
     )
 }
@@ -159,6 +161,7 @@ fun IconButton(
  * @param shape the [Shape] of this icon button.
  * @param content the content of this icon button, typically an [Icon]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun IconButton(
     onClick: () -> Unit,
@@ -175,7 +178,7 @@ fun IconButton(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
-                .size(IconButtonTokens.StateLayerSize)
+                .size(IconButtonDefaults.smallContainerSize())
                 .clip(shape)
                 .background(color = colors.containerColor(enabled), shape = shape)
                 .clickable(
@@ -223,6 +226,7 @@ fun IconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Deprecated(
     message = "Use overload with `shape`",
     replaceWith =
@@ -249,7 +253,7 @@ fun IconToggleButton(
         enabled,
         colors,
         interactionSource,
-        IconButtonTokens.StateLayerShape.value,
+        IconButtonDefaults.standardShape,
         content
     )
 }
@@ -284,6 +288,7 @@ fun IconToggleButton(
  * @param shape the [Shape] of this icon button.
  * @param content the content of this icon button, typically an [Icon]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun IconToggleButton(
     checked: Boolean,
@@ -301,7 +306,7 @@ fun IconToggleButton(
         modifier =
             modifier
                 .minimumInteractiveComponentSize()
-                .size(IconButtonTokens.StateLayerSize)
+                .size(IconButtonDefaults.smallContainerSize())
                 .clip(shape)
                 .background(color = colors.containerColor(enabled, checked).value)
                 .toggleable(
@@ -471,27 +476,17 @@ fun FilledIconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
-    Surface(
+    SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled, checked).value,
-        contentColor = colors.contentColor(enabled, checked).value,
-        interactionSource = interactionSource
-    ) {
-        Box(
-            modifier =
-                Modifier.size(
-                    width = FilledIconButtonTokens.ContainerWidth,
-                    height = FilledIconButtonTokens.ContainerHeight
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -530,6 +525,7 @@ fun FilledIconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FilledTonalIconToggleButton(
     checked: Boolean,
@@ -541,27 +537,17 @@ fun FilledTonalIconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
-    Surface(
+    SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled, checked).value,
-        contentColor = colors.contentColor(enabled, checked).value,
-        interactionSource = interactionSource
-    ) {
-        Box(
-            modifier =
-                Modifier.size(
-                    width = FilledTonalIconButtonTokens.ContainerWidth,
-                    height = FilledTonalIconButtonTokens.ContainerHeight
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -627,10 +613,11 @@ fun OutlinedIconButton(
         content = content
     )
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun SurfaceIconButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     enabled: Boolean,
     shape: Shape,
     colors: IconButtonColors,
@@ -649,16 +636,48 @@ private fun SurfaceIconButton(
         interactionSource = interactionSource
     ) {
         Box(
+            modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
+            contentAlignment = Alignment.Center
+        ) {
+            content()
+        }
+    }
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun SurfaceIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    shape: Shape,
+    colors: IconToggleButtonColors,
+    border: BorderStroke?,
+    interactionSource: MutableInteractionSource?,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { role = Role.Checkbox },
+        enabled = enabled,
+        shape = shape,
+        color = colors.containerColor(enabled, checked).value,
+        contentColor = colors.contentColor(enabled, checked).value,
+        border = border,
+        interactionSource = interactionSource
+    ) {
+        Box(
             modifier =
                 Modifier.size(
-                    width = FilledTonalIconButtonTokens.ContainerWidth,
-                    height = FilledTonalIconButtonTokens.ContainerHeight
+                    IconButtonDefaults.smallContainerSize(),
                 ),
             contentAlignment = Alignment.Center
         ) {
             content()
         }
     }
+}
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
@@ -705,31 +724,20 @@ fun OutlinedIconToggleButton(
     interactionSource: MutableInteractionSource? = null,
     content: @Composable () -> Unit
 ) =
-    Surface(
+    SurfaceIconToggleButton(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
-        color = colors.containerColor(enabled, checked).value,
-        contentColor = colors.contentColor(enabled, checked).value,
+        colors = colors,
         border = border,
-        interactionSource = interactionSource
-    ) {
-        Box(
-            modifier =
-                Modifier.size(
-                    OutlinedIconButtonTokens.ContainerSize,
-                ),
-            contentAlignment = Alignment.Center
-        ) {
-            content()
-        }
-    }
+        interactionSource = interactionSource,
+        content = content
+    )
 
 /** Contains the default values used by all icon button types. */
 object IconButtonDefaults {
-
     /** Creates a [IconButtonColors] that represents the default colors used in a [IconButton]. */
     @Composable
     fun iconButtonColors(): IconButtonColors {
@@ -741,7 +749,7 @@ object IconButtonDefaults {
             return colors.copy(
                 contentColor = contentColor,
                 disabledContentColor =
-                    contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+                    contentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity)
             )
         }
     }
@@ -760,7 +768,7 @@ object IconButtonDefaults {
         contentColor: Color = LocalContentColor.current,
         disabledContainerColor: Color = Color.Unspecified,
         disabledContentColor: Color =
-            contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+            contentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity)
     ): IconButtonColors =
         MaterialTheme.colorScheme
             .defaultIconButtonColors(LocalContentColor.current)
@@ -779,7 +787,7 @@ object IconButtonDefaults {
                         contentColor = localContentColor,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            localContentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+                            localContentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity)
                     )
                     .also { defaultIconButtonColorsCached = it }
             }
@@ -799,7 +807,7 @@ object IconButtonDefaults {
             return colors.copy(
                 contentColor = contentColor,
                 disabledContentColor =
-                    contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity)
+                    contentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity)
             )
         }
     }
@@ -821,7 +829,7 @@ object IconButtonDefaults {
         contentColor: Color = LocalContentColor.current,
         disabledContainerColor: Color = Color.Unspecified,
         disabledContentColor: Color =
-            contentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity),
+            contentColor.copy(alpha = StandardIconButtonTokens.DisabledOpacity),
         checkedContainerColor: Color = Color.Unspecified,
         checkedContentColor: Color = Color.Unspecified
     ): IconToggleButtonColors =
@@ -846,9 +854,11 @@ object IconButtonDefaults {
                         contentColor = localContentColor,
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
-                            localContentColor.copy(alpha = IconButtonTokens.DisabledIconOpacity),
+                            localContentColor.copy(
+                                alpha = StandardIconButtonTokens.DisabledOpacity
+                            ),
                         checkedContainerColor = Color.Transparent,
-                        checkedContentColor = fromToken(IconButtonTokens.SelectedIconColor)
+                        checkedContentColor = fromToken(StandardIconButtonTokens.SelectedColor)
                     )
                     .also { defaultIconToggleButtonColorsCached = it }
             }
@@ -947,7 +957,7 @@ object IconButtonDefaults {
                         // TODO(b/228455081): Using contentColorFor here will return
                         // OnSurfaceVariant,
                         //  while the token value is Primary.
-                        contentColor = fromToken(FilledIconButtonTokens.ToggleUnselectedColor),
+                        contentColor = fromToken(FilledIconButtonTokens.UnselectedColor),
                         disabledContainerColor =
                             fromToken(FilledIconButtonTokens.DisabledContainerColor)
                                 .copy(alpha = FilledIconButtonTokens.DisabledContainerOpacity),
@@ -1038,7 +1048,7 @@ object IconButtonDefaults {
         disabledContainerColor: Color = Color.Unspecified,
         disabledContentColor: Color = Color.Unspecified,
         checkedContainerColor: Color = Color.Unspecified,
-        checkedContentColor: Color = Color.Unspecified
+        checkedContentColor: Color = contentColorFor(checkedContainerColor)
     ): IconToggleButtonColors =
         MaterialTheme.colorScheme.defaultFilledTonalIconToggleButtonColors.copy(
             containerColor = containerColor,
@@ -1068,7 +1078,9 @@ object IconButtonDefaults {
                         checkedContainerColor =
                             fromToken(FilledTonalIconButtonTokens.SelectedContainerColor),
                         checkedContentColor =
-                            fromToken(FilledTonalIconButtonTokens.ToggleSelectedColor)
+                            contentColorFor(
+                                fromToken(FilledTonalIconButtonTokens.SelectedContainerColor)
+                            )
                     )
                     .also { defaultFilledTonalIconToggleButtonColorsCached = it }
         }
@@ -1189,7 +1201,7 @@ object IconButtonDefaults {
     internal fun ColorScheme.defaultOutlinedIconToggleButtonColors(
         localContentColor: Color
     ): IconToggleButtonColors {
-        return defaultIconToggleButtonColorsCached
+        return defaultOutlinedIconToggleButtonColorsCached
             ?: run {
                 IconToggleButtonColors(
                         containerColor = Color.Transparent,
@@ -1199,8 +1211,7 @@ object IconButtonDefaults {
                             localContentColor.copy(
                                 alpha = OutlinedIconButtonTokens.DisabledOpacity
                             ),
-                        checkedContainerColor =
-                            fromToken(OutlinedIconButtonTokens.SelectedContainerColor),
+                        checkedContainerColor = fromToken(ColorSchemeKeyTokens.InverseSurface),
                         checkedContentColor =
                             contentColorFor(
                                 fromToken(OutlinedIconButtonTokens.SelectedContainerColor)
@@ -1237,25 +1248,23 @@ object IconButtonDefaults {
                 LocalContentColor.current
             } else {
                 LocalContentColor.current.copy(
-                    alpha = OutlinedIconButtonTokens.DisabledUnselectedOutlineOpacity
+                    alpha = OutlinedIconButtonTokens.DisabledContainerOpacity
                 )
             }
-        return remember(color) {
-            BorderStroke(OutlinedIconButtonTokens.UnselectedOutlineWidth, color)
-        }
+        return remember(color) { BorderStroke(SmallIconButtonTokens.OutlinedOutlineWidth, color) }
     }
 
     /** Default ripple shape for a standard icon button. */
     val standardShape: Shape
-        @Composable get() = IconButtonTokens.StateLayerShape.value
+        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
 
     /** Default shape for a filled icon button. */
     val filledShape: Shape
-        @Composable get() = FilledIconButtonTokens.ContainerShape.value
+        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
 
     /** Default shape for an outlined icon button. */
     val outlinedShape: Shape
-        @Composable get() = OutlinedIconButtonTokens.ContainerShape.value
+        @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
