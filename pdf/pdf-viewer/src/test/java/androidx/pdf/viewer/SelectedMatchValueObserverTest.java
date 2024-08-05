@@ -64,7 +64,11 @@ public class SelectedMatchValueObserverTest {
         when(mMockPaginatedView.getViewAt(2)).thenReturn(mMockNewPageView);
         when(mMockPaginationModel.getPageSize(2)).thenReturn(new Dimensions(100, 100));
         when(mMockOldPageView.getPageView()).thenReturn(mMockOldPageMosaicView);
-        when(mMockPageViewFactory.getOrCreatePageView(2, 2, new Dimensions(100, 100))).thenReturn(
+        when(mMockPageViewFactory.getOrCreatePageView(2, 2,
+                new Dimensions(100, 100))).thenReturn(
+                mMockNewPageMosaicView);
+        when(mMockPageViewFactory.getOrCreatePageView(2, 2,
+                new Dimensions(100, 100)).getPageView()).thenReturn(
                 mMockNewPageMosaicView);
         when(mMockOldSelection.getPageMatches()).thenReturn(
                 new MatchRects(new ArrayList<>(), new ArrayList<>(), new ArrayList<>()));

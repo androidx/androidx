@@ -83,10 +83,10 @@ public class SelectedMatchValueObserver implements ObservableValue.ValueObserver
         int y = mPaginationModel.getLookAtY(selection.getPage(), rect.centerY());
         mZoomView.centerAt(x, y);
 
-        PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+        PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                 selection.getPage(),
                 PaginationUtils.getPageElevationInPixels(mContext),
-                mPaginationModel.getPageSize(selection.getPage()));
+                mPaginationModel.getPageSize(selection.getPage())).getPageView();
         pageView.setOverlay(selection.getOverlay());
     }
 }

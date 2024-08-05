@@ -394,10 +394,10 @@ public class PaginatedView extends AbstractPaginatedView {
             float stableZoom) {
         for (int page : pages) {
             mPdfLoader.cancelAllTileBitmaps(page);
-            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+            PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mPaginationModel.getPageSize(page)).getPageView();
             pageView.clearTiles();
             pageView.requestFastDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
@@ -406,10 +406,10 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private void refreshPages(Range pages, float stableZoom) {
         for (int page : pages) {
-            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+            PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mPaginationModel.getPageSize(page)).getPageView();
             pageView.requestDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
         }
@@ -427,10 +427,10 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private void refreshTiles(Range pages) {
         for (int page : pages) {
-            PageMosaicView pageView = (PageMosaicView) mPageViewFactory.getOrCreatePageView(
+            PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mPaginationModel.getPageSize(page)).getPageView();
             pageView.requestTiles();
         }
     }
