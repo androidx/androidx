@@ -408,7 +408,11 @@ sealed class Snapshot(
          */
         inline fun <T> global(block: () -> T): T {
             val previous = removeCurrent()
-            return block().also { restoreCurrent(previous) }
+            try {
+                return block()
+            } finally {
+                restoreCurrent(previous)
+            }
         }
 
         /**
@@ -428,9 +432,16 @@ sealed class Snapshot(
         // TODO: determine a good way to prevent/discourage suspending in an inlined [block]
         inline fun <R> withMutableSnapshot(block: () -> R): R =
             takeMutableSnapshot().run {
+                var hasError = false
                 try {
-                    enter(block).also { apply().check() }
+                    enter(block)
+                } catch (e: Throwable) {
+                    hasError = true
+                    throw e
                 } finally {
+                    if (!hasError) {
+                        apply().check()
+                    }
                     dispose()
                 }
             }
