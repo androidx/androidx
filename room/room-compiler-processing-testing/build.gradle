@@ -31,8 +31,8 @@ plugins {
 }
 
 ext {
-    kotlin = "2.0.20-Beta2"
-    ksp = "${kotlin}-1.0.23"
+    kotlin = "2.0.20-RC"
+    ksp = "${kotlin}-1.0.24"
 }
 
 dependencies {
