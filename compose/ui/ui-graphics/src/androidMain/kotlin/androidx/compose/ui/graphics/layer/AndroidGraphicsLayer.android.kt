@@ -730,6 +730,7 @@ internal constructor(
         roundRectOutlineTopLeft = Offset.Zero
         roundRectCornerRadius = 0f
         outlineDirty = true
+        usePathForClip = false
     }
 
     /**
@@ -760,9 +761,11 @@ internal constructor(
      * @sample androidx.compose.ui.graphics.samples.GraphicsLayerRoundRectOutline
      */
     actual fun setRoundRectOutline(topLeft: Offset, size: Size, cornerRadius: Float) {
-        if (this.roundRectOutlineTopLeft != topLeft ||
-            this.roundRectOutlineSize != size ||
-            this.roundRectCornerRadius != cornerRadius
+        if (
+            this.roundRectOutlineTopLeft != topLeft ||
+                this.roundRectOutlineSize != size ||
+                this.roundRectCornerRadius != cornerRadius ||
+                this.outlinePath != null
         ) {
             resetOutlineParams()
             this.roundRectOutlineTopLeft = topLeft
@@ -804,11 +807,11 @@ internal constructor(
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var ambientShadowColor: Color = Color.Black
+    actual var ambientShadowColor: Color
+        get() = impl.ambientShadowColor
         set(value) {
-            if (field != value) {
+            if (value != impl.ambientShadowColor) {
                 impl.ambientShadowColor = value
-                field = value
             }
         }
 
@@ -825,11 +828,11 @@ internal constructor(
      * Note that this parameter is only supported on Android 9 (Pie) and above. On older versions,
      * this property always returns [Color.Black] and setting new values is ignored.
      */
-    actual var spotShadowColor: Color = Color.Black
+    actual var spotShadowColor: Color
+        get() = impl.spotShadowColor
         set(value) {
-            if (field != value) {
+            if (value != impl.spotShadowColor) {
                 impl.spotShadowColor = value
-                field = value
             }
         }
 

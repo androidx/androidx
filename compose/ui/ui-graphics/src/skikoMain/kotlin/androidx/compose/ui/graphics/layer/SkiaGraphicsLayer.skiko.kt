@@ -53,6 +53,7 @@ import org.jetbrains.skia.PictureRecorder
 import org.jetbrains.skia.Point3
 
 // TODO https://youtrack.jetbrains.com/issue/COMPOSE-1254/Integration.-Implement-GraphicsLayer
+// TODO https://youtrack.jetbrains.com/issue/CMP-5892/Apply-changes-from-1.7.0-beta06-from-AndroidGraphicsLayer.android.kt
 
 actual class GraphicsLayer internal constructor() {
 

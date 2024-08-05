@@ -210,11 +210,9 @@ private val SeekableTransitionStateTotalDurationChanged: (SeekableTransitionStat
     it.onTotalDurationChanged()
 }
 
-private val SeekableStateObserver: SnapshotStateObserver by lazy(LazyThreadSafetyMode.NONE) {
-    SnapshotStateObserver { it() }.apply {
-        start()
-    }
-}
+// This observer is also accessed from test. It should be otherwise treated as private.
+internal val SeekableStateObserver: SnapshotStateObserver by
+    lazy(LazyThreadSafetyMode.NONE) { SnapshotStateObserver { it() }.apply { start() } }
 
 /**
  * A [TransitionState] that can manipulate the progress of the [Transition] by seeking
@@ -694,9 +692,9 @@ class SeekableTransitionState<S>(
                     currentState = targetState
                     waitForComposition()
                     fraction = 0f
-                    transition.onTransitionEnd()
                 }
             }
+            transition.onTransitionEnd()
         }
     }
 
@@ -836,12 +834,12 @@ fun <T> rememberTransition(
         }
     } else {
         transition.animateTo(transitionState.targetState)
-        DisposableEffect(transition) {
-            onDispose {
-                // Clean up on the way out, to ensure the observers are not stuck in an in-between
-                // state.
-                transition.onDisposed()
-            }
+    }
+    DisposableEffect(transition) {
+        onDispose {
+            // Clean up on the way out, to ensure the observers are not stuck in an in-between
+            // state.
+            transition.onDisposed()
         }
     }
     return transition
@@ -1109,6 +1107,7 @@ class Transition<S> internal constructor(
         }
         playTimeNanos = 0
         transitionState.isRunning = false
+        _transitions.fastForEach { it.onTransitionEnd() }
     }
 
     /**
