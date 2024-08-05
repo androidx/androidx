@@ -358,7 +358,6 @@ internal class RenderNodeLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
         invalidateParentLayer: () -> Unit
     ) {
-        matrixCache.reset()
         isDirty = false
         isDestroyed = false
         drawnWithZ = false

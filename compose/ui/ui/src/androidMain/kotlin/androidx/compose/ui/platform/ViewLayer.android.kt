@@ -387,7 +387,6 @@ internal class ViewLayer(
         } else {
             visibility = VISIBLE
         }
-        matrixCache.reset()
         clipToBounds = false
         drawnWithZ = false
         mTransformOrigin = TransformOrigin.Center
