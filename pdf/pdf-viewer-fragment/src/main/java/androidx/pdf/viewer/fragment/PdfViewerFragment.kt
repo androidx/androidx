@@ -642,7 +642,10 @@ public open class PdfViewerFragment : Fragment() {
         if (!documentLoaded) {
             return
         }
-        if (annotationButton?.visibility != View.VISIBLE) {
+        if (
+            annotationButton?.visibility != View.VISIBLE &&
+                findInFileView?.visibility != View.VISIBLE
+        ) {
             annotationButton?.post {
                 annotationButton?.visibility = View.VISIBLE
                 annotationButton?.alpha = 0f
