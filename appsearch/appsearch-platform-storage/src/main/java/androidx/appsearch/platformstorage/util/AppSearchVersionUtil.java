@@ -37,7 +37,6 @@ import androidx.core.util.Preconditions;
 public class AppSearchVersionUtil {
     public static final long APPSEARCH_U_BASE_VERSION_CODE = 331311020;
     public static final long APPSEARCH_M2023_11_VERSION_CODE = 341113000;
-    public static final long APPSEARCH_M2024_08_VERSION_CODE = 350820180;
 
     private static final String APPSEARCH_MODULE_NAME = "com.android.appsearch";
 
