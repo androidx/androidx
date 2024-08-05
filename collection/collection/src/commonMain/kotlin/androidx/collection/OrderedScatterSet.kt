@@ -29,6 +29,7 @@ package androidx.collection
 import androidx.annotation.IntRange
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.requirePrecondition
+import androidx.collection.internal.throwNoSuchElementExceptionForInline
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -177,7 +178,7 @@ public sealed class OrderedScatterSet<E> {
         forEach {
             return it
         }
-        throw NoSuchElementException("The OrderedScatterSet is empty")
+        throwNoSuchElementExceptionForInline("The OrderedScatterSet is empty")
     }
 
     /**
@@ -189,10 +190,10 @@ public sealed class OrderedScatterSet<E> {
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      *   collection is empty.
      */
-    public fun first(predicate: (element: E) -> Boolean): E {
+    public inline fun first(predicate: (element: E) -> Boolean): E {
         contract { callsInPlace(predicate) }
         forEach { if (predicate(it)) return it }
-        throw NoSuchElementException("Could not find a match")
+        throwNoSuchElementExceptionForInline("Could not find a match")
     }
 
     /**
@@ -218,7 +219,7 @@ public sealed class OrderedScatterSet<E> {
         forEachReverse {
             return it
         }
-        throw NoSuchElementException("The OrderedScatterSet is empty")
+        throwNoSuchElementExceptionForInline("The OrderedScatterSet is empty")
     }
 
     /**
@@ -230,10 +231,10 @@ public sealed class OrderedScatterSet<E> {
      * @throws NoSuchElementException if [predicate] returns `false` for all elements or the
      *   collection is empty.
      */
-    public fun last(predicate: (element: E) -> Boolean): E {
+    public inline fun last(predicate: (element: E) -> Boolean): E {
         contract { callsInPlace(predicate) }
         forEachReverse { if (predicate(it)) return it }
-        throw NoSuchElementException("Could not find a match")
+        throwNoSuchElementExceptionForInline("Could not find a match")
     }
 
     /**
@@ -1029,16 +1030,16 @@ public class MutableOrderedScatterSet<E>(initialCapacity: Int = DefaultScatterCa
      *   `true`, the element is kept in the set, otherwise it is removed.
      * @return `true` if this set was modified, `false` otherwise.
      */
-    public fun retainAll(predicate: (E) -> Boolean): Boolean {
+    public inline fun retainAll(predicate: (E) -> Boolean): Boolean {
         val elements = elements
-        val startSize = _size
+        val startSize = size
         unorderedForEachIndex { index ->
             @Suppress("UNCHECKED_CAST")
             if (!predicate(elements[index] as E)) {
                 removeElementAt(index)
             }
         }
-        return startSize != _size
+        return startSize != size
     }
 
     @PublishedApi

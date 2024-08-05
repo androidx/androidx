@@ -29,6 +29,7 @@ package androidx.collection
 import androidx.annotation.IntRange
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.requirePrecondition
+import androidx.collection.internal.throwNoSuchElementExceptionForInline
 import kotlin.contracts.contract
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
@@ -158,11 +159,11 @@ public sealed class ScatterSet<E> {
      *
      * @throws NoSuchElementException if the collection is empty
      */
-    public inline fun first(): E {
+    public fun first(): E {
         forEach {
             return it
         }
-        throw NoSuchElementException("The ScatterSet is empty")
+        throwNoSuchElementExceptionForInline("The ScatterSet is empty")
     }
 
     /**
@@ -176,7 +177,7 @@ public sealed class ScatterSet<E> {
     public inline fun first(predicate: (element: E) -> Boolean): E {
         contract { callsInPlace(predicate) }
         forEach { if (predicate(it)) return it }
-        throw NoSuchElementException("Could not find a match")
+        throwNoSuchElementExceptionForInline("Could not find a match")
     }
 
     /**
