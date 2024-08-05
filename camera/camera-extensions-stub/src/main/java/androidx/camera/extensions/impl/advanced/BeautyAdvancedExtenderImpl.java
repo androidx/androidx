@@ -19,6 +19,7 @@ package androidx.camera.extensions.impl.advanced;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
+import android.util.Pair;
 import android.util.Range;
 import android.util.Size;
 
@@ -111,6 +112,12 @@ public class BeautyAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
     @Override
     public boolean isPostviewAvailable() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @NonNull
+    @Override
+    public List<Pair<CameraCharacteristics.Key, Object>> getAvailableCharacteristicsKeyValues() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }
