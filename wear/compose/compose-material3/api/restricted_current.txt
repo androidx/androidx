@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.wear.compose.material3 {
 
-  public final class AnimatedTextDefaults {
+  @RequiresApi(31) public final class AnimatedTextDefaults {
     field public static final int CacheSize = 5; // 0x5
     field public static final androidx.wear.compose.material3.AnimatedTextDefaults INSTANCE;
   }
