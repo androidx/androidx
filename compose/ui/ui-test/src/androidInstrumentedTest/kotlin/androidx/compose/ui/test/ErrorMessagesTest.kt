@@ -198,7 +198,7 @@ class ErrorMessagesTest {
                 The node is no longer in the tree, last known semantics:
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
             """
@@ -223,7 +223,7 @@ class ErrorMessagesTest {
                 The node is no longer in the tree, last known semantics:
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
             """
@@ -248,7 +248,7 @@ class ErrorMessagesTest {
                 The node is no longer in the tree, last known semantics:
                 Node #X at (l=X, t=X, r=X, b=X)px
                 Text = '[Hello]'
-                Actions = [SetTextSubstitution, ShowTextSubstitution, ClearTextSubstitution, GetTextLayoutResult]
+                Actions = [ClearTextSubstitution, GetTextLayoutResult, SetTextSubstitution, ShowTextSubstitution]
                 Has 1 sibling
                 Original selector: Text + EditableText contains 'Hello' (ignoreCase: false)
             """

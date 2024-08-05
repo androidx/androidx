@@ -20,9 +20,9 @@ import android.annotation.SuppressLint
 import android.graphics.Region
 import android.view.View
 import androidx.collection.IntObjectMap
+import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
-import androidx.collection.mutableIntObjectMapOf
-import androidx.collection.mutableIntSetOf
+import androidx.collection.emptyIntObjectMap
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.OwnerScope
@@ -50,7 +50,7 @@ internal class SemanticsNodeCopy(
     val unmergedConfig = semanticsNode.unmergedConfig
     // Root node must always be considered visible and sent to listening services
     val isTransparent = if (semanticsNode.isRoot) false else semanticsNode.isTransparent
-    val children: MutableIntSet = mutableIntSetOf()
+    val children: MutableIntSet = MutableIntSet(semanticsNode.replacedChildren.size)
 
     init {
         semanticsNode.replacedChildren.fastForEach { child ->
@@ -159,10 +159,12 @@ internal fun AndroidViewsHandler.semanticsIdToView(id: Int): View? =
 internal fun SemanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap():
     IntObjectMap<SemanticsNodeWithAdjustedBounds> {
     val root = unmergedRootSemanticsNode
-    val nodes = mutableIntObjectMapOf<SemanticsNodeWithAdjustedBounds>()
     if (!root.layoutNode.isPlaced || !root.layoutNode.isAttached) {
-        return nodes
+        return emptyIntObjectMap()
     }
+
+    // Default capacity chosen to accommodate common scenarios
+    val nodes = MutableIntObjectMap<SemanticsNodeWithAdjustedBounds>(48)
 
     val unaccountedSpace =
         with(root.boundsInRoot) {

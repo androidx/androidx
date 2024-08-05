@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.semantics
 
+import androidx.collection.MutableScatterMap
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.ui.platform.simpleIdentityToString
 
 /**
@@ -26,7 +28,8 @@ import androidx.compose.ui.platform.simpleIdentityToString
 class SemanticsConfiguration :
     SemanticsPropertyReceiver, Iterable<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
 
-    private val props: MutableMap<SemanticsPropertyKey<*>, Any?> = mutableMapOf()
+    private val props: MutableScatterMap<SemanticsPropertyKey<*>, Any?> = mutableScatterMapOf()
+    private var mapWrapper: Map<SemanticsPropertyKey<*>, Any?>? = null
 
     /**
      * Retrieves the value for the given property, if one has been set. If a value has not been set,
@@ -53,7 +56,9 @@ class SemanticsConfiguration :
     }
 
     override fun iterator(): Iterator<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
-        return props.iterator()
+        @Suppress("AsCollectionCall")
+        val mapWrapper = mapWrapper ?: props.asMap().apply { mapWrapper = this }
+        return mapWrapper.iterator()
     }
 
     override fun <T> set(key: SemanticsPropertyKey<T>, value: T) {
@@ -70,7 +75,7 @@ class SemanticsConfiguration :
     }
 
     internal fun containsImportantForAccessibility() =
-        props.keys.any { it.isImportantForAccessibility }
+        props.any { key, _ -> key.isImportantForAccessibility }
 
     /**
      * Whether the semantic information provided by the owning component and all of its descendants
@@ -92,7 +97,7 @@ class SemanticsConfiguration :
      */
     @Suppress("UNCHECKED_CAST")
     internal fun mergeChild(child: SemanticsConfiguration) {
-        for ((key, nextValue) in child.props) {
+        child.props.forEach { key, nextValue ->
             val existingValue = props[key]
             val mergeResult = (key as SemanticsPropertyKey<Any?>).merge(existingValue, nextValue)
             if (mergeResult != null) {
@@ -119,7 +124,7 @@ class SemanticsConfiguration :
         if (peer.isClearingSemantics) {
             isClearingSemantics = true
         }
-        for ((key, nextValue) in peer.props) {
+        peer.props.forEach { key, nextValue ->
             if (!props.contains(key)) {
                 props[key] = nextValue
             } else if (nextValue is AccessibilityAction<*>) {
@@ -176,7 +181,7 @@ class SemanticsConfiguration :
             nextSeparator = ", "
         }
 
-        for ((key, value) in props) {
+        props.forEach { key, value ->
             propsString.append(nextSeparator)
             propsString.append(key.name)
             propsString.append(" : ")

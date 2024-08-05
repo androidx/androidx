@@ -223,7 +223,10 @@ private fun rectToShortString(rect: Rect): String {
 private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, indent: String = "") {
     val actions = mutableListOf<String>()
     val units = mutableListOf<String>()
-    for ((key, value) in config) {
+
+    // Keep output sorted to produce stable strings
+    val sorted = config.toList().sortedBy { it.key.name }
+    for ((key, value) in sorted) {
         if (key == SemanticsProperties.TestTag) {
             continue
         }

@@ -545,13 +545,58 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
     }
 
+    private val semanticComparators: Array<Comparator<SemanticsNode>> =
+        Array(2) { index ->
+            val comparator =
+                when (index) {
+                    0 -> RtlBoundsComparator
+                    else -> LtrBoundsComparator
+                }
+            comparator
+                // then compare by layoutNode's zIndex and placement order
+                .thenBy(LayoutNode.ZComparator) { it.layoutNode }
+                // then compare by semanticsId to break the tie somehow
+                .thenBy { it.id }
+        }
+
     @Suppress("NOTHING_TO_INLINE")
     private inline fun semanticComparator(layoutIsRtl: Boolean): Comparator<SemanticsNode> {
-        return (if (layoutIsRtl) RtlBoundsComparator else LtrBoundsComparator)
-            // then compare by layoutNode's zIndex and placement order
-            .thenBy(LayoutNode.ZComparator) { it.layoutNode }
-            // then compare by semanticsId to break the tie somehow
-            .thenBy { it.id }
+        return semanticComparators[if (layoutIsRtl) 0 else 1]
+    }
+
+    // check to see if this entry overlaps with any groupings in rowGroupings
+    private fun placedEntryRowOverlaps(
+        rowGroupings: ArrayList<Pair<Rect, MutableList<SemanticsNode>>>,
+        node: SemanticsNode
+    ): Boolean {
+        // Conversion to long is needed in order to utilize `until`, which has no float ver
+        val entryTopCoord = node.boundsInWindow.top
+        val entryBottomCoord = node.boundsInWindow.bottom
+        val entryIsEmpty = entryTopCoord >= entryBottomCoord
+
+        for (currIndex in 0..rowGroupings.lastIndex) {
+            val currRect = rowGroupings[currIndex].first
+            val groupIsEmpty = currRect.top >= currRect.bottom
+            val groupOverlapsEntry =
+                !entryIsEmpty &&
+                    !groupIsEmpty &&
+                    max(entryTopCoord, currRect.top) < min(entryBottomCoord, currRect.bottom)
+
+            // If it overlaps with this row group, update cover and add node
+            if (groupOverlapsEntry) {
+                val newRect =
+                    currRect.intersect(0f, entryTopCoord, Float.POSITIVE_INFINITY, entryBottomCoord)
+                // Replace the cover rectangle, copying over the old list of nodes
+                rowGroupings[currIndex] = Pair(newRect, rowGroupings[currIndex].second)
+                // Add current node
+                rowGroupings[currIndex].second.add(node)
+                // We've found an overlapping group, return true
+                return true
+            }
+        }
+
+        // If we've made it here, then there are no groups our entry overlaps with
+        return false
     }
 
     /**
@@ -573,49 +618,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     ): MutableList<SemanticsNode> {
         // RowGroupings list consists of pairs, first = a rectangle of the bounds of the row
         // and second = the list of nodes in that row
-        val rowGroupings = ArrayList<Pair<Rect, MutableList<SemanticsNode>>>()
-
-        // check to see if this entry overlaps with any groupings in rowGroupings
-        fun placedEntryRowOverlaps(node: SemanticsNode): Boolean {
-            // Conversion to long is needed in order to utilize `until`, which has no float ver
-            val entryTopCoord = node.boundsInWindow.top
-            val entryBottomCoord = node.boundsInWindow.bottom
-            val entryIsEmpty = entryTopCoord >= entryBottomCoord
-
-            for (currIndex in 0..rowGroupings.lastIndex) {
-                val currRect = rowGroupings[currIndex].first
-                val groupIsEmpty = currRect.top >= currRect.bottom
-                val groupOverlapsEntry =
-                    !entryIsEmpty &&
-                        !groupIsEmpty &&
-                        max(entryTopCoord, currRect.top) < min(entryBottomCoord, currRect.bottom)
-
-                // If it overlaps with this row group, update cover and add node
-                if (groupOverlapsEntry) {
-                    val newRect =
-                        currRect.intersect(
-                            0f,
-                            entryTopCoord,
-                            Float.POSITIVE_INFINITY,
-                            entryBottomCoord
-                        )
-                    // Replace the cover rectangle, copying over the old list of nodes
-                    rowGroupings[currIndex] = Pair(newRect, rowGroupings[currIndex].second)
-                    // Add current node
-                    rowGroupings[currIndex].second.add(node)
-                    // We've found an overlapping group, return true
-                    return true
-                }
-            }
-
-            // If we've made it here, then there are no groups our entry overlaps with
-            return false
-        }
+        val rowGroupings =
+            ArrayList<Pair<Rect, MutableList<SemanticsNode>>>(parentListToSort.size / 2)
 
         for (entryIndex in 0..parentListToSort.lastIndex) {
             val currEntry = parentListToSort[entryIndex]
             // If this is the first entry, or vertical groups don't overlap
-            if (entryIndex == 0 || !placedEntryRowOverlaps(currEntry)) {
+            if (entryIndex == 0 || !placedEntryRowOverlaps(rowGroupings, currEntry)) {
                 val newRect = currEntry.boundsInWindow
                 rowGroupings.add(Pair(newRect, mutableListOf(currEntry)))
             } // otherwise, we've already iterated through, found and placed it in a matching group

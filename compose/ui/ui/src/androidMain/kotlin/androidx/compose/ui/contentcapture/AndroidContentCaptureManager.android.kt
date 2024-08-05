@@ -228,8 +228,7 @@ internal class AndroidContentCaptureManager(
         newNode: SemanticsNode,
         oldNode: SemanticsNodeCopy
     ) {
-        val newChildren = MutableIntSet()
-
+        val newChildren = MutableIntSet(newNode.replacedChildren.size)
         // If any child is added, clear the subtree rooted at this node and return.
         newNode.replacedChildren.fastForEach { child ->
             if (currentSemanticsNodes.contains(child.id)) {

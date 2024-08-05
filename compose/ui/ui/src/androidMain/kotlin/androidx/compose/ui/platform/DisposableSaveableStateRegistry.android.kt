@@ -160,7 +160,7 @@ private val AcceptableClasses =
     )
 
 @Suppress("DEPRECATION")
-private fun Bundle.toMap(): Map<String, List<Any?>>? {
+private fun Bundle.toMap(): Map<String, List<Any?>> {
     val map = mutableMapOf<String, List<Any?>>()
     this.keySet().forEach { key ->
         val list = getParcelableArrayList<Parcelable?>(key) as ArrayList<Any?>
