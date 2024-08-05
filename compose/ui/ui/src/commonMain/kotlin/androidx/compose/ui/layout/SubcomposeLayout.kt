@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.layout
 
-import androidx.collection.MutableOrderedScatterSet
-import androidx.collection.mutableOrderedScatterSetOf
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposeNodeLifecycleCallback
@@ -283,35 +281,16 @@ interface SubcomposeSlotReusePolicy {
     fun areCompatible(slotId: Any?, reusableSlotId: Any?): Boolean
 
     /**
-     * Set containing slot ids currently available to reuse. Used by [getSlotsToRetain]. The set
-     * retains the insertion order of its elements, guaranteeing stable iteration order.
+     * Set containing slot ids currently available to reuse. Used by [getSlotsToRetain].
      *
      * This class works exactly as [MutableSet], but doesn't allow to add new items in it.
      */
-    class SlotIdsSet
-    internal constructor(
-        private val set: MutableOrderedScatterSet<Any?> = mutableOrderedScatterSetOf()
-    ) : Collection<Any?> {
-
-        override val size: Int
-            get() = set.size
-
-        override fun isEmpty(): Boolean = set.isEmpty()
-
-        override fun containsAll(elements: Collection<Any?>): Boolean {
-            elements.forEach { element ->
-                if (element !in set) {
-                    return false
-                }
-            }
-            return true
-        }
-
-        override fun contains(element: Any?): Boolean = set.contains(element)
+    class SlotIdsSet internal constructor(private val set: MutableSet<Any?> = mutableSetOf()) :
+        Collection<Any?> by set {
 
         internal fun add(slotId: Any?) = set.add(slotId)
 
-        override fun iterator(): MutableIterator<Any?> = set.asMutableSet().iterator()
+        override fun iterator(): MutableIterator<Any?> = set.iterator()
 
         /**
          * Removes a [slotId] from this set, if it is present.
@@ -332,11 +311,7 @@ interface SubcomposeSlotReusePolicy {
          *
          * @return `true` if any slot id was removed, `false` if the set was not modified.
          */
-        fun removeAll(predicate: (Any?) -> Boolean): Boolean {
-            val size = set.size
-            set.removeIf(predicate)
-            return size != set.size
-        }
+        fun removeAll(predicate: (Any?) -> Boolean): Boolean = set.removeAll(predicate)
 
         /**
          * Retains only the slot ids that are contained in [slotIds].
@@ -354,19 +329,6 @@ interface SubcomposeSlotReusePolicy {
 
         /** Removes all slot ids from this set. */
         fun clear() = set.clear()
-
-        /**
-         * Remove entries until [size] equals [maxSlotsToRetainForReuse]. Entries inserted last are
-         * removed first.
-         */
-        fun trimToSize(maxSlotsToRetainForReuse: Int) = set.trimToSize(maxSlotsToRetainForReuse)
-
-        /**
-         * Iterates over every element stored in this set by invoking the specified [block] lambda.
-         * The iteration order is the same as the insertion order. It is safe to remove the element
-         * passed to [block] during iteration.
-         */
-        fun forEach(block: (Any?) -> Unit) = set.forEach(block)
     }
 }
 
@@ -564,7 +526,7 @@ internal class LayoutNodeSubcompositionsState(
                     val node = root.foldedChildren[i]
                     val nodeState = nodeToNodeState[node]!!
                     val slotId = nodeState.slotId
-                    if (slotId in reusableSlotIdsSet) {
+                    if (reusableSlotIdsSet.contains(slotId)) {
                         reusableCount++
                         if (nodeState.active) {
                             node.resetLayoutState()
@@ -1001,7 +963,17 @@ private class FixedCountSubcomposeSlotReusePolicy(private val maxSlotsToRetainFo
 
     override fun getSlotsToRetain(slotIds: SubcomposeSlotReusePolicy.SlotIdsSet) {
         if (slotIds.size > maxSlotsToRetainForReuse) {
-            slotIds.trimToSize(maxSlotsToRetainForReuse)
+            var count = 0
+            with(slotIds.iterator()) {
+                // keep first maxSlotsToRetainForReuse items
+                while (hasNext()) {
+                    next()
+                    count++
+                    if (count > maxSlotsToRetainForReuse) {
+                        remove()
+                    }
+                }
+            }
         }
     }
 
