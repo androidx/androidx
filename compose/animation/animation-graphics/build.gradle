@@ -49,7 +49,7 @@ androidXMultiplatform {
                 api(project(":compose:ui:ui-geometry"))
 
                 implementation(project(":compose:ui:ui-util"))
-                implementation("androidx.collection:collection:1.4.2")
+                implementation(project(":collection:collection"))
             }
         }
         androidMain.dependencies {
