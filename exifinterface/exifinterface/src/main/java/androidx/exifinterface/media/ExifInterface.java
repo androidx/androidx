@@ -3093,8 +3093,6 @@ public class ExifInterface {
     private static final int WEBP_CHUNK_TYPE_VP8X_DEFAULT_LENGTH = 10;
     private static final int WEBP_CHUNK_TYPE_BYTE_LENGTH = 4;
     private static final int WEBP_CHUNK_SIZE_BYTE_LENGTH = 4;
-    // maximum width/height allowed (inclusive), in pixels
-    private static final int WEBP_MAX_DIMENSION = 16383
 
     private static SimpleDateFormat sFormatterPrimary;
     private static SimpleDateFormat sFormatterSecondary;
@@ -6776,11 +6774,8 @@ public class ExifInterface {
 
                         // Retrieve image width/height
                         widthAndHeight = totalInputStream.readInt();
-                        int width = widthAndHeight & 0x0000FFFF;
-                        int height = (widthAndHeight & 0xFFFF0000) >> 16;
-                        if (width > WEBP_MAX_DIMENSION || height > WEBP_MAX_DIMENSION) {
-                            throw new IOException("Maximum side allowed is 16383 pixels.");
-                        }
+                        width = widthAndHeight & 0x3FFF;
+                        height = (widthAndHeight >> 16) & 0x3FFF;
                         bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
                     } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
                         // Check signature
