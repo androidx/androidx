@@ -29,7 +29,6 @@ import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.animateTo
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.internal.JvmDefaultWithCompatibility
@@ -209,7 +208,6 @@ suspend fun TransformableState.animatePanBy(
  * @param panAnimationSpec [AnimationSpec] to be used for animating offset
  * @param rotationAnimationSpec [AnimationSpec] to be used for animating rotation
  */
-@ExperimentalFoundationApi
 suspend fun TransformableState.animateBy(
     zoomFactor: Float,
     panOffset: Offset,
