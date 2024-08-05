@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package androidx.compose.foundation.benchmark.lazy
 
 import android.os.Build
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -58,6 +61,18 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 addNewItemOnToggle = false,
                 content = testCase.content,
                 isVertical = testCase.isVertical
+            )
+        }
+    }
+
+    @Test
+    fun scrollProgrammatically_useStickyHeader() {
+        benchmarkRule.toggleStateBenchmark {
+            ListRemeasureTestCase(
+                addNewItemOnToggle = false,
+                content = testCase.content,
+                isVertical = testCase.isVertical,
+                useStickyHeader = true
             )
         }
     }
@@ -105,6 +120,19 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
                 content = testCase.content,
                 isVertical = testCase.isVertical,
                 usePointerInput = true
+            )
+        }
+    }
+
+    @Test
+    fun scrollViaPointerInput_useStickyHeader() {
+        benchmarkRule.toggleStateBenchmark {
+            ListRemeasureTestCase(
+                addNewItemOnToggle = false,
+                content = testCase.content,
+                isVertical = testCase.isVertical,
+                usePointerInput = true,
+                useStickyHeader = true
             )
         }
     }
@@ -165,7 +193,9 @@ class LazyListScrollingBenchmark(private val testCase: LazyListScrollingTestCase
 class LazyListScrollingTestCase(
     private val name: String,
     val isVertical: Boolean,
-    val content: @Composable ListRemeasureTestCase.(LazyListState, useKeys: Boolean) -> Unit
+    val content:
+        @Composable
+        ListRemeasureTestCase.(LazyListState, useKeys: Boolean, useStickyHeader: Boolean) -> Unit
 ) {
     override fun toString(): String {
         return name
@@ -173,13 +203,18 @@ class LazyListScrollingTestCase(
 }
 
 private val LazyColumn =
-    LazyListScrollingTestCase("LazyColumn", isVertical = true) { state, useKeys ->
+    LazyListScrollingTestCase("LazyColumn", isVertical = true) { state, useKeys, useStickyHeader ->
         LazyColumn(
             state = state,
             modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
             flingBehavior = NoFlingBehavior
         ) {
-            item(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            if (useStickyHeader) {
+                stickyHeader(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            } else {
+                item(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            }
+
             items(
                 items,
                 key =
@@ -195,13 +230,17 @@ private val LazyColumn =
     }
 
 private val LazyRow =
-    LazyListScrollingTestCase("LazyRow", isVertical = false) { state, useKeys ->
+    LazyListScrollingTestCase("LazyRow", isVertical = false) { state, useKeys, useStickyHeader ->
         LazyRow(
             state = state,
             modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
             flingBehavior = NoFlingBehavior
         ) {
-            item(if (useKeys) "header" else null) { FirstLargeItem() }
+            if (useStickyHeader) {
+                stickyHeader(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            } else {
+                item(key = if (useKeys) "header" else null) { FirstLargeItem() }
+            }
             items(
                 items,
                 key =
@@ -218,10 +257,13 @@ private val LazyRow =
 
 class ListRemeasureTestCase(
     val addNewItemOnToggle: Boolean,
-    val content: @Composable ListRemeasureTestCase.(LazyListState, useKeys: Boolean) -> Unit,
+    val content:
+        @Composable
+        ListRemeasureTestCase.(LazyListState, useKeys: Boolean, useStickyHeader: Boolean) -> Unit,
     val isVertical: Boolean,
     val usePointerInput: Boolean = false,
-    val useKeys: Boolean = true
+    val useKeys: Boolean = true,
+    val useStickyHeader: Boolean = false
 ) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(100) { LazyItem(it) }
@@ -243,7 +285,7 @@ class ListRemeasureTestCase(
             }
         InitializeScrollHelper(scrollAmount = scrollBy)
         listState = rememberLazyListState()
-        content(listState, useKeys)
+        content(listState, useKeys, useStickyHeader)
     }
 
     @Composable
