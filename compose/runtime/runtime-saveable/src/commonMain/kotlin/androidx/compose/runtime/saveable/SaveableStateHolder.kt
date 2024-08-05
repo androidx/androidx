@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime.saveable
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -59,7 +60,7 @@ fun rememberSaveableStateHolder(): SaveableStateHolder =
 private class SaveableStateHolderImpl(
     private val savedStates: MutableMap<Any, Map<String, List<Any?>>> = mutableMapOf()
 ) : SaveableStateHolder {
-    private val registryHolders = mutableMapOf<Any, RegistryHolder>()
+    private val registryHolders = mutableScatterMapOf<Any, RegistryHolder>()
     var parentSaveableStateRegistry: SaveableStateRegistry? = null
 
     @Composable
@@ -90,7 +91,7 @@ private class SaveableStateHolderImpl(
 
     private fun saveAll(): MutableMap<Any, Map<String, List<Any?>>>? {
         val map = savedStates.toMutableMap()
-        registryHolders.values.forEach { it.saveTo(map) }
+        registryHolders.forEachValue { it.saveTo(map) }
         return map.ifEmpty { null }
     }
 

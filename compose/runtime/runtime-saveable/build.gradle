@@ -41,6 +41,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
+                implementation("androidx.collection:collection:1.4.2")
                 api(project(":compose:runtime:runtime"))
             }
         }

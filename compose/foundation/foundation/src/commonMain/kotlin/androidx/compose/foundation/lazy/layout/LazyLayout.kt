@@ -89,16 +89,13 @@ private class LazyLayoutItemReusePolicy(private val factory: LazyLayoutItemConte
 
     override fun getSlotsToRetain(slotIds: SubcomposeSlotReusePolicy.SlotIdsSet) {
         countPerType.clear()
-        with(slotIds.iterator()) {
-            while (hasNext()) {
-                val slotId = next()
-                val type = factory.getContentType(slotId)
-                val currentCount = countPerType.getOrDefault(type, 0)
-                if (currentCount == MaxItemsToRetainForReuse) {
-                    remove()
-                } else {
-                    countPerType[type] = currentCount + 1
-                }
+        slotIds.forEach { slotId ->
+            val type = factory.getContentType(slotId)
+            val currentCount = countPerType.getOrDefault(type, 0)
+            if (currentCount == MaxItemsToRetainForReuse) {
+                slotIds.remove(slotId)
+            } else {
+                countPerType[type] = currentCount + 1
             }
         }
     }

@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.node
 
+import androidx.collection.MutableObjectIntMap
+import androidx.collection.mutableObjectIntMapOf
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.MutableRect
@@ -173,17 +175,20 @@ internal abstract class NodeCoordinator(
                 // We do not simply compare against old.alignmentLines in case this is a
                 // MutableStateMap and the same instance might be passed.
                 if (
-                    (!oldAlignmentLines.isNullOrEmpty() || value.alignmentLines.isNotEmpty()) &&
-                        value.alignmentLines != oldAlignmentLines
+                    ((oldAlignmentLines != null && oldAlignmentLines!!.isNotEmpty()) ||
+                        value.alignmentLines.isNotEmpty()) &&
+                        !compareEquals(oldAlignmentLines, value.alignmentLines)
                 ) {
                     alignmentLinesOwner.alignmentLines.onAlignmentsChanged()
 
                     @Suppress("PrimitiveInCollection")
                     val oldLines =
                         oldAlignmentLines
-                            ?: (mutableMapOf<AlignmentLine, Int>().also { oldAlignmentLines = it })
+                            ?: (mutableObjectIntMapOf<AlignmentLine>().also {
+                                oldAlignmentLines = it
+                            })
                     oldLines.clear()
-                    oldLines.putAll(value.alignmentLines)
+                    value.alignmentLines.forEach { entry -> oldLines[entry.key] = entry.value }
                 }
             }
         }
@@ -191,7 +196,7 @@ internal abstract class NodeCoordinator(
     abstract var lookaheadDelegate: LookaheadDelegate?
         protected set
 
-    private var oldAlignmentLines: MutableMap<AlignmentLine, Int>? = null
+    private var oldAlignmentLines: MutableObjectIntMap<AlignmentLine>? = null
 
     abstract fun ensureLookaheadDelegateCreated()
 
@@ -1397,6 +1402,19 @@ internal abstract class NodeCoordinator(
                     )
             }
     }
+}
+
+@Suppress("PrimitiveInCollection")
+private fun compareEquals(
+    a: MutableObjectIntMap<AlignmentLine>?,
+    b: Map<AlignmentLine, Int>
+): Boolean {
+    if (a == null) return false
+    if (a.size != b.size) return false
+
+    a.forEach { k, v -> if (b[k] != v) return false }
+
+    return true
 }
 
 /**
