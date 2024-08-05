@@ -172,7 +172,7 @@ class ThreePaneScaffoldValue(
     val primary: PaneAdaptedValue,
     val secondary: PaneAdaptedValue,
     val tertiary: PaneAdaptedValue
-) {
+) : PaneScaffoldValue<ThreePaneScaffoldRole> {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldValue) return false
@@ -195,7 +195,7 @@ class ThreePaneScaffoldValue(
             "tertiary=$tertiary)"
     }
 
-    operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
+    override operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
         when (role) {
             ThreePaneScaffoldRole.Primary -> primary
             ThreePaneScaffoldRole.Secondary -> secondary

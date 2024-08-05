@@ -35,7 +35,6 @@ import androidx.compose.ui.draw.clipToBounds
  * See usage samples at:
  *
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSample
- *
  * @sample androidx.compose.material3.adaptive.samples.ListDetailPaneScaffoldSampleWithExtraPane
  */
 @ExperimentalMaterial3AdaptiveApi

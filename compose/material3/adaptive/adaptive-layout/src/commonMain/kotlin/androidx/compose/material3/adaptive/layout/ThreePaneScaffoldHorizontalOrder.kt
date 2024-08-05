@@ -36,12 +36,40 @@ internal class ThreePaneScaffoldHorizontalOrder(
     val firstPane: ThreePaneScaffoldRole,
     val secondPane: ThreePaneScaffoldRole,
     val thirdPane: ThreePaneScaffoldRole
-) {
+) : PaneScaffoldHorizontalOrder<ThreePaneScaffoldRole> {
     init {
         require(firstPane != secondPane && secondPane != thirdPane && firstPane != thirdPane) {
             "invalid ThreePaneScaffoldHorizontalOrder($firstPane, $secondPane, $thirdPane)" +
                 " - panes must be unique"
         }
+    }
+
+    override val size = 3
+
+    override fun indexOf(role: ThreePaneScaffoldRole) =
+        when (role) {
+            firstPane -> 0
+            secondPane -> 1
+            thirdPane -> 2
+            else -> -1
+        }
+
+    override fun forEach(action: (ThreePaneScaffoldRole) -> Unit) {
+        action(firstPane)
+        action(secondPane)
+        action(thirdPane)
+    }
+
+    override fun forEachIndexed(action: (Int, ThreePaneScaffoldRole) -> Unit) {
+        action(0, firstPane)
+        action(1, secondPane)
+        action(2, thirdPane)
+    }
+
+    override fun forEachIndexedReversed(action: (Int, ThreePaneScaffoldRole) -> Unit) {
+        action(2, thirdPane)
+        action(1, secondPane)
+        action(0, firstPane)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -71,35 +99,6 @@ internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
     } else {
         this
     }
-}
-
-@ExperimentalMaterial3AdaptiveApi
-internal inline fun ThreePaneScaffoldHorizontalOrder.forEach(
-    action: (ThreePaneScaffoldRole) -> Unit
-) {
-    action(firstPane)
-    action(secondPane)
-    action(thirdPane)
-}
-
-@ExperimentalMaterial3AdaptiveApi
-internal inline fun ThreePaneScaffoldHorizontalOrder.forEachIndexed(
-    action: (Int, ThreePaneScaffoldRole) -> Unit
-) {
-    action(0, firstPane)
-    action(1, secondPane)
-    action(2, thirdPane)
-}
-
-@ExperimentalMaterial3AdaptiveApi
-internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRole): Int {
-    forEachIndexed { i, r ->
-        if (r == role) {
-            return i
-        }
-    }
-    // should never reach this far
-    return 0
 }
 
 /** The set of the available pane roles of [ThreePaneScaffold]. */

@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+/**
+ * This file was created using the `create_project.py` script located in the
+ * `<AndroidX root>/development/project-creator` directory.
+ *
+ * Please use that script when creating a new project, rather than copying an existing project and
+ * modifying its settings.
+ */
 import androidx.build.LibraryType
 
 plugins {
@@ -29,13 +36,15 @@ dependencies {
 
     compileOnly(project(":annotation:annotation-sampled"))
 
-    implementation(project(":compose:foundation:foundation"))
-    implementation(project(":compose:foundation:foundation-layout"))
+    implementation("androidx.compose.foundation:foundation:1.6.0-rc01")
+    implementation("androidx.compose.foundation:foundation-layout:1.6.0-rc01")
+    implementation(project(":compose:material3:adaptive:adaptive-layout"))
+    implementation(project(":compose:material3:adaptive:adaptive-navigation"))
     implementation(project(":compose:material3:material3"))
-    implementation(project(":compose:material3:material3-adaptive"))
     implementation(project(":compose:material3:material3-window-size-class"))
-    implementation(project(":compose:ui:ui-util"))
+    implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
 }
