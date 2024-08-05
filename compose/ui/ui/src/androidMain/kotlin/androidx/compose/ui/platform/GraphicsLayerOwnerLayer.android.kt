@@ -34,7 +34,6 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.isIdentity
 import androidx.compose.ui.graphics.layer.CompositingStrategy
 import androidx.compose.ui.graphics.layer.GraphicsLayer
 import androidx.compose.ui.graphics.layer.drawLayer
@@ -86,9 +85,6 @@ internal class GraphicsLayerOwnerLayer(
      * somewhat transparent (i.e. alpha less than 1.0f)
      */
     private var softwareLayerPaint: Paint? = null
-    private var isMatrixDirty = false
-    private var isInverseMatrixDirty = false
-    private var isIdentity = true
 
     override fun updateLayerProperties(scope: ReusableGraphicsLayerScope) {
         val maybeChangedFields = scope.mutatedFields or mutatedFields
@@ -166,10 +162,6 @@ internal class GraphicsLayerOwnerLayer(
                     OldCompositingStrategy.ModulateAlpha -> CompositingStrategy.ModulateAlpha
                     else -> throw IllegalStateException("Not supported composition strategy")
                 }
-        }
-        if (maybeChangedFields and Fields.MatrixAffectingFields != 0) {
-            isMatrixDirty = true
-            isInverseMatrixDirty = true
         }
 
         var outlineChanged = false
@@ -324,27 +316,23 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
-        val matrix =
-            if (inverse) {
-                getInverseMatrix() ?: return Offset.Infinite
-            } else {
-                getMatrix()
-            }
-        return if (isIdentity) {
-            point
+        return if (inverse) {
+            getInverseMatrix()?.map(point) ?: Offset.Infinite
         } else {
-            matrix.map(point)
+            getMatrix().map(point)
         }
     }
 
     override fun mapBounds(rect: MutableRect, inverse: Boolean) {
-        val matrix = if (inverse) getInverseMatrix() else getMatrix()
-        if (!isIdentity) {
+        if (inverse) {
+            val matrix = getInverseMatrix()
             if (matrix == null) {
                 rect.set(0f, 0f, 0f, 0f)
             } else {
                 matrix.map(rect)
             }
+        } else {
+            getMatrix().map(rect)
         }
     }
 
@@ -402,53 +390,38 @@ internal class GraphicsLayerOwnerLayer(
     }
 
     private fun getInverseMatrix(): Matrix? {
-        val inverseMatrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
-        if (!isInverseMatrixDirty) {
-            if (inverseMatrix[0, 0].isNaN()) {
-                return null
-            }
-            return inverseMatrix
-        }
-        isInverseMatrixDirty = false
         val matrix = getMatrix()
-        return if (isIdentity) {
-            matrix
-        } else if (matrix.invertTo(inverseMatrix)) {
+        val inverseMatrix = inverseMatrixCache ?: Matrix().also { inverseMatrixCache = it }
+        return if (matrix.invertTo(inverseMatrix)) {
             inverseMatrix
         } else {
-            inverseMatrix[0, 0] = Float.NaN
             null
         }
     }
 
-    private fun updateMatrix() {
-        if (isMatrixDirty) {
-            with(graphicsLayer) {
-                val (x, y) =
-                    if (pivotOffset.isUnspecified) {
-                        this@GraphicsLayerOwnerLayer.size.toSize().center
-                    } else {
-                        pivotOffset
-                    }
+    private fun updateMatrix() =
+        with(graphicsLayer) {
+            val (x, y) =
+                if (pivotOffset.isUnspecified) {
+                    this@GraphicsLayerOwnerLayer.size.toSize().center
+                } else {
+                    pivotOffset
+                }
 
-                matrixCache.resetToPivotedTransform(
-                    x,
-                    y,
-                    translationX,
-                    translationY,
-                    1.0f,
-                    rotationX,
-                    rotationY,
-                    rotationZ,
-                    scaleX,
-                    scaleY,
-                    1.0f
-                )
-            }
-            isMatrixDirty = false
-            isIdentity = matrixCache.isIdentity()
+            matrixCache.resetToPivotedTransform(
+                x,
+                y,
+                translationX,
+                translationY,
+                1.0f,
+                rotationX,
+                rotationY,
+                rotationZ,
+                scaleX,
+                scaleY,
+                1.0f
+            )
         }
-    }
 
     /**
      * Manually clips the content of the RenderNodeLayer in the provided canvas. This is used only
