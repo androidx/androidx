@@ -35,7 +35,6 @@ import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -249,7 +248,7 @@ class RadioButtonTest {
             .setMaterialContentForSizeAssertions {
                 CompositionLocalProvider(
                     LocalMinimumInteractiveComponentSize provides
-                        if (minimumTouchTarget) 48.dp else Dp.Unspecified
+                        if (minimumTouchTarget) 48.dp else 0.dp
                 ) {
                     RadioButton(
                         selected = selected,

@@ -399,7 +399,7 @@ private fun SplitButtonLayout(
         {
             // Override min component size enforcement to avoid create extra padding internally
             // Enforce it on the parent instead
-            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides Dp.Unspecified) {
+            CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                 Box(
                     modifier = Modifier.layoutId(LeadingButtonLayoutId),
                     contentAlignment = Alignment.Center,

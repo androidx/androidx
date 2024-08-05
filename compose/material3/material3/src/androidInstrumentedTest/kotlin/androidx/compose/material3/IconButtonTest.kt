@@ -64,7 +64,6 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -220,9 +219,7 @@ class IconButtonTest {
     fun iconButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     IconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
@@ -396,9 +393,7 @@ class IconButtonTest {
     fun iconToggleButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     IconToggleButton(checked = true, onCheckedChange = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
@@ -709,9 +704,7 @@ class IconButtonTest {
     fun filledIconButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     FilledIconButton(onClick = { /* doSomething() */ }) {
                         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
                     }
@@ -868,9 +861,7 @@ class IconButtonTest {
     fun filledIconToggleButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     FilledIconToggleButton(
                         checked = true,
                         onCheckedChange = { /* doSomething() */ }
@@ -1025,9 +1016,7 @@ class IconButtonTest {
     fun outlinedIconButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     OutlinedIconButton(onClick = { /* doSomething() */ }) {
                         Icon(
                             Icons.Outlined.FavoriteBorder,
@@ -1143,9 +1132,7 @@ class IconButtonTest {
     fun outlinedIconToggleButton_sizeWithoutMinTargetEnforcement() {
         rule
             .setMaterialContentForSizeAssertions {
-                CompositionLocalProvider(
-                    LocalMinimumInteractiveComponentSize provides Dp.Unspecified
-                ) {
+                CompositionLocalProvider(LocalMinimumInteractiveComponentSize provides 0.dp) {
                     OutlinedIconToggleButton(
                         checked = true,
                         onCheckedChange = { /* doSomething() */ }

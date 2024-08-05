@@ -127,9 +127,7 @@ internal class MinimumInteractiveModifierNode :
 @get:ExperimentalMaterial3Api
 @ExperimentalMaterial3Api
 @Deprecated(
-    message =
-        "Use LocalMinimumInteractiveComponentSize with Dp.Unspecified to turn off " +
-            "enforcement instead.",
+    message = "Use LocalMinimumInteractiveComponentSize with 0.dp to turn off enforcement instead.",
     replaceWith = ReplaceWith("LocalMinimumInteractiveComponentSize"),
     level = DeprecationLevel.WARNING
 )
@@ -141,10 +139,10 @@ val LocalMinimumInteractiveComponentEnforcement: ProvidableCompositionLocal<Bool
 /**
  * CompositionLocal that configures the minimum touch target size for Material components (such as
  * [Button]) to ensure they are accessible. If a component has a visual size that is lower than the
- * minimum touch target size, extra space outside the component will be included. If set to
- * [Dp.Unspecified] there will be no extra space, and so it is possible that if the component is
- * placed near the edge of a layout / near to another component without any padding, there will not
- * be enough space for an accessible touch target.
+ * minimum touch target size, extra space outside the component will be included. If set to 0.dp,
+ * there will be no extra space, and so it is possible that if the component is placed near the edge
+ * of a layout / near to another component without any padding, there will not be enough space for
+ * an accessible touch target.
  */
 val LocalMinimumInteractiveComponentSize: ProvidableCompositionLocal<Dp> =
     staticCompositionLocalOf {
