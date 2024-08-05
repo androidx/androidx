@@ -371,19 +371,19 @@ internal class SidecarCompat @VisibleForTesting constructor(
     private class DistinctElementCallback(
         private val callbackInterface: ExtensionCallbackInterface
     ) : ExtensionCallbackInterface {
-        private val lock = ReentrantLock()
+        private val globalLock = ReentrantLock()
 
         /**
          * A map from [Activity] to the last computed [WindowLayoutInfo] for the
          * given activity. A [WeakHashMap] is used to avoid retaining the [Activity].
          */
-        @GuardedBy("mLock")
+        @GuardedBy("globalLock")
         private val activityWindowLayoutInfo = WeakHashMap<Activity, WindowLayoutInfo>()
         override fun onWindowLayoutChanged(
             activity: Activity,
             newLayout: WindowLayoutInfo
         ) {
-            lock.withLock {
+            globalLock.withLock {
                 val lastInfo = activityWindowLayoutInfo[activity]
                 if (newLayout == lastInfo) {
                     return
@@ -394,7 +394,7 @@ internal class SidecarCompat @VisibleForTesting constructor(
         }
 
         fun clearWindowLayoutInfo(activity: Activity) {
-            lock.withLock {
+            globalLock.withLock {
                 activityWindowLayoutInfo[activity] = null
             }
         }

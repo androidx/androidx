@@ -32,6 +32,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Function;
 
 import java.lang.annotation.Retention;
@@ -66,8 +67,8 @@ import java.lang.annotation.RetentionPolicy;
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
- * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
+@RequiresVendorApiLevel(level = 2)
 public class SplitAttributes {
 
     /**

@@ -150,8 +150,8 @@ public class WindowInfoTrackerImplTest {
             val callback: Consumer<WindowLayoutInfo>
         ) : Consumer<WindowLayoutInfo> {
 
-            override fun accept(t: WindowLayoutInfo?) {
-                executor.execute { callback.accept(t) }
+            override fun accept(value: WindowLayoutInfo) {
+                executor.execute { callback.accept(value) }
             }
         }
 

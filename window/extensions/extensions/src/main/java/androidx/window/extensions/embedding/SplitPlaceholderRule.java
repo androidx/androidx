@@ -29,7 +29,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.window.extensions.WindowExtensions;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.core.util.function.Predicate;
 
 import java.lang.annotation.Retention;
@@ -115,10 +115,10 @@ public class SplitPlaceholderRule extends SplitRule {
 
     /**
      * @deprecated Use {@link #getFinishPrimaryWithPlaceholder()} instead starting with
-     * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-     * {@link #getFinishPrimaryWithPlaceholder()} can't be called on
-     * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+     * vendor API level 2. Only used if {@link #getFinishPrimaryWithPlaceholder()} can't be
+     * called on vendor API level 1.
      */
+    @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
     @Deprecated
     @SplitPlaceholderFinishBehavior
     public int getFinishPrimaryWithSecondary() {
@@ -128,10 +128,9 @@ public class SplitPlaceholderRule extends SplitRule {
     /**
      * Determines what happens with the primary container when all activities are finished in the
      * associated secondary/placeholder container.
-     *
-     * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     // TODO(b/238905747): Add api guard for extensions.
+    @RequiresVendorApiLevel(level = 2)
     @SplitPlaceholderFinishBehavior
     public int getFinishPrimaryWithPlaceholder() {
         return mFinishPrimaryWithPlaceholder;
@@ -164,10 +163,11 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #Builder(Intent, Predicate, Predicate, Predicate)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
+         * vendor API level 2. Only used if
          * {@link #Builder(Intent, Predicate, Predicate, Predicate)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * vendor API level 1.
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @RequiresApi(Build.VERSION_CODES.N)
         public Builder(@NonNull Intent placeholderIntent,
@@ -192,8 +192,8 @@ public class SplitPlaceholderRule extends SplitRule {
          * @param parentWindowMetricsPredicate the {@link Predicate} to verify if the placeholder
          *                                     {@link Activity} should be launched with the given
          *                                     {@link WindowMetrics}
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         public Builder(@NonNull Intent placeholderIntent,
                 @NonNull Predicate<Activity> activityPredicate,
                 @NonNull Predicate<Intent> intentPredicate,
@@ -206,13 +206,13 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}. {@code splitRatio} will be translated to
+         * vendor API level 2. Only used if {@link #setDefaultSplitAttributes(SplitAttributes)}
+         * can't be called on vendor API level 1. {@code splitRatio} will be translated to
          * @link SplitAttributes.SplitType.ExpandContainersSplitType} for value
          * {@code 0.0} and {@code 1.0}, and {@link SplitAttributes.SplitType.RatioSplitType} for
          * value with range (0.0, 1.0).
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @NonNull
         public Builder setSplitRatio(@FloatRange(from = 0.0, to = 1.0) float splitRatio) {
@@ -222,10 +222,10 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @deprecated Use {@link #setDefaultSplitAttributes(SplitAttributes)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}. Only used if
-         * {@link #setDefaultSplitAttributes(SplitAttributes)} can't be called on
-         * {@link WindowExtensions#VENDOR_API_LEVEL_1}.
+         * vendor API level 2. Only used if {@link #setDefaultSplitAttributes(SplitAttributes)}
+         * can't be called on vendor API level 1.
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @NonNull
         public Builder setLayoutDirection(@SplitAttributes.ExtLayoutDirection int layoutDirection) {
@@ -237,9 +237,8 @@ public class SplitPlaceholderRule extends SplitRule {
          * See {@link SplitPlaceholderRule#getDefaultSplitAttributes()} for reference.
          * Overrides values if set in {@link #setSplitRatio(float)} and
          * {@link #setLayoutDirection(int)}
-         *
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setDefaultSplitAttributes(@NonNull SplitAttributes attrs) {
             mDefaultSplitAttributes = attrs;
@@ -255,8 +254,9 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @deprecated Use SplitPlaceholderRule#setFinishPrimaryWithPlaceholder(int)} starting with
-         * {@link WindowExtensions#VENDOR_API_LEVEL_2}.
+         * vendor API level 2.
          */
+        @RequiresVendorApiLevel(level = 1, deprecatedSince = 2)
         @Deprecated
         @NonNull
         public Builder setFinishPrimaryWithSecondary(
@@ -269,9 +269,9 @@ public class SplitPlaceholderRule extends SplitRule {
 
         /**
          * @see SplitPlaceholderRule#getFinishPrimaryWithPlaceholder()
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
          */
         // TODO(b/238905747): Add api guard for extensions.
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setFinishPrimaryWithPlaceholder(
                 @SplitPlaceholderFinishBehavior int finishBehavior) {
@@ -279,10 +279,8 @@ public class SplitPlaceholderRule extends SplitRule {
             return this;
         }
 
-        /**
-         * @see SplitPlaceholderRule#getTag()
-         * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
-         */
+        /** @see SplitPlaceholderRule#getTag() */
+        @RequiresVendorApiLevel(level = 2)
         @NonNull
         public Builder setTag(@NonNull String tag) {
             mTag = Objects.requireNonNull(tag);
