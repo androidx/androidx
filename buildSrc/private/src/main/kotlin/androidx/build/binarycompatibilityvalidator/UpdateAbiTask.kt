@@ -16,14 +16,14 @@
 
 package androidx.build.binarycompatibilityvalidator
 
-import java.io.File
 import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -46,10 +46,10 @@ abstract class UpdateAbiTask : DefaultTask() {
     /** Text file from which API signatures will be read. */
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
-    abstract var inputApiLocation: Provider<File>
+    abstract val inputApiLocation: RegularFileProperty
 
     /** Directory to which API signatures will be written. */
-    @get:OutputDirectory abstract var outputDir: Provider<File>
+    @get:OutputDirectory abstract val outputDir: DirectoryProperty
 
     @TaskAction
     fun execute() {
@@ -67,7 +67,7 @@ abstract class UpdateAbiTask : DefaultTask() {
         }
         if (shouldWriteVersionedApiFile.get()) {
             fileSystemOperations.copy {
-                it.from(inputApiLocation) {}
+                it.from(inputApiLocation)
                 it.into(outputDir)
                 it.rename(CURRENT_API_FILE_NAME, "${version.get()}.txt")
             }

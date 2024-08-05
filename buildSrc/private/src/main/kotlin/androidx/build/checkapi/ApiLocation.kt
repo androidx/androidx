@@ -120,7 +120,7 @@ private fun Version.toApiFileBaseName(): String {
 }
 
 /** Returns the directory containing the project's versioned and current ABI files. */
-fun Project.getBcvFileDirectory(): File = File(project.projectDir, BCV_DIR_NAME)
+fun Project.getBcvFileDirectory(): Directory = project.layout.projectDirectory.dir(BCV_DIR_NAME)
 
 /** Returns the directory containing the project's versioned and current API files. */
 fun Project.getApiFileDirectory(): File {

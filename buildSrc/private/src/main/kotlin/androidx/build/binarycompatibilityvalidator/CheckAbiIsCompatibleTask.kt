@@ -22,9 +22,9 @@ import androidx.binarycompatibilityvalidator.ValidationException
 import androidx.build.Version
 import androidx.build.metalava.shouldFreezeApis
 import androidx.build.metalava.summarizeDiff
-import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
@@ -41,11 +41,11 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
     /** Text file from which API signatures will be read. */
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
-    abstract var previousApiDump: Provider<File>
+    abstract val previousApiDump: RegularFileProperty
 
     @get:PathSensitive(PathSensitivity.RELATIVE)
     @get:InputFile
-    abstract var currentApiDump: Provider<File>
+    abstract val currentApiDump: RegularFileProperty
 
     @get:Input abstract var referenceVersion: Provider<String>
 
@@ -54,9 +54,9 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
     @TaskAction
     fun execute() {
         val (previousApiPath, previousApiDumpText) =
-            previousApiDump.get().let { it.path to it.readText() }
+            previousApiDump.get().asFile.let { it.path to it.readText() }
         val (currentApiPath, currentApiDumpText) =
-            currentApiDump.get().let { it.path to it.readText() }
+            currentApiDump.get().asFile.let { it.path to it.readText() }
         val shouldFreeze =
             shouldFreezeApis(Version(referenceVersion.get()), Version(projectVersion.get()))
         if (shouldFreeze && previousApiDumpText != currentApiDumpText) {
@@ -82,7 +82,7 @@ abstract class CheckAbiIsCompatibleTask : DefaultTask() {
     private fun frozenApiErrorMessage(referenceVersion: String) =
         "The API surface was finalized in $referenceVersion. Revert the changes unless you have " +
             "permission from Android API Council. " +
-            summarizeDiff(previousApiDump.get(), currentApiDump.get())
+            summarizeDiff(previousApiDump.get().asFile, currentApiDump.get().asFile)
 
     private companion object {
         const val NEW_ISSUE_URL = "https://b.corp.google.com/issues/new?component=1102332"
