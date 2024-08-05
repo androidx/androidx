@@ -19,7 +19,6 @@ package androidx.compose.material3.samples
 import androidx.activity.compose.BackHandler
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -86,68 +85,57 @@ fun FloatingActionButtonMenuSample() {
 
         BackHandler(fabMenuExpanded) { fabMenuExpanded = false }
 
-        Column(
-            modifier =
-                Modifier.align(Alignment.BottomEnd).padding(bottom = 16.dp, end = 16.dp).semantics {
-                    isTraversalGroup = true
-                    traversalIndex = -1f
-                },
-            horizontalAlignment = Alignment.End
-        ) {
-            FloatingActionButtonMenu(
-                modifier = Modifier.weight(weight = 1f, fill = false),
-                expanded = fabMenuExpanded,
-                itemsCount = items.size,
-            ) {
-                items.forEachIndexed { i, item ->
-                    FloatingActionButtonMenuItem(
-                        modifier =
-                            Modifier.semantics {
-                                isTraversalGroup = true
-                                // Add a custom a11y action to allow closing the menu when focusing
-                                // the last menu item, since the close button comes before the first
-                                // menu item in the traversal order.
-                                if (i == itemsCount - 1) {
-                                    customActions =
-                                        listOf(
-                                            CustomAccessibilityAction(
-                                                label = "Close menu",
-                                                action = {
-                                                    fabMenuExpanded = false
-                                                    true
-                                                }
-                                            )
-                                        )
-                                }
-                            },
-                        onClick = { fabMenuExpanded = false },
-                        icon = { Icon(item.first, contentDescription = null) },
-                        text = { Text(text = item.second) },
-                        itemIndex = i,
+        FloatingActionButtonMenu(
+            modifier = Modifier.align(Alignment.BottomEnd),
+            expanded = fabMenuExpanded,
+            button = {
+                ToggleableFloatingActionButton(
+                    modifier =
+                        Modifier.semantics {
+                            traversalIndex = -1f
+                            stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
+                            contentDescription = "Toggle menu"
+                        },
+                    checked = fabMenuExpanded,
+                    onCheckedChange = { fabMenuExpanded = !fabMenuExpanded }
+                ) {
+                    val imageVector by remember {
+                        derivedStateOf {
+                            if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
+                        }
+                    }
+                    Icon(
+                        painter = rememberVectorPainter(imageVector),
+                        contentDescription = null,
+                        modifier = Modifier.animateIcon({ checkedProgress })
                     )
                 }
             }
-
-            ToggleableFloatingActionButton(
-                modifier =
-                    Modifier.semantics {
-                        isTraversalGroup = true
-                        traversalIndex = -1f
-                        stateDescription = if (fabMenuExpanded) "Expanded" else "Collapsed"
-                        contentDescription = "Toggle menu"
-                    },
-                checked = fabMenuExpanded,
-                onCheckedChange = { fabMenuExpanded = !fabMenuExpanded }
-            ) {
-                val imageVector by remember {
-                    derivedStateOf {
-                        if (checkedProgress > 0.5f) Icons.Filled.Close else Icons.Filled.Add
-                    }
-                }
-                Icon(
-                    painter = rememberVectorPainter(imageVector),
-                    contentDescription = null,
-                    modifier = Modifier.animateIcon({ checkedProgress })
+        ) {
+            items.forEachIndexed { i, item ->
+                FloatingActionButtonMenuItem(
+                    modifier =
+                        Modifier.semantics {
+                            isTraversalGroup = true
+                            // Add a custom a11y action to allow closing the menu when focusing
+                            // the last menu item, since the close button comes before the first
+                            // menu item in the traversal order.
+                            if (i == items.size - 1) {
+                                customActions =
+                                    listOf(
+                                        CustomAccessibilityAction(
+                                            label = "Close menu",
+                                            action = {
+                                                fabMenuExpanded = false
+                                                true
+                                            }
+                                        )
+                                    )
+                            }
+                        },
+                    onClick = { fabMenuExpanded = false },
+                    icon = { Icon(item.first, contentDescription = null) },
+                    text = { Text(text = item.second) },
                 )
             }
         }
