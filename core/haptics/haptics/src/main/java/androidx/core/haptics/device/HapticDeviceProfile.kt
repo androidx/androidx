@@ -24,7 +24,7 @@ import androidx.core.haptics.signal.WaveformSignal
 import java.util.Objects
 
 /** A [HapticDeviceProfile] describes the vibrator hardware capabilities for a device. */
-class HapticDeviceProfile
+public class HapticDeviceProfile
 @JvmOverloads
 constructor(
 
@@ -45,7 +45,7 @@ constructor(
     hardwareOptimizedPredefinedEffectsHint: Set<PredefinedEffectSignal> = emptySet(),
 
     /** The vibrator capabilities related to the support for [CompositionSignal]s. */
-    val compositionProfile: HapticCompositionProfile = HapticCompositionProfile(),
+    public val compositionProfile: HapticCompositionProfile = HapticCompositionProfile(),
 ) {
     /**
      * Whether the device supports controlling the vibration strength.
@@ -57,7 +57,7 @@ constructor(
      * Devices without amplitude control are only able to turn the vibrator motor on and off at a
      * fixed strength. This means only on/off vibration patterns can be played on the device.
      */
-    val isAmplitudeControlSupported: Boolean
+    public val isAmplitudeControlSupported: Boolean
 
     /**
      * The predefined effects with hardware optimization confirmed by the device vibrator.
@@ -69,7 +69,7 @@ constructor(
      * device vibrator. The set will be empty if the device hardware does not report support for any
      * predefined haptic effect, or if the required APIs are not available in this SDK level.
      */
-    val hardwareOptimizedPredefinedEffects: Set<PredefinedEffectSignal>
+    public val hardwareOptimizedPredefinedEffects: Set<PredefinedEffectSignal>
 
     init {
         // No amplitude waveform is supported before Android O.
@@ -101,7 +101,7 @@ constructor(
      * @return true if the device vibrator can play the given haptic signal as intended, false
      *   otherwise.
      */
-    fun supports(signal: HapticSignal): Boolean = signal.isSupportedBy(this)
+    public fun supports(signal: HapticSignal): Boolean = signal.isSupportedBy(this)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

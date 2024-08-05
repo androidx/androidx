@@ -21,8 +21,8 @@ import androidx.annotation.RestrictTo
 
 @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
 // TODO: move addCallWithExtensions
-interface Extensions {
-    companion object {
+public interface Extensions {
+    public companion object {
         internal const val LOG_TAG = "CallsManagerE"
 
         /**
@@ -48,7 +48,7 @@ interface Extensions {
         @Target(AnnotationTarget.TYPE)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(PARTICIPANT)
-        annotation class Extensions
+        public annotation class Extensions
 
         /** Represents the [ParticipantExtension] extension */
         internal const val PARTICIPANT = 1

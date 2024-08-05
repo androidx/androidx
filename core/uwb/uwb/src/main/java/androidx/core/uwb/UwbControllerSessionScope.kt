@@ -17,7 +17,7 @@
 package androidx.core.uwb
 
 /** Interface for controller client session that is established between nearby UWB devices. */
-interface UwbControllerSessionScope : UwbClientSessionScope {
+public interface UwbControllerSessionScope : UwbClientSessionScope {
     /**
      * The local device's complex channel which can be used for ranging.
      *
@@ -28,7 +28,7 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * long. In this case, your ranging session would be suspended and clients would need to
      * exchange the new channel with their peer before starting again.
      */
-    val uwbComplexChannel: UwbComplexChannel
+    public val uwbComplexChannel: UwbComplexChannel
 
     /**
      * Dynamically adds a controlee to an active ranging session. The controlee to be added must be
@@ -41,7 +41,7 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * [RangingResult.RangingResultPosition] or [RangingResult.RangingResultPeerDisconnected] to
      * listen for starts or failures.
      */
-    suspend fun addControlee(address: UwbAddress)
+    public suspend fun addControlee(address: UwbAddress)
 
     /**
      * Dynamically removes a controlee from an active ranging session.
@@ -54,7 +54,7 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * Otherwise, this method will return successfully, and clients are expected to handle
      * [RangingResult.RangingResultPeerDisconnected] to listen for disconnects.
      */
-    suspend fun removeControlee(address: UwbAddress)
+    public suspend fun removeControlee(address: UwbAddress)
 
     /**
      * Dynamically reconfigures ranging interval to an active ranging session.
@@ -65,7 +65,7 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * number of ranging intervals set in intervalSkipCount. If intervalSkipCount is set to 0, the
      * ranging interval will be set to the interval used when startRanging was called.
      */
-    suspend fun reconfigureRangingInterval(intervalSkipCount: Int)
+    public suspend fun reconfigureRangingInterval(intervalSkipCount: Int)
 
     /**
      * Dynamically adds a controlee to an active ranging session. The controlee to be added must be
@@ -78,5 +78,5 @@ interface UwbControllerSessionScope : UwbClientSessionScope {
      * [RangingResult.RangingResultPosition] or [RangingResult.RangingResultPeerDisconnected] to
      * listen for starts or failures.
      */
-    suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters)
+    public suspend fun addControlee(address: UwbAddress, parameters: RangingControleeParameters)
 }

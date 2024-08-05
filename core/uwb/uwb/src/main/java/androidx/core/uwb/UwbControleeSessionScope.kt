@@ -17,4 +17,4 @@
 package androidx.core.uwb
 
 /** Interface for controlee client session that is established between nearby UWB devices. */
-interface UwbControleeSessionScope : UwbClientSessionScope
+public interface UwbControleeSessionScope : UwbClientSessionScope

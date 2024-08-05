@@ -28,7 +28,7 @@ import androidx.core.haptics.device.HapticDeviceProfile
  * This can be used to implement custom fallback behavior for lower SDK versions and/or less capable
  * vibrator hardware.
  */
-fun interface ResolvableSignal {
+public fun interface ResolvableSignal {
 
     /**
      * Returns a concrete [HapticSignal] to be played in the device with given profile.
@@ -40,5 +40,5 @@ fun interface ResolvableSignal {
      * @return The [HapticSignal] to be played on given device, not null if no signal should be
      *   played in this device.
      */
-    fun resolve(deviceProfile: HapticDeviceProfile): HapticSignal?
+    public fun resolve(deviceProfile: HapticDeviceProfile): HapticSignal?
 }

@@ -38,16 +38,16 @@ import kotlin.time.toKotlinDuration
  *
  * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
  */
-class CompositionSignal(
+public class CompositionSignal(
 
     /** The composition signal atoms that describes the haptic elements to be played in sequence. */
-    val atoms: List<Atom>,
+    public val atoms: List<Atom>,
 ) : FiniteSignal() {
     init {
         require(atoms.isNotEmpty()) { "Haptic signals cannot be empty" }
     }
 
-    companion object {
+    public companion object {
 
         /**
          * Returns a [CompositionSignal] with given atoms.
@@ -56,7 +56,8 @@ class CompositionSignal(
          * @param atoms The [CompositionSignal.Atom] instances that define the [CompositionSignal].
          */
         @JvmStatic
-        fun compositionOf(vararg atoms: Atom): CompositionSignal = CompositionSignal(atoms.toList())
+        public fun compositionOf(vararg atoms: Atom): CompositionSignal =
+            CompositionSignal(atoms.toList())
 
         /**
          * Returns a [CompositionSignal.Atom] for a very short low frequency tick effect.
@@ -68,8 +69,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun lowTick(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.LowTick.withAmplitudeScale(amplitudeScale)
+        public fun lowTick(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.LowTick.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for a very short light tick effect.
@@ -81,8 +83,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun tick(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.Tick.withAmplitudeScale(amplitudeScale)
+        public fun tick(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.Tick.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for a click effect.
@@ -93,8 +96,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun click(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.Click.withAmplitudeScale(amplitudeScale)
+        public fun click(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.Click.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for an effect with increasing strength.
@@ -105,8 +109,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun quickRise(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.QuickRise.withAmplitudeScale(amplitudeScale)
+        public fun quickRise(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.QuickRise.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for a longer effect with increasing strength.
@@ -118,8 +123,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun slowRise(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.SlowRise.withAmplitudeScale(amplitudeScale)
+        public fun slowRise(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.SlowRise.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for an effect with decreasing strength.
@@ -130,8 +136,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun quickFall(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.QuickFall.withAmplitudeScale(amplitudeScale)
+        public fun quickFall(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.QuickFall.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for a spin effect.
@@ -142,8 +149,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun spin(@FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f) =
-            PrimitiveAtom.Spin.withAmplitudeScale(amplitudeScale)
+        public fun spin(
+            @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f
+        ): PrimitiveAtom = PrimitiveAtom.Spin.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] for a thud effect.
@@ -155,9 +163,9 @@ class CompositionSignal(
          */
         @JvmOverloads
         @JvmStatic
-        fun thud(
+        public fun thud(
             @FloatRange(from = 0.0, to = 1.0) amplitudeScale: Float = 1f,
-        ) = PrimitiveAtom.Thud.withAmplitudeScale(amplitudeScale)
+        ): PrimitiveAtom = PrimitiveAtom.Thud.withAmplitudeScale(amplitudeScale)
 
         /**
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
@@ -167,7 +175,7 @@ class CompositionSignal(
          */
         @RequiresApi(Build.VERSION_CODES.O)
         @JvmStatic
-        fun off(duration: java.time.Duration) = OffAtom(duration.toKotlinDuration())
+        public fun off(duration: java.time.Duration): OffAtom = OffAtom(duration.toKotlinDuration())
 
         /**
          * Returns a [CompositionSignal.Atom] to turn the vibrator off for the specified duration.
@@ -175,7 +183,8 @@ class CompositionSignal(
          * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
          * @param durationMillis The duration the vibrator should be turned off, in milliseconds.
          */
-        @JvmStatic fun off(durationMillis: Long) = OffAtom(durationMillis.milliseconds)
+        @JvmStatic
+        public fun off(durationMillis: Long): OffAtom = OffAtom(durationMillis.milliseconds)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -210,7 +219,7 @@ class CompositionSignal(
      *
      * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
      */
-    abstract class Atom internal constructor() {
+    public abstract class Atom internal constructor() {
 
         /** The minimum SDK level where this atom is available in the platform. */
         internal abstract fun minSdk(): Int
@@ -237,11 +246,11 @@ class CompositionSignal(
      *
      * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
      */
-    class PrimitiveAtom
+    public class PrimitiveAtom
     private constructor(
 
         /** The type of haptic effect to be played. */
-        @Type val type: Int,
+        @Type public val type: Int,
 
         /** The minimum SDK level where this effect type is available in the platform. */
         private val minSdk: Int,
@@ -253,7 +262,7 @@ class CompositionSignal(
          * here represent minimum effect strength that can still be perceived on the device, and
          * maximum values represent the maximum strength the effect can be played.
          */
-        @FloatRange(from = 0.0, to = 1.0) val amplitudeScale: Float = 1f,
+        @FloatRange(from = 0.0, to = 1.0) public val amplitudeScale: Float = 1f,
     ) : Atom() {
         init {
             require(amplitudeScale in 0.0..1.0) {
@@ -274,9 +283,9 @@ class CompositionSignal(
             SPIN,
             THUD,
         )
-        annotation class Type
+        public annotation class Type
 
-        companion object {
+        public companion object {
 
             @JvmStatic
             internal fun typeToString(@Type type: Int): String {
@@ -299,7 +308,7 @@ class CompositionSignal(
              * This effect should produce a light crisp sensation intended to be used repetitively
              * for dynamic feedback.
              */
-            const val LOW_TICK = 8 // VibrationEffect.Composition.PRIMITIVE_LOW_TICK
+            public const val LOW_TICK: Int = 8 // VibrationEffect.Composition.PRIMITIVE_LOW_TICK
 
             /**
              * A very short light tick effect.
@@ -307,21 +316,21 @@ class CompositionSignal(
              * This effect should produce a light crisp sensation stronger than the [LowTick], and
              * is also intended to be used repetitively for dynamic feedback.
              */
-            const val TICK = 7 // VibrationEffect.Composition.PRIMITIVE_TICK
+            public const val TICK: Int = 7 // VibrationEffect.Composition.PRIMITIVE_TICK
 
             /**
              * A click effect.
              *
              * This effect should produce a sharp, crisp click sensation.
              */
-            const val CLICK = 1 // VibrationEffect.Composition.PRIMITIVE_CLICK
+            public const val CLICK: Int = 1 // VibrationEffect.Composition.PRIMITIVE_CLICK
 
             /**
              * An effect with increasing strength.
              *
              * This effect simulates quick upward movement against gravity.
              */
-            const val QUICK_RISE = 4 // VibrationEffect.Composition.PRIMITIVE_QUICK_RISE
+            public const val QUICK_RISE: Int = 4 // VibrationEffect.Composition.PRIMITIVE_QUICK_RISE
 
             /**
              * A longer effect with increasing strength.
@@ -329,21 +338,21 @@ class CompositionSignal(
              * This effect simulates slow upward movement against gravity and is longer than the
              * [QuickRise].
              */
-            const val SLOW_RISE = 5 // VibrationEffect.Composition.PRIMITIVE_SLOW_RISE
+            public const val SLOW_RISE: Int = 5 // VibrationEffect.Composition.PRIMITIVE_SLOW_RISE
 
             /**
              * An effect with decreasing strength.
              *
              * This effect simulates quick downwards movement against gravity.
              */
-            const val QUICK_FALL = 6 // VibrationEffect.Composition.PRIMITIVE_QUICK_FALL
+            public const val QUICK_FALL: Int = 6 // VibrationEffect.Composition.PRIMITIVE_QUICK_FALL
 
             /**
              * A spin effect.
              *
              * This effect simulates spinning momentum.
              */
-            const val SPIN = 3 // VibrationEffect.Composition.PRIMITIVE_SPIN
+            public const val SPIN: Int = 3 // VibrationEffect.Composition.PRIMITIVE_SPIN
 
             /**
              * A thud effect.
@@ -351,7 +360,7 @@ class CompositionSignal(
              * This effect simulates downwards movement with gravity, often followed by extra energy
              * of hitting and reverberation to augment physicality.
              */
-            const val THUD = 2 // VibrationEffect.Composition.PRIMITIVE_THUD
+            public const val THUD: Int = 2 // VibrationEffect.Composition.PRIMITIVE_THUD
 
             internal val LowTick = PrimitiveAtom(LOW_TICK, Build.VERSION_CODES.S)
             internal val Tick = PrimitiveAtom(TICK, Build.VERSION_CODES.R)
@@ -377,7 +386,7 @@ class CompositionSignal(
          * @param newAmplitudeScale The amplitude scale for the new [PrimitiveAtom]
          * @return A new [PrimitiveAtom] with the same effect type and the new amplitude scale.
          */
-        fun withAmplitudeScale(
+        public fun withAmplitudeScale(
             @FloatRange(from = 0.0, to = 1.0) newAmplitudeScale: Float,
         ): PrimitiveAtom =
             if (amplitudeScale == newAmplitudeScale) {
@@ -412,9 +421,9 @@ class CompositionSignal(
      *
      * @sample androidx.core.haptics.samples.CompositionSignalOfScaledEffectsAndOff
      */
-    class OffAtom internal constructor(duration: Duration) : Atom() {
+    public class OffAtom internal constructor(duration: Duration) : Atom() {
         /** The duration for the vibrator to be turned off, in milliseconds. */
-        val durationMillis: Long
+        public val durationMillis: Long
 
         init {
             require(duration.isFinite() && !duration.isNegative()) {

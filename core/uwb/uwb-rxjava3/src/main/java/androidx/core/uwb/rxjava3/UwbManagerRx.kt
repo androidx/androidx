@@ -32,7 +32,7 @@ import kotlinx.coroutines.rx3.rxSingle
  */
 @Suppress("DEPRECATION")
 @Deprecated("Renamed to controleeSessionScopeSingle")
-fun UwbManager.clientSessionScopeSingle(): Single<UwbClientSessionScope> {
+public fun UwbManager.clientSessionScopeSingle(): Single<UwbClientSessionScope> {
     return rxSingle { clientSessionScope() }
 }
 
@@ -41,7 +41,7 @@ fun UwbManager.clientSessionScopeSingle(): Single<UwbClientSessionScope> {
  *
  * @see UwbManager.controleeSessionScope
  */
-fun UwbManager.controleeSessionScopeSingle(): Single<UwbControleeSessionScope> {
+public fun UwbManager.controleeSessionScopeSingle(): Single<UwbControleeSessionScope> {
     return rxSingle { controleeSessionScope() }
 }
 
@@ -50,6 +50,6 @@ fun UwbManager.controleeSessionScopeSingle(): Single<UwbControleeSessionScope> {
  *
  * @see UwbManager.controllerSessionScope
  */
-fun UwbManager.controllerSessionScopeSingle(): Single<UwbControllerSessionScope> {
+public fun UwbManager.controllerSessionScopeSingle(): Single<UwbControllerSessionScope> {
     return rxSingle { controllerSessionScope() }
 }

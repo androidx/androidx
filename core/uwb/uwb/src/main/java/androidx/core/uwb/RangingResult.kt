@@ -17,18 +17,20 @@
 package androidx.core.uwb
 
 /** A data class for ranging result update. */
-abstract class RangingResult internal constructor() {
+public abstract class RangingResult internal constructor() {
     /** Represents a UWB device. */
-    abstract val device: UwbDevice
+    public abstract val device: UwbDevice
 
     /**
      * A ranging result with the device position update.
      *
      * @property position Position of the UWB device during Ranging
      */
-    class RangingResultPosition(override val device: UwbDevice, val position: RangingPosition) :
-        RangingResult()
+    public class RangingResultPosition(
+        override val device: UwbDevice,
+        public val position: RangingPosition
+    ) : RangingResult()
 
     /** A ranging result with peer disconnected status update. */
-    class RangingResultPeerDisconnected(override val device: UwbDevice) : RangingResult()
+    public class RangingResultPeerDisconnected(override val device: UwbDevice) : RangingResult()
 }

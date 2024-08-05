@@ -19,7 +19,7 @@ package androidx.core.uwb
 import kotlinx.coroutines.flow.Flow
 
 /** Interface for client session that is established between nearby UWB devices. */
-interface UwbClientSessionScope {
+public interface UwbClientSessionScope {
     /**
      * Returns a flow of [RangingResult]. Consuming the flow will initiate the UWB ranging and only
      * one flow can be initiated. To consume the flow from multiple consumers, convert the flow to a
@@ -37,10 +37,10 @@ interface UwbClientSessionScope {
      * @throws [IllegalArgumentException] if the client starts a ranging session with invalid config
      *   id or ranging update type.
      */
-    fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
+    public fun prepareSession(parameters: RangingParameters): Flow<RangingResult>
 
     /** Returns the [RangingCapabilities] which the device supports. */
-    val rangingCapabilities: RangingCapabilities
+    public val rangingCapabilities: RangingCapabilities
 
     /**
      * A local address can only be used for a single ranging session. After a ranging session is
@@ -50,7 +50,7 @@ interface UwbClientSessionScope {
      * long. In this case, your ranging session would be suspended and clients would need to
      * exchange the new address with their peer before starting again.
      */
-    val localAddress: UwbAddress
+    public val localAddress: UwbAddress
 
     /**
      * Dynamically reconfigures range data notification config to an active ranging session.
@@ -61,5 +61,9 @@ interface UwbClientSessionScope {
      * [RangingResult.RangingResultPeerDisconnected] with the controlee as parameter of the
      * callback.
      */
-    suspend fun reconfigureRangeDataNtf(configType: Int, proximityNear: Int, proximityFar: Int)
+    public suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    )
 }

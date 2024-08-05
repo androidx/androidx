@@ -42,7 +42,7 @@ private const val MPC_PREFERENCE_KEY = "mpc_value"
  *
  * @param context The application context value to use.
  */
-class PlayServicesDevicePerformance
+public class PlayServicesDevicePerformance
 internal constructor(
     private val context: Context,
     client: DevicePerformanceClient,
@@ -53,7 +53,7 @@ internal constructor(
     private val defaultMpc = DefaultDevicePerformance()
     private val mpcKey = intPreferencesKey(MPC_PREFERENCE_KEY)
 
-    override val mediaPerformanceClass
+    override val mediaPerformanceClass: Int
         get() = lazyMpc.value
 
     private val lazyMpc = lazy {
@@ -81,7 +81,7 @@ internal constructor(
      *
      * @param context The application context value to use.
      */
-    constructor(
+    public constructor(
         context: Context
     ) : this(
         context,

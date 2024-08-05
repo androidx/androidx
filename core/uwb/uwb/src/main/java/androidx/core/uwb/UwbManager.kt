@@ -20,16 +20,17 @@ import android.content.Context
 import androidx.core.uwb.impl.UwbManagerImpl
 
 @JvmDefaultWithCompatibility
+public
 /**
  * Interface for getting UWB capabilities and interacting with nearby UWB devices to perform
  * ranging.
  */
 interface UwbManager {
-    companion object {
+    public companion object {
 
         /** Creates a new UwbManager that is used for creating UWB client sessions. */
         @JvmStatic
-        fun createInstance(context: Context): UwbManager {
+        public fun createInstance(context: Context): UwbManager {
             return UwbManagerImpl(context)
         }
     }
@@ -42,7 +43,7 @@ interface UwbManager {
      *   not available on the device.
      */
     @Deprecated("Renamed to controleeSessionScope")
-    suspend fun clientSessionScope(): UwbClientSessionScope
+    public suspend fun clientSessionScope(): UwbClientSessionScope
 
     /**
      * @return a new [UwbControleeSessionScope] that tracks the lifecycle of a UWB connection.
@@ -51,7 +52,7 @@ interface UwbManager {
      * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
      *   not available on the device.
      */
-    suspend fun controleeSessionScope(): UwbControleeSessionScope
+    public suspend fun controleeSessionScope(): UwbControleeSessionScope
 
     /**
      * @return a new [UwbControllerSessionScope] that tracks the lifecycle of a UWB connection.
@@ -60,5 +61,5 @@ interface UwbManager {
      * @throws [androidx.core.uwb.exceptions.UwbHardwareNotAvailableException] if the hardware is
      *   not available on the device.
      */
-    suspend fun controllerSessionScope(): UwbControllerSessionScope
+    public suspend fun controllerSessionScope(): UwbControllerSessionScope
 }

@@ -73,7 +73,7 @@ import kotlinx.coroutines.withTimeout
  * descriptions.
  */
 @RequiresApi(VERSION_CODES.O)
-class CallsManager constructor(context: Context) {
+public class CallsManager public constructor(context: Context) {
     private val mContext: Context = context
     private var mPhoneAccount: PhoneAccount? = null
     private val mTelecomManager: TelecomManager =
@@ -84,7 +84,7 @@ class CallsManager constructor(context: Context) {
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Target(AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.TYPE)
         @IntDef(
@@ -94,7 +94,7 @@ class CallsManager constructor(context: Context) {
             flag = true
         )
         @Retention(AnnotationRetention.SOURCE)
-        annotation class Capability
+        public annotation class Capability
 
         /**
          * Set on Jetpack Connections that are emulating the transactional APIs using
@@ -119,7 +119,7 @@ class CallsManager constructor(context: Context) {
          * perform a capability that is not supported by your application, Telecom will notify the
          * service of the inability to perform the action instead of hitting an error.
          */
-        const val CAPABILITY_BASELINE = 1 shl 0
+        public const val CAPABILITY_BASELINE: Int = 1 shl 0
 
         /**
          * Flag indicating that your VoIP application supports video calling. This is not an
@@ -131,7 +131,7 @@ class CallsManager constructor(context: Context) {
          * [androidx.core.telecom.CallAttributesCompat.CallType]#[CALL_TYPE_VIDEO_CALL], which
          * indicates that particular call is currently capable of making a video call.
          */
-        const val CAPABILITY_SUPPORTS_VIDEO_CALLING = 1 shl 1
+        public const val CAPABILITY_SUPPORTS_VIDEO_CALLING: Int = 1 shl 1
 
         /**
          * Flag indicating that this VoIP application supports call streaming. Call streaming means
@@ -142,7 +142,7 @@ class CallsManager constructor(context: Context) {
          * must also be set on per call basis in the event an application wants to gate this
          * capability on a stricter basis.
          */
-        const val CAPABILITY_SUPPORTS_CALL_STREAMING = 1 shl 2
+        public const val CAPABILITY_SUPPORTS_CALL_STREAMING: Int = 1 shl 2
 
         // identifiers that indicate the call was established with core-telecom
         internal const val PACKAGE_HANDLE_ID: String = "Jetpack"
@@ -170,7 +170,7 @@ class CallsManager constructor(context: Context) {
      * @throws UnsupportedOperationException if the device is on an invalid build
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
-    fun registerAppWithTelecom(@Capability capabilities: Int) {
+    public fun registerAppWithTelecom(@Capability capabilities: Int) {
         // verify the build version supports this API and throw an exception if not
         Utils.verifyBuildVersion()
 
@@ -250,14 +250,14 @@ class CallsManager constructor(context: Context) {
      * @throws CancellationException if the call failed to be added within 5000 milliseconds
      */
     @RequiresPermission(value = "android.permission.MANAGE_OWN_CALLS")
-    suspend fun addCall(
+    public suspend fun addCall(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
         block: CallControlScope.() -> Unit
-    ) = coroutineScope {
+    ): Unit = coroutineScope {
         // Provide a default empty handler for onEvent
         addCall(
             callAttributes,
@@ -272,7 +272,7 @@ class CallsManager constructor(context: Context) {
 
     /** Represents an event sent from an InCallService to this Call. */
     @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-    data class CallEvent(val event: String, val extras: Bundle)
+    public data class CallEvent(public val event: String, public val extras: Bundle)
 
     /**
      * Adds a call with extensions support, which allows an app to implement optional additional
@@ -373,7 +373,7 @@ class CallsManager constructor(context: Context) {
     @Suppress("ClassVerificationFailure")
     @OptIn(ExperimentalCoroutinesApi::class)
     @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-    suspend fun addCall(
+    public suspend fun addCall(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,

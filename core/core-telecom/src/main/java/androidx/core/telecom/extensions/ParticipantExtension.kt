@@ -65,7 +65,7 @@ internal class ParticipantExtension(
     initialParticipants: Set<Participant>,
     initialActiveParticipant: Participant?
 ) {
-    companion object {
+    public companion object {
         /**
          * The version of this ParticipantExtension used for capability exchange. Should be updated
          * whenever there is an API change to this extension or an existing action.
@@ -105,7 +105,7 @@ internal class ParticipantExtension(
      *
      * @param newParticipants The new set of [Participant]s associated with this call
      */
-    suspend fun updateParticipants(newParticipants: Set<Participant>) {
+    public suspend fun updateParticipants(newParticipants: Set<Participant>) {
         participants.emit(newParticipants)
     }
 
@@ -115,7 +115,7 @@ internal class ParticipantExtension(
      * @param participant the participant that is marked as active or `null` if there is no active
      *   participant
      */
-    suspend fun updateActiveParticipant(participant: Participant?) {
+    public suspend fun updateActiveParticipant(participant: Participant?) {
         activeParticipant.emit(participant)
     }
 

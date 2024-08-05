@@ -20,7 +20,7 @@ import android.content.Intent
 import androidx.core.util.Consumer
 
 /** Interface for components that can dispatch calls from [Activity.onNewIntent]. */
-interface OnNewIntentProvider {
+public interface OnNewIntentProvider {
     /**
      * Add a new listener that will get a callback associated with [Activity.onNewIntent] with the
      * new [Intent].
@@ -28,7 +28,7 @@ interface OnNewIntentProvider {
      * @param listener The listener that should be called whenever
      *   [android.app.Activity#onNewIntent] was called.
      */
-    fun addOnNewIntentListener(listener: Consumer<Intent>)
+    public fun addOnNewIntentListener(listener: Consumer<Intent>)
 
     /**
      * Remove a previously added listener. It will not receive any future callbacks.
@@ -36,5 +36,5 @@ interface OnNewIntentProvider {
      * @param listener The listener previously added with [addOnNewIntentListener] that should be
      *   removed.
      */
-    fun removeOnNewIntentListener(listener: Consumer<Intent>)
+    public fun removeOnNewIntentListener(listener: Consumer<Intent>)
 }

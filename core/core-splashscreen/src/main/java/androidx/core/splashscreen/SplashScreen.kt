@@ -115,7 +115,7 @@ import androidx.core.splashscreen.SplashScreen.KeepOnScreenCondition
  * with a diameter of 200dp. Everything outside the circle will be invisible (masked).
  */
 @SuppressLint("CustomSplashScreen")
-class SplashScreen private constructor(activity: Activity) {
+public class SplashScreen private constructor(activity: Activity) {
 
     private val impl =
         when {
@@ -276,7 +276,7 @@ class SplashScreen private constructor(activity: Activity) {
             }
         }
 
-        open fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
+        public open fun setKeepOnScreenCondition(keepOnScreenCondition: KeepOnScreenCondition) {
             splashScreenWaitPredicate = keepOnScreenCondition
             val contentView = activity.findViewById<View>(android.R.id.content)
             val observer = contentView.viewTreeObserver
@@ -294,7 +294,7 @@ class SplashScreen private constructor(activity: Activity) {
             )
         }
 
-        open fun setOnExitAnimationListener(exitAnimationListener: OnExitAnimationListener) {
+        public open fun setOnExitAnimationListener(exitAnimationListener: OnExitAnimationListener) {
             animationListener = exitAnimationListener
 
             val splashScreenViewProvider = SplashScreenViewProvider(activity)
@@ -366,7 +366,7 @@ class SplashScreen private constructor(activity: Activity) {
             }
         }
 
-        fun dispatchOnExitAnimation(splashScreenViewProvider: SplashScreenViewProvider) {
+        public fun dispatchOnExitAnimation(splashScreenViewProvider: SplashScreenViewProvider) {
             val finalListener = animationListener ?: return
             animationListener = null
             splashScreenViewProvider.view.postOnAnimation {

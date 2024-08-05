@@ -23,12 +23,12 @@ import com.google.common.io.BaseEncoding
  *
  * @property address the device address (eg, MAC address).
  */
-class UwbAddress(val address: ByteArray) {
+public class UwbAddress(public val address: ByteArray) {
 
     /** @throws [IllegalArgumentException] if address is invalid. */
-    constructor(address: String) : this(BASE_16_SEPARATOR.decode(address))
+    public constructor(address: String) : this(BASE_16_SEPARATOR.decode(address))
 
-    companion object {
+    public companion object {
         private val BASE_16_SEPARATOR: BaseEncoding = BaseEncoding.base16().withSeparator(":", 2)
     }
 

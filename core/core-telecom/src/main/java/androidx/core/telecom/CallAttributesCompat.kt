@@ -36,13 +36,13 @@ import java.util.Objects
  * @param callCapabilities Allows a package to opt into capabilities on the telecom side, on a
  *   per-call basis
  */
-class CallAttributesCompat
+public class CallAttributesCompat
 constructor(
-    val displayName: CharSequence,
-    val address: Uri,
-    @Direction val direction: Int,
-    @CallType val callType: Int = CALL_TYPE_AUDIO_CALL,
-    @CallCapability val callCapabilities: Int = SUPPORTS_SET_INACTIVE
+    public val displayName: CharSequence,
+    public val address: Uri,
+    @Direction public val direction: Int,
+    @CallType public val callType: Int = CALL_TYPE_AUDIO_CALL,
+    @CallCapability public val callCapabilities: Int = SUPPORTS_SET_INACTIVE
 ) {
     internal var mHandle: PhoneAccountHandle? = null
 
@@ -68,39 +68,39 @@ constructor(
         return Objects.hash(displayName, address, direction, callType, callCapabilities)
     }
 
-    companion object {
+    public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(DIRECTION_INCOMING, DIRECTION_OUTGOING)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-        annotation class Direction
+        public annotation class Direction
 
         /** Indicates that the call is an incoming call. */
-        const val DIRECTION_INCOMING = 1
+        public const val DIRECTION_INCOMING: Int = 1
 
         /** Indicates that the call is an outgoing call. */
-        const val DIRECTION_OUTGOING = 2
+        public const val DIRECTION_OUTGOING: Int = 2
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(CALL_TYPE_AUDIO_CALL, CALL_TYPE_VIDEO_CALL)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.PROPERTY)
-        annotation class CallType
+        public annotation class CallType
 
         /**
          * Used when answering or dialing a call to indicate that the call does not have a video
          * component
          */
-        const val CALL_TYPE_AUDIO_CALL = 1
+        public const val CALL_TYPE_AUDIO_CALL: Int = 1
 
         /** Indicates video transmission is supported */
-        const val CALL_TYPE_VIDEO_CALL = 2
+        public const val CALL_TYPE_VIDEO_CALL: Int = 2
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(SUPPORTS_SET_INACTIVE, SUPPORTS_STREAM, SUPPORTS_TRANSFER, flag = true)
         @Target(AnnotationTarget.TYPE, AnnotationTarget.PROPERTY, AnnotationTarget.VALUE_PARAMETER)
-        annotation class CallCapability
+        public annotation class CallCapability
 
         /**
          * This call being created can be set to inactive (traditionally referred to as hold). This
@@ -108,17 +108,17 @@ constructor(
          * place or receive an incoming call, the active call will be placed on hold. otherwise, the
          * active call may be disconnected.
          */
-        const val SUPPORTS_SET_INACTIVE = 1 shl 1
+        public const val SUPPORTS_SET_INACTIVE: Int = 1 shl 1
 
         /**
          * This call can be streamed from a root device to another device to continue the call
          * without completely transferring it. The call continues to take place on the source
          * device, however media and control are streamed to another device.
          */
-        const val SUPPORTS_STREAM = 1 shl 2
+        public const val SUPPORTS_STREAM: Int = 1 shl 2
 
         /** This call can be completely transferred from one endpoint to another. */
-        const val SUPPORTS_TRANSFER = 1 shl 3
+        public const val SUPPORTS_TRANSFER: Int = 1 shl 3
     }
 
     @RequiresApi(34)

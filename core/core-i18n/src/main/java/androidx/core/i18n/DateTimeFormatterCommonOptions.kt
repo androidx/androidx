@@ -33,8 +33,8 @@ import androidx.core.i18n.DateTimeFormatterSkeletonOptions.Year
  *
  * @see android.icu.text.DateFormat
  */
-class DateTimeFormatterCommonOptions {
-    companion object {
+public class DateTimeFormatterCommonOptions {
+    public companion object {
         // TODO: Add a way to combine a predefined data + a predefined time,
         // for example `ABBR_MONTH_DAY` + `HOUR_MINUTE`
 
@@ -44,7 +44,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.ABBR_MONTH_DAY
          */
         @JvmField
-        val ABBR_MONTH_DAY =
+        public val ABBR_MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.ABBREVIATED)
                 .setDay(Day.NUMERIC)
@@ -56,7 +56,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.ABBR_MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val ABBR_MONTH_WEEKDAY_DAY =
+        public val ABBR_MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.ABBREVIATED)
                 .setDay(Day.NUMERIC)
@@ -71,7 +71,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.HOUR24_MINUTE
          */
         @JvmField
-        val HOUR24_MINUTE =
+        public val HOUR24_MINUTE: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setHour(Hour.FORCE_24H_NUMERIC)
                 .setMinute(Minute.NUMERIC)
@@ -85,7 +85,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.HOUR24_MINUTE_SECOND
          */
         @JvmField
-        val HOUR24_MINUTE_SECOND =
+        public val HOUR24_MINUTE_SECOND: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setHour(Hour.FORCE_24H_NUMERIC)
                 .setMinute(Minute.NUMERIC)
@@ -99,7 +99,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.HOUR_MINUTE
          */
         @JvmField
-        val HOUR_MINUTE =
+        public val HOUR_MINUTE: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setHour(Hour.NUMERIC)
                 .setMinute(Minute.NUMERIC)
@@ -112,7 +112,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.HOUR_MINUTE_SECOND
          */
         @JvmField
-        val HOUR_MINUTE_SECOND =
+        public val HOUR_MINUTE_SECOND: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setHour(Hour.NUMERIC)
                 .setMinute(Minute.NUMERIC)
@@ -125,7 +125,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.MINUTE_SECOND
          */
         @JvmField
-        val MINUTE_SECOND =
+        public val MINUTE_SECOND: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMinute(Minute.NUMERIC)
                 .setSecond(Second.NUMERIC)
@@ -137,7 +137,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.MONTH_DAY
          */
         @JvmField
-        val MONTH_DAY =
+        public val MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.WIDE)
                 .setDay(Day.NUMERIC)
@@ -149,7 +149,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val MONTH_WEEKDAY_DAY =
+        public val MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.WIDE)
                 .setDay(Day.NUMERIC)
@@ -164,7 +164,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.NUM_MONTH_DAY
          */
         @JvmField
-        val NUM_MONTH_DAY =
+        public val NUM_MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.NUMERIC)
                 .setDay(Day.NUMERIC)
@@ -178,7 +178,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.NUM_MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val NUM_MONTH_WEEKDAY_DAY =
+        public val NUM_MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setMonth(Month.NUMERIC)
                 .setDay(Day.NUMERIC)
@@ -191,7 +191,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_ABBR_MONTH
          */
         @JvmField
-        val YEAR_ABBR_MONTH =
+        public val YEAR_ABBR_MONTH: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.ABBREVIATED)
@@ -203,7 +203,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_ABBR_MONTH_DAY
          */
         @JvmField
-        val YEAR_ABBR_MONTH_DAY =
+        public val YEAR_ABBR_MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.ABBREVIATED)
@@ -217,7 +217,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_ABBR_MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val YEAR_ABBR_MONTH_WEEKDAY_DAY =
+        public val YEAR_ABBR_MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.ABBREVIATED)
@@ -231,7 +231,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_MONTH
          */
         @JvmField
-        val YEAR_MONTH =
+        public val YEAR_MONTH: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.WIDE)
@@ -243,7 +243,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_MONTH_DAY
          */
         @JvmField
-        val YEAR_MONTH_DAY =
+        public val YEAR_MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.WIDE)
@@ -257,7 +257,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val YEAR_MONTH_WEEKDAY_DAY =
+        public val YEAR_MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.WIDE)
@@ -271,7 +271,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_NUM_MONTH
          */
         @JvmField
-        val YEAR_NUM_MONTH =
+        public val YEAR_NUM_MONTH: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.NUMERIC)
@@ -285,7 +285,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_NUM_MONTH_DAY
          */
         @JvmField
-        val YEAR_NUM_MONTH_DAY =
+        public val YEAR_NUM_MONTH_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.NUMERIC)
@@ -300,7 +300,7 @@ class DateTimeFormatterCommonOptions {
          * @see android.icu.text.DateFormat.YEAR_NUM_MONTH_WEEKDAY_DAY
          */
         @JvmField
-        val YEAR_NUM_MONTH_WEEKDAY_DAY =
+        public val YEAR_NUM_MONTH_WEEKDAY_DAY: DateTimeFormatterSkeletonOptions =
             DateTimeFormatterSkeletonOptions.Builder()
                 .setYear(Year.NUMERIC)
                 .setMonth(Month.NUMERIC)

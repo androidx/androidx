@@ -23,9 +23,9 @@ package androidx.core.uwb
  * @property subSessionKey The sub-session key info to use for the ranging. This byte array is 16 or
  *   32-byte long.
  */
-class RangingControleeParameters(
-    val subSessionId: Int,
-    val subSessionKey: ByteArray? = null,
+public class RangingControleeParameters(
+    public val subSessionId: Int,
+    public val subSessionKey: ByteArray? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

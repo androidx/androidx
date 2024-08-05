@@ -17,4 +17,4 @@
 package androidx.core.uwb.exceptions
 
 /** Exception class for Uwb service errors. */
-open class UwbApiException(message: String) : Exception(message)
+public open class UwbApiException(message: String) : Exception(message)

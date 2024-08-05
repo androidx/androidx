@@ -26,10 +26,10 @@ import androidx.core.haptics.impl.HapticAttributesConverter
 
 /** Returns a [VibrationAttributes] with mapped supported fields. */
 @RequiresApi(Build.VERSION_CODES.R)
-fun HapticAttributes.toVibrationAttributes(): VibrationAttributes =
+public fun HapticAttributes.toVibrationAttributes(): VibrationAttributes =
     HapticAttributesConverter.toVibrationAttributes(this)
 
 /** Returns an [AudioAttributes] with mapped supported fields. */
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-fun HapticAttributes.toAudioAttributes(): AudioAttributes =
+public fun HapticAttributes.toAudioAttributes(): AudioAttributes =
     HapticAttributesConverter.toAudioAttributes(this)

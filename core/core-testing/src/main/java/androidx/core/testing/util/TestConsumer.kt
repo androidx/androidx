@@ -27,7 +27,7 @@ import kotlin.concurrent.withLock
  *
  * @param T the type of the input to the operation
  */
-class TestConsumer<T> : Consumer<T> {
+public class TestConsumer<T> : Consumer<T> {
 
     private val lock = ReentrantLock()
 
@@ -50,7 +50,7 @@ class TestConsumer<T> : Consumer<T> {
      * @param values expected to be in the [TestConsumer]
      * @throws AssertionError if the values do not match the current values.
      */
-    fun assertValues(values: List<T>) {
+    public fun assertValues(values: List<T>) {
         lock.withLock {
             if (this.values != values) {
                 throw AssertionError("Expected $values but received ${this.values}")

@@ -69,5 +69,4 @@ androidx {
     mavenVersion = LibraryVersions.CORE_REMOTEVIEWS
     inceptionYear = "2021"
     description = "AndroidX RemoteViews Support"
-    legacyDisableKotlinStrictApiMode = true
 }
