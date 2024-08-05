@@ -25,6 +25,7 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.events.keyDownEventUnprevented
 import androidx.compose.ui.focus.FocusRequester
@@ -38,39 +39,22 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
-import kotlinx.browser.document
-import org.w3c.dom.HTMLCanvasElement
-import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.test.assertFalse
 
-class CanvasBasedWindowTests {
-
-    private val canvasId = "canvas1"
-
-    @AfterTest
-    fun cleanup() {
-        document.getElementById(canvasId)?.remove()
-    }
-
-    @Test
-    fun canCreate() {
-        val canvasElement = document.createElement("canvas") as HTMLCanvasElement
-        canvasElement.setAttribute("id", canvasId)
-        document.body!!.appendChild(canvasElement)
-        CanvasBasedWindow(canvasElementId = canvasId) {  }
+class CanvasBasedWindowTests : OnCanvasTests {
+    @BeforeTest
+    fun setup() {
+        resetCanvas()
     }
 
     @Test
     fun testPreventDefault() {
-        val canvasElement = document.createElement("canvas") as HTMLCanvasElement
-        canvasElement.setAttribute("id", canvasId)
-        document.body!!.appendChild(canvasElement)
-
         val fr = FocusRequester()
         var changedValue = ""
-        CanvasBasedWindow(canvasElementId = canvasId) {
+        createComposeWindow {
             TextField(
                 value = "",
                 onValueChange = { changedValue = it },
@@ -82,21 +66,23 @@ class CanvasBasedWindowTests {
         }
 
         val stack = mutableListOf<Boolean>()
-        canvasElement.addEventListener("keydown", { event ->
+        val canvas = getCanvas()
+
+        canvas.addEventListener("keydown", { event ->
             stack.add(event.defaultPrevented)
         })
 
         // dispatchEvent synchronously invokes all the listeners
-        canvasElement.dispatchEvent(keyDownEvent("c"))
+        canvas.dispatchEvent(keyDownEvent("c"))
         assertEquals(1, stack.size)
         assertTrue(stack.last())
 
-        canvasElement.dispatchEvent(keyDownEventUnprevented())
+        canvas.dispatchEvent(keyDownEventUnprevented())
         assertEquals(2, stack.size)
         assertFalse(stack.last())
 
         // copy shortcut should not be prevented (we let browser create a corresponding event)
-        canvasElement.dispatchEvent(keyDownEvent("c", metaKey = true, ctrlKey = true))
+        canvas.dispatchEvent(keyDownEvent("c", metaKey = true, ctrlKey = true))
         assertEquals(3, stack.size)
         assertFalse(stack.last())
     }
@@ -104,14 +90,10 @@ class CanvasBasedWindowTests {
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/3644
     fun keyMappingIsValid() {
-        val canvasElement = document.createElement("canvas") as HTMLCanvasElement
-        canvasElement.setAttribute("id", canvasId)
-        document.body!!.appendChild(canvasElement)
-
         val fr = FocusRequester()
         var mapping = ""
         var k: Key? = null
-        CanvasBasedWindow(canvasElementId = canvasId) {
+        createComposeWindow {
             Box(Modifier.size(1000.dp).background(Color.Red).focusRequester(fr).focusTarget().onKeyEvent {
                 k = it.key
                 mapping = it.key.toString()
@@ -131,8 +113,10 @@ class CanvasBasedWindowTests {
             Key.V, Key.W, Key.X, Key.Y, Key.Z
         )
 
+        val canvas = getCanvas()
+
         ('a'..'z').forEachIndexed { index, c ->
-            canvasElement.dispatchEvent(keyDownEvent(c.toString()))
+            canvas.dispatchEvent(keyDownEvent(c.toString()))
             assertEquals(listOfKeys[index], k)
         }
 
@@ -143,7 +127,7 @@ class CanvasBasedWindowTests {
 
         ('0'..'9').forEachIndexed { index, c ->
             val id = c.toString()
-            canvasElement.dispatchEvent(keyDownEvent(id, code = "Digit${id}" ))
+            canvas.dispatchEvent(keyDownEvent(id, code = "Digit${id}" ))
             assertEquals(listOfNumbers[index], k)
         }
     }
@@ -151,16 +135,13 @@ class CanvasBasedWindowTests {
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/2296
     fun onPreviewKeyEventShouldWork() {
-        val canvasElement = document.createElement("canvas") as HTMLCanvasElement
-        canvasElement.setAttribute("id", canvasId)
-        document.body!!.appendChild(canvasElement)
 
         val fr = FocusRequester()
         val textValue = mutableStateOf("")
         var lastKeyEvent: KeyEvent? = null
         var stopPropagation = true
 
-        CanvasBasedWindow(canvasElementId = canvasId) {
+        createComposeWindow {
             TextField(
                 value = textValue.value,
                 onValueChange = { textValue.value = it },
@@ -174,16 +155,18 @@ class CanvasBasedWindowTests {
             }
         }
 
-        canvasElement.dispatchEvent(keyDownEvent("t"))
+        val canvas = getCanvas()
+
+        canvas.dispatchEvent(keyDownEvent("t"))
         assertEquals(Key.T, lastKeyEvent!!.key)
         assertEquals("", textValue.value)
 
         stopPropagation = false
-        canvasElement.dispatchEvent(keyDownEvent("t"))
-        canvasElement.dispatchEvent(keyDownEvent("e"))
-        canvasElement.dispatchEvent(keyDownEvent("s"))
-        canvasElement.dispatchEvent(keyDownEvent("t"))
-        canvasElement.dispatchEvent(keyDownEvent("x"))
+        canvas.dispatchEvent(keyDownEvent("t"))
+        canvas.dispatchEvent(keyDownEvent("e"))
+        canvas.dispatchEvent(keyDownEvent("s"))
+        canvas.dispatchEvent(keyDownEvent("t"))
+        canvas.dispatchEvent(keyDownEvent("x"))
         assertEquals(Key.X, lastKeyEvent!!.key)
         assertEquals("testx", textValue.value)
     }

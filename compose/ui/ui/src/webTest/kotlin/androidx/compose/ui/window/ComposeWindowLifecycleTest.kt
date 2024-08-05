@@ -16,42 +16,33 @@
 
 package androidx.compose.ui.window
 
+import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.sendFromScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
 import kotlin.test.Ignore
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlinx.browser.document
 import kotlinx.browser.window
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withContext
-import org.w3c.dom.HTMLCanvasElement
 
 
-class ComposeWindowLifecycleTest {
-    private val canvasId = "canvas1"
+class ComposeWindowLifecycleTest : OnCanvasTests {
 
-    @AfterTest
-    fun cleanup() {
-        document.getElementById(canvasId)?.remove()
+    @BeforeTest
+    fun setup() {
+        resetCanvas()
     }
 
     @Test
     @Ignore // ignored while investigating CI issues: this test opens a new browser window which can be the cause
     fun allEvents() = runTest {
-        val canvas = document.createElement("canvas") as HTMLCanvasElement
-        canvas.setAttribute("id", canvasId)
-        canvas.setAttribute("tabindex", "0")
-
-        document.body!!.appendChild(canvas)
+        val canvas = getCanvas()
         canvas.focus()
 
         val lifecycleOwner = ComposeWindow(

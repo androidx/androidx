@@ -22,52 +22,58 @@ import androidx.compose.material.Text
 import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.window.CanvasBasedWindow
-import kotlin.test.AfterTest
+import kotlin.math.abs
+import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 
 class TextTests : OnCanvasTests {
 
-    @AfterTest
-    fun cleanup() {
-        commonAfterTest()
+    @BeforeTest
+    fun setup() {
+        resetCanvas()
+    }
+
+    companion object {
+        private fun assertApproximatelyEqual(
+            expected: Float,
+            actual: Float,
+            tolerance: Float = 1f
+        ) {
+            if (abs(expected - actual) > tolerance) {
+                throw AssertionError("Expected $expected but got $actual. Difference is more than the allowed delta $tolerance")
+            }
+        }
     }
 
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/4078
     fun baselineShouldBeNotZero() = runTest {
-        val canvas = createCanvasAndAttach()
-
         val headingOnPositioned = Channel<Float>(10)
         val subtitleOnPositioned = Channel<Float>(10)
-        CanvasBasedWindow(
-            canvasElementId = canvasId,
-            content = {
-                val density = LocalDensity.current.density
-                Row {
-                    Text(
-                        "Heading",
-                        modifier = Modifier.alignByBaseline()
-                            .onGloballyPositioned {
-                                headingOnPositioned.sendFromScope(it[FirstBaseline] / density)
-                            },
-                        style = MaterialTheme.typography.h4
-                    )
-                    Text(
-                        " — Subtitle",
-                        modifier = Modifier.alignByBaseline()
-                            .onGloballyPositioned {
-                                subtitleOnPositioned.sendFromScope(it[FirstBaseline] / density)
-                            },
-                        style = MaterialTheme.typography.subtitle1
-                    )
-                }
+
+        createComposeWindow {
+            val density = LocalDensity.current.density
+            Row {
+                Text(
+                    "Heading",
+                    modifier = Modifier.alignByBaseline()
+                        .onGloballyPositioned {
+                            headingOnPositioned.sendFromScope(it[FirstBaseline] / density)
+                        },
+                    style = MaterialTheme.typography.h4
+                )
+                Text(
+                    " — Subtitle",
+                    modifier = Modifier.alignByBaseline()
+                        .onGloballyPositioned {
+                            subtitleOnPositioned.sendFromScope(it[FirstBaseline] / density)
+                        },
+                    style = MaterialTheme.typography.subtitle1
+                )
             }
-        )
+        }
 
         val headingAlignment = headingOnPositioned.receive()
         val subtitleAlignment = subtitleOnPositioned.receive()

@@ -16,10 +16,8 @@
 
 package androidx.compose.ui.input
 
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.TextField
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.events.InputEvent
@@ -30,7 +28,6 @@ import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.sendFromScope
-import androidx.compose.ui.window.CanvasBasedWindow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,16 +37,12 @@ import kotlinx.browser.document
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
-import org.w3c.dom.HTMLCanvasElement
 
 class TextInputTests : OnCanvasTests  {
 
     @BeforeTest
     fun setup() {
-        // Because AfterTest is fixed only in kotlin 2.0
-        // https://youtrack.jetbrains.com/issue/KT-61888
-        commonAfterTest()
-        createCanvasAndAttach()
+        resetCanvas()
     }
 
     @Test
@@ -59,12 +52,9 @@ class TextInputTests : OnCanvasTests  {
             1, onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
 
-        val canvas = document.getElementById(canvasId) as HTMLCanvasElement
-
         val (firstFocusRequester, secondFocusRequester) = FocusRequester.createRefs()
 
-        CanvasBasedWindow(canvasElementId = canvasId) {
-
+        createComposeWindow {
             TextField(
                 value = "",
                 onValueChange = { value ->
@@ -88,6 +78,8 @@ class TextInputTests : OnCanvasTests  {
         }
 
         assertNull(document.querySelector("textarea"))
+
+        val canvas = getCanvas()
 
         canvas.dispatchEvent(keyDownEvent("s"))
         canvas.dispatchEvent(keyDownEvent("t"))
