@@ -40,16 +40,6 @@ internal class LayerMatrixCache<T>(
     private var isInverseDirty = true
     private var isInverseValid = true
 
-    /** Reset the cache to the identity matrix. */
-    fun reset() {
-        isDirty = false
-        isInverseDirty = false
-        isIdentity = true
-        isInverseValid = true
-        matrixCache.reset()
-        inverseMatrixCache.reset()
-    }
-
     /**
      * Ensures that the internal matrix will be updated next time [calculateMatrix] or
      * [calculateInverseMatrix] is called - this should be called when something that will change
