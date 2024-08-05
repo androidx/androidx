@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.internal.HorizontalSemanticsBoundsPadding
 import androidx.compose.material3.tokens.SliderTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -55,16 +56,21 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsEqualTo
 import androidx.compose.ui.test.assertRangeInfoEquals
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
@@ -398,7 +404,7 @@ class SliderTest {
 
         rule
             .onNodeWithTag(tag)
-            .assertWidthIsEqualTo(rowWidth - spacerWidth.times(2))
+            .assertWidthIsEqualTo(rowWidth - spacerWidth * 2 + HorizontalSemanticsBoundsPadding * 2)
             .assertHeightIsEqualTo(SliderTokens.HandleHeight)
     }
 
@@ -413,7 +419,7 @@ class SliderTest {
 
         rule
             .onNodeWithTag(tag)
-            .assertWidthIsEqualTo(SliderTokens.HandleWidth)
+            .assertWidthIsEqualTo(SliderTokens.HandleWidth + HorizontalSemanticsBoundsPadding * 2)
             .assertHeightIsEqualTo(SliderTokens.InactiveTrackHeight)
     }
 
@@ -1089,6 +1095,85 @@ class SliderTest {
         rule
             .onAllNodes(isFocusable(), true)[1]
             .assertRangeInfoEquals(ProgressBarRangeInfo(15f, 10f..20f, 1))
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSlider_thumbs_semanticsNodeBounds() {
+        val startThumbTag = "startThumb"
+        val endThumbTag = "endThumb"
+        val padding = 10.dp
+
+        val expectedWidth =
+            with(rule.density) { SliderTokens.HandleWidth.roundToPx() + padding.roundToPx() }
+        val expectedHeight = with(rule.density) { SliderTokens.HandleHeight.roundToPx() }
+
+        val state = RangeSliderState(0f, 1f)
+        rule.setMaterialContent(lightColorScheme()) {
+            RangeSlider(
+                state = state,
+                startThumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = MutableInteractionSource(),
+                        modifier = Modifier.testTag(startThumbTag)
+                    )
+                },
+                endThumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = MutableInteractionSource(),
+                        modifier = Modifier.testTag(endThumbTag)
+                    )
+                }
+            )
+        }
+
+        listOf(startThumbTag, endThumbTag).forEach {
+            val thumbNode =
+                rule
+                    .onNodeWithTag(it, true)
+                    .onParent()
+                    .fetchSemanticsNode("couldn't find node with tag $it")
+            val thumbNodeBounds = thumbNode.boundsInRoot
+
+            // Check that the SemanticsNode bounds include the padding. This means that the
+            // SemanticsNode bounds are big enough to trigger TalkBack's green focus indicator.
+            Truth.assertThat(thumbNodeBounds.width).isEqualTo(expectedWidth)
+            Truth.assertThat(thumbNodeBounds.height).isEqualTo(expectedHeight)
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Test
+    fun rangeSlider_thumbs_visualBounds() {
+        val startThumbTag = "startThumb"
+        val endThumbTag = "endThumb"
+
+        val state = RangeSliderState(0f, 1f)
+        rule.setMaterialContent(lightColorScheme()) {
+            RangeSlider(
+                state = state,
+                startThumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = MutableInteractionSource(),
+                        modifier = Modifier.testTag(startThumbTag)
+                    )
+                },
+                endThumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = MutableInteractionSource(),
+                        modifier = Modifier.testTag(endThumbTag)
+                    )
+                }
+            )
+        }
+
+        listOf(startThumbTag, endThumbTag).forEach {
+            val thumbNodeBounds = rule.onNodeWithTag(it, true).getBoundsInRoot()
+
+            // Check that the visual bounds are the expected visual size.
+            thumbNodeBounds.width.assertIsEqualTo(SliderTokens.HandleWidth, it)
+            thumbNodeBounds.height.assertIsEqualTo(SliderTokens.HandleHeight, it)
+        }
     }
 
     @OptIn(ExperimentalMaterial3Api::class)

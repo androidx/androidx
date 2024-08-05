@@ -215,68 +215,68 @@ internal fun BoxScope.ModalBottomSheetContent(
 
     Surface(
         modifier =
-        modifier
-            .align(Alignment.TopCenter)
-            .widthIn(max = sheetMaxWidth)
-            .fillMaxWidth()
-            .graphicsLayer {
-                val sheetOffset = sheetState.anchoredDraggableState.offset
-                val sheetHeight = size.height
-                if (!sheetOffset.isNaN() && !sheetHeight.isNaN() && sheetHeight != 0f) {
-                    val progress = predictiveBackProgress.value
-                    scaleX = calculatePredictiveBackScaleX(progress)
-                    scaleY = calculatePredictiveBackScaleY(progress)
-                    transformOrigin =
-                        TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
-                }
-            }
-            .nestedScroll(
-                remember(sheetState) {
-                    ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
-                        sheetState = sheetState,
-                        orientation = Orientation.Vertical,
-                        onFling = settleToDismiss
-                    )
-                }
-            )
-            .draggableAnchors(sheetState.anchoredDraggableState, Orientation.Vertical) {
+            modifier
+                .align(Alignment.TopCenter)
+                .widthIn(max = sheetMaxWidth)
+                .fillMaxWidth()
+                .nestedScroll(
+                    remember(sheetState) {
+                        ConsumeSwipeWithinBottomSheetBoundsNestedScrollConnection(
+                            sheetState = sheetState,
+                            orientation = Orientation.Vertical,
+                            onFling = settleToDismiss
+                        )
+                    }
+                )
+                .draggableAnchors(sheetState.anchoredDraggableState, Orientation.Vertical) {
                     sheetSize,
                     constraints ->
-                val fullHeight = constraints.maxHeight.toFloat()
-                val newAnchors = DraggableAnchors {
-                    Hidden at fullHeight
-                    if (
-                        sheetSize.height > (fullHeight / 2) && !sheetState.skipPartiallyExpanded
-                    ) {
-                        PartiallyExpanded at fullHeight / 2f
-                    }
-                    if (sheetSize.height != 0) {
-                        Expanded at max(0f, fullHeight - sheetSize.height)
-                    }
-                }
-                val newTarget =
-                    when (sheetState.anchoredDraggableState.targetValue) {
-                        Hidden -> Hidden
-                        PartiallyExpanded,
-                        Expanded -> {
-                            val hasPartiallyExpandedState =
-                                newAnchors.hasAnchorFor(PartiallyExpanded)
-                            val newTarget =
-                                if (hasPartiallyExpandedState) PartiallyExpanded
-                                else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
-                            newTarget
+                    val fullHeight = constraints.maxHeight.toFloat()
+                    val newAnchors = DraggableAnchors {
+                        Hidden at fullHeight
+                        if (
+                            sheetSize.height > (fullHeight / 2) && !sheetState.skipPartiallyExpanded
+                        ) {
+                            PartiallyExpanded at fullHeight / 2f
+                        }
+                        if (sheetSize.height != 0) {
+                            Expanded at max(0f, fullHeight - sheetSize.height)
                         }
                     }
-                return@draggableAnchors newAnchors to newTarget
-            }
-            .draggable(
-                state = sheetState.anchoredDraggableState.draggableState,
-                orientation = Orientation.Vertical,
-                enabled = sheetState.isVisible,
-                startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
-                onDragStopped = { settleToDismiss(it) }
-            )
-            .semantics { paneTitle = bottomSheetPaneTitle },
+                    val newTarget =
+                        when (sheetState.anchoredDraggableState.targetValue) {
+                            Hidden -> Hidden
+                            PartiallyExpanded,
+                            Expanded -> {
+                                val hasPartiallyExpandedState =
+                                    newAnchors.hasAnchorFor(PartiallyExpanded)
+                                val newTarget =
+                                    if (hasPartiallyExpandedState) PartiallyExpanded
+                                    else if (newAnchors.hasAnchorFor(Expanded)) Expanded else Hidden
+                                newTarget
+                            }
+                        }
+                    return@draggableAnchors newAnchors to newTarget
+                }
+                .draggable(
+                    state = sheetState.anchoredDraggableState.draggableState,
+                    orientation = Orientation.Vertical,
+                    enabled = sheetState.isVisible,
+                    startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
+                    onDragStopped = { settleToDismiss(it) }
+                )
+                .semantics { paneTitle = bottomSheetPaneTitle }
+                .graphicsLayer {
+                    val sheetOffset = sheetState.anchoredDraggableState.offset
+                    val sheetHeight = size.height
+                    if (!sheetOffset.isNaN() && !sheetHeight.isNaN() && sheetHeight != 0f) {
+                        val progress = predictiveBackProgress.value
+                        scaleX = calculatePredictiveBackScaleX(progress)
+                        scaleY = calculatePredictiveBackScaleY(progress)
+                        transformOrigin =
+                            TransformOrigin(0.5f, (sheetOffset + sheetHeight) / sheetHeight)
+                    }
+                },
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
