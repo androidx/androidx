@@ -270,7 +270,8 @@ constructor(
                     afLockBehavior = afLockBehavior,
                     awbLockBehavior = awbLockBehavior,
                     afTriggerStartAeMode = afTriggerStartAeMode,
-                    timeLimitNs = timeLimitNs,
+                    convergedTimeLimitNs = timeLimitNs,
+                    lockedTimeLimitNs = timeLimitNs
                 )
             }
         } ?: submitFailedResult

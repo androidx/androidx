@@ -137,7 +137,8 @@ internal class CameraGraphSessionImpl(
         convergedCondition: ((FrameMetadata) -> Boolean)?,
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        convergedTimeLimitNs: Long,
+        lockedTimeLimitNs: Long
     ): Deferred<Result3A> {
         check(!token.released) { "Cannot call lock3A on $this after close." }
         // TODO(sushilnath): check if the device or the current mode supports lock for each of
@@ -154,7 +155,8 @@ internal class CameraGraphSessionImpl(
             convergedCondition,
             lockedCondition,
             frameLimit,
-            timeLimitNs
+            convergedTimeLimitNs,
+            lockedTimeLimitNs
         )
     }
 

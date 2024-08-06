@@ -374,7 +374,7 @@ constructor(
         }
     }
 
-    private suspend fun lock3A(timeLimitNs: Long): Result3A =
+    private suspend fun lock3A(convergedTimeLimitNs: Long): Result3A =
         graph
             .acquireSession()
             .use {
@@ -382,7 +382,8 @@ constructor(
                     aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
                     afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
                     awbLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                    timeLimitNs = timeLimitNs,
+                    convergedTimeLimitNs = convergedTimeLimitNs,
+                    lockedTimeLimitNs = CHECK_3A_TIMEOUT_IN_NS
                 )
             }
             .await()

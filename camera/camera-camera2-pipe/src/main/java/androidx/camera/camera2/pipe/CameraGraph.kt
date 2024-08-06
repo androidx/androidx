@@ -525,15 +525,17 @@ interface CameraGraph : AutoCloseable {
          * @param convergedCondition an optional function can be used to identify if the result
          *   frame with correct 3A converge state is received. Returns true to complete the 3A scan
          *   and going to lock the 3A state, otherwise it will continue to receive the frame results
-         *   until the [frameLimit] or [timeLimitNs] is reached.
+         *   until the [frameLimit] or [convergedTimeLimitNs] is reached.
          * @param lockedCondition an optional function can be used to identify if the result frame
          *   with correct 3A lock states are received. Returns true to complete lock 3A task,
          *   otherwise it will continue to receive the frame results until the [frameLimit] or
-         *   [timeLimitNs] is reached.
+         *   [lockedTimeLimitNs] is reached.
          * @param frameLimit the maximum number of frames to wait before we give up waiting for this
          *   operation to complete.
-         * @param timeLimitNs the maximum time limit in ms we wait before we give up waiting for
-         *   this operation to complete.
+         * @param convergedTimeLimitNs the maximum time limit in ns we wait before we give up
+         *   waiting for 3A convergence to complete.
+         * @param lockedTimeLimitNs the maximum time limit in ns we wait before we give up waiting
+         *   for 3A locking to complete.
          * @return [Result3A], which will contain the latest frame number at which the locks were
          *   applied or the frame number at which the method returned early because either frame
          *   limit or time limit was reached.
@@ -558,7 +560,8 @@ interface CameraGraph : AutoCloseable {
             convergedCondition: ((FrameMetadata) -> Boolean)? = null,
             lockedCondition: ((FrameMetadata) -> Boolean)? = null,
             frameLimit: Int = DEFAULT_FRAME_LIMIT,
-            timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
+            convergedTimeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
+            lockedTimeLimitNs: Long = DEFAULT_TIME_LIMIT_NS
         ): Deferred<Result3A>
 
         /**

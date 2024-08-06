@@ -81,7 +81,8 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         convergedCondition: ((FrameMetadata) -> Boolean)?,
         lockedCondition: ((FrameMetadata) -> Boolean)?,
         frameLimit: Int,
-        timeLimitNs: Long
+        convergedTimeLimitNs: Long,
+        lockedTimeLimitNs: Long
     ): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
