@@ -55,8 +55,8 @@ import androidx.pdf.widget.ZoomView
 import androidx.pdf.widget.ZoomView.ZoomScroll
 import com.google.android.material.snackbar.Snackbar
 
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-class PdfLoaderCallbacksImpl(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class PdfLoaderCallbacksImpl(
     private val context: Context,
     private val fragmentManager: FragmentManager,
     private var fastScrollView: FastScrollView,
@@ -73,14 +73,14 @@ class PdfLoaderCallbacksImpl(
 ) : PdfLoaderCallbacks {
     private val pageElevationInPixels: Int = PaginationUtils.getPageElevationInPixels(context)
 
-    var selectionModel: PdfSelectionModel? = null
-    var searchModel: SearchModel? = null
-    var layoutHandler: LayoutHandler? = null
-    var fileName: String? = null
-    var pageViewFactory: PageViewFactory? = null
-    var pdfLoader: PdfLoader? = null
-    var uri: Uri? = null
-    var onScreen = false
+    public var selectionModel: PdfSelectionModel? = null
+    public var searchModel: SearchModel? = null
+    public var layoutHandler: LayoutHandler? = null
+    public var fileName: String? = null
+    public var pageViewFactory: PageViewFactory? = null
+    public var pdfLoader: PdfLoader? = null
+    public var uri: Uri? = null
+    public var onScreen: Boolean = false
 
     private fun currentPasswordDialog(fm: FragmentManager): PdfPasswordDialog? {
         val passwordDialog = fm.findFragmentByTag(PASSWORD_DIALOG_TAG)
@@ -109,7 +109,7 @@ class PdfLoaderCallbacksImpl(
     }
 
     @UiThread
-    fun hideSpinner() {
+    public fun hideSpinner() {
         loadingView.visibility = View.GONE
     }
 
@@ -136,7 +136,7 @@ class PdfLoaderCallbacksImpl(
             .setOverlay(selection.overlay)
     }
 
-    fun loadPageAssets(position: ZoomScroll) {
+    public fun loadPageAssets(position: ZoomScroll) {
         // Change the resolution of the bitmaps only when a gesture is not in progress.
         if (position.stable || zoomView.stableZoom == 0f) {
             zoomView.stableZoom = position.zoom
@@ -401,7 +401,7 @@ class PdfLoaderCallbacksImpl(
         }
     }
 
-    companion object {
+    private companion object {
         private const val PASSWORD_DIALOG_TAG = "password-dialog"
     }
 }

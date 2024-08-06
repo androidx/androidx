@@ -27,7 +27,7 @@ import java.io.IOException
  * this interface are responsible for handling the retrieval, decryption (if necessary), and
  * creation of a [PdfDocument] representation.
  */
-interface PdfLoader {
+public interface PdfLoader {
 
     /**
      * Asynchronously opens a PDF document from the specified [Uri].
@@ -39,5 +39,5 @@ interface PdfLoader {
      * @throws IOException If an error occurs while opening the document.
      */
     @Throws(PdfPasswordException::class, IOException::class)
-    suspend fun openDocument(uri: Uri, password: String? = null): PdfDocument
+    public suspend fun openDocument(uri: Uri, password: String? = null): PdfDocument
 }
