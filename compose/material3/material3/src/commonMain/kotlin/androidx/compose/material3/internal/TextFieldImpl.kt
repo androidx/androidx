@@ -26,8 +26,8 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalMinimumInteractiveComponentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldLayout
 import androidx.compose.material3.TextFieldColors
@@ -36,6 +36,7 @@ import androidx.compose.material3.TextFieldLabelScope
 import androidx.compose.material3.TextFieldLayout
 import androidx.compose.material3.outlineCutout
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.SmallIconButtonTokens
 import androidx.compose.material3.value
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -61,7 +62,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.lerp
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.sp
 
 internal enum class TextFieldType {
@@ -314,7 +317,7 @@ internal fun Modifier.defaultErrorSemantics(
 ): Modifier = if (isError) semantics { error(defaultErrorMessage) } else this
 
 /**
- * Replacement for Modifier.background which takes color as a State to avoid recomposition while
+ * Replacement for Modifier.background which takes color lazily to avoid recomposition while
  * animating.
  */
 internal fun Modifier.textFieldBackground(
@@ -479,10 +482,18 @@ internal const val SuffixId = "Suffix"
 internal const val SupportingId = "Supporting"
 internal const val ContainerId = "Container"
 
+// Icons are 24dp but padded to LocalMinimumInteractiveComponentSize (48dp by default), so we need
+// to account for this visual discrepancy when applying user padding.
+@Composable
+internal fun textFieldHorizontalIconPadding(): Dp {
+    val interactiveSizeOrNaN = LocalMinimumInteractiveComponentSize.current
+    val interactiveSize = if (interactiveSizeOrNaN.isUnspecified) 0.dp else interactiveSizeOrNaN
+    return ((interactiveSize - SmallIconButtonTokens.IconSize) / 2).coerceAtLeast(0.dp)
+}
+
 internal val TextFieldPadding = 16.dp
 // SP not DP because it should scale with font size. Value equal to bodySmall line height / 2.
 internal val TextFieldLabelExtraPadding = 8.sp
-internal val HorizontalIconPadding = 12.dp
 internal val AboveLabelHorizontalPadding = 4.dp
 internal val AboveLabelBottomPadding = 4.dp
 internal val SupportingTopPadding = 4.dp
@@ -490,5 +501,3 @@ internal val PrefixSuffixTextPadding = 2.dp
 internal val MinTextLineHeight = 24.dp
 internal val MinFocusedLabelLineHeight = 16.dp
 internal val MinSupportingTextLineHeight = 16.dp
-
-internal val IconDefaultSizeModifier = Modifier.defaultMinSize(48.dp, 48.dp)
