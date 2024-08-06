@@ -38,10 +38,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.animateFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -96,6 +98,43 @@ fun LargeFloatingActionButtonSample() {
             contentDescription = "Localized description",
             modifier = Modifier.size(FloatingActionButtonDefaults.LargeIconSize),
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun AnimatedFloatingActionButtonSample() {
+    val listState = rememberLazyListState()
+    // The FAB is initially shown. Upon scrolling past the first item we hide the FAB by using a
+    // remembered derived state to minimize unnecessary compositions.
+    val fabVisible by remember { derivedStateOf { listState.firstVisibleItemIndex == 0 } }
+
+    Scaffold(
+        floatingActionButton = {
+            MediumFloatingActionButton(
+                modifier =
+                    Modifier.animateFloatingActionButton(
+                        visible = fabVisible,
+                        alignment = Alignment.BottomEnd
+                    ),
+                onClick = { /* do something */ },
+            ) {
+                Icon(
+                    Icons.Filled.Add,
+                    contentDescription = "Localized description",
+                    modifier = Modifier.size(FloatingActionButtonDefaults.MediumIconSize),
+                )
+            }
+        },
+        floatingActionButtonPosition = FabPosition.End,
+    ) {
+        LazyColumn(state = listState, modifier = Modifier.fillMaxSize()) {
+            for (index in 0 until 100) {
+                item { Text(text = "List item - $index", modifier = Modifier.padding(24.dp)) }
+            }
+        }
     }
 }
 

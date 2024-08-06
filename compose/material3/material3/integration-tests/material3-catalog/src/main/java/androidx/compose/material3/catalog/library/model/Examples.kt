@@ -31,6 +31,7 @@ import androidx.compose.material3.catalog.library.util.SampleSourceUrl
 import androidx.compose.material3.samples.AlertDialogSample
 import androidx.compose.material3.samples.AlertDialogWithIconSample
 import androidx.compose.material3.samples.AnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
 import androidx.compose.material3.samples.AssistChipSample
 import androidx.compose.material3.samples.BasicAlertDialogSample
 import androidx.compose.material3.samples.BottomAppBarWithFAB
@@ -923,6 +924,13 @@ val FloatingActionButtonsExamples =
             sourceUrl = FloatingActionButtonsExampleSourceUrl,
         ) {
             LargeFloatingActionButtonSample()
+        },
+        Example(
+            name = "AnimatedFloatingActionButtonSample",
+            description = FloatingActionButtonsExampleDescription,
+            sourceUrl = FloatingActionButtonsExampleSourceUrl,
+        ) {
+            AnimatedFloatingActionButtonSample()
         },
         Example(
             name = "MediumFloatingActionButtonSample",
