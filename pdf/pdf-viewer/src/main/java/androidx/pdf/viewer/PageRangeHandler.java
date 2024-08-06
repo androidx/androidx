@@ -56,11 +56,6 @@ public class PageRangeHandler {
         mMaxPage = maxPage;
     }
 
-    @NonNull
-    public PaginationModel getPaginationModel() {
-        return mPaginationModel;
-    }
-
     /**
      * Returns the page currently roughly centered in the view.
      */

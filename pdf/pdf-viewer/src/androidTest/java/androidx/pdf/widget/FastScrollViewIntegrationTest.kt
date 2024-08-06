@@ -55,13 +55,12 @@ class FastScrollViewIntegrationTest {
             // Start by adding a PaginatedView with 10 50x50 pages
             paginatedView =
                 PaginatedView(activity).apply {
-                    initPaginationModelAndPageRangeHandler(activity).apply {
+                    model.apply {
                         initialize(10)
                         for (i in 0..9) {
                             addPage(i, Dimensions(50, 50))
                         }
                     }
-                    model = paginationModel
                 }
             // Add a ZoomView to host the PaginatedView
             zoomView =
@@ -73,7 +72,7 @@ class FastScrollViewIntegrationTest {
             fastScrollView =
                 FastScrollView(activity).apply {
                     layoutParams = ViewGroup.LayoutParams(100, 400)
-                    setPaginationModel(paginatedView.paginationModel)
+                    setPaginationModel(paginatedView.model)
                     addView(zoomView)
                 }
             activity.setContentView(fastScrollView)

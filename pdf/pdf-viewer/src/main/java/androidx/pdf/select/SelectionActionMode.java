@@ -192,20 +192,18 @@ public class SelectionActionMode {
             int screenWidth = mPaginatedView.getResources().getDisplayMetrics().widthPixels;
             int screenHeight = mPaginatedView.getResources().getDisplayMetrics().heightPixels;
 
-            if (pageSelection.getRects().size() == 1 || startHandlerect.intersect(0, 0, 
-                    screenWidth, screenHeight)) {
+            if (pageSelection.getRects().size() == 1 || startHandlerect.intersect(0, 0, screenWidth,
+                    screenHeight)) {
                 return pageSelection.getRects().getFirst();
             } else if (stopHandleRect.intersect(0, 0, screenWidth, screenHeight)) {
                 return pageSelection.getRects().getLast();
             } else {
                 // Center of the view in page coordinates
-                int viewCentreX =
-                        mPaginatedView.getPaginationModel().getViewArea().centerX() *
-                                mPaginatedView.getPaginationModel().getPageSize(
-                                        selectionPage).getWidth()
-                                        / mPaginatedView.getPaginationModel().getWidth();
-                int viewCentreY = mPaginatedView.getPaginationModel().getViewArea().centerY()
-                        - mPaginatedView.getPaginationModel().getPageLocation(selectionPage).top;
+                int viewCentreX = mPaginatedView.getModel().getViewArea().centerX()
+                        * mPaginatedView.getModel().getPageSize(selectionPage).getWidth()
+                        / mPaginatedView.getModel().getWidth();
+                int viewCentreY = mPaginatedView.getModel().getViewArea().centerY()
+                        - mPaginatedView.getModel().getPageLocation(selectionPage).top;
 
                 return new Rect(viewCentreX, viewCentreY, viewCentreX, viewCentreY);
             }

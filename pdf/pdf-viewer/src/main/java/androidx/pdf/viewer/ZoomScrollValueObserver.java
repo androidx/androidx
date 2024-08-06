@@ -69,8 +69,8 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     @Override
     public void onChange(@Nullable ZoomView.ZoomScroll oldPosition,
             @Nullable ZoomView.ZoomScroll position) {
-        if (mPaginatedView == null || !mPaginatedView.getPaginationModel().isInitialized()
-                || position == null || mPaginatedView.getPaginationModel().getSize() == 0) {
+        if (mPaginatedView == null || !mPaginatedView.getModel().isInitialized()
+                || position == null || mPaginatedView.getModel().getSize() == 0) {
             return;
         }
         // Stop showing context menu if there is any change in zoom or scroll, resume only when
@@ -167,16 +167,16 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             if (selectionPage >= firstPageInVisibleRange
                     && selectionPage <= lastPageInVisisbleRange) {
                 // Start and stop coordinates in a page wrt pagination model
-                int startX = mPaginatedView.getPaginationModel().getLookAtX(selectionPage,
+                int startX = mPaginatedView.getModel().getLookAtX(selectionPage,
                         mPaginatedView.getSelectionModel().selection().get().getStart().getX());
-                int startY = mPaginatedView.getPaginationModel().getLookAtY(selectionPage,
+                int startY = mPaginatedView.getModel().getLookAtY(selectionPage,
                         mPaginatedView.getSelectionModel().selection().get().getStart().getY());
-                int stopX = mPaginatedView.getPaginationModel().getLookAtX(selectionPage,
+                int stopX = mPaginatedView.getModel().getLookAtX(selectionPage,
                         mPaginatedView.getSelectionModel().selection().get().getStop().getX());
-                int stopY = mPaginatedView.getPaginationModel().getLookAtY(selectionPage,
+                int stopY = mPaginatedView.getModel().getLookAtY(selectionPage,
                         mPaginatedView.getSelectionModel().selection().get().getStop().getY());
 
-                Rect currentViewArea = mPaginatedView.getPaginationModel().getViewArea();
+                Rect currentViewArea = mPaginatedView.getModel().getViewArea();
 
                 if (currentViewArea.intersect(startX, startY, stopX, stopY)) {
                     mSelectionActionMode.resume();
