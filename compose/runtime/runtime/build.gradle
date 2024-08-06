@@ -33,7 +33,7 @@ plugins {
 
 androidXMultiplatform {
     android()
-    jvmStubs()
+    jvmStubs(/* runTests */ true)
     linuxX64Stubs()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
@@ -111,20 +111,18 @@ androidXMultiplatform {
             dependsOn(commonMain)
         }
 
-        commonStubsMain {
-            dependsOn(nonAndroidMain)
-        }
-
         jvmStubsMain {
-            dependsOn(commonStubsMain)
+            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
         }
 
         jvmStubsTest {
             dependsOn(jvmTest)
+            dependsOn(nonEmulatorJvmTest)
         }
 
         linuxx64StubsMain {
-            dependsOn(commonStubsMain)
+            dependsOn(nonAndroidMain)
         }
     }
 }
