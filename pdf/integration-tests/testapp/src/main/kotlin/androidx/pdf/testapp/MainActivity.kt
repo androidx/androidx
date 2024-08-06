@@ -42,11 +42,13 @@ class MainActivity : AppCompatActivity() {
     @VisibleForTesting
     var filePicker: ActivityResultLauncher<String> =
         registerForActivityResult(GetContent()) { uri: Uri? ->
-            if (!isPdfViewInitialized) {
-                setPdfView()
-                isPdfViewInitialized = true
+            uri?.let {
+                if (!isPdfViewInitialized) {
+                    setPdfView()
+                    isPdfViewInitialized = true
+                }
+                pdfViewerFragment?.documentUri = uri
             }
-            uri?.let { pdfViewerFragment?.documentUri = uri }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
