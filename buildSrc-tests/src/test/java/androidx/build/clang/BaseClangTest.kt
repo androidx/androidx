@@ -31,11 +31,9 @@ import org.junit.rules.TemporaryFolder
  * [KonanBuildService] in tests.
  */
 abstract class BaseClangTest {
-    @get:Rule
-    val projectSetup = ProjectSetupRule()
+    @get:Rule val projectSetup = ProjectSetupRule()
 
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
+    @get:Rule val tmpFolder = TemporaryFolder()
 
     protected lateinit var project: Project
     protected lateinit var clangExtension: AndroidXClang
@@ -45,9 +43,9 @@ abstract class BaseClangTest {
         project = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
         // build service needs prebuilts location to "download" clang and targets.
-        projectSetup.props.prebuiltsPath?.let {
-            extension.set("prebuiltsRoot", it)
-        }
+        projectSetup.props.prebuiltsPath?.let { extension.set("prebuiltsRoot", it) }
+        // ensure that kotlin doesn't try to download prebuilts
+        extension.set("kotlin.native.distribution.downloadFromMaven", "false")
         project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
         clangExtension = AndroidXClang(project)
         KonanPrebuiltsSetup.configureKonanDirectory(project)

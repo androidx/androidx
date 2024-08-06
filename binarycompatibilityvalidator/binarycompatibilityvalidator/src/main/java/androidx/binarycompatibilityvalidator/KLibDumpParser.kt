@@ -92,7 +92,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
                                 // To be completed in follow up CLs. This information is currently
                                 // not
                                 // considered when checking for compatibility
-                                nativeTargets = listOf(),
+                                platformTargets = listOf(),
                                 compilerVersion = "",
                                 abiVersion = "",
                                 libraryVersion = "",
@@ -227,6 +227,7 @@ class KlibDumpParser(klibDump: String, private val fileName: String? = null) {
             kind = kind,
             getter = getter,
             setter = setter,
+            backingField = null
         )
     }
 

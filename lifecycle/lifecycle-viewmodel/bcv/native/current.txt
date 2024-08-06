@@ -43,7 +43,7 @@ final class <#A: androidx.lifecycle/ViewModel> androidx.lifecycle.viewmodel/View
     constructor <init>(kotlin.reflect/KClass<#A>, kotlin/Function1<androidx.lifecycle.viewmodel/CreationExtras, #A>) // androidx.lifecycle.viewmodel/ViewModelInitializer.<init>|<init>(kotlin.reflect.KClass<1:0>;kotlin.Function1<androidx.lifecycle.viewmodel.CreationExtras,1:0>){}[0]
 }
 final class <#A: androidx.lifecycle/ViewModel> androidx.lifecycle/ViewModelLazy : kotlin/Lazy<#A> { // androidx.lifecycle/ViewModelLazy|null[0]
-    constructor <init>(kotlin.reflect/KClass<#A>, kotlin/Function0<androidx.lifecycle/ViewModelStore>, kotlin/Function0<androidx.lifecycle/ViewModelProvider.Factory>, kotlin/Function0<androidx.lifecycle.viewmodel/CreationExtras> =...) // androidx.lifecycle/ViewModelLazy.<init>|<init>(kotlin.reflect.KClass<1:0>;kotlin.Function0<androidx.lifecycle.ViewModelStore>;kotlin.Function0<androidx.lifecycle.ViewModelProvider.Factory>;kotlin.Function0<androidx.lifecycle.viewmodel.CreationExtras>){}[0]
+    constructor <init>(kotlin.reflect/KClass<#A>, kotlin/Function0<androidx.lifecycle/ViewModelStore>, kotlin/Function0<androidx.lifecycle/ViewModelProvider.Factory>, kotlin/Function0<androidx.lifecycle.viewmodel/CreationExtras> = ...) // androidx.lifecycle/ViewModelLazy.<init>|<init>(kotlin.reflect.KClass<1:0>;kotlin.Function0<androidx.lifecycle.ViewModelStore>;kotlin.Function0<androidx.lifecycle.ViewModelProvider.Factory>;kotlin.Function0<androidx.lifecycle.viewmodel.CreationExtras>){}[0]
     final fun isInitialized(): kotlin/Boolean // androidx.lifecycle/ViewModelLazy.isInitialized|isInitialized(){}[0]
     final val value // androidx.lifecycle/ViewModelLazy.value|{}value[0]
         final fun <get-value>(): #A // androidx.lifecycle/ViewModelLazy.value.<get-value>|<get-value>(){}[0]
@@ -54,7 +54,7 @@ final class androidx.lifecycle.viewmodel/InitializerViewModelFactoryBuilder { //
     final fun build(): androidx.lifecycle/ViewModelProvider.Factory // androidx.lifecycle.viewmodel/InitializerViewModelFactoryBuilder.build|build(){}[0]
 }
 final class androidx.lifecycle.viewmodel/MutableCreationExtras : androidx.lifecycle.viewmodel/CreationExtras { // androidx.lifecycle.viewmodel/MutableCreationExtras|null[0]
-    constructor <init>(androidx.lifecycle.viewmodel/CreationExtras =...) // androidx.lifecycle.viewmodel/MutableCreationExtras.<init>|<init>(androidx.lifecycle.viewmodel.CreationExtras){}[0]
+    constructor <init>(androidx.lifecycle.viewmodel/CreationExtras = ...) // androidx.lifecycle.viewmodel/MutableCreationExtras.<init>|<init>(androidx.lifecycle.viewmodel.CreationExtras){}[0]
     final fun <#A1: kotlin/Any?> get(androidx.lifecycle.viewmodel/CreationExtras.Key<#A1>): #A1? // androidx.lifecycle.viewmodel/MutableCreationExtras.get|get(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>){0§<kotlin.Any?>}[0]
     final fun <#A1: kotlin/Any?> set(androidx.lifecycle.viewmodel/CreationExtras.Key<#A1>, #A1) // androidx.lifecycle.viewmodel/MutableCreationExtras.set|set(androidx.lifecycle.viewmodel.CreationExtras.Key<0:0>;0:0){0§<kotlin.Any?>}[0]
 }
@@ -65,8 +65,8 @@ final class androidx.lifecycle/ViewModelProvider { // androidx.lifecycle/ViewMod
     final fun <#A1: androidx.lifecycle/ViewModel> get(kotlin.reflect/KClass<#A1>): #A1 // androidx.lifecycle/ViewModelProvider.get|get(kotlin.reflect.KClass<0:0>){0§<androidx.lifecycle.ViewModel>}[0]
     final fun <#A1: androidx.lifecycle/ViewModel> get(kotlin/String, kotlin.reflect/KClass<#A1>): #A1 // androidx.lifecycle/ViewModelProvider.get|get(kotlin.String;kotlin.reflect.KClass<0:0>){0§<androidx.lifecycle.ViewModel>}[0]
     final object Companion { // androidx.lifecycle/ViewModelProvider.Companion|null[0]
-        final fun create(androidx.lifecycle/ViewModelStore, androidx.lifecycle/ViewModelProvider.Factory =..., androidx.lifecycle.viewmodel/CreationExtras =...): androidx.lifecycle/ViewModelProvider // androidx.lifecycle/ViewModelProvider.Companion.create|create(androidx.lifecycle.ViewModelStore;androidx.lifecycle.ViewModelProvider.Factory;androidx.lifecycle.viewmodel.CreationExtras){}[0]
-        final fun create(androidx.lifecycle/ViewModelStoreOwner, androidx.lifecycle/ViewModelProvider.Factory =..., androidx.lifecycle.viewmodel/CreationExtras =...): androidx.lifecycle/ViewModelProvider // androidx.lifecycle/ViewModelProvider.Companion.create|create(androidx.lifecycle.ViewModelStoreOwner;androidx.lifecycle.ViewModelProvider.Factory;androidx.lifecycle.viewmodel.CreationExtras){}[0]
+        final fun create(androidx.lifecycle/ViewModelStore, androidx.lifecycle/ViewModelProvider.Factory = ..., androidx.lifecycle.viewmodel/CreationExtras = ...): androidx.lifecycle/ViewModelProvider // androidx.lifecycle/ViewModelProvider.Companion.create|create(androidx.lifecycle.ViewModelStore;androidx.lifecycle.ViewModelProvider.Factory;androidx.lifecycle.viewmodel.CreationExtras){}[0]
+        final fun create(androidx.lifecycle/ViewModelStoreOwner, androidx.lifecycle/ViewModelProvider.Factory = ..., androidx.lifecycle.viewmodel/CreationExtras = ...): androidx.lifecycle/ViewModelProvider // androidx.lifecycle/ViewModelProvider.Companion.create|create(androidx.lifecycle.ViewModelStoreOwner;androidx.lifecycle.ViewModelProvider.Factory;androidx.lifecycle.viewmodel.CreationExtras){}[0]
         final val VIEW_MODEL_KEY // androidx.lifecycle/ViewModelProvider.Companion.VIEW_MODEL_KEY|{}VIEW_MODEL_KEY[0]
             final fun <get-VIEW_MODEL_KEY>(): androidx.lifecycle.viewmodel/CreationExtras.Key<kotlin/String> // androidx.lifecycle/ViewModelProvider.Companion.VIEW_MODEL_KEY.<get-VIEW_MODEL_KEY>|<get-VIEW_MODEL_KEY>(){}[0]
     }

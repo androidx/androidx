@@ -7,8 +7,8 @@
 
 // Library unique name: <androidx.room:room-testing>
 final class androidx.room.testing/MigrationTestHelper { // androidx.room.testing/MigrationTestHelper|null[0]
-    constructor <init>(kotlin/String, kotlin/String, androidx.sqlite/SQLiteDriver, kotlin.reflect/KClass<out androidx.room/RoomDatabase>, kotlin/Function0<androidx.room/RoomDatabase> =..., kotlin.collections/List<androidx.room.migration/AutoMigrationSpec> =...) // androidx.room.testing/MigrationTestHelper.<init>|<init>(kotlin.String;kotlin.String;androidx.sqlite.SQLiteDriver;kotlin.reflect.KClass<out|androidx.room.RoomDatabase>;kotlin.Function0<androidx.room.RoomDatabase>;kotlin.collections.List<androidx.room.migration.AutoMigrationSpec>){}[0]
+    constructor <init>(kotlin/String, kotlin/String, androidx.sqlite/SQLiteDriver, kotlin.reflect/KClass<out androidx.room/RoomDatabase>, kotlin/Function0<androidx.room/RoomDatabase> = ..., kotlin.collections/List<androidx.room.migration/AutoMigrationSpec> = ...) // androidx.room.testing/MigrationTestHelper.<init>|<init>(kotlin.String;kotlin.String;androidx.sqlite.SQLiteDriver;kotlin.reflect.KClass<out|androidx.room.RoomDatabase>;kotlin.Function0<androidx.room.RoomDatabase>;kotlin.collections.List<androidx.room.migration.AutoMigrationSpec>){}[0]
     final fun createDatabase(kotlin/Int): androidx.sqlite/SQLiteConnection // androidx.room.testing/MigrationTestHelper.createDatabase|createDatabase(kotlin.Int){}[0]
     final fun finished() // androidx.room.testing/MigrationTestHelper.finished|finished(){}[0]
-    final fun runMigrationsAndValidate(kotlin/Int, kotlin.collections/List<androidx.room.migration/Migration> =...): androidx.sqlite/SQLiteConnection // androidx.room.testing/MigrationTestHelper.runMigrationsAndValidate|runMigrationsAndValidate(kotlin.Int;kotlin.collections.List<androidx.room.migration.Migration>){}[0]
+    final fun runMigrationsAndValidate(kotlin/Int, kotlin.collections/List<androidx.room.migration/Migration> = ...): androidx.sqlite/SQLiteConnection // androidx.room.testing/MigrationTestHelper.runMigrationsAndValidate|runMigrationsAndValidate(kotlin.Int;kotlin.collections.List<androidx.room.migration.Migration>){}[0]
 }

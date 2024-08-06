@@ -77,7 +77,6 @@ androidXMultiplatform {
             }
         }
 
-        desktopMain.dependsOn(jvmCommonMain)
         nonJvmCommonMain.dependsOn(commonMain)
         nativeMain.dependsOn(nonJvmCommonMain)
         darwinMain.dependsOn(nativeMain)

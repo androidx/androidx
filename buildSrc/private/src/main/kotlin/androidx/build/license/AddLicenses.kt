@@ -64,7 +64,7 @@ internal fun Project.addLicensesToPublishedArtifacts(license: License) {
     // https://youtrack.jetbrains.com/issue/KT-69084
     tasks.withType<CInteropProcess>().configureEach { task ->
         task.doLast {
-            val outputFile = task.outputFile
+            val outputFile = task.outputFileProvider.get()
             outputFile.writeToZip { fileSystem ->
                 val licenseDir = fileSystem.getPath("/default/licenses/$projectSubdir")
                 Files.createDirectories(licenseDir)

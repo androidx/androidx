@@ -123,7 +123,7 @@ private fun registerCInterop(
     nativeTargetCompilation: Provider<NativeTargetCompilation>? = null
 ) {
     kotlinNativeCompilation.cinterops.register(cinteropName) { cInteropSettings ->
-        cInteropSettings.defFileProperty.set(createDefFileTask.flatMap { it.target.asFile })
+        cInteropSettings.definitionFile.set(createDefFileTask.flatMap { it.target })
         nativeTargetCompilation?.let { nativeTargetCompilation ->
             cInteropSettings.includeDirs(
                 nativeTargetCompilation

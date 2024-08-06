@@ -20,7 +20,6 @@ internal object KmpConfig {
             KonanTarget.LINUX_ARM64,
             KonanTarget.LINUX_X64,
             KonanTarget.MINGW_X64,
-            KonanTarget.MINGW_X86,
             KonanTarget.IOS_ARM64,
             KonanTarget.IOS_SIMULATOR_ARM64,
             KonanTarget.IOS_X64,

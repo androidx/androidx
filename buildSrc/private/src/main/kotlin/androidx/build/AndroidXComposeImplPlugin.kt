@@ -125,10 +125,10 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             }
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
-        val compilerPluginVersion = project.getVersionByName("composeCompilerPlugin")
+        val compilerPluginVersion = project.getVersionByName("kotlin")
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            "androidx.compose.compiler:compiler:$compilerPluginVersion"
+            "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:$compilerPluginVersion"
         )
 
         if (
@@ -154,15 +154,6 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
                                     requested.name == "kotlin-compose-compiler-plugin-embeddable")
                         ) {
                             dep.useVersion(compilerPluginVersion)
-                        }
-
-                        if (
-                            requested.group == "androidx.compose.compiler" &&
-                                requested.name == "compiler"
-                        ) {
-                            dep.useTarget(
-                                "org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:$compilerPluginVersion"
-                            )
                         }
                     }
                 }

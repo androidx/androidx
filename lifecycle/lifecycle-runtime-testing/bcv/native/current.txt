@@ -7,7 +7,7 @@
 
 // Library unique name: <androidx.lifecycle:lifecycle-runtime-testing>
 final class androidx.lifecycle.testing/TestLifecycleOwner : androidx.lifecycle/LifecycleOwner { // androidx.lifecycle.testing/TestLifecycleOwner|null[0]
-    constructor <init>(androidx.lifecycle/Lifecycle.State =..., kotlinx.coroutines/CoroutineDispatcher =...) // androidx.lifecycle.testing/TestLifecycleOwner.<init>|<init>(androidx.lifecycle.Lifecycle.State;kotlinx.coroutines.CoroutineDispatcher){}[0]
+    constructor <init>(androidx.lifecycle/Lifecycle.State = ..., kotlinx.coroutines/CoroutineDispatcher = ...) // androidx.lifecycle.testing/TestLifecycleOwner.<init>|<init>(androidx.lifecycle.Lifecycle.State;kotlinx.coroutines.CoroutineDispatcher){}[0]
     final fun handleLifecycleEvent(androidx.lifecycle/Lifecycle.Event) // androidx.lifecycle.testing/TestLifecycleOwner.handleLifecycleEvent|handleLifecycleEvent(androidx.lifecycle.Lifecycle.Event){}[0]
     final suspend fun setCurrentState(androidx.lifecycle/Lifecycle.State) // androidx.lifecycle.testing/TestLifecycleOwner.setCurrentState|setCurrentState(androidx.lifecycle.Lifecycle.State){}[0]
     final val lifecycle // androidx.lifecycle.testing/TestLifecycleOwner.lifecycle|{}lifecycle[0]

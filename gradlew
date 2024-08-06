@@ -426,9 +426,6 @@ function runGradle() {
 
   RETURN_VALUE=0
   set -- "$@" -Dorg.gradle.projectcachedir="$OUT_DIR/gradle-project-cache"
-  KOTLIN_PROJECT_PERSISTENT_DIR="$OUT_DIR/kotlin-project-persistent-dir"
-  mkdir -p "$KOTLIN_PROJECT_PERSISTENT_DIR"
-  set -- "$@" -Pkotlin.project.persistent.dir="$KOTLIN_PROJECT_PERSISTENT_DIR"
   # Disabled in Studio until these errors become shown (b/268380971) or computed more quickly (https://github.com/gradle/gradle/issues/23272)
   if [[ " ${@} " =~ " --dependency-verification=" ]]; then
     VERIFICATION_ARGUMENT="" # already specified by caller

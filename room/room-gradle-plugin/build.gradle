@@ -77,6 +77,7 @@ tasks.withType(Test).configureEach { test ->
     // the test project executed with Gradle Test Kit.
     test.dependsOn(
             ":annotation:annotation:publish",
+            ":collection:collection:publish",
             ":annotation:annotation-experimental:publish",
             ":collection:collection:publish",
             ":room:room-common:publish",

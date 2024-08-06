@@ -13,7 +13,7 @@ abstract interface <#A: kotlin/Any?> androidx.datastore.core.okio/OkioSerializer
         abstract fun <get-defaultValue>(): #A // androidx.datastore.core.okio/OkioSerializer.defaultValue.<get-defaultValue>|<get-defaultValue>(){}[0]
 }
 final class <#A: kotlin/Any?> androidx.datastore.core.okio/OkioStorage : androidx.datastore.core/Storage<#A> { // androidx.datastore.core.okio/OkioStorage|null[0]
-    constructor <init>(okio/FileSystem, androidx.datastore.core.okio/OkioSerializer<#A>, kotlin/Function2<okio/Path, okio/FileSystem, androidx.datastore.core/InterProcessCoordinator> =..., kotlin/Function0<okio/Path>) // androidx.datastore.core.okio/OkioStorage.<init>|<init>(okio.FileSystem;androidx.datastore.core.okio.OkioSerializer<1:0>;kotlin.Function2<okio.Path,okio.FileSystem,androidx.datastore.core.InterProcessCoordinator>;kotlin.Function0<okio.Path>){}[0]
+    constructor <init>(okio/FileSystem, androidx.datastore.core.okio/OkioSerializer<#A>, kotlin/Function2<okio/Path, okio/FileSystem, androidx.datastore.core/InterProcessCoordinator> = ..., kotlin/Function0<okio/Path>) // androidx.datastore.core.okio/OkioStorage.<init>|<init>(okio.FileSystem;androidx.datastore.core.okio.OkioSerializer<1:0>;kotlin.Function2<okio.Path,okio.FileSystem,androidx.datastore.core.InterProcessCoordinator>;kotlin.Function0<okio.Path>){}[0]
     final fun createConnection(): androidx.datastore.core/StorageConnection<#A> // androidx.datastore.core.okio/OkioStorage.createConnection|createConnection(){}[0]
 }
 final fun androidx.datastore.core.okio/createSingleProcessCoordinator(okio/Path): androidx.datastore.core/InterProcessCoordinator // androidx.datastore.core.okio/createSingleProcessCoordinator|createSingleProcessCoordinator(okio.Path){}[0]

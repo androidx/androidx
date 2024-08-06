@@ -56,7 +56,7 @@ abstract class androidx.room/BaseRoomConnectionManager { // androidx.room/BaseRo
         final fun open(kotlin/String): androidx.sqlite/SQLiteConnection // androidx.room/BaseRoomConnectionManager.DriverWrapper.open|open(kotlin.String){}[0]
     }
     final object Companion { // androidx.room/BaseRoomConnectionManager.Companion|null[0]
-        final const val BUSY_TIMEOUT_MS // androidx.room/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS|<get-BUSY_TIMEOUT_MS>(){}[0]
+        final const val BUSY_TIMEOUT_MS // androidx.room/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS|{}BUSY_TIMEOUT_MS[0]
             final fun <get-BUSY_TIMEOUT_MS>(): kotlin/Int // androidx.room/BaseRoomConnectionManager.Companion.BUSY_TIMEOUT_MS.<get-BUSY_TIMEOUT_MS>|<get-BUSY_TIMEOUT_MS>(){}[0]
     }
 }
@@ -191,7 +191,7 @@ final class androidx.room.util/FtsTableInfo { // androidx.room.util/FtsTableInfo
         final fun <get-options>(): kotlin.collections/Set<kotlin/String> // androidx.room.util/FtsTableInfo.options.<get-options>|<get-options>(){}[0]
 }
 final class androidx.room.util/TableInfo { // androidx.room.util/TableInfo|null[0]
-    constructor <init>(kotlin/String, kotlin.collections/Map<kotlin/String, androidx.room.util/TableInfo.Column>, kotlin.collections/Set<androidx.room.util/TableInfo.ForeignKey>, kotlin.collections/Set<androidx.room.util/TableInfo.Index>? =...) // androidx.room.util/TableInfo.<init>|<init>(kotlin.String;kotlin.collections.Map<kotlin.String,androidx.room.util.TableInfo.Column>;kotlin.collections.Set<androidx.room.util.TableInfo.ForeignKey>;kotlin.collections.Set<androidx.room.util.TableInfo.Index>?){}[0]
+    constructor <init>(kotlin/String, kotlin.collections/Map<kotlin/String, androidx.room.util/TableInfo.Column>, kotlin.collections/Set<androidx.room.util/TableInfo.ForeignKey>, kotlin.collections/Set<androidx.room.util/TableInfo.Index>? = ...) // androidx.room.util/TableInfo.<init>|<init>(kotlin.String;kotlin.collections.Map<kotlin.String,androidx.room.util.TableInfo.Column>;kotlin.collections.Set<androidx.room.util.TableInfo.ForeignKey>;kotlin.collections.Set<androidx.room.util.TableInfo.Index>?){}[0]
     final class Column { // androidx.room.util/TableInfo.Column|null[0]
         constructor <init>(kotlin/String, kotlin/String, kotlin/Boolean, kotlin/Int, kotlin/String?, kotlin/Int) // androidx.room.util/TableInfo.Column.<init>|<init>(kotlin.String;kotlin.String;kotlin.Boolean;kotlin.Int;kotlin.String?;kotlin.Int){}[0]
         final fun equals(kotlin/Any?): kotlin/Boolean // androidx.room.util/TableInfo.Column.equals|equals(kotlin.Any?){}[0]
@@ -321,7 +321,7 @@ final class androidx.room/InvalidationTracker { // androidx.room/InvalidationTra
     final suspend fun unsubscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.unsubscribe|unsubscribe(androidx.room.InvalidationTracker.Observer){}[0]
 }
 final class androidx.room/RoomRawQuery { // androidx.room/RoomRawQuery|null[0]
-    constructor <init>(kotlin/String, kotlin/Function1<androidx.sqlite/SQLiteStatement, kotlin/Unit> =...) // androidx.room/RoomRawQuery.<init>|<init>(kotlin.String;kotlin.Function1<androidx.sqlite.SQLiteStatement,kotlin.Unit>){}[0]
+    constructor <init>(kotlin/String, kotlin/Function1<androidx.sqlite/SQLiteStatement, kotlin/Unit> = ...) // androidx.room/RoomRawQuery.<init>|<init>(kotlin.String;kotlin.Function1<androidx.sqlite.SQLiteStatement,kotlin.Unit>){}[0]
     final fun getBindingFunction(): kotlin/Function1<androidx.sqlite/SQLiteStatement, kotlin/Unit> // androidx.room/RoomRawQuery.getBindingFunction|getBindingFunction(){}[0]
     final val sql // androidx.room/RoomRawQuery.sql|{}sql[0]
         final fun <get-sql>(): kotlin/String // androidx.room/RoomRawQuery.sql.<get-sql>|<get-sql>(){}[0]
@@ -345,8 +345,8 @@ final fun androidx.room.util/wrapMappedColumns(androidx.sqlite/SQLiteStatement, 
 final object androidx.room/Room { // androidx.room/Room|null[0]
     final const val MASTER_TABLE_NAME // androidx.room/Room.MASTER_TABLE_NAME|{}MASTER_TABLE_NAME[0]
         final fun <get-MASTER_TABLE_NAME>(): kotlin/String // androidx.room/Room.MASTER_TABLE_NAME.<get-MASTER_TABLE_NAME>|<get-MASTER_TABLE_NAME>(){}[0]
-    final inline fun <#A1: reified androidx.room/RoomDatabase> databaseBuilder(kotlin/String, noinline kotlin/Function0<#A1> =...): androidx.room/RoomDatabase.Builder<#A1> // androidx.room/Room.databaseBuilder|databaseBuilder(kotlin.String;kotlin.Function0<0:0>){0§<androidx.room.RoomDatabase>}[0]
-    final inline fun <#A1: reified androidx.room/RoomDatabase> inMemoryDatabaseBuilder(noinline kotlin/Function0<#A1> =...): androidx.room/RoomDatabase.Builder<#A1> // androidx.room/Room.inMemoryDatabaseBuilder|inMemoryDatabaseBuilder(kotlin.Function0<0:0>){0§<androidx.room.RoomDatabase>}[0]
+    final inline fun <#A1: reified androidx.room/RoomDatabase> databaseBuilder(kotlin/String, noinline kotlin/Function0<#A1> = ...): androidx.room/RoomDatabase.Builder<#A1> // androidx.room/Room.databaseBuilder|databaseBuilder(kotlin.String;kotlin.Function0<0:0>){0§<androidx.room.RoomDatabase>}[0]
+    final inline fun <#A1: reified androidx.room/RoomDatabase> inMemoryDatabaseBuilder(noinline kotlin/Function0<#A1> = ...): androidx.room/RoomDatabase.Builder<#A1> // androidx.room/Room.inMemoryDatabaseBuilder|inMemoryDatabaseBuilder(kotlin.Function0<0:0>){0§<androidx.room.RoomDatabase>}[0]
 }
 final suspend fun (androidx.room/PooledConnection).androidx.room/execSQL(kotlin/String) // androidx.room/execSQL|execSQL@androidx.room.PooledConnection(kotlin.String){}[0]
 final suspend fun <#A: kotlin/Any?> (androidx.room/RoomDatabase).androidx.room/useReaderConnection(kotlin.coroutines/SuspendFunction1<androidx.room/Transactor, #A>): #A // androidx.room/useReaderConnection|useReaderConnection@androidx.room.RoomDatabase(kotlin.coroutines.SuspendFunction1<androidx.room.Transactor,0:0>){0§<kotlin.Any?>}[0]

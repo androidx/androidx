@@ -36,7 +36,6 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.PathSensitive
@@ -44,7 +43,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.the
 import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -64,7 +62,7 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.DefaultIncrementalSyncTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
 import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
-import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnPlugin
+import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -688,11 +686,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 }
 
 private fun Project.configureWasm() {
-    rootProject.extensions.findByType<NodeJsRootExtension>()?.nodeVersion = getVersionByName("node")
-    rootProject.extensions.findByType<YarnRootExtension>()?.version = getVersionByName("yarn")
-    rootProject.plugins.withType<YarnPlugin> {
-        rootProject.the<YarnRootExtension>().lockFileDirectory =
+    rootProject.extensions.findByType<NodeJsRootExtension>()?.version = getVersionByName("node")
+    rootProject.extensions.findByType(YarnRootExtension::class.java)?.let {
+        it.version = getVersionByName("yarn")
+        it.lockFileDirectory =
             File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+        it.yarnLockMismatchReport = YarnLockMismatchReport.WARNING
     }
 
     val offlineMirrorStorage =
@@ -749,14 +748,6 @@ private fun Project.configureWasm() {
         it.destinationDirectory.set(
             file(layout.buildDirectory.dir("js/packages/wasm-js-test/prod/kotlin"))
         )
-    }
-    tasks.named("wasmJsBrowserDevelopmentExecutableDistributeResources", Copy::class.java) {
-        it.destinationDir =
-            file(layout.buildDirectory.dir("dist/wasm-js/developmentExecutable/resources"))
-    }
-    tasks.named("wasmJsBrowserProductionExecutableDistributeResources", Copy::class.java) {
-        it.destinationDir =
-            file(layout.buildDirectory.dir("dist/wasm-js/productionExecutable/resources"))
     }
 }
 

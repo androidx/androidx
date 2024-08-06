@@ -71,6 +71,10 @@ getGradle().beforeProject { project ->
     init.chooseBuildDirectory(
             new File("${buildscript.sourceFile.parent}/../.."), rootProject.name, project
     )
+
+    // https://youtrack.jetbrains.com/issue/KT-58223
+    def kotlinDir = new File(System.getenv("OUT_DIR"), ".kotlin")
+    project.setProperty("kotlin.project.persistent.dir", kotlinDir.absolutePath)
 }
 
 apply(plugin: "com.gradle.develocity")
