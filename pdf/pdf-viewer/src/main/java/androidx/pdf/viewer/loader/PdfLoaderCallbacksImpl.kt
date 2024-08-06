@@ -21,6 +21,7 @@ import android.graphics.Bitmap
 import android.graphics.Rect
 import android.net.Uri
 import android.view.View
+import android.view.View.VISIBLE
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.fragment.app.FragmentManager
@@ -29,6 +30,7 @@ import androidx.pdf.ViewState
 import androidx.pdf.data.DisplayData
 import androidx.pdf.data.PdfStatus
 import androidx.pdf.data.Range
+import androidx.pdf.find.FindInFileView
 import androidx.pdf.models.Dimensions
 import androidx.pdf.models.GotoLink
 import androidx.pdf.models.LinkRects
@@ -61,6 +63,8 @@ class PdfLoaderCallbacksImpl(
     private var zoomView: ZoomView,
     private var paginatedView: PaginatedView,
     private var loadingView: LoadingView,
+    private var findInFileView: FindInFileView,
+    private var isTextSearchActive: Boolean,
     private var viewState: ExposedValue<ViewState>,
     private val fragmentContainerView: View?,
     private val onRequestPassword: (Boolean) -> Unit,
@@ -245,6 +249,11 @@ class PdfLoaderCallbacksImpl(
 
             layoutHandler!!.maybeLayoutPages(1)
             searchModel?.setNumPages(numPages)
+        }
+
+        if (isTextSearchActive) {
+            findInFileView.setFindInFileView(true)
+            findInFileView.setVisibility(VISIBLE)
         }
     }
 
