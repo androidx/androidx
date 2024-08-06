@@ -118,6 +118,7 @@ import org.junit.runner.RunWith
 class OutlinedTextFieldTest {
     private val ExpectedMinimumTextFieldHeight = OutlinedTextFieldDefaults.MinHeight
     private val ExpectedDefaultTextFieldWidth = OutlinedTextFieldDefaults.MinWidth
+    private val OutlinedTextFieldTopPadding = 8.sp
     private val ExpectedPadding = TextFieldPadding
     private val IconPadding = 12.dp
     private val TextFieldTag = "textField"
