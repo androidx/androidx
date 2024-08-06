@@ -136,7 +136,7 @@ public final class ActionsConstraints {
 
     /**
      * Constraints for additional row actions. Only allows custom actions.
-     * Note: From Car API 7 onwards, Rows are allowed to have 2 max actions to be set.
+     * Note: From Car API 8 onwards, Rows are allowed to have 2 max actions to be set.
      */
     @NonNull
     public static final ActionsConstraints ACTIONS_CONSTRAINTS_ROW =
