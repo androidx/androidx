@@ -32,8 +32,9 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.isUnspecified
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.unit.width
-import androidx.compose.ui.util.fastMap
 import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Asserts that the layout of this node has width equal to [expectedWidth].
@@ -179,21 +180,20 @@ fun SemanticsNodeInteraction.getAlignmentLinePosition(alignmentLine: AlignmentLi
 }
 
 /**
- * For every link matching the [predicate] returns a rectangle that is inside the bounds of this
- * link. The bounds are in the text node's coordinate system.
+ * Returns the bounds of the first link matching the [predicate], or if that link spans multiple
+ * lines, returns the bounds of the first line of the link.
  *
- * **Note** Each such bounds will be inside the overall link bounds but may not represent its entire
- * bounds.
+ * The bounds are in the text node's coordinate system.
  *
- * You may pass an offset within the rectangle to injection methods to operate them on the link, for
- * example [TouchInjectionScope.click] or [MouseInjectionScope.moveTo].
+ * You can pass an offset from within the bounds to injection methods to operate them on the link,
+ * for example [TouchInjectionScope.click] or [MouseInjectionScope.moveTo].
  *
+ * @sample androidx.compose.ui.test.samples.hoverFirstLinkInText
  * @sample androidx.compose.ui.test.samples.touchInputOnFirstSpecificLinkInText
- * @sample androidx.compose.ui.test.samples.hoverAnyFirstLinkInText
  */
-fun SemanticsNodeInteraction.getPartialBoundsOfLinks(
+fun SemanticsNodeInteraction.getFirstLinkBounds(
     predicate: (AnnotatedString.Range<LinkAnnotation>) -> Boolean = { true }
-): List<Rect> = withDensity {
+): Rect? = withDensity {
     val errorMessage = "Failed to retrieve bounds of the link."
     val node = fetchSemanticsNode(errorMessage)
 
@@ -214,18 +214,35 @@ fun SemanticsNodeInteraction.getPartialBoundsOfLinks(
     val matchedTextLayoutResults = textLayoutResults.filter { texts.contains(it.layoutInput.text) }
     if (matchedTextLayoutResults.isEmpty()) {
         throw AssertionError(
-            "$errorMessage\n Reason: No matching TextLayoutResult found for the node's text."
+            "$errorMessage\n Reason: No matching TextLayoutResult found for the node's text. This " +
+                "usually indicates that either Text or GetTextLayoutResult semantics have been" +
+                "updated without a corresponding update to the other."
         )
     }
 
-    val allBoundsOfLinks = mutableListOf<Rect>()
     for (textLayoutResult in matchedTextLayoutResults) {
         val text = textLayoutResult.layoutInput.text
-        val links = text.getLinkAnnotations(0, text.length).filter(predicate)
-        val boundsOfLinks = links.fastMap { textLayoutResult.getBoundingBox(it.start) }
-        allBoundsOfLinks.addAll(boundsOfLinks)
+        val link = text.getLinkAnnotations(0, text.length).firstOrNull(predicate)
+
+        val boundsOfLink =
+            link?.let {
+                val firstCharIndex = it.start
+                val lineForLink = textLayoutResult.getLineForOffset(firstCharIndex)
+                val lastCharIndex = min(textLayoutResult.getLineEnd(lineForLink), it.end) - 1
+
+                val startBB = textLayoutResult.getBoundingBox(firstCharIndex)
+                val endBB = textLayoutResult.getBoundingBox(lastCharIndex)
+
+                Rect(
+                    min(startBB.left, endBB.left),
+                    startBB.top,
+                    max(startBB.right, endBB.right),
+                    startBB.bottom
+                )
+            }
+        if (boundsOfLink != null) return@withDensity boundsOfLink
     }
-    return@withDensity allBoundsOfLinks
+    return@withDensity null
 }
 
 private fun <R> SemanticsNodeInteraction.withDensity(operation: Density.(SemanticsNode) -> R): R {
