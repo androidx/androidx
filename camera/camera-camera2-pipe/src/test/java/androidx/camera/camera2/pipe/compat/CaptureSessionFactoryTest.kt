@@ -134,9 +134,8 @@ internal class CaptureSessionFactoryTest {
                         CameraSurfaceManager(),
                         SystemTimeSource(),
                         CameraGraph.Flags(
-                            quirkFinalizeSessionOnCloseBehavior =
-                                FinalizeSessionOnCloseBehavior.OFF,
-                            quirkCloseCaptureSessionOnDisconnect = false,
+                            finalizeSessionOnCloseBehavior = FinalizeSessionOnCloseBehavior.OFF,
+                            closeCaptureSessionOnDisconnect = false,
                         ),
                         this
                     )

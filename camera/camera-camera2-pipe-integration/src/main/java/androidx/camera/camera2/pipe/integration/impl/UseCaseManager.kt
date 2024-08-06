@@ -1116,10 +1116,7 @@ constructor(
 
             return CameraGraph.Flags(
                 abortCapturesOnStop = shouldAbortCapturesOnStop,
-                quirkCloseCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
-                quirkCloseCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
-                quirkFinalizeSessionOnCloseBehavior = shouldFinalizeSessionOnCloseBehavior,
-                quirkWaitForRepeatingRequestBeforeNonRepeatingCapture =
+                awaitRepeatingRequestBeforeCapture =
                     CameraGraph.RepeatingRequestRequirementsBeforeCapture(
                         repeatingFramesToComplete =
                             repeatingRequestsToCompleteBeforeNonRepeatingCapture,
@@ -1128,6 +1125,9 @@ constructor(
                         //  Camera2Quirks.getRepeatingRequestFrameCountForCapture for details.
                         completionBehavior = AT_LEAST,
                     ),
+                closeCaptureSessionOnDisconnect = shouldCloseCaptureSessionOnDisconnect,
+                closeCameraDeviceOnClose = shouldCloseCameraDeviceOnClose,
+                finalizeSessionOnCloseBehavior = shouldFinalizeSessionOnCloseBehavior,
             )
         }
     }

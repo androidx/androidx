@@ -210,7 +210,7 @@ constructor(
             currentCameraStateJob = null
 
             disconnectSessionAndCamera(session, camera)
-            if (graphConfig.flags.quirkCloseCameraDeviceOnClose) {
+            if (graphConfig.flags.closeCameraDeviceOnClose) {
                 Log.debug { "Quirk: Closing all camera devices" }
                 virtualCameraManager.closeAll()
             }
@@ -303,7 +303,7 @@ constructor(
                 session?.disconnect()
                 camera?.disconnect()
             }
-        if (graphConfig.flags.quirkCloseCaptureSessionOnDisconnect) {
+        if (graphConfig.flags.closeCaptureSessionOnDisconnect) {
             // It seems that on certain devices, CameraCaptureSession.close() can block for an
             // extended period of time [1]. Wrap the await call with a timeout to prevent us from
             // getting blocked for too long.

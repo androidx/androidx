@@ -305,7 +305,7 @@ internal class CaptureSessionState(
             //
             // [1] b/277310425
             // [2] b/277675483
-            if (cameraGraphFlags.quirkCloseCaptureSessionOnDisconnect) {
+            if (cameraGraphFlags.closeCaptureSessionOnDisconnect) {
                 val captureSession = configuredCaptureSession?.session
                 checkNotNull(captureSession)
                 Debug.trace("$this CameraCaptureSessionWrapper#close") {
@@ -332,7 +332,7 @@ internal class CaptureSessionState(
                 if (_cameraDevice == null || !hasAttemptedCaptureSession) {
                     shouldFinalizeSession = true
                 } else {
-                    when (cameraGraphFlags.quirkFinalizeSessionOnCloseBehavior) {
+                    when (cameraGraphFlags.finalizeSessionOnCloseBehavior) {
                         FinalizeSessionOnCloseBehavior.IMMEDIATE -> {
                             shouldFinalizeSession = true
                         }

@@ -45,7 +45,7 @@ constructor(
         graphConfig: CameraGraph.Config
     ): Boolean {
         // First, check for overrides.
-        graphConfig.flags.quirkWaitForRepeatingRequestOnDisconnect?.let {
+        graphConfig.flags.awaitRepeatingRequestOnDisconnect?.let {
             return it
         }
 
@@ -103,8 +103,7 @@ constructor(
         internal fun getRepeatingRequestFrameCountForCapture(
             graphConfigFlags: CameraGraph.Flags
         ): Int {
-            val requirements =
-                graphConfigFlags.quirkWaitForRepeatingRequestBeforeNonRepeatingCapture
+            val requirements = graphConfigFlags.awaitRepeatingRequestBeforeCapture
 
             var frameCount = 0
 
