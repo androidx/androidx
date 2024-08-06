@@ -33,7 +33,6 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
-import androidx.compose.material3.internal.minimizedLabelHalfHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -41,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -333,6 +333,8 @@ fun OutlinedSecureTextField(
         }
     val mergedTextStyle = textStyle.merge(TextStyle(color = textColor))
 
+    val density = LocalDensity.current
+
     CompositionLocalProvider(LocalTextSelectionColors provides colors.textSelectionColors) {
         BasicSecureTextField(
             state = state,
@@ -344,7 +346,7 @@ fun OutlinedSecureTextField(
                                 // Merge semantics at the beginning of the modifier chain to ensure
                                 // padding is considered part of the text field.
                                 .semantics(mergeDescendants = true) {}
-                                .padding(top = minimizedLabelHalfHeight())
+                                .padding(top = with(density) { OutlinedTextFieldTopPadding.toDp() })
                         } else {
                             Modifier
                         }

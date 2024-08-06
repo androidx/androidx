@@ -2033,11 +2033,7 @@ abstract class TextFieldLabelPosition private constructor() {
         }
 
         override fun toString(): String {
-            return "Default(" +
-                "alwaysMinimize=$alwaysMinimize, " +
-                "minimizedAlignment=$minimizedAlignment, " +
-                "expandedAlignment=$expandedAlignment" +
-                ")"
+            return "Default(alwaysMinimize=$alwaysMinimize, minimizedAlignment=$minimizedAlignment, expandedAlignment=$expandedAlignment)"
         }
     }
 
