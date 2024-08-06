@@ -30,14 +30,16 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.SurfaceTextureProvider.createSurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -46,12 +48,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import org.junit.After
-import org.junit.Assume
 import org.junit.Assume.assumeTrue
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -64,13 +63,14 @@ private val DEFAULT_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 @RunWith(Parameterized::class)
 class UseCaseCombinationTest(
     private val implName: String,
-    private val cameraConfig: CameraXConfig
+    private var cameraSelector: CameraSelector,
+    private val cameraConfig: CameraXConfig,
 ) {
 
     @get:Rule
     val cameraPipeConfigTestRule =
         CameraPipeConfigTestRule(
-            active = implName == CameraPipeConfig::class.simpleName,
+            active = implName.contains(CameraPipeConfig::class.simpleName!!),
         )
 
     @get:Rule
@@ -84,58 +84,72 @@ class UseCaseCombinationTest(
         @Parameterized.Parameters(name = "{0}")
         fun data() =
             listOf(
-                arrayOf(Camera2Config::class.simpleName, Camera2Config.defaultConfig()),
-                arrayOf(CameraPipeConfig::class.simpleName, CameraPipeConfig.defaultConfig())
+                arrayOf(
+                    "back+" + Camera2Config::class.simpleName,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    Camera2Config.defaultConfig(),
+                ),
+                arrayOf(
+                    "front+" + Camera2Config::class.simpleName,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    Camera2Config.defaultConfig(),
+                ),
+                arrayOf(
+                    "back+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.DEFAULT_BACK_CAMERA,
+                    CameraPipeConfig.defaultConfig(),
+                ),
+                arrayOf(
+                    "front+" + CameraPipeConfig::class.simpleName,
+                    CameraSelector.DEFAULT_FRONT_CAMERA,
+                    CameraPipeConfig.defaultConfig(),
+                ),
             )
     }
 
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var fakeLifecycleOwner: FakeLifecycleOwner
     private lateinit var camera: Camera
+    private lateinit var previewMonitor: PreviewMonitor
+    private lateinit var preview: Preview
+    private lateinit var imageCapture: ImageCapture
+    private lateinit var imageAnalysisMonitor: AnalysisMonitor
+    private lateinit var imageAnalysis: ImageAnalysis
 
     @Before
-    fun initializeCameraX(): Unit = runBlocking {
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK))
+    fun initializeCameraX() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(cameraSelector.lensFacing!!))
         ProcessCameraProvider.configureInstance(cameraConfig)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
 
-        withContext(Dispatchers.Main) {
+        instrumentation.runOnMainSync {
             fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
 
             camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_SELECTOR)
         }
+
+        previewMonitor = PreviewMonitor()
+        preview = initPreview(previewMonitor)
+        imageCapture = initImageCapture()
+        imageAnalysisMonitor = AnalysisMonitor()
+        imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
     }
 
     @After
-    fun shutdownCameraX(): Unit = runBlocking {
+    fun shutdownCameraX() {
         if (::cameraProvider.isInitialized) {
-            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
     }
 
     /** Test Combination: Preview + ImageCapture */
     @Test
-    fun previewCombinesImageCapture(): Unit = runBlocking {
+    fun previewCombinesImageCapture() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-
-        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
-
-        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
-        // Act.
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture
-            )
-        }
+        checkAndBindUseCases(preview, imageCapture)
 
         // Assert.
         imageCapture.waitForCapturing()
@@ -143,26 +157,11 @@ class UseCaseCombinationTest(
     }
 
     /** Test Combination: Preview (no surface provider) + ImageCapture */
-    @Ignore("b/283959238")
     @Test
-    fun previewCombinesImageCapture_withNoSurfaceProvider(): Unit = runBlocking {
+    fun previewCombinesImageCapture_withNoSurfaceProvider() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-
-        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
-
-        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
-        // Act.
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture
-            )
-        }
+        preview = initPreview(previewMonitor, /* setSurfaceProvider= */ false)
+        checkAndBindUseCases(preview, imageCapture)
 
         // Assert.
         imageCapture.waitForCapturing()
@@ -171,26 +170,9 @@ class UseCaseCombinationTest(
 
     /** Test Combination: Preview + ImageAnalysis */
     @Test
-    fun previewCombinesImageAnalysis(): Unit = runBlocking {
+    fun previewCombinesImageAnalysis() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
-
-        assertThat(camera.isUseCasesCombinationSupported(preview, imageAnalysis)).isTrue()
-
-        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
-        // Act.
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageAnalysis
-            )
-        }
+        checkAndBindUseCases(preview, imageAnalysis)
 
         // Assert.
         previewMonitor.waitForStream()
@@ -199,25 +181,10 @@ class UseCaseCombinationTest(
 
     /** Test Combination: Preview (no surface provider) + ImageAnalysis */
     @Test
-    fun previewCombinesImageAnalysis_withNoSurfaceProvider(): Unit = runBlocking {
+    fun previewCombinesImageAnalysis_withNoSurfaceProvider() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
-
-        assertThat(camera.isUseCasesCombinationSupported(preview, imageAnalysis)).isTrue()
-
-        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
-        // Act.
-        withContext(Dispatchers.Main) {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageAnalysis
-            )
-        }
+        preview = initPreview(previewMonitor, /* setSurfaceProvider= */ false)
+        checkAndBindUseCases(preview, imageAnalysis)
 
         // Assert.
         previewMonitor.waitForStreamIdle()
@@ -226,28 +193,9 @@ class UseCaseCombinationTest(
 
     /** Test Combination: Preview + ImageAnalysis + ImageCapture */
     @Test
-    fun previewCombinesImageAnalysisAndImageCapture(): Unit = runBlocking {
+    fun previewCombinesImageAnalysisAndImageCapture() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
-
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-
-        // TODO(b/160249108) move off of main thread once UseCases can be attached on any thread
-        // Act.
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageAnalysis,
-                imageCapture
-            )
-        }
+        checkAndBindUseCases(preview, imageCapture, imageAnalysis)
 
         // Assert.
         imageCapture.waitForCapturing()
@@ -256,16 +204,11 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun sequentialBindTwoUseCases(): Unit = runBlocking {
+    fun sequentialBindTwoUseCases() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-
         assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
 
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+        instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 DEFAULT_SELECTOR,
@@ -275,7 +218,7 @@ class UseCaseCombinationTest(
         previewMonitor.waitForStream()
 
         // Act.
-        withContext(Dispatchers.Main) {
+        instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 DEFAULT_SELECTOR,
@@ -290,18 +233,11 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun sequentialBindThreeUseCases(): Unit = runBlocking {
+    fun sequentialBindThreeUseCases() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
-
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
 
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+        instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 DEFAULT_SELECTOR,
@@ -309,7 +245,7 @@ class UseCaseCombinationTest(
             )
         }
         imageCapture.waitForCapturing()
-        withContext(Dispatchers.Main) {
+        instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 DEFAULT_SELECTOR,
@@ -321,7 +257,7 @@ class UseCaseCombinationTest(
         previewMonitor.waitForStream()
 
         // Act.
-        withContext(Dispatchers.Main) {
+        instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 DEFAULT_SELECTOR,
@@ -338,32 +274,16 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun unbindImageAnalysis_captureAndPreviewStillWorking(): Unit = runBlocking {
+    fun unbindImageAnalysis_captureAndPreviewStillWorking() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+        checkAndBindUseCases(preview, imageCapture, imageAnalysis)
 
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture,
-                imageAnalysis
-            )
-        }
         previewMonitor.waitForStream()
         imageAnalysisMonitor.waitForImageAnalysis()
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) { cameraProvider.unbind(imageAnalysis) }
+        instrumentation.runOnMainSync { cameraProvider.unbind(imageAnalysis) }
 
         // Assert
         imageCapture.waitForCapturing()
@@ -373,30 +293,14 @@ class UseCaseCombinationTest(
     @Test
     fun unbindPreview_captureAndAnalysisStillWorking(): Unit = runBlocking {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+        checkAndBindUseCases(preview, imageCapture, imageAnalysis)
 
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture,
-                imageAnalysis
-            )
-        }
         previewMonitor.waitForStream()
         imageAnalysisMonitor.waitForImageAnalysis()
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) { cameraProvider.unbind(preview) }
+        instrumentation.runOnMainSync { cameraProvider.unbind(preview) }
         delay(1000) // Unbind and stop the output stream should be done within 1 sec.
         previewMonitor.waitForStreamIdle(count = 1, timeMillis = TimeUnit.SECONDS.toMillis(2))
 
@@ -406,39 +310,23 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun unbindImageCapture_previewAndAnalysisStillWorking(): Unit = runBlocking {
+    fun unbindImageCapture_previewAndAnalysisStillWorking() {
         // Arrange.
-        val previewMonitor = PreviewMonitor()
-        val preview = initPreview(previewMonitor)
-        val imageCapture = initImageCapture()
-        val imageAnalysisMonitor = AnalysisMonitor()
-        val imageAnalysis = initImageAnalysis(imageAnalysisMonitor)
+        checkAndBindUseCases(preview, imageCapture, imageAnalysis)
 
-        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
-
-        withContext(Dispatchers.Main) {
-            preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture,
-                imageAnalysis
-            )
-        }
         previewMonitor.waitForStream()
         imageAnalysisMonitor.waitForImageAnalysis()
         imageCapture.waitForCapturing()
 
         // Act.
-        withContext(Dispatchers.Main) { cameraProvider.unbind(imageCapture) }
+        instrumentation.runOnMainSync { cameraProvider.unbind(imageCapture) }
 
         // Assert
         imageAnalysisMonitor.waitForImageAnalysis()
         previewMonitor.waitForStream()
     }
 
-    private fun initPreview(monitor: PreviewMonitor?): Preview {
+    private fun initPreview(monitor: PreviewMonitor?, setSurfaceProvider: Boolean = true): Preview {
         return Preview.Builder()
             .setTargetName("Preview")
             .also {
@@ -447,6 +335,13 @@ class UseCaseCombinationTest(
                 }
             }
             .build()
+            .apply {
+                if (setSurfaceProvider) {
+                    instrumentation.runOnMainSync {
+                        surfaceProvider = createSurfaceTextureProvider()
+                    }
+                }
+            }
     }
 
     private fun initImageAnalysis(analyzer: ImageAnalysis.Analyzer?): ImageAnalysis {
@@ -538,6 +433,14 @@ class UseCaseCombinationTest(
         override fun analyze(image: ImageProxy) {
             image.close()
             synchronized(this) { countDown?.countDown() }
+        }
+    }
+
+    private fun checkAndBindUseCases(vararg useCases: UseCase) {
+        assumeTrue(camera.isUseCasesCombinationSupported(*useCases))
+
+        instrumentation.runOnMainSync {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, *useCases)
         }
     }
 }
