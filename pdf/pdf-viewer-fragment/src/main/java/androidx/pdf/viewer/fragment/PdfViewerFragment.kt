@@ -262,6 +262,11 @@ public open class PdfViewerFragment : Fragment() {
             loadingView?.showLoadingView()
         }
 
+        arguments?.let { args ->
+            documentUri = BundleCompat.getParcelable(args, KEY_DOCUMENT_URI, Uri::class.java)
+            isTextSearchActive = args.getBoolean(KEY_TEXT_SEARCH_ACTIVE)
+        }
+
         pdfLoaderCallbacks =
             PdfLoaderCallbacksImpl(
                 requireContext(),
@@ -270,6 +275,8 @@ public open class PdfViewerFragment : Fragment() {
                 zoomView!!,
                 paginatedView!!,
                 loadingView!!,
+                findInFileView!!,
+                isTextSearchActive,
                 viewState,
                 view,
                 onRequestPassword = { onScreen ->
@@ -302,11 +309,6 @@ public open class PdfViewerFragment : Fragment() {
         viewModel.pdfLoaderStateFlow.value?.let { loader ->
             pdfLoader = loader
             refreshContentAndModels(loader)
-        }
-
-        arguments?.let { args ->
-            documentUri = BundleCompat.getParcelable(args, KEY_DOCUMENT_URI, Uri::class.java)
-            isTextSearchActive = args.getBoolean(KEY_TEXT_SEARCH_ACTIVE)
         }
 
         return pdfViewer
