@@ -16,9 +16,8 @@
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
-import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
-import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -39,9 +38,6 @@ import androidx.camera.core.impl.Quirk
 class PreviewOrientationIncorrectQuirk : Quirk {
 
     companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            val level = cameraMetadata[INFO_SUPPORTED_HARDWARE_LEVEL]
-            return level == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-        }
+        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
     }
 }

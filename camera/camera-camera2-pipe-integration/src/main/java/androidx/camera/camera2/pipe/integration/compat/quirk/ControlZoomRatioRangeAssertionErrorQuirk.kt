@@ -19,6 +19,9 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isJioDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isVivoDevice
 import androidx.camera.core.impl.Quirk
 import java.nio.BufferUnderflowException
 
@@ -40,16 +43,14 @@ class ControlZoomRatioRangeAssertionErrorQuirk : Quirk {
         fun isEnabled() = isJioPhoneNext() || isSamsungA2s() || isVivo2039()
 
         private fun isJioPhoneNext() =
-            Build.BRAND.equals("JIO", ignoreCase = true) &&
-                Build.MODEL.startsWith("LS1542QW", ignoreCase = true)
+            isJioDevice() && Build.MODEL.startsWith("LS1542QW", ignoreCase = true)
 
         private fun isSamsungA2s() =
-            Build.BRAND.equals("SAMSUNG", ignoreCase = true) &&
+            isSamsungDevice() &&
                 (Build.MODEL.startsWith("SM-A025", ignoreCase = true) ||
                     Build.MODEL.equals("SM-S124DL", ignoreCase = true))
 
         private fun isVivo2039() =
-            Build.BRAND.equals("VIVO", ignoreCase = true) &&
-                Build.MODEL.equals("VIVO 2039", ignoreCase = true)
+            isVivoDevice() && Build.MODEL.equals("VIVO 2039", ignoreCase = true)
     }
 }

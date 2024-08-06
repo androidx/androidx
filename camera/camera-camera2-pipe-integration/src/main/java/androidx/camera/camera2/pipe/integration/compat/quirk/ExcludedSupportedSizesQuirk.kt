@@ -19,6 +19,10 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.graphics.ImageFormat
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isOnePlusDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isRedmiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.Logger
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
@@ -232,39 +236,33 @@ class ExcludedSupportedSizesQuirk : Quirk {
         }
 
         internal val isOnePlus6: Boolean
-            get() =
-                "OnePlus".equals(Build.BRAND, ignoreCase = true) &&
-                    "OnePlus6".equals(Build.DEVICE, ignoreCase = true)
+            get() = isOnePlusDevice() && "OnePlus6".equals(Build.DEVICE, ignoreCase = true)
 
         internal val isOnePlus6T: Boolean
-            get() =
-                "OnePlus".equals(Build.BRAND, ignoreCase = true) &&
-                    "OnePlus6T".equals(Build.DEVICE, ignoreCase = true)
+            get() = isOnePlusDevice() && "OnePlus6T".equals(Build.DEVICE, ignoreCase = true)
 
         internal val isHuaweiP20Lite: Boolean
             get() {
-                return "HUAWEI".equals(Build.BRAND, ignoreCase = true) &&
-                    "HWANE".equals(Build.DEVICE, ignoreCase = true)
+                return isHuaweiDevice() && "HWANE".equals(Build.DEVICE, ignoreCase = true)
             }
 
         internal val isSamsungJ7PrimeApi27Above: Boolean
             get() {
-                return ("SAMSUNG".equals(Build.BRAND, ignoreCase = true) &&
+                return (isSamsungDevice() &&
                     "ON7XELTE".equals(Build.DEVICE, ignoreCase = true) &&
                     (Build.VERSION.SDK_INT >= 27))
             }
 
         internal val isSamsungJ7Api27Above: Boolean
             get() {
-                return ("SAMSUNG".equals(Build.BRAND, ignoreCase = true) &&
+                return (isSamsungDevice() &&
                     "J7XELTE".equals(Build.DEVICE, ignoreCase = true) &&
                     (Build.VERSION.SDK_INT >= 27))
             }
 
         internal val isRedmiNote9Pro: Boolean
             get() {
-                return ("REDMI".equals(Build.BRAND, ignoreCase = true) &&
-                    "joyeuse".equals(Build.DEVICE, ignoreCase = true))
+                return (isRedmiDevice() && "joyeuse".equals(Build.DEVICE, ignoreCase = true))
             }
     }
 }

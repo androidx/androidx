@@ -16,10 +16,10 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -45,11 +45,7 @@ constructor(
         }
 
         // Then we verify whether we need this quirk based on hardware level.
-        val level =
-            metadataProvider
-                .awaitCameraMetadata(graphConfig.camera)[
-                    CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-        return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+        return metadataProvider.awaitCameraMetadata(graphConfig.camera).isHardwareLevelLegacy
     }
 
     /**
@@ -67,10 +63,7 @@ constructor(
         if (Build.VERSION.SDK_INT !in (Build.VERSION_CODES.N..Build.VERSION_CODES.P)) {
             return false
         }
-        val level =
-            metadataProvider
-                .awaitCameraMetadata(cameraId)[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-        return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+        return metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
     }
 
     /**
@@ -82,12 +75,8 @@ constructor(
      * - Device(s): Camera devices on hardware level LEGACY
      * - API levels: All
      */
-    internal fun shouldWaitForCameraDeviceOnClosed(cameraId: CameraId): Boolean {
-        val level =
-            metadataProvider
-                .awaitCameraMetadata(cameraId)[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-        return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
-    }
+    internal fun shouldWaitForCameraDeviceOnClosed(cameraId: CameraId): Boolean =
+        metadataProvider.awaitCameraMetadata(cameraId).isHardwareLevelLegacy
 
     companion object {
         private val SHOULD_WAIT_FOR_REPEATING_DEVICE_MAP =

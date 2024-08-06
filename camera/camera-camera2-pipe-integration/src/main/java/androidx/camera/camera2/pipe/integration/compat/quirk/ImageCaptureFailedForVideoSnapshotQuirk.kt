@@ -20,6 +20,8 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isHuaweiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isItelDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -68,13 +70,11 @@ class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
                 (Build.VERSION.SDK_INT >= 31 &&
                     "Spreadtrum".equals(Build.SOC_MANUFACTURER, ignoreCase = true)) ||
                 Build.HARDWARE.lowercase().startsWith("ums") ||
-                ("itel".equals(Build.BRAND, ignoreCase = true) &&
-                    Build.HARDWARE.lowercase().startsWith("sp"))
+                (isItelDevice() && Build.HARDWARE.lowercase().startsWith("sp"))
         }
 
         private fun isHuaweiPSmart(): Boolean {
-            return "HUAWEI".equals(Build.BRAND, ignoreCase = true) &&
-                "FIG-LX1".equals(Build.MODEL, ignoreCase = true)
+            return isHuaweiDevice() && "FIG-LX1".equals(Build.MODEL, ignoreCase = true)
         }
     }
 }

@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -37,7 +38,7 @@ import androidx.camera.core.impl.Quirk
 class AfRegionFlipHorizontallyQuirk : Quirk {
     companion object {
         fun isEnabled(cameraMetadata: CameraMetadata) =
-            Build.BRAND.equals("SAMSUNG", ignoreCase = true) &&
+            isSamsungDevice() &&
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && // Samsung fixed it in T.
                 (cameraMetadata[CameraCharacteristics.LENS_FACING] ==
                     CameraCharacteristics.LENS_FACING_FRONT)

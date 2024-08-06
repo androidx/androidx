@@ -18,6 +18,9 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isMotorolaDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isXiaomiDevice
 import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
 
 /**
@@ -39,27 +42,21 @@ class YuvImageOnePixelShiftQuirk : OnePixelShiftQuirk {
                 isXiaomiMiA1()
 
         private fun isMotorolaMotoG3() =
-            "motorola".equals(Build.BRAND, ignoreCase = true) &&
-                "MotoG3".equals(Build.MODEL, ignoreCase = true)
+            isMotorolaDevice() && "MotoG3".equals(Build.MODEL, ignoreCase = true)
 
         private fun isSamsungSMG532F() =
-            "samsung".equals(Build.BRAND, ignoreCase = true) &&
-                "SM-G532F".equals(Build.MODEL, ignoreCase = true)
+            isSamsungDevice() && "SM-G532F".equals(Build.MODEL, ignoreCase = true)
 
         private fun isSamsungSMJ700F() =
-            "samsung".equals(Build.BRAND, ignoreCase = true) &&
-                "SM-J700F".equals(Build.MODEL, ignoreCase = true)
+            isSamsungDevice() && "SM-J700F".equals(Build.MODEL, ignoreCase = true)
 
         private fun isSamsungSMJ415F() =
-            "samsung".equals(Build.BRAND, ignoreCase = true) &&
-                "SM-J415F".equals(Build.MODEL, ignoreCase = true)
+            isSamsungDevice() && "SM-J415F".equals(Build.MODEL, ignoreCase = true)
 
         private fun isSamsungSMA920F() =
-            "samsung".equals(Build.BRAND, ignoreCase = true) &&
-                "SM-A920F".equals(Build.MODEL, ignoreCase = true)
+            isSamsungDevice() && "SM-A920F".equals(Build.MODEL, ignoreCase = true)
 
         private fun isXiaomiMiA1() =
-            "xiaomi".equals(Build.BRAND, ignoreCase = true) &&
-                "Mi A1".equals(Build.MODEL, ignoreCase = true)
+            isXiaomiDevice() && "Mi A1".equals(Build.MODEL, ignoreCase = true)
     }
 }

@@ -18,6 +18,12 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isBluDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isItelDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isMotorolaDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isPositivoDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isVivoDevice
 import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
 
 /**
@@ -48,37 +54,27 @@ class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
         }
 
         private val isBluStudioX10: Boolean
-            get() =
-                "blu".equals(Build.BRAND, ignoreCase = true) &&
-                    "studio x10".equals(Build.MODEL, ignoreCase = true)
+            get() = isBluDevice() && "studio x10".equals(Build.MODEL, ignoreCase = true)
 
         private val isItelW6004: Boolean
-            get() =
-                "itel".equals(Build.BRAND, ignoreCase = true) &&
-                    "itel w6004".equals(Build.MODEL, ignoreCase = true)
+            get() = isItelDevice() && "itel w6004".equals(Build.MODEL, ignoreCase = true)
 
         private val isVivo1805: Boolean
-            get() =
-                "vivo".equals(Build.BRAND, ignoreCase = true) &&
-                    "vivo 1805".equals(Build.MODEL, ignoreCase = true)
+            get() = isVivoDevice() && "vivo 1805".equals(Build.MODEL, ignoreCase = true)
 
         private val isPositivoTwist2Pro: Boolean
-            get() =
-                "positivo".equals(Build.BRAND, ignoreCase = true) &&
-                    "twist 2 pro".equals(Build.MODEL, ignoreCase = true)
+            get() = isPositivoDevice() && "twist 2 pro".equals(Build.MODEL, ignoreCase = true)
 
         private val isPixel4XLApi29: Boolean
             get() =
                 "pixel 4 xl".equals(Build.MODEL, ignoreCase = true) && Build.VERSION.SDK_INT == 29
 
         private val isMotoE13: Boolean
-            get() =
-                "motorola".equals(Build.BRAND, ignoreCase = true) &&
-                    "moto e13".equals(Build.MODEL, ignoreCase = true)
+            get() = isMotorolaDevice() && "moto e13".equals(Build.MODEL, ignoreCase = true)
 
         private val isSamsungTabA8: Boolean
             get() =
-                "samsung".equals(Build.BRAND, ignoreCase = true) &&
+                isSamsungDevice() &&
                     ("gta8".equals(Build.DEVICE, ignoreCase = true) ||
                         "gta8wifi".equals(Build.DEVICE, ignoreCase = true))
     }

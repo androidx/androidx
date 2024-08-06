@@ -16,9 +16,9 @@
 
 package androidx.camera.camera2.pipe.integration.compat.quirk
 
-import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraMetadata.Companion.isHardwareLevelLegacy
 import androidx.camera.camera2.pipe.integration.compat.workaround.TargetAspectRatio
 import androidx.camera.core.impl.Quirk
 
@@ -40,10 +40,7 @@ class AspectRatioLegacyApi21Quirk : Quirk {
     }
 
     companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
-            val level: Int? = cameraMetadata[CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL]
-            return level == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
-                Build.VERSION.SDK_INT == 21
-        }
+        fun isEnabled(cameraMetadata: CameraMetadata) =
+            cameraMetadata.isHardwareLevelLegacy && Build.VERSION.SDK_INT == 21
     }
 }

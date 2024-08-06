@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -35,8 +36,7 @@ import androidx.camera.core.impl.Quirk
 class StillCaptureFlashStopRepeatingQuirk : Quirk {
     companion object {
         fun isEnabled(): Boolean {
-            return Build.MANUFACTURER.equals("SAMSUNG", ignoreCase = true) &&
-                Build.MODEL.uppercase().startsWith("SM-A716")
+            return isSamsungDevice() && Build.MODEL.uppercase().startsWith("SM-A716")
         }
     }
 }

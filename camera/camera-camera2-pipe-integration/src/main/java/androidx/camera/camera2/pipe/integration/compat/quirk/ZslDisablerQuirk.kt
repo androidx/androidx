@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isXiaomiDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -40,13 +42,11 @@ class ZslDisablerQuirk : Quirk {
         }
 
         private fun isAffectedSamsungDevices(): Boolean {
-            return ("samsung".equals(Build.BRAND, ignoreCase = true) &&
-                isAffectedModel(AFFECTED_SAMSUNG_MODEL))
+            return (isSamsungDevice() && isAffectedModel(AFFECTED_SAMSUNG_MODEL))
         }
 
         private fun isAffectedXiaoMiDevices(): Boolean {
-            return ("xiaomi".equals(Build.BRAND, ignoreCase = true) &&
-                isAffectedModel(AFFECTED_XIAOMI_MODEL))
+            return (isXiaomiDevice() && isAffectedModel(AFFECTED_XIAOMI_MODEL))
         }
 
         private fun isAffectedModel(modelList: List<String>): Boolean {

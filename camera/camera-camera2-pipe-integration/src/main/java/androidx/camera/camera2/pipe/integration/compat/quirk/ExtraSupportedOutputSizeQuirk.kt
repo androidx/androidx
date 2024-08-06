@@ -20,6 +20,7 @@ import android.annotation.SuppressLint
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import android.util.Size
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isMotorolaDevice
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.Quirk
 
@@ -70,8 +71,6 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
         }
 
         internal val isMotoE5Play: Boolean
-            get() =
-                "motorola".equals(Build.BRAND, ignoreCase = true) &&
-                    "moto e5 play".equals(Build.MODEL, ignoreCase = true)
+            get() = isMotorolaDevice() && "moto e5 play".equals(Build.MODEL, ignoreCase = true)
     }
 }

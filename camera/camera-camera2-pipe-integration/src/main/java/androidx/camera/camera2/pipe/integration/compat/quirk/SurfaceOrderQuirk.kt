@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.annotation.SuppressLint
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
 import androidx.camera.core.impl.Quirk
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter
 import java.util.Locale
@@ -49,7 +50,7 @@ class SurfaceOrderQuirk : Quirk {
             // the same quirk. The workaround is only to sort the input surface list when creating
             // CameraCaptureSession, so it does not cost much performance and should be safe to
             // apply.
-            return ("SAMSUNG".equals(Build.BRAND, ignoreCase = true) &&
+            return (isSamsungDevice() &&
                 BUILD_HARDWARE_SET.contains(Build.HARDWARE.lowercase(Locale.getDefault())))
         }
     }

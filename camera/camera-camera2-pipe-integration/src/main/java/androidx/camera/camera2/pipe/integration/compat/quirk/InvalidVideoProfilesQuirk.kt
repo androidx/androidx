@@ -19,6 +19,9 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 import android.annotation.SuppressLint
 import android.media.EncoderProfiles
 import android.os.Build
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isRedmiDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDevice
+import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isXiaomiDevice
 import androidx.camera.core.impl.Quirk
 
 /**
@@ -73,7 +76,7 @@ class InvalidVideoProfilesQuirk : Quirk {
         }
 
         private fun isAffectedSamsungDevices(): Boolean {
-            return "samsung".equals(Build.BRAND, true) && isTp1aBuild()
+            return isSamsungDevice() && isTp1aBuild()
         }
 
         private fun isAffectedPixelDevices(): Boolean {
@@ -81,8 +84,7 @@ class InvalidVideoProfilesQuirk : Quirk {
         }
 
         private fun isAffectedXiaomiDevices(): Boolean {
-            return ("redmi".equals(Build.BRAND, true) || "xiaomi".equals(Build.BRAND, true)) &&
-                (isTkq1Build() || isTp1aBuild())
+            return (isRedmiDevice() or isXiaomiDevice()) && (isTkq1Build() || isTp1aBuild())
         }
 
         private fun isAffectedOnePlusDevices(): Boolean {

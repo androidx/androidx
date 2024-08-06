@@ -17,6 +17,12 @@
 package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_3
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import androidx.annotation.RestrictTo
@@ -81,6 +87,21 @@ interface CameraMetadata : Metadata, UnsafeWrapper {
 
         val CameraMetadata.availableCapabilities: IntArray
             get() = this[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES] ?: EMPTY_INT_ARRAY
+
+        val CameraMetadata.isHardwareLevelExternal: Boolean
+            get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_EXTERNAL
+
+        val CameraMetadata.isHardwareLevelLegacy: Boolean
+            get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+
+        val CameraMetadata.isHardwareLevelLimited: Boolean
+            get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+
+        val CameraMetadata.isHardwareLevelFull: Boolean
+            get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_FULL
+
+        val CameraMetadata.isHardwareLevel3: Boolean
+            get() = this[INFO_SUPPORTED_HARDWARE_LEVEL] == INFO_SUPPORTED_HARDWARE_LEVEL_3
 
         val CameraMetadata.supportsManualSensor: Boolean
             get() = this.availableCapabilities.contains(CAPABILITIES_MANUAL_SENSOR)
