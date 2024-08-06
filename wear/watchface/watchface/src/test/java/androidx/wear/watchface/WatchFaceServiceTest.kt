@@ -7756,6 +7756,14 @@ class TestNopCanvasWatchFaceServiceWithHandler : WatchFaceService() {
                 ) {
                     // Intentionally empty.
                 }
+
+                var destroyed: Boolean = false
+
+                override fun onDestroy() {
+                    super.onDestroy()
+                    assert(!destroyed) { "onDestroy already called!!" }
+                    destroyed = true
+                }
             }
         )
 
