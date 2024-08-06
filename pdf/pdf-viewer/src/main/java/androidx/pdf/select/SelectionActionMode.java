@@ -199,12 +199,12 @@ public class SelectionActionMode {
                 return pageSelection.getRects().getLast();
             } else {
                 // Center of the view in page coordinates
-                int viewCentreX = mPaginatedView.getModel().getViewArea().centerX()
+                int viewCentreX = mPaginatedView.getViewArea().centerX()
                         * mPaginatedView.getModel().getPageSize(selectionPage).getWidth()
                         / mPaginatedView.getModel().getWidth();
-                int viewCentreY = mPaginatedView.getModel().getViewArea().centerY()
-                        - mPaginatedView.getModel().getPageLocation(selectionPage).top;
-
+                int viewCentreY = mPaginatedView.getViewArea().centerY()
+                        - mPaginatedView.getModel().getPageLocation(selectionPage,
+                        mPaginatedView.getViewArea()).top;
                 return new Rect(viewCentreX, viewCentreY, viewCentreX, viewCentreY);
             }
         }

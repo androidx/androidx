@@ -176,7 +176,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 int stopY = mPaginatedView.getModel().getLookAtY(selectionPage,
                         mPaginatedView.getSelectionModel().selection().get().getStop().getY());
 
-                Rect currentViewArea = mPaginatedView.getModel().getViewArea();
+                Rect currentViewArea = mPaginatedView.getViewArea();
 
                 if (currentViewArea.intersect(startX, startY, stopX, stopY)) {
                     mSelectionActionMode.resume();

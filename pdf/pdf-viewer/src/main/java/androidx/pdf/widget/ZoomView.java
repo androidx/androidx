@@ -911,7 +911,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             this.setStableZoom(position.zoom);
         }
 
-        paginatedView.getModel().setViewArea(this.getVisibleAreaInContentCoords());
+        paginatedView.setViewArea(this.getVisibleAreaInContentCoords());
         paginatedView.refreshPageRangeInVisibleArea(position, this.getHeight());
         paginatedView.handleGonePages(false);
         paginatedView.loadInvisibleNearPageRange(this.getStableZoom());

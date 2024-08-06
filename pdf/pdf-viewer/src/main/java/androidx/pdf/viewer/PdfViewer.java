@@ -279,7 +279,7 @@ public class PdfViewer extends LoadingViewer {
                 new SearchQueryObserver(mPaginatedView);
         mSearchModel.query().addObserver(mSearchQueryObserver);
 
-        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton,
+        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton, mPaginatedView,
                 mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
         mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
                 mPaginatedView, mZoomView, mSingleTapHandler, mFindInFileView);

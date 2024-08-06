@@ -67,6 +67,9 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     private boolean mIsConfigurationChanged = false;
 
+    /** The current viewport in content coordinates */
+    private final Rect mViewArea = new Rect();
+
     public PaginatedView(@NonNull Context context) {
         this(context, null);
     }
@@ -165,6 +168,26 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
         }
     }
 
+    /**
+     * Returns the current viewport in content coordinates
+     */
+    @NonNull
+    public Rect getViewArea() {
+        return mViewArea;
+    }
+
+    /**
+     * Updates the current viewport
+     *
+     * @param viewArea the viewport in content coordinates
+     */
+    public void setViewArea(@NonNull Rect viewArea) {
+        if (!viewArea.equals(this.mViewArea)) {
+            this.mViewArea.set(viewArea);
+            onViewAreaChanged();
+        }
+    }
+
     @NonNull
     public PageRangeHandler getPageRangeHandler() {
         return mPageRangeHandler;
@@ -191,7 +214,7 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     @NonNull
     public PdfSelectionHandles getSelectionHandles() {
-        return  mSelectionHandles;
+        return mSelectionHandles;
     }
 
     public void setSelectionHandles(@NonNull PdfSelectionHandles selectionHandles) {
@@ -316,7 +339,8 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
      */
     private void layoutChild(int index) {
         int pageNum = mPageViews.keyAt(index);
-        Rect pageCoordinates = getModel().getPageLocation(pageNum);
+        Rect viewArea = getViewArea();
+        Rect pageCoordinates = getModel().getPageLocation(pageNum, viewArea);
 
         PageView child = (PageView) getChildAt(index);
         child
@@ -327,7 +351,6 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
                         pageCoordinates.right,
                         pageCoordinates.bottom);
 
-        Rect viewArea = getModel().getViewArea();
         child
                 .getPageView()
                 .setViewArea(
@@ -345,8 +368,7 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
     }
 
     /** Perform a layout when the viewArea of the {@code model} has changed. */
-    @Override
-    public void onViewAreaChanged() {
+    private void onViewAreaChanged() {
         // We can't wait for the next layout pass, the pages will be drawn before.
         // We could still optimize to skip the next layoutChild() calls for the pages that have been
         // laid out already for this viewArea.

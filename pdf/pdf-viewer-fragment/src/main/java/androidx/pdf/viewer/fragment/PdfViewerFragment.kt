@@ -552,6 +552,7 @@ public open class PdfViewerFragment : Fragment() {
             SingleTapHandler(
                 requireContext(),
                 annotationButton!!,
+                paginatedView!!,
                 findInFileView!!,
                 zoomView!!,
                 selectionModel,
