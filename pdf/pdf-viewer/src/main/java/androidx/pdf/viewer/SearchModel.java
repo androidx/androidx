@@ -352,4 +352,9 @@ public class SearchModel {
     public static String whiteSpaceToNull(@NonNull String query) {
         return (query != null && TextUtils.isGraphic(query)) ? query : null;
     }
+
+    /** Update the current selected match */
+    public void setSelectedMatch(@NonNull SelectedMatch selectedMatch) {
+        mSelectedMatch.set(selectedMatch);
+    }
 }

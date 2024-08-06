@@ -17,6 +17,8 @@
 package androidx.pdf.find;
 
 import android.content.Context;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -34,16 +36,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
+import androidx.pdf.models.MatchRects;
 import androidx.pdf.util.Accessibility;
 import androidx.pdf.util.CycleRange;
 import androidx.pdf.util.ObservableValue;
 import androidx.pdf.util.ObservableValue.ValueObserver;
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.SearchModel;
+import androidx.pdf.viewer.SelectedMatch;
 import androidx.pdf.viewer.loader.PdfLoader;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.Objects;
 
 /**
  * A View that has a search query box, find-next and find-previous button, useful for finding
@@ -52,6 +57,12 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class FindInFileView extends LinearLayout {
+    private static final char MATCH_STATUS_COUNTING = '\u2026';
+    private static final String KEY_SUPER = "super";
+    private static final String KEY_IS_SAVED = "is_saved";
+    private static final String KEY_MATCH_RECTS = "match_rects";
+    private static final String KEY_SELECTED_PAGE = "selected_page";
+    private static final String KEY_SELECTED_INDEX = "selected_index";
 
     private TextView mQueryBox;
     private ImageView mPrevButton;
@@ -59,14 +70,20 @@ public class FindInFileView extends LinearLayout {
     private TextView mMatchStatus;
     private View mCloseButton;
     private FloatingActionButton mAnnotationButton;
-    private FindInFileListener mFindInFileListener;
-    private ObservableValue<MatchCount> mMatchCount;
-    private SearchModel mSearchModel;
     private PaginatedView mPaginatedView;
+
+    private FindInFileListener mFindInFileListener;
     private Runnable mOnClosedButtonCallback;
+
+    private SearchModel mSearchModel;
+    private ObservableValue<MatchCount> mMatchCount;
+
     private boolean mIsAnnotationIntentResolvable;
-    private static final char MATCH_STATUS_COUNTING = '\u2026';
-    private static final String TAG = FindInFileView.class.getSimpleName();
+    private boolean mIsRestoring;
+    private int mViewingPage;
+    private int mSelectedMatch;
+    private MatchRects mMatches;
+
     private final OnClickListener mOnClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -164,6 +181,34 @@ public class FindInFileView extends LinearLayout {
         this.setFocusableInTouchMode(true);
     }
 
+    @NonNull
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_SUPER, super.onSaveInstanceState());
+        if (mSearchModel != null && mSearchModel.selectedMatch().get() != null) {
+            bundle.putBoolean(KEY_IS_SAVED, true);
+            bundle.putParcelable(KEY_MATCH_RECTS, Objects.requireNonNull(
+                    mSearchModel.selectedMatch().get()).getPageMatches());
+            bundle.putInt(KEY_SELECTED_PAGE, mSearchModel.getSelectedPage());
+            bundle.putInt(KEY_SELECTED_INDEX,
+                    Objects.requireNonNull(mSearchModel.selectedMatch().get()).getSelected());
+        }
+        return bundle;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        Bundle bundle = (Bundle) state;
+        super.onRestoreInstanceState(bundle.getParcelable(KEY_SUPER, Parcelable.class));
+        if (bundle.getBoolean(KEY_IS_SAVED)) {
+            mIsRestoring = true;
+            mSelectedMatch = bundle.getInt(KEY_SELECTED_INDEX);
+            mViewingPage = bundle.getInt(KEY_SELECTED_PAGE);
+            mMatches = bundle.getParcelable(KEY_MATCH_RECTS, MatchRects.class);
+        }
+    }
+
     /**
      * Sets the pdfLoader and create a new {@link SearchModel} instance with the given pdfLoader.
      */
@@ -209,6 +254,9 @@ public class FindInFileView extends LinearLayout {
                 mAnnotationButton.hide();
             }
             setupFindInFileBtn();
+            if (mIsRestoring) {
+                restoreSelectedMatch();
+            }
         } else {
             this.setVisibility(GONE);
         }
@@ -220,6 +268,17 @@ public class FindInFileView extends LinearLayout {
         this.setVisibility(GONE);
         mQueryBox.clearFocus();
         mQueryBox.setText("");
+        mIsRestoring = false;
+    }
+
+    private void restoreSelectedMatch() {
+        // If the first match is selected, no need to restore since it will be reselected by default
+        if (mSelectedMatch > 0) {
+            mSearchModel.setSelectedMatch(
+                    new SelectedMatch(mSearchModel.query().get(), mViewingPage, mMatches,
+                            mSelectedMatch - 1));
+            mSearchModel.selectNextMatch(CycleRange.Direction.FORWARDS, mViewingPage);
+        }
     }
 
     private void setupFindInFileBtn() {
@@ -227,11 +286,7 @@ public class FindInFileView extends LinearLayout {
         queryBoxRequestFocus();
 
         mCloseButton.setOnClickListener(view -> {
-            mOnClosedButtonCallback.run();
-            View parentLayout = (View) mCloseButton.getParent();
-            mQueryBox.clearFocus();
-            mQueryBox.setText("");
-            parentLayout.setVisibility(GONE);
+            resetFindInFile();
             if (mIsAnnotationIntentResolvable) {
                 mAnnotationButton.show();
             }
@@ -243,8 +298,7 @@ public class FindInFileView extends LinearLayout {
             @Override
             public boolean onQueryTextChange(@androidx.annotation.Nullable String query) {
                 if (mSearchModel != null && mPaginatedView != null) {
-                    mSearchModel.setQuery(query,
-                            mPaginatedView.getPageRangeHandler().getVisiblePage());
+                    mSearchModel.setQuery(query, getViewingPage());
                     return true;
                 }
                 return false;
@@ -304,5 +358,12 @@ public class FindInFileView extends LinearLayout {
      */
     private void queryBoxRequestFocus() {
         mQueryBox.requestFocus();
+    }
+
+    private int getViewingPage() {
+        if (mIsRestoring) {
+            return mViewingPage;
+        }
+        return mPaginatedView.getPageRangeHandler().getVisiblePage();
     }
 }

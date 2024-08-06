@@ -210,10 +210,7 @@ public class PdfLoaderCallbacksImpl(
             searchModel?.setNumPages(numPages)
         }
 
-        if (isTextSearchActive) {
-            findInFileView.setFindInFileView(true)
-            findInFileView.setVisibility(VISIBLE)
-        }
+        findInFileView.setFindInFileView(isTextSearchActive)
     }
 
     override fun documentNotLoaded(status: PdfStatus) {

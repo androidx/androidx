@@ -46,7 +46,8 @@ public class SelectedMatch {
      * the
      * matches is selected, or one with no matches.
      */
-    SelectedMatch(String query, int page, MatchRects pageMatches, int selected) {
+    public SelectedMatch(@Nullable String query, int page, @Nullable MatchRects pageMatches,
+            int selected) {
         Preconditions.checkNotNull(query);
         Preconditions.checkNotNull(pageMatches);
         Preconditions.checkArgument(!pageMatches.isEmpty(), "Cannot select empty matches");
