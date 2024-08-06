@@ -60,7 +60,11 @@ public class PageSelectionValueObserverTest {
         when(mMockPaginatedView.getViewAt(1)).thenReturn(mMockOldPageView);
         when(mMockPaginatedView.getViewAt(2)).thenReturn(mMockNewPageView);
         when(mMockOldPageView.getPageView()).thenReturn(mMockOldPageMosaicView);
-        when(mMockPageViewFactory.getOrCreatePageView(2, 2, new Dimensions(100, 100))).thenReturn(
+        when(mMockPageViewFactory.getOrCreatePageView(2, 2,
+                new Dimensions(100, 100))).thenReturn(
+                mMockNewPageMosaicView);
+        when(mMockPageViewFactory.getOrCreatePageView(2, 2,
+                new Dimensions(100, 100)).getPageView()).thenReturn(
                 mMockNewPageMosaicView);
         when(mMockPaginatedView.getPageRangeHandler()).thenReturn(mMockPageRangeHandler);
         when(mMockPageRangeHandler.getVisiblePages()).thenReturn(new Range(1, 2));
