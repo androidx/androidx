@@ -169,7 +169,8 @@ class CapturePipelineTest {
                 convergedCondition: ((FrameMetadata) -> Boolean)?,
                 lockedCondition: ((FrameMetadata) -> Boolean)?,
                 frameLimit: Int,
-                timeLimitNs: Long
+                convergedTimeLimitNs: Long,
+                lockedTimeLimitNs: Long
             ): Deferred<Result3A> {
                 lock3ASemaphore.release()
                 return CompletableDeferred(Result3A(Result3A.Status.OK))

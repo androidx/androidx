@@ -273,10 +273,11 @@ internal class Controller3A(
      * If the operation is not supported by the camera device then this method returns early with
      * Result3A made of 'OK' status and 'null' metadata.
      *
-     * Note: the frameLimit and timeLimitNs applies to each of the above steps (a) and (b) and not
-     * as a whole for the whole lock3A method. Thus, in the worst case this method including the
-     * completion of returned Deferred<Result3A> can take 2 * min(time equivalent of frameLimit,
-     * timeLimit) to complete
+     * Note: the frameLimit, convergedTimeLimitNs and lockedTimeLimitNs applies to each of the above
+     * steps (a) and (b) and not as a whole for the whole lock3A method. Thus, in the worst case
+     * this method including the completion of returned Deferred<Result3A> can take min(time
+     * equivalent of frameLimit, convergedTimeLimitNs) + min(time equivalent of frameLimit,
+     * lockedTimeLimitNs) to complete.
      */
     suspend fun lock3A(
         aeRegions: List<MeteringRectangle>? = null,
@@ -289,7 +290,8 @@ internal class Controller3A(
         convergedCondition: ((FrameMetadata) -> Boolean)? = null,
         lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
-        timeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
+        convergedTimeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS,
+        lockedTimeLimitNs: Long? = DEFAULT_TIME_LIMIT_NS
     ): Deferred<Result3A> {
         var afLockBehaviorSanitized = afLockBehavior
         if (!metadata.supportsAutoFocusTrigger) {
@@ -334,7 +336,11 @@ internal class Controller3A(
                         )
                         .toConditionChecker()
             val listener =
-                Result3AStateListenerImpl(converged3AExitConditions, frameLimit, timeLimitNs)
+                Result3AStateListenerImpl(
+                    converged3AExitConditions,
+                    frameLimit,
+                    convergedTimeLimitNs
+                )
             graphListener3A.addListener(listener)
 
             // If we have to explicitly unlock ae, awb, then update the 3A state of the camera
@@ -376,7 +382,7 @@ internal class Controller3A(
             afTriggerStartAeMode,
             lockedCondition,
             frameLimit,
-            timeLimitNs
+            lockedTimeLimitNs
         )
     }
 
