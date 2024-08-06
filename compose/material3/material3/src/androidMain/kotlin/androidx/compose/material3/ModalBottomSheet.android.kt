@@ -41,6 +41,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.material3.SheetValue.Hidden
 import androidx.compose.material3.internal.PredictiveBack
+import androidx.compose.material3.internal.shouldApplySecureFlag
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.DisposableEffect
@@ -621,13 +622,4 @@ internal fun View.isFlagSecureEnabled(): Boolean {
         return (windowParams.flags and WindowManager.LayoutParams.FLAG_SECURE) != 0
     }
     return false
-}
-
-// Taken from AndroidPopup.android.kt
-private fun SecureFlagPolicy.shouldApplySecureFlag(isSecureFlagSetOnParent: Boolean): Boolean {
-    return when (this) {
-        SecureFlagPolicy.SecureOff -> false
-        SecureFlagPolicy.SecureOn -> true
-        SecureFlagPolicy.Inherit -> isSecureFlagSetOnParent
-    }
 }
