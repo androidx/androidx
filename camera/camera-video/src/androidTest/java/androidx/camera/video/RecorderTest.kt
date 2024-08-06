@@ -771,6 +771,19 @@ class RecorderTest(
     }
 
     @Test
+    fun mute_withInitialMuted() {
+        // Arrange.
+        val recording = recordingSession.createRecording(initialAudioMuted = true)
+
+        // Act.
+        recording.startAndVerify()
+
+        // Assert.
+        recording.verifyMute(true)
+        recording.stopAndVerify()
+    }
+
+    @Test
     fun mute_noOpIfAudioDisabled() {
         // Arrange.
         val recording = recordingSession.createRecording(withAudio = false)

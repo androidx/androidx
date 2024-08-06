@@ -2968,7 +2968,7 @@ public final class Recorder implements VideoOutput {
 
         @NonNull
         static RecordingRecord from(@NonNull PendingRecording pendingRecording, long recordingId) {
-            return new AutoValue_Recorder_RecordingRecord(
+            RecordingRecord recordingRecord = new AutoValue_Recorder_RecordingRecord(
                     pendingRecording.getOutputOptions(),
                     pendingRecording.getListenerExecutor(),
                     pendingRecording.getEventListener(),
@@ -2976,6 +2976,8 @@ public final class Recorder implements VideoOutput {
                     pendingRecording.isPersistent(),
                     recordingId
             );
+            recordingRecord.mute(pendingRecording.isAudioInitialMuted());
+            return recordingRecord;
         }
 
         @NonNull

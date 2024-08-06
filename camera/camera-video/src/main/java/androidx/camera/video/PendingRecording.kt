@@ -54,6 +54,7 @@ internal constructor(
     private var eventListener: Consumer<VideoRecordEvent>? = null
     private var listenerExecutor: Executor? = null
     private var isAudioEnabled: Boolean = false
+    private var isAudioInitialMuted: Boolean = false
     private var isPersistent: Boolean = false
 
     /**
@@ -74,6 +75,9 @@ internal constructor(
 
     @JvmName("isAudioEnabled") internal fun isAudioEnabled(): Boolean = isAudioEnabled
 
+    @JvmName("isAudioInitialMuted")
+    internal fun isAudioInitialMuted(): Boolean = isAudioInitialMuted
+
     @JvmName("isPersistent") internal fun isPersistent(): Boolean = isPersistent
 
     /**
@@ -87,6 +91,9 @@ internal constructor(
      * Recording with audio requires the [android.Manifest.permission.RECORD_AUDIO] permission;
      * without it, recording will fail at [start] with an [IllegalStateException].
      *
+     * @param initialMuted (Optional) The initial mute state of the recording. Defaults to `false`
+     *   (un-muted). After the recording is started, the mute state can be changed by calling
+     *   [Recording.mute].
      * @return this pending recording
      * @throws IllegalStateException if the [Recorder] this recording is associated to doesn't
      *   support audio.
@@ -94,7 +101,8 @@ internal constructor(
      *   the current application.
      */
     @RequiresPermission(Manifest.permission.RECORD_AUDIO)
-    public fun withAudioEnabled(): PendingRecording {
+    @JvmOverloads
+    public fun withAudioEnabled(initialMuted: Boolean = false): PendingRecording {
         // Check permissions and throw a security exception if RECORD_AUDIO is not granted.
         if (
             PermissionChecker.checkSelfPermission(
@@ -112,6 +120,7 @@ internal constructor(
             "The Recorder this recording is " + "associated to doesn't support audio."
         )
         isAudioEnabled = true
+        isAudioInitialMuted = initialMuted
         return this
     }
 

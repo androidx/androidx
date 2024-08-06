@@ -86,6 +86,7 @@ package androidx.camera.video {
     method @SuppressCompatibility @androidx.camera.video.ExperimentalPersistentRecording public androidx.camera.video.PendingRecording asPersistentRecording();
     method @CheckResult public androidx.camera.video.Recording start(java.util.concurrent.Executor listenerExecutor, androidx.core.util.Consumer<androidx.camera.video.VideoRecordEvent> listener);
     method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled();
+    method @RequiresPermission(android.Manifest.permission.RECORD_AUDIO) public androidx.camera.video.PendingRecording withAudioEnabled(optional boolean initialMuted);
   }
 
   public class Quality {
