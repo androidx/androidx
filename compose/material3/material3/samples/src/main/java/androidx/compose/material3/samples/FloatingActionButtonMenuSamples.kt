@@ -37,8 +37,8 @@ import androidx.compose.material3.FloatingActionButtonMenu
 import androidx.compose.material3.FloatingActionButtonMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleableFloatingActionButton
-import androidx.compose.material3.ToggleableFloatingActionButtonDefaults.animateIcon
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -89,7 +89,7 @@ fun FloatingActionButtonMenuSample() {
             modifier = Modifier.align(Alignment.BottomEnd),
             expanded = fabMenuExpanded,
             button = {
-                ToggleableFloatingActionButton(
+                ToggleFloatingActionButton(
                     modifier =
                         Modifier.semantics {
                             traversalIndex = -1f

@@ -47,9 +47,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.ToggleableFloatingActionButton
-import androidx.compose.material3.ToggleableFloatingActionButtonDefaults
-import androidx.compose.material3.ToggleableFloatingActionButtonDefaults.animateIcon
+import androidx.compose.material3.ToggleFloatingActionButton
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults
+import androidx.compose.material3.ToggleFloatingActionButtonDefaults.animateIcon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -133,26 +133,24 @@ fun FloatingActionButtonMenuDemo() {
             listOf(
                 SizeOption(
                     label = "Default",
-                    initialContainerSize = ToggleableFloatingActionButtonDefaults.containerSize(),
+                    initialContainerSize = ToggleFloatingActionButtonDefaults.containerSize(),
                     initialContainerCornerRadius =
-                        ToggleableFloatingActionButtonDefaults.containerCornerRadius(),
-                    initialIconSize = ToggleableFloatingActionButtonDefaults.iconSize(),
+                        ToggleFloatingActionButtonDefaults.containerCornerRadius(),
+                    initialIconSize = ToggleFloatingActionButtonDefaults.iconSize(),
                 ),
                 SizeOption(
                     label = "Medium",
-                    initialContainerSize =
-                        ToggleableFloatingActionButtonDefaults.containerSizeMedium(),
+                    initialContainerSize = ToggleFloatingActionButtonDefaults.containerSizeMedium(),
                     initialContainerCornerRadius =
-                        ToggleableFloatingActionButtonDefaults.containerCornerRadiusMedium(),
-                    initialIconSize = ToggleableFloatingActionButtonDefaults.iconSizeMedium(),
+                        ToggleFloatingActionButtonDefaults.containerCornerRadiusMedium(),
+                    initialIconSize = ToggleFloatingActionButtonDefaults.iconSizeMedium(),
                 ),
                 SizeOption(
                     label = "Large",
-                    initialContainerSize =
-                        ToggleableFloatingActionButtonDefaults.containerSizeLarge(),
+                    initialContainerSize = ToggleFloatingActionButtonDefaults.containerSizeLarge(),
                     initialContainerCornerRadius =
-                        ToggleableFloatingActionButtonDefaults.containerCornerRadiusLarge(),
-                    initialIconSize = ToggleableFloatingActionButtonDefaults.iconSizeLarge(),
+                        ToggleFloatingActionButtonDefaults.containerCornerRadiusLarge(),
+                    initialIconSize = ToggleFloatingActionButtonDefaults.iconSizeLarge(),
                 ),
             )
         val (selectedSize, onSizeSelected) = remember { mutableStateOf(sizeOptions[0]) }
@@ -314,7 +312,7 @@ fun FloatingActionButtonMenuDemo() {
             expanded = fabMenuExpanded,
             horizontalAlignment = selectedAlignment.menuAlignment,
             button = {
-                ToggleableFloatingActionButton(
+                ToggleFloatingActionButton(
                     modifier =
                         Modifier.semantics {
                             traversalIndex = -1f
@@ -325,7 +323,7 @@ fun FloatingActionButtonMenuDemo() {
                     onCheckedChange = { fabMenuExpanded = !fabMenuExpanded },
                     contentAlignment = selectedAlignment.fabCheckedAlignment,
                     containerColor =
-                        ToggleableFloatingActionButtonDefaults.containerColor(
+                        ToggleFloatingActionButtonDefaults.containerColor(
                             selectedColor.initialContainerColor,
                             selectedColor.finalContainerColor
                         ),
@@ -344,7 +342,7 @@ fun FloatingActionButtonMenuDemo() {
                             Modifier.animateIcon(
                                 checkedProgress = { checkedProgress },
                                 color =
-                                    ToggleableFloatingActionButtonDefaults.iconColor(
+                                    ToggleFloatingActionButtonDefaults.iconColor(
                                         selectedColor.initialIconColor,
                                         selectedColor.finalIconColor
                                     ),

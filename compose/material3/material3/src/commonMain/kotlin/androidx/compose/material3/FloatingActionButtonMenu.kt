@@ -77,14 +77,14 @@ import kotlinx.coroutines.launch
 
 // TODO: link to spec and image
 /**
- * FAB Menus should be used in conjunction with a [ToggleableFloatingActionButton] to provide
- * additional choices to the user after clicking a FAB.
+ * FAB Menus should be used in conjunction with a [ToggleFloatingActionButton] to provide additional
+ * choices to the user after clicking a FAB.
  *
  * @sample androidx.compose.material3.samples.FloatingActionButtonMenuSample
  * @param expanded whether the FAB Menu is expanded, which will trigger a staggered animation of the
  *   FAB Menu Items
  * @param button a composable which triggers the showing and hiding of the FAB Menu Items via the
- *   [expanded] state, typically a [ToggleableFloatingActionButton]
+ *   [expanded] state, typically a [ToggleFloatingActionButton]
  * @param modifier the [Modifier] to be applied to this FAB Menu
  * @param horizontalAlignment the horizontal alignment of the FAB Menu Items
  * @param content the content of this FAB Menu, typically a list of [FloatingActionButtonMenuItem]s
@@ -349,8 +349,8 @@ private val MenuItemRuler = HorizontalRuler()
  * toggled, and should be used in conjunction with a [FloatingActionButtonMenu] to provide
  * additional choices to the user after clicking the FAB.
  *
- * Use [ToggleableFloatingActionButtonDefaults.animateIcon] to animate the color and size of the
- * icon while the [ToggleableFloatingActionButton] is being toggled.
+ * Use [ToggleFloatingActionButtonDefaults.animateIcon] to animate the color and size of the icon
+ * while the [ToggleFloatingActionButton] is being toggled.
  *
  * @sample androidx.compose.material3.samples.FloatingActionButtonMenuSample
  * @param checked whether this Toggleable FAB is checked
@@ -369,16 +369,16 @@ private val MenuItemRuler = HorizontalRuler()
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-fun ToggleableFloatingActionButton(
+fun ToggleFloatingActionButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    containerColor: (Float) -> Color = ToggleableFloatingActionButtonDefaults.containerColor(),
+    containerColor: (Float) -> Color = ToggleFloatingActionButtonDefaults.containerColor(),
     contentAlignment: Alignment = Alignment.TopEnd,
-    containerSize: (Float) -> Dp = ToggleableFloatingActionButtonDefaults.containerSize(),
+    containerSize: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerSize(),
     containerCornerRadius: (Float) -> Dp =
-        ToggleableFloatingActionButtonDefaults.containerCornerRadius(),
-    content: @Composable ToggleableFloatingActionButtonScope.() -> Unit,
+        ToggleFloatingActionButtonDefaults.containerCornerRadius(),
+    content: @Composable ToggleFloatingActionButtonScope.() -> Unit,
 ) {
     val checkedProgress =
         animateFloatAsState(
@@ -386,7 +386,7 @@ fun ToggleableFloatingActionButton(
             // TODO Load the motionScheme tokens from the component tokens file
             animationSpec = MotionSchemeKeyTokens.FastSpatial.value()
         )
-    ToggleableFloatingActionButton(
+    ToggleFloatingActionButton(
         checked,
         onCheckedChange,
         { checkedProgress.value },
@@ -405,8 +405,8 @@ fun ToggleableFloatingActionButton(
  * toggled, and should be used in conjunction with a [FloatingActionButtonMenu] to provide
  * additional choices to the user after clicking the FAB.
  *
- * Use [ToggleableFloatingActionButtonDefaults.animateIcon] to animate the color and size of the
- * icon while the [ToggleableFloatingActionButton] is being toggled.
+ * Use [ToggleFloatingActionButtonDefaults.animateIcon] to animate the color and size of the icon
+ * while the [ToggleFloatingActionButton] is being toggled.
  *
  * This overload of Toggleable FAB also supports a [checkedProgress] param which is used to drive
  * the toggle animation.
@@ -430,17 +430,17 @@ fun ToggleableFloatingActionButton(
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
-private fun ToggleableFloatingActionButton(
+private fun ToggleFloatingActionButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     checkedProgress: () -> Float,
     modifier: Modifier = Modifier,
-    containerColor: (Float) -> Color = ToggleableFloatingActionButtonDefaults.containerColor(),
+    containerColor: (Float) -> Color = ToggleFloatingActionButtonDefaults.containerColor(),
     contentAlignment: Alignment = Alignment.TopEnd,
-    containerSize: (Float) -> Dp = ToggleableFloatingActionButtonDefaults.containerSize(),
+    containerSize: (Float) -> Dp = ToggleFloatingActionButtonDefaults.containerSize(),
     containerCornerRadius: (Float) -> Dp =
-        ToggleableFloatingActionButtonDefaults.containerCornerRadius(),
-    content: @Composable ToggleableFloatingActionButtonScope.() -> Unit,
+        ToggleFloatingActionButtonDefaults.containerCornerRadius(),
+    content: @Composable ToggleFloatingActionButtonScope.() -> Unit,
 ) {
     val initialSize = remember(containerSize) { containerSize(0f) }
     Box(Modifier.size(initialSize), contentAlignment = contentAlignment) {
@@ -492,7 +492,7 @@ private fun ToggleableFloatingActionButton(
         ) {
             val scope =
                 remember(checkedProgress) {
-                    object : ToggleableFloatingActionButtonScope {
+                    object : ToggleFloatingActionButtonScope {
                         override val checkedProgress: Float
                             get() = checkedProgress()
                     }
@@ -502,9 +502,9 @@ private fun ToggleableFloatingActionButton(
     }
 }
 
-/** Contains the default values used by [ToggleableFloatingActionButton] */
+/** Contains the default values used by [ToggleFloatingActionButton] */
 @ExperimentalMaterial3ExpressiveApi
-object ToggleableFloatingActionButtonDefaults {
+object ToggleFloatingActionButtonDefaults {
 
     @Composable
     fun containerColor(
@@ -550,7 +550,7 @@ object ToggleableFloatingActionButtonDefaults {
     fun iconSizeLarge() = iconSize(FabLargeInitialIconSize)
 
     /**
-     * Modifier for animating the color and size of an icon within [ToggleableFloatingActionButton]
+     * Modifier for animating the color and size of an icon within [ToggleFloatingActionButton]
      * based on a progress value.
      *
      * @param checkedProgress callback that provides the progress value for the icon animation
@@ -579,9 +579,9 @@ object ToggleableFloatingActionButtonDefaults {
             }
 }
 
-/** Scope for the children of [ToggleableFloatingActionButton] */
+/** Scope for the children of [ToggleFloatingActionButton] */
 @ExperimentalMaterial3ExpressiveApi
-interface ToggleableFloatingActionButtonScope {
+interface ToggleFloatingActionButtonScope {
 
     val checkedProgress: Float
 }

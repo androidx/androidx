@@ -859,7 +859,7 @@ package androidx.compose.material3 {
   public final class FloatingActionButtonMenuKt {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void FloatingActionButtonMenu(boolean expanded, kotlin.jvm.functions.Function0<kotlin.Unit> button, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, kotlin.jvm.functions.Function1<? super androidx.compose.material3.FloatingActionButtonMenuScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void FloatingActionButtonMenuItem(androidx.compose.material3.FloatingActionButtonMenuScope, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional long contentColor);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ToggleableFloatingActionButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.graphics.Color> containerColor, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.unit.Dp> containerSize, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.unit.Dp> containerCornerRadius, kotlin.jvm.functions.Function1<? super androidx.compose.material3.ToggleableFloatingActionButtonScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void ToggleFloatingActionButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.graphics.Color> containerColor, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.unit.Dp> containerSize, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.unit.Dp> containerCornerRadius, kotlin.jvm.functions.Function1<? super androidx.compose.material3.ToggleFloatingActionButtonScope,kotlin.Unit> content);
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public interface FloatingActionButtonMenuScope {
@@ -2610,7 +2610,7 @@ package androidx.compose.material3 {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void TonalToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.ButtonShapes shapes, optional androidx.compose.material3.ToggleButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ToggleableFloatingActionButtonDefaults {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ToggleFloatingActionButtonDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier animateIcon(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function0<java.lang.Float> checkedProgress, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.graphics.Color> color, optional kotlin.jvm.functions.Function1<? super java.lang.Float,androidx.compose.ui.unit.Dp> size);
     method @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<java.lang.Float,androidx.compose.ui.graphics.Color> containerColor(optional long initialColor, optional long finalColor);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.compose.ui.unit.Dp> containerCornerRadius();
@@ -2626,10 +2626,10 @@ package androidx.compose.material3 {
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.compose.ui.unit.Dp> iconSize(float initialSize, optional float finalSize);
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.compose.ui.unit.Dp> iconSizeLarge();
     method public kotlin.jvm.functions.Function1<java.lang.Float,androidx.compose.ui.unit.Dp> iconSizeMedium();
-    field public static final androidx.compose.material3.ToggleableFloatingActionButtonDefaults INSTANCE;
+    field public static final androidx.compose.material3.ToggleFloatingActionButtonDefaults INSTANCE;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public interface ToggleableFloatingActionButtonScope {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public interface ToggleFloatingActionButtonScope {
     method public float getCheckedProgress();
     property public abstract float checkedProgress;
   }
