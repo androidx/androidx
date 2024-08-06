@@ -999,6 +999,7 @@ constructor(
                 }
                 if (watchState.isHeadless) {
                     headlessWatchFaceImpl!!.release()
+                } else {
                     this@WatchFaceImpl.onDestroy()
                 }
             }
