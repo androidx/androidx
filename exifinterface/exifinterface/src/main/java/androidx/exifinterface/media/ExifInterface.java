@@ -6774,8 +6774,8 @@ public class ExifInterface {
 
                         // Retrieve image width/height
                         widthAndHeight = totalInputStream.readInt();
-                        width = (widthAndHeight << 18) >> 18;
-                        height = (widthAndHeight << 2) >> 18;
+                        width = widthAndHeight & 0x3FFF;
+                        height = (widthAndHeight >> 16) & 0x3FFF;
                         bytesToRead -= (vp8Frame.length + vp8Signature.length + 4);
                     } else if (Arrays.equals(firstChunkType, WEBP_CHUNK_TYPE_VP8L)) {
                         // Check signature
