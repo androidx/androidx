@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -39,7 +40,7 @@ internal class LazyLayoutItemContentFactory(
     val itemProvider: () -> LazyLayoutItemProvider,
 ) {
     /** Contains the cached lambdas produced by the [itemProvider]. */
-    private val lambdasCache = mutableMapOf<Any, CachedItemContent>()
+    private val lambdasCache = mutableScatterMapOf<Any, CachedItemContent>()
 
     /**
      * Returns the content type for the item with the given key. It is used to improve the item

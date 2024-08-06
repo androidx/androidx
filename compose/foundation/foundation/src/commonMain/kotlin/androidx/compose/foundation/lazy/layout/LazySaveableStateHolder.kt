@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.layout
 
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -62,7 +63,7 @@ private class LazySaveableStateHolder(private val wrappedRegistry: SaveableState
 
     var wrappedHolder by mutableStateOf<SaveableStateHolder?>(null)
 
-    private val previouslyComposedKeys = mutableSetOf<Any>()
+    private val previouslyComposedKeys = mutableScatterSetOf<Any>()
 
     override fun performSave(): Map<String, List<Any?>> {
         val holder = wrappedHolder

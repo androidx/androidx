@@ -16,6 +16,8 @@
 
 package androidx.compose.runtime.saveable
 
+import androidx.collection.MutableScatterMap
+import androidx.collection.mutableScatterMapOf
 import androidx.compose.runtime.saveable.SaveableStateRegistry.Entry
 import androidx.compose.runtime.staticCompositionLocalOf
 
@@ -94,20 +96,24 @@ private fun CharSequence.fastIsBlank(): Boolean {
     return blank
 }
 
+private fun <K, V> Map<K, V>.toMutableScatterMap(): MutableScatterMap<K, V> {
+    return MutableScatterMap<K, V>(size).also { it += this }
+}
+
 private class SaveableStateRegistryImpl(
     restored: Map<String, List<Any?>>?,
     private val canBeSaved: (Any) -> Boolean
 ) : SaveableStateRegistry {
 
-    private val restored: MutableMap<String, List<Any?>> =
-        restored?.toMutableMap() ?: mutableMapOf()
-    private val valueProviders = mutableMapOf<String, MutableList<() -> Any?>>()
+    private val restored: MutableScatterMap<String, List<Any?>> =
+        restored?.toMutableScatterMap() ?: mutableScatterMapOf()
+    private val valueProviders = mutableScatterMapOf<String, MutableList<() -> Any?>>()
 
     override fun canBeSaved(value: Any): Boolean = canBeSaved.invoke(value)
 
     override fun consumeRestored(key: String): Any? {
         val list = restored.remove(key)
-        return if (list != null && list.isNotEmpty()) {
+        return if (!list.isNullOrEmpty()) {
             if (list.size > 1) {
                 restored[key] = list.subList(1, list.size)
             }
@@ -119,13 +125,12 @@ private class SaveableStateRegistryImpl(
 
     override fun registerProvider(key: String, valueProvider: () -> Any?): Entry {
         require(!key.fastIsBlank()) { "Registered key is empty or blank" }
-        @Suppress("UNCHECKED_CAST")
         valueProviders.getOrPut(key) { mutableListOf() }.add(valueProvider)
         return object : Entry {
             override fun unregister() {
                 val list = valueProviders.remove(key)
                 list?.remove(valueProvider)
-                if (list != null && list.isNotEmpty()) {
+                if (!list.isNullOrEmpty()) {
                     // if there are other providers for this key return list back to the map
                     valueProviders[key] = list
                 }
@@ -134,8 +139,13 @@ private class SaveableStateRegistryImpl(
     }
 
     override fun performSave(): Map<String, List<Any?>> {
-        val map = restored.toMutableMap()
-        valueProviders.forEach { (key, list) ->
+        // TODO: Use a MutableScatterMap.asMap(), but we first need to make that map wrapper
+        //  serializable
+        val map =
+            HashMap<String, List<Any?>>(restored.size).apply {
+                restored.forEach { k, v -> this[k] = v }
+            }
+        valueProviders.forEach { key, list ->
             if (list.size == 1) {
                 val value = list[0].invoke()
                 if (value != null) {
