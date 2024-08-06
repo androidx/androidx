@@ -15,7 +15,3 @@ BecameUnchecked: androidx.compose.ui.semantics.SemanticsProperties#getInvisibleT
 
 ChangedType: androidx.compose.ui.layout.MeasureResult#getAlignmentLines():
     Method androidx.compose.ui.layout.MeasureResult.getAlignmentLines has changed return type from java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> to java.util.Map<? extends androidx.compose.ui.layout.AlignmentLine,java.lang.Integer>
-
-
-RemovedMethod: androidx.compose.ui.layout.LayoutCoordinates#transformToScreen(float[]):
-    Removed method androidx.compose.ui.layout.LayoutCoordinates.transformToScreen(float[])

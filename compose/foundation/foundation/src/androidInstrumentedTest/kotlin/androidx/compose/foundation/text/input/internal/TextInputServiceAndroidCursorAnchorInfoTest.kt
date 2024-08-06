@@ -387,5 +387,9 @@ internal class TextInputServiceAndroidCursorAnchorInfoTest {
             Rect(localPositionOf(sourceCoordinates, Offset.Zero), sourceCoordinates.size.toSize())
 
         override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {}
+
+        override fun transformToScreen(matrix: Matrix) {
+            matrix.translate(windowOffset.x, windowOffset.y, 0f)
+        }
     }
 }
