@@ -44,6 +44,8 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.ContainerId
+import androidx.compose.material3.internal.HorizontalIconPadding
+import androidx.compose.material3.internal.IconDefaultSizeModifier
 import androidx.compose.material3.internal.LabelId
 import androidx.compose.material3.internal.LeadingId
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
@@ -56,14 +58,13 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.SuffixId
 import androidx.compose.material3.internal.SupportingId
 import androidx.compose.material3.internal.TextFieldId
+import androidx.compose.material3.internal.TextFieldLabelExtraPadding
 import androidx.compose.material3.internal.TrailingId
 import androidx.compose.material3.internal.defaultErrorSemantics
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
-import androidx.compose.material3.internal.minimizedLabelHalfHeight
 import androidx.compose.material3.internal.subtractConstraintSafely
-import androidx.compose.material3.internal.textFieldHorizontalIconPadding
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.MotionTokens.EasingEmphasizedAccelerateCubicBezier
 import androidx.compose.runtime.Composable
@@ -95,7 +96,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
@@ -648,22 +648,9 @@ internal fun TextFieldLayout(
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues
 ) {
-    val minimizedLabelHalfHeight = minimizedLabelHalfHeight()
     val measurePolicy =
-        remember(
-            singleLine,
-            labelPosition,
-            labelProgress,
-            paddingValues,
-            minimizedLabelHalfHeight,
-        ) {
-            TextFieldMeasurePolicy(
-                singleLine = singleLine,
-                labelPosition = labelPosition,
-                labelProgress = labelProgress,
-                paddingValues = paddingValues,
-                minimizedLabelHalfHeight = minimizedLabelHalfHeight,
-            )
+        remember(singleLine, labelPosition, labelProgress, paddingValues) {
+            TextFieldMeasurePolicy(singleLine, labelPosition, labelProgress, paddingValues)
         }
     val layoutDirection = LocalLayoutDirection.current
     Layout(
@@ -676,7 +663,7 @@ internal fun TextFieldLayout(
 
             if (leading != null) {
                 Box(
-                    modifier = Modifier.layoutId(LeadingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(LeadingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     leading()
@@ -684,7 +671,7 @@ internal fun TextFieldLayout(
             }
             if (trailing != null) {
                 Box(
-                    modifier = Modifier.layoutId(TrailingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(TrailingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     trailing()
@@ -694,16 +681,15 @@ internal fun TextFieldLayout(
             val startTextFieldPadding = paddingValues.calculateStartPadding(layoutDirection)
             val endTextFieldPadding = paddingValues.calculateEndPadding(layoutDirection)
 
-            val horizontalIconPadding = textFieldHorizontalIconPadding()
             val startPadding =
                 if (leading != null) {
-                    (startTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
+                    (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     startTextFieldPadding
                 }
             val endPadding =
                 if (trailing != null) {
-                    (endTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
+                    (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     endTextFieldPadding
                 }
@@ -790,8 +776,7 @@ private class TextFieldMeasurePolicy(
     private val singleLine: Boolean,
     private val labelPosition: TextFieldLabelPosition,
     private val labelProgress: Float,
-    private val paddingValues: PaddingValues,
-    private val minimizedLabelHalfHeight: Dp,
+    private val paddingValues: PaddingValues
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -953,9 +938,11 @@ private class TextFieldMeasurePolicy(
                             Alignment.CenterVertically.align(labelPlaceable.height, height)
                         else ->
                             // The padding defined by the user only applies to the text field when
-                            // the label is focused. More padding needs to be added when the text
-                            // field is unfocused.
-                            topPaddingValue + minimizedLabelHalfHeight.roundToPx()
+                            // the
+                            // label is focused. More padding needs to be added when the text field
+                            // is
+                            // unfocused.
+                            topPaddingValue + TextFieldLabelExtraPadding.roundToPx()
                     }
                 val labelEndY =
                     when {
@@ -1209,11 +1196,10 @@ private class TextFieldMeasurePolicy(
         val nonOverlappedLabelHeight =
             if (hasLabel && !isLabelAbove) {
                 // The label animates from overlapping the input field to floating above it,
-                // so its contribution to the height calculation changes over time. A baseline
-                // height is provided in the unfocused state to keep the overall height consistent
-                // across the animation.
+                // so its contribution to the height calculation changes over time. Extra padding
+                // is added in the unfocused state to keep the height consistent.
                 max(
-                    (minimizedLabelHalfHeight * 2).roundToPx(),
+                    (TextFieldLabelExtraPadding * 2).roundToPx(),
                     lerp(
                         0,
                         labelHeight,

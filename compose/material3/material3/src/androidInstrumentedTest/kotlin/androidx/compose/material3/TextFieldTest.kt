@@ -47,6 +47,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
+import androidx.compose.material3.internal.HorizontalIconPadding
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
 import androidx.compose.material3.internal.MinSupportingTextLineHeight
 import androidx.compose.material3.internal.MinTextLineHeight
@@ -133,7 +134,7 @@ class TextFieldTest {
     private val ExpectedDefaultTextFieldHeight = TextFieldDefaults.MinHeight
     private val ExpectedDefaultTextFieldWidth = TextFieldDefaults.MinWidth
     private val ExpectedPadding = TextFieldPadding
-    private val IconPadding = 12.dp
+    private val IconPadding = HorizontalIconPadding
     private val TextFieldWidth = 300.dp
     private val TextFieldTag = "textField"
 
