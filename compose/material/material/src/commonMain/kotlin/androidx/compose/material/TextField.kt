@@ -659,7 +659,7 @@ internal fun TextFieldLayout(
         content = {
             if (leading != null) {
                 Box(
-                    modifier = Modifier.layoutId(LeadingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(LeadingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     leading()
@@ -667,7 +667,7 @@ internal fun TextFieldLayout(
             }
             if (trailing != null) {
                 Box(
-                    modifier = Modifier.layoutId(TrailingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(TrailingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     trailing()

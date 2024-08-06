@@ -43,6 +43,8 @@ import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
 import androidx.compose.material3.internal.ContainerId
+import androidx.compose.material3.internal.HorizontalIconPadding
+import androidx.compose.material3.internal.IconDefaultSizeModifier
 import androidx.compose.material3.internal.LabelId
 import androidx.compose.material3.internal.LeadingId
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
@@ -61,7 +63,6 @@ import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.heightOrZero
 import androidx.compose.material3.internal.layoutId
 import androidx.compose.material3.internal.subtractConstraintSafely
-import androidx.compose.material3.internal.textFieldHorizontalIconPadding
 import androidx.compose.material3.internal.widthOrZero
 import androidx.compose.material3.tokens.TypeScaleTokens
 import androidx.compose.runtime.Composable
@@ -96,7 +97,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -662,23 +662,14 @@ internal fun OutlinedTextFieldLayout(
     supporting: @Composable (() -> Unit)?,
     paddingValues: PaddingValues
 ) {
-    val horizontalIconPadding = textFieldHorizontalIconPadding()
     val measurePolicy =
-        remember(
-            onLabelMeasured,
-            singleLine,
-            labelPosition,
-            labelProgress,
-            paddingValues,
-            horizontalIconPadding
-        ) {
+        remember(onLabelMeasured, singleLine, labelPosition, labelProgress, paddingValues) {
             OutlinedTextFieldMeasurePolicy(
-                onLabelMeasured = onLabelMeasured,
-                singleLine = singleLine,
-                labelPosition = labelPosition,
-                labelProgress = labelProgress,
-                paddingValues = paddingValues,
-                horizontalIconPadding = horizontalIconPadding,
+                onLabelMeasured,
+                singleLine,
+                labelPosition,
+                labelProgress,
+                paddingValues
             )
         }
     val layoutDirection = LocalLayoutDirection.current
@@ -689,7 +680,7 @@ internal fun OutlinedTextFieldLayout(
 
             if (leading != null) {
                 Box(
-                    modifier = Modifier.layoutId(LeadingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(LeadingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     leading()
@@ -697,7 +688,7 @@ internal fun OutlinedTextFieldLayout(
             }
             if (trailing != null) {
                 Box(
-                    modifier = Modifier.layoutId(TrailingId).minimumInteractiveComponentSize(),
+                    modifier = Modifier.layoutId(TrailingId).then(IconDefaultSizeModifier),
                     contentAlignment = Alignment.Center
                 ) {
                     trailing()
@@ -709,13 +700,13 @@ internal fun OutlinedTextFieldLayout(
 
             val startPadding =
                 if (leading != null) {
-                    (startTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
+                    (startTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     startTextFieldPadding
                 }
             val endPadding =
                 if (trailing != null) {
-                    (endTextFieldPadding - horizontalIconPadding).coerceAtLeast(0.dp)
+                    (endTextFieldPadding - HorizontalIconPadding).coerceAtLeast(0.dp)
                 } else {
                     endTextFieldPadding
                 }
@@ -804,8 +795,7 @@ private class OutlinedTextFieldMeasurePolicy(
     private val singleLine: Boolean,
     private val labelPosition: TextFieldLabelPosition,
     private val labelProgress: Float,
-    private val paddingValues: PaddingValues,
-    private val horizontalIconPadding: Dp,
+    private val paddingValues: PaddingValues
 ) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
@@ -997,7 +987,6 @@ private class OutlinedTextFieldMeasurePolicy(
                 density = density,
                 layoutDirection = layoutDirection,
                 isLabelAbove = isLabelAbove,
-                iconPadding = horizontalIconPadding.toPx(),
             )
         }
     }
@@ -1259,7 +1248,6 @@ private class OutlinedTextFieldMeasurePolicy(
         density: Float,
         layoutDirection: LayoutDirection,
         isLabelAbove: Boolean,
-        iconPadding: Float,
     ) {
         val yOffset = if (isLabelAbove) labelPlaceable.heightOrZero else 0
 
@@ -1310,6 +1298,7 @@ private class OutlinedTextFieldMeasurePolicy(
                 val startPadding =
                     paddingValues.calculateStartPadding(layoutDirection).value * density
                 val endPadding = paddingValues.calculateEndPadding(layoutDirection).value * density
+                val iconPadding = HorizontalIconPadding.value * density
                 val leadingPlusPadding =
                     if (leadingPlaceable == null) {
                         startPadding

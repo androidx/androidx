@@ -27,6 +27,7 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.CompositionLocalProvider
@@ -380,3 +381,5 @@ private const val PlaceholderAnimationDelayOrDuration = 67
 
 internal val TextFieldPadding = 16.dp
 internal val HorizontalIconPadding = 12.dp
+
+internal val IconDefaultSizeModifier = Modifier.defaultMinSize(48.dp, 48.dp)
