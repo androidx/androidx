@@ -75,7 +75,6 @@ import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Menu;
 import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -146,6 +145,7 @@ import androidx.camera.video.VideoCapabilities;
 import androidx.camera.video.VideoCapture;
 import androidx.camera.video.VideoRecordEvent;
 import androidx.camera.view.ScreenFlashView;
+import androidx.camera.view.impl.ZoomGestureDetector;
 import androidx.core.content.ContextCompat;
 import androidx.core.math.MathUtils;
 import androidx.core.util.Consumer;
@@ -2039,22 +2039,18 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomRatioLabel.setTextColor(getResources().getColor(R.color.zoom_ratio_set));
     }
 
-    ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
-            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
-                @Override
-                public boolean onScale(@NonNull ScaleGestureDetector detector) {
-                    if (mCamera == null) {
-                        return true;
-                    }
-
-                    CameraInfo cameraInfo = mCamera.getCameraInfo();
-                    float newZoom =
-                            requireNonNull(cameraInfo.getZoomState().getValue()).getZoomRatio()
-                            * detector.getScaleFactor();
-                    setZoomRatio(newZoom);
-                    return true;
-                }
-            };
+    @SuppressLint("RestrictedApiAndroidX")
+    ZoomGestureDetector.OnZoomGestureListener mZoomGestureListener = zoomEvent -> {
+        if (mCamera != null && zoomEvent instanceof ZoomGestureDetector.ZoomEvent.Move) {
+            CameraInfo cameraInfo = mCamera.getCameraInfo();
+            float newZoom =
+                    requireNonNull(cameraInfo.getZoomState().getValue()).getZoomRatio()
+                            * ((ZoomGestureDetector.ZoomEvent.Move) zoomEvent)
+                            .getIncrementalScaleFactor();
+            setZoomRatio(newZoom);
+        }
+        return true;
+    };
 
     GestureDetector.OnGestureListener onTapGestureListener =
             new GestureDetector.SimpleOnGestureListener() {
@@ -2198,9 +2194,10 @@ public class CameraXActivity extends AppCompatActivity {
         }, ContextCompat.getMainExecutor(CameraXActivity.this));
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     private void setupViewFinderGestureControls() {
         GestureDetector tapGestureDetector = new GestureDetector(this, onTapGestureListener);
-        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+        ZoomGestureDetector scaleDetector = new ZoomGestureDetector(this, mZoomGestureListener);
         mViewFinder.setOnTouchListener((view, e) -> {
             boolean tapEventProcessed = tapGestureDetector.onTouchEvent(e);
             boolean scaleEventProcessed = scaleDetector.onTouchEvent(e);
