@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -69,4 +70,33 @@ fun Modifier.opticalCentering(shape: CornerBasedShape, basePadding: PaddingValue
         }
     }
 
-private const val OpticalCenteringCoefficient = 0.11f
+@ExperimentalMaterial3ExpressiveApi
+internal fun Modifier.opticalCentering(
+    shape: ShapeWithOpticalCentering,
+    basePadding: PaddingValues
+) =
+    this.layout { measurable, constraints ->
+        val start = basePadding.calculateStartPadding(layoutDirection)
+        val end = basePadding.calculateEndPadding(layoutDirection)
+        val top = basePadding.calculateTopPadding()
+        val bottom = basePadding.calculateBottomPadding()
+
+        val horizontalPadding = start.roundToPx() + end.roundToPx()
+        val verticalPadding = top.roundToPx() + bottom.roundToPx()
+
+        val placeable = measurable.measure(constraints.offset(-horizontalPadding, -verticalPadding))
+
+        val width = constraints.constrainWidth(placeable.width + horizontalPadding)
+        val height = constraints.constrainHeight(placeable.height + verticalPadding)
+
+        layout(width, height) {
+            val startPadding = start.roundToPx() + shape.offset()
+            placeable.place(startPadding.toInt(), top.roundToPx())
+        }
+    }
+
+internal interface ShapeWithOpticalCentering : Shape {
+    fun offset(): Float
+}
+
+internal const val OpticalCenteringCoefficient = 0.11f
