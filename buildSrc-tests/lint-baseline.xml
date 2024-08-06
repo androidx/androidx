@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="EagerGradleConfiguration"
@@ -134,6 +134,60 @@
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="    for (propertyName in project.properties.keys) {"
+        errorLine2="                                 ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXGradleProperties.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="        if (properties.containsKey(&quot;android.injected.invoked.from.ide&quot;)) {"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="        val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(&quot;,&quot;)"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="            val taskName = properties[PROP_TASK_NAME] as String"
+        errorLine2="                           ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="            task.pathPrefix = properties[PROP_PATH_PREFIX] as String"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="            task.taskName = properties[PROP_TASK_NAME] as String"
+        errorLine2="                            ~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/FilteredAnchorTask.kt"/>
     </issue>
 
     <issue
@@ -274,8 +328,8 @@
     <issue
         id="InternalGradleApiUsage"
         message="Avoid using internal Gradle APIs"
-        errorLine1="import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="import org.gradle.api.internal.artifacts.ivyservice.TypedResolveException"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/metalava/RegenerateOldApisTask.kt"/>
     </issue>

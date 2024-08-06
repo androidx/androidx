@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="GradleProjectIsolation"
@@ -15,6 +15,15 @@
         message="Use providers.gradleProperty instead of findProperty"
         errorLine1="                    project.findProperty(&quot;androidx.benchmark.lockClocks.cores&quot;)?.toString() ?: &quot;&quot;"
         errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Use providers.gradleProperty instead of getProperties"
+        errorLine1="                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {"
+        errorLine2="                             ~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
     </issue>
