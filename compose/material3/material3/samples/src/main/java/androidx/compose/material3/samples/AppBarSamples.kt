@@ -124,7 +124,9 @@ fun SimpleTopAppBar() {
 @Sampled
 @Composable
 fun SimpleTopAppBarWithSubtitle() {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -146,7 +148,8 @@ fun SimpleTopAppBarWithSubtitle() {
                             contentDescription = "Localized description"
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         content = { innerPadding ->
@@ -229,7 +232,9 @@ fun SimpleCenterAlignedTopAppBar() {
 @Sampled
 @Composable
 fun SimpleCenterAlignedTopAppBarWithSubtitle() {
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = {
@@ -252,7 +257,8 @@ fun SimpleCenterAlignedTopAppBarWithSubtitle() {
                             contentDescription = "Localized description"
                         )
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior
             )
         },
         content = { innerPadding ->
