@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import androidx.build.AndroidXImplPlugin.Companion.CREATE_LIBRARY_BUILD_INFO_FILES_TASK
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.AndroidXImplPlugin.Companion.ZIP_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask
@@ -86,7 +85,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 CreateAggregateLibraryBuildInfoFileTask::class.java
             )
         )
-        buildOnServerTask.dependsOn(tasks.register(CREATE_LIBRARY_BUILD_INFO_FILES_TASK))
 
         VerifyPlaygroundGradleConfigurationTask.createIfNecessary(project)?.let {
             buildOnServerTask.dependsOn(it)
