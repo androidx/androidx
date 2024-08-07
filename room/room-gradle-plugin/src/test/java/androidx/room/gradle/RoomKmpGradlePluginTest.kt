@@ -55,9 +55,6 @@ class RoomKmpGradlePluginTest {
             |
             |${projectSetup.androidProject}
             |
-            |// Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
-            |ext["kotlin.native.disableCompilerDaemon"] = 'true'
-            |
             |kotlin {
             |  androidTarget()
             |  linuxX64("native")
