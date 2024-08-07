@@ -43,7 +43,6 @@ import androidx.pdf.util.ThreadUtils
 import androidx.pdf.util.TileBoard
 import androidx.pdf.viewer.LayoutHandler
 import androidx.pdf.viewer.LoadingView
-import androidx.pdf.viewer.PageMosaicView
 import androidx.pdf.viewer.PageViewFactory
 import androidx.pdf.viewer.PaginatedView
 import androidx.pdf.viewer.PdfPasswordDialog
@@ -128,11 +127,12 @@ public class PdfLoaderCallbacksImpl(
         val y: Int = paginatedView.paginationModel.getLookAtY(selection.page, rect.centerY())
         zoomView.centerAt(x.toFloat(), y.toFloat())
 
-        (pageViewFactory!!.getOrCreatePageView(
+        pageViewFactory!!
+            .getOrCreatePageView(
                 selection.page,
                 pageElevationInPixels,
                 paginatedView.paginationModel.getPageSize(selection.page)
-            ) as PageMosaicView)
+            )
             .setOverlay(selection.overlay)
     }
 
@@ -283,11 +283,12 @@ public class PdfLoaderCallbacksImpl(
     override fun pageBroken(page: Int) {
         if (viewState.get() != ViewState.NO_VIEW) {
             if (page < paginatedView.paginationModel.numPages) {
-                (pageViewFactory!!.getOrCreatePageView(
+                pageViewFactory!!
+                    .getOrCreatePageView(
                         page,
                         pageElevationInPixels,
                         paginatedView.paginationModel.getPageSize(page)
-                    ) as PageMosaicView)
+                    )
                     .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
                 // TODO: Track render error.
             }

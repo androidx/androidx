@@ -110,15 +110,15 @@ public class PageViewFactory {
      * created.
      */
     @NonNull
-    public PageView getOrCreatePageView(int pageNum,
+    public PageMosaicView getOrCreatePageView(int pageNum,
             int pageElevationInPixels,
             @NonNull Dimensions pageDimensions) {
         PageView pageView = mPaginatedView.getViewAt(pageNum);
-        if (pageView != null) {
-            return pageView;
+        if (pageView == null) {
+            pageView = createAndSetupPageView(pageNum, pageElevationInPixels, pageDimensions);
         }
 
-        return createAndSetupPageView(pageNum, pageElevationInPixels, pageDimensions);
+        return pageView.getPageView();
     }
 
     /**

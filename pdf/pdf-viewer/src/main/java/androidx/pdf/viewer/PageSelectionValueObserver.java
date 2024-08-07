@@ -56,7 +56,7 @@ public class PageSelectionValueObserver implements ObservableValue.ValueObserver
             mPageViewFactory.getOrCreatePageView(
                             newSelection.getPage(),
                             PaginationUtils.getPageElevationInPixels(mContext),
-                            mPaginationModel.getPageSize(newSelection.getPage())).getPageView()
+                            mPaginationModel.getPageSize(newSelection.getPage()))
                     .setOverlay(new PdfHighlightOverlay(newSelection));
         }
     }
