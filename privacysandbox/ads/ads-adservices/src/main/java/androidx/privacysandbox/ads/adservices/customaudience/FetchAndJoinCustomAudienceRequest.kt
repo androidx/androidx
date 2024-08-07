@@ -37,6 +37,7 @@ import java.time.Instant
  */
 @ExperimentalFeatures.Ext10OptIn
 class FetchAndJoinCustomAudienceRequest
+@JvmOverloads
 public constructor(
     val fetchUri: Uri,
     val name: String? = null,

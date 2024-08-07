@@ -33,6 +33,7 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  */
 @ExperimentalFeatures.Ext10OptIn
 class PersistAdSelectionResultRequest
+@JvmOverloads
 public constructor(
     val adSelectionId: Long,
     val seller: AdTechIdentifier? = null,

@@ -41,6 +41,7 @@ import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 @OptIn(ExperimentalFeatures.Ext10OptIn::class)
 @ExperimentalFeatures.Ext8OptIn
 class ReportEventRequest
+@JvmOverloads
 public constructor(
     val adSelectionId: Long,
     val eventKey: String,
