@@ -63,13 +63,13 @@ import kotlin.reflect.KClass
  * @param permissionController grants and revokes permissions.
  */
 @ExperimentalTestingApi
+@OptIn(ExperimentalFeatureAvailabilityApi::class)
 public class FakeHealthConnectClient(
     private val packageName: String = DEFAULT_PACKAGE_NAME,
     private val clock: Clock = Clock.systemDefaultZone(),
     override val permissionController: PermissionController = FakePermissionController()
 ) : HealthConnectClient {
 
-    @OptIn(ExperimentalFeatureAvailabilityApi::class)
     override val features: HealthConnectFeatures = HealthConnectFeaturesUnavailableImpl
 
     private val idsToRecords: MutableMap<String, Record> = mutableMapOf()

@@ -72,6 +72,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 
 /** Implements the [HealthConnectClient] with APIs in UpsideDownCake. */
 @RequiresApi(api = 34)
+@OptIn(ExperimentalFeatureAvailabilityApi::class)
 class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionController {
 
     private val executor = Dispatchers.Default.asExecutor()
@@ -96,7 +97,6 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     override val permissionController: PermissionController
         get() = this
 
-    @OptIn(ExperimentalFeatureAvailabilityApi::class)
     override val features: HealthConnectFeatures = HealthConnectFeaturesPlatformImpl()
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {

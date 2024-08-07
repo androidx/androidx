@@ -68,15 +68,14 @@ import kotlinx.coroutines.guava.await
  * Kotlin extension implementation that exposes kotlin coroutines rather than guava
  * ListenableFutures.
  */
-class HealthConnectClientImpl
 @OptIn(ExperimentalFeatureAvailabilityApi::class)
+class HealthConnectClientImpl
 @VisibleForTesting
 internal constructor(
     private val delegate: HealthDataAsyncClient,
     override val features: HealthConnectFeatures
 ) : HealthConnectClient, PermissionController {
 
-    @OptIn(ExperimentalFeatureAvailabilityApi::class)
     internal constructor(
         context: Context,
         providerPackageName: String
