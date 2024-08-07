@@ -7,8 +7,8 @@ function echoAndDo() {
 
 # Versions that the user should update when running this script
 echo Getting Studio version and link
-AGP_VERSION=${1:-8.7.0-alpha02}
-STUDIO_VERSION_STRING=${2:-"Android Studio Ladybug | 2024.1.3 Canary 2"}
+AGP_VERSION=${1:-8.7.0-alpha03}
+STUDIO_VERSION_STRING=${2:-"Android Studio Ladybug | 2024.1.3 Canary 3"}
 
 # Get studio version number from version name
 STUDIO_IFRAME_LINK=`curl "https://developer.android.com/studio/archive.html" | grep "<iframe " | sed "s/.* src=\"\([^\"]*\)\".*/\1/g"`
@@ -27,6 +27,7 @@ STUDIO_VERSION=`echo $STUDIO_LINK | sed "s/.*ide-zips\/\(.*\)\/android-studio-.*
 ARTIFACTS_TO_DOWNLOAD="com.android.tools.build:gradle:$AGP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="androidx.databinding:viewbinding:$AGP_VERSION,"
 ARTIFACTS_TO_DOWNLOAD+="com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin:$AGP_VERSION,"
+ARTIFACTS_TO_DOWNLOAD+="com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION,"
 AAPT2_VERSIONS=`curl "https://dl.google.com/dl/android/maven2/com/android/tools/build/group-index.xml" | grep aapt2-proto | sed 's/.*versions="\(.*\)"\/>/\1/g'`
 AAPT2_VERSION=`echo $AAPT2_VERSIONS | sed "s/.*\($AGP_VERSION-[0-9]*\).*/\1/g"`
 ARTIFACTS_TO_DOWNLOAD+="com.android.tools.build:aapt2:$AAPT2_VERSION:linux,"
@@ -45,6 +46,9 @@ echo Updating dependency versions
 sed -i "s/androidGradlePlugin = .*/androidGradlePlugin = \"$AGP_VERSION\"/g" gradle/libs.versions.toml
 sed -i "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.versions.toml
 sed -i "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
+
+# update settings.gradle
+sed -i "s/com.android.settings:com.android.settings.gradle.plugin:.*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION\")/g" settings.gradle
 
 # Pull all UTP artifacts for ADT version
 ADT_VERSION=${3:-$LINT_VERSION}

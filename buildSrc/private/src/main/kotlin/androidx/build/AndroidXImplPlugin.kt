@@ -1058,7 +1058,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         compileSdk = project.defaultAndroidConfig.compileSdk
 
         buildToolsVersion = project.defaultAndroidConfig.buildToolsVersion
-        ndkVersion = project.defaultAndroidConfig.ndkVersion
 
         defaultConfig.minSdk = defaultMinSdk
         defaultConfig.testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

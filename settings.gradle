@@ -29,6 +29,7 @@ buildscript {
         classpath("com.gradle:develocity-gradle-plugin:3.17.2")
         classpath("com.gradle:common-custom-user-data-gradle-plugin:2.0.1")
         classpath("androidx.build.gradle.gcpbuildcache:gcpbuildcache:1.0.0-beta10")
+        classpath("com.android.settings:com.android.settings.gradle.plugin:8.7.0-alpha02")
     }
 }
 
@@ -80,6 +81,11 @@ getGradle().beforeProject { project ->
 apply(plugin: "com.gradle.develocity")
 apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
+apply(plugin: "com.android.settings")
+
+android {
+    ndkVersion = "27.0.12077973"
+}
 
 def BUILD_NUMBER = System.getenv("BUILD_NUMBER")
 develocity {
