@@ -68,8 +68,6 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
-private val DEFAULT_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
-
 /** Contains tests for [CameraX] which varies use case combinations to run. */
 @LargeTest
 @RunWith(Parameterized::class)
@@ -158,7 +156,7 @@ class UseCaseCombinationTest(
             fakeLifecycleOwner = FakeLifecycleOwner()
             fakeLifecycleOwner.startAndResume()
 
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_SELECTOR)
+            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
             cameraInfo = camera.cameraInfo
         }
 
@@ -238,72 +236,23 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun sequentialBindTwoUseCases() {
-        // Arrange.
-        assertThat(camera.isUseCasesCombinationSupported(preview, imageCapture)).isTrue()
-
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-            )
-        }
-        previewMonitor.waitForStream()
-
-        // Act.
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture
-            )
-        }
-
-        // Assert.
-        imageCapture.waitForCapturing()
-        previewMonitor.waitForStream()
-    }
-
-    @Test
-    fun sequentialBindThreeUseCases() {
+    fun sequentialBindPreviewImageCaptureAndImageAnalysis() {
         // Arrange.
         assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, imageAnalysis))
 
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                imageCapture,
-            )
-        }
-        imageCapture.waitForCapturing()
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture
-            )
-        }
-        imageCapture.waitForCapturing()
+        // Bind Preview and verify
+        bindUseCases(preview)
         previewMonitor.waitForStream()
 
-        // Act.
-        instrumentation.runOnMainSync {
-            cameraProvider.bindToLifecycle(
-                fakeLifecycleOwner,
-                DEFAULT_SELECTOR,
-                preview,
-                imageCapture,
-                imageAnalysis
-            )
-        }
-
-        // Assert.
-        imageCapture.waitForCapturing()
+        // Bind additional ImageCapture and verify
+        bindUseCases(preview, imageCapture)
         previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+
+        // Bind additional ImageAnalysis and verify
+        bindUseCases(preview, imageCapture, imageAnalysis)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
@@ -317,7 +266,7 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        instrumentation.runOnMainSync { cameraProvider.unbind(imageAnalysis) }
+        unbindUseCases(imageAnalysis)
 
         // Assert
         imageCapture.waitForCapturing()
@@ -334,7 +283,7 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        instrumentation.runOnMainSync { cameraProvider.unbind(preview) }
+        unbindUseCases(preview)
         delay(1000) // Unbind and stop the output stream should be done within 1 sec.
         previewMonitor.waitForStreamIdle(count = 1, timeMillis = TimeUnit.SECONDS.toMillis(2))
 
@@ -353,11 +302,153 @@ class UseCaseCombinationTest(
         imageCapture.waitForCapturing()
 
         // Act.
-        instrumentation.runOnMainSync { cameraProvider.unbind(imageCapture) }
+        unbindUseCases(imageCapture)
 
         // Assert
         imageAnalysisMonitor.waitForImageAnalysis()
         previewMonitor.waitForStream()
+    }
+
+    @Test
+    fun previewCombinesVideoCapture() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        checkAndBindUseCases(preview, videoCapture)
+
+        // Assert.
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+    }
+
+    @Test
+    fun previewCombinesVideoCaptureAndImageCapture() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        checkAndBindUseCases(preview, videoCapture, imageCapture)
+
+        // Assert.
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+        imageCapture.waitForCapturing()
+    }
+
+    @Test
+    fun previewCombinesVideoCaptureAndImageAnalysis() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        checkAndBindUseCases(preview, videoCapture, imageAnalysis)
+
+        // Assert.
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+        imageAnalysisMonitor.waitForImageAnalysis()
+    }
+
+    @Test
+    fun previewCombinesVideoCaptureImageCaptureAndImageAnalysis() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        checkAndBindUseCases(preview, videoCapture, imageCapture, imageAnalysis)
+
+        // Assert.
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+        imageCapture.waitForCapturing()
+        imageAnalysisMonitor.waitForImageAnalysis()
+    }
+
+    @Test
+    fun sequentialBindPreviewVideoCaptureImageCaptureAndImageAnalysis() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        assumeTrue(
+            camera.isUseCasesCombinationSupported(
+                preview,
+                imageCapture,
+                imageAnalysis,
+                videoCapture
+            )
+        )
+
+        // Bind Preview and verify
+        bindUseCases(preview)
+        previewMonitor.waitForStream()
+
+        // Bind additional VideoCapture and Verify
+        bindUseCases(preview, videoCapture)
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+
+        // Bind additional VideoCapture and Verify
+        bindUseCases(preview, videoCapture, imageCapture)
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+        imageCapture.waitForCapturing()
+
+        // Bind additional ImageAnalysis and Verify
+        bindUseCases(preview, videoCapture, imageCapture, imageAnalysis)
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+        imageCapture.waitForCapturing()
+        imageAnalysisMonitor.waitForImageAnalysis()
+    }
+
+    // Preview + ImageCapture -> Preview + VideoCapture -> Preview + ImageCapture
+    @Test
+    fun switchImageCaptureVideoCaptureWithTwoUseCasesBound() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, videoCapture))
+
+        bindUseCases(preview, imageCapture)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+
+        // Unbind ImageCapture and switches to VideoCapture
+        unbindUseCases(imageCapture)
+        bindUseCases(preview, videoCapture)
+        previewMonitor.waitForStream()
+        recordingSession.createRecording().recordAndVerify()
+
+        // Unbind VideoCapture and switches back to ImageCapture
+        unbindUseCases(videoCapture)
+        bindUseCases(preview, imageCapture)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+    }
+
+    // Preview + ImageCapture -> Preview + ImageCapture + VideoCapture -> Preview + ImageCapture
+    @Test
+    fun addVideoCaptureToPreviewAndImageCapture_thenRemove() {
+        // Arrange.
+        checkAndPrepareVideoCaptureSources()
+        assumeTrue(camera.isUseCasesCombinationSupported(preview, imageCapture, videoCapture))
+
+        bindUseCases(preview, imageCapture)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+
+        // Bind additional VideoCapture and verify
+        bindUseCases(preview, imageCapture, videoCapture)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+        recordingSession.createRecording().recordAndVerify()
+
+        // Unbind VideoCapture and verify
+        unbindUseCases(videoCapture)
+        previewMonitor.waitForStream()
+        imageCapture.waitForCapturing()
+    }
+
+    // Possible for QR code scanning use case.
+    @Test
+    fun sequentialBindPreviewAndImageAnalysis() {
+        bindUseCases(preview)
+        previewMonitor.waitForStream()
+
+        bindUseCases(preview, imageAnalysis)
+        previewMonitor.waitForStream()
+        imageAnalysisMonitor.waitForImageAnalysis()
     }
 
     private fun initPreview(monitor: PreviewMonitor?, setSurfaceProvider: Boolean = true): Preview {
@@ -472,10 +563,17 @@ class UseCaseCombinationTest(
 
     private fun checkAndBindUseCases(vararg useCases: UseCase) {
         assumeTrue(camera.isUseCasesCombinationSupported(*useCases))
+        bindUseCases(*useCases)
+    }
 
+    private fun bindUseCases(vararg useCases: UseCase) {
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, *useCases)
         }
+    }
+
+    private fun unbindUseCases(vararg useCases: UseCase) {
+        instrumentation.runOnMainSync { cameraProvider.unbind(*useCases) }
     }
 
     private fun checkAndPrepareVideoCaptureSources() {
