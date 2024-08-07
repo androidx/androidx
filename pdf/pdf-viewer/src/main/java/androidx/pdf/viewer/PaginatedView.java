@@ -397,7 +397,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page)).getPageView();
+                    mPaginationModel.getPageSize(page));
             pageView.clearTiles();
             pageView.requestFastDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
@@ -409,7 +409,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page)).getPageView();
+                    mPaginationModel.getPageSize(page));
             pageView.requestDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
         }
@@ -430,7 +430,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page)).getPageView();
+                    mPaginationModel.getPageSize(page));
             pageView.requestTiles();
         }
     }

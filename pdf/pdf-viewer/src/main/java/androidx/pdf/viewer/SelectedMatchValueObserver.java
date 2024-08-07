@@ -86,7 +86,7 @@ public class SelectedMatchValueObserver implements ObservableValue.ValueObserver
         PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                 selection.getPage(),
                 PaginationUtils.getPageElevationInPixels(mContext),
-                mPaginationModel.getPageSize(selection.getPage())).getPageView();
+                mPaginationModel.getPageSize(selection.getPage()));
         pageView.setOverlay(selection.getOverlay());
     }
 }
