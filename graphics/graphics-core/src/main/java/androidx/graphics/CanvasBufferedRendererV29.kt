@@ -37,6 +37,7 @@ import androidx.graphics.lowlatency.PreservedBufferContentsVerifier
 import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -44,25 +45,43 @@ import kotlin.concurrent.withLock
 internal class CanvasBufferedRendererV29(
     private val mWidth: Int,
     private val mHeight: Int,
-    format: Int,
-    usage: Long,
+    private val mFormat: Int,
+    private val mUsage: Long,
     private val mMaxBuffers: Int,
-    preservationStrategy: Int,
+    private val mPreservationConfig: Int,
 ) : CanvasBufferedRenderer.Impl {
 
-    private val mPreservedRenderStrategy = createPreservationStrategy(preservationStrategy)
+    private var mPreservedRenderStrategy: PreservedRenderStrategy? = null
 
-    private val mImageReader =
+    private var mImageReader: ImageReader? = null
+
+    private var mHardwareRenderer: HardwareRenderer? = null
+
+    private fun createImageReader(preserveStrategy: PreservedRenderStrategy?): ImageReader =
         ImageReader.newInstance(
             mWidth,
             mHeight,
-            format,
+            mFormat,
             // If the device does not support preserving contents when we are rendering to a single
             // buffer, use the fallback of leveraging 2 but redrawing the contents from the previous
             // frame into the next frame
-            if (mMaxBuffers == 1) mPreservedRenderStrategy.maxImages else mMaxBuffers,
-            usage
+            if (mMaxBuffers == 1 && preserveStrategy != null) {
+                preserveStrategy.maxImages
+            } else {
+                mMaxBuffers
+            },
+            mUsage
         )
+
+    private fun createHardwareRenderer(imageReader: ImageReader): HardwareRenderer =
+        HardwareRenderer().apply {
+            // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
+            // otherwise it will clear contents across subsequent renders
+            isOpaque = true
+            setContentRoot(mRootRenderNode)
+            setSurface(imageReader.surface)
+            start()
+        }
 
     private val mRootRenderNode =
         RenderNode("rootNode").apply {
@@ -71,6 +90,13 @@ internal class CanvasBufferedRendererV29(
         }
 
     private var mContentRoot: RenderNode? = null
+    private var mLightX: Float = 0f
+    private var mLightY: Float = 0f
+    private var mLightZ: Float = 0f
+    private var mLightRadius: Float = 0f
+
+    private var mAmbientShadowAlpha: Float = 0f
+    private var mSpotShadowAlpha: Float = 0f
 
     private var mBufferTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
     private val mTransform = Matrix()
@@ -95,16 +121,6 @@ internal class CanvasBufferedRendererV29(
      */
     private val mAllocatedBuffers = HashMap<HardwareBuffer, Image>()
 
-    private var mHardwareRenderer: HardwareRenderer? =
-        HardwareRenderer().apply {
-            // HardwareRenderer will preserve contents of the buffers if the isOpaque flag is true
-            // otherwise it will clear contents across subsequent renders
-            isOpaque = true
-            setContentRoot(mRootRenderNode)
-            setSurface(mImageReader.surface)
-            start()
-        }
-
     private fun closeBuffers() =
         mBufferLock.withLock {
             for (entry in mAllocatedBuffers) {
@@ -113,20 +129,24 @@ internal class CanvasBufferedRendererV29(
             }
             mAllocatedBuffers.clear()
             mBufferSignal.signal()
+            mImageReader?.close()
+            mImageReader = null
+            mHardwareRenderer?.let { renderer ->
+                renderer.stop()
+                renderer.destroy()
+            }
+            mHardwareRenderer = null
         }
+
+    private val mIsReleased = AtomicBoolean(false)
 
     override fun close() {
         closeBuffers()
-        mImageReader.close()
-        mHardwareRenderer?.let { renderer ->
-            renderer.stop()
-            renderer.destroy()
-        }
-        mHardwareRenderer = null
         mRootRenderNode.discardDisplayList()
+        mIsReleased.set(true)
     }
 
-    override fun isClosed(): Boolean = mHardwareRenderer == null
+    override fun isClosed(): Boolean = mIsReleased.get()
 
     override fun draw(
         request: CanvasBufferedRenderer.RenderRequest,
@@ -144,32 +164,65 @@ internal class CanvasBufferedRendererV29(
             recordContent(content, updateTransform(transform), request.preserveContents)
         }
 
-        val renderer = mHardwareRenderer
-        if (renderer != null && !isClosed()) {
-            with(renderer) {
-                var result = 0
-                val renderRequest =
-                    createRenderRequest().setFrameCommitCallback(executor) {
-                        acquireBuffer { buffer, fence ->
-                            executor.execute {
-                                mPreservedRenderStrategy.onRenderComplete(buffer, fence)
-                                callback.accept(
-                                    CanvasBufferedRenderer.RenderResult(
-                                        buffer,
-                                        fence,
-                                        if (isSuccess(result)) SUCCESS else ERROR_UNKNOWN
-                                    )
-                                )
-                                if (mMaxBuffers == 1) {
-                                    releaseBuffer(buffer, fence)
-                                }
-                            }
+        val lightX = mLightX
+        val lightY = mLightY
+        val lightZ = mLightZ
+        val lightRadius = mLightRadius
+        val ambientShadowAlpha = mAmbientShadowAlpha
+        val spotShadowAlpha = mSpotShadowAlpha
+        val preserveContents = request.preserveContents
+        executor.execute {
+            if (!isClosed()) {
+                mBufferLock.withLock {
+                    var preservedRenderStrategy = mPreservedRenderStrategy
+                    if (preserveContents && mMaxBuffers == 1 && preservedRenderStrategy == null) {
+                        closeBuffers()
+                        preservedRenderStrategy = createPreservationStrategy(mPreservationConfig)
+                        mPreservedRenderStrategy = preservedRenderStrategy
+                    }
+                    val renderer =
+                        obtainHardwareRenderer(obtainImageReader(preservedRenderStrategy))
+                    renderer.apply {
+                        setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
+                        setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
+                    }
+                    dispatchRender(executor, renderer, preservedRenderStrategy, callback)
+                }
+            }
+        }
+    }
+
+    private fun obtainImageReader(preserveStrategy: PreservedRenderStrategy?): ImageReader =
+        mImageReader ?: createImageReader(preserveStrategy).also { mImageReader = it }
+
+    private fun obtainHardwareRenderer(imageReader: ImageReader): HardwareRenderer =
+        mHardwareRenderer ?: createHardwareRenderer(imageReader).also { mHardwareRenderer = it }
+
+    private fun dispatchRender(
+        executor: Executor,
+        renderer: HardwareRenderer,
+        preservedRenderStrategy: PreservedRenderStrategy?,
+        callback: Consumer<CanvasBufferedRenderer.RenderResult>
+    ) {
+        with(renderer) {
+            var result = 0
+            val renderRequest =
+                createRenderRequest().setFrameCommitCallback(executor) {
+                    acquireBuffer { buffer, fence ->
+                        preservedRenderStrategy?.onRenderComplete(buffer, fence)
+                        callback.accept(
+                            CanvasBufferedRenderer.RenderResult(
+                                buffer,
+                                fence,
+                                if (isSuccess(result)) SUCCESS else ERROR_UNKNOWN
+                            )
+                        )
+                        if (mMaxBuffers == 1) {
+                            releaseBuffer(buffer, fence)
                         }
                     }
-                result = renderRequest.syncAndDraw()
-            }
-        } else {
-            Log.v(TAG, "mHardwareRenderer is null")
+                }
+            result = renderRequest.syncAndDraw()
         }
     }
 
@@ -197,7 +250,7 @@ internal class CanvasBufferedRendererV29(
     ) {
         val canvas = mRootRenderNode.beginRecording()
         if (preserveContents) {
-            mPreservedRenderStrategy.restoreContents(canvas)
+            mBufferLock.withLock { mPreservedRenderStrategy?.restoreContents(canvas) }
         } else {
             canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
         }
@@ -215,7 +268,8 @@ internal class CanvasBufferedRendererV29(
     }
 
     override fun setLightSourceAlpha(ambientShadowAlpha: Float, spotShadowAlpha: Float) {
-        mHardwareRenderer?.setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
+        mAmbientShadowAlpha = ambientShadowAlpha
+        mSpotShadowAlpha = spotShadowAlpha
     }
 
     /**
@@ -227,10 +281,12 @@ internal class CanvasBufferedRendererV29(
     private inline fun acquireBuffer(block: (HardwareBuffer, SyncFenceCompat?) -> Unit) {
         mBufferLock.withLock {
             // Block until the number of outstanding Images is less than the maximum specified
-            while (mAllocatedBuffers.size >= mImageReader.maxImages) {
+            val reader = mImageReader ?: return
+            while (mAllocatedBuffers.size >= reader.maxImages) {
                 mBufferSignal.await()
             }
-            val image = mImageReader.acquireNextImage()
+
+            val image = reader.acquireNextImage()
             if (image != null) {
                 // Be sure to call Image#getHardwareBuffer once as each call creates a new java
                 // object
@@ -244,7 +300,7 @@ internal class CanvasBufferedRendererV29(
                     val fence = image.getFenceCompat()
                     block(buffer, fence)
                     // If we are leveraging single buffered rendering, release the buffer right away
-                    if (mImageReader.maxImages == 1) {
+                    if (reader.maxImages == 1) {
                         releaseBuffer(buffer, fence)
                     }
                 } else {
@@ -279,7 +335,10 @@ internal class CanvasBufferedRendererV29(
         lightZ: Float,
         lightRadius: Float
     ) {
-        mHardwareRenderer?.setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
+        mLightX = lightX
+        mLightY = lightY
+        mLightZ = lightZ
+        mLightRadius = lightRadius
     }
 
     private fun Image.getFenceCompat(): SyncFenceCompat? =
@@ -353,6 +412,9 @@ internal class CanvasBufferedRendererV29(
     companion object {
         const val TAG = "BufferRendererV29"
 
+        private val verifiedPreservation = AtomicBoolean(false)
+        private val supportsPreservation = AtomicBoolean(false)
+
         internal fun createPreservationStrategy(
             preservationStrategy: Int
         ): PreservedRenderStrategy =
@@ -369,10 +431,13 @@ internal class CanvasBufferedRendererV29(
                     RedrawBufferStrategy(true)
                 }
                 else -> {
-                    val verifier = PreservedBufferContentsVerifier()
-                    val preserveContents = verifier.supportsPreservedRenderedContent()
-                    verifier.release()
-                    if (preserveContents) {
+                    if (!verifiedPreservation.getAndSet(true)) {
+                        val verifier = PreservedBufferContentsVerifier()
+                        supportsPreservation.set(verifier.supportsPreservedRenderedContent())
+                        verifier.release()
+                    }
+
+                    if (supportsPreservation.get()) {
                         Log.v(TAG, "Device supports persisted canvas optimizations")
                         SingleBufferedStrategy()
                     } else {
