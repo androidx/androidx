@@ -16,16 +16,21 @@
 
 package androidx.ink.brush
 
-import androidx.compose.ui.graphics.Color
+import androidx.ink.brush.color.Color
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-/**
- * Defines how stroke inputs are interpreted to create the visual representation of a stroke.
- *
- * A [Brush] completely describes how inputs are used to create stroke meshes, and how those meshes
- * should be drawn by stroke renderers.
- *
- * @param color The color of the stroke.
- * @param size The overall thickness of strokes created with a given brush, in the same units as the
- *   stroke coordinate system.
- */
-public class Brush(public val color: Color, public val size: Float)
+class BrushTest {
+    @Test
+    fun testSetAndGetColor() {
+        val originalColor = Color.Cyan.value.toLong()
+        val brush = Brush(color = originalColor, size = 2.5f)
+        assertEquals(brush.color, originalColor)
+    }
+
+    @Test
+    fun testSetAndGetSize() {
+        val brush = Brush(color = Color.DarkGray.value.toLong(), size = 2.5f)
+        assertEquals(brush.size, 2.5f)
+    }
+}
