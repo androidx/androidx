@@ -29,6 +29,7 @@ import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.impl.HealthConnectClientImpl
 import androidx.health.connect.client.impl.HealthConnectClientUpsideDownImpl
 import androidx.health.connect.client.records.Record
@@ -52,6 +53,9 @@ interface HealthConnectClient {
 
     /** Access operations related to permissions. */
     val permissionController: PermissionController
+
+    /** Access operations related to feature availability. */
+    @ExperimentalFeatureAvailabilityApi val features: HealthConnectFeatures
 
     /**
      * Inserts one or more [Record] and returns newly assigned
@@ -414,9 +418,7 @@ interface HealthConnectClient {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return HealthConnectClientUpsideDownImpl(context)
             }
-            return HealthConnectClientImpl(
-                HealthDataService.getClient(context, providerPackageName)
-            )
+            return HealthConnectClientImpl(context, providerPackageName)
         }
 
         /**

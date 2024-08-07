@@ -21,6 +21,7 @@ package androidx.health.connect.client.testing {
     method public void expireToken(String token);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
+    method public androidx.health.connect.client.HealthConnectFeatures getFeatures();
     method public androidx.health.connect.client.testing.FakeHealthConnectClientOverrides getOverrides();
     method public int getPageSizeGetChanges();
     method public androidx.health.connect.client.PermissionController getPermissionController();
@@ -29,6 +30,7 @@ package androidx.health.connect.client.testing {
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
     method public void setPageSizeGetChanges(int);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public androidx.health.connect.client.HealthConnectFeatures features;
     property public final androidx.health.connect.client.testing.FakeHealthConnectClientOverrides overrides;
     property public final int pageSizeGetChanges;
     property public androidx.health.connect.client.PermissionController permissionController;

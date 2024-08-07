@@ -32,12 +32,15 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.core.os.asOutcomeReceiver
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.feature.HealthConnectFeaturesPlatformImpl
 import androidx.health.connect.client.impl.platform.aggregate.aggregateFallback
 import androidx.health.connect.client.impl.platform.aggregate.platformMetrics
 import androidx.health.connect.client.impl.platform.aggregate.plus
@@ -82,7 +85,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     @VisibleForTesting
     internal constructor(
         context: Context,
-        revokePermissionsFunction: (Collection<String>) -> Unit
+        revokePermissionsFunction: (Collection<String>) -> Unit,
     ) {
         this.context = context
         this.healthConnectManager =
@@ -92,6 +95,9 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
 
     override val permissionController: PermissionController
         get() = this
+
+    @OptIn(ExperimentalFeatureAvailabilityApi::class)
+    override val features: HealthConnectFeatures = HealthConnectFeaturesPlatformImpl()
 
     override suspend fun insertRecords(records: List<Record>): InsertRecordsResponse {
         val response = wrapPlatformException {

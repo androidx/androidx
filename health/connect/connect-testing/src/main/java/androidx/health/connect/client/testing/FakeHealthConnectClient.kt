@@ -17,6 +17,7 @@
 package androidx.health.connect.client.testing
 
 import androidx.health.connect.client.HealthConnectClient
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
@@ -24,6 +25,8 @@ import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
 import androidx.health.connect.client.changes.Change
 import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
+import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.feature.HealthConnectFeaturesUnavailableImpl
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_TYPE_NAME_MAP
 import androidx.health.connect.client.impl.converters.records.toProto
 import androidx.health.connect.client.impl.converters.records.toRecord
@@ -65,6 +68,9 @@ public class FakeHealthConnectClient(
     private val clock: Clock = Clock.systemDefaultZone(),
     override val permissionController: PermissionController = FakePermissionController()
 ) : HealthConnectClient {
+
+    @OptIn(ExperimentalFeatureAvailabilityApi::class)
+    override val features: HealthConnectFeatures = HealthConnectFeaturesUnavailableImpl
 
     private val idsToRecords: MutableMap<String, Record> = mutableMapOf()
     private val deletedIdsToRecords: MutableMap<String, Record> = mutableMapOf()
