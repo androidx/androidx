@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.impl.advanced;
 
+import android.graphics.ImageFormat;
+import android.hardware.HardwareBuffer;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -41,4 +43,14 @@ public interface ImageReaderOutputConfigImpl extends Camera2OutputConfigImpl {
      * Gets the capacity for TYPE_IMAGEREADER.
      */
     int getMaxImages();
+
+    /**
+     * Gets the surface usage bits.
+     * @since 1.5
+     */
+    default long getUsage() {
+        // Return the same default usage as in
+        // ImageReader.newInstance(width, height, format, maxImages)
+        return getImageFormat() == ImageFormat.PRIVATE ? 0 : HardwareBuffer.USAGE_CPU_READ_OFTEN;
+    }
 }

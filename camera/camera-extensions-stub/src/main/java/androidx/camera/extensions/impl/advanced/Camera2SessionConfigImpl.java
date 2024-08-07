@@ -17,6 +17,8 @@
 package androidx.camera.extensions.impl.advanced;
 
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.ColorSpaceProfiles;
+import android.hardware.camera2.params.SessionConfiguration;
 
 import androidx.annotation.NonNull;
 
@@ -59,5 +61,17 @@ public interface Camera2SessionConfigImpl {
      *
      * @since 1.4
      */
-    int getSessionType();
+    default int getSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
+
+    /**
+     * Gets the color space.
+     *
+     * @since 1.5
+     * @return {@link android.graphics.ColorSpace.Named} set for session configuration
+     */
+    default int getColorSpace() {
+        return ColorSpaceProfiles.UNSPECIFIED;
+    }
 }

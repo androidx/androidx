@@ -16,6 +16,8 @@
 
 package androidx.camera.extensions.impl.advanced;
 
+import android.hardware.camera2.params.ColorSpaceProfiles;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -51,4 +53,13 @@ public interface OutputSurfaceConfigurationImpl {
      */
     @Nullable
     OutputSurfaceImpl getPostviewOutputSurface();
+
+    /*
+     * Gets the color space.
+     *
+     * @since 1.5
+     */
+    default int getColorSpace() {
+        return ColorSpaceProfiles.UNSPECIFIED;
+    }
 }

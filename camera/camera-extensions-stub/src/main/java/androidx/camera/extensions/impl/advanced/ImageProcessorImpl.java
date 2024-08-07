@@ -16,7 +16,8 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * A interface to receive and process the upcoming next available Image.
@@ -25,7 +26,6 @@ import android.annotation.SuppressLint;
  *
  * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface ImageProcessorImpl {
     /**
      * The reference count will not be decremented when this method returns. Extensions must
@@ -49,7 +49,7 @@ public interface ImageProcessorImpl {
     void onNextImageAvailable(
             int outputConfigId,
             long timestampNs,
-            ImageReferenceImpl imageReference,
-            String physicalCameraId
+            @NonNull ImageReferenceImpl imageReference,
+            @Nullable String physicalCameraId
     );
 }

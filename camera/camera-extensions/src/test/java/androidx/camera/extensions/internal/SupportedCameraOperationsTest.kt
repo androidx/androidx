@@ -335,6 +335,9 @@ class SupportedCameraOperationsTest(private val extenderType: String) {
         override fun isCaptureProcessProgressAvailable() = false
 
         override fun isPostviewAvailable() = false
+
+        override fun getAvailableCharacteristicsKeyValues():
+            List<Pair<CameraCharacteristics.Key<Any>, Any>> = emptyList()
     }
 
     private class DummySessionProcessorImpl : SessionProcessorImpl {

@@ -405,5 +405,20 @@ public interface SessionProcessorImpl {
          * @since 1.4
          */
         default void onCaptureProcessProgressed(int progress) {}
+
+        /**
+         * This method is called instead of
+         * {@link #onCaptureProcessStarted} when the camera device failed
+         * to produce the required input for the device-specific extension. The
+         * cause could be a failed camera capture request, a failed
+         * capture result or dropped camera frame.
+         * The callback allows clients to be notified
+         * about failure reason.
+         *
+         * @param captureSequenceId id of the current capture sequence
+         * @param reason            The capture failure reason @see CaptureFailure#FailureReason
+         * @since 1.5
+         */
+        default void onCaptureFailed(int captureSequenceId, int reason) {}
     }
 }
