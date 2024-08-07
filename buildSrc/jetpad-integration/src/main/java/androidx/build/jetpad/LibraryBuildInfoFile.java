@@ -51,6 +51,7 @@ public final class LibraryBuildInfoFile {
     public ArrayList<Dependency> dependencyConstraints;
     public Boolean shouldPublishDocs;
     public Boolean isKmp;
+    public String target;
     public ArrayList<Check> checks;
 
     /**
