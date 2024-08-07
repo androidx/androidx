@@ -149,6 +149,8 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "getAt" to Replacement(TASK_COLLECTION, "named", EAGER_CONFIGURATION_ISSUE),
                 "getByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "getByName" to Replacement(TASK_CONTAINER, "named", EAGER_CONFIGURATION_ISSUE),
+                "getProperties" to
+                    Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
                 "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
