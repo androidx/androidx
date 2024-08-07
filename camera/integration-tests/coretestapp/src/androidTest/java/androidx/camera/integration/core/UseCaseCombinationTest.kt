@@ -15,6 +15,7 @@
  */
 package androidx.camera.integration.core
 
+import android.Manifest
 import android.content.Context
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CaptureRequest
@@ -22,6 +23,7 @@ import android.hardware.camera2.TotalCaptureResult
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.CameraXConfig
@@ -33,13 +35,22 @@ import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider.createSurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.video.AudioChecker
+import androidx.camera.testing.impl.video.RecordingSession
+import androidx.camera.video.FileOutputOptions
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapabilities
+import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
@@ -53,6 +64,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -78,6 +90,16 @@ class UseCaseCombinationTest(
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(cameraConfig)
         )
+
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
+
+    @get:Rule
+    val permissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(Manifest.permission.RECORD_AUDIO)
+
+    @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         @JvmStatic
@@ -117,6 +139,14 @@ class UseCaseCombinationTest(
     private lateinit var imageCapture: ImageCapture
     private lateinit var imageAnalysisMonitor: AnalysisMonitor
     private lateinit var imageAnalysis: ImageAnalysis
+    private lateinit var videoCapture: VideoCapture<Recorder>
+    private lateinit var recordingSession: RecordingSession
+    private lateinit var cameraInfo: CameraInfo
+    private lateinit var videoCapabilities: VideoCapabilities
+
+    private val audioStreamAvailable by lazy {
+        AudioChecker.canAudioStreamBeStarted(videoCapabilities, Recorder.DEFAULT_QUALITY_SELECTOR)
+    }
 
     @Before
     fun initializeCameraX() {
@@ -129,6 +159,7 @@ class UseCaseCombinationTest(
             fakeLifecycleOwner.startAndResume()
 
             camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, DEFAULT_SELECTOR)
+            cameraInfo = camera.cameraInfo
         }
 
         previewMonitor = PreviewMonitor()
@@ -140,6 +171,9 @@ class UseCaseCombinationTest(
 
     @After
     fun shutdownCameraX() {
+        if (this::recordingSession.isInitialized) {
+            recordingSession.release(timeoutMs = 5000)
+        }
         if (::cameraProvider.isInitialized) {
             cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
@@ -442,5 +476,22 @@ class UseCaseCombinationTest(
         instrumentation.runOnMainSync {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector, *useCases)
         }
+    }
+
+    private fun checkAndPrepareVideoCaptureSources() {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        videoCapture = VideoCapture.withOutput(Recorder.Builder().build())
+        videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
+        recordingSession =
+            RecordingSession(
+                RecordingSession.Defaults(
+                    context = context,
+                    recorder = videoCapture.output,
+                    outputOptionsProvider = {
+                        FileOutputOptions.Builder(temporaryFolder.newFile()).build()
+                    },
+                    withAudio = audioStreamAvailable,
+                )
+            )
     }
 }

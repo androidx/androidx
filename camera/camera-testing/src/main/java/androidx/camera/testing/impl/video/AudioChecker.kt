@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package androidx.camera.video
+package androidx.camera.testing.impl.video
 
-import android.content.Context
-import androidx.camera.core.CameraSelector
+import android.annotation.SuppressLint
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.Logger
-import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.video.AudioSpec
+import androidx.camera.video.Quality
+import androidx.camera.video.QualitySelector
+import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.internal.audio.AudioStreamImpl
 import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
@@ -32,12 +34,11 @@ class AudioChecker {
         private const val TAG = "AudioChecker"
 
         fun canAudioStreamBeStarted(
-            context: Context,
-            cameraSelector: CameraSelector,
+            videoCapabilities: VideoCapabilities,
             qualitySelector: QualitySelector
         ): Boolean {
             return try {
-                checkAudioStreamCanBeStarted(context, cameraSelector, qualitySelector)
+                checkAudioStreamCanBeStarted(videoCapabilities, qualitySelector)
                 Logger.i(TAG, "Audio stream can be started.")
                 true
             } catch (t: Throwable) {
@@ -46,28 +47,23 @@ class AudioChecker {
             }
         }
 
+        @SuppressLint("MissingPermission")
         private fun checkAudioStreamCanBeStarted(
-            context: Context,
-            cameraSelector: CameraSelector,
+            videoCapabilities: VideoCapabilities,
             qualitySelector: QualitySelector
         ) = runBlocking {
             // Only standard dynamic range is checked, since video and audio should be independent.
             val sdr = DynamicRange.SDR
-
-            // Get audio source settings from EncoderProfiles
-            val cameraInfo =
-                CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
-            val videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
-            val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
             val audioSpec = AudioSpec.builder().build()
+            val priorityQuality = getPriorityQuality(videoCapabilities, qualitySelector)
             // Get a config using the default audio spec.
             val audioSettings =
-                if (supportedQualities.isNotEmpty()) {
-                    val quality =
-                        qualitySelector.getPrioritizedQualities(supportedQualities).first()
+                if (priorityQuality != null) {
                     AudioSettingsAudioProfileResolver(
                             audioSpec,
-                            videoCapabilities.getProfiles(quality, sdr)!!.defaultAudioProfile!!
+                            videoCapabilities
+                                .getProfiles(priorityQuality, sdr)!!
+                                .defaultAudioProfile!!
                         )
                         .get()
                 } else {
@@ -80,6 +76,17 @@ class AudioChecker {
                     release()
                 }
             }
+        }
+
+        @SuppressLint("VisibleForTests")
+        private fun getPriorityQuality(
+            videoCapabilities: VideoCapabilities,
+            qualitySelector: QualitySelector
+        ): Quality? {
+            // Only standard dynamic range is checked, since video and audio should be independent.
+            val sdr = DynamicRange.SDR
+            val supportedQualities = videoCapabilities.getSupportedQualities(sdr)
+            return qualitySelector.getPrioritizedQualities(supportedQualities).firstOrNull()
         }
     }
 }

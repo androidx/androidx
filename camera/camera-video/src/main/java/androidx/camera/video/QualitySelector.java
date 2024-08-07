@@ -21,11 +21,13 @@ import static androidx.camera.core.DynamicRange.SDR;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
+import android.annotation.SuppressLint;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
@@ -281,7 +283,10 @@ public final class QualitySelector {
      * @return a sorted supported quality list according to the desired quality settings.
      */
     @NonNull
-    List<Quality> getPrioritizedQualities(@NonNull List<Quality> supportedQualities) {
+    @SuppressLint("UsesNonDefaultVisibleForTesting")
+    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public List<Quality> getPrioritizedQualities(@NonNull List<Quality> supportedQualities) {
         if (supportedQualities.isEmpty()) {
             Logger.w(TAG, "No supported quality on the device.");
             return new ArrayList<>();
