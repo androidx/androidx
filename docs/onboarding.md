@@ -971,7 +971,7 @@ First, use the `createArchive` Gradle task to generate the local Maven
 repository artifact:
 
 ```shell
-# Creates <path-to-checkout>/out/androidx/build/support_repo/
+# Creates <path-to-checkout>/out/repository/
 ./gradlew createArchive
 ```
 
@@ -988,7 +988,7 @@ dependencyResolutionManagement {
         mavenCentral()
         // Add this
         maven {
-            setUrl("<path-to-sdk>/out/androidx/build/support_repo/")
+            setUrl("<path-to-sdk>/out/repository/")
         }
     }
 }
@@ -1018,8 +1018,8 @@ module. We recommend only replacing the module you are modifying instead of the
 full m2repository to avoid version issues of other modules. You can either take
 the unzipped directory from
 `<path-to-checkout>/out/dist/top-of-tree-m2repository-##.zip`, or from
-`<path-to-checkout>/out/androidx/build/support_repo/` after building `androidx`.
-Here is an example of replacing the RecyclerView module:
+`<path-to-checkout>/out/repository/` after building `androidx`. Here is an
+example of replacing the RecyclerView module:
 
 ```shell
 $TARGET=YOUR_ANDROID_PATH/prebuilts/sdk/current/androidx/m2repository/androidx/recyclerview/recyclerview/1.1.0-alpha07;
