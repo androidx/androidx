@@ -16,6 +16,7 @@
         <item name="android:dialogTheme">@style/EdgeToEdgeFloatingDialogTheme</item>
     </style>
     <style name="EdgeToEdgeFloatingDialogTheme" parent="android:Theme.DeviceDefault.Dialog">
+        <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowLayoutInDisplayCutoutMode" tools:targetApi="27">@integer/m3c_window_layout_in_display_cutout_mode</item>
         <item name="android:windowClipToOutline">false</item>
         <item name="android:windowIsFloating">false</item>
