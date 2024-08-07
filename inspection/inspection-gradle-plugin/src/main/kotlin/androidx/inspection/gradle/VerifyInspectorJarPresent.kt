@@ -61,15 +61,17 @@ internal fun inspectorJarPresent(inputFile: File): Boolean {
     return false
 }
 
+private fun Project.getOutDirectory(): File {
+    return extensions.extraProperties.get("outDir") as File
+}
+
 internal fun Project.createVerifyInspectorJarPresentTask(
     artifactId: String
 ): TaskProvider<VerifyInspectorJarPresentTask>? {
-    val groupId = project.group.toString().replace('.', '/')
-    @Suppress("DEPRECATION") val androidxRepoOutDir = project.rootProject.buildDir
-    val version = project.version
+    val groupId = group.toString().replace('.', '/')
+    val version = version
     val aarFileName = "$artifactId-$version.aar"
-    val aarFile =
-        project.file("$androidxRepoOutDir/support_repo/$groupId/$artifactId/$version/$aarFileName")
+    val aarFile = file("${getOutDirectory()}/repository/$groupId/$artifactId/$version/$aarFileName")
     val taskProvider =
         tasks.register("verifyInspectorJarIsPresent", VerifyInspectorJarPresentTask::class.java) {
             it.dependsOn("publish")
