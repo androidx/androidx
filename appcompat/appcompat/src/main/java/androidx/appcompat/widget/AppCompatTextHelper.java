@@ -90,14 +90,6 @@ class AppCompatTextHelper {
         mAutoSizeTextHelper = new AppCompatTextViewAutoSizeHelper(mView);
     }
 
-    @RequiresApi(26)
-    @UiThread
-    @NonNull
-    static Typeface createVariationInstance(@NonNull Typeface baseTypeface,
-            @NonNull String fontVariationSettings) {
-        return Api26Impl.createVariationInstance(baseTypeface, fontVariationSettings);
-    }
-
     @SuppressLint("NewApi")
     void loadFromAttributes(@Nullable AttributeSet attrs, int defStyleAttr) {
         final Context context = mView.getContext();
