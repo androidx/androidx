@@ -44,7 +44,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.AboveLabelBottomPadding
 import androidx.compose.material3.internal.AboveLabelHorizontalPadding
-import androidx.compose.material3.internal.HorizontalIconPadding
 import androidx.compose.material3.internal.MinFocusedLabelLineHeight
 import androidx.compose.material3.internal.MinSupportingTextLineHeight
 import androidx.compose.material3.internal.MinTextLineHeight
@@ -119,8 +118,9 @@ import org.junit.runner.RunWith
 class OutlinedTextFieldTest {
     private val ExpectedMinimumTextFieldHeight = OutlinedTextFieldDefaults.MinHeight
     private val ExpectedDefaultTextFieldWidth = OutlinedTextFieldDefaults.MinWidth
+    private val OutlinedTextFieldTopPadding = 8.sp
     private val ExpectedPadding = TextFieldPadding
-    private val IconPadding = HorizontalIconPadding
+    private val IconPadding = 12.dp
     private val TextFieldTag = "textField"
 
     @get:Rule val rule = createComposeRule()
