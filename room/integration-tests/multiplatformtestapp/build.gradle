@@ -27,9 +27,6 @@ plugins {
     id("androidx.room")
 }
 
-// Disabled due to https://youtrack.jetbrains.com/issue/KT-65761
-ext["kotlin.native.disableCompilerDaemon"] = 'true'
-
 androidXMultiplatform {
     android()
     ios()
