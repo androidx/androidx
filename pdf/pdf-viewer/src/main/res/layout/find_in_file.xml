@@ -63,7 +63,8 @@
         android:cropToPadding="true"
         android:padding="3dp"
         android:scaleType="centerInside"
-        android:layout_margin="5dp"/>
+        android:layout_margin="5dp"
+        android:contentDescription = "@string/previous_button_description"/>
 
     <ImageButton
         android:id="@+id/find_next_btn"
@@ -76,7 +77,7 @@
         android:padding="3dp"
         android:scaleType="centerInside"
         android:layout_margin="5dp"
-        />
+        android:contentDescription = "@string/next_button_description"/>
     <ImageButton
         android:id="@+id/close_btn"
         android:layout_width="34dp"
@@ -89,6 +90,7 @@
         android:scaleType="centerInside"
         android:layout_marginVertical="5dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="10dp"/>
+        android:layout_marginRight="10dp"
+        android:contentDescription = "@string/close_button_description"/>
 
 </merge>

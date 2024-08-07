@@ -117,6 +117,15 @@
     <!-- Hint text: Placeholder text shown in search box until the user enters query text. [CHAR LIMIT=20] -->
     <string name="hint_find">Find in file</string>
 
+    <!-- Content description for previous button in find in file menu -->
+    <string name="previous_button_description">Previous</string>
+
+    <!-- Content description for next button in find in file menu -->
+    <string name="next_button_description">Next</string>
+
+    <!-- Content description for close button in find in file menu -->
+    <string name="close_button_description">Close</string>
+
     <!-- Message for no matches found when searching for query text inside the file. [CHAR LIMIT=40] -->
     <string name="message_no_matches_found">No matches found.</string>
 
