@@ -1396,7 +1396,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 
     companion object {
-        const val CREATE_LIBRARY_BUILD_INFO_FILES_TASK = "createLibraryBuildInfoFiles"
         const val FINALIZE_TEST_CONFIGS_WITH_APKS_TASK = "finalizeTestConfigsWithApks"
         const val ZIP_TEST_CONFIGS_WITH_APKS_TASK = "zipTestConfigsWithApks"
 

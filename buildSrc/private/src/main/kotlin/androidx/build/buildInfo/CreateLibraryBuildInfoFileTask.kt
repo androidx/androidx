@@ -19,17 +19,21 @@ package androidx.build.buildInfo
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.LibraryGroup
+import androidx.build.addToBuildOnServer
+import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.TASK_NAME
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.requiresDocs
 import androidx.build.getBuildInfoDirectory
 import androidx.build.getProjectZipPath
 import androidx.build.getSupportRootFolder
 import androidx.build.gitclient.getHeadShaProvider
 import androidx.build.jetpad.LibraryBuildInfoFile
+import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.google.common.annotations.VisibleForTesting
 import com.google.gson.GsonBuilder
 import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.DependencyConstraint
 import org.gradle.api.artifacts.ModuleVersionIdentifier
@@ -262,6 +266,8 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
     androidXKmpExtension: AndroidXMultiplatformExtension,
 ) {
     androidXExtension.ifReleasing {
+        val anchorTask = tasks.register("${TASK_NAME}Anchor")
+        addToBuildOnServer(anchorTask)
         configure<PublishingExtension> {
             // Unfortunately, dependency information is only available through internal API
             // (See https://github.com/gradle/gradle/issues/21345).
@@ -270,6 +276,7 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                 // main publication.  We do not track these aliases.
                 if (!mavenPub.isAlias) {
                     createTaskForComponent(
+                        anchorTask = anchorTask,
                         pub = mavenPub,
                         libraryGroup = androidXExtension.mavenGroup,
                         artifactId = mavenPub.artifactId,
@@ -283,6 +290,7 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
 }
 
 private fun Project.createTaskForComponent(
+    anchorTask: TaskProvider<Task>,
     pub: ProjectComponentPublication,
     libraryGroup: LibraryGroup?,
     artifactId: String,
@@ -298,9 +306,7 @@ private fun Project.createTaskForComponent(
             shouldPublishDocs,
             isKmp
         )
-    rootProject.tasks.named(CreateLibraryBuildInfoFileTask.TASK_NAME).configure {
-        it.dependsOn(task)
-    }
+    anchorTask.dependsOn(task)
     addTaskToAggregateBuildInfoFileTask(task)
 }
 
