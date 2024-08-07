@@ -68,6 +68,10 @@ internal class ComposeIdlingResource(
                 return clock.autoAdvance && needsRecompose
             }
 
+            // Apply any pending snapshot changes, so the recomposer can wake up if necessary
+            // If there are no pending snapshot changes, this call does nothing
+            Snapshot.sendApplyNotifications()
+
             var i = 0
             while (i < 100 && shouldPumpTime()) {
                 clock.advanceTimeByFrame()
