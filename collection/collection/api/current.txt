@@ -1783,7 +1783,7 @@ package androidx.collection {
     method public boolean retainAll(androidx.collection.OrderedScatterSet<E> elements);
     method public boolean retainAll(androidx.collection.ScatterSet<E> elements);
     method public boolean retainAll(java.util.Collection<? extends E> elements);
-    method public boolean retainAll(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public inline boolean retainAll(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method @IntRange(from=0L) public int trim();
     method public void trimToSize(int maxSize);
   }
@@ -2093,7 +2093,7 @@ package androidx.collection {
     method @IntRange(from=0L) public final int count();
     method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final E first();
-    method public final E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
     method public final inline void forEachReverse(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);
@@ -2109,7 +2109,7 @@ package androidx.collection {
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated);
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix, optional CharSequence postfix, optional int limit, optional CharSequence truncated, optional kotlin.jvm.functions.Function1<? super E,? extends java.lang.CharSequence>? transform);
     method public final E last();
-    method public final E last(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
+    method public final inline E last(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline E? lastOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final boolean none();
     method public final inline java.util.List<E> toList();
@@ -2177,7 +2177,7 @@ package androidx.collection {
     method public final operator boolean contains(E element);
     method @IntRange(from=0L) public final int count();
     method @IntRange(from=0L) public final inline int count(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
-    method public final inline E first();
+    method public final E first();
     method public final inline E first(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline E? firstOrNull(kotlin.jvm.functions.Function1<? super E,java.lang.Boolean> predicate);
     method public final inline void forEach(kotlin.jvm.functions.Function1<? super E,kotlin.Unit> block);

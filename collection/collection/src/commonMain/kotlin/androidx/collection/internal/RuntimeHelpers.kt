@@ -34,6 +34,11 @@ internal fun throwNoSuchElementException(message: String) {
     throw NoSuchElementException(message)
 }
 
+@PublishedApi
+internal fun throwNoSuchElementExceptionForInline(message: String): Nothing {
+    throw NoSuchElementException(message)
+}
+
 // Like Kotlin's require() but without the .toString() call
 @OptIn(ExperimentalContracts::class)
 internal inline fun checkPrecondition(value: Boolean, lazyMessage: () -> String) {
