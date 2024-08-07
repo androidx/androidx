@@ -55,7 +55,6 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.semantics.elementFor
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -974,9 +973,7 @@ class OnGloballyPositionedTest {
             composeView.pivotY = 0f
         }
 
-        rule.runOnIdle {} // wait for redraw
-
-        rule.onRoot().apply {
+        rule.runOnIdle {
             val layoutCoordinates = coords!!
             assertEquals(Offset(10f, 10f), layoutCoordinates.positionInRoot())
             assertEquals(Rect(10f, 10f, 40f, 40f), layoutCoordinates.boundsInRoot())
