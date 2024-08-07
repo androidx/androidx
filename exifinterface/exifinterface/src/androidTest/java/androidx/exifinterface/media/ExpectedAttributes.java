@@ -171,8 +171,8 @@ final class ExpectedAttributes {
     public static final ExpectedAttributes INVALID_WEBP_WITH_JPEG_APP1_MARKER =
             new Builder().setOrientation(ExifInterface.ORIENTATION_ROTATE_270).build();
 
-    /** Expected attributes for {@link R.raw#heif_with_exif} when read on a device below API 31. */
-    public static final ExpectedAttributes HEIF_WITH_EXIF_BELOW_API_31 =
+    /** Expected attributes for {@link R.raw#heic_with_exif} when read on a device below API 31. */
+    public static final ExpectedAttributes HEIC_WITH_EXIF_BELOW_API_31 =
             new Builder()
                     .setMake("LGE")
                     .setMakeOffset(3519)
@@ -182,14 +182,24 @@ final class ExpectedAttributes {
                     .build();
 
     /**
-     * Expected attributes for {@link R.raw#heif_with_exif} when read on a device running API 31 or
+     * Expected attributes for {@link R.raw#heic_with_exif} when read on a device running API 31 or
      * above.
      */
-    public static final ExpectedAttributes HEIF_WITH_EXIF_API_31_AND_ABOVE =
-            HEIF_WITH_EXIF_BELOW_API_31
+    public static final ExpectedAttributes HEIC_WITH_EXIF_API_31_AND_ABOVE =
+            HEIC_WITH_EXIF_BELOW_API_31
                     .buildUpon()
-                    .setXmpResourceId(R.raw.heif_xmp)
+                    .setXmpResourceId(R.raw.heic_xmp)
                     .setXmpOffsetAndLength(3721, 3020)
+                    .build();
+
+    /**
+     * Expected attributes for {@link R.raw#avif_with_exif}.
+     */
+    public static final ExpectedAttributes AVIF_WITH_EXIF =
+            HEIC_WITH_EXIF_API_31_AND_ABOVE
+                    .buildUpon()
+                    .setMakeOffset(451)
+                    .setXmpOffsetAndLength(653, 3020)
                     .build();
 
     public static class Builder {

@@ -428,19 +428,40 @@ public class ExifInterfaceTest {
     }
 
     /**
-     * Support for retrieving EXIF from HEIF was added in SDK 28.
+     * Support for retrieving EXIF from HEIC was added in SDK 28.
      */
     @Test
     @LargeTest
-    public void testHeifFile() throws Throwable {
-        File imageFile = copyFromResourceToFile(R.raw.heif_with_exif, "heif_with_exif.heic");
+    public void testHeicFile() throws Throwable {
+        File imageFile = copyFromResourceToFile(R.raw.heic_with_exif, "heic_with_exif.heic");
         if (Build.VERSION.SDK_INT >= 28) {
-            // Reading XMP data from HEIF was added in SDK 31.
+            // Reading XMP data from HEIC was added in SDK 31.
             readFromFilesWithExif(
                     imageFile,
                     Build.VERSION.SDK_INT >= 31
-                            ? ExpectedAttributes.HEIF_WITH_EXIF_API_31_AND_ABOVE
-                            : ExpectedAttributes.HEIF_WITH_EXIF_BELOW_API_31);
+                            ? ExpectedAttributes.HEIC_WITH_EXIF_API_31_AND_ABOVE
+                            : ExpectedAttributes.HEIC_WITH_EXIF_BELOW_API_31);
+        } else {
+            // Make sure that an exception is not thrown and that image length/width tag values
+            // return default values, not the actual values.
+            ExifInterface exif = new ExifInterface(imageFile.getAbsolutePath());
+            String defaultTagValue = "0";
+            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
+                    .isEqualTo(defaultTagValue);
+            assertThat(exif.getAttribute(ExifInterface.TAG_IMAGE_WIDTH)).isEqualTo(defaultTagValue);
+        }
+    }
+
+    /**
+     * Support for retrieving EXIF from AVIF was added in SDK 31.
+     */
+    @Test
+    @LargeTest
+    public void testAvifFile() throws Throwable {
+        File imageFile = copyFromResourceToFile(R.raw.avif_with_exif, "avif_with_exif.avif");
+        if (Build.VERSION.SDK_INT >= 31) {
+            // Reading EXIF and XMP data from AVIF was added in SDK 31.
+            readFromFilesWithExif(imageFile, ExpectedAttributes.AVIF_WITH_EXIF);
         } else {
             // Make sure that an exception is not thrown and that image length/width tag values
             // return default values, not the actual values.

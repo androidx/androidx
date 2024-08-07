@@ -88,8 +88,8 @@ import java.util.zip.CRC32;
 /**
  * This is a class for reading and writing Exif tags in various image file formats.
  *
- * <p>Supported for reading: JPEG, PNG, WebP, HEIF, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW,
- * RAF.
+ * <p>Supported for reading: JPEG, PNG, WebP, HEIC, DNG, CR2, NEF, NRW, ARW, RW2, ORF, PEF, SRW,
+ * RAF, AVIF (on API 31+).
  *
  * <p>Supported for writing: JPEG, PNG, WebP.
  *
@@ -3041,6 +3041,8 @@ public class ExifInterface {
     private static final byte[] HEIF_TYPE_FTYP = new byte[] {'f', 't', 'y', 'p'};
     private static final byte[] HEIF_BRAND_MIF1 = new byte[] {'m', 'i', 'f', '1'};
     private static final byte[] HEIF_BRAND_HEIC = new byte[] {'h', 'e', 'i', 'c'};
+    private static final byte[] HEIF_BRAND_AVIF = new byte[] {'a', 'v', 'i', 'f'};
+    private static final byte[] HEIF_BRAND_AVIS = new byte[] {'a', 'v', 'i', 's'};
 
     // See http://fileformats.archiveteam.org/wiki/Olympus_ORF
     private static final short ORF_SIGNATURE_1 = 0x4f52;
@@ -3971,9 +3973,10 @@ public class ExifInterface {
     static final int IMAGE_TYPE_RAF = 9;
     static final int IMAGE_TYPE_RW2 = 10;
     static final int IMAGE_TYPE_SRW = 11;
-    static final int IMAGE_TYPE_HEIF = 12;
+    static final int IMAGE_TYPE_HEIC = 12;
     static final int IMAGE_TYPE_PNG = 13;
     static final int IMAGE_TYPE_WEBP = 14;
+    static final int IMAGE_TYPE_AVIF = 15;
 
     static {
         sFormatterPrimary = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
@@ -4714,8 +4717,8 @@ public class ExifInterface {
                         return;
                     }
                 } else {
-                    if (mMimeType == IMAGE_TYPE_HEIF) {
-                        getHeifAttributes(inputStream);
+                    if (mMimeType == IMAGE_TYPE_HEIC || mMimeType == IMAGE_TYPE_AVIF) {
+                        getHeifAttributes(inputStream, mMimeType);
                     } else if (mMimeType == IMAGE_TYPE_ORF) {
                         getOrfAttributes(inputStream);
                     } else if (mMimeType == IMAGE_TYPE_RW2) {
@@ -5466,17 +5469,24 @@ public class ExifInterface {
         in.reset();
         if (isJpegFormat(signatureCheckBytes)) {
             return IMAGE_TYPE_JPEG;
-        } else if (isRafFormat(signatureCheckBytes)) {
+        }
+        if (isRafFormat(signatureCheckBytes)) {
             return IMAGE_TYPE_RAF;
-        } else if (isHeifFormat(signatureCheckBytes)) {
-            return IMAGE_TYPE_HEIF;
-        } else if (isOrfFormat(signatureCheckBytes)) {
+        }
+        int heicOrAvifImageType = isHeicOrAvifFormat(signatureCheckBytes);
+        if (heicOrAvifImageType != IMAGE_TYPE_UNKNOWN) {
+            return heicOrAvifImageType;
+        }
+        if (isOrfFormat(signatureCheckBytes)) {
             return IMAGE_TYPE_ORF;
-        } else if (isRw2Format(signatureCheckBytes)) {
+        }
+        if (isRw2Format(signatureCheckBytes)) {
             return IMAGE_TYPE_RW2;
-        } else if (isPngFormat(signatureCheckBytes)) {
+        }
+        if (isPngFormat(signatureCheckBytes)) {
             return IMAGE_TYPE_PNG;
-        } else if (isWebpFormat(signatureCheckBytes)) {
+        }
+        if (isWebpFormat(signatureCheckBytes)) {
             return IMAGE_TYPE_WEBP;
         }
         // Certain file formats (PEF) are identified in readImageFileDirectory()
@@ -5512,7 +5522,7 @@ public class ExifInterface {
         return true;
     }
 
-    private boolean isHeifFormat(byte[] signatureCheckBytes) throws IOException {
+    private int isHeicOrAvifFormat(byte[] signatureCheckBytes) throws IOException {
         ByteOrderedDataInputStream signatureInputStream = null;
         try {
             signatureInputStream = new ByteOrderedDataInputStream(signatureCheckBytes);
@@ -5522,7 +5532,7 @@ public class ExifInterface {
             signatureInputStream.readFully(chunkType);
 
             if (!Arrays.equals(chunkType, HEIF_TYPE_FTYP)) {
-                return false;
+                return IMAGE_TYPE_UNKNOWN;
             }
 
             long chunkDataOffset = 8;
@@ -5532,7 +5542,7 @@ public class ExifInterface {
                 chunkSize = signatureInputStream.readLong();
                 if (chunkSize < 16) {
                     // The smallest valid chunk is 16 bytes long in this case.
-                    return false;
+                    return IMAGE_TYPE_UNKNOWN;
                 }
                 chunkDataOffset += 8;
             }
@@ -5547,17 +5557,18 @@ public class ExifInterface {
             // It should at least have major brand (4-byte) and minor version (4-byte).
             // The rest of the chunk (if any) is a list of (4-byte) compatible brands.
             if (chunkDataSize < 8) {
-                return false;
+                return IMAGE_TYPE_UNKNOWN;
             }
 
             byte[] brand = new byte[4];
             boolean isMif1 = false;
             boolean isHeic = false;
+            boolean isAvif = false;
             for (long i = 0; i < chunkDataSize / 4;  ++i) {
                 try {
                     signatureInputStream.readFully(brand);
                 } catch (EOFException e) {
-                    return false;
+                    return IMAGE_TYPE_UNKNOWN;
                 }
                 if (i == 1) {
                     // Skip this index, it refers to the minorVersion, not a brand.
@@ -5567,9 +5578,16 @@ public class ExifInterface {
                     isMif1 = true;
                 } else if (Arrays.equals(brand, HEIF_BRAND_HEIC)) {
                     isHeic = true;
+                } else if (Arrays.equals(brand, HEIF_BRAND_AVIF)
+                        || Arrays.equals(brand, HEIF_BRAND_AVIS)) {
+                    isAvif = true;
                 }
-                if (isMif1 && isHeic) {
-                    return true;
+                if (isMif1) {
+                    if (isHeic) {
+                        return IMAGE_TYPE_HEIC;
+                    } else if (isAvif) {
+                        return IMAGE_TYPE_AVIF;
+                    }
                 }
             }
         } catch (Exception e) {
@@ -5582,7 +5600,7 @@ public class ExifInterface {
                 signatureInputStream = null;
             }
         }
-        return false;
+        return IMAGE_TYPE_UNKNOWN;
     }
 
     /**
@@ -5935,9 +5953,15 @@ public class ExifInterface {
     }
 
     // Support for getting MediaMetadataRetriever.METADATA_KEY_EXIF_OFFSET and
-    // MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH was added SDK 28.
-    private void getHeifAttributes(final SeekableByteOrderedDataInputStream in) throws IOException {
+    // MediaMetadataRetriever.METADATA_KEY_EXIF_LENGTH was added in SDK 28 for HEIC and in SDK 31
+    // for AVIF.
+    private void getHeifAttributes(final SeekableByteOrderedDataInputStream in, int imageType)
+            throws IOException {
         if (Build.VERSION.SDK_INT >= 28) {
+            if (imageType == IMAGE_TYPE_AVIF && Build.VERSION.SDK_INT < 31) {
+                throw new UnsupportedOperationException("Reading EXIF from AVIF files "
+                        + "is supported from SDK 31 and above");
+            }
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             try {
                 Api23Impl.setDataSource(retriever, new MediaDataSource() {
@@ -6108,7 +6132,7 @@ public class ExifInterface {
                 }
             }
         } else {
-            throw new UnsupportedOperationException("Reading EXIF from HEIF files "
+            throw new UnsupportedOperationException("Reading EXIF from HEIC files "
                     + "is supported from SDK 28 and above");
         }
     }
