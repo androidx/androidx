@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.list.assertIsNotPlaced
 import androidx.compose.foundation.lazy.list.assertIsPlaced
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
@@ -1933,5 +1934,95 @@ class LazyStaggeredGridTest(private val orientation: Orientation) :
                 }
             }
         }
+    }
+
+    @Test
+    fun fullSpanItemShowsCorrectly_afterASmallScrollThroughAGap() {
+        lateinit var state: LazyStaggeredGridState
+
+        // ┌───┬───┐ <-- scroll offset
+        // │ 0 │ 1 │
+        // │   ├───┤ <-- end of screen
+        // │   │   │
+        // │   │   │
+        // ├───┴───┤
+        // │   2   │
+        // └───────┘
+        rule.setContent {
+            state = rememberLazyStaggeredGridState().apply { prefetchingEnabled = false }
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier.mainAxisSize(itemSizeDp).crossAxisSize(itemSizeDp * 2)
+            ) {
+                item { Spacer(Modifier.mainAxisSize(itemSizeDp * 3).testTag("0")) }
+
+                item { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("1")) }
+
+                item(span = StaggeredGridItemSpan.FullLine) {
+                    Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("2"))
+                }
+            }
+        }
+
+        // ┌───┬───┐
+        // │ 0 │ 1 │
+        // │   ├───┤ <-- scroll offset
+        // │   │   │
+        // │   │   │ <-- end of screen
+        // ├───┴───┤
+        // │   2   │
+        // └───────┘
+        state.scrollBy(itemSizeDp)
+
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(-itemSizeDp)
+        rule.onNodeWithTag("1").assertIsNotPlaced()
+        rule.onNodeWithTag("2").assertIsNotPlaced()
+
+        assertThat(state.layoutInfo.visibleItemsInfo.map { it.index }).containsExactly(0)
+
+        // ┌───┬───┐
+        // │ 0 │ 1 │
+        // │   ├───┤
+        // │   │   │ <-- scroll offset
+        // │   │   │
+        // ├───┴───┤ <-- end of screen (1.dp higher to avoid entering item 2)
+        // │   2   │
+        // └───────┘
+        state.scrollBy(itemSizeDp - 1.dp)
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(-itemSizeDp * 2 + 1.dp)
+        rule.onNodeWithTag("1").assertDoesNotExist()
+        rule.onNodeWithTag("2").assertIsNotPlaced()
+
+        assertThat(state.layoutInfo.visibleItemsInfo.map { it.index }).containsExactly(0)
+
+        // ┌───┬───┐
+        // │ 0 │ 1 │
+        // │   ├───┤
+        // │   │   │ <-- scroll offset
+        // │   │   │
+        // ├───┴───┤ <-- end of screen
+        // │   2   │
+        // └───────┘
+        state.scrollBy(1.dp)
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(-itemSizeDp * 2)
+        rule.onNodeWithTag("1").assertDoesNotExist()
+        rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp)
+        assertThat(state.layoutInfo.visibleItemsInfo.map { it.index }).containsExactly(0, 2)
+
+        // ┌───┬───┐
+        // │ 0 │ 1 │
+        // │   ├───┤
+        // │   │   │
+        // │   │   │
+        // ├───┴───┤ <-- scroll offset
+        // │   2   │
+        // └───────┘ <-- end of the screen
+        //
+        state.scrollBy(itemSizeDp * 3)
+        rule.onNodeWithTag("0").assertIsNotPlaced()
+        rule.onNodeWithTag("1").assertDoesNotExist()
+        rule.onNodeWithTag("2").assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+        assertThat(state.layoutInfo.visibleItemsInfo.map { it.index }).containsExactly(2)
     }
 }
