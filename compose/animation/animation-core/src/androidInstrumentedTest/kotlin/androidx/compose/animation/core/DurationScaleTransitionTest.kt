@@ -126,14 +126,16 @@ class DurationScaleTransitionTest {
                 }
             }
             mainClock.advanceTimeByFrame() // let everything settle
-            val seekTo = coroutineScope.async { state.seekTo(fraction = 0f, targetState = 1) }
+            val seekTo = runOnUiThread {
+                coroutineScope.async { state.seekTo(fraction = 0f, targetState = 1) }
+            }
             mainClock.advanceTimeByFrame() // recompose
             assertThat(seekTo.isCompleted).isTrue()
 
             assertThat(value1).isEqualTo(0f)
             assertThat(value2).isEqualTo(-1f) // not set until withChild = true
 
-            coroutineScope.launch { state.animateTo(targetState = 1) }
+            runOnUiThread { coroutineScope.launch { state.animateTo(targetState = 1) } }
             mainClock.advanceTimeByFrame() // lock in the animation clock
             mainClock.advanceTimeBy(320) // half way through transition
             assertThat(value1).isWithin(0.1f).of(500f)
@@ -189,7 +191,9 @@ class DurationScaleTransitionTest {
                 }
             }
             mainClock.advanceTimeByFrame() // let everything settle
-            val seekTo = coroutineScope.async { state.seekTo(fraction = 0.5f, targetState = 1) }
+            val seekTo = runOnUiThread {
+                coroutineScope.async { state.seekTo(fraction = 0.5f, targetState = 1) }
+            }
             mainClock.advanceTimeByFrame() // recompose
             assertThat(seekTo.isCompleted).isTrue()
 
@@ -204,15 +208,17 @@ class DurationScaleTransitionTest {
             assertThat(value1).isWithin(0.1f).of(750f)
             assertThat(value2).isWithin(0.1f).of(250f)
 
-            coroutineScope.launch {
-                state.seekTo(fraction = 0.75f) // 1125ms
+            runOnUiThread {
+                coroutineScope.launch {
+                    state.seekTo(fraction = 0.75f) // 1125ms
+                }
             }
             mainClock.advanceTimeByFrame()
 
             assertThat(value1).isEqualTo(1000f)
             assertThat(value2).isWithin(0.1f).of(625f)
 
-            coroutineScope.launch { state.seekTo(fraction = 1f) }
+            runOnUiThread { coroutineScope.launch { state.seekTo(fraction = 1f) } }
             mainClock.advanceTimeByFrame()
 
             assertThat(value1).isEqualTo(1000f)
