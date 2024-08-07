@@ -262,16 +262,24 @@ class ResizingComposeViewTest {
         }
 
         awaitDrawAndAssertSizes()
-        rule.runOnUiThread {
-            parent.requestLayoutCalled = false
-            drawLatch = CountDownLatch(1)
+        // Sometimes there's a stray layout request, so wait until the request is done.
+        var isLayoutRequested = false
+        do {
+            rule.runOnUiThread {
+                isLayoutRequested = parent.isLayoutRequested
+                if (!isLayoutRequested) {
+                    parent.requestLayoutCalled = false
+                    drawLatch = CountDownLatch(1)
 
-            childHeight = 20
-            remeasurement!!.forceRemeasure()
-        }
+                    childHeight = 20
+                    remeasurement!!.forceRemeasure()
+                }
+            }
+        } while (isLayoutRequested)
 
         awaitDrawAndAssertSizes()
-        assertThat(parent.requestLayoutCalled).isTrue()
+
+        rule.runOnUiThread { assertThat(parent.requestLayoutCalled).isTrue() }
     }
 
     @Test
