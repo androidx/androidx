@@ -73,6 +73,8 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
     /** Has the thumb been dragged during the display of the scrollbar */
     private boolean mDragged;
 
+    private boolean mZoomViewConfigured;
+
     private ZoomView mZoomView;
     private Rect mZoomViewBasePadding;
 
@@ -168,6 +170,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                                 R.dimen.viewer_doc_additional_top_offset),
                         mZoomView.getPaddingRight(),
                         mZoomView.getPaddingBottom());
+        mZoomViewConfigured = true;
     }
 
     @Override
@@ -196,8 +199,9 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (mZoomView != null) {
+        if (mZoomView != null && mZoomViewConfigured) {
             mZoomView.zoomScroll().removeObserver(mZoomScrollObserver);
+            mZoomViewConfigured = false;
         }
         if (mPaginationModel != null) {
             mPaginationModel.removeObserver(this);
