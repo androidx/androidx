@@ -13,7 +13,7 @@
          <trust file="apiLevels.json" reason="We do not sign this metadata"/>
          <trust group="androidx[.]annotation" version="1\.[0-7]\..*" regex="true" reason="Old versions, before signing"/>
          <trust group="androidx[.]annotation" version="1\.8\.2" regex="true" reason="TODO(aurimas): import signatures"/>
-         <trust group="androidx[.]collection" version="1\.[0-3]\..*" regex="true" reason="Old versions, before signing"/>
+         <trust group="androidx[.]collection" version="1\.[0-4]\..*" regex="true" reason="Old versions, before signing"/>
          <trust group="com.android.ndk.thirdparty" reason="b/215430394"/>
          <trust group="com.android.tools" name="desugar_jdk_libs" reason="b/215430394"/>
          <trust group="com.android.tools" name="desugar_jdk_libs_configuration" reason="b/215430394"/>
