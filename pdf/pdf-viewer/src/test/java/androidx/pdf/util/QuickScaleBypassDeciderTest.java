@@ -18,6 +18,7 @@ package androidx.pdf.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
 import android.view.MotionEvent;
 
 import androidx.test.filters.SmallTest;
@@ -26,10 +27,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 /** Unit tests for {@link QuickScaleBypassDecider}. */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class QuickScaleBypassDeciderTest {
 
     private static final long FIRST_DOWN_TIME_MS = 0;

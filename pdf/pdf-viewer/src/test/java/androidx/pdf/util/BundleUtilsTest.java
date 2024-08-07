@@ -18,6 +18,7 @@ package androidx.pdf.util;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.test.filters.SmallTest;
@@ -25,12 +26,15 @@ import androidx.test.filters.SmallTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 import java.util.Map;
 
 /** Tests for {@link BundleUtils}. */
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class BundleUtilsTest {
 
     private static final String KEY_1 = "Key1";

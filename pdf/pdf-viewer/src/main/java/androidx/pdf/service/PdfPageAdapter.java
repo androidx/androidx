@@ -16,6 +16,7 @@
 
 package androidx.pdf.service;
 
+import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.pdf.PdfRenderer;
@@ -75,6 +76,7 @@ class PdfPageAdapter implements AutoCloseable {
         return mWidth;
     }
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public void render(@NonNull Bitmap bitmap) {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             mPdfRendererPage.render(bitmap, null, null, getRenderParams());
@@ -84,6 +86,7 @@ class PdfPageAdapter implements AutoCloseable {
         }
     }
 
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public void renderTile(@NonNull Bitmap bitmap,
             int left, int top, int scaledPageWidth, int scaledPageHeight) {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
@@ -110,6 +113,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @NonNull
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public List<PdfPageTextContent> getPageTextContents() {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getTextContents();
@@ -118,6 +122,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @NonNull
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public List<PdfPageImageContent> getPageImageContents() {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getImageContents();
@@ -126,6 +131,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @Nullable
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public PageSelection selectPageText(@NonNull SelectionBoundary start,
             @NonNull SelectionBoundary stop) {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
@@ -135,6 +141,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @NonNull
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public List<PageMatchBounds> searchPageText(@NonNull String query) {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.searchText(query);
@@ -143,6 +150,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @NonNull
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public List<PdfPageLinkContent> getPageLinks() {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getLinkContents();
@@ -151,6 +159,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @NonNull
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public List<PdfPageGotoLinkContent> getPageGotoLinks() {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             return mPdfRendererPage.getGotoLinks();
@@ -192,6 +201,7 @@ class PdfPageAdapter implements AutoCloseable {
     }
 
     @Override
+    @SuppressLint("ObsoleteSdkInt") // TODO: Remove after sdk extension 13 release
     public void close() {
         if (mPdfRendererPage != null && Build.VERSION.SDK_INT >= 35) {
             mPdfRendererPage.close();

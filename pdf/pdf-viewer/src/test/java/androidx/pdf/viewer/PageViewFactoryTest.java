@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Build;
 import android.view.View;
 
 import androidx.pdf.find.FindInFileView;
@@ -40,10 +41,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 
 @SuppressWarnings("unchecked")
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
+//TODO: Remove minsdk check after sdk extension 13 release
+@Config(minSdk = Build.VERSION_CODES.VANILLA_ICE_CREAM)
 public class PageViewFactoryTest {
     private final PdfLoader mMockPdfLoader = mock(PdfLoader.class);
 
