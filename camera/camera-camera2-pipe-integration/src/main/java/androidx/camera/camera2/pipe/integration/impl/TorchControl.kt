@@ -35,7 +35,6 @@ import dagger.multibindings.IntoSet
 import javax.inject.Inject
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.launch
 
 /** Implementation of Torch control exposed by [CameraControlInternal]. */
 @CameraScope
@@ -64,7 +63,7 @@ constructor(
 
     override fun reset() {
         _torchState.setLiveDataValue(false)
-        threads.sequentialScope.launch { stopRunningTaskInternal() }
+        stopRunningTaskInternal()
         setTorchAsync(false)
     }
 
@@ -100,43 +99,40 @@ constructor(
         requestControl?.let { requestControl ->
             _torchState.setLiveDataValue(torch)
 
-            threads.sequentialScope.launch {
-                if (cancelPreviousTask) {
-                    stopRunningTaskInternal()
-                } else {
-                    // Propagate the result to the previous updateSignal
-                    _updateSignal?.let { previousUpdateSignal ->
-                        signal.propagateTo(previousUpdateSignal)
-                    }
+            if (cancelPreviousTask) {
+                stopRunningTaskInternal()
+            } else {
+                // Propagate the result to the previous updateSignal
+                _updateSignal?.let { previousUpdateSignal ->
+                    signal.propagateTo(previousUpdateSignal)
                 }
+            }
 
-                _updateSignal = signal
+            _updateSignal = signal
 
-                // Hold the internal AE mode to ON while the torch is turned ON. If torch is OFF, a
-                // value of null will make the state3AControl calculate the correct AE mode based on
-                // other settings.
-                state3AControl.preferredAeMode =
-                    if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
-                val aeMode: AeMode =
-                    AeMode.fromIntOrNull(state3AControl.getFinalSupportedAeMode())
-                        ?: run {
-                            warn {
-                                "TorchControl#setTorchAsync: Failed to convert ae mode of value" +
-                                    " ${state3AControl.getFinalSupportedAeMode()} with" +
-                                    " AeMode.fromIntOrNull, fallback to AeMode.ON"
-                            }
-                            AeMode.ON
+            // Hold the internal AE mode to ON while the torch is turned ON. If torch is OFF, a
+            // value of null will make the state3AControl calculate the correct AE mode based on
+            // other settings.
+            state3AControl.preferredAeMode = if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
+            val aeMode: AeMode =
+                AeMode.fromIntOrNull(state3AControl.getFinalSupportedAeMode())
+                    ?: run {
+                        warn {
+                            "TorchControl#setTorchAsync: Failed to convert ae mode of value" +
+                                " ${state3AControl.getFinalSupportedAeMode()} with" +
+                                " AeMode.fromIntOrNull, fallback to AeMode.ON"
                         }
+                        AeMode.ON
+                    }
 
-                val deferred =
-                    if (torch) requestControl.setTorchOnAsync()
-                    else requestControl.setTorchOffAsync(aeMode)
-                deferred.propagateTo(signal) {
-                    // TODO: b/209757083 - handle the failed result of the setTorchAsync().
-                    //   Since we are not handling the result here, signal is completed with Unit
-                    //   value here without exception when source deferred completes (returning Unit
-                    //   explicitly is redundant and thus this block looks empty)
-                }
+            val deferred =
+                if (torch) requestControl.setTorchOnAsync()
+                else requestControl.setTorchOffAsync(aeMode)
+            deferred.propagateTo(signal) {
+                // TODO: b/209757083 - handle the failed result of the setTorchAsync().
+                //   Since we are not handling the result here, signal is completed with Unit
+                //   value here without exception when source deferred completes (returning Unit
+                //   explicitly is redundant and thus this block looks empty)
             }
         }
             ?: run {

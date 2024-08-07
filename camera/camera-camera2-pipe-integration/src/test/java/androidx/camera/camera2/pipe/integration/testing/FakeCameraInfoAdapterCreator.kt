@@ -87,7 +87,7 @@ object FakeCameraInfoAdapterCreator {
                 intArrayOf(CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
         )
 
-    private val zoomControl = ZoomControl(useCaseThreads, FakeZoomCompat())
+    private val zoomControl = ZoomControl(FakeZoomCompat())
 
     fun createCameraInfoAdapter(
         cameraId: CameraId = CAMERA_ID_0,

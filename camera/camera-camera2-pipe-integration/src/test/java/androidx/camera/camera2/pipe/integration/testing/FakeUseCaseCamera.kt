@@ -94,12 +94,14 @@ class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
 open class FakeUseCaseCameraRequestControl(
     private val scope: CoroutineScope = CoroutineScope(SupervisorJob()),
 ) : UseCaseCameraRequestControl {
-
     val addParameterCalls = mutableListOf<Map<CaptureRequest.Key<*>, Any>>()
     var addParameterResult = CompletableDeferred(Unit)
     var setConfigCalls = mutableListOf<RequestParameters>()
     var setConfigResult = CompletableDeferred(Unit)
     var setTorchResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
+
+    // TODO - Implement thread-safety in the functions annotated with @AnyThread in
+    //  UseCaseCameraRequestControl
 
     override fun setParametersAsync(
         type: UseCaseCameraRequestControl.Type,
@@ -123,11 +125,11 @@ open class FakeUseCaseCameraRequestControl(
         return CompletableDeferred(Unit)
     }
 
-    override suspend fun setTorchOnAsync(): Deferred<Result3A> {
+    override fun setTorchOnAsync(): Deferred<Result3A> {
         return setTorchResult
     }
 
-    override suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
+    override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
         return setTorchResult
     }
 
@@ -142,7 +144,7 @@ open class FakeUseCaseCameraRequestControl(
 
     var focusAutoCompletesAfterTimeout = true
 
-    override suspend fun startFocusAndMeteringAsync(
+    override fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
@@ -187,12 +189,12 @@ open class FakeUseCaseCameraRequestControl(
         return focusMeteringResult
     }
 
-    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
+    override fun cancelFocusAndMeteringAsync(): Deferred<Result3A> {
         cancelFocusMeteringCallCount++
         return cancelFocusMeteringResult
     }
 
-    override suspend fun issueSingleCaptureAsync(
+    override fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
@@ -201,7 +203,7 @@ open class FakeUseCaseCameraRequestControl(
         return captureSequence.map { CompletableDeferred<Void?>(null).apply { complete(null) } }
     }
 
-    override suspend fun update3aRegions(
+    override fun update3aRegions(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?

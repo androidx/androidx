@@ -67,9 +67,7 @@ class ZoomControlTest {
     @Before
     fun setUp() {
         zoomControl =
-            ZoomControl(fakeUseCaseThreads, zoomCompat).apply {
-                requestControl = FakeUseCaseCameraRequestControl()
-            }
+            ZoomControl(zoomCompat).apply { requestControl = FakeUseCaseCameraRequestControl() }
     }
 
     @Test
