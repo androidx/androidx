@@ -20,7 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
 import androidx.compose.material3.tokens.NavigationRailExpandedTokens
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -30,6 +34,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.StateRestorationTester
@@ -37,6 +42,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
@@ -50,18 +56,162 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+/** Tests for [ModalWideNavigationRail] and [DismissibleModalWideNavigationRail]. */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class ModalExpandedNavigationRailTest {
+class ModalWideNavigationRailTest {
 
     @get:Rule val rule = createComposeRule()
     private val restorationTester = StateRestorationTester(rule)
 
+    /** Tests for [ModalWideNavigationRail]. */
     @Test
-    fun modalRail_defaultSemantics() {
+    fun modalWideRail_opens() {
+        lateinit var expanded: MutableState<Boolean>
+        rule.setMaterialContentForSizeAssertions {
+            expanded = remember { mutableStateOf(false) }
+
+            ModalWideNavigationRail(
+                expanded = expanded.value,
+                scrimOnClick = {},
+                header = {
+                    Button(
+                        modifier = Modifier.testTag("header"),
+                        onClick = { expanded.value = !expanded.value }
+                    ) {}
+                }
+            ) {
+                WideNavigationRailItem(
+                    modifier = Modifier.testTag("item"),
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        // Click on header to collapse.
+        rule.onNodeWithTag("header").performClick()
+
+        // Assert rail is collapsed.
+        assertThat(expanded.value).isTrue()
+        // Assert width changed to collapse width.
+        rule
+            .onNodeWithTag("item")
+            .onParent()
+            .assertWidthIsEqualTo(NavigationRailExpandedTokens.ContainerWidthMinimum)
+    }
+
+    @Test
+    fun modalWideRail_closes() {
+        lateinit var expanded: MutableState<Boolean>
+        rule.setMaterialContentForSizeAssertions {
+            expanded = remember { mutableStateOf(true) }
+
+            ModalWideNavigationRail(
+                modifier = Modifier.testTag("rail"),
+                expanded = expanded.value,
+                scrimOnClick = {},
+                header = {
+                    Button(
+                        modifier = Modifier.testTag("header"),
+                        onClick = { expanded.value = !expanded.value }
+                    ) {}
+                }
+            ) {
+                WideNavigationRailItem(
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        // Click on header to collapse.
+        rule.onNodeWithTag("header").performClick()
+
+        // Assert rail is collapsed.
+        assertThat(expanded.value).isFalse()
+        // Assert width changed to collapse width.
+        rule
+            .onNodeWithTag("rail")
+            .assertWidthIsEqualTo(NavigationRailCollapsedTokens.ContainerWidth)
+    }
+
+    @Test
+    fun modalWideRail_closes_byScrimClick() {
+        lateinit var closeRail: String
+        lateinit var expanded: MutableState<Boolean>
+
+        rule.setMaterialContentForSizeAssertions {
+            expanded = remember { mutableStateOf(true) }
+            closeRail = getString(Strings.CloseRail)
+
+            ModalWideNavigationRail(
+                modifier = Modifier.testTag("rail"),
+                scrimOnClick = { expanded.value = false },
+                expanded = expanded.value,
+            ) {
+                WideNavigationRailItem(
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule
+            .onNodeWithContentDescription(closeRail)
+            .assertHasClickAction()
+            .performSemanticsAction(SemanticsActions.OnClick)
+        rule.waitForIdle()
+
+        // Assert rail is collapsed.
+        assertThat(expanded.value).isFalse()
+        // Assert width changed to collapse width.
+        rule
+            .onNodeWithTag("rail")
+            .assertWidthIsEqualTo(NavigationRailCollapsedTokens.ContainerWidth)
+    }
+
+    @Test
+    fun modalWideRail_hasPaneTitle() {
+        lateinit var paneTitle: String
+
+        rule.setMaterialContentForSizeAssertions {
+            paneTitle = getString(Strings.WideNavigationRailPaneTitle)
+            ModalWideNavigationRail(expanded = true, scrimOnClick = {}) {
+                WideNavigationRailItem(
+                    modifier = Modifier.testTag("item"),
+                    railExpanded = true,
+                    icon = { Icon(Icons.Filled.Favorite, null) },
+                    label = { Text("ItemText") },
+                    selected = true,
+                    onClick = {}
+                )
+            }
+        }
+
+        rule
+            .onNodeWithTag("item")
+            .onParent() // rail.
+            .onParent() // dialog window.
+            .onParent() // parent container that holds dialog and scrim.
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, paneTitle))
+    }
+
+    /** Tests for [DismissibleModalWideNavigationRail]. */
+    @Test
+    fun dismissibleModalRail_defaultSemantics() {
         rule.setMaterialContent(lightColorScheme()) {
-            ModalExpandedNavigationRail(onDismissRequest = {}) {
+            DismissibleModalWideNavigationRail(onDismissRequest = {}) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     railExpanded = true,
@@ -80,16 +230,16 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_closes() {
+    fun dismissibleModalRail_closes() {
         val railWidth = NavigationRailExpandedTokens.ContainerWidthMinimum
-        lateinit var railState: ModalExpandedNavigationRailState
+        lateinit var railState: DismissibleModalWideNavigationRailState
         lateinit var scope: CoroutineScope
 
         rule.setMaterialContentForSizeAssertions {
-            railState = rememberModalExpandedNavigationRailState()
+            railState = rememberDismissibleModalWideNavigationRailState()
             scope = rememberCoroutineScope()
 
-            ModalExpandedNavigationRail(onDismissRequest = {}, railState = railState) {
+            DismissibleModalWideNavigationRail(onDismissRequest = {}, railState = railState) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     railExpanded = true,
@@ -116,16 +266,16 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_opens() {
-        lateinit var railState: ModalExpandedNavigationRailState
+    fun dismissibleModalRail_opens() {
+        lateinit var railState: DismissibleModalWideNavigationRailState
         lateinit var scope: CoroutineScope
 
         rule.setMaterialContentForSizeAssertions {
-            railState = rememberModalExpandedNavigationRailState()
-            railState.initialValue = ModalExpandedNavigationRailValue.Closed
+            railState = rememberDismissibleModalWideNavigationRailState()
+            railState.initialValue = DismissibleModalWideNavigationRailValue.Closed
             scope = rememberCoroutineScope()
 
-            ModalExpandedNavigationRail(onDismissRequest = {}, railState = railState) {
+            DismissibleModalWideNavigationRail(onDismissRequest = {}, railState = railState) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     railExpanded = true,
@@ -150,13 +300,13 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_closes_bySwiping() {
-        lateinit var railState: ModalExpandedNavigationRailState
+    fun dismissibleModalRail_closes_bySwiping() {
+        lateinit var railState: DismissibleModalWideNavigationRailState
 
         rule.setMaterialContentForSizeAssertions {
-            railState = rememberModalExpandedNavigationRailState()
+            railState = rememberDismissibleModalWideNavigationRailState()
 
-            ModalExpandedNavigationRail(onDismissRequest = {}, railState = railState) {
+            DismissibleModalWideNavigationRail(onDismissRequest = {}, railState = railState) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     railExpanded = true,
@@ -178,13 +328,13 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_doesNotClose_bySwiping_gesturesDisabled() {
-        lateinit var railState: ModalExpandedNavigationRailState
+    fun dismissibleModalRail_doesNotClose_bySwiping_gesturesDisabled() {
+        lateinit var railState: DismissibleModalWideNavigationRailState
 
         rule.setMaterialContentForSizeAssertions {
-            railState = rememberModalExpandedNavigationRailState()
+            railState = rememberDismissibleModalWideNavigationRailState()
 
-            ModalExpandedNavigationRail(
+            DismissibleModalWideNavigationRail(
                 gesturesEnabled = false,
                 onDismissRequest = {},
                 railState = railState,
@@ -210,14 +360,14 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_closes_byScrimClick() {
+    fun dismissibleModalRail_closes_byScrimClick() {
         lateinit var closeRail: String
-        lateinit var railState: ModalExpandedNavigationRailState
+        lateinit var railState: DismissibleModalWideNavigationRailState
         rule.setMaterialContentForSizeAssertions {
             closeRail = getString(Strings.CloseRail)
-            railState = rememberModalExpandedNavigationRailState()
+            railState = rememberDismissibleModalWideNavigationRailState()
 
-            ModalExpandedNavigationRail(
+            DismissibleModalWideNavigationRail(
                 gesturesEnabled = false,
                 onDismissRequest = {},
                 railState = railState,
@@ -249,12 +399,12 @@ class ModalExpandedNavigationRailTest {
     }
 
     @Test
-    fun modalRail_hasPaneTitle() {
+    fun dismissibleModalRail_hasPaneTitle() {
         lateinit var paneTitle: String
 
         rule.setMaterialContentForSizeAssertions {
             paneTitle = getString(Strings.WideNavigationRailPaneTitle)
-            ModalExpandedNavigationRail(
+            DismissibleModalWideNavigationRail(
                 onDismissRequest = {},
             ) {
                 WideNavigationRailItem(
@@ -278,26 +428,28 @@ class ModalExpandedNavigationRailTest {
 
     @Test
     fun modalRailState_savesAndRestores() {
-        lateinit var railState: ModalExpandedNavigationRailState
+        lateinit var railState: DismissibleModalWideNavigationRailState
 
-        restorationTester.setContent { railState = rememberModalExpandedNavigationRailState() }
+        restorationTester.setContent {
+            railState = rememberDismissibleModalWideNavigationRailState()
+        }
 
-        assertThat(railState.currentValue).isEqualTo(ModalExpandedNavigationRailValue.Closed)
+        assertThat(railState.currentValue).isEqualTo(DismissibleModalWideNavigationRailValue.Closed)
         restorationTester.emulateSavedInstanceStateRestore()
-        assertThat(railState.currentValue).isEqualTo(ModalExpandedNavigationRailValue.Closed)
+        assertThat(railState.currentValue).isEqualTo(DismissibleModalWideNavigationRailValue.Closed)
     }
 
     @Test
     fun modalRailState_respectsConfirmStateChange() {
-        lateinit var railState: ModalExpandedNavigationRailState
+        lateinit var railState: DismissibleModalWideNavigationRailState
 
         restorationTester.setContent {
             railState =
-                rememberModalExpandedNavigationRailState(
-                    confirmValueChange = { it != ModalExpandedNavigationRailValue.Closed }
+                rememberDismissibleModalWideNavigationRailState(
+                    confirmValueChange = { it != DismissibleModalWideNavigationRailValue.Closed }
                 )
 
-            ModalExpandedNavigationRail(onDismissRequest = {}, railState = railState) {
+            DismissibleModalWideNavigationRail(onDismissRequest = {}, railState = railState) {
                 WideNavigationRailItem(
                     modifier = Modifier.testTag("item"),
                     railExpanded = true,
@@ -310,13 +462,15 @@ class ModalExpandedNavigationRailTest {
         }
 
         rule.runOnIdle {
-            assertThat(railState.currentValue).isEqualTo(ModalExpandedNavigationRailValue.Open)
+            assertThat(railState.currentValue)
+                .isEqualTo(DismissibleModalWideNavigationRailValue.Open)
         }
         rule.onNodeWithTag("item").onParent().performTouchInput { swipeLeft() }
         rule.waitForIdle()
 
         rule.runOnIdle {
-            assertThat(railState.currentValue).isEqualTo(ModalExpandedNavigationRailValue.Open)
+            assertThat(railState.currentValue)
+                .isEqualTo(DismissibleModalWideNavigationRailValue.Open)
         }
         // Assert rail is still open.
         assertThat(railState.isOpen).isTrue()

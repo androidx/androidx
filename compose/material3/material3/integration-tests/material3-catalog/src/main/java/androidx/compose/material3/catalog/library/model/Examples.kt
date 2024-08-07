@@ -58,6 +58,7 @@ import androidx.compose.material3.samples.DateRangePickerSample
 import androidx.compose.material3.samples.DenseTextFieldContentPadding
 import androidx.compose.material3.samples.DeterminateContainedLoadingIndicatorSample
 import androidx.compose.material3.samples.DeterminateLoadingIndicatorSample
+import androidx.compose.material3.samples.DismissibleModalWideNavigationRailSample
 import androidx.compose.material3.samples.DismissibleNavigationDrawerSample
 import androidx.compose.material3.samples.DockedSearchBarSample
 import androidx.compose.material3.samples.EditableExposedDropdownMenuSample
@@ -126,8 +127,8 @@ import androidx.compose.material3.samples.MediumRoundWideIconButtonSample
 import androidx.compose.material3.samples.MenuSample
 import androidx.compose.material3.samples.MenuWithScrollStateSample
 import androidx.compose.material3.samples.ModalBottomSheetSample
-import androidx.compose.material3.samples.ModalExpandedNavigationRailSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
+import androidx.compose.material3.samples.ModalWideNavigationRailSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
 import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
@@ -1231,11 +1232,18 @@ val NavigationRailExamples =
             WideNavigationRailResponsiveSample()
         },
         Example(
-            name = "ModalExpandedNavigationRailSample",
+            name = "ModalWideNavigationRailSample",
             description = NavigationRailExampleDescription,
             sourceUrl = NavigationRailExampleSourceUrl,
         ) {
-            ModalExpandedNavigationRailSample()
+            ModalWideNavigationRailSample()
+        },
+        Example(
+            name = "DismissibleModalWideNavigationRailSample",
+            description = NavigationRailExampleDescription,
+            sourceUrl = NavigationRailExampleSourceUrl,
+        ) {
+            DismissibleModalWideNavigationRailSample()
         },
         Example(
             name = "WideNavigationRailCollapsedSample",
