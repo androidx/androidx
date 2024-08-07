@@ -58,8 +58,24 @@ private fun InfiniteAnimation(animation: Animation, modifier: Modifier) {
     )
     val invalidationController = remember { InvalidationController() }
 
-    animation.seekFrameTime(time, invalidationController)
+    // previously, `animation.seekFrameTime(time, invalidationController)` was located here, outside the canvas block
+    // but with strong skipping mode (SSM) introduction we need to move it inside canvas block
+    //
+    // SSM changes assumptions about what triggers recomposition (https://developer.android.com/develop/ui/compose/performance/stability/strongskipping#when-skip)
+    // for example, recomposition of a function with `Unstable` parameters could now be skipped
+    // if all unstable parameters are referentially equal to their previous values (from last recomposition)
+    //
+    // that happens because of `Animation` coming from non-compose module (compiled without compose compiler plugin)
+    // so `Animation` is treated as `Unstable` class and changing its internal state with `seekFrameTime` does not notify compose runtime about changes
+    // when `InfiniteAnimation` recomposes, compose runtime compares previous `animation` object with current one and sees the same object,
+    // so it concludes that it is safe to skip `Canvas` recomposition.
+    //
+    // to fix that we moved `seek` inside `Canvas` block, so it captures `time` variable (observable mutable state),
+    // which triggers canvas block recomposition when `time` changes
+
     Canvas(modifier) {
+        animation.seekFrameTime(time, invalidationController)
+
         drawIntoCanvas {
             animation.render(
                 canvas = it.nativeCanvas,
