@@ -67,7 +67,6 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  *
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
-@OptIn(InternalTestApi::class)
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     @OptIn(ExperimentalTestApi::class) invokeGlobalAssertions()
     do {
@@ -85,7 +84,6 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
  * @return True if we were able to scroll and a subsequent scroll might be needed and false if no
  *   scroll was needed.
  */
-@OptIn(InternalTestApi::class)
 private fun SemanticsNode.scrollToNode(testOwner: TestOwner): Boolean {
     val scrollableNode =
         findClosestParentNode { hasScrollAction().matches(it) }
@@ -160,7 +158,6 @@ fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInte
 private fun SemanticsNode.scrollToIndex(index: Int, nodeInteraction: SemanticsNodeInteraction) {
     nodeInteraction.requireSemantics(this, ScrollToIndex) { "Failed to scroll to index $index" }
 
-    @OptIn(InternalTestApi::class)
     nodeInteraction.testContext.testOwner.runOnUiThread {
         config[ScrollToIndex].action!!.invoke(index)
     }
@@ -192,7 +189,6 @@ fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteract
         "Failed to scroll to the item identified by \"$key\", couldn't find the key."
     }
 
-    @OptIn(InternalTestApi::class)
     testContext.testOwner.runOnUiThread { node.config[ScrollToIndex].action!!.invoke(index) }
 
     return this
@@ -259,7 +255,6 @@ fun SemanticsNodeInteraction.performScrollToNode(
         val dy = newNode.verticalScrollAxis?.let { viewPortSize.height } ?: 0f
 
         // Scroll one screen
-        @OptIn(InternalTestApi::class)
         testContext.testOwner.runOnUiThread { newNode.config[ScrollBy].action?.invoke(dx, dy) }
     }
 }
@@ -274,7 +269,6 @@ private fun SemanticsNodeInteraction.scrollToMatchingDescendantOrReturnScrollabl
 ): SemanticsNode? {
     var node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
     var matchedNode = matcher.scrollToMatchingDescendantOrReturnScrollable(node)
-    @OptIn(InternalTestApi::class)
     while (matchedNode != null) {
         val shouldContinueScroll = matchedNode.scrollToNode(testContext.testOwner)
         if (!shouldContinueScroll) return null
@@ -570,7 +564,6 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
     val node = fetchSemanticsNode("Failed to perform ${key.name} action.")
     requireSemantics(node, key) { "Failed to perform action ${key.name}" }
 
-    @OptIn(InternalTestApi::class)
     testContext.testOwner.runOnUiThread { node.config[key].action?.let(invocation) }
 
     return this

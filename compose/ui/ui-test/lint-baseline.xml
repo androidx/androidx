@@ -174,24 +174,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field states with type Map&lt;Integer, InputDispatcherState>: replace with IntObjectMap"
-        errorLine1="    /**"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/TestOwner.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Integer, InputDispatcherState> of getStates$lint_module: replace with IntObjectMap"
-        errorLine1="    internal val states = mutableMapOf&lt;Int, InputDispatcherState>()"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/test/TestOwner.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="method moveWithHistoryMultiPointer has parameter relativeHistoricalTimes with type List&lt;Long>: replace with LongList"
         errorLine1="        relativeHistoricalTimes: List&lt;Long>,"
         errorLine2="                                 ~~~~~~~~~~">

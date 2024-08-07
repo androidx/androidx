@@ -62,7 +62,7 @@ constructor(
         skipDeactivatedNodes: Boolean = true
     ): SelectionResult {
         return selector.map(
-            testContext.getAllSemanticsNodes(
+            testContext.testOwner.getAllSemanticsNodes(
                 atLeastOneRootRequired = atLeastOneRootRequired,
                 useUnmergedTree = useUnmergedTree,
                 skipDeactivatedNodes = skipDeactivatedNodes
@@ -202,7 +202,7 @@ constructor(
         return if (!useUnmergedTree) {
             selector
                 .map(
-                    testContext.getAllSemanticsNodes(
+                    testContext.testOwner.getAllSemanticsNodes(
                         atLeastOneRootRequired = true,
                         useUnmergedTree = true
                     ),
@@ -261,16 +261,19 @@ constructor(
         if (nodeIds == null) {
             return selector
                 .map(
-                    testContext.getAllSemanticsNodes(atLeastOneRootRequired, useUnmergedTree),
+                    testContext.testOwner.getAllSemanticsNodes(
+                        atLeastOneRootRequired,
+                        useUnmergedTree
+                    ),
                     errorMessageOnFail.orEmpty()
                 )
                 .apply { nodeIds = selectedNodes.map { it.id }.toList() }
                 .selectedNodes
         }
 
-        return testContext.getAllSemanticsNodes(atLeastOneRootRequired, useUnmergedTree).filter {
-            it.id in nodeIds!!
-        }
+        return testContext.testOwner
+            .getAllSemanticsNodes(atLeastOneRootRequired, useUnmergedTree)
+            .filter { it.id in nodeIds!! }
     }
 
     /**

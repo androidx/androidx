@@ -24,10 +24,9 @@ import androidx.compose.ui.platform.ViewRootForTest
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.test.AndroidInputDispatcher
-import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.MainTestClock
+import androidx.compose.ui.test.TestContext
 import androidx.compose.ui.test.TestOwner
-import androidx.compose.ui.test.createTestContext
 import androidx.compose.ui.test.util.InputEventRecorder
 import androidx.compose.ui.test.util.assertNoTouchGestureInProgress
 import com.google.common.truth.Truth.assertThat
@@ -36,7 +35,6 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
-@OptIn(InternalTestApi::class)
 open class InputDispatcherTest {
 
     internal val recorder = InputEventRecorder()
@@ -47,7 +45,7 @@ open class InputDispatcherTest {
         on { runOnUiThread(any<() -> Any>()) }.then { it.getArgument<() -> Any>(0).invoke() }
     }
 
-    private val testContext = createTestContext(testOwner)
+    private val testContext = TestContext(testOwner)
 
     private val viewRootForTest: ViewRootForTest = mock {
         val mockView: View = mock {

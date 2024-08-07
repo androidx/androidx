@@ -542,7 +542,6 @@ internal class AndroidInputDispatcher(
 
     override fun flush() {
         // Must inject on the main thread, because it might modify View properties
-        @OptIn(InternalTestApi::class)
         testContext.testOwner.runOnUiThread {
             val events =
                 synchronized(batchLock) {
@@ -563,7 +562,6 @@ internal class AndroidInputDispatcher(
         }
     }
 
-    @OptIn(InternalTestApi::class)
     private fun advanceClockTime(millis: Long) {
         // Don't bother advancing the clock if there's nothing to advance
         if (millis > 0) {
