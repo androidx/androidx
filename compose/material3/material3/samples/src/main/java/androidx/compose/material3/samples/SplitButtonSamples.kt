@@ -40,6 +40,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -67,6 +70,11 @@ fun SplitButtonSample() {
             SplitButtonDefaults.AnimatedTrailingButton(
                 onClick = { expanded = !expanded },
                 expanded = expanded,
+                modifier =
+                    Modifier.semantics {
+                        stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        contentDescription = "Toggle Button"
+                    },
             ) {
                 val rotation: Float by
                     animateFloatAsState(
