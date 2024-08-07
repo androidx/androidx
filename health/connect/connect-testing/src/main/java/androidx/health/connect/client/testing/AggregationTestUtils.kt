@@ -19,7 +19,6 @@
 package androidx.health.connect.client.testing
 
 import android.annotation.SuppressLint
-import androidx.health.connect.client.ExperimentalHealthConnectApi
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.impl.platform.aggregate.KILOGRAMS_AGGREGATION_METRIC_TYPE_MAP
@@ -34,7 +33,7 @@ import java.time.Duration
 
 /** Creates an AggregationResult from a map of metrics. */
 @JvmOverloads
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun AggregationResult(
     dataOrigins: Set<DataOrigin> = emptySet(),
     metrics: Map<AggregateMetric<Any>, Any> = emptyMap()

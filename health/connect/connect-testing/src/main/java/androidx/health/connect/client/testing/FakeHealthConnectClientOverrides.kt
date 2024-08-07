@@ -16,7 +16,6 @@
 
 package androidx.health.connect.client.testing
 
-import androidx.health.connect.client.ExperimentalHealthConnectApi
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
@@ -53,7 +52,7 @@ import androidx.health.connect.client.testing.stubs.Stub
  * @param aggregateGroupByPeriod A [Stub] used to set the next responses used in
  *   [FakeHealthConnectClient.aggregateGroupByPeriod].
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public class FakeHealthConnectClientOverrides(
     /*  Changes stubs, only used to throw exceptions */
     public var getChanges: Stub<Nothing?, Nothing>? = null,

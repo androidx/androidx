@@ -16,7 +16,6 @@
 
 package androidx.health.connect.client.testing
 
-import androidx.health.connect.client.ExperimentalHealthConnectApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.PermissionController
 import androidx.health.connect.client.aggregate.AggregationResult
@@ -60,7 +59,7 @@ import kotlin.reflect.KClass
  * @param clock used to close open-ended [TimeRangeFilter]s and record update times.
  * @param permissionController grants and revokes permissions.
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public class FakeHealthConnectClient(
     private val packageName: String = DEFAULT_PACKAGE_NAME,
     private val clock: Clock = Clock.systemDefaultZone(),

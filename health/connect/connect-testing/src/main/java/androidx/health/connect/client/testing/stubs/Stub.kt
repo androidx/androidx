@@ -16,7 +16,7 @@
 
 package androidx.health.connect.client.testing.stubs
 
-import androidx.health.connect.client.ExperimentalHealthConnectApi
+import androidx.health.connect.client.testing.ExperimentalTestingApi
 
 /**
  * Represents a stub mapping from a request [T] to a response [R].
@@ -37,7 +37,7 @@ import androidx.health.connect.client.ExperimentalHealthConnectApi
  * @see stub
  * @see MutableStub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun interface Stub<in T, out R : Any> {
     /** Returns the next item. */
     public fun next(request: T): R?
@@ -52,7 +52,7 @@ public fun interface Stub<in T, out R : Any> {
  * @param default A response [R] that will be used if a response is requested
  * @see Stub
  */
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public fun <R : Any> stub(default: R?): Stub<Any?, R> =
     stub(queue = emptyList(), defaultHandler = { default })
 
@@ -79,7 +79,7 @@ public fun <R : Any> stub(default: R?): Stub<Any?, R> =
  *   and the queue is empty.
  */
 @JvmOverloads
-@ExperimentalHealthConnectApi
+@ExperimentalTestingApi
 public inline fun <R : Any> stub(
     queue: Iterable<R> = emptyList(),
     crossinline defaultHandler: () -> R? = { null }
