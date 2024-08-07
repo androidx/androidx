@@ -1705,21 +1705,21 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Immutable public final class SearchBarColors {
-    ctor public SearchBarColors(long containerColor, long dividerColor);
-    ctor @Deprecated public SearchBarColors(long containerColor, long dividerColor, @Deprecated androidx.compose.material3.TextFieldColors inputFieldColors);
+    ctor @Deprecated public SearchBarColors(long containerColor, long dividerColor);
+    ctor public SearchBarColors(long containerColor, long dividerColor, androidx.compose.material3.TextFieldColors inputFieldColors);
     method public long getContainerColor();
     method public long getDividerColor();
-    method @Deprecated public androidx.compose.material3.TextFieldColors getInputFieldColors();
+    method public androidx.compose.material3.TextFieldColors getInputFieldColors();
     property public final long containerColor;
     property public final long dividerColor;
-    property @Deprecated public final androidx.compose.material3.TextFieldColors inputFieldColors;
+    property public final androidx.compose.material3.TextFieldColors inputFieldColors;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class SearchBarDefaults {
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public void InputField(androidx.compose.foundation.text.input.TextFieldState state, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSearch, boolean expanded, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onExpandedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? prefix, optional kotlin.jvm.functions.Function0<kotlin.Unit>? suffix, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.foundation.text.input.OutputTransformation? outputTransformation, optional androidx.compose.foundation.ScrollState scrollState, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.TextFieldColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public void InputField(String query, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onQueryChange, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSearch, boolean expanded, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onExpandedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? placeholder, optional kotlin.jvm.functions.Function0<kotlin.Unit>? leadingIcon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? trailingIcon, optional androidx.compose.material3.TextFieldColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource);
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors colors(optional long containerColor, optional long dividerColor);
-    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors colors(optional long containerColor, optional long dividerColor, optional androidx.compose.material3.TextFieldColors inputFieldColors);
+    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors colors(optional long containerColor, optional long dividerColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.SearchBarColors colors(optional long containerColor, optional long dividerColor, optional androidx.compose.material3.TextFieldColors inputFieldColors);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getDockedShape();
     method @Deprecated public float getElevation();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFullScreenShape();
