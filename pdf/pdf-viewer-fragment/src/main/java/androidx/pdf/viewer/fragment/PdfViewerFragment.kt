@@ -16,6 +16,7 @@
 
 package androidx.pdf.viewer.fragment
 
+import android.app.Activity
 import android.content.ContentResolver
 import android.net.Uri
 import android.os.Bundle
@@ -303,7 +304,7 @@ public open class PdfViewerFragment : Fragment() {
         // Need to adjust the view only after the layout phase is completed for the views to
         // accurately calculate the height of the view
         pdfViewer?.viewTreeObserver?.addOnGlobalLayoutListener {
-            adjustInsetsForSearchMenu(findInFileView!!)
+            activity?.let { adjustInsetsForSearchMenu(findInFileView!!, requireActivity()) }
         }
 
         viewModel.pdfLoaderStateFlow.value?.let { loader ->
@@ -348,13 +349,10 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     /** Adjusts the [FindInFileView] to be displayed on top of the keyboard. */
-    private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView) {
-        WindowCompat.setDecorFitsSystemWindows(
-            requireActivity().window,
-            /* decorFitsSystemWindows= */ false
-        )
+    private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView, activity: Activity) {
+        WindowCompat.setDecorFitsSystemWindows(activity.window, /* decorFitsSystemWindows= */ false)
 
-        val screenHeight = requireActivity().resources.displayMetrics.heightPixels
+        val screenHeight = activity.resources.displayMetrics.heightPixels
         val height = pdfViewer?.findViewById<FrameLayout>(R.id.parent_pdf_container)!!.height
 
         // Set the listener to handle window insets
