@@ -452,6 +452,9 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         // Reset ZoomView
         mZoomView.resetContents();
 
+        // Reset PaginationModel
+        mPaginationModel = null;
+
         // Reset FastScrollView's state variables
         mThumbY = 0;
         mCurrentPosition = 0;
