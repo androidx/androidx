@@ -24,13 +24,15 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.mutableIntStateOf
 
-internal class LinkStateInteractionSourceObserver {
+internal class LinkStateInteractionSourceObserver(
+    private val interactionSource: InteractionSource
+) {
     private val Focused = 0b001
     private val Hovered = 0b010
     private val Pressed = 0b100
     private val interactionState = mutableIntStateOf(0b000)
 
-    suspend fun collectInteractionsForLinks(interactionSource: InteractionSource) {
+    suspend fun collectInteractionsForLinks() {
         val interactions = mutableObjectListOf<Interaction>()
         interactionSource.interactions.collect { interaction ->
             var state = 0
