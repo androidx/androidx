@@ -381,8 +381,8 @@ private val gradleSyncProps by lazy {
 }
 
 internal fun Project.isGradleSyncRunning() =
-    gradleSyncProps.any {
-        it in project.properties && project.properties[it].toString().toBoolean()
+    gradleSyncProps.any { property ->
+        providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
     }
 
 /** Enumerates the supported android plugins. */
