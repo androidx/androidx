@@ -372,6 +372,8 @@ internal class GraphicsLayerOwnerLayer(
         isMatrixDirty = false
         isInverseMatrixDirty = false
         isIdentity = true
+        matrixCache.reset()
+        inverseMatrixCache?.reset()
         transformOrigin = TransformOrigin.Center
         drawnWithEnabledZ = false
         size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
