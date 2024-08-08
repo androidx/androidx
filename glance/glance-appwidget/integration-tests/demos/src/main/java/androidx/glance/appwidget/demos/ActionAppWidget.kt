@@ -72,37 +72,44 @@ class ActionAppWidget : GlanceAppWidget() {
     override suspend fun provideGlance(
         context: Context,
         id: GlanceId,
-    ) = provideContent {
-        Column(
-            modifier =
-                GlanceModifier.padding(R.dimen.external_padding)
-                    .fillMaxSize()
-                    .appWidgetBackground()
-                    .cornerRadius(R.dimen.corner_radius),
-            verticalAlignment = Alignment.Vertical.CenterVertically,
-            horizontalAlignment = Alignment.Horizontal.CenterHorizontally
-        ) {
-            val pages = listOf("Activities", "Services", "Broadcasts")
-            var currentPage by remember { mutableStateOf(pages.first()) }
-            Row(
-                modifier = GlanceModifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                for (page in pages) {
-                    SelectableActionItem(
-                        label = page,
-                        active = page == currentPage,
-                        onClick = { currentPage = page },
-                    )
-                }
-            }
+    ) = provideContent { Content() }
 
-            when (currentPage) {
-                "Activities" -> StartActivityActions()
-                "Services" -> StartServiceActions()
-                "Broadcasts" -> SendBroadcastActions()
-                else -> throw IllegalArgumentException("Unknown page")
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+}
+
+@Composable
+private fun Content() {
+    Column(
+        modifier =
+            GlanceModifier.padding(R.dimen.external_padding)
+                .fillMaxSize()
+                .appWidgetBackground()
+                .cornerRadius(R.dimen.corner_radius),
+        verticalAlignment = Alignment.Vertical.CenterVertically,
+        horizontalAlignment = Alignment.Horizontal.CenterHorizontally
+    ) {
+        val pages = listOf("Activities", "Services", "Broadcasts")
+        var currentPage by remember { mutableStateOf(pages.first()) }
+        Row(
+            modifier = GlanceModifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            for (page in pages) {
+                SelectableActionItem(
+                    label = page,
+                    active = page == currentPage,
+                    onClick = { currentPage = page },
+                )
             }
+        }
+
+        when (currentPage) {
+            "Activities" -> StartActivityActions()
+            "Services" -> StartServiceActions()
+            "Broadcasts" -> SendBroadcastActions()
+            else -> throw IllegalArgumentException("Unknown page")
         }
     }
 }

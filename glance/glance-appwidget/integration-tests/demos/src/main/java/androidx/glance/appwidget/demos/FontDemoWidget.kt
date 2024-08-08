@@ -49,48 +49,53 @@ class FontDemoWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
-        FontDemoContent()
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
     }
 
     @Composable
-    private fun FontDemoContent() {
+    private fun Content() {
         // This will reset any time the process is killed, but it isn't important as it's just to
         // showcase different fonts.
         var font by remember { mutableStateOf(FontFamily.Serif) }
-
-        Scaffold(
-            titleBar = {
-                TitleBar(
-                    startIcon = ImageProvider(R.drawable.ic_demo_app),
-                    title = "Font Demo Widget"
-                )
-            },
-            backgroundColor = GlanceTheme.colors.widgetBackground
-        ) {
-            Column(modifier = GlanceModifier.fillMaxSize().padding(bottom = 16.dp)) {
-                Text(
-                    "Font: " + font.family,
-                    style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif)
-                )
-                Spacer(GlanceModifier.size(15.dp))
-                Text(
-                    "The quick brown fox jumps over the lazy dog.",
-                    style = TextStyle(fontSize = 18.sp, fontFamily = font)
-                )
-                Spacer(GlanceModifier.defaultWeight())
-                Button(
-                    text = "Toggle font",
-                    onClick = {
-                        font =
-                            when (font) {
-                                FontFamily.Serif -> FontFamily.SansSerif
-                                FontFamily.SansSerif -> FontFamily.Cursive
-                                FontFamily.Cursive -> FontFamily.Monospace
-                                FontFamily.Monospace -> FontFamily.Serif
-                                else -> FontFamily.SansSerif
-                            }
-                    }
-                )
+        GlanceTheme {
+            Scaffold(
+                titleBar = {
+                    TitleBar(
+                        startIcon = ImageProvider(R.drawable.ic_demo_app),
+                        title = "Font Demo Widget"
+                    )
+                },
+                backgroundColor = GlanceTheme.colors.widgetBackground
+            ) {
+                Column(modifier = GlanceModifier.fillMaxSize().padding(bottom = 16.dp)) {
+                    Text(
+                        "Font: " + font.family,
+                        style = TextStyle(fontSize = 20.sp, fontFamily = FontFamily.SansSerif)
+                    )
+                    Spacer(GlanceModifier.size(15.dp))
+                    Text(
+                        "The quick brown fox jumps over the lazy dog.",
+                        style = TextStyle(fontSize = 18.sp, fontFamily = font)
+                    )
+                    Spacer(GlanceModifier.defaultWeight())
+                    Button(
+                        text = "Toggle font",
+                        onClick = {
+                            font =
+                                when (font) {
+                                    FontFamily.Serif -> FontFamily.SansSerif
+                                    FontFamily.SansSerif -> FontFamily.Cursive
+                                    FontFamily.Cursive -> FontFamily.Monospace
+                                    FontFamily.Monospace -> FontFamily.Serif
+                                    else -> FontFamily.SansSerif
+                                }
+                        }
+                    )
+                }
             }
         }
     }

@@ -17,6 +17,7 @@
 package androidx.glance.appwidget.demos
 
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
@@ -41,6 +42,15 @@ class ExactAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content(context)
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content(context)
+    }
+
+    @Composable
+    private fun Content(context: Context) {
         Column(
             modifier =
                 GlanceModifier.fillMaxSize()

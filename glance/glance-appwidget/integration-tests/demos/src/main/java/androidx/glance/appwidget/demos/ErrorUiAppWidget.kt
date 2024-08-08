@@ -20,6 +20,7 @@ import android.appwidget.AppWidgetManager
 import android.content.Context
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,40 +56,51 @@ class ErrorUiAppWidget : GlanceAppWidget() {
         val repo = ErrorUiAppWidgetConfigurationRepo(context = context, glanceId = id)
 
         provideContent {
-            val size = LocalSize.current
             val errorBehavior = repo.getOnErrorBehavior()
 
-            Column(
-                modifier =
-                    GlanceModifier.fillMaxSize()
-                        .background(day = Color.LightGray, night = Color.DarkGray)
-                        .padding(8.dp),
+            Content(errorBehavior)
+        }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent { Content() }
+    }
+
+    @Composable
+    private fun Content(
+        errorBehavior: OnErrorBehavior = OnErrorBehavior.Default,
+    ) {
+        val size = LocalSize.current
+        Column(
+            modifier =
+                GlanceModifier.fillMaxSize()
+                    .background(day = Color.LightGray, night = Color.DarkGray)
+                    .padding(8.dp),
+        ) {
+            Text(
+                "Error UI Demo. Method: $errorBehavior",
+                modifier = GlanceModifier.fillMaxWidth().wrapContentHeight(),
+                style =
+                    TextStyle(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        textAlign = TextAlign.Center
+                    )
+            )
+            Box(
+                modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    "Error UI Demo. Method: $errorBehavior",
-                    modifier = GlanceModifier.fillMaxWidth().wrapContentHeight(),
-                    style =
-                        TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp,
-                            textAlign = TextAlign.Center
-                        )
+                    "Error UI triggers if width or height reach 400 dp in any orientation.",
+                    style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 15.sp)
                 )
-                Box(
-                    modifier = GlanceModifier.fillMaxWidth().defaultWeight(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Error UI triggers if width or height reach 400 dp in any orientation.",
-                        style = TextStyle(fontWeight = FontWeight.Medium, fontSize = 15.sp)
-                    )
-                    check(size.width < 400.dp && size.height < 400.dp) { "Too large now!" }
-                }
-                Text(
-                    " Current size: ${size.width.value.roundToInt()} dp x " +
-                        "${size.height.value.roundToInt()} dp"
-                )
+                check(size.width < 400.dp && size.height < 400.dp) { "Too large now!" }
             }
+            Text(
+                " Current size: ${size.width.value.roundToInt()} dp x " +
+                    "${size.height.value.roundToInt()} dp"
+            )
         }
     }
 

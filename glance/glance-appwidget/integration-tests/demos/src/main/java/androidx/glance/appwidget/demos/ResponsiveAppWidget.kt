@@ -67,6 +67,18 @@ class ResponsiveAppWidget : GlanceAppWidget() {
         SizeMode.Responsive(setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override val previewSizeMode =
+        SizeMode.Responsive(setOf(SMALL_BOX, BIG_BOX, ROW, LARGE_ROW, COLUMN, LARGE_COLUMN))
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         // Content will be called for each of the provided sizes
         when (LocalSize.current) {
             COLUMN -> ResponsiveColumn(numItems = 3)

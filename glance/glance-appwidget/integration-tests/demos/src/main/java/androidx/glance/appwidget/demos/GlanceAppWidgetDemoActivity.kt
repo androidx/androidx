@@ -17,9 +17,15 @@
 package androidx.glance.appwidget.demos
 
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+import android.content.ComponentName
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -50,7 +56,10 @@ import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.lifecycle.lifecycleScope
+import kotlin.reflect.KClass
 import kotlinx.coroutines.launch
+
+private const val TAG = "GlanceAppWidgetDemo"
 
 class GlanceAppWidgetDemoActivity : ComponentActivity() {
 
@@ -65,8 +74,56 @@ class GlanceAppWidgetDemoActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        updateWidgetPreviews()
         updateView()
     }
+
+    private fun updateWidgetPreviews() =
+        lifecycleScope.launch {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+                return@launch
+            }
+            val previewClasses =
+                listOf(
+                    ActionAppWidgetReceiver::class,
+                    BackgroundTintWidgetBroadcastReceiver::class,
+                    ButtonsWidgetBroadcastReceiver::class,
+                    CompoundButtonAppWidgetReceiver::class,
+                    ContentDescriptionAppWidgetReceiver::class,
+                    DefaultColorsAppWidgetReceiver::class,
+                    DefaultStateAppWidgetReceiver::class,
+                    ErrorUiAppWidgetReceiver::class,
+                    FontDemoAppWidgetReceiver::class,
+                    ImageAppWidgetReceiver::class,
+                    ProgressIndicatorAppWidgetReceiver::class,
+                    RemoteViewsWidgetReceiver::class,
+                    ResizingAppWidgetReceiver::class,
+                    ResponsiveAppWidgetReceiver::class,
+                    RippleAppWidgetReceiver::class,
+                    ScrollableAppWidgetReceiver::class,
+                    TitleBarWidgetBroadcastReceiver::class,
+                    TypographyDemoAppWidgetReceiver::class,
+                    VerticalGridAppWidgetReceiver::class,
+                )
+            try {
+                for (receiver in previewClasses) {
+                    if (
+                        receiver.hasPreviewForCategory(
+                            this@GlanceAppWidgetDemoActivity,
+                            WIDGET_CATEGORY_HOME_SCREEN
+                        )
+                    ) {
+                        Log.i(TAG, "Skipped updating previews for $receiver")
+                        continue
+                    }
+                    if (!manager.setWidgetPreviews(receiver)) {
+                        Log.e(TAG, "Failed to set previews for $receiver, probably rate limited")
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "error thrown when calling setWidgetPreview", e)
+            }
+        }
 
     private fun updateView() {
         lifecycleScope.launch {
@@ -186,3 +243,15 @@ data class AppWidgetDesc(
     val appWidgetId: GlanceId,
     val sizes: List<DpSize>,
 )
+
+@RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
+private fun KClass<out GlanceAppWidgetReceiver>.hasPreviewForCategory(
+    context: Context,
+    widgetCategory: Int,
+): Boolean {
+    val manager = context.getSystemService(Context.APPWIDGET_SERVICE) as AppWidgetManager
+    val component = ComponentName(context, java)
+    val providerInfo =
+        manager.installedProviders.first { providerInfo -> providerInfo.provider == component }
+    return providerInfo.generatedPreviewCategories.and(widgetCategory) != 0
+}

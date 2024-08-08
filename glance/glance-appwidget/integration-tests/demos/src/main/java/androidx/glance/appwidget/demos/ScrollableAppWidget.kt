@@ -83,6 +83,15 @@ class ScrollableAppWidget : GlanceAppWidget() {
         SizeMode.Responsive(setOf(singleColumn, doubleColumn, tripleColumn))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(
             modifier = GlanceModifier.fillMaxSize().background(R.color.default_widget_background)
         ) {
