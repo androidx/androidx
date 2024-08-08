@@ -2165,6 +2165,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 continue
             }
 
+            // Links in text nodes are semantics children. But for Android accessibility support
+            // we don't publish them to the accessibility services because they are exposed
+            // as UrlSpan/ClickableSpan spans instead
+            if (semanticsNode.config.contains(SemanticsProperties.LinkTestMarker)) {
+                continue
+            }
+
             return virtualViewId
         }
 

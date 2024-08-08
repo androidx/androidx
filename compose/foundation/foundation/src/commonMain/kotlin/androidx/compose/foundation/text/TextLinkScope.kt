@@ -40,6 +40,8 @@ import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
+import androidx.compose.ui.semantics.SemanticsProperties.LinkTestMarker
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -177,6 +179,10 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
 
             Box(
                 clipModifier
+                    .semantics {
+                        // adding this to identify links in tests, see performFirstLinkClick
+                        this[LinkTestMarker] = Unit
+                    }
                     .textRange(range.start, range.end)
                     .hoverable(interactionSource)
                     .pointerHoverIcon(PointerIcon.Hand)

@@ -3519,6 +3519,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getIsPopup();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsShowingTextSubstitution();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> getIsTraversalGroup();
+    method public androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> getLinkTestMarker();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> getLiveRegion();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Integer> getMaxTextLength();
     method public androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> getPaneTitle();
@@ -3553,6 +3554,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> IsPopup;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsShowingTextSubstitution;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Boolean> IsTraversalGroup;
+    property public final androidx.compose.ui.semantics.SemanticsPropertyKey<kotlin.Unit> LinkTestMarker;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.LiveRegionMode> LiveRegion;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.Integer> MaxTextLength;
     property public final androidx.compose.ui.semantics.SemanticsPropertyKey<java.lang.String> PaneTitle;
