@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalTestApi::class)
+
 package androidx.compose.foundation
 
 import androidx.compose.foundation.interaction.FocusInteraction
@@ -43,6 +45,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.InjectionScope
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -85,7 +88,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey() {
         var counter = 0
         val focusRequester = FocusRequester()
@@ -115,7 +117,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey_notInvokedIfFocusIsLostWhilePressed() {
         var counter = 0
         val outerFocusRequester = FocusRequester()
@@ -154,7 +155,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun clickWithKey_notInvokedIfCorrespondingDownEventWasNotReceived() {
         var counter = 0
         val outerFocusRequester = FocusRequester()
@@ -200,7 +200,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun longClickWithKey() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -237,7 +236,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
         }
     }
 
-    @OptIn(ExperimentalTestApi::class)
     @Test
     @LargeTest
     fun longClickWithKey_doesNotTriggerHapticFeedback() {
@@ -289,7 +287,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun longClickWithKey_notInvokedIfFocusIsLostWhilePressed() {
         var counter = 0
         val outerFocusRequester = FocusRequester()
@@ -331,7 +328,209 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
+    fun doubleClickWithKey_withinTimeout_aboveMinimumDuration() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            keyDown(key)
+            keyUp(key)
+            advanceEventTime(doubleTapDelay)
+            keyDown(key)
+            keyUp(key)
+        }
+
+        // Double click should not trigger click, and the double click should be immediately invoked
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun doubleClickWithKey_withinTimeout_belowMinimumDuration() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        var doubleTapTimeoutDelay: Long = 0
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            doubleTapTimeoutDelay = viewConfiguration.doubleTapTimeoutMillis + 100
+            keyDown(key)
+            keyUp(key)
+            // Send a second press below the minimum time required for a double tap
+            val minimumDuration = viewConfiguration.doubleTapMinTimeMillis
+            advanceEventTime(minimumDuration / 2)
+            keyDown(key)
+            keyUp(key)
+        }
+
+        // Because the second tap was below the timeout, this should instead be treated as two
+        // clicks, but the second click won't be invoked until after the timeout
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the second click will be invoked, and no double click will
+        // be invoked
+        rule.mainClock.advanceTimeBy(doubleTapTimeoutDelay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(2)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun doubleClickWithKey_outsideTimeout() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        var delay: Long = 0
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            // Delay slightly past the timeout
+            delay = viewConfiguration.doubleTapTimeoutMillis + 100
+            keyDown(key)
+            keyUp(key)
+        }
+
+        // The click should not be invoked until the timeout has run out
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the click will be invoked
+        rule.mainClock.advanceTimeBy(delay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // Perform a second click, after the timeout has elapsed - this should not trigger a double
+        // click
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            keyDown(key)
+            keyUp(key)
+        }
+
+        // The second click should not be invoked until the timeout has run out
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the second click will be invoked, and no double click will
+        // be invoked
+        rule.mainClock.advanceTimeBy(delay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(2)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun doubleClickWithKey_secondClickIsALongClick() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        var longClickCounter = 0
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .focusRequester(focusRequester)
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter },
+                            onLongClick = { ++longClickCounter }
+                        )
+            )
+        }
+        rule.runOnIdle {
+            inputModeManager.requestInputMode(Keyboard)
+            focusRequester.requestFocus()
+        }
+
+        rule.onNodeWithTag("myClickable").performKeyInput {
+            keyDown(key)
+            keyUp(key)
+            advanceEventTime(doubleTapDelay)
+            keyDown(key)
+            // Advance past long click timeout
+            advanceEventTime(1000)
+        }
+
+        // Long click should cancel double click and click
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
     fun keyPress_emitsInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -377,7 +576,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun keyPress_emitsCancelInteractionWhenFocusIsRemovedWhilePressed() {
         val interactionSource = MutableInteractionSource()
         val outerFocusRequester = FocusRequester()
@@ -428,7 +626,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun doubleKeyPress_emitsFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -489,7 +686,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun repeatKeyEvents_doNotEmitFurtherInteractions() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -548,7 +744,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun interruptedKeyClick_emitsCancelInteraction() {
         val interactionSource = MutableInteractionSource()
         val focusRequester = FocusRequester()
@@ -614,7 +809,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun updateOnLongClickListenerBetweenKeyDownAndUp_callsNewListener() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -662,7 +856,6 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
     }
 
     @Test
-    @OptIn(ExperimentalTestApi::class)
     fun modifierReusedBetweenKeyDownAndKeyUp_doesNotCallListeners() {
         var clickCounter = 0
         var longClickCounter = 0
@@ -710,3 +903,7 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
         }
     }
 }
+
+/** Average of the min time and timeout for the delay between clicks for a double click */
+private val InjectionScope.doubleTapDelay
+    get() = with(viewConfiguration) { (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2 }

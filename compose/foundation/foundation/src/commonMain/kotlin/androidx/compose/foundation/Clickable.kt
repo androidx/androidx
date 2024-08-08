@@ -808,7 +808,12 @@ private class CombinedClickableNodeImpl(
         role,
         onClick
     ) {
+    class DoubleKeyClickState(val job: Job) {
+        var doubleTapMinTimeMillisElapsed: Boolean = false
+    }
+
     private val longKeyPressJobs = mutableLongObjectMapOf<Job>()
+    private val doubleKeyClickStates = mutableLongObjectMapOf<DoubleKeyClickState>()
 
     override suspend fun PointerInputScope.clickPointerInput() {
         detectTapGestures(
@@ -905,6 +910,7 @@ private class CombinedClickableNodeImpl(
 
     override fun onClickKeyDownEvent(event: KeyEvent): Boolean {
         val keyCode = event.key.keyCode
+        var handledByLongClick = false
         if (onLongClick != null) {
             if (longKeyPressJobs[keyCode] == null) {
                 longKeyPressJobs[keyCode] =
@@ -912,24 +918,84 @@ private class CombinedClickableNodeImpl(
                         delay(currentValueOf(LocalViewConfiguration).longPressTimeoutMillis)
                         onLongClick?.invoke()
                     }
-                return true
+                handledByLongClick = true
             }
         }
-        return false
+        val doubleClickState = doubleKeyClickStates[keyCode]
+        // This is the second down event, so it might be a double click
+        if (doubleClickState != null) {
+            // Within the allowed timeout, so check if this is above the minimum time needed for
+            // a double click
+            if (doubleClickState.job.isActive) {
+                doubleClickState.job.cancel()
+                // If the second down was before the minimum double tap time, don't track this as
+                // a double click. Instead, we need to invoke onClick for the previous click, since
+                // that is now counted as a standalone click instead of the first of a double click.
+                if (!doubleClickState.doubleTapMinTimeMillisElapsed) {
+                    onClick()
+                    doubleKeyClickStates.remove(keyCode)
+                }
+            } else {
+                // We already invoked onClick because we passed the timeout, so stop tracking this
+                // as a double click
+                doubleKeyClickStates.remove(keyCode)
+            }
+        }
+        return handledByLongClick
     }
 
     override fun onClickKeyUpEvent(event: KeyEvent): Boolean {
         val keyCode = event.key.keyCode
+        var longClickInvoked = false
         if (longKeyPressJobs[keyCode] != null) {
             longKeyPressJobs[keyCode]?.let {
                 if (it.isActive) {
                     it.cancel()
-                    onClick()
+                } else {
+                    // If we already passed the timeout, we invoked long click already, and so
+                    // we shouldn't invoke onClick in this case
+                    longClickInvoked = true
                 }
             }
             longKeyPressJobs.remove(keyCode)
+        }
+        if (onDoubleClick != null) {
+            when {
+                // First click
+                doubleKeyClickStates[keyCode] == null -> {
+                    // We only track the second click if the first click was not a long click
+                    if (!longClickInvoked) {
+                        doubleKeyClickStates[keyCode] =
+                            DoubleKeyClickState(
+                                coroutineScope.launch {
+                                    val configuration = currentValueOf(LocalViewConfiguration)
+                                    val minTime = configuration.doubleTapMinTimeMillis
+                                    val timeout = configuration.doubleTapTimeoutMillis
+                                    delay(minTime)
+                                    doubleKeyClickStates[keyCode]?.doubleTapMinTimeMillisElapsed =
+                                        true
+                                    // Delay the remainder until we are at timeout
+                                    delay(timeout - minTime)
+                                    // If there was no second key press after the timeout, invoke
+                                    // onClick as normal
+                                    onClick()
+                                }
+                            )
+                    }
+                }
+                // Second click
+                else -> {
+                    // Invoke onDoubleClick if the second click was not a long click
+                    if (!longClickInvoked) {
+                        onDoubleClick?.invoke()
+                    }
+                    doubleKeyClickStates.remove(keyCode)
+                }
+            }
         } else {
-            onClick()
+            if (!longClickInvoked) {
+                onClick()
+            }
         }
         return true
     }
@@ -946,6 +1012,10 @@ private class CombinedClickableNodeImpl(
     private fun resetKeyPressState() {
         longKeyPressJobs.apply {
             forEachValue { it.cancel() }
+            clear()
+        }
+        doubleKeyClickStates.apply {
+            forEachValue { it.job.cancel() }
             clear()
         }
     }
