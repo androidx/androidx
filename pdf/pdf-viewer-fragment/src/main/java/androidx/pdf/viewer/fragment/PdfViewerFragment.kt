@@ -313,11 +313,6 @@ public open class PdfViewerFragment : Fragment() {
             }
         }
 
-        viewModel.pdfLoaderStateFlow.value?.let { loader ->
-            pdfLoader = loader
-            refreshContentAndModels(loader)
-        }
-
         return pdfViewer
     }
 
