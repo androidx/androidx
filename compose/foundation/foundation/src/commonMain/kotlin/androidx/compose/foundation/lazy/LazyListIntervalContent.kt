@@ -65,11 +65,13 @@ internal class LazyListIntervalContent(
     override fun stickyHeader(
         key: Any?,
         contentType: Any?,
-        content: @Composable LazyItemScope.() -> Unit
+        content: @Composable LazyItemScope.(Int) -> Unit
     ) {
         val headersIndexes = _headerIndexes ?: mutableIntListOf().also { _headerIndexes = it }
         headersIndexes.add(intervals.size)
-        item(key, contentType, content)
+        val headerIndex = intervals.size
+
+        item(key, contentType) { content(headerIndex) }
     }
 }
 

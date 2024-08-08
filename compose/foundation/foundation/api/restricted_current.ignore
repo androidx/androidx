@@ -9,6 +9,8 @@ AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#minPo
     Added method androidx.compose.foundation.gestures.DraggableAnchors.minPosition()
 AddedAbstractMethod: androidx.compose.foundation.gestures.DraggableAnchors#positionAt(int):
     Added method androidx.compose.foundation.gestures.DraggableAnchors.positionAt(int)
+AddedAbstractMethod: androidx.compose.foundation.lazy.LazyListScope#stickyHeader(Object, Object, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,kotlin.Unit>):
+    Added method androidx.compose.foundation.lazy.LazyListScope.stickyHeader(Object,Object,kotlin.jvm.functions.Function2<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,kotlin.Unit>)
 AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridItemInfo#getSpan():
     Added method androidx.compose.foundation.lazy.grid.LazyGridItemInfo.getSpan()
 AddedAbstractMethod: androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo#getMaxSpan():
