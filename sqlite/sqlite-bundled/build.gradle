@@ -113,6 +113,7 @@ androidXMultiplatform {
             KonanTarget.MACOS_X64,
             KonanTarget.MINGW_X64,
             KonanTarget.LINUX_X64,
+            KonanTarget.LINUX_ARM64,
     ].collect { it.INSTANCE } // Use INSTANCE to get object class instance from kotlin
 
     // Define C compilation of SQLite (sqlite3.c)
