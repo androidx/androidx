@@ -41,6 +41,7 @@ import androidx.camera.extensions.ExtensionMode.NIGHT
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.OEM_IMPL
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
@@ -181,7 +182,10 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
 
         @Parameterized.Parameters(name = "config = {0}")
         @JvmStatic
-        fun parameters() = getAllCameraIdExtensionModeCombinations()
+        fun parameters() =
+            if (LabTestRule.isInLabTest()) {
+                getAllCameraIdExtensionModeCombinations()
+            } else listOf()
 
         data class CameraXExtensionTestParams(
             val implName: String,
@@ -262,7 +266,11 @@ class ReleaseApkTest(private val config: CameraXExtensionTestParams) {
             extensionMode: Int
         ) =
             ExtensionsTestlibControl.getInstance().implementationType == OEM_IMPL &&
-                extensionsManager.isExtensionAvailable(cameraSelector, extensionMode)
+                ExtensionsTestUtil.isExtensionAvailable(
+                    extensionsManager,
+                    cameraSelector,
+                    extensionMode
+                )
 
         @JvmStatic
         private fun createCameraSelectorById(cameraId: String) =

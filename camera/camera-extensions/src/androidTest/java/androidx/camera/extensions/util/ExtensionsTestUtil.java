@@ -165,15 +165,25 @@ public class ExtensionsTestUtil {
      */
     public static boolean isExtensionAvailable(
             ExtensionsManager extensionsManager, int lensFacing, int extensionMode) {
+        CameraSelector cameraSelector = new CameraSelector.Builder()
+                .requireLensFacing(lensFacing)
+                .build();
+        return isExtensionAvailable(extensionsManager, cameraSelector, extensionMode);
+    }
+
+    /**
+     * Returns if extension is supported with the given mode and camera selector. Please note that
+     * if some classes are removed by OEMs, the classes in the test lib could still be used so we
+     * need to return false in this case.
+     */
+    public static boolean isExtensionAvailable(@NonNull ExtensionsManager extensionsManager,
+            @NonNull CameraSelector cameraSelector, int extensionMode) {
         // Return false if classes are removed by OEMs
         if (ExtensionsTestlibControl.getInstance().getImplementationType() == OEM_IMPL
                 && !doesOEMImplementationExistForMode(extensionMode)) {
             return false;
         }
 
-        CameraSelector cameraSelector = new CameraSelector.Builder()
-                .requireLensFacing(lensFacing)
-                .build();
         return extensionsManager.isExtensionAvailable(cameraSelector, extensionMode);
     }
 
