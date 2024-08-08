@@ -41,6 +41,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringResult
 import androidx.camera.core.MeteringPoint
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CameraControlInternal
 import com.google.common.util.concurrent.ListenableFuture
 import dagger.Binds
@@ -66,7 +67,7 @@ constructor(
     private val state3AControl: State3AControl,
     private val threads: UseCaseThreads,
     private val zoomCompat: ZoomCompat,
-) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
+) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
 
     override var useCaseCamera: UseCaseCamera?
@@ -75,11 +76,11 @@ constructor(
             _useCaseCamera = value
         }
 
-    override fun onRunningUseCasesChanged() {
+    override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
         // reset to null since preview use case may not be active for current runningUseCases
         previewAspectRatio = null
 
-        _useCaseCamera?.runningUseCases?.forEach { useCase ->
+        for (useCase in runningUseCases) {
             if (useCase is Preview) {
                 useCase.attachedSurfaceResolution?.apply {
                     previewAspectRatio = Rational(width, height)

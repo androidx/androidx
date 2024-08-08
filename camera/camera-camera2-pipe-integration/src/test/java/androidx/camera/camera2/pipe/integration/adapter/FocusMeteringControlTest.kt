@@ -158,6 +158,7 @@ class FocusMeteringControlTest {
     private val cameraPropertiesMap = mutableMapOf<String, CameraProperties>()
 
     private val fakeRequestControl = FakeUseCaseCameraRequestControl(testScope)
+    private val runningUseCases = mutableSetOf<UseCase>()
 
     @Before
     fun setUp() {
@@ -171,9 +172,9 @@ class FocusMeteringControlTest {
     fun tearDown() {
         // CoroutineScope#cancel can throw exception if the scope has no job left
         try {
-            fakeUseCaseCamera.runningUseCases.forEach {
-                it.onStateDetached()
-                it.onUnbind()
+            for (useCase in runningUseCases) {
+                useCase.onStateDetached()
+                useCase.onUnbind()
             }
             // fakeUseCaseThreads may still be using Main dispatcher which sometimes
             // causes Dispatchers.resetMain() to throw an exception:
@@ -666,8 +667,7 @@ class FocusMeteringControlTest {
                 CAMERA_ID_0,
                 useCases = setOf(createPreview(Size(1920, 1080))),
             )
-        fakeUseCaseCamera.runningUseCases = emptySet()
-        focusMeteringControl.onRunningUseCasesChanged()
+        focusMeteringControl.onRunningUseCasesChanged(emptySet())
 
         startFocusMeteringAndAwait(FocusMeteringAction.Builder(point1).build())
 
@@ -1547,15 +1547,8 @@ class FocusMeteringControlTest {
 
     private val fakeUseCaseCamera =
         object : UseCaseCamera {
-            override var runningUseCases = setOf<UseCase>()
-
             override val requestControl: UseCaseCameraRequestControl
                 get() = fakeRequestControl
-
-            override var isPrimary: Boolean = true
-                set(value) {
-                    field = value
-                }
 
             override fun <T> setParameterAsync(
                 key: CaptureRequest.Key<T>,
@@ -1583,8 +1576,9 @@ class FocusMeteringControlTest {
         useCaseThreads: UseCaseThreads = fakeUseCaseThreads,
         state3AControl: State3AControl = createState3AControl(cameraId),
         zoomCompat: ZoomCompat = FakeZoomCompat()
-    ) =
-        FocusMeteringControl(
+    ): FocusMeteringControl {
+        runningUseCases.addAll(useCases)
+        return FocusMeteringControl(
                 cameraPropertiesMap[cameraId]!!,
                 MeteringRegionCorrection.Bindings.provideMeteringRegionCorrection(
                     CameraQuirks(
@@ -1603,10 +1597,10 @@ class FocusMeteringControlTest {
                 zoomCompat
             )
             .apply {
-                fakeUseCaseCamera.runningUseCases = useCases
                 useCaseCamera = fakeUseCaseCamera
-                onRunningUseCasesChanged()
+                onRunningUseCasesChanged(useCases)
             }
+    }
 
     private fun initCameraProperties(
         cameraIdStr: String,

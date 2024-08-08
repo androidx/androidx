@@ -49,16 +49,6 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
 @JvmDefaultWithCompatibility
 public interface UseCaseCamera {
-    // UseCases
-    public var runningUseCases: Set<UseCase>
-
-    public var isPrimary: Boolean
-
-    public interface RunningUseCasesChangeListener {
-        /** Invoked when value of [UseCaseCamera.runningUseCases] has been changed. */
-        public fun onRunningUseCasesChanged()
-    }
-
     // RequestControl of the UseCaseCamera
     public val requestControl: UseCaseCameraRequestControl
 
@@ -87,7 +77,6 @@ public interface UseCaseCamera {
 public class UseCaseCameraImpl
 @Inject
 constructor(
-    private val controls: java.util.Set<UseCaseCameraControl>,
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val useCases: java.util.ArrayList<UseCase>,
     private val useCaseSurfaceManager: UseCaseSurfaceManager,
@@ -98,34 +87,6 @@ constructor(
 ) : UseCaseCamera {
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
-
-    override var runningUseCases: Set<UseCase> = setOf<UseCase>()
-        set(value) {
-            field = value
-
-            // Note: This may be called with the same set of values that was previously set. This
-            // is used as a signal to indicate the properties of the UseCase may have changed.
-            SessionConfigAdapter(value, isPrimary = isPrimary).getValidSessionConfigOrNull()?.let {
-                requestControl.setSessionConfigAsync(it)
-            }
-                ?: run {
-                    debug { "Unable to reset the session due to invalid config" }
-                    requestControl.setSessionConfigAsync(
-                        SessionConfig.Builder().apply { setTemplateType(defaultTemplate) }.build()
-                    )
-                }
-
-            controls.forEach { control ->
-                if (control is UseCaseCamera.RunningUseCasesChangeListener) {
-                    control.onRunningUseCasesChanged()
-                }
-            }
-        }
-
-    override var isPrimary: Boolean = true
-        set(value) {
-            field = value
-        }
 
     init {
         debug { "Configured $this for $useCases" }

@@ -46,7 +46,7 @@ constructor(
     public val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
     private val aeFpsRange: AeFpsRange,
-) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
+) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
     private var _useCaseCamera: UseCaseCamera? = null
     override var useCaseCamera: UseCaseCamera?
         get() = _useCaseCamera
@@ -61,15 +61,21 @@ constructor(
 
                 invalidate() // Always apply the settings to the camera.
 
-                synchronized(lock) { updateSignal }
-                    ?.let { newUpdateSignal ->
-                        previousSignals.forEach { newUpdateSignal.propagateTo(it) }
-                    } ?: run { previousSignals.forEach { it.complete(Unit) } }
+                synchronized(lock) { updateSignal }?.propagateToAll(previousSignals)
+                    ?: run { for (signals in previousSignals) signals.complete(Unit) }
             }
         }
 
-    override fun onRunningUseCasesChanged() {
-        _useCaseCamera?.runningUseCases?.run { updateTemplate() }
+    override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
+        if (runningUseCases.isNotEmpty()) {
+            runningUseCases.updateTemplate()
+        }
+    }
+
+    private fun Deferred<Unit>.propagateToAll(previousSignals: List<CompletableDeferred<Unit>>) {
+        for (previousSignal in previousSignals) {
+            propagateTo(previousSignal)
+        }
     }
 
     private val lock = Any()
