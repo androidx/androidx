@@ -19,6 +19,7 @@ package androidx.compose.foundation.lazy.staggeredgrid
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.list.assertIsNotPlaced
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
@@ -221,7 +222,7 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
 
         state.scrollBy(itemSizeDp * 20)
 
-        rule.onNodeWithTag("8").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * -2f)
+        rule.onNodeWithTag("8").assertIsNotPlaced()
 
         assertThat(state.firstVisibleItemIndex).isEqualTo(8)
         // normally this item is invisible, but being the last item in the lane, it is forced to
