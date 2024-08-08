@@ -362,6 +362,7 @@ public class CameraXActivity extends AppCompatActivity {
     private RecordUi mRecordUi;
     private DynamicRangeUi mDynamicRangeUi;
     private Quality mVideoQuality;
+    private boolean mAudioMuted = false;
     private DynamicRange mDynamicRange = DynamicRange.SDR;
     private @ImageCapture.OutputFormat int mImageOutputFormat = OUTPUT_FORMAT_JPEG;
     private Set<DynamicRange> mDisplaySupportedHighDynamicRanges = Collections.emptySet();
@@ -694,7 +695,7 @@ public class CameraXActivity extends AppCompatActivity {
                         pendingRecording.asPersistentRecording();
                     }
                     mActiveRecording = pendingRecording
-                            .withAudioEnabled()
+                            .withAudioEnabled(mAudioMuted)
                             .start(ContextCompat.getMainExecutor(CameraXActivity.this),
                                     mVideoRecordEventListener);
                     mRecordUi.setState(RecordUi.State.RECORDING);
@@ -778,6 +779,17 @@ public class CameraXActivity extends AppCompatActivity {
             });
 
             popup.show();
+        });
+
+        Runnable buttonMuteUpdater = () -> mRecordUi.getButtonMute().setImageResource(
+                mAudioMuted ? R.drawable.ic_mic_off : R.drawable.ic_mic_on);
+        buttonMuteUpdater.run();
+        mRecordUi.getButtonMute().setOnClickListener(view -> {
+            mAudioMuted = !mAudioMuted;
+            if (mActiveRecording != null) {
+                mActiveRecording.mute(mAudioMuted);
+            }
+            buttonMuteUpdater.run();
         });
     }
 
@@ -1533,6 +1545,7 @@ public class CameraXActivity extends AppCompatActivity {
                 findViewById(R.id.video_stats),
                 findViewById(R.id.video_quality),
                 findViewById(R.id.video_persistent),
+                findViewById(R.id.video_mute),
                 (newState) -> updateDynamicRangeUiState()
         );
 
@@ -2302,19 +2315,21 @@ public class CameraXActivity extends AppCompatActivity {
         private final TextView mTextStats;
         private final Button mButtonQuality;
         private final ToggleButton mButtonPersistent;
+        private final ImageButton mButtonMute;
         private boolean mEnabled = false;
         private State mState = State.IDLE;
         private final Consumer<State> mNewStateConsumer;
 
         RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
                 @NonNull TextView textStats, @NonNull Button buttonQuality,
-                @NonNull ToggleButton buttonPersistent,
+                @NonNull ToggleButton buttonPersistent, @NonNull ImageButton buttonMute,
                 @NonNull Consumer<State> onNewState) {
             mButtonRecord = buttonRecord;
             mButtonPause = buttonPause;
             mTextStats = textStats;
             mButtonQuality = buttonQuality;
             mButtonPersistent = buttonPersistent;
+            mButtonMute = buttonMute;
             mNewStateConsumer = onNewState;
         }
 
@@ -2325,6 +2340,7 @@ public class CameraXActivity extends AppCompatActivity {
                 mTextStats.setVisibility(View.VISIBLE);
                 mButtonQuality.setVisibility(View.VISIBLE);
                 mButtonPersistent.setVisibility(View.VISIBLE);
+                mButtonMute.setVisibility(View.VISIBLE);
                 updateUi();
             } else {
                 mButtonRecord.setText("Record");
@@ -2333,6 +2349,7 @@ public class CameraXActivity extends AppCompatActivity {
                 mButtonQuality.setVisibility(View.INVISIBLE);
                 mTextStats.setVisibility(View.GONE);
                 mButtonPersistent.setVisibility(View.INVISIBLE);
+                mButtonMute.setVisibility(View.INVISIBLE);
             }
         }
 
@@ -2354,6 +2371,7 @@ public class CameraXActivity extends AppCompatActivity {
             mButtonPause.setVisibility(View.GONE);
             mTextStats.setVisibility(View.GONE);
             mButtonPersistent.setVisibility(View.GONE);
+            mButtonMute.setVisibility(View.GONE);
         }
 
         private void updateUi() {
@@ -2367,6 +2385,7 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.INVISIBLE);
                     mButtonPersistent.setEnabled(true);
+                    mButtonMute.setEnabled(true);
                     mButtonQuality.setEnabled(true);
                     break;
                 case RECORDING:
@@ -2375,6 +2394,7 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.VISIBLE);
                     mButtonPersistent.setEnabled(false);
+                    mButtonMute.setEnabled(true);
                     mButtonQuality.setEnabled(false);
                     break;
                 case STOPPING:
@@ -2383,6 +2403,7 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setText("Pause");
                     mButtonPause.setVisibility(View.INVISIBLE);
                     mButtonPersistent.setEnabled(false);
+                    mButtonMute.setEnabled(false);
                     mButtonQuality.setEnabled(true);
                     break;
                 case PAUSED:
@@ -2391,6 +2412,7 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setText("Resume");
                     mButtonPause.setVisibility(View.VISIBLE);
                     mButtonPersistent.setEnabled(false);
+                    mButtonMute.setEnabled(true);
                     mButtonQuality.setEnabled(true);
                     break;
             }
@@ -2415,6 +2437,10 @@ public class CameraXActivity extends AppCompatActivity {
 
         ToggleButton getButtonPersistent() {
             return mButtonPersistent;
+        }
+
+        ImageButton getButtonMute() {
+            return mButtonMute;
         }
     }
 
