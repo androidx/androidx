@@ -70,6 +70,7 @@ import androidx.compose.material3.samples.ElevatedToggleButtonSample
 import androidx.compose.material3.samples.EnterAlwaysTopAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBar
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
+import androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixedVibrant
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedAround
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
 import androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
@@ -691,6 +692,13 @@ val BottomAppBarsExamples =
             sourceUrl = BottomAppBarsExampleSourceUrl,
         ) {
             ExitAlwaysBottomAppBarFixed()
+        },
+        Example(
+            name = "ExitAlwaysBottomAppBarFixedVibrant",
+            description = BottomAppBarsExampleDescription,
+            sourceUrl = BottomAppBarsExampleSourceUrl,
+        ) {
+            ExitAlwaysBottomAppBarFixedVibrant()
         }
     )
 

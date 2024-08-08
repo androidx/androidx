@@ -1189,6 +1189,7 @@ fun BottomAppBar(
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedBetween
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarSpacedEvenly
  * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixed
+ * @sample androidx.compose.material3.samples.ExitAlwaysBottomAppBarFixedVibrant
  * @param horizontalArrangement the horizontal arrangement of the content.
  * @param modifier the [Modifier] to be applied to this BottomAppBar
  * @param containerColor the color used for the background of this BottomAppBar. Use
