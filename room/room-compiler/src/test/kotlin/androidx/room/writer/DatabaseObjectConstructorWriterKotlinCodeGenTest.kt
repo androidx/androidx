@@ -30,12 +30,10 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
 
     @get:Rule val testName = TestName()
 
-    @Test
-    fun actualDatabaseConstructor() {
-        val src =
-            Source.kotlin(
-                "MyDatabase.kt",
-                """
+    private val databaseSrc =
+        Source.kotlin(
+            "MyDatabase.kt",
+            """
             import androidx.room.*
 
             @Database(entities = [MyEntity::class], version = 1, exportSchema = false)
@@ -43,8 +41,6 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
             abstract class MyDatabase : RoomDatabase() {
               abstract fun getDao(): MyDao
             }
-
-            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
 
             @Dao
             interface MyDao {
@@ -58,9 +54,43 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
                 var pk: Int
             )
             """
+                .trimIndent()
+        )
+
+    @Test
+    fun actualDatabaseConstructor() {
+        val ctorSrc =
+            Source.kotlin(
+                "MyDatabaseCtor.kt",
+                """
+            import androidx.room.*
+
+            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
+            """
                     .trimIndent()
             )
-        runTest(sources = listOf(src), expectedFilePath = getTestGoldenPath(testName.methodName))
+        runTest(
+            sources = listOf(databaseSrc, ctorSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
+    @Test
+    fun actualDatabaseConstructor_internal() {
+        val ctorSrc =
+            Source.kotlin(
+                "MyDatabaseCtor.kt",
+                """
+            import androidx.room.*
+
+            internal expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase>
+            """
+                    .trimIndent()
+            )
+        runTest(
+            sources = listOf(databaseSrc, ctorSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
     }
 
     private fun getTestGoldenPath(testName: String): String {

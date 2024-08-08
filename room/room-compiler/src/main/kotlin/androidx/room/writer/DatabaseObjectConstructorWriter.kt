@@ -37,18 +37,25 @@ class DatabaseObjectConstructorWriter(
         val objectClassName = constructorObjectElement.asClassName().toKotlinPoet()
         val typeSpec =
             TypeSpec.objectBuilder(objectClassName)
-                .addOriginatingElement(database.element)
-                .addModifiers(KModifier.ACTUAL)
-                .addSuperinterface(
-                    ROOM_DB_CONSTRUCTOR.toKotlinPoet().parameterizedBy(databaseClassName)
-                )
-                .addFunction(
-                    FunSpec.builder("initialize")
-                        .addModifiers(KModifier.OVERRIDE)
-                        .returns(databaseClassName)
-                        .addStatement("return %L()", database.implTypeName.toKotlinPoet())
-                        .build()
-                )
+                .apply {
+                    addOriginatingElement(database.element)
+                    addModifiers(KModifier.ACTUAL)
+                    if (constructorObjectElement.isInternal()) {
+                        addModifiers(KModifier.INTERNAL)
+                    } else if (constructorObjectElement.isPublic()) {
+                        addModifiers(KModifier.PUBLIC)
+                    }
+                    addSuperinterface(
+                        ROOM_DB_CONSTRUCTOR.toKotlinPoet().parameterizedBy(databaseClassName)
+                    )
+                    addFunction(
+                        FunSpec.builder("initialize")
+                            .addModifiers(KModifier.OVERRIDE)
+                            .returns(databaseClassName)
+                            .addStatement("return %L()", database.implTypeName.toKotlinPoet())
+                            .build()
+                    )
+                }
                 .build()
         val fileSpec =
             FileSpec.builder(objectClassName.packageName, objectClassName.simpleName)

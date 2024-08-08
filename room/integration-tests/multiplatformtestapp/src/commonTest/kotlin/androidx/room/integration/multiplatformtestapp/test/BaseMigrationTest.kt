@@ -257,5 +257,5 @@ abstract class BaseMigrationTest {
     }
 }
 
-expect object BaseMigrationTest_MigrationDatabaseConstructor :
+internal expect object BaseMigrationTest_MigrationDatabaseConstructor :
     RoomDatabaseConstructor<MigrationDatabase>
