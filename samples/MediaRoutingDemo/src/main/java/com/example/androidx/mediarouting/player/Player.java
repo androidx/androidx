@@ -46,7 +46,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
-import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.androidx.mediarouting.R;
@@ -202,10 +201,10 @@ public abstract class Player {
             @NonNull RouteInfo route,
             @NonNull MediaSessionCompat session) {
         Player player;
-        if (route.supportsControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
-            player = new RemotePlayer(activity);
-        } else {
+        if (route.isSystemRoute()) {
             player = new LocalPlayer.SurfaceViewPlayer(activity);
+        } else {
+            player = new RemotePlayer(activity);
         }
         player.setPlayPauseNotificationAction();
         player.setMediaSession(session);
