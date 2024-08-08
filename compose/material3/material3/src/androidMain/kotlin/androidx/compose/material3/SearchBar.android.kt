@@ -372,21 +372,27 @@ object SearchBarDefaults {
      * Creates a [SearchBarColors] that represents the different colors used in parts of the search
      * bar in different states.
      *
-     * For colors used in the input field, see [SearchBarDefaults.inputFieldColors].
-     *
      * @param containerColor the container color of the search bar
      * @param dividerColor the color of the divider between the input field and the search results
+     * @param inputFieldColors the colors of the input field. This can be accessed using
+     *   [SearchBarColors.inputFieldColors] and should be passed to the `inputField` slot of the
+     *   search bar.
      */
-    @Suppress("DEPRECATION")
     @Composable
     fun colors(
         containerColor: Color = SearchBarTokens.ContainerColor.value,
         dividerColor: Color = SearchViewTokens.DividerColor.value,
+        inputFieldColors: TextFieldColors =
+            inputFieldColors(
+                focusedContainerColor = containerColor,
+                unfocusedContainerColor = containerColor,
+                disabledContainerColor = containerColor,
+            ),
     ): SearchBarColors =
         SearchBarColors(
             containerColor = containerColor,
             dividerColor = dividerColor,
-            inputFieldColors = inputFieldColors(),
+            inputFieldColors = inputFieldColors,
         )
 
     /**
@@ -462,9 +468,9 @@ object SearchBarDefaults {
             FilledTextFieldTokens.InputSuffixColor.value.copy(
                 alpha = FilledTextFieldTokens.DisabledInputOpacity
             ),
-        focusedContainerColor: Color = Color.Transparent,
-        unfocusedContainerColor: Color = Color.Transparent,
-        disabledContainerColor: Color = Color.Transparent,
+        focusedContainerColor: Color = SearchBarTokens.ContainerColor.value,
+        unfocusedContainerColor: Color = SearchBarTokens.ContainerColor.value,
+        disabledContainerColor: Color = SearchBarTokens.ContainerColor.value,
     ): TextFieldColors =
         TextFieldDefaults.colors(
             focusedTextColor = focusedTextColor,
@@ -763,7 +769,21 @@ object SearchBarDefaults {
                         shape = SearchBarDefaults.inputFieldShape,
                         colors = colors,
                         contentPadding = TextFieldDefaults.contentPaddingWithoutLabel(),
-                        container = {},
+                        container = {
+                            val containerColor =
+                                animateColorAsState(
+                                    targetValue =
+                                        colors.containerColor(
+                                            enabled = enabled,
+                                            isError = false,
+                                            focused = focused
+                                        ),
+                                    animationSpec = MotionSchemeKeyTokens.FastEffects.value(),
+                                )
+                            Box(
+                                Modifier.textFieldBackground(containerColor::value, inputFieldShape)
+                            )
+                        },
                     )
                 }
         )
@@ -779,24 +799,21 @@ object SearchBarDefaults {
         }
     }
 
-    @Suppress("DEPRECATION")
-    @Deprecated(
-        message =
-            "Search bars now take the input field as a parameter. `inputFieldColors` " +
-                "should be passed explicitly to the input field. This parameter will be removed in " +
-                "a future version of the library.",
-        replaceWith = ReplaceWith("colors(containerColor, dividerColor)"),
-    )
+    @Deprecated(message = "Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
     @Composable
     fun colors(
         containerColor: Color = SearchBarTokens.ContainerColor.value,
         dividerColor: Color = SearchViewTokens.DividerColor.value,
-        inputFieldColors: TextFieldColors = inputFieldColors(),
     ): SearchBarColors =
         SearchBarColors(
             containerColor = containerColor,
             dividerColor = dividerColor,
-            inputFieldColors = inputFieldColors,
+            inputFieldColors =
+                inputFieldColors(
+                    focusedContainerColor = containerColor,
+                    unfocusedContainerColor = containerColor,
+                    disabledContainerColor = containerColor,
+                ),
         )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -856,9 +873,9 @@ object SearchBarDefaults {
                 FilledTextFieldTokens.InputSuffixColor.value.copy(
                     alpha = FilledTextFieldTokens.DisabledInputOpacity
                 ),
-            focusedContainerColor = Color.Transparent,
-            unfocusedContainerColor = Color.Transparent,
-            disabledContainerColor = Color.Transparent,
+            focusedContainerColor = SearchBarTokens.ContainerColor.value,
+            unfocusedContainerColor = SearchBarTokens.ContainerColor.value,
+            disabledContainerColor = SearchBarTokens.ContainerColor.value,
         )
 
     @Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
@@ -913,25 +930,17 @@ object SearchBarDefaults {
  * See [SearchBarDefaults.colors] for the default implementation that follows Material
  * specifications.
  */
-@Suppress("DEPRECATION")
 @ExperimentalMaterial3Api
 @Immutable
-class SearchBarColors
-@Deprecated(
-    "Search bars now take the input field as a parameter. TextFieldColors should be " +
-        "passed explicitly to the input field. The `inputFieldColors` parameter will be removed in " +
-        "a future version of the library."
-)
-constructor(
+class SearchBarColors(
     val containerColor: Color,
     val dividerColor: Color,
-    @Deprecated(
-        "Search bars now take the input field as a parameter. TextFieldColors should be " +
-            "passed explicitly to the input field. The `inputFieldColors` property will be removed " +
-            "in a future version of the library."
-    )
     val inputFieldColors: TextFieldColors,
 ) {
+    @Deprecated(
+        message = "Use overload that takes `inputFieldColors",
+        replaceWith = ReplaceWith("SearchBarColors(containerColor, dividerColor, inputFieldColors)")
+    )
     constructor(
         containerColor: Color,
         dividerColor: Color,
