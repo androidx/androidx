@@ -364,22 +364,17 @@ internal class ViewLayer(
 
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
-            matrixCache.calculateInverseMatrix(this)?.map(point) ?: Offset.Infinite
+            matrixCache.mapInverse(this, point)
         } else {
-            matrixCache.calculateMatrix(this).map(point)
+            matrixCache.map(this, point)
         }
     }
 
     override fun mapBounds(rect: MutableRect, inverse: Boolean) {
         if (inverse) {
-            val matrix = matrixCache.calculateInverseMatrix(this)
-            if (matrix != null) {
-                matrix.map(rect)
-            } else {
-                rect.set(0f, 0f, 0f, 0f)
-            }
+            matrixCache.mapInverse(this, rect)
         } else {
-            matrixCache.calculateMatrix(this).map(rect)
+            matrixCache.map(this, rect)
         }
     }
 
@@ -392,6 +387,7 @@ internal class ViewLayer(
         } else {
             visibility = VISIBLE
         }
+        matrixCache.reset()
         clipToBounds = false
         drawnWithZ = false
         mTransformOrigin = TransformOrigin.Center
