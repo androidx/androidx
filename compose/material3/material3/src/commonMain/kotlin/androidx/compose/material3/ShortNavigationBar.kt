@@ -25,9 +25,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.internal.systemBarsForVisualComponents
-import androidx.compose.material3.tokens.ColorSchemeKeyTokens
-import androidx.compose.material3.tokens.ShapeKeyTokens
-import androidx.compose.material3.tokens.TypographyKeyTokens
+import androidx.compose.material3.tokens.NavigationBarHorizontalItemTokens
+import androidx.compose.material3.tokens.NavigationBarTokens
+import androidx.compose.material3.tokens.NavigationBarVerticalItemTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -101,7 +101,7 @@ fun ShortNavigationBar(
             modifier =
                 modifier
                     .windowInsetsPadding(windowInsets)
-                    .defaultMinSize(minHeight = NavigationBarHeight)
+                    .defaultMinSize(minHeight = NavigationBarTokens.ContainerHeight)
                     .selectableGroup(),
             content = content,
             measurePolicy =
@@ -217,9 +217,9 @@ fun ShortNavigationBarItem(
         selected = selected,
         onClick = onClick,
         icon = icon,
-        labelTextStyle = LabelTextFont.value,
-        indicatorShape = ActiveIndicatorShape.value,
-        indicatorWidth = TopIconItemActiveIndicatorWidth,
+        labelTextStyle = NavigationBarTokens.LabelTextFont.value,
+        indicatorShape = NavigationBarTokens.ItemActiveIndicatorShape.value,
+        indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth,
         indicatorHorizontalPadding = indicatorHorizontalPadding,
         indicatorVerticalPadding = indicatorVerticalPadding,
         indicatorToLabelVerticalPadding = TopIconIndicatorToLabelPadding,
@@ -239,14 +239,12 @@ fun ShortNavigationBarItem(
 @ExperimentalMaterial3ExpressiveApi
 object ShortNavigationBarDefaults {
     /** Default container color for a short navigation bar. */
-    // TODO: Replace with token.
     val containerColor: Color
-        @Composable get() = ColorSchemeKeyTokens.SurfaceContainer.value
+        @Composable get() = NavigationBarTokens.ContainerColor.value
 
     /** Default content color for a short navigation bar. */
-    // TODO: Replace with token.
     val contentColor: Color
-        @Composable get() = ColorSchemeKeyTokens.OnSurfaceVariant.value
+        @Composable get() = contentColorFor(containerColor)
 
     /** Default arrangement for a short navigation bar. */
     val arrangement: ShortNavigationBarArrangement
@@ -274,15 +272,19 @@ object ShortNavigationBarItemDefaults {
         get() {
             return defaultShortNavigationBarItemColorsCached
                 ?: NavigationItemColors(
-                        selectedIconColor = fromToken(ActiveIconColor),
-                        selectedTextColor = fromToken(ActiveLabelTextColor),
-                        selectedIndicatorColor = fromToken(ActiveIndicatorColor),
-                        unselectedIconColor = fromToken(InactiveIconColor),
-                        unselectedTextColor = fromToken(InactiveLabelTextColor),
+                        selectedIconColor = fromToken(NavigationBarTokens.ItemActiveIconColor),
+                        selectedTextColor = fromToken(NavigationBarTokens.ItemActiveLabelTextColor),
+                        selectedIndicatorColor =
+                            fromToken(NavigationBarTokens.ItemActiveIndicatorColor),
+                        unselectedIconColor = fromToken(NavigationBarTokens.ItemInactiveIconColor),
+                        unselectedTextColor =
+                            fromToken(NavigationBarTokens.ItemInactiveLabelTextColor),
                         disabledIconColor =
-                            fromToken(InactiveIconColor).copy(alpha = DisabledAlpha),
+                            fromToken(NavigationBarTokens.ItemInactiveIconColor)
+                                .copy(alpha = DisabledAlpha),
                         disabledTextColor =
-                            fromToken(InactiveLabelTextColor).copy(alpha = DisabledAlpha),
+                            fromToken(NavigationBarTokens.ItemInactiveLabelTextColor)
+                                .copy(alpha = DisabledAlpha),
                     )
                     .also { defaultShortNavigationBarItemColorsCached = it }
         }
@@ -424,33 +426,24 @@ private fun calculateCenteredContentHorizontalPadding(itemsCount: Int, barWidth:
     return (paddingPercentage * barWidth).roundToInt()
 }
 
-/* TODO: Replace below values with tokens. */
-private val IconSize = 24.0.dp
-private val TopIconItemActiveIndicatorWidth = 56.dp
-private val TopIconItemActiveIndicatorHeight = 32.dp
-private val StartIconItemActiveIndicatorHeight = 40.dp
-private val LabelTextFont = TypographyKeyTokens.LabelMedium
-private val ActiveIndicatorShape = ShapeKeyTokens.CornerFull
-// TODO: Update to OnSecondaryContainer once value matches Secondary.
-private val ActiveIconColor = ColorSchemeKeyTokens.Secondary
-// TODO: Update to OnSecondaryContainer once value matches Secondary.
-private val ActiveLabelTextColor = ColorSchemeKeyTokens.Secondary
-private val ActiveIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
-private val InactiveIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-private val InactiveLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
-private val NavigationBarHeight = 64.dp
-
 /*@VisibleForTesting*/
-internal val TopIconItemVerticalPadding = 6.dp
+internal val TopIconItemVerticalPadding = NavigationBarVerticalItemTokens.ContainerBetweenSpace
 /*@VisibleForTesting*/
-internal val TopIconIndicatorVerticalPadding = (TopIconItemActiveIndicatorHeight - IconSize) / 2
+internal val TopIconIndicatorVerticalPadding =
+    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
+        NavigationBarVerticalItemTokens.IconSize) / 2
 /*@VisibleForTesting*/
-internal val TopIconIndicatorHorizontalPadding = (TopIconItemActiveIndicatorWidth - IconSize) / 2
+internal val TopIconIndicatorHorizontalPadding =
+    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationBarVerticalItemTokens.IconSize) / 2
 /*@VisibleForTesting*/
-internal val StartIconIndicatorVerticalPadding = (StartIconItemActiveIndicatorHeight - IconSize) / 2
+internal val StartIconIndicatorVerticalPadding =
+    (NavigationBarHorizontalItemTokens.ActiveIndicatorHeight -
+        NavigationBarHorizontalItemTokens.IconSize) / 2
 /*@VisibleForTesting*/
 internal val TopIconIndicatorToLabelPadding: Dp = 4.dp
 /*@VisibleForTesting*/
-internal val StartIconIndicatorHorizontalPadding = 16.dp /* TODO: Replace with token. */
+internal val StartIconIndicatorHorizontalPadding =
+    NavigationBarHorizontalItemTokens.ActiveIndicatorLeadingSpace
 /*@VisibleForTesting*/
-internal val StartIconToLabelPadding = 4.dp /* TODO: Replace with token. */
+internal val StartIconToLabelPadding = NavigationBarTokens.ItemActiveIndicatorIconLabelSpace

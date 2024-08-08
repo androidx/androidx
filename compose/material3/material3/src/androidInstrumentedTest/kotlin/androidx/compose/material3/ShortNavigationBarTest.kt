@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.NavigationBarTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertIsEqualTo
@@ -94,7 +95,7 @@ class ShortNavigationBarTest {
 
     @Test
     fun bar_size() {
-        val height = 64.dp // TODO: Replace with token.
+        val height = NavigationBarTokens.ContainerHeight
         rule
             .setMaterialContentForSizeAssertions {
                 ShortNavigationBar {
@@ -154,7 +155,7 @@ class ShortNavigationBarTest {
         rule.runOnIdleWithDensity {
             val width = parentCoords.size.width
             val expectedItemWidth = (width / 4f)
-            val expectedItemHeight = 64.dp.toPx() // TODO: Replace with token.
+            val expectedItemHeight = NavigationBarTokens.ContainerHeight.toPx()
 
             Truth.assertThat(itemCoords.size).isEqualTo(4)
             itemCoords.forEach { (index, coord) ->
@@ -169,7 +170,7 @@ class ShortNavigationBarTest {
 
     @Test
     fun bar_equalWeightArrangement_topIconItemWithLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = 64.dp // TODO: Replace with token.
+        val defaultHeight = NavigationBarTokens.ContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             ShortNavigationBar(modifier = Modifier.testTag("TAG")) {
@@ -350,7 +351,7 @@ class ShortNavigationBarTest {
 
     @Test
     fun bar_centeredArrangement_startIconItemWithLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = 64.dp // TODO: Replace with token.
+        val defaultHeight = NavigationBarTokens.ContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             ShortNavigationBar(

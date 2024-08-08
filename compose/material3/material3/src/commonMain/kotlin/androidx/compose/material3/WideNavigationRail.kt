@@ -41,11 +41,14 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.draggableAnchors
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.internal.systemBarsForVisualComponents
-import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
+import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
+import androidx.compose.material3.tokens.NavigationRailColorTokens
+import androidx.compose.material3.tokens.NavigationRailExpandedTokens
+import androidx.compose.material3.tokens.NavigationRailHorizontalItemTokens
+import androidx.compose.material3.tokens.NavigationRailVerticalItemTokens
 import androidx.compose.material3.tokens.ScrimTokens
-import androidx.compose.material3.tokens.ShapeKeyTokens
-import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -195,7 +198,7 @@ private fun WideNavigationRailLayout(
         )
     val itemVerticalSpacedBy by
         animateDpAsState(
-            targetValue = if (!expanded) VerticalPaddingBetweenTopIconItems else 0.dp,
+            targetValue = if (!expanded) NavigationRailCollapsedTokens.ItemVerticalSpace else 0.dp,
             animationSpec = animationSpec
         )
     val itemMarginStart by
@@ -283,7 +286,7 @@ private fun WideNavigationRailLayout(
                                                         ),
                                                     minHeight =
                                                         if (!expanded)
-                                                            WNRTopIconItemMinHeight.roundToPx()
+                                                            TopIconItemMinHeight.roundToPx()
                                                         else minimumA11ySize.roundToPx(),
                                                     maxWidth = itemMaxWidthConstraint,
                                                     maxHeight = looseConstraints.maxHeight,
@@ -535,16 +538,18 @@ fun WideNavigationRailItem(
             selected = selected,
             onClick = onClick,
             icon = icon,
-            indicatorShape = ActiveIndicatorShape.value,
-            topIconIndicatorWidth = TopIconItemActiveIndicatorWidth,
-            topIconLabelTextStyle = TopIconLabelTextFont.value,
-            startIconLabelTextStyle = StartIconLabelTextFont.value,
+            indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
+            topIconIndicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
+            topIconLabelTextStyle = NavigationRailVerticalItemTokens.LabelTextFont.value,
+            startIconLabelTextStyle = NavigationRailHorizontalItemTokens.LabelTextFont.value,
             topIconIndicatorHorizontalPadding = ItemTopIconIndicatorHorizontalPadding,
             topIconIndicatorVerticalPadding = ItemTopIconIndicatorVerticalPadding,
-            topIconIndicatorToLabelVerticalPadding = ItemTopIconIndicatorToLabelPadding,
-            startIconIndicatorHorizontalPadding = ItemStartIconIndicatorHorizontalPadding,
+            topIconIndicatorToLabelVerticalPadding =
+                NavigationRailVerticalItemTokens.IconLabelSpace,
+            startIconIndicatorHorizontalPadding =
+                NavigationRailHorizontalItemTokens.FullWidthLeadingSpace,
             startIconIndicatorVerticalPadding = ItemStartIconIndicatorVerticalPadding,
-            startIconToLabelHorizontalPadding = ItemStartIconToLabelPadding,
+            startIconToLabelHorizontalPadding = NavigationRailHorizontalItemTokens.IconLabelSpace,
             startIconItemPadding = ExpandedRailHorizontalItemPadding,
             colors = colors,
             modifier = modifier,
@@ -560,9 +565,9 @@ fun WideNavigationRailItem(
             selected = selected,
             onClick = onClick,
             icon = icon,
-            labelTextStyle = TopIconLabelTextFont.value,
-            indicatorShape = ActiveIndicatorShape.value,
-            indicatorWidth = TopIconItemActiveIndicatorWidth,
+            labelTextStyle = NavigationRailVerticalItemTokens.LabelTextFont.value,
+            indicatorShape = NavigationRailBaselineItemTokens.ActiveIndicatorShape.value,
+            indicatorWidth = NavigationRailVerticalItemTokens.ActiveIndicatorWidth,
             indicatorHorizontalPadding = WNRItemNoLabelIndicatorPadding,
             indicatorVerticalPadding = WNRItemNoLabelIndicatorPadding,
             indicatorToLabelVerticalPadding = 0.dp,
@@ -667,14 +672,12 @@ class WideNavigationRailColors(
 @ExperimentalMaterial3ExpressiveApi
 object WideNavigationRailDefaults {
     /** Default container shape of a wide navigation rail. */
-    // TODO: Replace with token.
     val containerShape: Shape
-        @Composable get() = ShapeKeyTokens.CornerNone.value
+        @Composable get() = NavigationRailCollapsedTokens.ContainerShape.value
 
     /** Default container shape of a modal expanded navigation rail. */
-    // TODO: Replace with token.
     val modalContainerShape: Shape
-        @Composable get() = ShapeKeyTokens.CornerLarge.value
+        @Composable get() = NavigationRailExpandedTokens.ModalContainerShape.value
 
     /** Default arrangement for a wide navigation rail. */
     val Arrangement: WideNavigationRailArrangement
@@ -694,16 +697,18 @@ object WideNavigationRailDefaults {
      */
     @Composable fun colors() = MaterialTheme.colorScheme.defaultWideWideNavigationRailColors
 
+    private val containerColor: Color
+        @Composable get() = NavigationRailCollapsedTokens.ContainerColor.value
+
     private val ColorScheme.defaultWideWideNavigationRailColors: WideNavigationRailColors
         @Composable
         get() {
             return mDefaultWideWideNavigationRailColorsCached
                 ?: WideNavigationRailColors(
-                        // TODO: Replace with tokens.
-                        containerColor = fromToken(ColorSchemeKeyTokens.Surface),
-                        contentColor = fromToken(ColorSchemeKeyTokens.OnSurfaceVariant),
+                        containerColor = containerColor,
+                        contentColor = contentColorFor(containerColor),
                         expandedModalContainerColor =
-                            fromToken(ColorSchemeKeyTokens.SurfaceContainer),
+                            fromToken(NavigationRailExpandedTokens.ModalContainerColor),
                         expandedModalScrimColor =
                             ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
                     )
@@ -731,15 +736,20 @@ object WideNavigationRailItemDefaults {
         get() {
             return defaultWideNavigationRailItemColorsCached
                 ?: NavigationItemColors(
-                        selectedIconColor = fromToken(ActiveIconColor),
-                        selectedTextColor = fromToken(ActiveLabelTextColor),
-                        selectedIndicatorColor = fromToken(ActiveIndicatorColor),
-                        unselectedIconColor = fromToken(InactiveIconColor),
-                        unselectedTextColor = fromToken(InactiveLabelTextColor),
+                        selectedIconColor = fromToken(NavigationRailColorTokens.ItemActiveIcon),
+                        selectedTextColor =
+                            fromToken(NavigationRailColorTokens.ItemActiveLabelText),
+                        selectedIndicatorColor =
+                            fromToken(NavigationRailColorTokens.ItemActiveIndicator),
+                        unselectedIconColor = fromToken(NavigationRailColorTokens.ItemInactiveIcon),
+                        unselectedTextColor =
+                            fromToken(NavigationRailColorTokens.ItemInactiveLabelText),
                         disabledIconColor =
-                            fromToken(InactiveIconColor).copy(alpha = DisabledAlpha),
+                            fromToken(NavigationRailColorTokens.ItemInactiveIcon)
+                                .copy(alpha = DisabledAlpha),
                         disabledTextColor =
-                            fromToken(InactiveLabelTextColor).copy(alpha = DisabledAlpha),
+                            fromToken(NavigationRailColorTokens.ItemInactiveLabelText)
+                                .copy(alpha = DisabledAlpha),
                     )
                     .also { defaultWideNavigationRailItemColorsCached = it }
         }
@@ -864,48 +874,30 @@ private fun Scrim(color: Color, onDismissRequest: suspend () -> Unit, visible: B
     }
 }
 
-private const val HeaderLayoutIdTag: String = "header"
+/*@VisibleForTesting*/
+internal val WNRItemNoLabelIndicatorPadding =
+    (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationRailBaselineItemTokens.IconSize) / 2
 
-/* TODO: Replace below values with tokens. */
-private val IconSize = 24.0.dp
-private val TopIconItemActiveIndicatorWidth = 56.dp
-private val TopIconItemActiveIndicatorHeight = 32.dp
-private val StartIconItemActiveIndicatorHeight = 56.dp
-private val NoLabelItemActiveIndicatorHeight = 56.dp
-private val TopIconLabelTextFont = TypographyKeyTokens.LabelMedium
-private val StartIconLabelTextFont = TypographyKeyTokens.LabelLarge
-private val ActiveIndicatorShape = ShapeKeyTokens.CornerFull
-private val CollapsedRailWidth = 96.dp
-private val ExpandedRailMinWidth = 220.dp
-private val ExpandedRailMaxWidth = 360.dp
 private val ExpandedRailHorizontalItemPadding = 20.dp
-private val ItemStartIconIndicatorHorizontalPadding = 16.dp
-private val ItemStartIconToLabelPadding = 8.dp
-/*@VisibleForTesting*/
-internal val WNRTopIconItemMinHeight = 64.dp
-
-/*@VisibleForTesting*/
 // Vertical padding between the contents of the wide navigation rail and its top/bottom.
-internal val WNRVerticalPadding = 44.dp
-/*@VisibleForTesting*/
+private val WNRVerticalPadding = NavigationRailCollapsedTokens.TopSpace
 // Padding at the bottom of the rail's header. This padding will only be added when the header is
 // not null and the rail arrangement is Top.
-internal val WNRHeaderPadding: Dp = 40.dp
-/*@VisibleForTesting*/
-internal val WNRItemNoLabelIndicatorPadding = (NoLabelItemActiveIndicatorHeight - IconSize) / 2
-
-private val VerticalPaddingBetweenTopIconItems = 4.dp
-private val ItemMinWidth = CollapsedRailWidth
-private val ItemTopIconIndicatorVerticalPadding = (TopIconItemActiveIndicatorHeight - IconSize) / 2
-private val ItemTopIconIndicatorHorizontalPadding = (TopIconItemActiveIndicatorWidth - IconSize) / 2
+private val WNRHeaderPadding: Dp = NavigationRailBaselineItemTokens.HeaderSpaceMinimum
+private val CollapsedRailWidth = NavigationRailCollapsedTokens.ContainerWidth
+private val ExpandedRailMinWidth = NavigationRailExpandedTokens.ContainerWidthMinimum
+private val ExpandedRailMaxWidth = NavigationRailExpandedTokens.ContainerWidthMaximum
+private val ItemMinWidth = NavigationRailCollapsedTokens.ContainerWidth
+private val TopIconItemMinHeight = NavigationRailBaselineItemTokens.ContainerHeight
+private val ItemTopIconIndicatorVerticalPadding =
+    (NavigationRailVerticalItemTokens.ActiveIndicatorHeight -
+        NavigationRailBaselineItemTokens.IconSize) / 2
+private val ItemTopIconIndicatorHorizontalPadding =
+    (NavigationRailVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationRailBaselineItemTokens.IconSize) / 2
 private val ItemStartIconIndicatorVerticalPadding =
-    (StartIconItemActiveIndicatorHeight - IconSize) / 2
-private val ItemTopIconIndicatorToLabelPadding: Dp = 4.dp
+    (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
+        NavigationRailBaselineItemTokens.IconSize) / 2
 
-/* TODO: Replace below values with tokens. */
-// TODO: Update to OnSecondaryContainer once value matches Secondary.
-private val ActiveIconColor = ColorSchemeKeyTokens.Secondary
-private val ActiveLabelTextColor = ColorSchemeKeyTokens.Secondary
-private val ActiveIndicatorColor = ColorSchemeKeyTokens.SecondaryContainer
-private val InactiveIconColor = ColorSchemeKeyTokens.OnSurfaceVariant
-private val InactiveLabelTextColor = ColorSchemeKeyTokens.OnSurfaceVariant
+private const val HeaderLayoutIdTag: String = "header"

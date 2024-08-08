@@ -41,6 +41,7 @@ import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.NavigationBarTokens
+import androidx.compose.material3.tokens.NavigationBarVerticalItemTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
@@ -250,7 +251,7 @@ fun RowScope.NavigationBarItem(
         // the indicator.
         val deltaOffset: Offset
         with(LocalDensity.current) {
-            val indicatorWidth = NavigationBarTokens.ActiveIndicatorWidth.roundToPx()
+            val indicatorWidth = NavigationBarVerticalItemTokens.ActiveIndicatorWidth.roundToPx()
             deltaOffset =
                 Offset((itemWidth - indicatorWidth).toFloat() / 2, IndicatorVerticalOffset.toPx())
         }
@@ -265,7 +266,7 @@ fun RowScope.NavigationBarItem(
             @Composable {
                 Box(
                     Modifier.layoutId(IndicatorRippleLayoutIdTag)
-                        .clip(NavigationBarTokens.ActiveIndicatorShape.value)
+                        .clip(NavigationBarTokens.ItemActiveIndicatorShape.value)
                         .indication(offsetInteractionSource, ripple())
                 )
             }
@@ -276,7 +277,7 @@ fun RowScope.NavigationBarItem(
                         .graphicsLayer { alpha = alphaAnimationProgress.value }
                         .background(
                             color = colors.indicatorColor,
-                            shape = NavigationBarTokens.ActiveIndicatorShape.value,
+                            shape = NavigationBarTokens.ItemActiveIndicatorShape.value,
                         )
                 )
             }
@@ -357,17 +358,18 @@ object NavigationBarItemDefaults {
         get() {
             return defaultNavigationBarItemColorsCached
                 ?: NavigationBarItemColors(
-                        selectedIconColor = fromToken(NavigationBarTokens.ActiveIconColor),
-                        selectedTextColor = fromToken(NavigationBarTokens.ActiveLabelTextColor),
+                        selectedIconColor = fromToken(NavigationBarTokens.ItemActiveIconColor),
+                        selectedTextColor = fromToken(NavigationBarTokens.ItemActiveLabelTextColor),
                         selectedIndicatorColor =
-                            fromToken(NavigationBarTokens.ActiveIndicatorColor),
-                        unselectedIconColor = fromToken(NavigationBarTokens.InactiveIconColor),
-                        unselectedTextColor = fromToken(NavigationBarTokens.InactiveLabelTextColor),
+                            fromToken(NavigationBarTokens.ItemActiveIndicatorColor),
+                        unselectedIconColor = fromToken(NavigationBarTokens.ItemInactiveIconColor),
+                        unselectedTextColor =
+                            fromToken(NavigationBarTokens.ItemInactiveLabelTextColor),
                         disabledIconColor =
-                            fromToken(NavigationBarTokens.InactiveIconColor)
+                            fromToken(NavigationBarTokens.ItemInactiveIconColor)
                                 .copy(alpha = DisabledAlpha),
                         disabledTextColor =
-                            fromToken(NavigationBarTokens.InactiveLabelTextColor)
+                            fromToken(NavigationBarTokens.ItemInactiveLabelTextColor)
                                 .copy(alpha = DisabledAlpha),
                     )
                     .also { defaultNavigationBarItemColorsCached = it }
@@ -379,11 +381,11 @@ object NavigationBarItemDefaults {
     )
     @Composable
     fun colors(
-        selectedIconColor: Color = NavigationBarTokens.ActiveIconColor.value,
-        selectedTextColor: Color = NavigationBarTokens.ActiveLabelTextColor.value,
-        indicatorColor: Color = NavigationBarTokens.ActiveIndicatorColor.value,
-        unselectedIconColor: Color = NavigationBarTokens.InactiveIconColor.value,
-        unselectedTextColor: Color = NavigationBarTokens.InactiveLabelTextColor.value,
+        selectedIconColor: Color = NavigationBarTokens.ItemActiveIconColor.value,
+        selectedTextColor: Color = NavigationBarTokens.ItemActiveLabelTextColor.value,
+        indicatorColor: Color = NavigationBarTokens.ItemActiveIndicatorColor.value,
+        unselectedIconColor: Color = NavigationBarTokens.ItemInactiveIconColor.value,
+        unselectedTextColor: Color = NavigationBarTokens.ItemInactiveLabelTextColor.value,
     ): NavigationBarItemColors =
         NavigationBarItemColors(
             selectedIconColor = selectedIconColor,
@@ -716,7 +718,7 @@ private const val IconLayoutIdTag: String = "icon"
 
 private const val LabelLayoutIdTag: String = "label"
 
-private val NavigationBarHeight: Dp = NavigationBarTokens.ContainerHeight
+private val NavigationBarHeight: Dp = NavigationBarTokens.TallContainerHeight
 
 /*@VisibleForTesting*/
 internal val NavigationBarItemHorizontalPadding: Dp = 8.dp
@@ -725,10 +727,12 @@ internal val NavigationBarItemHorizontalPadding: Dp = 8.dp
 internal val NavigationBarIndicatorToLabelPadding: Dp = 4.dp
 
 private val IndicatorHorizontalPadding: Dp =
-    (NavigationBarTokens.ActiveIndicatorWidth - NavigationBarTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorWidth -
+        NavigationBarVerticalItemTokens.IconSize) / 2
 
 /*@VisibleForTesting*/
 internal val IndicatorVerticalPadding: Dp =
-    (NavigationBarTokens.ActiveIndicatorHeight - NavigationBarTokens.IconSize) / 2
+    (NavigationBarVerticalItemTokens.ActiveIndicatorHeight -
+        NavigationBarVerticalItemTokens.IconSize) / 2
 
 private val IndicatorVerticalOffset: Dp = 12.dp

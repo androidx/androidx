@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
+import androidx.compose.material3.tokens.NavigationRailExpandedTokens
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -80,7 +81,7 @@ class ModalExpandedNavigationRailTest {
 
     @Test
     fun modalRail_closes() {
-        val railWidth = 220.dp // TODO: Replace with token.
+        val railWidth = NavigationRailExpandedTokens.ContainerWidthMinimum
         lateinit var railState: ModalExpandedNavigationRailState
         lateinit var scope: CoroutineScope
 
