@@ -31,7 +31,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.TopAppBarDefaults.mediumTopAppBarColors
 import androidx.compose.material3.tokens.BottomAppBarTokens
 import androidx.compose.material3.tokens.TopAppBarLargeTokens
 import androidx.compose.material3.tokens.TopAppBarMediumTokens
@@ -296,11 +295,11 @@ class AppBarTest {
     fun smallTopAppBar_customHeight() {
         lateinit var scrollBehavior: TopAppBarScrollBehavior
         val expandedHeightDp = 50.dp
-        var expandedHeightDpPx = 0f
+        var expandedHeightDpPx = 0
 
         rule.setMaterialContent(lightColorScheme()) {
             scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-            expandedHeightDpPx = with(LocalDensity.current) { expandedHeightDp.toPx() }
+            expandedHeightDpPx = with(LocalDensity.current) { expandedHeightDp.roundToPx() }
             TopAppBar(
                 title = { Text("Title", Modifier.testTag(TitleTestTag)) },
                 modifier = Modifier.testTag(TopAppBarTestTag),
@@ -311,6 +310,31 @@ class AppBarTest {
 
         assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-expandedHeightDpPx)
         rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(expandedHeightDp)
+    }
+
+    @Test
+    fun smallTopAppBar_fitsTextIfHeightTooSmall() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        val expandedHeightDp = 0.dp
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            TopAppBar(
+                title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                modifier = Modifier.testTag(TopAppBarTestTag),
+                expandedHeight = expandedHeightDp,
+                scrollBehavior = scrollBehavior
+            )
+        }
+
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getBoundsInRoot()
+        val subtitleBounds = rule.onNodeWithTag(SubtitleTestTag).getBoundsInRoot()
+        val totalHeight = titleBounds.height + subtitleBounds.height
+        val totalHeightPx = with(rule.density) { totalHeight.roundToPx() }
+
+        assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-totalHeightPx)
+        rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(totalHeight)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -664,6 +688,74 @@ class AppBarTest {
     }
 
     @Test
+    fun mediumTopAppBar_fitsTextIfHeightTooSmall_expanded() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        val collapsedHeightDp = TopAppBarDefaults.MediumAppBarCollapsedHeight
+        val expandedHeightDp = TopAppBarDefaults.MediumAppBarCollapsedHeight
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                MediumTopAppBar(
+                    navigationIcon = { FakeIcon(Modifier.testTag(NavigationIconTestTag)) },
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    actions = { FakeIcon(Modifier.testTag(ActionsTestTag)) },
+                    collapsedHeight = collapsedHeightDp,
+                    expandedHeight = expandedHeightDp,
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        }
+
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getBoundsInRoot()
+        val subtitleBounds = rule.onNodeWithTag(SubtitleTestTag).getBoundsInRoot()
+        val titlesHeight = titleBounds.height + subtitleBounds.height
+        val titlesHeightPx = with(rule.density) { titlesHeight.roundToPx() }
+
+        assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-titlesHeightPx)
+        rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(collapsedHeightDp + titlesHeight)
+    }
+
+    @Test
+    fun mediumTopAppBar_fitsTextIfHeightTooSmall_collapsed() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        val collapsedHeightDp = 0.dp
+        val expandedHeightDp = TopAppBarDefaults.MediumAppBarWithSubtitleExpandedHeight
+        var expandedHeightDpPx = 0
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            expandedHeightDpPx = with(LocalDensity.current) { expandedHeightDp.roundToPx() }
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                MediumTopAppBar(
+                    navigationIcon = { FakeIcon(Modifier.testTag(NavigationIconTestTag)) },
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    actions = { FakeIcon(Modifier.testTag(ActionsTestTag)) },
+                    collapsedHeight = collapsedHeightDp,
+                    expandedHeight = expandedHeightDp,
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        }
+
+        // Simulate a partially collapsed app bar.
+        rule.runOnIdle {
+            scrollBehavior.state.heightOffset = -expandedHeightDpPx.toFloat()
+            scrollBehavior.state.contentOffset = -expandedHeightDpPx.toFloat()
+        }
+        rule.waitForIdle()
+
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getBoundsInRoot()
+        val subtitleBounds = rule.onNodeWithTag(SubtitleTestTag).getBoundsInRoot()
+        val titlesHeight = titleBounds.height + subtitleBounds.height
+
+        assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-expandedHeightDpPx)
+        rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(titlesHeight)
+    }
+
+    @Test
     fun mediumTopAppBar_scrolled_positioning() {
         val windowInsets = WindowInsets(13.dp, 13.dp, 13.dp, 13.dp)
         val content =
@@ -812,7 +904,13 @@ class AppBarTest {
     fun mediumTopAppBarColors_noNameParams() {
         rule.setContent {
             val colors =
-                mediumTopAppBarColors(Color.Blue, Color.Green, Color.Red, Color.Yellow, Color.Cyan)
+                TopAppBarDefaults.mediumTopAppBarColors(
+                    Color.Blue,
+                    Color.Green,
+                    Color.Red,
+                    Color.Yellow,
+                    Color.Cyan
+                )
             assert(colors.containerColor == Color.Blue)
             assert(colors.scrolledContainerColor == Color.Green)
             assert(colors.navigationIconContentColor == Color.Red)
@@ -951,6 +1049,74 @@ class AppBarTest {
             appBarExpandedHeight = expandedHeightDp,
             bottomTextPadding = 28.dp
         )
+    }
+
+    @Test
+    fun largeTopAppBar_fitsTextIfHeightTooSmall_expanded() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        val collapsedHeightDp = TopAppBarDefaults.LargeAppBarCollapsedHeight
+        val expandedHeightDp = TopAppBarDefaults.LargeAppBarCollapsedHeight
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                LargeTopAppBar(
+                    navigationIcon = { FakeIcon(Modifier.testTag(NavigationIconTestTag)) },
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    actions = { FakeIcon(Modifier.testTag(ActionsTestTag)) },
+                    collapsedHeight = collapsedHeightDp,
+                    expandedHeight = expandedHeightDp,
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        }
+
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getBoundsInRoot()
+        val subtitleBounds = rule.onNodeWithTag(SubtitleTestTag).getBoundsInRoot()
+        val titlesHeight = titleBounds.height + subtitleBounds.height
+        val titlesHeightPx = with(rule.density) { titlesHeight.roundToPx() }
+
+        assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-titlesHeightPx)
+        rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(collapsedHeightDp + titlesHeight)
+    }
+
+    @Test
+    fun largeTopAppBar_fitsTextIfHeightTooSmall_collapsed() {
+        lateinit var scrollBehavior: TopAppBarScrollBehavior
+        val collapsedHeightDp = 0.dp
+        val expandedHeightDp = TopAppBarDefaults.LargeAppBarWithSubtitleExpandedHeight
+        var expandedHeightDpPx = 0
+
+        rule.setMaterialContent(lightColorScheme()) {
+            scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            expandedHeightDpPx = with(LocalDensity.current) { expandedHeightDp.roundToPx() }
+            Box(Modifier.testTag(TopAppBarTestTag)) {
+                LargeTopAppBar(
+                    navigationIcon = { FakeIcon(Modifier.testTag(NavigationIconTestTag)) },
+                    title = { Text("Title", Modifier.testTag(TitleTestTag)) },
+                    subtitle = { Text("Subtitle", Modifier.testTag(SubtitleTestTag)) },
+                    actions = { FakeIcon(Modifier.testTag(ActionsTestTag)) },
+                    collapsedHeight = collapsedHeightDp,
+                    expandedHeight = expandedHeightDp,
+                    scrollBehavior = scrollBehavior
+                )
+            }
+        }
+
+        // Simulate a partially collapsed app bar.
+        rule.runOnIdle {
+            scrollBehavior.state.heightOffset = -expandedHeightDpPx.toFloat()
+            scrollBehavior.state.contentOffset = -expandedHeightDpPx.toFloat()
+        }
+        rule.waitForIdle()
+
+        val titleBounds = rule.onNodeWithTag(TitleTestTag).getBoundsInRoot()
+        val subtitleBounds = rule.onNodeWithTag(SubtitleTestTag).getBoundsInRoot()
+        val titlesHeight = titleBounds.height + subtitleBounds.height
+
+        assertThat(scrollBehavior.state.heightOffsetLimit).isEqualTo(-expandedHeightDpPx)
+        rule.onNodeWithTag(TopAppBarTestTag).assertHeightIsEqualTo(titlesHeight)
     }
 
     @Test
@@ -1829,7 +1995,7 @@ class AppBarTest {
         // Note: This value is specifically picked to avoid precision issues when asserting the
         // color values further down this test.
         val fullyCollapsedOffsetDp = appBarMaxHeight - appBarMinHeight
-        var fullyCollapsedHeightOffsetPx = 0f
+        var fullyCollapsedHeightOffsetPx = 0
         var fullyCollapsedContainerColor: Color = Color.Unspecified
         var expandedAppBarBackgroundColor: Color = Color.Unspecified
         var titleColor = titleContentColor
@@ -1854,7 +2020,7 @@ class AppBarTest {
             }
 
             with(LocalDensity.current) {
-                fullyCollapsedHeightOffsetPx = fullyCollapsedOffsetDp.toPx()
+                fullyCollapsedHeightOffsetPx = fullyCollapsedOffsetDp.roundToPx()
             }
 
             content(scrollBehavior)
@@ -1886,8 +2052,8 @@ class AppBarTest {
 
         // Simulate fully collapsed content.
         rule.runOnIdle {
-            scrollBehavior.state.heightOffset = -fullyCollapsedHeightOffsetPx
-            scrollBehavior.state.contentOffset = -fullyCollapsedHeightOffsetPx
+            scrollBehavior.state.heightOffset = -fullyCollapsedHeightOffsetPx.toFloat()
+            scrollBehavior.state.contentOffset = -fullyCollapsedHeightOffsetPx.toFloat()
         }
         rule.waitForIdle()
         rule

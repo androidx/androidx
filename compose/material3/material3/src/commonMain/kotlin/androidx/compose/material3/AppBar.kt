@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -81,6 +80,7 @@ import androidx.compose.ui.layout.LastBaseline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
@@ -2280,10 +2280,6 @@ private fun SingleRowTopAppBar(
     require(expandedHeight.isSpecified && expandedHeight.isFinite) {
         "The expandedHeight is expected to be specified and finite"
     }
-    // Sets the app bar's height offset to collapse the entire bar's height when content is
-    // scrolled.
-    scrollBehavior?.state?.heightOffsetLimit =
-        -with(LocalDensity.current) { expandedHeight.toPx().coerceAtLeast(0f) }
 
     // Obtain the container color from the TopAppBarColors using the `overlapFraction`. This
     // ensures that the colors will adjust whether the app bar behavior is pinned or scrolled.
@@ -2356,7 +2352,7 @@ private fun SingleRowTopAppBar(
                 Modifier.windowInsetsPadding(windowInsets)
                     // clip after padding so we don't show the title over the inset area
                     .clipToBounds()
-                    .heightIn(max = expandedHeight),
+                    .adjustHeightOffsetLimit(scrollBehavior),
             scrolledOffset = { scrollBehavior?.state?.heightOffset ?: 0f },
             navigationIconContentColor = colors.navigationIconContentColor,
             titleContentColor = colors.titleContentColor,
@@ -2372,6 +2368,7 @@ private fun SingleRowTopAppBar(
             hideTitleSemantics = false,
             navigationIcon = navigationIcon,
             actions = actionsRow,
+            expandedHeight = expandedHeight
         )
     }
 }
@@ -2411,18 +2408,8 @@ private fun TwoRowsTopAppBar(
     require(expandedHeight >= collapsedHeight) {
         "The expandedHeight is expected to be greater or equal to the collapsedHeight"
     }
-    val expandedHeightPx: Float
-    val collapsedHeightPx: Float
     val titleBottomPaddingPx: Int
-    LocalDensity.current.run {
-        expandedHeightPx = expandedHeight.toPx()
-        collapsedHeightPx = collapsedHeight.toPx()
-        titleBottomPaddingPx = titleBottomPadding.roundToPx()
-    }
-
-    // Sets the app bar's height offset limit to hide just the bottom title area and keep top title
-    // visible when collapsed.
-    scrollBehavior?.state?.heightOffsetLimit = collapsedHeightPx - expandedHeightPx
+    LocalDensity.current.run { titleBottomPaddingPx = titleBottomPadding.roundToPx() }
 
     // Obtain the container Color from the TopAppBarColors using the `collapsedFraction`, as the
     // bottom part of this TwoRowsTopAppBar changes color at the same rate the app bar expands or
@@ -2482,8 +2469,7 @@ private fun TwoRowsTopAppBar(
                 modifier =
                     Modifier.windowInsetsPadding(windowInsets)
                         // clip after padding so we don't show the title over the inset area
-                        .clipToBounds()
-                        .heightIn(max = collapsedHeight),
+                        .clipToBounds(),
                 scrolledOffset = { 0f },
                 navigationIconContentColor = colors.navigationIconContentColor,
                 titleContentColor = colors.titleContentColor,
@@ -2499,16 +2485,17 @@ private fun TwoRowsTopAppBar(
                 hideTitleSemantics = hideTopRowSemantics,
                 navigationIcon = navigationIcon,
                 actions = actionsRow,
+                expandedHeight = collapsedHeight
             )
             TopAppBarLayout(
                 modifier =
                     Modifier
-                        // only apply the horizontal sides of the window insets padding, since the
-                        // top
-                        // padding will always be applied by the layout above
+                        // only apply the horizontal sides of the window insets padding, since
+                        // the
+                        // top padding will always be applied by the layout above
                         .windowInsetsPadding(windowInsets.only(WindowInsetsSides.Horizontal))
                         .clipToBounds()
-                        .heightIn(max = expandedHeight - collapsedHeight),
+                        .adjustHeightOffsetLimit(scrollBehavior),
                 scrolledOffset = { scrollBehavior?.state?.heightOffset ?: 0f },
                 navigationIconContentColor = colors.navigationIconContentColor,
                 titleContentColor = colors.titleContentColor,
@@ -2523,11 +2510,21 @@ private fun TwoRowsTopAppBar(
                 titleBottomPadding = titleBottomPaddingPx,
                 hideTitleSemantics = hideBottomRowSemantics,
                 navigationIcon = {},
-                actions = {}
+                actions = {},
+                expandedHeight = expandedHeight - collapsedHeight
             )
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun Modifier.adjustHeightOffsetLimit(scrollBehavior: TopAppBarScrollBehavior?) =
+    scrollBehavior?.state?.let {
+        onSizeChanged { size ->
+            val offset = size.height.toFloat() - it.heightOffset
+            it.heightOffsetLimit = -offset
+        }
+    } ?: this
 
 /**
  * The base [Layout] for all top app bars. This function lays out a top app bar navigation icon
@@ -2555,6 +2552,7 @@ private fun TwoRowsTopAppBar(
  *   the same time, when animating between collapsed / expanded states.
  * @param navigationIcon a navigation icon [Composable]
  * @param actions actions [Composable]
+ * @param expandedHeight this app bar's maximum height
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -2575,6 +2573,7 @@ private fun TopAppBarLayout(
     hideTitleSemantics: Boolean,
     navigationIcon: @Composable () -> Unit,
     actions: @Composable () -> Unit,
+    expandedHeight: Dp,
 ) {
     Layout(
         {
@@ -2670,11 +2669,12 @@ private fun TopAppBarLayout(
         val scrolledOffsetValue = scrolledOffset.offset()
         val heightOffset = if (scrolledOffsetValue.isNaN()) 0 else scrolledOffsetValue.roundToInt()
 
+        val maxLayoutHeight = max(expandedHeight.roundToPx(), titlePlaceable.height)
         val layoutHeight =
             if (constraints.maxHeight == Constraints.Infinity) {
-                constraints.maxHeight
+                maxLayoutHeight
             } else {
-                constraints.maxHeight + heightOffset
+                (maxLayoutHeight + heightOffset).coerceAtLeast(0)
             }
 
         layout(constraints.maxWidth, layoutHeight) {
@@ -2731,9 +2731,8 @@ private fun TopAppBarLayout(
                                 // to fit the title.
                                 val heightWithPadding = paddingFromBottom + titlePlaceable.height
                                 val adjustedBottomPadding =
-                                    if (heightWithPadding > constraints.maxHeight) {
-                                        paddingFromBottom -
-                                            (heightWithPadding - constraints.maxHeight)
+                                    if (heightWithPadding > maxLayoutHeight) {
+                                        paddingFromBottom - (heightWithPadding - maxLayoutHeight)
                                     } else {
                                         paddingFromBottom
                                     }
