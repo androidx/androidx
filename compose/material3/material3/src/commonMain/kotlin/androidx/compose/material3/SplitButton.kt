@@ -47,7 +47,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -699,7 +698,6 @@ object SplitButtonDefaults {
         val cornerMorphProgress: Float by animateFloatAsState(if (expanded) 1f else 0f)
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
         val density = LocalDensity.current
 
         TrailingButton(
@@ -710,10 +708,7 @@ object SplitButtonDefaults {
             elevation = elevation,
             border = border,
             interactionSource = interactionSource,
-            shape =
-                rememberTrailingButtonShape(isRtl, density, startCornerSize) {
-                    cornerMorphProgress
-                },
+            shape = rememberTrailingButtonShape(density, startCornerSize) { cornerMorphProgress },
             content = content,
         )
     }
@@ -722,20 +717,19 @@ object SplitButtonDefaults {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun rememberTrailingButtonShape(
-    isRtl: Boolean,
     density: Density,
     startCornerSize: CornerSize,
     progress: () -> Float
 ) =
-    remember(isRtl, density, progress) {
-        GenericShape { size, _ ->
+    remember(density, progress) {
+        GenericShape { size, layoutDirection ->
             val rect = Rect(Offset.Zero, size)
             val startCornerSizePx = startCornerSize.toPx(size, density)
             val originalStartCornerRadius = CornerRadius(startCornerSizePx)
             val endCornerRadius =
                 CornerRadius(SplitButtonDefaults.OuterCornerSize.toPx(size, density))
             val originalRoundRect =
-                if (isRtl) {
+                if (layoutDirection == LayoutDirection.Rtl) {
                     RoundRect(
                         rect,
                         endCornerRadius,
