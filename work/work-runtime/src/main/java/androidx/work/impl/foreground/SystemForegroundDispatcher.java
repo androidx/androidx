@@ -239,6 +239,14 @@ public class SystemForegroundDispatcher implements OnConstraintsStateChangedList
     }
 
     @MainThread
+    void onTimeout(int startId, int fgsType) {
+        Logger.get().info(TAG, "Foreground service timed out, FGS type: " + fgsType);
+        if (mCallback != null) {
+            mCallback.stop();
+        }
+    }
+
+    @MainThread
     private void handleStartForeground(@NonNull Intent intent) {
         Logger.get().info(TAG, "Started foreground service " + intent);
         final String workSpecId = intent.getStringExtra(KEY_WORKSPEC_ID);
