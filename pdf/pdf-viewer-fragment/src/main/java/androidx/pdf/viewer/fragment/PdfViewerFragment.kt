@@ -23,11 +23,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.WindowInsets
 import android.widget.FrameLayout
 import androidx.core.os.BundleCompat
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -310,8 +307,10 @@ public open class PdfViewerFragment : Fragment() {
 
         // Need to adjust the view only after the layout phase is completed for the views to
         // accurately calculate the height of the view
-        pdfViewer?.viewTreeObserver?.addOnGlobalLayoutListener {
-            activity?.let { adjustInsetsForSearchMenu(findInFileView!!, requireActivity()) }
+        findInFileView?.let { view ->
+            view.viewTreeObserver?.addOnGlobalLayoutListener {
+                activity?.let { adjustInsetsForSearchMenu(view, requireActivity()) }
+            }
         }
 
         viewModel.pdfLoaderStateFlow.value?.let { loader ->
@@ -357,30 +356,19 @@ public open class PdfViewerFragment : Fragment() {
 
     /** Adjusts the [FindInFileView] to be displayed on top of the keyboard. */
     private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView, activity: Activity) {
-        WindowCompat.setDecorFitsSystemWindows(activity.window, /* decorFitsSystemWindows= */ false)
-
         val screenHeight = activity.resources.displayMetrics.heightPixels
-        val height = pdfViewer?.findViewById<FrameLayout>(R.id.parent_pdf_container)!!.height
+        val imeInsets =
+            activity.window.decorView.rootWindowInsets.getInsets(WindowInsetsCompat.Type.ime())
 
-        // Set the listener to handle window insets
-        ViewCompat.setOnApplyWindowInsetsListener(findInFileView) { view, insets ->
-            val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
-            view.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                bottomMargin = 0
-                if (!isKeyboardCollapsed(view)) {
-                    bottomMargin = imeInsets.bottom - (screenHeight - height)
-                }
-            }
-
-            // Consume only the IME insets
-            insets.inset(imeInsets)
+        var menuMargin = 0
+        val keyboardTop = screenHeight - imeInsets.bottom
+        if (container!!.bottom >= keyboardTop) {
+            menuMargin = container!!.bottom - keyboardTop
         }
-    }
 
-    private fun isKeyboardCollapsed(view: View): Boolean {
-        val windowInsets = view.rootWindowInsets
-        val imeVisible = windowInsets?.isVisible(WindowInsets.Type.ime()) ?: false
-        return !imeVisible
+        findInFileView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+            bottomMargin = menuMargin
+        }
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
