@@ -25,10 +25,11 @@ internal class TestCounter {
     private var count = 0
 
     fun expect(checkpoint: Int, message: String = "(no message)") {
-        val expected = count + 1
-        if (checkpoint != expected) {
-            fail("out of order event $checkpoint, expected $expected, $message")
+        // `checkpoint` is the "expected", but keeping the name for API clarity
+        val actual = count + 1
+        if (checkpoint != actual) {
+            fail("events out of order: expected=$checkpoint, actual=$actual, $message")
         }
-        count = expected
+        count = actual
     }
 }
