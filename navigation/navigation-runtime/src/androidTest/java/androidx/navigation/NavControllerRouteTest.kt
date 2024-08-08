@@ -1515,6 +1515,33 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectEnumTopLevel() {
+        @Serializable class TestClass(val arg: TestTopLevelEnum = TestTopLevelEnum.ONE)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(TestTopLevelEnum.TWO))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestTopLevelEnum.TWO)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // use default
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg)
+            .isEqualTo(TestTopLevelEnum.ONE)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectEnumNullable() {
         @Serializable class TestClass(val arg: TestEnum? = TestEnum.ONE)
         val navController = createNavController()
@@ -5180,4 +5207,9 @@ class NavControllerRouteTest {
         navController.navigatorProvider.addNavigator(navigator)
         return navController
     }
+}
+
+private enum class TestTopLevelEnum {
+    ONE,
+    TWO
 }
