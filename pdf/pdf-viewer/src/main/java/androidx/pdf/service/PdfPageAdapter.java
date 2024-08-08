@@ -182,7 +182,9 @@ class PdfPageAdapter implements AutoCloseable {
         return checkAndExecute(() -> {
             RenderParams.Builder renderParamsBuilder = new RenderParams.Builder(
                     RenderParams.RENDER_MODE_FOR_DISPLAY);
-            return renderParamsBuilder.setRenderFlags(0).build();
+            return renderParamsBuilder.setRenderFlags(
+                    RenderParams.FLAG_RENDER_HIGHLIGHT_ANNOTATIONS
+                    | RenderParams.FLAG_RENDER_TEXT_ANNOTATIONS).build();
         });
     }
 
