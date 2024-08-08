@@ -297,6 +297,7 @@ internal class Camera2CaptureSequenceProcessorTest {
             .isEqualTo(CameraCaptureSession::class)
     }
 
+    @Test
     fun highSpeedRequestIsCreatedAndSubmitted() = runTest {
         val captureSequenceProcessor =
             Camera2CaptureSequenceProcessor(
