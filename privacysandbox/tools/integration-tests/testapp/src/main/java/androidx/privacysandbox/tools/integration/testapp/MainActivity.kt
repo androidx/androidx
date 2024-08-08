@@ -17,34 +17,33 @@
 package androidx.privacysandbox.tools.integration.testapp
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.lifecycleScope
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.tools.integration.testsdk.MySdk
 import androidx.privacysandbox.tools.integration.testsdk.MySdkFactory.wrapToMySdk
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var sdk: MySdk
+    internal var sdk: MySdk? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-        lifecycleScope.launch {
-            sdk = loadSdk()
-            Log.e("Test App MainActivity", "Sum = ${sdk.doSum(42, 2)}")
-        }
     }
 
-    suspend fun loadSdk(): MySdk {
+    internal suspend fun loadSdk() {
+        if (this.sdk != null) return
+
         val sandboxManagerCompat = SdkSandboxManagerCompat.from(this)
         val sandboxedSdk =
-            sandboxManagerCompat.loadSdk(
-                "androidx.privacysandbox.tools.integration.sdk",
-                Bundle.EMPTY
-            )
-        return wrapToMySdk(sandboxedSdk.getInterface()!!)
+            try {
+                sandboxManagerCompat.loadSdk(
+                    "androidx.privacysandbox.tools.integration.sdk",
+                    Bundle.EMPTY
+                )
+            } catch (e: LoadSdkCompatException) {
+                sandboxManagerCompat.getSandboxedSdks().first()
+            }
+        sdk = sandboxedSdk.getInterface()?.let { wrapToMySdk(it) }
     }
 }
