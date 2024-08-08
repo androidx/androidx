@@ -39,13 +39,17 @@ public fun NavGraphBuilder.bottomSheet(
     deepLinks: List<NavDeepLink> = emptyList(),
     content: @Composable ColumnScope.(backstackEntry: NavBackStackEntry) -> Unit
 ) {
-    addDestination(
-        BottomSheetNavigator.Destination(provider[BottomSheetNavigator::class], content).apply {
-            this.route = route
-            arguments.fastForEach { (argumentName, argument) ->
-                addArgument(argumentName, argument)
+    destination(
+        BottomSheetNavigatorDestinationBuilder(
+                provider[BottomSheetNavigator::class],
+                route,
+                content
+            )
+            .apply {
+                arguments.fastForEach { (argumentName, argument) ->
+                    argument(argumentName, argument)
+                }
+                deepLinks.fastForEach { deepLink -> deepLink(deepLink) }
             }
-            deepLinks.fastForEach { deepLink -> addDeepLink(deepLink) }
-        }
     )
 }

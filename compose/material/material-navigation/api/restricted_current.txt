@@ -16,6 +16,11 @@ package androidx.compose.material.navigation {
     ctor public BottomSheetNavigator.Destination(androidx.compose.material.navigation.BottomSheetNavigator navigator, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
   }
 
+  @androidx.navigation.NavDestinationDsl public final class BottomSheetNavigatorDestinationBuilder extends androidx.navigation.NavDestinationBuilder<androidx.compose.material.navigation.BottomSheetNavigator.Destination> {
+    ctor public BottomSheetNavigatorDestinationBuilder(androidx.compose.material.navigation.BottomSheetNavigator navigator, String route, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.ColumnScope,? super androidx.navigation.NavBackStackEntry,kotlin.Unit> content);
+    method protected androidx.compose.material.navigation.BottomSheetNavigator.Destination instantiateDestination();
+  }
+
   public final class BottomSheetNavigatorKt {
     method @androidx.compose.runtime.Composable public static androidx.compose.material.navigation.BottomSheetNavigator rememberBottomSheetNavigator(optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
   }
