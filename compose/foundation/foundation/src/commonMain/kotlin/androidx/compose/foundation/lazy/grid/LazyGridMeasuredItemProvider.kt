@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.IntList
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
@@ -85,6 +86,9 @@ internal abstract class LazyGridMeasuredItemProvider(
      */
     val keyIndexMap: LazyLayoutKeyIndexMap
         get() = itemProvider.keyIndexMap
+
+    val headerIndices: IntList
+        get() = itemProvider.headerIndexes
 
     abstract fun createItem(
         index: Int,

@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.collection.IntList
+import androidx.collection.MutableIntList
+import androidx.collection.emptyIntList
+import androidx.collection.mutableIntListOf
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
@@ -27,6 +31,11 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
     override val intervals = MutableIntervalList<LazyGridInterval>()
 
     internal var hasCustomSpans = false
+
+    private var _headerIndexes: MutableIntList? = null
+
+    val headerIndexes: IntList
+        get() = _headerIndexes ?: emptyIntList()
 
     init {
         apply(content)
@@ -67,6 +76,17 @@ internal class LazyGridIntervalContent(content: LazyGridScope.() -> Unit) :
             )
         )
         if (span != null) hasCustomSpans = true
+    }
+
+    override fun stickyHeader(
+        key: Any?,
+        contentType: Any?,
+        content: @Composable LazyGridItemScope.(Int) -> Unit
+    ) {
+        val headersIndexes = _headerIndexes ?: mutableIntListOf().also { _headerIndexes = it }
+        val headerIndex = intervals.size
+        headersIndexes.add(headerIndex)
+        item(key, { GridItemSpan(maxLineSpan) }, contentType) { content.invoke(this, headerIndex) }
     }
 
     private companion object {

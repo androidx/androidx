@@ -408,6 +408,13 @@ internal fun measureLazyList(
                 measuredItemProvider.getAndMeasure(it)
             }
 
+        val firstVisibleIndex =
+            if (noExtraItems) positionedItems.firstOrNull()?.index
+            else visibleItems.firstOrNull()?.index
+        val lastVisibleIndex =
+            if (noExtraItems) positionedItems.lastOrNull()?.index
+            else visibleItems.lastOrNull()?.index
+
         return LazyListMeasureResult(
             firstVisibleItem = firstItem,
             firstVisibleItemScrollOffset = currentFirstItemScrollOffset,
@@ -426,8 +433,8 @@ internal fun measureLazyList(
             scrollBackAmount = scrollBackAmount,
             visibleItemsInfo =
                 updatedVisibleItems(
-                    noExtraItems = noExtraItems,
-                    currentVisibleItems = visibleItems,
+                    firstVisibleIndex = firstVisibleIndex ?: 0,
+                    lastVisibleIndex = lastVisibleIndex ?: 0,
                     positionedItems = positionedItems,
                     stickingItems = stickingItems
                 ),
