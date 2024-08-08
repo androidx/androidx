@@ -35,9 +35,18 @@ android {
     experimentalProperties["android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies"] =
             [libs.kotlinStdlib.get(),
              libs.kotlinCoroutinesAndroid.get(),
-             libs.kotlinCoroutinesCore.get()]
+             libs.kotlinCoroutinesCore.get(),
+             // TODO: We'd like to use HEAD ui libraries here but we need to wait until we have an
+             //  AGP version containing ag/28945616 (should be in AGP 8.7.0-alpha09).
+             project.dependencies.create('androidx.privacysandbox.ui:ui-core:1.0.0-alpha09'),
+             project.dependencies.create('androidx.privacysandbox.ui:ui-client:1.0.0-alpha09')
+            ]
+
     privacySandbox {
             enable = true
+    }
+    testOptions {
+        animationsDisabled = true
     }
 }
 
@@ -46,6 +55,8 @@ dependencies {
 
     implementation(project(":privacysandbox:sdkruntime:sdkruntime-client"))
     implementation(project(":privacysandbox:sdkruntime:sdkruntime-core"))
+    implementation(project(":privacysandbox:ui:ui-core"))
+    implementation(project(":privacysandbox:ui:ui-client"))
 
     implementation("androidx.core:core-ktx:1.9.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
@@ -54,6 +65,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintLayout)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation("androidx.tracing:tracing:1.1.0")
+    implementation(libs.espressoIdlingResource)
 
     androidTestImplementation(project(":activity:activity"))
     androidTestImplementation(project(":internal-testutils-runtime"))
@@ -64,4 +77,5 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.espressoCore)
 }
