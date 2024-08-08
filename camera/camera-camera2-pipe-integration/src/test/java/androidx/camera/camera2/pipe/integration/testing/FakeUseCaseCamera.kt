@@ -101,12 +101,10 @@ open class FakeUseCaseCameraRequestControl(
     var setConfigResult = CompletableDeferred(Unit)
     var setTorchResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
-    override fun addParametersAsync(
+    override fun setParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
-        tags: Map<String, Any>,
-        listeners: Set<Request.Listener>
     ): Deferred<Unit> {
         addParameterCalls.add(values)
         return addParameterResult
@@ -234,21 +232,6 @@ open class FakeUseCaseCameraRequestControl(
 class FakeUseCaseCamera(
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
-
-    override fun <T> setParameterAsync(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
-    }
-
-    override fun setParametersAsync(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
-    }
 
     override fun close(): Job {
         return CompletableDeferred(Unit)

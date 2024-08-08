@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeState3AControlCreator
 import androidx.camera.camera2.pipe.integration.testing.FakeSurface
-import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeRequestFailure
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -83,26 +83,23 @@ class StillCaptureRequestTest {
     private lateinit var fakeUseCaseCameraState: UseCaseCameraState
 
     private val fakeState3AControl: State3AControl =
-        FakeState3AControlCreator.createState3AControl(useCaseCamera = FakeUseCaseCamera())
-
-    private lateinit var requestControl: UseCaseCameraRequestControl
-
-    private lateinit var fakeUseCaseCamera: UseCaseCamera
-
-    private val torchControl =
-        TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads)
-
-    private val flashControl =
-        FlashControl(
-            fakeCameraProperties,
-            fakeState3AControl,
-            fakeUseCaseThreads,
-            torchControl,
-            NotUseFlashModeTorchFor3aUpdate,
+        FakeState3AControlCreator.createState3AControl(
+            requestControl = FakeUseCaseCameraRequestControl()
         )
 
+    private lateinit var useCaseCameraRequestControl: UseCaseCameraRequestControl
+
     private val stillCaptureRequestControl =
-        StillCaptureRequestControl(flashControl, fakeUseCaseThreads)
+        StillCaptureRequestControl(
+            FlashControl(
+                fakeCameraProperties,
+                fakeState3AControl,
+                fakeUseCaseThreads,
+                TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads),
+                NotUseFlashModeTorchFor3aUpdate,
+            ),
+            fakeUseCaseThreads
+        )
 
     private val captureConfigList =
         listOf(
@@ -112,7 +109,7 @@ class StillCaptureRequestTest {
 
     @Before
     fun setUp() {
-        stillCaptureRequestControl.setNewUseCaseCamera()
+        stillCaptureRequestControl.setNewRequestControl()
     }
 
     @After
@@ -133,7 +130,7 @@ class StillCaptureRequestTest {
     @Test
     fun captureRequestsNotSubmitted_whenCameraIsNull() =
         runTest(testDispatcher) {
-            stillCaptureRequestControl.useCaseCamera = null
+            stillCaptureRequestControl.requestControl = null
 
             stillCaptureRequestControl.issueCaptureRequests()
 
@@ -144,13 +141,13 @@ class StillCaptureRequestTest {
     @Test
     fun captureRequestsSubmittedAfterCameraIsAvailable_whenCameraIsNull() =
         runTest(testDispatcher) {
-            stillCaptureRequestControl.useCaseCamera = null
+            stillCaptureRequestControl.requestControl = null
 
             stillCaptureRequestControl.issueCaptureRequests()
             advanceUntilIdle()
 
             // new camera is attached
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // the previous request should be submitted in the new camera
             advanceUntilIdle()
@@ -241,7 +238,7 @@ class StillCaptureRequestTest {
             }
 
             // new camera is attached
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // the previous request should be submitted again in the new camera
             advanceUntilIdle()
@@ -282,7 +279,7 @@ class StillCaptureRequestTest {
             // making sure issuing is attempted before new camera is not attached
             advanceUntilIdle()
 
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // the previous request should be submitted in the new camera
             advanceUntilIdle()
@@ -297,7 +294,7 @@ class StillCaptureRequestTest {
             advanceUntilIdle()
 
             // simulates previous camera closing and new camera being set
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             advanceUntilIdle()
             assertThat(fakeCameraGraphSession.submittedRequests.size).isEqualTo(0)
@@ -317,13 +314,13 @@ class StillCaptureRequestTest {
             }
 
             // new camera is attached
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // the previous request should be submitted again in the new camera
             advanceUntilIdle()
 
             // new camera is attached again
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // since the previous request was successful, it should not be submitted again
             assertThat(fakeCameraGraphSession.submittedRequests.size).isEqualTo(0)
@@ -333,7 +330,7 @@ class StillCaptureRequestTest {
     fun noPendingRequestRemaining_whenReset() =
         runTest(testDispatcher) {
             // simulate adding to pending list
-            stillCaptureRequestControl.useCaseCamera = null
+            stillCaptureRequestControl.requestControl = null
             stillCaptureRequestControl.issueCaptureRequests()
             stillCaptureRequestControl.issueCaptureRequests()
 
@@ -342,7 +339,7 @@ class StillCaptureRequestTest {
             stillCaptureRequestControl.reset()
 
             // new camera is attached
-            stillCaptureRequestControl.setNewUseCaseCamera()
+            stillCaptureRequestControl.setNewRequestControl()
 
             // if no new request submitted, it should imply all pending requests were cleared
             advanceUntilIdle()
@@ -353,7 +350,7 @@ class StillCaptureRequestTest {
     fun allPendingRequestsAreCancelled_whenReset() =
         runTest(testDispatcher) {
             // simulate adding to pending list
-            stillCaptureRequestControl.useCaseCamera = null
+            stillCaptureRequestControl.requestControl = null
             val requestFutures =
                 listOf(
                     stillCaptureRequestControl.issueCaptureRequests(),
@@ -426,7 +423,7 @@ class StillCaptureRequestTest {
             )
         val torchControl =
             TorchControl(fakeCameraProperties, fakeState3AControl, fakeUseCaseThreads)
-        requestControl =
+        useCaseCameraRequestControl =
             UseCaseCameraRequestControlImpl(
                 capturePipeline =
                     CapturePipelineImpl(
@@ -451,14 +448,10 @@ class StillCaptureRequestTest {
                 state = fakeUseCaseCameraState,
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
             )
-        fakeUseCaseCamera =
-            FakeUseCaseCamera(
-                requestControl = requestControl,
-            )
     }
 
-    private fun StillCaptureRequestControl.setNewUseCaseCamera() {
+    private fun StillCaptureRequestControl.setNewRequestControl() {
         initUseCaseCameraScopeObjects()
-        useCaseCamera = fakeUseCaseCamera
+        requestControl = useCaseCameraRequestControl
     }
 }

@@ -60,7 +60,6 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
-import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
@@ -309,8 +308,6 @@ class CapturePipelineTest {
 
     @Before
     fun setUp() {
-        val fakeUseCaseCamera = FakeUseCaseCamera(requestControl = fakeRequestControl)
-
         state3AControl =
             State3AControl(
                     fakeCameraProperties,
@@ -328,7 +325,7 @@ class CapturePipelineTest {
                         )
                     ),
                 )
-                .apply { useCaseCamera = fakeUseCaseCamera }
+                .apply { requestControl = fakeRequestControl }
 
         torchControl =
             TorchControl(
@@ -337,7 +334,7 @@ class CapturePipelineTest {
                     fakeUseCaseThreads,
                 )
                 .also {
-                    it.useCaseCamera = fakeUseCaseCamera
+                    it.requestControl = fakeRequestControl
 
                     // Ensure the control is updated after the UseCaseCamera been set.
                     assertThat(fakeRequestControl.setTorchSemaphore.tryAcquire(testScope)).isTrue()

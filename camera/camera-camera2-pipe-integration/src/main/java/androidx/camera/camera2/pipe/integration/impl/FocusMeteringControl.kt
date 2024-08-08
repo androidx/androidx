@@ -68,12 +68,12 @@ constructor(
     private val threads: UseCaseThreads,
     private val zoomCompat: ZoomCompat,
 ) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
-    private var _useCaseCamera: UseCaseCamera? = null
+    private var _requestControl: UseCaseCameraRequestControl? = null
 
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
         }
 
     override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
@@ -120,7 +120,7 @@ constructor(
     ): ListenableFuture<FocusMeteringResult> {
         val signal = CompletableDeferred<FocusMeteringResult>()
 
-        useCaseCamera?.let { useCaseCamera ->
+        requestControl?.let { requestControl ->
             threads.sequentialScope.launch {
                 focusTimeoutJob?.cancel()
                 autoCancelJob?.cancel()
@@ -195,7 +195,7 @@ constructor(
                          * the CameraGraph and thus may cause extra requests to the camera.
                          */
                         debug { "startFocusAndMetering: updating 3A regions only" }
-                        useCaseCamera.requestControl.update3aRegions(
+                        requestControl.update3aRegions(
                             aeRegions = aeRegions,
                             afRegions = afRegions,
                             awbRegions = awbRegions,
@@ -218,7 +218,7 @@ constructor(
                          * If device does support but a region list is empty, it means any previously
                          * set region should be removed, so the no-op METERING_REGIONS_DEFAULT is used.
                          */
-                        useCaseCamera.requestControl.startFocusAndMeteringAsync(
+                        requestControl.startFocusAndMeteringAsync(
                             aeRegions = aeRegions,
                             afRegions = afRegions,
                             awbRegions = awbRegions,
@@ -244,7 +244,7 @@ constructor(
                 triggerFocusTimeout(autoFocusTimeoutMs, signal)
 
                 if (action.isAutoCancelEnabled) {
-                    triggerAutoCancel(action.autoCancelDurationInMillis, signal, useCaseCamera)
+                    triggerAutoCancel(action.autoCancelDurationInMillis, signal, requestControl)
                 }
             }
         }
@@ -258,7 +258,7 @@ constructor(
     private fun triggerAutoCancel(
         delayMillis: Long,
         resultToCancel: CompletableDeferred<FocusMeteringResult>,
-        useCaseCamera: UseCaseCamera,
+        requestControl: UseCaseCameraRequestControl,
     ) {
         autoCancelJob?.cancel()
 
@@ -266,7 +266,7 @@ constructor(
             threads.sequentialScope.launch {
                 delay(delayMillis)
                 debug { "triggerAutoCancel: auto-canceling after $delayMillis ms" }
-                cancelFocusAndMeteringNowAsync(useCaseCamera, resultToCancel)
+                cancelFocusAndMeteringNowAsync(requestControl, resultToCancel)
             }
     }
 
@@ -366,13 +366,13 @@ constructor(
 
     public fun cancelFocusAndMeteringAsync(): Deferred<Result3A?> {
         val signal = CompletableDeferred<Result3A?>()
-        useCaseCamera?.let { useCaseCamera ->
+        requestControl?.let { requestControl ->
             threads.sequentialScope.launch {
                 focusTimeoutJob?.cancel()
                 autoCancelJob?.cancel()
                 cancelSignal?.setCancelException("Cancelled by another cancelFocusAndMetering()")
                 cancelSignal = signal
-                cancelFocusAndMeteringNowAsync(useCaseCamera, updateSignal).propagateTo(signal)
+                cancelFocusAndMeteringNowAsync(requestControl, updateSignal).propagateTo(signal)
             }
         }
             ?: run {
@@ -383,12 +383,12 @@ constructor(
     }
 
     private suspend fun cancelFocusAndMeteringNowAsync(
-        useCaseCamera: UseCaseCamera,
+        requestControl: UseCaseCameraRequestControl,
         signalToCancel: CompletableDeferred<FocusMeteringResult>?,
     ): Deferred<Result3A> {
         signalToCancel?.setCancelException("Cancelled by cancelFocusAndMetering()")
         state3AControl.preferredFocusMode = null
-        return useCaseCamera.requestControl.cancelFocusAndMeteringAsync()
+        return requestControl.cancelFocusAndMeteringAsync()
     }
 
     private fun <T> CompletableDeferred<T>.setCancelException(message: String) {

@@ -40,7 +40,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCor
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -73,10 +72,8 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
@@ -1545,31 +1542,6 @@ class FocusMeteringControlTest {
         focusMeteringResultCallback.await()
     }
 
-    private val fakeUseCaseCamera =
-        object : UseCaseCamera {
-            override val requestControl: UseCaseCameraRequestControl
-                get() = fakeRequestControl
-
-            override fun <T> setParameterAsync(
-                key: CaptureRequest.Key<T>,
-                value: T,
-                priority: androidx.camera.core.impl.Config.OptionPriority
-            ): Deferred<Unit> {
-                TODO("Not yet implemented")
-            }
-
-            override fun setParametersAsync(
-                values: Map<CaptureRequest.Key<*>, Any>,
-                priority: androidx.camera.core.impl.Config.OptionPriority
-            ): Deferred<Unit> {
-                TODO("Not yet implemented")
-            }
-
-            override fun close(): Job {
-                TODO("Not yet implemented")
-            }
-        }
-
     private fun initFocusMeteringControl(
         cameraId: String,
         useCases: Set<UseCase> = emptySet(),
@@ -1597,7 +1569,7 @@ class FocusMeteringControlTest {
                 zoomCompat
             )
             .apply {
-                useCaseCamera = fakeUseCaseCamera
+                requestControl = fakeRequestControl
                 onRunningUseCasesChanged(useCases)
             }
     }
@@ -1732,8 +1704,8 @@ class FocusMeteringControlTest {
     private fun createState3AControl(
         cameraId: String = CAMERA_ID_0,
         properties: CameraProperties = cameraPropertiesMap[cameraId]!!,
-        useCaseCamera: UseCaseCamera = fakeUseCaseCamera,
-    ) = FakeState3AControlCreator.createState3AControl(properties, useCaseCamera)
+        requestControl: UseCaseCameraRequestControl = fakeRequestControl,
+    ) = FakeState3AControlCreator.createState3AControl(properties, requestControl)
 
     private fun FocusMeteringControl.startFocusAndMeteringAndAdvanceTestScope(
         testScope: TestScope,

@@ -23,13 +23,13 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpAutoFlashA
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.State3AControl
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 object FakeState3AControlCreator {
     fun createState3AControl(
         properties: CameraProperties = FakeCameraProperties(),
-        useCaseCamera: UseCaseCamera = FakeUseCaseCamera(),
+        requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
     ) =
         State3AControl(
                 properties,
@@ -47,5 +47,5 @@ object FakeState3AControlCreator {
                     )
                 ),
             )
-            .apply { this.useCaseCamera = useCaseCamera }
+            .apply { this.requestControl = requestControl }
 }

@@ -47,11 +47,11 @@ constructor(
     private val aeModeDisabler: AutoFlashAEModeDisabler,
     private val aeFpsRange: AeFpsRange,
 ) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             value?.let {
                 val previousSignals =
                     synchronized(lock) {
@@ -171,7 +171,7 @@ constructor(
                     parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
                 }
 
-                useCaseCamera?.requestControl?.addParametersAsync(values = parameters)
+                requestControl?.setParametersAsync(values = parameters)
             }
             ?.apply {
                 toCompletableDeferred().also { signal ->

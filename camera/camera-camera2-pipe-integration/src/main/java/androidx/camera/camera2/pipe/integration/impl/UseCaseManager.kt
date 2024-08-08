@@ -437,7 +437,7 @@ constructor(
         // Update list of active useCases
         if (useCases.isEmpty()) {
             for (control in allControls) {
-                control.useCaseCamera = null
+                control.requestControl = null
                 control.reset()
             }
             return
@@ -451,7 +451,7 @@ constructor(
             //    resume UseCaseManager successfully
             // - And/or, the UseCaseManager is ready to be resumed under concurrent camera settings.
             for (control in allControls) {
-                control.useCaseCamera = null
+                control.requestControl = null
             }
         }
 
@@ -548,7 +548,7 @@ constructor(
                     .build()
 
             for (control in allControls) {
-                control.useCaseCamera = camera
+                control.requestControl = camera?.requestControl
             }
 
             camera?.setActiveResumeMode(activeResumeEnabled)

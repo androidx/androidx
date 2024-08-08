@@ -17,12 +17,10 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarted
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
-import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.RequestProcessorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
@@ -30,7 +28,6 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.core.UseCase
 import androidx.camera.core.impl.Config
-import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import dagger.Binds
 import dagger.Module
@@ -38,7 +35,6 @@ import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -51,18 +47,6 @@ internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 public interface UseCaseCamera {
     // RequestControl of the UseCaseCamera
     public val requestControl: UseCaseCameraRequestControl
-
-    // Parameters
-    public fun <T> setParameterAsync(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority = defaultOptionPriority,
-    ): Deferred<Unit>
-
-    public fun setParametersAsync(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority = defaultOptionPriority,
-    ): Deferred<Unit>
 
     public fun setActiveResumeMode(enabled: Boolean) {}
 
@@ -149,52 +133,8 @@ constructor(
         }
     }
 
-    override fun <T> setParameterAsync(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority,
-    ): Deferred<Unit> =
-        runIfNotClosed { setParametersAsync(mapOf(key to (value as Any)), priority) }
-            ?: canceledResult
-
-    override fun setParametersAsync(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority,
-    ): Deferred<Unit> =
-        runIfNotClosed {
-            requestControl.addParametersAsync(values = values, optionPriority = priority)
-        } ?: canceledResult
-
     override fun setActiveResumeMode(enabled: Boolean) {
         useCaseGraphConfig.graph.isForeground = enabled
-    }
-
-    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
-        sessionConfig: SessionConfig
-    ): Deferred<Unit> =
-        runIfNotClosed {
-            setConfigAsync(
-                type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
-                config = sessionConfig.implementationOptions,
-                tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
-                listeners =
-                    setOf(
-                        CameraCallbackMap.createFor(
-                            sessionConfig.repeatingCameraCaptureCallbacks,
-                            threads.backgroundExecutor
-                        )
-                    ),
-                template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
-                streams =
-                    useCaseGraphConfig.getStreamIdsFromSurfaces(
-                        sessionConfig.repeatingCaptureConfig.surfaces
-                    ),
-                sessionConfig = sessionConfig,
-            )
-        } ?: canceledResult
-
-    private inline fun <R> runIfNotClosed(crossinline block: () -> R): R? {
-        return if (!closed.value) block() else null
     }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
@@ -204,9 +144,5 @@ constructor(
         @UseCaseCameraScope
         @Binds
         public abstract fun provideUseCaseCamera(useCaseCamera: UseCaseCameraImpl): UseCaseCamera
-    }
-
-    public companion object {
-        private val canceledResult = CompletableDeferred<Unit>().apply { cancel() }
     }
 }

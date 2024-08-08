@@ -387,7 +387,7 @@ class UseCaseManagerTest {
             object : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
                 var runningUseCaseSet: Set<UseCase> = emptySet()
 
-                override var useCaseCamera: UseCaseCamera?
+                override var requestControl: UseCaseCameraRequestControl?
                     get() = TODO("Not yet implemented")
                     set(_) {}
 

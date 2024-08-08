@@ -27,7 +27,7 @@ import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.compat.EvCompImpl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
-import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameInfo
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
@@ -80,7 +80,7 @@ class EvCompControlTest {
             EvCompControl(
                 EvCompImpl(FakeCameraProperties(metadata), fakeUseCaseThreads, comboRequestListener)
             )
-        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        exposureControl.requestControl = FakeUseCaseCameraRequestControl()
     }
 
     @Test
@@ -112,7 +112,7 @@ class EvCompControlTest {
         val deferred = exposureControl.updateAsync(1)
 
         // Act. Simulate control inactive by set useCaseCamera to null & call reset().
-        exposureControl.useCaseCamera = null
+        exposureControl.requestControl = null
         exposureControl.reset()
 
         // Assert. The exposure control has been set to inactive. It should throw an exception.
@@ -136,7 +136,7 @@ class EvCompControlTest {
                 comboRequestListener
             )
         exposureControl = EvCompControl(evCompCompat)
-        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        exposureControl.requestControl = FakeUseCaseCameraRequestControl()
 
         // Act.
         val deferred = exposureControl.updateAsync(1)
@@ -151,7 +151,7 @@ class EvCompControlTest {
         val deferred = exposureControl.updateAsync(targetEv)
 
         // Act. Simulate the UseCaseCamera is recreated.
-        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        exposureControl.requestControl = FakeUseCaseCameraRequestControl()
         comboRequestListener.simulateAeConverge(exposureValue = targetEv)
 
         // Assert. The setEV task should be completed.
@@ -164,7 +164,7 @@ class EvCompControlTest {
         val deferred = exposureControl.updateAsync(1)
 
         // Act. Simulate the UseCaseCamera is recreated,
-        exposureControl.useCaseCamera = FakeUseCaseCamera()
+        exposureControl.requestControl = FakeUseCaseCameraRequestControl()
         // Act. Submits a new EV value.
         val deferred2 = exposureControl.updateAsync(targetEv)
         comboRequestListener.simulateAeConverge(exposureValue = targetEv)

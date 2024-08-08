@@ -19,7 +19,6 @@ package androidx.camera.camera2.pipe.testing
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CaptureRequest
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
@@ -169,21 +168,6 @@ class TestUseCaseCamera(
                     )
                 }
             }
-
-    override fun <T> setParameterAsync(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        throw NotImplementedError("Not implemented")
-    }
-
-    override fun setParametersAsync(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        throw NotImplementedError("Not implemented")
-    }
 
     override fun close(): Job {
         return threads.scope.launch {

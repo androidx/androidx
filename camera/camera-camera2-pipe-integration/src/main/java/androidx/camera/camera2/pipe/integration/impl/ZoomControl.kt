@@ -78,11 +78,11 @@ constructor(
             maxZoomRatio = maxZoomRatio
         )
 
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             applyZoomState(_zoomState.value ?: defaultZoomState, false)
         }
 
@@ -157,7 +157,7 @@ constructor(
         threads.sequentialScope.launch(start = CoroutineStart.UNDISPATCHED) {
             setZoomState(zoomState)
 
-            useCaseCamera?.let {
+            _requestControl?.let {
                 zoomCompat.applyAsync(zoomState.zoomRatio, it).propagateTo(signal)
             }
                 ?: signal.completeExceptionally(

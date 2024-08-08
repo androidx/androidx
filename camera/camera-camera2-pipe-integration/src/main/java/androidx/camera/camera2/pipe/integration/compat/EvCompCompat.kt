@@ -30,7 +30,7 @@ import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.UseCaseThreads
 import androidx.camera.core.CameraControl
 import dagger.Binds
@@ -49,7 +49,7 @@ public interface EvCompCompat {
 
     public fun applyAsync(
         evCompIndex: Int,
-        camera: UseCaseCamera,
+        requestControl: UseCaseCameraRequestControl,
         cancelPreviousTask: Boolean,
     ): Deferred<Int>
 
@@ -97,7 +97,7 @@ constructor(
 
     override fun applyAsync(
         evCompIndex: Int,
-        camera: UseCaseCamera,
+        requestControl: UseCaseCameraRequestControl,
         cancelPreviousTask: Boolean,
     ): Deferred<Int> {
         val signal = CompletableDeferred<Int>()
@@ -122,7 +122,9 @@ constructor(
                 updateListener = null
             }
 
-            camera.setParameterAsync(CONTROL_AE_EXPOSURE_COMPENSATION, evCompIndex)
+            requestControl.setParametersAsync(
+                values = mapOf(CONTROL_AE_EXPOSURE_COMPENSATION to evCompIndex)
+            )
 
             // Prepare the listener to wait for the exposure value to reach the target.
             updateListener =
