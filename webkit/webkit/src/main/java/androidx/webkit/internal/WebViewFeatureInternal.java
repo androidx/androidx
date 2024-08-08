@@ -30,6 +30,7 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.webkit.PrefetchParameters;
 import androidx.webkit.Profile;
 import androidx.webkit.ProfileStore;
 import androidx.webkit.ProxyConfig;
@@ -627,6 +628,25 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework BACK_FORWARD_CACHE =
             new ApiFeature.NoFramework(WebViewFeature.BACK_FORWARD_CACHE,
                     Features.BACK_FORWARD_CACHE);
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.Profile#prefetchUrlAsync(String, PrefetchParameters)}
+     * {@link androidx.webkit.Profile#clearPrefetchAsync(String)}
+     */
+    public static final ApiFeature.NoFramework PROFILE_URL_PREFETCH =
+            new ApiFeature.NoFramework(WebViewFeature.PROFILE_URL_PREFETCH,
+                    Features.PREFETCH_WITH_URL) {
+                @Override
+                public boolean isSupportedByWebView() {
+                    // Multi-profile is a requirement for this feature.
+                    if (!WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROFILE)) {
+                        return false;
+                    }
+                    return super.isSupportedByWebView();
+                }
+            };
 
     // --- Add new feature constants above this line ---
 
