@@ -135,9 +135,13 @@ private fun SerialDescriptor.toInternalType(): InternalType {
 
 private fun SerialDescriptor.getClass(): Class<*> {
     var className = serialName.replace("?", "")
+    // first try to get class with original class name
+    try {
+        return Class.forName(className)
+    } catch (_: ClassNotFoundException) {}
+    // Otherwise, it might be nested Class. Try incrementally replacing last `.` with `$`
+    // until we find the correct enum class name.
     while (className.contains(".")) {
-        // Support nested Class by incrementally replacing last `.` with `$`
-        // until we find the correct enum class name.
         className = Regex("(\\.+)(?!.*\\.)").replace(className, "\\$")
         try {
             return Class.forName(className)

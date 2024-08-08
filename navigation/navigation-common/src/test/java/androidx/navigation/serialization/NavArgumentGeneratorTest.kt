@@ -772,6 +772,20 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToTopLevelEnum() {
+        @Serializable class TestClass(val arg: TestTopLevelEnum)
+
+        val expected =
+            navArgument("arg") {
+                type = NavType.EnumType(TestTopLevelEnum::class.java)
+                nullable = false
+            }
+        val converted = serializer<TestClass>().generateNavArguments()
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToEnumNullable() {
         @Serializable class TestClass(val arg: TestEnum?)
 
@@ -1350,4 +1364,8 @@ class NavArgumentGeneratorTest {
             TWO
         }
     }
+}
+
+enum class TestTopLevelEnum {
+    TEST
 }
