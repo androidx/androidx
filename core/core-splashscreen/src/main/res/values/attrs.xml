@@ -36,4 +36,8 @@
     <!-- The size of the splash screen icon. It varies depending on the
      presence or not of an icon background-->
     <attr name="splashScreenIconSize" format="dimension" />
+
+    <!-- Specifies whether the theme has a light background with dark text on
+     top, otherwise it is dark. -->
+    <attr name="isLightTheme" format="boolean" />
 </resources>

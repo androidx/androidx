@@ -15,5 +15,8 @@
   -->
 
 <resources>
-    <style name="Base.Theme.SplashScreen.DayNight" parent="Base.Theme.SplashScreen"/>
+
+    <style name="Base.Theme.SplashScreen.DayNight" parent="Base.Theme.SplashScreen">
+        <item name="isLightTheme">false</item>
+    </style>
 </resources>
