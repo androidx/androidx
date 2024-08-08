@@ -1994,18 +1994,22 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
             }
         }
 
-        fun dispatchOnPanelOpened(panel: View) {
-            for (listener in panelSlideListeners) {
-                listener.onPanelOpened(panel)
+        fun dispatchOnPanelOpened(panel: View?) {
+            if (panel != null) {
+                for (listener in panelSlideListeners) {
+                    listener.onPanelOpened(panel)
+                }
+                sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
             }
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
         }
 
-        fun dispatchOnPanelClosed(panel: View) {
-            for (listener in panelSlideListeners) {
-                listener.onPanelClosed(panel)
+        fun dispatchOnPanelClosed(panel: View?) {
+            if (panel != null) {
+                for (listener in panelSlideListeners) {
+                    listener.onPanelClosed(panel)
+                }
+                sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
             }
-            sendAccessibilityEvent(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED)
         }
 
         override fun tryCaptureView(child: View, pointerId: Int): Boolean {
@@ -2019,10 +2023,10 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 preservedOpenState =
                     if (currentSlideOffset == 1f) {
                         updateObscuredViewsVisibility(slideableView)
-                        dispatchOnPanelClosed(slideableView!!)
+                        dispatchOnPanelClosed(slideableView)
                         false
                     } else {
-                        dispatchOnPanelOpened(slideableView!!)
+                        dispatchOnPanelOpened(slideableView)
                         true
                     }
             }
