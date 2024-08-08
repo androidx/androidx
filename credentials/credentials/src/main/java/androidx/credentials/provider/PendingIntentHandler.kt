@@ -15,15 +15,18 @@
  */
 package androidx.credentials.provider
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
+import android.os.Build
 import android.service.credentials.BeginCreateCredentialResponse
 import android.service.credentials.CreateCredentialRequest
 import android.service.credentials.CredentialEntry
 import android.service.credentials.CredentialProviderService
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CredentialOption
 import androidx.credentials.GetCredentialResponse
@@ -67,87 +70,11 @@ class PendingIntentHandler {
         fun retrieveProviderCreateCredentialRequest(
             intent: Intent
         ): ProviderCreateCredentialRequest? {
-            val frameworkReq: CreateCredentialRequest? =
-                intent.getParcelableExtra(
-                    CredentialProviderService.EXTRA_CREATE_CREDENTIAL_REQUEST,
-                    CreateCredentialRequest::class.java
-                )
-            if (frameworkReq == null) {
-                Log.i(TAG, "Request not found in pendingIntent")
-                return frameworkReq
+            return if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.retrieveProviderCreateCredentialRequest(intent)
+            } else {
+                Api23Impl.retrieveProviderCreateCredentialRequest(intent)
             }
-            var biometricPromptResult = retrieveBiometricPromptResult(intent)
-            if (biometricPromptResult == null) {
-                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
-            }
-            return try {
-                ProviderCreateCredentialRequest(
-                    callingRequest =
-                        androidx.credentials.CreateCredentialRequest.createFrom(
-                            frameworkReq.type,
-                            frameworkReq.data,
-                            frameworkReq.data,
-                            requireSystemProvider = false,
-                            frameworkReq.callingAppInfo.origin
-                        ),
-                    callingAppInfo =
-                        CallingAppInfo.create(
-                            frameworkReq.callingAppInfo.packageName,
-                            frameworkReq.callingAppInfo.signingInfo,
-                            frameworkReq.callingAppInfo.origin
-                        ),
-                    biometricPromptResult = biometricPromptResult
-                )
-            } catch (e: IllegalArgumentException) {
-                return null
-            }
-        }
-
-        private fun retrieveBiometricPromptResult(
-            intent: Intent,
-            resultKey: String? = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
-            errorKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
-            errorMessageKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
-        ): BiometricPromptResult? {
-            if (intent.extras == null) {
-                return null
-            }
-            if (intent.extras!!.containsKey(resultKey)) {
-                val authResultType = intent.extras!!.getInt(resultKey)
-                return BiometricPromptResult(
-                    authenticationResult = AuthenticationResult(authResultType)
-                )
-            } else if (intent.extras!!.containsKey(errorKey)) {
-                val authResultError = intent.extras!!.getInt(errorKey)
-                return BiometricPromptResult(
-                    authenticationError =
-                        AuthenticationError(
-                            authResultError,
-                            intent.extras?.getCharSequence(errorMessageKey)
-                        )
-                )
-            }
-            return null
-        }
-
-        private fun retrieveBiometricPromptResultFallback(intent: Intent): BiometricPromptResult? {
-            // TODO(b/353798766) : Remove fallback keys once beta users have finalized testing
-            val fallbackResultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK
-            val fallbackErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK
-            if (
-                intent.extras != null &&
-                    (intent.extras!!.containsKey(fallbackResultKey) ||
-                        intent.extras!!.containsKey(fallbackErrorKey))
-            ) {
-                return retrieveBiometricPromptResult(
-                    intent,
-                    resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
-                    errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
-                    errorMessageKey =
-                        AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
-                )
-            }
-            return null
         }
 
         /**
@@ -160,12 +87,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
-            val request =
-                intent.getParcelableExtra(
-                    "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
-                    android.service.credentials.BeginGetCredentialRequest::class.java
-                )
-            return request?.let { BeginGetCredentialUtil.convertToJetpackRequest(it) }
+            return if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.retrieveBeginGetCredentialRequest(intent)
+            } else {
+                Api23Impl.retrieveBeginGetCredentialRequest(intent)
+            }
         }
 
         /**
@@ -188,10 +114,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun setCreateCredentialResponse(intent: Intent, response: CreateCredentialResponse) {
-            intent.putExtra(
-                CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE,
-                android.credentials.CreateCredentialResponse(response.data)
-            )
+            if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.setCreateCredentialResponse(intent, response)
+            } else {
+                Api23Impl.setCreateCredentialResponse(intent, response)
+            }
         }
 
         /**
@@ -204,39 +131,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun retrieveProviderGetCredentialRequest(intent: Intent): ProviderGetCredentialRequest? {
-            val frameworkReq =
-                intent.getParcelableExtra(
-                    CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
-                    android.service.credentials.GetCredentialRequest::class.java
-                )
-            if (frameworkReq == null) {
-                Log.i(TAG, "Get request from framework is null")
-                return null
+            return if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.retrieveProviderGetCredentialRequest(intent)
+            } else {
+                Api23Impl.retrieveProviderGetCredentialRequest(intent)
             }
-            var biometricPromptResult = retrieveBiometricPromptResult(intent)
-            if (biometricPromptResult == null) {
-                biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
-            }
-            return ProviderGetCredentialRequest.createFrom(
-                frameworkReq.credentialOptions
-                    .stream()
-                    .map { option ->
-                        CredentialOption.createFrom(
-                            option.type,
-                            option.credentialRetrievalData,
-                            option.candidateQueryData,
-                            option.isSystemProviderRequired,
-                            option.allowedProviders,
-                        )
-                    }
-                    .collect(Collectors.toList()),
-                CallingAppInfo.create(
-                    frameworkReq.callingAppInfo.packageName,
-                    frameworkReq.callingAppInfo.signingInfo,
-                    frameworkReq.callingAppInfo.origin
-                ),
-                biometricPromptResult
-            )
         }
 
         /**
@@ -259,15 +158,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun setGetCredentialResponse(intent: Intent, response: GetCredentialResponse) {
-            intent.putExtra(
-                CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE,
-                android.credentials.GetCredentialResponse(
-                    android.credentials.Credential(
-                        response.credential.type,
-                        response.credential.data
-                    )
-                )
-            )
+            if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.setGetCredentialResponse(intent, response)
+            } else {
+                Api23Impl.setGetCredentialResponse(intent, response)
+            }
         }
 
         /**
@@ -290,10 +185,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun setBeginGetCredentialResponse(intent: Intent, response: BeginGetCredentialResponse) {
-            intent.putExtra(
-                CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
-                BeginGetCredentialUtil.convertToFrameworkResponse(response)
-            )
+            if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.setBeginGetCredentialResponse(intent, response)
+            } else {
+                Api23Impl.setBeginGetCredentialResponse(intent, response)
+            }
         }
 
         /**
@@ -324,10 +220,11 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun setGetCredentialException(intent: Intent, exception: GetCredentialException) {
-            intent.putExtra(
-                CredentialProviderService.EXTRA_GET_CREDENTIAL_EXCEPTION,
-                android.credentials.GetCredentialException(exception.type, exception.message)
-            )
+            if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.setGetCredentialException(intent, exception)
+            } else {
+                Api23Impl.setGetCredentialException(intent, exception)
+            }
         }
 
         /**
@@ -359,10 +256,363 @@ class PendingIntentHandler {
          */
         @JvmStatic
         fun setCreateCredentialException(intent: Intent, exception: CreateCredentialException) {
-            intent.putExtra(
-                CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION,
-                android.credentials.CreateCredentialException(exception.type, exception.message)
-            )
+            if (Build.VERSION.SDK_INT >= 34) {
+                Api34Impl.setCreateCredentialException(intent, exception)
+            } else {
+                Api23Impl.setCreateCredentialException(intent, exception)
+            }
+        }
+    }
+
+    @SuppressLint("ObsoleteSdkInt") // TODO: b/356939416 - remove with official API update
+    @RequiresApi(23)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    class Api23Impl {
+        companion object {
+            private const val EXTRA_CREATE_CREDENTIAL_REQUEST =
+                "android.service.credentials.extra.CREATE_CREDENTIAL_REQUEST"
+
+            @JvmStatic
+            fun Intent.setProviderCreateCredentialRequest(
+                request: ProviderCreateCredentialRequest
+            ) {
+                this.putExtra(
+                    EXTRA_CREATE_CREDENTIAL_REQUEST,
+                    ProviderCreateCredentialRequest.asBundle(request)
+                )
+            }
+
+            @JvmStatic
+            fun retrieveProviderCreateCredentialRequest(
+                intent: Intent
+            ): ProviderCreateCredentialRequest? {
+                return ProviderCreateCredentialRequest.fromBundle(
+                    intent.getBundleExtra(EXTRA_CREATE_CREDENTIAL_REQUEST) ?: return null
+                )
+            }
+
+            private const val EXTRA_BEGIN_GET_CREDENTIAL_REQUEST =
+                "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST"
+
+            @JvmStatic
+            fun Intent.setBeginGetCredentialRequest(request: BeginGetCredentialRequest) {
+                this.putExtra(
+                    EXTRA_BEGIN_GET_CREDENTIAL_REQUEST,
+                    BeginGetCredentialRequest.asBundle(request)
+                )
+            }
+
+            @JvmStatic
+            fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
+                return BeginGetCredentialRequest.fromBundle(
+                    intent.getBundleExtra(EXTRA_BEGIN_GET_CREDENTIAL_REQUEST) ?: return null
+                )
+            }
+
+            private const val EXTRA_CREATE_CREDENTIAL_RESPONSE =
+                "android.service.credentials.extra.CREATE_CREDENTIAL_RESPONSE"
+
+            @JvmStatic
+            fun Intent.extractCreateCredentialResponse(): CreateCredentialResponse? {
+                return CreateCredentialResponse.fromBundle(
+                    this.getBundleExtra(EXTRA_CREATE_CREDENTIAL_RESPONSE) ?: return null
+                )
+            }
+
+            @JvmStatic
+            fun setCreateCredentialResponse(intent: Intent, response: CreateCredentialResponse) {
+                intent.putExtra(
+                    EXTRA_CREATE_CREDENTIAL_RESPONSE,
+                    CreateCredentialResponse.asBundle(response)
+                )
+            }
+
+            private const val EXTRA_GET_CREDENTIAL_REQUEST =
+                "android.service.credentials.extra.GET_CREDENTIAL_REQUEST"
+
+            @JvmStatic
+            fun Intent.setProviderGetCredentialRequest(request: ProviderGetCredentialRequest) {
+                this.putExtra(
+                    EXTRA_GET_CREDENTIAL_REQUEST,
+                    ProviderGetCredentialRequest.asBundle(request)
+                )
+            }
+
+            @JvmStatic
+            fun retrieveProviderGetCredentialRequest(
+                intent: Intent
+            ): ProviderGetCredentialRequest? {
+                return ProviderGetCredentialRequest.fromBundle(
+                    intent.getBundleExtra(EXTRA_GET_CREDENTIAL_REQUEST) ?: return null
+                )
+            }
+
+            private const val EXTRA_GET_CREDENTIAL_RESPONSE =
+                "android.service.credentials.extra.GET_CREDENTIAL_RESPONSE"
+
+            @JvmStatic
+            fun Intent.extractGetCredentialResponse(): GetCredentialResponse? {
+                return GetCredentialResponse.fromBundle(
+                    this.getBundleExtra(EXTRA_GET_CREDENTIAL_RESPONSE) ?: return null
+                )
+            }
+
+            @JvmStatic
+            fun setGetCredentialResponse(intent: Intent, response: GetCredentialResponse) {
+                intent.putExtra(
+                    EXTRA_GET_CREDENTIAL_RESPONSE,
+                    GetCredentialResponse.asBundle(response)
+                )
+            }
+
+            private const val EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE =
+                "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_RESPONSE"
+
+            @JvmStatic
+            fun Intent.extractBeginGetCredentialResponse(): BeginGetCredentialResponse? {
+                return BeginGetCredentialResponse.fromBundle(
+                    this.getBundleExtra(EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE) ?: return null
+                )
+            }
+
+            @JvmStatic
+            fun setBeginGetCredentialResponse(
+                intent: Intent,
+                response: BeginGetCredentialResponse
+            ) {
+                intent.putExtra(
+                    EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
+                    BeginGetCredentialResponse.asBundle(response)
+                )
+            }
+
+            private const val EXTRA_GET_CREDENTIAL_EXCEPTION =
+                "android.service.credentials.extra.GET_CREDENTIAL_EXCEPTION"
+
+            @JvmStatic
+            fun Intent.extractGetCredentialException(): GetCredentialException? {
+                return GetCredentialException.fromBundle(
+                    this.getBundleExtra(EXTRA_GET_CREDENTIAL_EXCEPTION) ?: return null
+                )
+            }
+
+            @JvmStatic
+            fun setGetCredentialException(intent: Intent, exception: GetCredentialException) {
+                intent.putExtra(
+                    EXTRA_GET_CREDENTIAL_EXCEPTION,
+                    GetCredentialException.asBundle(exception)
+                )
+            }
+
+            private const val EXTRA_CREATE_CREDENTIAL_EXCEPTION =
+                "android.service.credentials.extra.CREATE_CREDENTIAL_EXCEPTION"
+
+            @JvmStatic
+            fun Intent.extractCreateCredentialException(): CreateCredentialException? {
+                return CreateCredentialException.fromBundle(
+                    this.getBundleExtra(EXTRA_CREATE_CREDENTIAL_EXCEPTION) ?: return null
+                )
+            }
+
+            @JvmStatic
+            fun setCreateCredentialException(intent: Intent, exception: CreateCredentialException) {
+                intent.putExtra(
+                    EXTRA_CREATE_CREDENTIAL_EXCEPTION,
+                    CreateCredentialException.asBundle(exception)
+                )
+            }
+        }
+    }
+
+    @RequiresApi(34)
+    internal class Api34Impl {
+        companion object {
+            @JvmStatic
+            fun retrieveProviderCreateCredentialRequest(
+                intent: Intent
+            ): ProviderCreateCredentialRequest? {
+                val frameworkReq: CreateCredentialRequest? =
+                    intent.getParcelableExtra(
+                        CredentialProviderService.EXTRA_CREATE_CREDENTIAL_REQUEST,
+                        CreateCredentialRequest::class.java
+                    )
+                if (frameworkReq == null) {
+                    Log.i(TAG, "Request not found in pendingIntent")
+                    return frameworkReq
+                }
+                var biometricPromptResult = retrieveBiometricPromptResult(intent)
+                if (biometricPromptResult == null) {
+                    biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+                }
+                return try {
+                    ProviderCreateCredentialRequest(
+                        callingRequest =
+                            androidx.credentials.CreateCredentialRequest.createFrom(
+                                frameworkReq.type,
+                                frameworkReq.data,
+                                frameworkReq.data,
+                                requireSystemProvider = false,
+                                frameworkReq.callingAppInfo.origin
+                            ),
+                        callingAppInfo =
+                            CallingAppInfo.create(
+                                frameworkReq.callingAppInfo.packageName,
+                                frameworkReq.callingAppInfo.signingInfo,
+                                frameworkReq.callingAppInfo.origin
+                            ),
+                        biometricPromptResult = biometricPromptResult
+                    )
+                } catch (e: IllegalArgumentException) {
+                    return null
+                }
+            }
+
+            private fun retrieveBiometricPromptResult(
+                intent: Intent,
+                resultKey: String? = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE,
+                errorKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR,
+                errorMessageKey: String? = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE
+            ): BiometricPromptResult? {
+                if (intent.extras == null) {
+                    return null
+                }
+                if (intent.extras!!.containsKey(resultKey)) {
+                    val authResultType = intent.extras!!.getInt(resultKey)
+                    return BiometricPromptResult(
+                        authenticationResult = AuthenticationResult(authResultType)
+                    )
+                } else if (intent.extras!!.containsKey(errorKey)) {
+                    val authResultError = intent.extras!!.getInt(errorKey)
+                    return BiometricPromptResult(
+                        authenticationError =
+                            AuthenticationError(
+                                authResultError,
+                                intent.extras?.getCharSequence(errorMessageKey)
+                            )
+                    )
+                }
+                return null
+            }
+
+            private fun retrieveBiometricPromptResultFallback(
+                intent: Intent
+            ): BiometricPromptResult? {
+                // TODO(b/353798766) : Remove fallback keys once beta users have finalized testing
+                val fallbackResultKey =
+                    AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK
+                val fallbackErrorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK
+                if (
+                    intent.extras != null &&
+                        (intent.extras!!.containsKey(fallbackResultKey) ||
+                            intent.extras!!.containsKey(fallbackErrorKey))
+                ) {
+                    return retrieveBiometricPromptResult(
+                        intent,
+                        resultKey = AuthenticationResult.EXTRA_BIOMETRIC_AUTH_RESULT_TYPE_FALLBACK,
+                        errorKey = AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_FALLBACK,
+                        errorMessageKey =
+                            AuthenticationError.EXTRA_BIOMETRIC_AUTH_ERROR_MESSAGE_FALLBACK
+                    )
+                }
+                return null
+            }
+
+            @JvmStatic
+            fun retrieveBeginGetCredentialRequest(intent: Intent): BeginGetCredentialRequest? {
+                val request =
+                    intent.getParcelableExtra(
+                        "android.service.credentials.extra.BEGIN_GET_CREDENTIAL_REQUEST",
+                        android.service.credentials.BeginGetCredentialRequest::class.java
+                    )
+                return request?.let { BeginGetCredentialUtil.convertToJetpackRequest(it) }
+            }
+
+            @JvmStatic
+            fun setCreateCredentialResponse(intent: Intent, response: CreateCredentialResponse) {
+                intent.putExtra(
+                    CredentialProviderService.EXTRA_CREATE_CREDENTIAL_RESPONSE,
+                    android.credentials.CreateCredentialResponse(response.data)
+                )
+            }
+
+            @JvmStatic
+            fun retrieveProviderGetCredentialRequest(
+                intent: Intent
+            ): ProviderGetCredentialRequest? {
+                val frameworkReq =
+                    intent.getParcelableExtra(
+                        CredentialProviderService.EXTRA_GET_CREDENTIAL_REQUEST,
+                        android.service.credentials.GetCredentialRequest::class.java
+                    )
+                if (frameworkReq == null) {
+                    Log.i(TAG, "Get request from framework is null")
+                    return null
+                }
+                var biometricPromptResult = retrieveBiometricPromptResult(intent)
+                if (biometricPromptResult == null) {
+                    biometricPromptResult = retrieveBiometricPromptResultFallback(intent)
+                }
+                return ProviderGetCredentialRequest.createFrom(
+                    frameworkReq.credentialOptions
+                        .stream()
+                        .map { option ->
+                            CredentialOption.createFrom(
+                                option.type,
+                                option.credentialRetrievalData,
+                                option.candidateQueryData,
+                                option.isSystemProviderRequired,
+                                option.allowedProviders,
+                            )
+                        }
+                        .collect(Collectors.toList()),
+                    CallingAppInfo.create(
+                        frameworkReq.callingAppInfo.packageName,
+                        frameworkReq.callingAppInfo.signingInfo,
+                        frameworkReq.callingAppInfo.origin
+                    ),
+                    biometricPromptResult
+                )
+            }
+
+            @JvmStatic
+            fun setGetCredentialResponse(intent: Intent, response: GetCredentialResponse) {
+                intent.putExtra(
+                    CredentialProviderService.EXTRA_GET_CREDENTIAL_RESPONSE,
+                    android.credentials.GetCredentialResponse(
+                        android.credentials.Credential(
+                            response.credential.type,
+                            response.credential.data
+                        )
+                    )
+                )
+            }
+
+            @JvmStatic
+            fun setBeginGetCredentialResponse(
+                intent: Intent,
+                response: BeginGetCredentialResponse
+            ) {
+                intent.putExtra(
+                    CredentialProviderService.EXTRA_BEGIN_GET_CREDENTIAL_RESPONSE,
+                    BeginGetCredentialUtil.convertToFrameworkResponse(response)
+                )
+            }
+
+            @JvmStatic
+            fun setGetCredentialException(intent: Intent, exception: GetCredentialException) {
+                intent.putExtra(
+                    CredentialProviderService.EXTRA_GET_CREDENTIAL_EXCEPTION,
+                    android.credentials.GetCredentialException(exception.type, exception.message)
+                )
+            }
+
+            @JvmStatic
+            fun setCreateCredentialException(intent: Intent, exception: CreateCredentialException) {
+                intent.putExtra(
+                    CredentialProviderService.EXTRA_CREATE_CREDENTIAL_EXCEPTION,
+                    android.credentials.CreateCredentialException(exception.type, exception.message)
+                )
+            }
         }
     }
 }

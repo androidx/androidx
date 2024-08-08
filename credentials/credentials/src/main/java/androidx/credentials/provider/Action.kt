@@ -23,6 +23,7 @@ import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -67,8 +68,7 @@ import java.util.Collections
  * @throws NullPointerException If [title] or [pendingIntent] is null
  * @see android.service.credentials.BeginGetCredentialResponse for usage.
  */
-class Action
-constructor(
+class Action(
     val title: CharSequence,
     val pendingIntent: PendingIntent,
     val subtitle: CharSequence? = null,
@@ -202,5 +202,59 @@ constructor(
             }
             return null
         }
+
+        private const val EXTRA_ACTION_SIZE = "androidx.credentials.provider.extra.ACTION_SIZE"
+        private const val EXTRA_ACTION_PENDING_INTENT_PREFIX =
+            "androidx.credentials.provider.extra.ACTION_PENDING_INTENT_"
+        private const val EXTRA_ACTION_TITLE_PREFIX =
+            "androidx.credentials.provider.extra.ACTION_TITLE_"
+        private const val EXTRA_ACTION_SUBTITLE_PREFIX =
+            "androidx.credentials.provider.extra.ACTION_SUBTITLE_"
+
+        /** Marshall a list of action data through an intent. */
+        internal fun List<Action>.marshall(bundle: Bundle) {
+            bundle.putInt(EXTRA_ACTION_SIZE, this.size)
+            for (i in indices) {
+                bundle.putParcelable("$EXTRA_ACTION_PENDING_INTENT_PREFIX$i", this[i].pendingIntent)
+                bundle.putCharSequence("$EXTRA_ACTION_TITLE_PREFIX$i", this[i].title)
+                bundle.putCharSequence("$EXTRA_ACTION_SUBTITLE_PREFIX$i", this[i].subtitle)
+            }
+        }
+
+        /**
+         * Returns a list of [Action]s from an Intent, which was supposed to be injected via
+         * [marshall]. Returns an empty list if parsing fails in any way.
+         */
+        internal fun Bundle.unmarshallActionList(): List<Action> {
+            val actions = mutableListOf<Action>()
+            val size = this.getInt(EXTRA_ACTION_SIZE, 0)
+            for (i in 0 until size) {
+                val pendingIntent: PendingIntent? =
+                    this.getParcelable("$EXTRA_ACTION_PENDING_INTENT_PREFIX$i")
+                val title: CharSequence? = this.getCharSequence("$EXTRA_ACTION_TITLE_PREFIX$i")
+                val subtitle: CharSequence? =
+                    this.getCharSequence("$EXTRA_ACTION_SUBTITLE_PREFIX$i")
+                if (pendingIntent == null || title == null) {
+                    return emptyList()
+                }
+                actions.add(Action(title, pendingIntent, subtitle))
+            }
+            return actions
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Action) return false
+        return this.title == other.title &&
+            this.pendingIntent == other.pendingIntent &&
+            this.subtitle == other.subtitle
+    }
+
+    override fun hashCode(): Int {
+        var result = title.hashCode()
+        result = 31 * result + pendingIntent.hashCode()
+        result = 31 * result + (subtitle?.hashCode() ?: 0)
+        return result
     }
 }

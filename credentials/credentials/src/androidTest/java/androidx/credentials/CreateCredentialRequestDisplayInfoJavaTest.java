@@ -16,7 +16,7 @@
 
 package androidx.credentials;
 
-import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
+import static androidx.credentials.internal.ConversionUtilsKt.getFinalCreateCredentialData;
 
 import static com.google.common.truth.Truth.assertThat;
 

@@ -625,6 +625,132 @@ internal constructor(
             }
             return null
         }
+
+        internal fun PasswordCredentialEntry.marshall(bundle: Bundle, index: Int) {
+            this.marshallCommonProperties(bundle, index)
+            bundle.putParcelable(
+                "$EXTRA_CREDENTIAL_ENTRY_PENDING_INTENT_PREFIX$index",
+                this.pendingIntent
+            )
+            bundle.putBoolean(
+                "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
+                this.isAutoSelectAllowed
+            )
+            bundle.putBoolean(
+                "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX$index",
+                this.isAutoSelectAllowedFromOption
+            )
+            bundle.putBoolean(
+                "$EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX$index",
+                this.hasDefaultIcon
+            )
+            bundle.putCharSequence("$EXTRA_CREDENTIAL_TITLE_PREFIX$index", this.username)
+            bundle.putCharSequence(
+                "$EXTRA_CREDENTIAL_TYPE_DISPLAY_NAME_PREFIX$index",
+                this.typeDisplayName
+            )
+            bundle.putParcelable("$EXTRA_CREDENTIAL_TYPE_ICON_PREFIX$index", this.icon)
+            this.displayName?.let {
+                bundle.putCharSequence("$EXTRA_CREDENTIAL_SUBTITLE_PREFIX$index", it)
+            }
+            // TODO: b/356939416 - provide backward compatible timestamp API.
+            if (Build.VERSION.SDK_INT >= 26) {
+                this.lastUsedTime?.let {
+                    bundle.putSerializable(
+                        "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX$index",
+                        it
+                    )
+                }
+            }
+        }
+
+        internal fun unmarshall(bundle: Bundle, index: Int): PasswordCredentialEntry? {
+            try {
+                val optionId: String =
+                    bundle.getString("$EXTRA_CREDENTIAL_ENTRY_OPTION_ID_PREFIX$index")!!
+                val optionData: Bundle =
+                    bundle.getBundle("$EXTRA_CREDENTIAL_ENTRY_OPTION_DATA_PREFIX$index")!!
+                val entryGroupId: CharSequence? =
+                    bundle.getCharSequence("$EXTRA_CREDENTIAL_ENTRY_ENTRY_GROUP_ID_PREFIX$index")
+                val isDefaultIconPreferredAsSingleProvider: Boolean =
+                    bundle.getBoolean(
+                        "$EXTRA_CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_PREFIX$index",
+                        false
+                    )
+                val affiliatedDomain: CharSequence? =
+                    bundle.getCharSequence("$EXTRA_CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_PREFIX$index")
+                val pendingIntent: PendingIntent =
+                    bundle.getParcelable("$EXTRA_CREDENTIAL_ENTRY_PENDING_INTENT_PREFIX$index")!!
+                val isAutoSelectAllowed: Boolean =
+                    bundle.getBoolean(
+                        "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
+                        false
+                    )
+                val isAutoSelectAllowedFromOption: Boolean =
+                    bundle.getBoolean(
+                        "$EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX$index",
+                        false
+                    )
+                val hasDefaultIcon: Boolean =
+                    bundle.getBoolean(
+                        "$EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX$index",
+                        false
+                    )
+                val username: CharSequence =
+                    bundle.getCharSequence("$EXTRA_CREDENTIAL_TITLE_PREFIX$index")!!
+                val typeDisplayName: CharSequence =
+                    bundle.getCharSequence("$EXTRA_CREDENTIAL_TYPE_DISPLAY_NAME_PREFIX$index")!!
+                val icon: Icon = bundle.getParcelable("$EXTRA_CREDENTIAL_TYPE_ICON_PREFIX$index")!!
+                val displayName: CharSequence? =
+                    bundle.getCharSequence("$EXTRA_CREDENTIAL_SUBTITLE_PREFIX$index")
+                // TODO: b/356939416 - provide backward compatible timestamp API.
+                return if (Build.VERSION.SDK_INT >= 26) {
+                    val lastUsedTime: Instant? =
+                        bundle.getSerializable(
+                            "$EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX$index"
+                        ) as Instant?
+                    PasswordCredentialEntry(
+                        username = username,
+                        displayName = displayName,
+                        typeDisplayName = typeDisplayName,
+                        pendingIntent = pendingIntent,
+                        icon = icon,
+                        lastUsedTime = lastUsedTime,
+                        isAutoSelectAllowed = isAutoSelectAllowed,
+                        beginGetPasswordOption =
+                            BeginGetPasswordOption.createFrom(optionData, optionId),
+                        entryGroupId = entryGroupId,
+                        isDefaultIconPreferredAsSingleProvider =
+                            isDefaultIconPreferredAsSingleProvider,
+                        affiliatedDomain = affiliatedDomain,
+                        autoSelectAllowedFromOption = isAutoSelectAllowedFromOption,
+                        isCreatedFromSlice = true,
+                        isDefaultIconFromSlice = hasDefaultIcon
+                    )
+                } else {
+                    PasswordCredentialEntry(
+                        username = username,
+                        displayName = displayName,
+                        typeDisplayName = typeDisplayName,
+                        pendingIntent = pendingIntent,
+                        icon = icon,
+                        lastUsedTime = null,
+                        isAutoSelectAllowed = isAutoSelectAllowed,
+                        beginGetPasswordOption =
+                            BeginGetPasswordOption.createFrom(optionData, optionId),
+                        entryGroupId = entryGroupId,
+                        isDefaultIconPreferredAsSingleProvider =
+                            isDefaultIconPreferredAsSingleProvider,
+                        affiliatedDomain = affiliatedDomain,
+                        autoSelectAllowedFromOption = isAutoSelectAllowedFromOption,
+                        isCreatedFromSlice = true,
+                        isDefaultIconFromSlice = hasDefaultIcon
+                    )
+                }
+            } catch (e: Exception) {
+                return null
+            }
+        }
     }
 
     /**

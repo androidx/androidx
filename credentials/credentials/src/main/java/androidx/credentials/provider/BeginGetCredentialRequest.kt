@@ -19,6 +19,8 @@ package androidx.credentials.provider
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
+import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
@@ -69,6 +71,65 @@ constructor(
         }
     }
 
+    @RequiresApi(23)
+    private object Api23Impl {
+        private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE =
+            "androidx.credentials.provider.extra.EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE"
+        private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_PREFIX =
+            "androidx.credentials.provider.extra.EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_"
+        private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_TYPE_PREFIX =
+            "androidx.credentials.provider.extra.EXTRA_BEGIN_GET_CREDENTIAL_OPTION_TYPE_"
+        private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX =
+            "androidx.credentials.provider.extra.EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_"
+
+        @JvmStatic
+        fun asBundle(bundle: Bundle, request: BeginGetCredentialRequest) {
+            val optionSize = request.beginGetCredentialOptions.size
+            bundle.putInt(EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE, optionSize)
+            for (i in 0 until optionSize) {
+                bundle.putString(
+                    "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_PREFIX$i",
+                    request.beginGetCredentialOptions[i].id
+                )
+                bundle.putString(
+                    "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_TYPE_PREFIX$i",
+                    request.beginGetCredentialOptions[i].type
+                )
+                bundle.putBundle(
+                    "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i",
+                    request.beginGetCredentialOptions[i].candidateQueryData
+                )
+                request.callingAppInfo?.let { bundle.setCallingAppInfo(it) }
+            }
+        }
+
+        @JvmStatic
+        fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
+            val callingAppInfo = extractCallingAppInfo(bundle)
+
+            val optionSize = bundle.getInt(EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE, -1)
+            if (optionSize < 0) {
+                return null
+            }
+
+            val options = mutableListOf<BeginGetCredentialOption>()
+            for (i in 0 until optionSize) {
+                val id =
+                    bundle.getString("$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_PREFIX$i")
+                        ?: return null
+                val type =
+                    bundle.getString("$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_TYPE_PREFIX$i")
+                        ?: return null
+                val candidateQueryData =
+                    bundle.getBundle(
+                        "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i"
+                    ) ?: return null
+                options.add(BeginGetCredentialOption.createFrom(id, type, candidateQueryData))
+            }
+            return BeginGetCredentialRequest(options, callingAppInfo)
+        }
+    }
+
     companion object {
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
@@ -80,6 +141,8 @@ constructor(
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, request)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.asBundle(bundle, request)
             }
             return bundle
         }
@@ -92,6 +155,8 @@ constructor(
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.fromBundle(bundle)
             } else {
                 null
             }

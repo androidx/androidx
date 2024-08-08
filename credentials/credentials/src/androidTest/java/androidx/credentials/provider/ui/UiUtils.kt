@@ -62,7 +62,7 @@ class UiUtils {
          * Generates a default action entry that can be used for tests around the provider objects.
          */
         @JvmStatic
-        fun constructActionEntry(title: CharSequence, subtitle: CharSequence): Action {
+        fun constructActionEntry(title: CharSequence, subtitle: CharSequence?): Action {
             return Action(title, sPendingIntent, subtitle)
         }
 

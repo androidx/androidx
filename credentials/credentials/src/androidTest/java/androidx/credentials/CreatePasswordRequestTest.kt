@@ -21,7 +21,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.credentials.CreateCredentialRequest.Companion.createFrom
 import androidx.credentials.CreateCredentialRequest.DisplayInfo
-import androidx.credentials.internal.FrameworkImplHelper.Companion.getFinalCreateCredentialData
+import androidx.credentials.internal.getFinalCreateCredentialData
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

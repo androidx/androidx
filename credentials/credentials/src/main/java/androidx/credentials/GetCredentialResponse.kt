@@ -16,10 +16,36 @@
 
 package androidx.credentials
 
+import android.os.Bundle
+import androidx.annotation.RestrictTo
+
 /**
  * Encapsulates the result of a user credential request.
  *
  * @property credential the user credential that can be used to authenticate to your app
  * @throws NullPointerException If [credential] is null
  */
-class GetCredentialResponse constructor(val credential: Credential)
+class GetCredentialResponse(val credential: Credential) {
+    internal companion object {
+        private const val EXTRA_CREDENTIAL_TYPE =
+            "androidx.credentials.provider.extra.EXTRA_CREDENTIAL_TYPE"
+        private const val EXTRA_CREDENTIAL_DATA =
+            "androidx.credentials.provider.extra.EXTRA_CREDENTIAL_DATA"
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun asBundle(response: GetCredentialResponse): Bundle =
+            Bundle().apply {
+                putString(EXTRA_CREDENTIAL_TYPE, response.credential.type)
+                putBundle(EXTRA_CREDENTIAL_DATA, response.credential.data)
+            }
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun fromBundle(bundle: Bundle): GetCredentialResponse? {
+            val type = bundle.getString(EXTRA_CREDENTIAL_TYPE) ?: return null
+            val data = bundle.getBundle(EXTRA_CREDENTIAL_DATA) ?: return null
+            return GetCredentialResponse(Credential.createFrom(type, data))
+        }
+    }
+}
