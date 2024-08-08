@@ -9,36 +9,38 @@
 abstract fun interface androidx.kruth/FailureStrategy { // androidx.kruth/FailureStrategy|null[0]
     abstract fun fail(kotlin/AssertionError) // androidx.kruth/FailureStrategy.fail|fail(kotlin.AssertionError){}[0]
 }
+
 abstract interface androidx.kruth/Ordered { // androidx.kruth/Ordered|null[0]
     abstract fun inOrder() // androidx.kruth/Ordered.inOrder|inOrder(){}[0]
 }
+
 final class <#A: kotlin/Any?> androidx.kruth/ObjectArraySubject : androidx.kruth/Subject<kotlin/Array<out #A>> { // androidx.kruth/ObjectArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<*> // androidx.kruth/ObjectArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/ObjectArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/ObjectArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/ObjectArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class <#A: kotlin/AssertionError> androidx.kruth/TruthFailureSubject : androidx.kruth/ThrowableSubject<#A> { // androidx.kruth/TruthFailureSubject|null[0]
     final fun factKeys(): androidx.kruth/IterableSubject<kotlin/String> // androidx.kruth/TruthFailureSubject.factKeys|factKeys(){}[0]
     final fun factValue(kotlin/String): androidx.kruth/StringSubject // androidx.kruth/TruthFailureSubject.factValue|factValue(kotlin.String){}[0]
     final fun factValue(kotlin/String, kotlin/Int): androidx.kruth/StringSubject // androidx.kruth/TruthFailureSubject.factValue|factValue(kotlin.String;kotlin.Int){}[0]
+
     final object Companion { // androidx.kruth/TruthFailureSubject.Companion|null[0]
         final fun <#A2: kotlin/AssertionError> truthFailures(): androidx.kruth/Subject.Factory<androidx.kruth/TruthFailureSubject<#A2>, #A2> // androidx.kruth/TruthFailureSubject.Companion.truthFailures|truthFailures(){0§<kotlin.AssertionError>}[0]
     }
 }
+
 final class <#A: out androidx.kruth/Subject<#B>, #B: kotlin/Any?> androidx.kruth/SimpleSubjectBuilder { // androidx.kruth/SimpleSubjectBuilder|null[0]
     final fun that(#B?): #A // androidx.kruth/SimpleSubjectBuilder.that|that(1:1?){}[0]
 }
+
 final class androidx.kruth/BooleanSubject : androidx.kruth/Subject<kotlin/Boolean> { // androidx.kruth/BooleanSubject|null[0]
     final fun isFalse() // androidx.kruth/BooleanSubject.isFalse|isFalse(){}[0]
     final fun isTrue() // androidx.kruth/BooleanSubject.isTrue|isTrue(){}[0]
 }
+
 final class androidx.kruth/DoubleSubject : androidx.kruth/ComparableSubject<kotlin/Double> { // androidx.kruth/DoubleSubject|null[0]
-    abstract class TolerantDoubleComparison { // androidx.kruth/DoubleSubject.TolerantDoubleComparison|null[0]
-        abstract fun of(kotlin/Double) // androidx.kruth/DoubleSubject.TolerantDoubleComparison.of|of(kotlin.Double){}[0]
-        open fun equals(kotlin/Any?): kotlin/Boolean // androidx.kruth/DoubleSubject.TolerantDoubleComparison.equals|equals(kotlin.Any?){}[0]
-        open fun hashCode(): kotlin/Int // androidx.kruth/DoubleSubject.TolerantDoubleComparison.hashCode|hashCode(){}[0]
-    }
     final fun isAtLeast(kotlin/Int) // androidx.kruth/DoubleSubject.isAtLeast|isAtLeast(kotlin.Int){}[0]
     final fun isAtMost(kotlin/Int) // androidx.kruth/DoubleSubject.isAtMost|isAtMost(kotlin.Int){}[0]
     final fun isFinite() // androidx.kruth/DoubleSubject.isFinite|isFinite(){}[0]
@@ -52,21 +54,26 @@ final class androidx.kruth/DoubleSubject : androidx.kruth/ComparableSubject<kotl
     final fun isPositiveInfinity() // androidx.kruth/DoubleSubject.isPositiveInfinity|isPositiveInfinity(){}[0]
     final fun isWithin(kotlin/Double): androidx.kruth/DoubleSubject.TolerantDoubleComparison // androidx.kruth/DoubleSubject.isWithin|isWithin(kotlin.Double){}[0]
     final fun isZero() // androidx.kruth/DoubleSubject.isZero|isZero(){}[0]
+
+    abstract class TolerantDoubleComparison { // androidx.kruth/DoubleSubject.TolerantDoubleComparison|null[0]
+        abstract fun of(kotlin/Double) // androidx.kruth/DoubleSubject.TolerantDoubleComparison.of|of(kotlin.Double){}[0]
+        open fun equals(kotlin/Any?): kotlin/Boolean // androidx.kruth/DoubleSubject.TolerantDoubleComparison.equals|equals(kotlin.Any?){}[0]
+        open fun hashCode(): kotlin/Int // androidx.kruth/DoubleSubject.TolerantDoubleComparison.hashCode|hashCode(){}[0]
+    }
 }
+
 final class androidx.kruth/Fact { // androidx.kruth/Fact|null[0]
     final fun toString(): kotlin/String // androidx.kruth/Fact.toString|toString(){}[0]
+
     final object Companion { // androidx.kruth/Fact.Companion|null[0]
         final fun fact(kotlin/String, kotlin/Any?): androidx.kruth/Fact // androidx.kruth/Fact.Companion.fact|fact(kotlin.String;kotlin.Any?){}[0]
         final fun simpleFact(kotlin/String): androidx.kruth/Fact // androidx.kruth/Fact.Companion.simpleFact|simpleFact(kotlin.String){}[0]
     }
 }
+
 final class androidx.kruth/FailureMetadata // androidx.kruth/FailureMetadata|null[0]
+
 final class androidx.kruth/FloatSubject : androidx.kruth/ComparableSubject<kotlin/Float> { // androidx.kruth/FloatSubject|null[0]
-    abstract class TolerantFloatComparison { // androidx.kruth/FloatSubject.TolerantFloatComparison|null[0]
-        abstract fun of(kotlin/Float) // androidx.kruth/FloatSubject.TolerantFloatComparison.of|of(kotlin.Float){}[0]
-        open fun equals(kotlin/Any?): kotlin/Boolean // androidx.kruth/FloatSubject.TolerantFloatComparison.equals|equals(kotlin.Any?){}[0]
-        open fun hashCode(): kotlin/Int // androidx.kruth/FloatSubject.TolerantFloatComparison.hashCode|hashCode(){}[0]
-    }
     final fun isAtLeast(kotlin/Int) // androidx.kruth/FloatSubject.isAtLeast|isAtLeast(kotlin.Int){}[0]
     final fun isAtMost(kotlin/Int) // androidx.kruth/FloatSubject.isAtMost|isAtMost(kotlin.Int){}[0]
     final fun isEqualTo(kotlin/Any?) // androidx.kruth/FloatSubject.isEqualTo|isEqualTo(kotlin.Any?){}[0]
@@ -83,25 +90,35 @@ final class androidx.kruth/FloatSubject : androidx.kruth/ComparableSubject<kotli
     final fun isPositiveInfinity() // androidx.kruth/FloatSubject.isPositiveInfinity|isPositiveInfinity(){}[0]
     final fun isWithin(kotlin/Float): androidx.kruth/FloatSubject.TolerantFloatComparison // androidx.kruth/FloatSubject.isWithin|isWithin(kotlin.Float){}[0]
     final fun isZero() // androidx.kruth/FloatSubject.isZero|isZero(){}[0]
+
+    abstract class TolerantFloatComparison { // androidx.kruth/FloatSubject.TolerantFloatComparison|null[0]
+        abstract fun of(kotlin/Float) // androidx.kruth/FloatSubject.TolerantFloatComparison.of|of(kotlin.Float){}[0]
+        open fun equals(kotlin/Any?): kotlin/Boolean // androidx.kruth/FloatSubject.TolerantFloatComparison.equals|equals(kotlin.Any?){}[0]
+        open fun hashCode(): kotlin/Int // androidx.kruth/FloatSubject.TolerantFloatComparison.hashCode|hashCode(){}[0]
+    }
 }
+
 final class androidx.kruth/PrimitiveBooleanArraySubject : androidx.kruth/Subject<kotlin/BooleanArray?> { // androidx.kruth/PrimitiveBooleanArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Boolean> // androidx.kruth/PrimitiveBooleanArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveBooleanArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveBooleanArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveBooleanArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class androidx.kruth/PrimitiveByteArraySubject : androidx.kruth/Subject<kotlin/ByteArray?> { // androidx.kruth/PrimitiveByteArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Byte> // androidx.kruth/PrimitiveByteArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveByteArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveByteArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveByteArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class androidx.kruth/PrimitiveCharArraySubject : androidx.kruth/Subject<kotlin/CharArray?> { // androidx.kruth/PrimitiveCharArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Char> // androidx.kruth/PrimitiveCharArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveCharArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveCharArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveCharArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class androidx.kruth/PrimitiveDoubleArraySubject : androidx.kruth/Subject<kotlin/DoubleArray?> { // androidx.kruth/PrimitiveDoubleArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Double> // androidx.kruth/PrimitiveDoubleArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveDoubleArraySubject.hasLength|hasLength(kotlin.Int){}[0]
@@ -110,6 +127,7 @@ final class androidx.kruth/PrimitiveDoubleArraySubject : androidx.kruth/Subject<
     final fun isNotEmpty() // androidx.kruth/PrimitiveDoubleArraySubject.isNotEmpty|isNotEmpty(){}[0]
     final fun isNotEqualTo(kotlin/Any?) // androidx.kruth/PrimitiveDoubleArraySubject.isNotEqualTo|isNotEqualTo(kotlin.Any?){}[0]
 }
+
 final class androidx.kruth/PrimitiveFloatArraySubject : androidx.kruth/Subject<kotlin/FloatArray?> { // androidx.kruth/PrimitiveFloatArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Float> // androidx.kruth/PrimitiveFloatArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveFloatArraySubject.hasLength|hasLength(kotlin.Int){}[0]
@@ -118,53 +136,31 @@ final class androidx.kruth/PrimitiveFloatArraySubject : androidx.kruth/Subject<k
     final fun isNotEmpty() // androidx.kruth/PrimitiveFloatArraySubject.isNotEmpty|isNotEmpty(){}[0]
     final fun isNotEqualTo(kotlin/Any?) // androidx.kruth/PrimitiveFloatArraySubject.isNotEqualTo|isNotEqualTo(kotlin.Any?){}[0]
 }
+
 final class androidx.kruth/PrimitiveIntArraySubject : androidx.kruth/Subject<kotlin/IntArray?> { // androidx.kruth/PrimitiveIntArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Int> // androidx.kruth/PrimitiveIntArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveIntArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveIntArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveIntArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class androidx.kruth/PrimitiveLongArraySubject : androidx.kruth/Subject<kotlin/LongArray?> { // androidx.kruth/PrimitiveLongArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Long> // androidx.kruth/PrimitiveLongArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveLongArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveLongArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveLongArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 final class androidx.kruth/PrimitiveShortArraySubject : androidx.kruth/Subject<kotlin/ShortArray?> { // androidx.kruth/PrimitiveShortArraySubject|null[0]
     final fun asList(): androidx.kruth/IterableSubject<kotlin/Short> // androidx.kruth/PrimitiveShortArraySubject.asList|asList(){}[0]
     final fun hasLength(kotlin/Int) // androidx.kruth/PrimitiveShortArraySubject.hasLength|hasLength(kotlin.Int){}[0]
     final fun isEmpty() // androidx.kruth/PrimitiveShortArraySubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/PrimitiveShortArraySubject.isNotEmpty|isNotEmpty(){}[0]
 }
-final fun <#A: androidx.kruth/Subject<#B>, #B: kotlin/Any?> androidx.kruth/assertAbout(androidx.kruth/Subject.Factory<#A, #B>): androidx.kruth/SimpleSubjectBuilder<#A, #B> // androidx.kruth/assertAbout|assertAbout(androidx.kruth.Subject.Factory<0:0,0:1>){0§<androidx.kruth.Subject<0:1>>;1§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.kruth/assertThat(kotlin.collections/Map<#A, #B>?): androidx.kruth/MapSubject<#A, #B> // androidx.kruth/assertThat|assertThat(kotlin.collections.Map<0:0,0:1>?){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> androidx.kruth/assertThat(#A?): androidx.kruth/Subject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> androidx.kruth/assertThat(kotlin.collections/Iterable<#A>?): androidx.kruth/IterableSubject<#A> // androidx.kruth/assertThat|assertThat(kotlin.collections.Iterable<0:0>?){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Any?> androidx.kruth/assertThat(kotlin/Array<out #A>?): androidx.kruth/ObjectArraySubject<#A> // androidx.kruth/assertThat|assertThat(kotlin.Array<out|0:0>?){0§<kotlin.Any?>}[0]
-final fun <#A: kotlin/Comparable<#A>> androidx.kruth/assertThat(#A?): androidx.kruth/ComparableSubject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Comparable<0:0>>}[0]
-final fun <#A: kotlin/Int?> androidx.kruth/assertThat(#A): androidx.kruth/IntegerSubject // androidx.kruth/assertThat|assertThat(0:0){0§<kotlin.Int?>}[0]
-final fun <#A: kotlin/Long?> androidx.kruth/assertThat(#A): androidx.kruth/LongSubject // androidx.kruth/assertThat|assertThat(0:0){0§<kotlin.Long?>}[0]
-final fun <#A: kotlin/Throwable> androidx.kruth/assertThat(#A?): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Throwable>}[0]
-final fun androidx.kruth/assertThat(kotlin/Boolean?): androidx.kruth/BooleanSubject // androidx.kruth/assertThat|assertThat(kotlin.Boolean?){}[0]
-final fun androidx.kruth/assertThat(kotlin/BooleanArray?): androidx.kruth/PrimitiveBooleanArraySubject // androidx.kruth/assertThat|assertThat(kotlin.BooleanArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/ByteArray?): androidx.kruth/PrimitiveByteArraySubject // androidx.kruth/assertThat|assertThat(kotlin.ByteArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/CharArray?): androidx.kruth/PrimitiveCharArraySubject // androidx.kruth/assertThat|assertThat(kotlin.CharArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/Double?): androidx.kruth/DoubleSubject // androidx.kruth/assertThat|assertThat(kotlin.Double?){}[0]
-final fun androidx.kruth/assertThat(kotlin/DoubleArray?): androidx.kruth/PrimitiveDoubleArraySubject // androidx.kruth/assertThat|assertThat(kotlin.DoubleArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/Float?): androidx.kruth/FloatSubject // androidx.kruth/assertThat|assertThat(kotlin.Float?){}[0]
-final fun androidx.kruth/assertThat(kotlin/FloatArray?): androidx.kruth/PrimitiveFloatArraySubject // androidx.kruth/assertThat|assertThat(kotlin.FloatArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/Int): androidx.kruth/IntegerSubject // androidx.kruth/assertThat|assertThat(kotlin.Int){}[0]
-final fun androidx.kruth/assertThat(kotlin/IntArray?): androidx.kruth/PrimitiveIntArraySubject // androidx.kruth/assertThat|assertThat(kotlin.IntArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/Long): androidx.kruth/LongSubject // androidx.kruth/assertThat|assertThat(kotlin.Long){}[0]
-final fun androidx.kruth/assertThat(kotlin/LongArray?): androidx.kruth/PrimitiveLongArraySubject // androidx.kruth/assertThat|assertThat(kotlin.LongArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/ShortArray?): androidx.kruth/PrimitiveShortArraySubject // androidx.kruth/assertThat|assertThat(kotlin.ShortArray?){}[0]
-final fun androidx.kruth/assertThat(kotlin/String?): androidx.kruth/StringSubject // androidx.kruth/assertThat|assertThat(kotlin.String?){}[0]
-final fun androidx.kruth/assertWithMessage(kotlin/String): androidx.kruth/StandardSubjectBuilder // androidx.kruth/assertWithMessage|assertWithMessage(kotlin.String){}[0]
-final fun androidx.kruth/assert_(): androidx.kruth/StandardSubjectBuilder // androidx.kruth/assert_|assert_(){}[0]
-final inline fun <#A: kotlin/Throwable> androidx.kruth/assertThrows(kotlin.reflect/KClass<#A>, kotlin/Function0<kotlin/Unit>): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThrows|assertThrows(kotlin.reflect.KClass<0:0>;kotlin.Function0<kotlin.Unit>){0§<kotlin.Throwable>}[0]
-final inline fun <#A: reified kotlin/Throwable> androidx.kruth/assertThrows(kotlin/Function0<kotlin/Unit>): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThrows|assertThrows(kotlin.Function0<kotlin.Unit>){0§<kotlin.Throwable>}[0]
+
 open class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.kruth/MapSubject : androidx.kruth/Subject<kotlin.collections/Map<#A, #B>> { // androidx.kruth/MapSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, kotlin.collections/Map<#A, #B>?) // androidx.kruth/MapSubject.<init>|<init>(androidx.kruth.FailureMetadata;kotlin.collections.Map<1:0,1:1>?){}[0]
+
     final fun containsAtLeast(kotlin/Array<out kotlin/Pair<#A, #B>>...): androidx.kruth/Ordered // androidx.kruth/MapSubject.containsAtLeast|containsAtLeast(kotlin.Array<out|kotlin.Pair<1:0,1:1>>...){}[0]
     final fun containsAtLeastEntriesIn(kotlin.collections/Map<#A, #B>): androidx.kruth/Ordered // androidx.kruth/MapSubject.containsAtLeastEntriesIn|containsAtLeastEntriesIn(kotlin.collections.Map<1:0,1:1>){}[0]
     final fun containsEntry(#A, #B) // androidx.kruth/MapSubject.containsEntry|containsEntry(1:0;1:1){}[0]
@@ -179,8 +175,10 @@ open class <#A: kotlin/Any?, #B: kotlin/Any?> androidx.kruth/MapSubject : androi
     final fun isEmpty() // androidx.kruth/MapSubject.isEmpty|isEmpty(){}[0]
     final fun isNotEmpty() // androidx.kruth/MapSubject.isNotEmpty|isNotEmpty(){}[0]
 }
+
 open class <#A: kotlin/Any?> androidx.kruth/IterableSubject : androidx.kruth/Subject<kotlin.collections/Iterable<#A>> { // androidx.kruth/IterableSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, kotlin.collections/Iterable<#A>?) // androidx.kruth/IterableSubject.<init>|<init>(androidx.kruth.FailureMetadata;kotlin.collections.Iterable<1:0>?){}[0]
+
     final fun contains(kotlin/Any?) // androidx.kruth/IterableSubject.contains|contains(kotlin.Any?){}[0]
     final fun containsAnyIn(kotlin.collections/Iterable<*>?) // androidx.kruth/IterableSubject.containsAnyIn|containsAnyIn(kotlin.collections.Iterable<*>?){}[0]
     final fun containsAnyIn(kotlin/Array<out kotlin/Any?>?) // androidx.kruth/IterableSubject.containsAnyIn|containsAnyIn(kotlin.Array<out|kotlin.Any?>?){}[0]
@@ -207,19 +205,25 @@ open class <#A: kotlin/Any?> androidx.kruth/IterableSubject : androidx.kruth/Sub
     open fun isNoneOf(kotlin/Any?, kotlin/Any?, kotlin/Array<out kotlin/Any?>...) // androidx.kruth/IterableSubject.isNoneOf|isNoneOf(kotlin.Any?;kotlin.Any?;kotlin.Array<out|kotlin.Any?>...){}[0]
     open fun isNotIn(kotlin.collections/Iterable<*>?) // androidx.kruth/IterableSubject.isNotIn|isNotIn(kotlin.collections.Iterable<*>?){}[0]
 }
+
 open class <#A: kotlin/Comparable<#A>> androidx.kruth/ComparableSubject : androidx.kruth/Subject<#A> { // androidx.kruth/ComparableSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, #A?) // androidx.kruth/ComparableSubject.<init>|<init>(androidx.kruth.FailureMetadata;1:0?){}[0]
+
     final fun isAtLeast(#A?) // androidx.kruth/ComparableSubject.isAtLeast|isAtLeast(1:0?){}[0]
     final fun isAtMost(#A?) // androidx.kruth/ComparableSubject.isAtMost|isAtMost(1:0?){}[0]
     final fun isGreaterThan(#A?) // androidx.kruth/ComparableSubject.isGreaterThan|isGreaterThan(1:0?){}[0]
     final fun isLessThan(#A?) // androidx.kruth/ComparableSubject.isLessThan|isLessThan(1:0?){}[0]
     open fun isEquivalentAccordingToCompareTo(#A?) // androidx.kruth/ComparableSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(1:0?){}[0]
 }
+
 open class <#A: out kotlin/Any?> androidx.kruth/Subject { // androidx.kruth/Subject|null[0]
-    abstract fun interface <#A1: out androidx.kruth/Subject<#B1>, #B1: kotlin/Any?> Factory { // androidx.kruth/Subject.Factory|null[0]
-        abstract fun createSubject(androidx.kruth/FailureMetadata, #B1?): #A1 // androidx.kruth/Subject.Factory.createSubject|createSubject(androidx.kruth.FailureMetadata;1:1?){}[0]
-    }
     constructor <init>(androidx.kruth/FailureMetadata, #A?) // androidx.kruth/Subject.<init>|<init>(androidx.kruth.FailureMetadata;1:0?){}[0]
+
+    final val actual // androidx.kruth/Subject.actual|{}actual[0]
+        final fun <get-actual>(): #A? // androidx.kruth/Subject.actual.<get-actual>|<get-actual>(){}[0]
+    final val metadata // androidx.kruth/Subject.metadata|{}metadata[0]
+        final fun <get-metadata>(): androidx.kruth/FailureMetadata // androidx.kruth/Subject.metadata.<get-metadata>|<get-metadata>(){}[0]
+
     final fun check(): androidx.kruth/StandardSubjectBuilder // androidx.kruth/Subject.check|check(){}[0]
     final fun check(kotlin/String, kotlin/Array<out kotlin/Any>...): androidx.kruth/StandardSubjectBuilder // androidx.kruth/Subject.check|check(kotlin.String;kotlin.Array<out|kotlin.Any>...){}[0]
     final fun doFail(kotlin/Array<out androidx.kruth/Fact>...) // androidx.kruth/Subject.doFail|doFail(kotlin.Array<out|androidx.kruth.Fact>...){}[0]
@@ -229,10 +233,6 @@ open class <#A: out kotlin/Any?> androidx.kruth/Subject { // androidx.kruth/Subj
     final fun ignoreCheck(): androidx.kruth/StandardSubjectBuilder // androidx.kruth/Subject.ignoreCheck|ignoreCheck(){}[0]
     final inline fun <#A1: reified kotlin/Any?> isInstanceOf() // androidx.kruth/Subject.isInstanceOf|isInstanceOf(){0§<kotlin.Any?>}[0]
     final inline fun <#A1: reified kotlin/Any?> isNotInstanceOf() // androidx.kruth/Subject.isNotInstanceOf|isNotInstanceOf(){0§<kotlin.Any?>}[0]
-    final val actual // androidx.kruth/Subject.actual|{}actual[0]
-        final fun <get-actual>(): #A? // androidx.kruth/Subject.actual.<get-actual>|<get-actual>(){}[0]
-    final val metadata // androidx.kruth/Subject.metadata|{}metadata[0]
-        final fun <get-metadata>(): androidx.kruth/FailureMetadata // androidx.kruth/Subject.metadata.<get-metadata>|<get-metadata>(){}[0]
     open fun actualCustomStringRepresentation(): kotlin/String // androidx.kruth/Subject.actualCustomStringRepresentation|actualCustomStringRepresentation(){}[0]
     open fun isAnyOf(kotlin/Any?, kotlin/Any?, kotlin/Array<out kotlin/Any?>...) // androidx.kruth/Subject.isAnyOf|isAnyOf(kotlin.Any?;kotlin.Any?;kotlin.Array<out|kotlin.Any?>...){}[0]
     open fun isEqualTo(kotlin/Any?) // androidx.kruth/Subject.isEqualTo|isEqualTo(kotlin.Any?){}[0]
@@ -244,26 +244,37 @@ open class <#A: out kotlin/Any?> androidx.kruth/Subject { // androidx.kruth/Subj
     open fun isNotSameInstanceAs(kotlin/Any?) // androidx.kruth/Subject.isNotSameInstanceAs|isNotSameInstanceAs(kotlin.Any?){}[0]
     open fun isNull() // androidx.kruth/Subject.isNull|isNull(){}[0]
     open fun isSameInstanceAs(kotlin/Any?) // androidx.kruth/Subject.isSameInstanceAs|isSameInstanceAs(kotlin.Any?){}[0]
+
+    abstract fun interface <#A1: out androidx.kruth/Subject<#B1>, #B1: kotlin/Any?> Factory { // androidx.kruth/Subject.Factory|null[0]
+        abstract fun createSubject(androidx.kruth/FailureMetadata, #B1?): #A1 // androidx.kruth/Subject.Factory.createSubject|createSubject(androidx.kruth.FailureMetadata;1:1?){}[0]
+    }
 }
+
 open class <#A: out kotlin/Throwable> androidx.kruth/ThrowableSubject : androidx.kruth/Subject<#A> { // androidx.kruth/ThrowableSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, #A?) // androidx.kruth/ThrowableSubject.<init>|<init>(androidx.kruth.FailureMetadata;1:0?){}[0]
+
     final fun hasCauseThat(): androidx.kruth/ThrowableSubject<kotlin/Throwable> // androidx.kruth/ThrowableSubject.hasCauseThat|hasCauseThat(){}[0]
     final fun hasMessageThat(): androidx.kruth/StringSubject // androidx.kruth/ThrowableSubject.hasMessageThat|hasMessageThat(){}[0]
 }
+
 open class androidx.kruth/IntegerSubject : androidx.kruth/ComparableSubject<kotlin/Int> { // androidx.kruth/IntegerSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, kotlin/Int?) // androidx.kruth/IntegerSubject.<init>|<init>(androidx.kruth.FailureMetadata;kotlin.Int?){}[0]
+
     open fun isEquivalentAccordingToCompareTo(kotlin/Int?) // androidx.kruth/IntegerSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(kotlin.Int?){}[0]
 }
+
 open class androidx.kruth/LongSubject : androidx.kruth/ComparableSubject<kotlin/Long> { // androidx.kruth/LongSubject|null[0]
+    final fun isNotWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isNotWithin|isNotWithin(kotlin.Long){}[0]
+    final fun isWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isWithin|isWithin(kotlin.Long){}[0]
+    open fun isEquivalentAccordingToCompareTo(kotlin/Long?) // androidx.kruth/LongSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(kotlin.Long?){}[0]
+
     abstract class TolerantLongComparison { // androidx.kruth/LongSubject.TolerantLongComparison|null[0]
         abstract fun of(kotlin/Long) // androidx.kruth/LongSubject.TolerantLongComparison.of|of(kotlin.Long){}[0]
         open fun equals(kotlin/Any?): kotlin/Boolean // androidx.kruth/LongSubject.TolerantLongComparison.equals|equals(kotlin.Any?){}[0]
         open fun hashCode(): kotlin/Int // androidx.kruth/LongSubject.TolerantLongComparison.hashCode|hashCode(){}[0]
     }
-    final fun isNotWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isNotWithin|isNotWithin(kotlin.Long){}[0]
-    final fun isWithin(kotlin/Long): androidx.kruth/LongSubject.TolerantLongComparison // androidx.kruth/LongSubject.isWithin|isWithin(kotlin.Long){}[0]
-    open fun isEquivalentAccordingToCompareTo(kotlin/Long?) // androidx.kruth/LongSubject.isEquivalentAccordingToCompareTo|isEquivalentAccordingToCompareTo(kotlin.Long?){}[0]
 }
+
 open class androidx.kruth/StandardSubjectBuilder { // androidx.kruth/StandardSubjectBuilder|null[0]
     final fun <#A1: kotlin/Any?, #B1: androidx.kruth/Subject<#A1>> about(androidx.kruth/Subject.Factory<#B1, #A1>): androidx.kruth/SimpleSubjectBuilder<#B1, #A1> // androidx.kruth/StandardSubjectBuilder.about|about(androidx.kruth.Subject.Factory<0:1,0:0>){0§<kotlin.Any?>;1§<androidx.kruth.Subject<0:0>>}[0]
     final fun <#A1: kotlin/Any?, #B1: kotlin/Any?> that(kotlin.collections/Map<#A1, #B1>?): androidx.kruth/MapSubject<#A1, #B1> // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.collections.Map<0:0,0:1>?){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
@@ -291,22 +302,19 @@ open class androidx.kruth/StandardSubjectBuilder { // androidx.kruth/StandardSub
     final fun that(kotlin/ShortArray?): androidx.kruth/PrimitiveShortArraySubject // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.ShortArray?){}[0]
     final fun that(kotlin/String?): androidx.kruth/StringSubject // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.String?){}[0]
     final fun withMessage(kotlin/String): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.withMessage|withMessage(kotlin.String){}[0]
+
     final object Companion { // androidx.kruth/StandardSubjectBuilder.Companion|null[0]
         final fun forCustomFailureStrategy(androidx.kruth/FailureStrategy): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.Companion.forCustomFailureStrategy|forCustomFailureStrategy(androidx.kruth.FailureStrategy){}[0]
     }
 }
+
 open class androidx.kruth/StringSubject : androidx.kruth/ComparableSubject<kotlin/String> { // androidx.kruth/StringSubject|null[0]
     constructor <init>(androidx.kruth/FailureMetadata, kotlin/String?) // androidx.kruth/StringSubject.<init>|<init>(androidx.kruth.FailureMetadata;kotlin.String?){}[0]
+
     final fun containsMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.containsMatch|containsMatch(kotlin.text.Regex){}[0]
     final fun doesNotContainMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.doesNotContainMatch|doesNotContainMatch(kotlin.text.Regex){}[0]
     final fun doesNotMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.doesNotMatch|doesNotMatch(kotlin.text.Regex){}[0]
     final fun matches(kotlin.text/Regex) // androidx.kruth/StringSubject.matches|matches(kotlin.text.Regex){}[0]
-    final inner class CaseInsensitiveStringComparison { // androidx.kruth/StringSubject.CaseInsensitiveStringComparison|null[0]
-        final fun contains(kotlin/CharSequence?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.contains|contains(kotlin.CharSequence?){}[0]
-        final fun doesNotContain(kotlin/CharSequence) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.doesNotContain|doesNotContain(kotlin.CharSequence){}[0]
-        final fun isEqualTo(kotlin/String?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.isEqualTo|isEqualTo(kotlin.String?){}[0]
-        final fun isNotEqualTo(kotlin/String?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.isNotEqualTo|isNotEqualTo(kotlin.String?){}[0]
-    }
     open fun contains(kotlin/CharSequence) // androidx.kruth/StringSubject.contains|contains(kotlin.CharSequence){}[0]
     open fun containsMatch(kotlin/String) // androidx.kruth/StringSubject.containsMatch|containsMatch(kotlin.String){}[0]
     open fun doesNotContain(kotlin/CharSequence) // androidx.kruth/StringSubject.doesNotContain|doesNotContain(kotlin.CharSequence){}[0]
@@ -319,4 +327,39 @@ open class androidx.kruth/StringSubject : androidx.kruth/ComparableSubject<kotli
     open fun isNotEmpty() // androidx.kruth/StringSubject.isNotEmpty|isNotEmpty(){}[0]
     open fun matches(kotlin/String) // androidx.kruth/StringSubject.matches|matches(kotlin.String){}[0]
     open fun startsWith(kotlin/String) // androidx.kruth/StringSubject.startsWith|startsWith(kotlin.String){}[0]
+
+    final inner class CaseInsensitiveStringComparison { // androidx.kruth/StringSubject.CaseInsensitiveStringComparison|null[0]
+        final fun contains(kotlin/CharSequence?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.contains|contains(kotlin.CharSequence?){}[0]
+        final fun doesNotContain(kotlin/CharSequence) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.doesNotContain|doesNotContain(kotlin.CharSequence){}[0]
+        final fun isEqualTo(kotlin/String?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.isEqualTo|isEqualTo(kotlin.String?){}[0]
+        final fun isNotEqualTo(kotlin/String?) // androidx.kruth/StringSubject.CaseInsensitiveStringComparison.isNotEqualTo|isNotEqualTo(kotlin.String?){}[0]
+    }
 }
+
+final fun <#A: androidx.kruth/Subject<#B>, #B: kotlin/Any?> androidx.kruth/assertAbout(androidx.kruth/Subject.Factory<#A, #B>): androidx.kruth/SimpleSubjectBuilder<#A, #B> // androidx.kruth/assertAbout|assertAbout(androidx.kruth.Subject.Factory<0:0,0:1>){0§<androidx.kruth.Subject<0:1>>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?, #B: kotlin/Any?> androidx.kruth/assertThat(kotlin.collections/Map<#A, #B>?): androidx.kruth/MapSubject<#A, #B> // androidx.kruth/assertThat|assertThat(kotlin.collections.Map<0:0,0:1>?){0§<kotlin.Any?>;1§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.kruth/assertThat(#A?): androidx.kruth/Subject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.kruth/assertThat(kotlin.collections/Iterable<#A>?): androidx.kruth/IterableSubject<#A> // androidx.kruth/assertThat|assertThat(kotlin.collections.Iterable<0:0>?){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Any?> androidx.kruth/assertThat(kotlin/Array<out #A>?): androidx.kruth/ObjectArraySubject<#A> // androidx.kruth/assertThat|assertThat(kotlin.Array<out|0:0>?){0§<kotlin.Any?>}[0]
+final fun <#A: kotlin/Comparable<#A>> androidx.kruth/assertThat(#A?): androidx.kruth/ComparableSubject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Comparable<0:0>>}[0]
+final fun <#A: kotlin/Int?> androidx.kruth/assertThat(#A): androidx.kruth/IntegerSubject // androidx.kruth/assertThat|assertThat(0:0){0§<kotlin.Int?>}[0]
+final fun <#A: kotlin/Long?> androidx.kruth/assertThat(#A): androidx.kruth/LongSubject // androidx.kruth/assertThat|assertThat(0:0){0§<kotlin.Long?>}[0]
+final fun <#A: kotlin/Throwable> androidx.kruth/assertThat(#A?): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThat|assertThat(0:0?){0§<kotlin.Throwable>}[0]
+final fun androidx.kruth/assertThat(kotlin/Boolean?): androidx.kruth/BooleanSubject // androidx.kruth/assertThat|assertThat(kotlin.Boolean?){}[0]
+final fun androidx.kruth/assertThat(kotlin/BooleanArray?): androidx.kruth/PrimitiveBooleanArraySubject // androidx.kruth/assertThat|assertThat(kotlin.BooleanArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/ByteArray?): androidx.kruth/PrimitiveByteArraySubject // androidx.kruth/assertThat|assertThat(kotlin.ByteArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/CharArray?): androidx.kruth/PrimitiveCharArraySubject // androidx.kruth/assertThat|assertThat(kotlin.CharArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/Double?): androidx.kruth/DoubleSubject // androidx.kruth/assertThat|assertThat(kotlin.Double?){}[0]
+final fun androidx.kruth/assertThat(kotlin/DoubleArray?): androidx.kruth/PrimitiveDoubleArraySubject // androidx.kruth/assertThat|assertThat(kotlin.DoubleArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/Float?): androidx.kruth/FloatSubject // androidx.kruth/assertThat|assertThat(kotlin.Float?){}[0]
+final fun androidx.kruth/assertThat(kotlin/FloatArray?): androidx.kruth/PrimitiveFloatArraySubject // androidx.kruth/assertThat|assertThat(kotlin.FloatArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/Int): androidx.kruth/IntegerSubject // androidx.kruth/assertThat|assertThat(kotlin.Int){}[0]
+final fun androidx.kruth/assertThat(kotlin/IntArray?): androidx.kruth/PrimitiveIntArraySubject // androidx.kruth/assertThat|assertThat(kotlin.IntArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/Long): androidx.kruth/LongSubject // androidx.kruth/assertThat|assertThat(kotlin.Long){}[0]
+final fun androidx.kruth/assertThat(kotlin/LongArray?): androidx.kruth/PrimitiveLongArraySubject // androidx.kruth/assertThat|assertThat(kotlin.LongArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/ShortArray?): androidx.kruth/PrimitiveShortArraySubject // androidx.kruth/assertThat|assertThat(kotlin.ShortArray?){}[0]
+final fun androidx.kruth/assertThat(kotlin/String?): androidx.kruth/StringSubject // androidx.kruth/assertThat|assertThat(kotlin.String?){}[0]
+final fun androidx.kruth/assertWithMessage(kotlin/String): androidx.kruth/StandardSubjectBuilder // androidx.kruth/assertWithMessage|assertWithMessage(kotlin.String){}[0]
+final fun androidx.kruth/assert_(): androidx.kruth/StandardSubjectBuilder // androidx.kruth/assert_|assert_(){}[0]
+final inline fun <#A: kotlin/Throwable> androidx.kruth/assertThrows(kotlin.reflect/KClass<#A>, kotlin/Function0<kotlin/Unit>): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThrows|assertThrows(kotlin.reflect.KClass<0:0>;kotlin.Function0<kotlin.Unit>){0§<kotlin.Throwable>}[0]
+final inline fun <#A: reified kotlin/Throwable> androidx.kruth/assertThrows(kotlin/Function0<kotlin/Unit>): androidx.kruth/ThrowableSubject<#A> // androidx.kruth/assertThrows|assertThrows(kotlin.Function0<kotlin.Unit>){0§<kotlin.Throwable>}[0]

@@ -9,21 +9,10 @@
 abstract interface <#A: kotlin/Any?> androidx.room.migration.bundle/SchemaEquality { // androidx.room.migration.bundle/SchemaEquality|null[0]
     abstract fun isSchemaEqual(#A): kotlin/Boolean // androidx.room.migration.bundle/SchemaEquality.isSchemaEqual|isSchemaEqual(1:0){}[0]
 }
+
 final class androidx.room.migration.bundle/DatabaseBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/DatabaseBundle> { // androidx.room.migration.bundle/DatabaseBundle|null[0]
     constructor <init>(kotlin/Int, kotlin/String, kotlin.collections/List<androidx.room.migration.bundle/BaseEntityBundle>, kotlin.collections/List<androidx.room.migration.bundle/DatabaseViewBundle> = ..., kotlin.collections/List<kotlin/String>) // androidx.room.migration.bundle/DatabaseBundle.<init>|<init>(kotlin.Int;kotlin.String;kotlin.collections.List<androidx.room.migration.bundle.BaseEntityBundle>;kotlin.collections.List<androidx.room.migration.bundle.DatabaseViewBundle>;kotlin.collections.List<kotlin.String>){}[0]
-    final fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/DatabaseBundle.buildCreateQueries|buildCreateQueries(){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/DatabaseBundle): kotlin/Boolean // androidx.room.migration.bundle/DatabaseBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseBundle> { // androidx.room.migration.bundle/DatabaseBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/DatabaseBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseBundle) // androidx.room.migration.bundle/DatabaseBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/DatabaseBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/DatabaseBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/DatabaseBundle> // androidx.room.migration.bundle/DatabaseBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/DatabaseBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val entities // androidx.room.migration.bundle/DatabaseBundle.entities|{}entities[0]
         final fun <get-entities>(): kotlin.collections/List<androidx.room.migration.bundle/BaseEntityBundle> // androidx.room.migration.bundle/DatabaseBundle.entities.<get-entities>|<get-entities>(){}[0]
     final val entitiesByTableName // androidx.room.migration.bundle/DatabaseBundle.entitiesByTableName|{}entitiesByTableName[0]
@@ -36,39 +25,54 @@ final class androidx.room.migration.bundle/DatabaseBundle : androidx.room.migrat
         final fun <get-views>(): kotlin.collections/List<androidx.room.migration.bundle/DatabaseViewBundle> // androidx.room.migration.bundle/DatabaseBundle.views.<get-views>|<get-views>(){}[0]
     final val viewsByName // androidx.room.migration.bundle/DatabaseBundle.viewsByName|{}viewsByName[0]
         final fun <get-viewsByName>(): kotlin.collections/Map<kotlin/String, androidx.room.migration.bundle/DatabaseViewBundle> // androidx.room.migration.bundle/DatabaseBundle.viewsByName.<get-viewsByName>|<get-viewsByName>(){}[0]
+
+    final fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/DatabaseBundle.buildCreateQueries|buildCreateQueries(){}[0]
+    final fun isSchemaEqual(androidx.room.migration.bundle/DatabaseBundle): kotlin/Boolean // androidx.room.migration.bundle/DatabaseBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.DatabaseBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseBundle> { // androidx.room.migration.bundle/DatabaseBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/DatabaseBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/DatabaseBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseBundle) // androidx.room.migration.bundle/DatabaseBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/DatabaseBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/DatabaseBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/DatabaseBundle> // androidx.room.migration.bundle/DatabaseBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/DatabaseViewBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/DatabaseViewBundle> { // androidx.room.migration.bundle/DatabaseViewBundle|null[0]
     constructor <init>(kotlin/String, kotlin/String) // androidx.room.migration.bundle/DatabaseViewBundle.<init>|<init>(kotlin.String;kotlin.String){}[0]
-    final fun createView(): kotlin/String // androidx.room.migration.bundle/DatabaseViewBundle.createView|createView(){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/DatabaseViewBundle): kotlin/Boolean // androidx.room.migration.bundle/DatabaseViewBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.DatabaseViewBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseViewBundle> { // androidx.room.migration.bundle/DatabaseViewBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseViewBundle // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseViewBundle) // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseViewBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/DatabaseViewBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/DatabaseViewBundle> // androidx.room.migration.bundle/DatabaseViewBundle.Companion.serializer|serializer(){}[0]
-    }
+
     final val createSql // androidx.room.migration.bundle/DatabaseViewBundle.createSql|{}createSql[0]
         final fun <get-createSql>(): kotlin/String // androidx.room.migration.bundle/DatabaseViewBundle.createSql.<get-createSql>|<get-createSql>(){}[0]
     final val viewName // androidx.room.migration.bundle/DatabaseViewBundle.viewName|{}viewName[0]
         final fun <get-viewName>(): kotlin/String // androidx.room.migration.bundle/DatabaseViewBundle.viewName.<get-viewName>|<get-viewName>(){}[0]
+
+    final fun createView(): kotlin/String // androidx.room.migration.bundle/DatabaseViewBundle.createView|createView(){}[0]
+    final fun isSchemaEqual(androidx.room.migration.bundle/DatabaseViewBundle): kotlin/Boolean // androidx.room.migration.bundle/DatabaseViewBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.DatabaseViewBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/DatabaseViewBundle> { // androidx.room.migration.bundle/DatabaseViewBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/DatabaseViewBundle // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/DatabaseViewBundle) // androidx.room.migration.bundle/DatabaseViewBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.DatabaseViewBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/DatabaseViewBundle.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/DatabaseViewBundle> // androidx.room.migration.bundle/DatabaseViewBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/FieldBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/FieldBundle> { // androidx.room.migration.bundle/FieldBundle|null[0]
     constructor <init>(kotlin/String, kotlin/String, kotlin/String, kotlin/Boolean = ..., kotlin/String? = ...) // androidx.room.migration.bundle/FieldBundle.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;kotlin.Boolean;kotlin.String?){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/FieldBundle): kotlin/Boolean // androidx.room.migration.bundle/FieldBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FieldBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FieldBundle> { // androidx.room.migration.bundle/FieldBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FieldBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FieldBundle // androidx.room.migration.bundle/FieldBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FieldBundle) // androidx.room.migration.bundle/FieldBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FieldBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/FieldBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FieldBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/FieldBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FieldBundle> // androidx.room.migration.bundle/FieldBundle.Companion.serializer|serializer(){}[0]
-    }
+
     final val affinity // androidx.room.migration.bundle/FieldBundle.affinity|{}affinity[0]
         final fun <get-affinity>(): kotlin/String // androidx.room.migration.bundle/FieldBundle.affinity.<get-affinity>|<get-affinity>(){}[0]
     final val columnName // androidx.room.migration.bundle/FieldBundle.columnName|{}columnName[0]
@@ -79,21 +83,26 @@ final class androidx.room.migration.bundle/FieldBundle : androidx.room.migration
         final fun <get-fieldPath>(): kotlin/String // androidx.room.migration.bundle/FieldBundle.fieldPath.<get-fieldPath>|<get-fieldPath>(){}[0]
     final val isNonNull // androidx.room.migration.bundle/FieldBundle.isNonNull|{}isNonNull[0]
         final fun <get-isNonNull>(): kotlin/Boolean // androidx.room.migration.bundle/FieldBundle.isNonNull.<get-isNonNull>|<get-isNonNull>(){}[0]
+
+    final fun isSchemaEqual(androidx.room.migration.bundle/FieldBundle): kotlin/Boolean // androidx.room.migration.bundle/FieldBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FieldBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FieldBundle> { // androidx.room.migration.bundle/FieldBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/FieldBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FieldBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FieldBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FieldBundle // androidx.room.migration.bundle/FieldBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FieldBundle) // androidx.room.migration.bundle/FieldBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FieldBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/FieldBundle.Companion|null[0]
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FieldBundle> // androidx.room.migration.bundle/FieldBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/ForeignKeyBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/ForeignKeyBundle> { // androidx.room.migration.bundle/ForeignKeyBundle|null[0]
     constructor <init>(kotlin/String, kotlin/String, kotlin/String, kotlin.collections/List<kotlin/String>, kotlin.collections/List<kotlin/String>) // androidx.room.migration.bundle/ForeignKeyBundle.<init>|<init>(kotlin.String;kotlin.String;kotlin.String;kotlin.collections.List<kotlin.String>;kotlin.collections.List<kotlin.String>){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/ForeignKeyBundle): kotlin/Boolean // androidx.room.migration.bundle/ForeignKeyBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.ForeignKeyBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/ForeignKeyBundle> { // androidx.room.migration.bundle/ForeignKeyBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/ForeignKeyBundle // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/ForeignKeyBundle) // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.ForeignKeyBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/ForeignKeyBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/ForeignKeyBundle> // androidx.room.migration.bundle/ForeignKeyBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/ForeignKeyBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val columns // androidx.room.migration.bundle/ForeignKeyBundle.columns|{}columns[0]
         final fun <get-columns>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/ForeignKeyBundle.columns.<get-columns>|<get-columns>(){}[0]
     final val onDelete // androidx.room.migration.bundle/ForeignKeyBundle.onDelete|{}onDelete[0]
@@ -104,22 +113,28 @@ final class androidx.room.migration.bundle/ForeignKeyBundle : androidx.room.migr
         final fun <get-referencedColumns>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/ForeignKeyBundle.referencedColumns.<get-referencedColumns>|<get-referencedColumns>(){}[0]
     final val table // androidx.room.migration.bundle/ForeignKeyBundle.table|{}table[0]
         final fun <get-table>(): kotlin/String // androidx.room.migration.bundle/ForeignKeyBundle.table.<get-table>|<get-table>(){}[0]
+
+    final fun isSchemaEqual(androidx.room.migration.bundle/ForeignKeyBundle): kotlin/Boolean // androidx.room.migration.bundle/ForeignKeyBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.ForeignKeyBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/ForeignKeyBundle> { // androidx.room.migration.bundle/ForeignKeyBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/ForeignKeyBundle // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/ForeignKeyBundle) // androidx.room.migration.bundle/ForeignKeyBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.ForeignKeyBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/ForeignKeyBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/ForeignKeyBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/ForeignKeyBundle> // androidx.room.migration.bundle/ForeignKeyBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/FtsEntityBundle : androidx.room.migration.bundle/BaseEntityBundle, androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/FtsEntityBundle> { // androidx.room.migration.bundle/FtsEntityBundle|null[0]
     constructor <init>(kotlin/String, kotlin/String, kotlin.collections/List<androidx.room.migration.bundle/FieldBundle>, androidx.room.migration.bundle/PrimaryKeyBundle, kotlin.collections/List<androidx.room.migration.bundle/IndexBundle> = ..., kotlin.collections/List<androidx.room.migration.bundle/ForeignKeyBundle> = ..., kotlin/String, androidx.room.migration.bundle/FtsOptionsBundle, kotlin.collections/List<kotlin/String>) // androidx.room.migration.bundle/FtsEntityBundle.<init>|<init>(kotlin.String;kotlin.String;kotlin.collections.List<androidx.room.migration.bundle.FieldBundle>;androidx.room.migration.bundle.PrimaryKeyBundle;kotlin.collections.List<androidx.room.migration.bundle.IndexBundle>;kotlin.collections.List<androidx.room.migration.bundle.ForeignKeyBundle>;kotlin.String;androidx.room.migration.bundle.FtsOptionsBundle;kotlin.collections.List<kotlin.String>){}[0]
-    final fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/FtsEntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/FtsEntityBundle): kotlin/Boolean // androidx.room.migration.bundle/FtsEntityBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FtsEntityBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FtsEntityBundle> { // androidx.room.migration.bundle/FtsEntityBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FtsEntityBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FtsEntityBundle // androidx.room.migration.bundle/FtsEntityBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FtsEntityBundle) // androidx.room.migration.bundle/FtsEntityBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FtsEntityBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/FtsEntityBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FtsEntityBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/FtsEntityBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FtsEntityBundle> // androidx.room.migration.bundle/FtsEntityBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/FtsEntityBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val contentSyncSqlTriggers // androidx.room.migration.bundle/FtsEntityBundle.contentSyncSqlTriggers|{}contentSyncSqlTriggers[0]
         final fun <get-contentSyncSqlTriggers>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/FtsEntityBundle.contentSyncSqlTriggers.<get-contentSyncSqlTriggers>|<get-contentSyncSqlTriggers>(){}[0]
     final val createSql // androidx.room.migration.bundle/FtsEntityBundle.createSql|{}createSql[0]
@@ -140,21 +155,29 @@ final class androidx.room.migration.bundle/FtsEntityBundle : androidx.room.migra
         final fun <get-shadowTableNames>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/FtsEntityBundle.shadowTableNames.<get-shadowTableNames>|<get-shadowTableNames>(){}[0]
     final val tableName // androidx.room.migration.bundle/FtsEntityBundle.tableName|{}tableName[0]
         final fun <get-tableName>(): kotlin/String // androidx.room.migration.bundle/FtsEntityBundle.tableName.<get-tableName>|<get-tableName>(){}[0]
+
+    final fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/FtsEntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
+    final fun isSchemaEqual(androidx.room.migration.bundle/FtsEntityBundle): kotlin/Boolean // androidx.room.migration.bundle/FtsEntityBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FtsEntityBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FtsEntityBundle> { // androidx.room.migration.bundle/FtsEntityBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/FtsEntityBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FtsEntityBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FtsEntityBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FtsEntityBundle // androidx.room.migration.bundle/FtsEntityBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FtsEntityBundle) // androidx.room.migration.bundle/FtsEntityBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FtsEntityBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/FtsEntityBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/FtsEntityBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FtsEntityBundle> // androidx.room.migration.bundle/FtsEntityBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/FtsOptionsBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/FtsOptionsBundle> { // androidx.room.migration.bundle/FtsOptionsBundle|null[0]
     constructor <init>(kotlin/String, kotlin.collections/List<kotlin/String>, kotlin/String, kotlin/String, kotlin/String, kotlin.collections/List<kotlin/String>, kotlin.collections/List<kotlin/Int>, kotlin/String) // androidx.room.migration.bundle/FtsOptionsBundle.<init>|<init>(kotlin.String;kotlin.collections.List<kotlin.String>;kotlin.String;kotlin.String;kotlin.String;kotlin.collections.List<kotlin.String>;kotlin.collections.List<kotlin.Int>;kotlin.String){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/FtsOptionsBundle): kotlin/Boolean // androidx.room.migration.bundle/FtsOptionsBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FtsOptionsBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FtsOptionsBundle> { // androidx.room.migration.bundle/FtsOptionsBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FtsOptionsBundle // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FtsOptionsBundle) // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FtsOptionsBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/FtsOptionsBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FtsOptionsBundle> // androidx.room.migration.bundle/FtsOptionsBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/FtsOptionsBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val contentTable // androidx.room.migration.bundle/FtsOptionsBundle.contentTable|{}contentTable[0]
         final fun <get-contentTable>(): kotlin/String // androidx.room.migration.bundle/FtsOptionsBundle.contentTable.<get-contentTable>|<get-contentTable>(){}[0]
     final val languageIdColumnName // androidx.room.migration.bundle/FtsOptionsBundle.languageIdColumnName|{}languageIdColumnName[0]
@@ -169,25 +192,28 @@ final class androidx.room.migration.bundle/FtsOptionsBundle : androidx.room.migr
         final fun <get-prefixSizes>(): kotlin.collections/List<kotlin/Int> // androidx.room.migration.bundle/FtsOptionsBundle.prefixSizes.<get-prefixSizes>|<get-prefixSizes>(){}[0]
     final val tokenizerArgs // androidx.room.migration.bundle/FtsOptionsBundle.tokenizerArgs|{}tokenizerArgs[0]
         final fun <get-tokenizerArgs>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/FtsOptionsBundle.tokenizerArgs.<get-tokenizerArgs>|<get-tokenizerArgs>(){}[0]
+
+    final fun isSchemaEqual(androidx.room.migration.bundle/FtsOptionsBundle): kotlin/Boolean // androidx.room.migration.bundle/FtsOptionsBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.FtsOptionsBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/FtsOptionsBundle> { // androidx.room.migration.bundle/FtsOptionsBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/FtsOptionsBundle // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/FtsOptionsBundle) // androidx.room.migration.bundle/FtsOptionsBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.FtsOptionsBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/FtsOptionsBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/FtsOptionsBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/FtsOptionsBundle> // androidx.room.migration.bundle/FtsOptionsBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/IndexBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/IndexBundle> { // androidx.room.migration.bundle/IndexBundle|null[0]
     constructor <init>(kotlin/String, kotlin/Boolean, kotlin.collections/List<kotlin/String>? = ..., kotlin.collections/List<kotlin/String>? = ..., kotlin/String) // androidx.room.migration.bundle/IndexBundle.<init>|<init>(kotlin.String;kotlin.Boolean;kotlin.collections.List<kotlin.String>?;kotlin.collections.List<kotlin.String>?;kotlin.String){}[0]
-    final fun create(kotlin/String): kotlin/String // androidx.room.migration.bundle/IndexBundle.create|create(kotlin.String){}[0]
-    final fun getCreateSql(kotlin/String): kotlin/String // androidx.room.migration.bundle/IndexBundle.getCreateSql|getCreateSql(kotlin.String){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/IndexBundle): kotlin/Boolean // androidx.room.migration.bundle/IndexBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.IndexBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/IndexBundle> { // androidx.room.migration.bundle/IndexBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/IndexBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/IndexBundle // androidx.room.migration.bundle/IndexBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/IndexBundle) // androidx.room.migration.bundle/IndexBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.IndexBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/IndexBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/IndexBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/IndexBundle.Companion|null[0]
-        final const val DEFAULT_PREFIX // androidx.room.migration.bundle/IndexBundle.Companion.DEFAULT_PREFIX|{}DEFAULT_PREFIX[0]
-            final fun <get-DEFAULT_PREFIX>(): kotlin/String // androidx.room.migration.bundle/IndexBundle.Companion.DEFAULT_PREFIX.<get-DEFAULT_PREFIX>|<get-DEFAULT_PREFIX>(){}[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/IndexBundle> // androidx.room.migration.bundle/IndexBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/IndexBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val columnNames // androidx.room.migration.bundle/IndexBundle.columnNames|{}columnNames[0]
         final fun <get-columnNames>(): kotlin.collections/List<kotlin/String>? // androidx.room.migration.bundle/IndexBundle.columnNames.<get-columnNames>|<get-columnNames>(){}[0]
     final val createSql // androidx.room.migration.bundle/IndexBundle.createSql|{}createSql[0]
@@ -198,70 +224,86 @@ final class androidx.room.migration.bundle/IndexBundle : androidx.room.migration
         final fun <get-name>(): kotlin/String // androidx.room.migration.bundle/IndexBundle.name.<get-name>|<get-name>(){}[0]
     final val orders // androidx.room.migration.bundle/IndexBundle.orders|{}orders[0]
         final fun <get-orders>(): kotlin.collections/List<kotlin/String>? // androidx.room.migration.bundle/IndexBundle.orders.<get-orders>|<get-orders>(){}[0]
+
+    final fun create(kotlin/String): kotlin/String // androidx.room.migration.bundle/IndexBundle.create|create(kotlin.String){}[0]
+    final fun getCreateSql(kotlin/String): kotlin/String // androidx.room.migration.bundle/IndexBundle.getCreateSql|getCreateSql(kotlin.String){}[0]
+    final fun isSchemaEqual(androidx.room.migration.bundle/IndexBundle): kotlin/Boolean // androidx.room.migration.bundle/IndexBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.IndexBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/IndexBundle> { // androidx.room.migration.bundle/IndexBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/IndexBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/IndexBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/IndexBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/IndexBundle // androidx.room.migration.bundle/IndexBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/IndexBundle) // androidx.room.migration.bundle/IndexBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.IndexBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/IndexBundle.Companion|null[0]
+        final const val DEFAULT_PREFIX // androidx.room.migration.bundle/IndexBundle.Companion.DEFAULT_PREFIX|{}DEFAULT_PREFIX[0]
+            final fun <get-DEFAULT_PREFIX>(): kotlin/String // androidx.room.migration.bundle/IndexBundle.Companion.DEFAULT_PREFIX.<get-DEFAULT_PREFIX>|<get-DEFAULT_PREFIX>(){}[0]
+
+        final val $childSerializers // androidx.room.migration.bundle/IndexBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/IndexBundle> // androidx.room.migration.bundle/IndexBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/PrimaryKeyBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/PrimaryKeyBundle> { // androidx.room.migration.bundle/PrimaryKeyBundle|null[0]
     constructor <init>(kotlin/Boolean, kotlin.collections/List<kotlin/String>) // androidx.room.migration.bundle/PrimaryKeyBundle.<init>|<init>(kotlin.Boolean;kotlin.collections.List<kotlin.String>){}[0]
-    final fun isSchemaEqual(androidx.room.migration.bundle/PrimaryKeyBundle): kotlin/Boolean // androidx.room.migration.bundle/PrimaryKeyBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.PrimaryKeyBundle){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/PrimaryKeyBundle> { // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/PrimaryKeyBundle // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/PrimaryKeyBundle) // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.PrimaryKeyBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/PrimaryKeyBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/PrimaryKeyBundle> // androidx.room.migration.bundle/PrimaryKeyBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/PrimaryKeyBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
+
     final val columnNames // androidx.room.migration.bundle/PrimaryKeyBundle.columnNames|{}columnNames[0]
         final fun <get-columnNames>(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/PrimaryKeyBundle.columnNames.<get-columnNames>|<get-columnNames>(){}[0]
     final val isAutoGenerate // androidx.room.migration.bundle/PrimaryKeyBundle.isAutoGenerate|{}isAutoGenerate[0]
         final fun <get-isAutoGenerate>(): kotlin/Boolean // androidx.room.migration.bundle/PrimaryKeyBundle.isAutoGenerate.<get-isAutoGenerate>|<get-isAutoGenerate>(){}[0]
+
+    final fun isSchemaEqual(androidx.room.migration.bundle/PrimaryKeyBundle): kotlin/Boolean // androidx.room.migration.bundle/PrimaryKeyBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.PrimaryKeyBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/PrimaryKeyBundle> { // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/PrimaryKeyBundle // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/PrimaryKeyBundle) // androidx.room.migration.bundle/PrimaryKeyBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.PrimaryKeyBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/PrimaryKeyBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/PrimaryKeyBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/PrimaryKeyBundle> // androidx.room.migration.bundle/PrimaryKeyBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 final class androidx.room.migration.bundle/SchemaBundle : androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/SchemaBundle> { // androidx.room.migration.bundle/SchemaBundle|null[0]
     constructor <init>(kotlin/Int, androidx.room.migration.bundle/DatabaseBundle) // androidx.room.migration.bundle/SchemaBundle.<init>|<init>(kotlin.Int;androidx.room.migration.bundle.DatabaseBundle){}[0]
+
+    final val database // androidx.room.migration.bundle/SchemaBundle.database|{}database[0]
+        final fun <get-database>(): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/SchemaBundle.database.<get-database>|<get-database>(){}[0]
+    final val formatVersion // androidx.room.migration.bundle/SchemaBundle.formatVersion|{}formatVersion[0]
+        final fun <get-formatVersion>(): kotlin/Int // androidx.room.migration.bundle/SchemaBundle.formatVersion.<get-formatVersion>|<get-formatVersion>(){}[0]
+
     final fun isSchemaEqual(androidx.room.migration.bundle/SchemaBundle): kotlin/Boolean // androidx.room.migration.bundle/SchemaBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.SchemaBundle){}[0]
+
     final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/SchemaBundle> { // androidx.room.migration.bundle/SchemaBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/SchemaBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/SchemaBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
         final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/SchemaBundle.$serializer.childSerializers|childSerializers(){}[0]
         final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/SchemaBundle // androidx.room.migration.bundle/SchemaBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
         final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/SchemaBundle) // androidx.room.migration.bundle/SchemaBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.SchemaBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/SchemaBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/SchemaBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
     }
+
     final object Companion { // androidx.room.migration.bundle/SchemaBundle.Companion|null[0]
         final fun deserialize(okio/BufferedSource): androidx.room.migration.bundle/SchemaBundle // androidx.room.migration.bundle/SchemaBundle.Companion.deserialize|deserialize(okio.BufferedSource){}[0]
         final fun serialize(androidx.room.migration.bundle/SchemaBundle, okio/BufferedSink) // androidx.room.migration.bundle/SchemaBundle.Companion.serialize|serialize(androidx.room.migration.bundle.SchemaBundle;okio.BufferedSink){}[0]
         final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/SchemaBundle> // androidx.room.migration.bundle/SchemaBundle.Companion.serializer|serializer(){}[0]
     }
-    final val database // androidx.room.migration.bundle/SchemaBundle.database|{}database[0]
-        final fun <get-database>(): androidx.room.migration.bundle/DatabaseBundle // androidx.room.migration.bundle/SchemaBundle.database.<get-database>|<get-database>(){}[0]
-    final val formatVersion // androidx.room.migration.bundle/SchemaBundle.formatVersion|{}formatVersion[0]
-        final fun <get-formatVersion>(): kotlin/Int // androidx.room.migration.bundle/SchemaBundle.formatVersion.<get-formatVersion>|<get-formatVersion>(){}[0]
 }
-final const val androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION // androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION|{}SCHEMA_LATEST_FORMAT_VERSION[0]
-    final fun <get-SCHEMA_LATEST_FORMAT_VERSION>(): kotlin/Int // androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION.<get-SCHEMA_LATEST_FORMAT_VERSION>|<get-SCHEMA_LATEST_FORMAT_VERSION>(){}[0]
-final const val androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER // androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER|{}TABLE_NAME_PLACEHOLDER[0]
-    final fun <get-TABLE_NAME_PLACEHOLDER>(): kotlin/String // androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER.<get-TABLE_NAME_PLACEHOLDER>|<get-TABLE_NAME_PLACEHOLDER>(){}[0]
-final const val androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER // androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER|{}VIEW_NAME_PLACEHOLDER[0]
-    final fun <get-VIEW_NAME_PLACEHOLDER>(): kotlin/String // androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER.<get-VIEW_NAME_PLACEHOLDER>|<get-VIEW_NAME_PLACEHOLDER>(){}[0]
-final fun androidx.room.migration.bundle/replaceTableName(kotlin/String, kotlin/String): kotlin/String // androidx.room.migration.bundle/replaceTableName|replaceTableName(kotlin.String;kotlin.String){}[0]
-final fun androidx.room.migration.bundle/replaceViewName(kotlin/String, kotlin/String): kotlin/String // androidx.room.migration.bundle/replaceViewName|replaceViewName(kotlin.String;kotlin.String){}[0]
+
 open class androidx.room.migration.bundle/EntityBundle : androidx.room.migration.bundle/BaseEntityBundle, androidx.room.migration.bundle/SchemaEquality<androidx.room.migration.bundle/EntityBundle> { // androidx.room.migration.bundle/EntityBundle|null[0]
     constructor <init>(kotlin/Int, kotlin/String?, kotlin/String?, kotlin.collections/List<androidx.room.migration.bundle/FieldBundle>?, androidx.room.migration.bundle/PrimaryKeyBundle?, kotlin.collections/List<androidx.room.migration.bundle/IndexBundle>?, kotlin.collections/List<androidx.room.migration.bundle/ForeignKeyBundle>?, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.room.migration.bundle/EntityBundle.<init>|<init>(kotlin.Int;kotlin.String?;kotlin.String?;kotlin.collections.List<androidx.room.migration.bundle.FieldBundle>?;androidx.room.migration.bundle.PrimaryKeyBundle?;kotlin.collections.List<androidx.room.migration.bundle.IndexBundle>?;kotlin.collections.List<androidx.room.migration.bundle.ForeignKeyBundle>?;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
     constructor <init>(kotlin/String, kotlin/String, kotlin.collections/List<androidx.room.migration.bundle/FieldBundle>, androidx.room.migration.bundle/PrimaryKeyBundle, kotlin.collections/List<androidx.room.migration.bundle/IndexBundle> = ..., kotlin.collections/List<androidx.room.migration.bundle/ForeignKeyBundle> = ...) // androidx.room.migration.bundle/EntityBundle.<init>|<init>(kotlin.String;kotlin.String;kotlin.collections.List<androidx.room.migration.bundle.FieldBundle>;androidx.room.migration.bundle.PrimaryKeyBundle;kotlin.collections.List<androidx.room.migration.bundle.IndexBundle>;kotlin.collections.List<androidx.room.migration.bundle.ForeignKeyBundle>){}[0]
-    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/EntityBundle> { // androidx.room.migration.bundle/EntityBundle.$serializer|null[0]
-        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/EntityBundle.$serializer.childSerializers|childSerializers(){}[0]
-        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/EntityBundle // androidx.room.migration.bundle/EntityBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
-        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/EntityBundle) // androidx.room.migration.bundle/EntityBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.EntityBundle){}[0]
-        final val descriptor // androidx.room.migration.bundle/EntityBundle.$serializer.descriptor|{}descriptor[0]
-            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/EntityBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
-    }
-    final object Companion { // androidx.room.migration.bundle/EntityBundle.Companion|null[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/EntityBundle> // androidx.room.migration.bundle/EntityBundle.Companion.serializer|serializer(){}[0]
-        final val $childSerializers // androidx.room.migration.bundle/EntityBundle.Companion.$childSerializers|{}$childSerializers[0]
-    }
-    open fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/EntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
-    open fun isSchemaEqual(androidx.room.migration.bundle/EntityBundle): kotlin/Boolean // androidx.room.migration.bundle/EntityBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.EntityBundle){}[0]
+
     open val createSql // androidx.room.migration.bundle/EntityBundle.createSql|{}createSql[0]
         open fun <get-createSql>(): kotlin/String // androidx.room.migration.bundle/EntityBundle.createSql.<get-createSql>|<get-createSql>(){}[0]
     open val fields // androidx.room.migration.bundle/EntityBundle.fields|{}fields[0]
@@ -274,9 +316,30 @@ open class androidx.room.migration.bundle/EntityBundle : androidx.room.migration
         open fun <get-primaryKey>(): androidx.room.migration.bundle/PrimaryKeyBundle // androidx.room.migration.bundle/EntityBundle.primaryKey.<get-primaryKey>|<get-primaryKey>(){}[0]
     open val tableName // androidx.room.migration.bundle/EntityBundle.tableName|{}tableName[0]
         open fun <get-tableName>(): kotlin/String // androidx.room.migration.bundle/EntityBundle.tableName.<get-tableName>|<get-tableName>(){}[0]
+
+    open fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/EntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
+    open fun isSchemaEqual(androidx.room.migration.bundle/EntityBundle): kotlin/Boolean // androidx.room.migration.bundle/EntityBundle.isSchemaEqual|isSchemaEqual(androidx.room.migration.bundle.EntityBundle){}[0]
+
+    final object $serializer : kotlinx.serialization.internal/GeneratedSerializer<androidx.room.migration.bundle/EntityBundle> { // androidx.room.migration.bundle/EntityBundle.$serializer|null[0]
+        final val descriptor // androidx.room.migration.bundle/EntityBundle.$serializer.descriptor|{}descriptor[0]
+            final fun <get-descriptor>(): kotlinx.serialization.descriptors/SerialDescriptor // androidx.room.migration.bundle/EntityBundle.$serializer.descriptor.<get-descriptor>|<get-descriptor>(){}[0]
+
+        final fun childSerializers(): kotlin/Array<kotlinx.serialization/KSerializer<*>> // androidx.room.migration.bundle/EntityBundle.$serializer.childSerializers|childSerializers(){}[0]
+        final fun deserialize(kotlinx.serialization.encoding/Decoder): androidx.room.migration.bundle/EntityBundle // androidx.room.migration.bundle/EntityBundle.$serializer.deserialize|deserialize(kotlinx.serialization.encoding.Decoder){}[0]
+        final fun serialize(kotlinx.serialization.encoding/Encoder, androidx.room.migration.bundle/EntityBundle) // androidx.room.migration.bundle/EntityBundle.$serializer.serialize|serialize(kotlinx.serialization.encoding.Encoder;androidx.room.migration.bundle.EntityBundle){}[0]
+    }
+
+    final object Companion { // androidx.room.migration.bundle/EntityBundle.Companion|null[0]
+        final val $childSerializers // androidx.room.migration.bundle/EntityBundle.Companion.$childSerializers|{}$childSerializers[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/EntityBundle> // androidx.room.migration.bundle/EntityBundle.Companion.serializer|serializer(){}[0]
+    }
 }
+
 sealed class androidx.room.migration.bundle/BaseEntityBundle { // androidx.room.migration.bundle/BaseEntityBundle|null[0]
-    abstract fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/BaseEntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
+    constructor <init>() // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(){}[0]
+    constructor <init>(kotlin/Int, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(kotlin.Int;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
+
     abstract val createSql // androidx.room.migration.bundle/BaseEntityBundle.createSql|{}createSql[0]
         abstract fun <get-createSql>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createSql.<get-createSql>|<get-createSql>(){}[0]
     abstract val fields // androidx.room.migration.bundle/BaseEntityBundle.fields|{}fields[0]
@@ -289,19 +352,31 @@ sealed class androidx.room.migration.bundle/BaseEntityBundle { // androidx.room.
         abstract fun <get-primaryKey>(): androidx.room.migration.bundle/PrimaryKeyBundle // androidx.room.migration.bundle/BaseEntityBundle.primaryKey.<get-primaryKey>|<get-primaryKey>(){}[0]
     abstract val tableName // androidx.room.migration.bundle/BaseEntityBundle.tableName|{}tableName[0]
         abstract fun <get-tableName>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.tableName.<get-tableName>|<get-tableName>(){}[0]
-    constructor <init>() // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(){}[0]
-    constructor <init>(kotlin/Int, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(kotlin.Int;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
-    final fun createNewTable(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createNewTable|createNewTable(){}[0]
-    final fun createTable(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createTable|createTable(){}[0]
-    final fun renameToOriginal(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.renameToOriginal|renameToOriginal(){}[0]
-    final object Companion : kotlinx.serialization.internal/SerializerFactory { // androidx.room.migration.bundle/BaseEntityBundle.Companion|null[0]
-        final const val NEW_TABLE_PREFIX // androidx.room.migration.bundle/BaseEntityBundle.Companion.NEW_TABLE_PREFIX|{}NEW_TABLE_PREFIX[0]
-            final fun <get-NEW_TABLE_PREFIX>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.Companion.NEW_TABLE_PREFIX.<get-NEW_TABLE_PREFIX>|<get-NEW_TABLE_PREFIX>(){}[0]
-        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/BaseEntityBundle> // androidx.room.migration.bundle/BaseEntityBundle.Companion.serializer|serializer(){}[0]
-        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // androidx.room.migration.bundle/BaseEntityBundle.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
-    }
     final val fieldsByColumnName // androidx.room.migration.bundle/BaseEntityBundle.fieldsByColumnName|{}fieldsByColumnName[0]
         final fun <get-fieldsByColumnName>(): kotlin.collections/Map<kotlin/String, androidx.room.migration.bundle/FieldBundle> // androidx.room.migration.bundle/BaseEntityBundle.fieldsByColumnName.<get-fieldsByColumnName>|<get-fieldsByColumnName>(){}[0]
     final val newTableName // androidx.room.migration.bundle/BaseEntityBundle.newTableName|{}newTableName[0]
         final fun <get-newTableName>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.newTableName.<get-newTableName>|<get-newTableName>(){}[0]
+
+    abstract fun buildCreateQueries(): kotlin.collections/List<kotlin/String> // androidx.room.migration.bundle/BaseEntityBundle.buildCreateQueries|buildCreateQueries(){}[0]
+    final fun createNewTable(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createNewTable|createNewTable(){}[0]
+    final fun createTable(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createTable|createTable(){}[0]
+    final fun renameToOriginal(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.renameToOriginal|renameToOriginal(){}[0]
+
+    final object Companion : kotlinx.serialization.internal/SerializerFactory { // androidx.room.migration.bundle/BaseEntityBundle.Companion|null[0]
+        final const val NEW_TABLE_PREFIX // androidx.room.migration.bundle/BaseEntityBundle.Companion.NEW_TABLE_PREFIX|{}NEW_TABLE_PREFIX[0]
+            final fun <get-NEW_TABLE_PREFIX>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.Companion.NEW_TABLE_PREFIX.<get-NEW_TABLE_PREFIX>|<get-NEW_TABLE_PREFIX>(){}[0]
+
+        final fun serializer(): kotlinx.serialization/KSerializer<androidx.room.migration.bundle/BaseEntityBundle> // androidx.room.migration.bundle/BaseEntityBundle.Companion.serializer|serializer(){}[0]
+        final fun serializer(kotlin/Array<out kotlinx.serialization/KSerializer<*>>...): kotlinx.serialization/KSerializer<*> // androidx.room.migration.bundle/BaseEntityBundle.Companion.serializer|serializer(kotlin.Array<out|kotlinx.serialization.KSerializer<*>>...){}[0]
+    }
 }
+
+final const val androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION // androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION|{}SCHEMA_LATEST_FORMAT_VERSION[0]
+    final fun <get-SCHEMA_LATEST_FORMAT_VERSION>(): kotlin/Int // androidx.room.migration.bundle/SCHEMA_LATEST_FORMAT_VERSION.<get-SCHEMA_LATEST_FORMAT_VERSION>|<get-SCHEMA_LATEST_FORMAT_VERSION>(){}[0]
+final const val androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER // androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER|{}TABLE_NAME_PLACEHOLDER[0]
+    final fun <get-TABLE_NAME_PLACEHOLDER>(): kotlin/String // androidx.room.migration.bundle/TABLE_NAME_PLACEHOLDER.<get-TABLE_NAME_PLACEHOLDER>|<get-TABLE_NAME_PLACEHOLDER>(){}[0]
+final const val androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER // androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER|{}VIEW_NAME_PLACEHOLDER[0]
+    final fun <get-VIEW_NAME_PLACEHOLDER>(): kotlin/String // androidx.room.migration.bundle/VIEW_NAME_PLACEHOLDER.<get-VIEW_NAME_PLACEHOLDER>|<get-VIEW_NAME_PLACEHOLDER>(){}[0]
+
+final fun androidx.room.migration.bundle/replaceTableName(kotlin/String, kotlin/String): kotlin/String // androidx.room.migration.bundle/replaceTableName|replaceTableName(kotlin.String;kotlin.String){}[0]
+final fun androidx.room.migration.bundle/replaceViewName(kotlin/String, kotlin/String): kotlin/String // androidx.room.migration.bundle/replaceViewName|replaceViewName(kotlin.String;kotlin.String){}[0]

@@ -6,11 +6,22 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.paging:paging-testing>
+final enum class androidx.paging.testing/ErrorRecovery : kotlin/Enum<androidx.paging.testing/ErrorRecovery> { // androidx.paging.testing/ErrorRecovery|null[0]
+    enum entry RETRY // androidx.paging.testing/ErrorRecovery.RETRY|null[0]
+    enum entry RETURN_CURRENT_SNAPSHOT // androidx.paging.testing/ErrorRecovery.RETURN_CURRENT_SNAPSHOT|null[0]
+    enum entry THROW // androidx.paging.testing/ErrorRecovery.THROW|null[0]
+
+    final fun valueOf(kotlin/String): androidx.paging.testing/ErrorRecovery // androidx.paging.testing/ErrorRecovery.valueOf|valueOf#static(kotlin.String){}[0]
+    final fun values(): kotlin/Array<androidx.paging.testing/ErrorRecovery> // androidx.paging.testing/ErrorRecovery.values|values#static(){}[0]
+}
+
 abstract fun interface androidx.paging.testing/LoadErrorHandler { // androidx.paging.testing/LoadErrorHandler|null[0]
     abstract fun onError(androidx.paging/CombinedLoadStates): androidx.paging.testing/ErrorRecovery // androidx.paging.testing/LoadErrorHandler.onError|onError(androidx.paging.CombinedLoadStates){}[0]
 }
+
 final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging.testing/TestPager { // androidx.paging.testing/TestPager|null[0]
     constructor <init>(androidx.paging/PagingConfig, androidx.paging/PagingSource<#A, #B>) // androidx.paging.testing/TestPager.<init>|<init>(androidx.paging.PagingConfig;androidx.paging.PagingSource<1:0,1:1>){}[0]
+
     final suspend fun append(): androidx.paging/PagingSource.LoadResult<#A, #B>? // androidx.paging.testing/TestPager.append|append(){}[0]
     final suspend fun getLastLoadedPage(): androidx.paging/PagingSource.LoadResult.Page<#A, #B>? // androidx.paging.testing/TestPager.getLastLoadedPage|getLastLoadedPage(){}[0]
     final suspend fun getPages(): kotlin.collections/List<androidx.paging/PagingSource.LoadResult.Page<#A, #B>> // androidx.paging.testing/TestPager.getPages|getPages(){}[0]
@@ -19,6 +30,7 @@ final class <#A: kotlin/Any, #B: kotlin/Any> androidx.paging.testing/TestPager {
     final suspend fun prepend(): androidx.paging/PagingSource.LoadResult<#A, #B>? // androidx.paging.testing/TestPager.prepend|prepend(){}[0]
     final suspend fun refresh(#A? = ...): androidx.paging/PagingSource.LoadResult<#A, #B> // androidx.paging.testing/TestPager.refresh|refresh(1:0?){}[0]
 }
+
 final class <#A: kotlin/Any> androidx.paging.testing/SnapshotLoader { // androidx.paging.testing/SnapshotLoader|null[0]
     final suspend fun appendScrollWhile(kotlin/Function1<#A, kotlin/Boolean>) // androidx.paging.testing/SnapshotLoader.appendScrollWhile|appendScrollWhile(kotlin.Function1<1:0,kotlin.Boolean>){}[0]
     final suspend fun flingTo(kotlin/Int) // androidx.paging.testing/SnapshotLoader.flingTo|flingTo(kotlin.Int){}[0]
@@ -26,13 +38,7 @@ final class <#A: kotlin/Any> androidx.paging.testing/SnapshotLoader { // android
     final suspend fun refresh() // androidx.paging.testing/SnapshotLoader.refresh|refresh(){}[0]
     final suspend fun scrollTo(kotlin/Int) // androidx.paging.testing/SnapshotLoader.scrollTo|scrollTo(kotlin.Int){}[0]
 }
-final enum class androidx.paging.testing/ErrorRecovery : kotlin/Enum<androidx.paging.testing/ErrorRecovery> { // androidx.paging.testing/ErrorRecovery|null[0]
-    enum entry RETRY // androidx.paging.testing/ErrorRecovery.RETRY|null[0]
-    enum entry RETURN_CURRENT_SNAPSHOT // androidx.paging.testing/ErrorRecovery.RETURN_CURRENT_SNAPSHOT|null[0]
-    enum entry THROW // androidx.paging.testing/ErrorRecovery.THROW|null[0]
-    final fun valueOf(kotlin/String): androidx.paging.testing/ErrorRecovery // androidx.paging.testing/ErrorRecovery.valueOf|valueOf#static(kotlin.String){}[0]
-    final fun values(): kotlin/Array<androidx.paging.testing/ErrorRecovery> // androidx.paging.testing/ErrorRecovery.values|values#static(){}[0]
-}
+
 final fun <#A: kotlin/Any> (kotlin.collections/List<#A>).androidx.paging.testing/asPagingSourceFactory(): androidx.paging/PagingSourceFactory<kotlin/Int, #A> // androidx.paging.testing/asPagingSourceFactory|asPagingSourceFactory@kotlin.collections.List<0:0>(){0§<kotlin.Any>}[0]
 final fun <#A: kotlin/Any> (kotlinx.coroutines.flow/Flow<kotlin.collections/List<#A>>).androidx.paging.testing/asPagingSourceFactory(kotlinx.coroutines/CoroutineScope): androidx.paging/PagingSourceFactory<kotlin/Int, #A> // androidx.paging.testing/asPagingSourceFactory|asPagingSourceFactory@kotlinx.coroutines.flow.Flow<kotlin.collections.List<0:0>>(kotlinx.coroutines.CoroutineScope){0§<kotlin.Any>}[0]
 final suspend fun <#A: kotlin/Any> (kotlinx.coroutines.flow/Flow<androidx.paging/PagingData<#A>>).androidx.paging.testing/asSnapshot(androidx.paging.testing/LoadErrorHandler = ..., kotlin.coroutines/SuspendFunction1<androidx.paging.testing/SnapshotLoader<#A>, kotlin/Unit> = ...): kotlin.collections/List<#A> // androidx.paging.testing/asSnapshot|asSnapshot@kotlinx.coroutines.flow.Flow<androidx.paging.PagingData<0:0>>(androidx.paging.testing.LoadErrorHandler;kotlin.coroutines.SuspendFunction1<androidx.paging.testing.SnapshotLoader<0:0>,kotlin.Unit>){0§<kotlin.Any>}[0]

@@ -9,30 +9,40 @@
 open annotation class androidx.annotation/AnyThread : kotlin/Annotation { // androidx.annotation/AnyThread|null[0]
     constructor <init>() // androidx.annotation/AnyThread.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/CallSuper : kotlin/Annotation { // androidx.annotation/CallSuper|null[0]
     constructor <init>() // androidx.annotation/CallSuper.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/CheckResult : kotlin/Annotation { // androidx.annotation/CheckResult|null[0]
     constructor <init>(kotlin/String = ...) // androidx.annotation/CheckResult.<init>|<init>(kotlin.String){}[0]
+
     final val suggest // androidx.annotation/CheckResult.suggest|{}suggest[0]
         final fun <get-suggest>(): kotlin/String // androidx.annotation/CheckResult.suggest.<get-suggest>|<get-suggest>(){}[0]
 }
+
 open annotation class androidx.annotation/ColorInt : kotlin/Annotation { // androidx.annotation/ColorInt|null[0]
     constructor <init>() // androidx.annotation/ColorInt.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/ColorLong : kotlin/Annotation { // androidx.annotation/ColorLong|null[0]
     constructor <init>() // androidx.annotation/ColorLong.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/Discouraged : kotlin/Annotation { // androidx.annotation/Discouraged|null[0]
     constructor <init>(kotlin/String) // androidx.annotation/Discouraged.<init>|<init>(kotlin.String){}[0]
+
     final val message // androidx.annotation/Discouraged.message|{}message[0]
         final fun <get-message>(): kotlin/String // androidx.annotation/Discouraged.message.<get-message>|<get-message>(){}[0]
 }
+
 open annotation class androidx.annotation/EmptySuper : kotlin/Annotation { // androidx.annotation/EmptySuper|null[0]
     constructor <init>() // androidx.annotation/EmptySuper.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/FloatRange : kotlin/Annotation { // androidx.annotation/FloatRange|null[0]
     constructor <init>(kotlin/Double = ..., kotlin/Double = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.annotation/FloatRange.<init>|<init>(kotlin.Double;kotlin.Double;kotlin.Boolean;kotlin.Boolean){}[0]
+
     final val from // androidx.annotation/FloatRange.from|{}from[0]
         final fun <get-from>(): kotlin/Double // androidx.annotation/FloatRange.from.<get-from>|<get-from>(){}[0]
     final val fromInclusive // androidx.annotation/FloatRange.fromInclusive|{}fromInclusive[0]
@@ -42,13 +52,17 @@ open annotation class androidx.annotation/FloatRange : kotlin/Annotation { // an
     final val toInclusive // androidx.annotation/FloatRange.toInclusive|{}toInclusive[0]
         final fun <get-toInclusive>(): kotlin/Boolean // androidx.annotation/FloatRange.toInclusive.<get-toInclusive>|<get-toInclusive>(){}[0]
 }
+
 open annotation class androidx.annotation/GuardedBy : kotlin/Annotation { // androidx.annotation/GuardedBy|null[0]
     constructor <init>(kotlin/String) // androidx.annotation/GuardedBy.<init>|<init>(kotlin.String){}[0]
+
     final val value // androidx.annotation/GuardedBy.value|{}value[0]
         final fun <get-value>(): kotlin/String // androidx.annotation/GuardedBy.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/IntDef : kotlin/Annotation { // androidx.annotation/IntDef|null[0]
     constructor <init>(kotlin/IntArray... = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.annotation/IntDef.<init>|<init>(kotlin.IntArray...;kotlin.Boolean;kotlin.Boolean){}[0]
+
     final val flag // androidx.annotation/IntDef.flag|{}flag[0]
         final fun <get-flag>(): kotlin/Boolean // androidx.annotation/IntDef.flag.<get-flag>|<get-flag>(){}[0]
     final val open // androidx.annotation/IntDef.open|{}open[0]
@@ -56,15 +70,19 @@ open annotation class androidx.annotation/IntDef : kotlin/Annotation { // androi
     final val value // androidx.annotation/IntDef.value|{}value[0]
         final fun <get-value>(): kotlin/IntArray // androidx.annotation/IntDef.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/IntRange : kotlin/Annotation { // androidx.annotation/IntRange|null[0]
     constructor <init>(kotlin/Long = ..., kotlin/Long = ...) // androidx.annotation/IntRange.<init>|<init>(kotlin.Long;kotlin.Long){}[0]
+
     final val from // androidx.annotation/IntRange.from|{}from[0]
         final fun <get-from>(): kotlin/Long // androidx.annotation/IntRange.from.<get-from>|<get-from>(){}[0]
     final val to // androidx.annotation/IntRange.to|{}to[0]
         final fun <get-to>(): kotlin/Long // androidx.annotation/IntRange.to.<get-to>|<get-to>(){}[0]
 }
+
 open annotation class androidx.annotation/LongDef : kotlin/Annotation { // androidx.annotation/LongDef|null[0]
     constructor <init>(kotlin/LongArray... = ..., kotlin/Boolean = ..., kotlin/Boolean = ...) // androidx.annotation/LongDef.<init>|<init>(kotlin.LongArray...;kotlin.Boolean;kotlin.Boolean){}[0]
+
     final val flag // androidx.annotation/LongDef.flag|{}flag[0]
         final fun <get-flag>(): kotlin/Boolean // androidx.annotation/LongDef.flag.<get-flag>|<get-flag>(){}[0]
     final val open // androidx.annotation/LongDef.open|{}open[0]
@@ -72,28 +90,39 @@ open annotation class androidx.annotation/LongDef : kotlin/Annotation { // andro
     final val value // androidx.annotation/LongDef.value|{}value[0]
         final fun <get-value>(): kotlin/LongArray // androidx.annotation/LongDef.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/MainThread : kotlin/Annotation { // androidx.annotation/MainThread|null[0]
     constructor <init>() // androidx.annotation/MainThread.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/OpenForTesting : kotlin/Annotation { // androidx.annotation/OpenForTesting|null[0]
     constructor <init>() // androidx.annotation/OpenForTesting.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/RequiresApi : kotlin/Annotation { // androidx.annotation/RequiresApi|null[1]
     constructor <init>(kotlin/Int = ..., kotlin/Int = ...) // androidx.annotation/RequiresApi.<init>|<init>(kotlin.Int;kotlin.Int){}[1]
+
     final val api // androidx.annotation/RequiresApi.api|{}api[1]
         final fun <get-api>(): kotlin/Int // androidx.annotation/RequiresApi.api.<get-api>|<get-api>(){}[1]
     final val value // androidx.annotation/RequiresApi.value|{}value[1]
         final fun <get-value>(): kotlin/Int // androidx.annotation/RequiresApi.value.<get-value>|<get-value>(){}[1]
 }
+
 open annotation class androidx.annotation/RequiresFeature : kotlin/Annotation { // androidx.annotation/RequiresFeature|null[0]
     constructor <init>(kotlin/String, kotlin/String) // androidx.annotation/RequiresFeature.<init>|<init>(kotlin.String;kotlin.String){}[0]
+
     final val enforcement // androidx.annotation/RequiresFeature.enforcement|{}enforcement[0]
         final fun <get-enforcement>(): kotlin/String // androidx.annotation/RequiresFeature.enforcement.<get-enforcement>|<get-enforcement>(){}[0]
     final val name // androidx.annotation/RequiresFeature.name|{}name[0]
         final fun <get-name>(): kotlin/String // androidx.annotation/RequiresFeature.name.<get-name>|<get-name>(){}[0]
 }
+
 open annotation class androidx.annotation/RestrictTo : kotlin/Annotation { // androidx.annotation/RestrictTo|null[0]
     constructor <init>(kotlin/Array<out androidx.annotation/RestrictTo.Scope>...) // androidx.annotation/RestrictTo.<init>|<init>(kotlin.Array<out|androidx.annotation.RestrictTo.Scope>...){}[0]
+
+    final val value // androidx.annotation/RestrictTo.value|{}value[0]
+        final fun <get-value>(): kotlin/Array<out androidx.annotation/RestrictTo.Scope> // androidx.annotation/RestrictTo.value.<get-value>|<get-value>(){}[0]
+
     final enum class Scope : kotlin/Enum<androidx.annotation/RestrictTo.Scope> { // androidx.annotation/RestrictTo.Scope|null[0]
         enum entry GROUP_ID // androidx.annotation/RestrictTo.Scope.GROUP_ID|null[0]
         enum entry LIBRARY // androidx.annotation/RestrictTo.Scope.LIBRARY|null[0]
@@ -101,17 +130,19 @@ open annotation class androidx.annotation/RestrictTo : kotlin/Annotation { // an
         enum entry LIBRARY_GROUP_PREFIX // androidx.annotation/RestrictTo.Scope.LIBRARY_GROUP_PREFIX|null[0]
         enum entry SUBCLASSES // androidx.annotation/RestrictTo.Scope.SUBCLASSES|null[0]
         enum entry TESTS // androidx.annotation/RestrictTo.Scope.TESTS|null[0]
+
         final fun valueOf(kotlin/String): androidx.annotation/RestrictTo.Scope // androidx.annotation/RestrictTo.Scope.valueOf|valueOf#static(kotlin.String){}[0]
         final fun values(): kotlin/Array<androidx.annotation/RestrictTo.Scope> // androidx.annotation/RestrictTo.Scope.values|values#static(){}[0]
     }
-    final val value // androidx.annotation/RestrictTo.value|{}value[0]
-        final fun <get-value>(): kotlin/Array<out androidx.annotation/RestrictTo.Scope> // androidx.annotation/RestrictTo.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/ReturnThis : kotlin/Annotation { // androidx.annotation/ReturnThis|null[0]
     constructor <init>() // androidx.annotation/ReturnThis.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/Size : kotlin/Annotation { // androidx.annotation/Size|null[0]
     constructor <init>(kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ..., kotlin/Long = ...) // androidx.annotation/Size.<init>|<init>(kotlin.Long;kotlin.Long;kotlin.Long;kotlin.Long){}[0]
+
     final val max // androidx.annotation/Size.max|{}max[0]
         final fun <get-max>(): kotlin/Long // androidx.annotation/Size.max.<get-max>|<get-max>(){}[0]
     final val min // androidx.annotation/Size.min|{}min[0]
@@ -121,18 +152,26 @@ open annotation class androidx.annotation/Size : kotlin/Annotation { // androidx
     final val value // androidx.annotation/Size.value|{}value[0]
         final fun <get-value>(): kotlin/Long // androidx.annotation/Size.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/StringDef : kotlin/Annotation { // androidx.annotation/StringDef|null[0]
     constructor <init>(kotlin/Array<out kotlin/String>... = ..., kotlin/Boolean = ...) // androidx.annotation/StringDef.<init>|<init>(kotlin.Array<out|kotlin.String>...;kotlin.Boolean){}[0]
+
     final val open // androidx.annotation/StringDef.open|{}open[0]
         final fun <get-open>(): kotlin/Boolean // androidx.annotation/StringDef.open.<get-open>|<get-open>(){}[0]
     final val value // androidx.annotation/StringDef.value|{}value[0]
         final fun <get-value>(): kotlin/Array<out kotlin/String> // androidx.annotation/StringDef.value.<get-value>|<get-value>(){}[0]
 }
+
 open annotation class androidx.annotation/UiThread : kotlin/Annotation { // androidx.annotation/UiThread|null[0]
     constructor <init>() // androidx.annotation/UiThread.<init>|<init>(){}[0]
 }
+
 open annotation class androidx.annotation/VisibleForTesting : kotlin/Annotation { // androidx.annotation/VisibleForTesting|null[0]
     constructor <init>(kotlin/Int = ...) // androidx.annotation/VisibleForTesting.<init>|<init>(kotlin.Int){}[0]
+
+    final val otherwise // androidx.annotation/VisibleForTesting.otherwise|{}otherwise[0]
+        final fun <get-otherwise>(): kotlin/Int // androidx.annotation/VisibleForTesting.otherwise.<get-otherwise>|<get-otherwise>(){}[0]
+
     final object Companion { // androidx.annotation/VisibleForTesting.Companion|null[0]
         final const val NONE // androidx.annotation/VisibleForTesting.Companion.NONE|{}NONE[0]
             final fun <get-NONE>(): kotlin/Int // androidx.annotation/VisibleForTesting.Companion.NONE.<get-NONE>|<get-NONE>(){}[0]
@@ -143,6 +182,4 @@ open annotation class androidx.annotation/VisibleForTesting : kotlin/Annotation 
         final const val PROTECTED // androidx.annotation/VisibleForTesting.Companion.PROTECTED|{}PROTECTED[0]
             final fun <get-PROTECTED>(): kotlin/Int // androidx.annotation/VisibleForTesting.Companion.PROTECTED.<get-PROTECTED>|<get-PROTECTED>(){}[0]
     }
-    final val otherwise // androidx.annotation/VisibleForTesting.otherwise|{}otherwise[0]
-        final fun <get-otherwise>(): kotlin/Int // androidx.annotation/VisibleForTesting.otherwise.<get-otherwise>|<get-otherwise>(){}[0]
 }
