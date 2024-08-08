@@ -67,3 +67,10 @@ fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeight
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
 fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@Composable
+fun isSmallScreen() =
+    LocalContext.current.resources.configuration.screenWidthDp <= SMALL_SCREEN_WIDTH_DP
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val SMALL_SCREEN_WIDTH_DP = 225
