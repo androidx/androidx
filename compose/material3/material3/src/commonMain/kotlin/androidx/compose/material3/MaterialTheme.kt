@@ -43,8 +43,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
  *
  * @sample androidx.compose.material3.samples.MaterialThemeSample
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
- * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The content inheriting this theme
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -81,8 +81,8 @@ fun MaterialTheme(
  *
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param motionScheme A complete definition of the Material Motion scheme for this hierarchy
- * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param typography A set of text styles to be used as this hierarchy's typography system
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
@@ -142,7 +142,6 @@ object MaterialTheme {
         @Composable @ReadOnlyComposable get() = LocalMotionScheme.current
 }
 
-// TODO: Create a sample androidx.compose.material3.samples.MaterialExpressiveThemeSample
 /**
  * Material Expressive Theming refers to the customization of your Material Design app to better
  * reflect your product’s brand.
@@ -162,10 +161,11 @@ object MaterialTheme {
  * [MaterialTheme] to specify separate MaterialTheme(s) for different screens / parts of your UI,
  * overriding only the parts of the theme definition that need to change.
  *
+ * @sample androidx.compose.material3.samples.MaterialExpressiveThemeSample
  * @param colorScheme A complete definition of the Material Color theme for this hierarchy
  * @param motionScheme A complete definition of the Material motion theme for this hierarchy
- * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param shapes A set of corner shapes to be used as this hierarchy's shape system
+ * @param typography A set of text styles to be used as this hierarchy's typography system
  * @param content The content inheriting this theme
  */
 @ExperimentalMaterial3ExpressiveApi
@@ -190,7 +190,6 @@ fun MaterialExpressiveTheme(
             MaterialTheme(
                 colorScheme = colorScheme ?: expressiveLightColorScheme(),
                 motionScheme = motionScheme ?: expressiveMotionScheme(),
-                // TODO: replace with calls to Expressive shape default
                 shapes = shapes ?: Shapes(),
                 // TODO: replace with calls to Expressive typography default
                 typography = typography ?: Typography(),
