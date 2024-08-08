@@ -75,8 +75,8 @@ constructor(
         }
 
         private fun Project.isGradleSyncRunning() =
-            gradleSyncProps.any {
-                it in this.properties && this.properties[it].toString().toBoolean()
+            gradleSyncProps.any { property ->
+                providers.gradleProperty(property).map { it.toBoolean() }.orElse(false).get()
             }
 
         private val gradleSyncProps by lazy {
