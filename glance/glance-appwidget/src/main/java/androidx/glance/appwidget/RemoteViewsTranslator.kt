@@ -151,7 +151,7 @@ private fun combineLandscapeAndPortrait(views: List<RemoteViews>): RemoteViews =
         else -> throw IllegalArgumentException("There must be between 1 and 2 views.")
     }
 
-private const val LAST_INVALID_VIEW_ID = 1
+private const val LAST_INVALID_VIEW_ID = -1
 
 internal data class TranslationContext(
     val context: Context,
@@ -171,7 +171,11 @@ internal data class TranslationContext(
     val actionBroadcastReceiver: ComponentName? = null,
     val glanceComponents: GlanceComponents,
 ) {
-    fun nextViewId() = lastViewId.incrementAndGet()
+    fun nextViewId() =
+        lastViewId.incrementAndGet().let {
+            check(it < TotalViewCount) { "There are too many views" }
+            FirstViewId + it
+        }
 
     fun forChild(parent: InsertedViewInfo, pos: Int): TranslationContext =
         copy(itemPosition = pos, parentContext = parent)
