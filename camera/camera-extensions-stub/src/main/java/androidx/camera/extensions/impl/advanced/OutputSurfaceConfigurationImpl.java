@@ -54,7 +54,7 @@ public interface OutputSurfaceConfigurationImpl {
     @Nullable
     OutputSurfaceImpl getPostviewOutputSurface();
 
-    /*
+    /**
      * Gets the color space.
      *
      * @since 1.5
