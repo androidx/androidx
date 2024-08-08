@@ -20,6 +20,7 @@ import android.os.DeadObjectException
 import android.os.RemoteException
 import android.os.TransactionTooLargeException
 import androidx.annotation.VisibleForTesting
+import androidx.health.connect.client.ExperimentalDeduplicationApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectClient.Companion.HEALTH_CONNECT_CLIENT_TAG
 import androidx.health.connect.client.HealthConnectFeatures
@@ -50,6 +51,7 @@ import androidx.health.connect.client.request.AggregateGroupByPeriodRequest
 import androidx.health.connect.client.request.AggregateRequest
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
+import androidx.health.connect.client.request.ReadRecordsRequest.Companion.DEDUPLICATION_STRATEGY_DISABLED
 import androidx.health.connect.client.response.ChangesResponse
 import androidx.health.connect.client.response.InsertRecordsResponse
 import androidx.health.connect.client.response.ReadRecordResponse
@@ -214,9 +216,13 @@ internal constructor(
         return toChangesResponse(proto)
     }
 
+    @OptIn(ExperimentalDeduplicationApi::class)
     override suspend fun <T : Record> readRecords(
         request: ReadRecordsRequest<T>,
     ): ReadRecordsResponse<T> {
+        if (request.deduplicateStrategy != DEDUPLICATION_STRATEGY_DISABLED) {
+            TODO("Not yet implemented")
+        }
         val proto = wrapRemoteException {
             delegate.readDataRange(toReadDataRangeRequestProto(request)).await()
         }
