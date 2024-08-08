@@ -267,8 +267,9 @@ public class MainActivity extends AppCompatActivity {
         mMediaRouter.setMediaSessionCompat(mMediaSession);
 
         // Set up playback manager and player
-        mPlayer = Player.create(MainActivity.this,
-                mMediaRouter.getSelectedRoute(), mMediaSession);
+        mPlayer =
+                Player.createPlayerForActivity(
+                        MainActivity.this, mMediaRouter.getSelectedRoute(), mMediaSession);
 
         mSessionManager.setPlayer(mPlayer);
         mSessionManager.setCallback(new SampleSessionManagerCallback());
@@ -665,7 +666,9 @@ public class MainActivity extends AppCompatActivity {
                     + ", route=" + selectedRoute + ", reason=" + reason);
 
             if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                mPlayer = Player.create(MainActivity.this, selectedRoute, mMediaSession);
+                mPlayer =
+                        Player.createPlayerForActivity(
+                                MainActivity.this, selectedRoute, mMediaSession);
                 mPlayer.updatePresentation();
                 mSessionManager.setPlayer(mPlayer);
             }
@@ -819,7 +822,9 @@ public class MainActivity extends AppCompatActivity {
             mMediaSession.setActive(false);
             mPlayer.release();
 
-            mPlayer = Player.create(MainActivity.this, destinationRoute, mMediaSession);
+            mPlayer =
+                    Player.createPlayerForActivity(
+                            MainActivity.this, destinationRoute, mMediaSession);
             mPlayer.updatePresentation();
             mSessionManager.setPlayer(mPlayer);
             mSessionManager.unsuspend();

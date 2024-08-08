@@ -360,7 +360,7 @@ public class SampleMediaRouteProvider extends MediaRouteProvider {
 
         RouteControlHelper(String routeId) {
             mRouteId = routeId;
-            mPlayer = Player.create(getContext(), null, null);
+            mPlayer = Player.createPlayerForOverlay(getContext());
             mSessionManager.setPlayer(mPlayer);
             mSessionManager.setCallback(new SessionManager.Callback() {
                 @Override

@@ -407,11 +407,11 @@ public abstract class LocalPlayer extends Player implements MediaPlayer.OnPrepar
         private final FrameLayout mLayout;
         private DemoPresentation mPresentation;
 
-        public SurfaceViewPlayer(@NonNull Context context) {
-            super(context);
+        public SurfaceViewPlayer(@NonNull Activity activity) {
+            super(activity);
 
-            mLayout = (FrameLayout) ((Activity) context).findViewById(R.id.player);
-            mSurfaceView = (SurfaceView) ((Activity) context).findViewById(R.id.surface_view);
+            mLayout = activity.findViewById(R.id.player);
+            mSurfaceView = activity.findViewById(R.id.surface_view);
 
             // add surface holder callback
             SurfaceHolder holder = mSurfaceView.getHolder();

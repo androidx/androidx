@@ -20,6 +20,7 @@ import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PAUSE;
 import static android.support.v4.media.session.PlaybackStateCompat.ACTION_PLAY;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -45,7 +46,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.media.session.MediaButtonReceiver;
-import androidx.mediarouter.media.MediaControlIntent;
 import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import com.example.androidx.mediarouting.R;
@@ -192,28 +192,32 @@ public abstract class Player {
     }
 
     /**
-     * Factory method for creating the suitable player.
-     * @param context
-     * @param route
-     * @param session
-     * @return
+     * Creates a {@link Player} for the given {@code route}, whose UI is hosted by the given {@code
+     * activity}.
      */
     @NonNull
-    public static Player create(@NonNull Context context, @NonNull RouteInfo route,
+    public static Player createPlayerForActivity(
+            @NonNull Activity activity,
+            @NonNull RouteInfo route,
             @NonNull MediaSessionCompat session) {
         Player player;
-        if (route != null && route.supportsControlCategory(
-                MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)) {
-            player = new RemotePlayer(context);
-        } else if (route != null) {
-            player = new LocalPlayer.SurfaceViewPlayer(context);
+        if (route.isSystemRoute()) {
+            player = new LocalPlayer.SurfaceViewPlayer(activity);
         } else {
-            player = new LocalPlayer.OverlayPlayer(context);
+            player = new RemotePlayer(activity);
         }
         player.setPlayPauseNotificationAction();
         player.setMediaSession(session);
         player.initMediaSession();
         player.connect(route);
+        return player;
+    }
+
+    /** Creates a {@link Player} for playback on an overlay. */
+    @NonNull
+    public static Player createPlayerForOverlay(@NonNull Context context) {
+        Player player = new LocalPlayer.OverlayPlayer(context);
+        player.setPlayPauseNotificationAction();
         return player;
     }
 
