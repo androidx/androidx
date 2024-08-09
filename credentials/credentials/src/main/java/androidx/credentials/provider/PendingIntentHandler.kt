@@ -53,7 +53,7 @@ import java.util.stream.Collectors
  * See extension functions for [Intent] in IntentHandlerConverters.kt to help test intents that are
  * set on pending intents in different entry classes.
  */
-@RequiresApi(34)
+@RequiresApi(23)
 class PendingIntentHandler {
     companion object {
         private const val TAG = "PendingIntentHandler"

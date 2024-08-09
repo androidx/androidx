@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @SmallTest
 @RequiresApi(34)
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-class PendingIntentHandlerTest {
+class PendingIntentHandlerApi34Test {
     companion object {
         private val GET_CREDENTIAL_OPTION =
             CredentialOption.Builder("type", Bundle(), Bundle()).build()
