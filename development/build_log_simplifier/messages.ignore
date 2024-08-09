@@ -15,6 +15,8 @@ Configuration on demand is an incubating feature\.
 Deprecated Gradle features were used in this build, making it incompatible with Gradle [0-9]+\.[0-9]+\.
 BUILD SUCCESSFUL in .*
 > Task :benchmark:integration-tests:macrobenchmark-target:compileReleaseKotlin
+# dexmaker is missing riscv64 native libraries
+There are no \.so files available to package in the APK for riscv64\.
 # > Task :doclava:compileJava
 Note\: Some input files use or override a deprecated API\.
 Note\: Some input files use unchecked or unsafe operations\.
