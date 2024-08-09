@@ -26,8 +26,11 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.LocaleList;
@@ -35,6 +38,7 @@ import android.provider.Browser;
 
 import androidx.annotation.ColorRes;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -838,5 +842,24 @@ public class CustomTabsIntentTest {
     private void assertNullSessionInExtras(Intent intent) {
         assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_SESSION));
         assertNull(intent.getExtras().getBinder(CustomTabsIntent.EXTRA_SESSION));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M /* getActiveNetwork requires api>=23 */)
+    public void testBindNetworkToCustomTabs() {
+        ConnectivityManager cm =
+                (ConnectivityManager) ApplicationProvider.getApplicationContext()
+                        .getSystemService(Context.CONNECTIVITY_SERVICE);
+        Network network = cm.getActiveNetwork();
+        long expectedNetworkHandle = network.getNetworkHandle();
+        Intent intent = new CustomTabsIntent.Builder()
+                .setNetwork(network)
+                .build()
+                .intent;
+        assertNotNull(intent);
+        assertTrue(intent.hasExtra(CustomTabsIntent.EXTRA_NETWORK));
+        assertNotNull(CustomTabsIntent.getNetwork(intent));
+        assertEquals(expectedNetworkHandle,
+                CustomTabsIntent.getNetwork(intent).getNetworkHandle());
     }
 }
