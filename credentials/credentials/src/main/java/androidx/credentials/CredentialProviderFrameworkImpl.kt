@@ -28,25 +28,15 @@ import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialUnknownException
 import androidx.credentials.exceptions.ClearCredentialUnsupportedException
-import androidx.credentials.exceptions.CreateCredentialCancellationException
-import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
-import androidx.credentials.exceptions.CreateCredentialInterruptedException
-import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
-import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.exceptions.CreateCredentialUnsupportedException
-import androidx.credentials.exceptions.GetCredentialCancellationException
-import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.GetCredentialException
-import androidx.credentials.exceptions.GetCredentialInterruptedException
-import androidx.credentials.exceptions.GetCredentialUnknownException
 import androidx.credentials.exceptions.GetCredentialUnsupportedException
-import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
 import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
-import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialException
-import androidx.credentials.internal.FrameworkImplHelper
+import androidx.credentials.internal.getFinalCreateCredentialData
+import androidx.credentials.internal.toJetpackCreateException
+import androidx.credentials.internal.toJetpackGetException
 import java.util.concurrent.Executor
 
 /**
@@ -242,7 +232,7 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
         val createCredentialRequestBuilder: android.credentials.CreateCredentialRequest.Builder =
             android.credentials.CreateCredentialRequest.Builder(
                     request.type,
-                    FrameworkImplHelper.getFinalCreateCredentialData(request, context),
+                    getFinalCreateCredentialData(request, context),
                     request.candidateQueryData
                 )
                 .setIsSystemProviderRequired(request.isSystemProviderRequired)
@@ -302,46 +292,13 @@ internal class CredentialProviderFrameworkImpl(context: Context) : CredentialPro
     internal fun convertToJetpackGetException(
         error: android.credentials.GetCredentialException
     ): GetCredentialException {
-
-        return when (error.type) {
-            android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
-                NoCredentialException(error.message)
-            android.credentials.GetCredentialException.TYPE_USER_CANCELED ->
-                GetCredentialCancellationException(error.message)
-            android.credentials.GetCredentialException.TYPE_INTERRUPTED ->
-                GetCredentialInterruptedException(error.message)
-            android.credentials.GetCredentialException.TYPE_UNKNOWN ->
-                GetCredentialUnknownException(error.message)
-            else -> {
-                if (error.type.startsWith(GET_DOM_EXCEPTION_PREFIX)) {
-                    GetPublicKeyCredentialException.createFrom(error.type, error.message)
-                } else {
-                    GetCredentialCustomException(error.type, error.message)
-                }
-            }
-        }
+        return toJetpackGetException(error.type, error.message)
     }
 
     internal fun convertToJetpackCreateException(
         error: android.credentials.CreateCredentialException
     ): CreateCredentialException {
-        return when (error.type) {
-            android.credentials.CreateCredentialException.TYPE_NO_CREATE_OPTIONS ->
-                CreateCredentialNoCreateOptionException(error.message)
-            android.credentials.CreateCredentialException.TYPE_USER_CANCELED ->
-                CreateCredentialCancellationException(error.message)
-            android.credentials.CreateCredentialException.TYPE_INTERRUPTED ->
-                CreateCredentialInterruptedException(error.message)
-            android.credentials.CreateCredentialException.TYPE_UNKNOWN ->
-                CreateCredentialUnknownException(error.message)
-            else -> {
-                if (error.type.startsWith(CREATE_DOM_EXCEPTION_PREFIX)) {
-                    CreatePublicKeyCredentialException.createFrom(error.type, error.message)
-                } else {
-                    CreateCredentialCustomException(error.type, error.message)
-                }
-            }
-        }
+        return toJetpackCreateException(error.type, error.message)
     }
 
     internal fun convertGetResponseToJetpackClass(

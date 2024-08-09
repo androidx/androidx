@@ -20,6 +20,7 @@ import android.content.pm.PackageInfo
 import android.content.pm.Signature
 import android.content.pm.SigningInfo
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.DeprecatedSinceApi
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
@@ -136,6 +137,47 @@ private constructor(
         @DeprecatedSinceApi(28, "Use the SigningInfo based constructor instead")
         fun create(packageName: String, signatures: List<Signature>, origin: String? = null) =
             CallingAppInfo(packageName, signatures, origin)
+
+        internal const val EXTRA_CREDENTIAL_REQUEST_ORIGIN =
+            "androidx.credentials.provider.extra.CREDENTIAL_REQUEST_ORIGIN"
+        private const val EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME =
+            "androidx.credentials.provider.extra.CREDENTIAL_REQUEST_PACKAGE_NAME"
+        private const val EXTRA_CREDENTIAL_REQUEST_SIGNING_INFO =
+            "androidx.credentials.provider.extra.CREDENTIAL_REQUEST_SIGNING_INFO"
+        private const val EXTRA_CREDENTIAL_REQUEST_SIGNATURES =
+            "androidx.credentials.provider.extra.CREDENTIAL_REQUEST_SIGNATURES"
+
+        internal fun Bundle.setCallingAppInfo(info: CallingAppInfo) {
+            this.putString(EXTRA_CREDENTIAL_REQUEST_ORIGIN, info.origin)
+            this.putString(EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME, info.packageName)
+            if (Build.VERSION.SDK_INT >= 28) {
+                this.putParcelable(EXTRA_CREDENTIAL_REQUEST_SIGNING_INFO, info.signingInfo)
+            } else {
+                this.putParcelableArray(
+                    EXTRA_CREDENTIAL_REQUEST_SIGNATURES,
+                    info.signingInfoCompat.signingCertificateHistory.toTypedArray()
+                )
+            }
+        }
+
+        internal fun extractCallingAppInfo(bundle: Bundle): CallingAppInfo? {
+            val origin = bundle.getString(EXTRA_CREDENTIAL_REQUEST_ORIGIN)
+            val packageName = bundle.getString(EXTRA_CREDENTIAL_REQUEST_PACKAGE_NAME) ?: return null
+            return if (Build.VERSION.SDK_INT >= 28) {
+                @Suppress("DEPRECATION")
+                val signingInfo: SigningInfo =
+                    bundle.getParcelable<SigningInfo>(EXTRA_CREDENTIAL_REQUEST_SIGNING_INFO)
+                        ?: return null
+                create(packageName, signingInfo, origin)
+            } else {
+                @Suppress("DEPRECATION")
+                val signatures: List<Signature> =
+                    bundle.getParcelableArray(EXTRA_CREDENTIAL_REQUEST_SIGNATURES)?.map {
+                        it as Signature
+                    } ?: return null
+                create(packageName, signatures, origin)
+            }
+        }
     }
 
     /**
@@ -270,5 +312,24 @@ private constructor(
                 candidateSigFingerprints.intersect(appSigFingerprints).isNotEmpty()
             }
         }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is CallingAppInfo) {
+            return false
+        }
+        return packageName == other.packageName &&
+            origin == other.origin &&
+            signingInfoCompat == other.signingInfoCompat
+    }
+
+    override fun hashCode(): Int {
+        var result = packageName.hashCode()
+        result = 31 * result + (origin?.hashCode() ?: 0)
+        result = 31 * result + signingInfoCompat.hashCode()
+        return result
     }
 }

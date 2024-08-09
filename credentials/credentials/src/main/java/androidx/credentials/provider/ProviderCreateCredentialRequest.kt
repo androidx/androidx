@@ -15,7 +15,13 @@
  */
 package androidx.credentials.provider
 
+import android.os.Bundle
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
+import androidx.credentials.provider.CallingAppInfo.Companion.EXTRA_CREDENTIAL_REQUEST_ORIGIN
+import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
+import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
 
 /**
  * Final request received by the provider after the user has selected a given [CreateEntry] on the
@@ -42,4 +48,62 @@ constructor(
     val callingRequest: CreateCredentialRequest,
     val callingAppInfo: CallingAppInfo,
     val biometricPromptResult: BiometricPromptResult? = null
-)
+) {
+    internal companion object {
+        private const val EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE =
+            "androidx.credentials.provider.extra.CREATE_CREDENTIAL_REQUEST_TYPE"
+        private const val EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA =
+            "androidx.credentials.provider.extra.CREATE_REQUEST_CANDIDATE_QUERY_DATA"
+
+        private const val EXTRA_CREATE_REQUEST_CREDENTIAL_DATA =
+            "androidx.credentials.provider.extra.CREATE_REQUEST_CREDENTIAL_DATA"
+
+        @JvmStatic
+        @RequiresApi(23)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun asBundle(request: ProviderCreateCredentialRequest): Bundle {
+            val bundle = Bundle()
+            bundle.putString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE, request.callingRequest.type)
+            bundle.putBundle(
+                EXTRA_CREATE_REQUEST_CREDENTIAL_DATA,
+                request.callingRequest.credentialData
+            )
+            bundle.putBundle(
+                EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA,
+                request.callingRequest.candidateQueryData
+            )
+            bundle.setCallingAppInfo(request.callingAppInfo)
+            return bundle
+        }
+
+        @JvmStatic
+        @RequiresApi(23)
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun fromBundle(bundle: Bundle): ProviderCreateCredentialRequest? {
+            val requestType: String =
+                bundle.getString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE) ?: return null
+            val requestData: Bundle =
+                bundle.getBundle(EXTRA_CREATE_REQUEST_CREDENTIAL_DATA) ?: Bundle()
+            val candidateQueryData: Bundle =
+                bundle.getBundle(EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA) ?: Bundle()
+            val origin = bundle.getString(EXTRA_CREDENTIAL_REQUEST_ORIGIN)
+            val callingAppInfo = extractCallingAppInfo(bundle) ?: return null
+
+            return try {
+                ProviderCreateCredentialRequest(
+                    callingRequest =
+                        CreateCredentialRequest.createFrom(
+                            requestType,
+                            requestData,
+                            candidateQueryData,
+                            requireSystemProvider = false,
+                            origin
+                        ),
+                    callingAppInfo = callingAppInfo,
+                )
+            } catch (e: Exception) {
+                return null
+            }
+        }
+    }
+}

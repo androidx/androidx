@@ -19,7 +19,7 @@ package androidx.credentials;
 import static androidx.credentials.CreateCredentialRequest.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
 import static androidx.credentials.CreatePublicKeyCredentialRequest.BUNDLE_KEY_REQUEST_JSON;
-import static androidx.credentials.internal.FrameworkImplHelper.getFinalCreateCredentialData;
+import static androidx.credentials.internal.ConversionUtilsKt.getFinalCreateCredentialData;
 
 import static com.google.common.truth.Truth.assertThat;
 

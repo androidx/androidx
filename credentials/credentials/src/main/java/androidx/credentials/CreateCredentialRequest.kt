@@ -63,7 +63,6 @@ internal constructor(
     @get:JvmName("preferImmediatelyAvailableCredentials")
     val preferImmediatelyAvailableCredentials: Boolean,
 ) {
-
     init {
         credentialData.putBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED, isAutoSelectAllowed)
         credentialData.putBoolean(

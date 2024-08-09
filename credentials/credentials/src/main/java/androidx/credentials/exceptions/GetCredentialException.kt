@@ -16,8 +16,10 @@
 
 package androidx.credentials.exceptions
 
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
+import androidx.credentials.internal.toJetpackGetException
 
 /**
  * Represents an error thrown during a get flow with Credential Manager. See [CredentialManager] for
@@ -33,4 +35,30 @@ abstract class GetCredentialException
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null
-) : Exception(errorMessage?.toString())
+) : Exception(errorMessage?.toString()) {
+    internal companion object {
+        private const val EXTRA_GET_CREDENTIAL_EXCEPTION_TYPE =
+            "androidx.credentials.provider.extra.EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE"
+        private const val EXTRA_GET_CREDENTIAL_EXCEPTION_MESSAGE =
+            "androidx.credentials.provider.extra.EXTRA_CREATE_CREDENTIAL_EXCEPTION_MESSAGE"
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun asBundle(ex: GetCredentialException): Bundle {
+            val bundle = Bundle()
+            bundle.putString(EXTRA_GET_CREDENTIAL_EXCEPTION_TYPE, ex.type)
+            ex.errorMessage?.let {
+                bundle.putCharSequence(EXTRA_GET_CREDENTIAL_EXCEPTION_MESSAGE, it)
+            }
+            return bundle
+        }
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun fromBundle(bundle: Bundle): GetCredentialException? {
+            val type = bundle.getString(EXTRA_GET_CREDENTIAL_EXCEPTION_TYPE) ?: return null
+            val msg = bundle.getCharSequence(EXTRA_GET_CREDENTIAL_EXCEPTION_MESSAGE)
+            return toJetpackGetException(type, msg)
+        }
+    }
+}

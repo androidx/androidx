@@ -16,7 +16,12 @@
 package androidx.credentials.provider
 
 import android.app.PendingIntent
+import android.content.ComponentName
+import android.os.Bundle
+import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
+import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
+import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
 
 /**
  * Request received by the provider after the query phase of the get flow is complete i.e. the user
@@ -57,6 +62,97 @@ constructor(
             biometricPromptResult: BiometricPromptResult? = null
         ): ProviderGetCredentialRequest {
             return ProviderGetCredentialRequest(options, callingAppInfo, biometricPromptResult)
+        }
+
+        private const val EXTRA_CREDENTIAL_OPTION_SIZE =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_SIZE"
+        private const val EXTRA_CREDENTIAL_OPTION_TYPE_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_TYPE_"
+        private const val EXTRA_CREDENTIAL_OPTION_CREDENTIAL_RETRIEVAL_DATA_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_CREDENTIAL_RETRIEVAL_DATA_"
+        private const val EXTRA_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_"
+        private const val EXTRA_CREDENTIAL_OPTION_IS_SYSTEM_PROVIDER_REQUIRED_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_IS_SYSTEM_PROVIDER_REQUIRED_"
+        private const val EXTRA_CREDENTIAL_OPTION_ALLOWED_PROVIDERS_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_ALLOWED_PROVIDERS_"
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun asBundle(request: ProviderGetCredentialRequest): Bundle {
+            val bundle = Bundle()
+            val optionSize = request.credentialOptions.size
+            bundle.putInt(EXTRA_CREDENTIAL_OPTION_SIZE, optionSize)
+            for (i in 0 until optionSize) {
+                val option = request.credentialOptions[i]
+                bundle.putString("$EXTRA_CREDENTIAL_OPTION_TYPE_PREFIX$i", option.type)
+                bundle.putBundle(
+                    "$EXTRA_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i",
+                    option.candidateQueryData
+                )
+                bundle.putBundle(
+                    "$EXTRA_CREDENTIAL_OPTION_CREDENTIAL_RETRIEVAL_DATA_PREFIX$i",
+                    option.requestData
+                )
+                bundle.putBoolean(
+                    "$EXTRA_CREDENTIAL_OPTION_IS_SYSTEM_PROVIDER_REQUIRED_PREFIX$i",
+                    option.isSystemProviderRequired
+                )
+                bundle.putParcelableArray(
+                    "$EXTRA_CREDENTIAL_OPTION_ALLOWED_PROVIDERS_PREFIX$i",
+                    option.allowedProviders.toTypedArray()
+                )
+            }
+            bundle.setCallingAppInfo(request.callingAppInfo)
+            return bundle
+        }
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun fromBundle(bundle: Bundle): ProviderGetCredentialRequest? {
+            val callingAppInfo = extractCallingAppInfo(bundle) ?: return null
+            val optionSize = bundle.getInt(EXTRA_CREDENTIAL_OPTION_SIZE, -1)
+            if (optionSize < 0) {
+                return null
+            }
+            val options = mutableListOf<CredentialOption>()
+            for (i in 0 until optionSize) {
+                val type = bundle.getString("$EXTRA_CREDENTIAL_OPTION_TYPE_PREFIX$i") ?: return null
+                val candidateQueryData =
+                    bundle.getBundle("$EXTRA_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i")
+                        ?: return null
+                val requestData =
+                    bundle.getBundle("$EXTRA_CREDENTIAL_OPTION_CREDENTIAL_RETRIEVAL_DATA_PREFIX$i")
+                        ?: return null
+                val isSystemProviderRequired =
+                    bundle.getBoolean(
+                        "$EXTRA_CREDENTIAL_OPTION_IS_SYSTEM_PROVIDER_REQUIRED_PREFIX$i",
+                        false
+                    )
+                val allowedProviders =
+                    try {
+                        @Suppress("DEPRECATION")
+                        bundle
+                            .getParcelableArray(
+                                "${EXTRA_CREDENTIAL_OPTION_ALLOWED_PROVIDERS_PREFIX}$i"
+                            )
+                            ?.mapNotNull { it as ComponentName? }
+                            ?.toSet() ?: emptySet()
+                    } catch (e: Exception) {
+                        emptySet()
+                    }
+                options.add(
+                    CredentialOption.createFrom(
+                        type,
+                        requestData,
+                        candidateQueryData,
+                        isSystemProviderRequired,
+                        allowedProviders
+                    )
+                )
+            }
+
+            return createFrom(options, callingAppInfo)
         }
     }
 }

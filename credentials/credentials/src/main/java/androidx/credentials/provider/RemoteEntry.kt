@@ -23,6 +23,7 @@ import android.app.slice.Slice
 import android.app.slice.SliceSpec
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -49,7 +50,8 @@ import java.util.Collections
  * @constructor constructs an instance of [RemoteEntry]
  * @throws NullPointerException If [pendingIntent] is null
  */
-class RemoteEntry constructor(val pendingIntent: PendingIntent) {
+class RemoteEntry(val pendingIntent: PendingIntent) {
+
     /**
      * A builder for [RemoteEntry]
      *
@@ -148,5 +150,29 @@ class RemoteEntry constructor(val pendingIntent: PendingIntent) {
             }
             return null
         }
+
+        private const val EXTRA_REMOTE_ENTRY_PENDING_INTENT =
+            "androidx.credentials.provider.extra.REMOTE_ENTRY_PENDING_INTENT"
+
+        /** Marshall the remote entry data through an intent. */
+        internal fun RemoteEntry.marshall(bundle: Bundle) {
+            bundle.putParcelable(EXTRA_REMOTE_ENTRY_PENDING_INTENT, this.pendingIntent)
+        }
+
+        internal fun Bundle.unmarshallRemoteEntry(): RemoteEntry? {
+            val pendingIntent: PendingIntent =
+                this.getParcelable(EXTRA_REMOTE_ENTRY_PENDING_INTENT) ?: return null
+            return RemoteEntry(pendingIntent)
+        }
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RemoteEntry) return false
+        return this.pendingIntent == other.pendingIntent
+    }
+
+    override fun hashCode(): Int {
+        return pendingIntent.hashCode()
     }
 }

@@ -20,11 +20,15 @@ package androidx.credentials.provider
 import android.annotation.SuppressLint
 import android.app.slice.Slice
 import android.os.Build
+import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.PasswordCredential.Companion.TYPE_PASSWORD_CREDENTIAL
 import androidx.credentials.PublicKeyCredential.Companion.TYPE_PUBLIC_KEY_CREDENTIAL
 import androidx.credentials.R
+import androidx.credentials.provider.CustomCredentialEntry.Companion.marshall
+import androidx.credentials.provider.PasswordCredentialEntry.Companion.marshall
+import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.marshall
 
 /**
  * Base class for a credential entry to be displayed on the selector.
@@ -214,6 +218,101 @@ internal constructor(
             } else {
                 null
             }
+        }
+
+        internal const val EXTRA_CREDENTIAL_ENTRY_SIZE =
+            "androidx.credentials.provider.extra.CREDENTIAL_ENTRY_SIZE"
+        internal const val EXTRA_CREDENTIAL_ENTRY_ENTRY_TYPE_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_ENTRY_TYPE_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_ENTRY_GROUP_ID_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_ENTRY_ENTRY_GROUP_ID_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_OPTION_ID_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_ID_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_OPTION_TYPE_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_TYPE_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_OPTION_DATA_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_OPTION_DATA_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_PENDING_INTENT_PREFIX =
+            "androidx.credentials.provider.extra.PENDING_INTENT_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX =
+            "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_IS_AUTO_SELECT_ALLOWED_FROM_OPTION_PREFIX =
+            "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_FROM_OPTION_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_LAST_USED_TIME_PREFIX =
+            "androidx.credentials.provider.extra.LAST_USED_TIME_"
+        internal const val EXTRA_CREDENTIAL_ENTRY_HAS_DEFAULT_ICON_PREFIX =
+            "androidx.credentials.provider.extra.HAS_DEFAULT_ICON_"
+        internal const val EXTRA_CREDENTIAL_TITLE_PREFIX =
+            "androidx.credentials.provider.extra.TITLE_"
+        internal const val EXTRA_CREDENTIAL_SUBTITLE_PREFIX =
+            "androidx.credentials.provider.extra.SUBTITLE_"
+        internal const val EXTRA_CREDENTIAL_TYPE_DISPLAY_NAME_PREFIX =
+            "androidx.credentials.provider.extra.TYPE_DISPLAY_NAME_"
+        internal const val EXTRA_CREDENTIAL_TYPE_ICON_PREFIX =
+            "androidx.credentials.provider.extra.ICON_"
+
+        /** Marshall a list of credential entries through an intent. */
+        @RequiresApi(23)
+        internal fun List<CredentialEntry>.marshallToIntent(bundle: Bundle) {
+            bundle.putInt(EXTRA_CREDENTIAL_ENTRY_SIZE, this.size)
+            for (i in indices) {
+                when (val entry = this[i]) {
+                    is PasswordCredentialEntry -> entry.marshall(bundle, i)
+                    is PublicKeyCredentialEntry -> entry.marshall(bundle, i)
+                    is CustomCredentialEntry -> entry.marshall(bundle, i)
+                }
+            }
+        }
+
+        internal fun CredentialEntry.marshallCommonProperties(bundle: Bundle, index: Int) {
+            bundle.putString("$EXTRA_CREDENTIAL_ENTRY_ENTRY_TYPE_PREFIX$index", this.type)
+            bundle.putString(
+                "$EXTRA_CREDENTIAL_ENTRY_OPTION_ID_PREFIX$index",
+                this.beginGetCredentialOption.id
+            )
+            bundle.putString(
+                "$EXTRA_CREDENTIAL_ENTRY_OPTION_TYPE_PREFIX$index",
+                this.beginGetCredentialOption.type
+            )
+            bundle.putBundle(
+                "$EXTRA_CREDENTIAL_ENTRY_OPTION_DATA_PREFIX$index",
+                this.beginGetCredentialOption.candidateQueryData
+            )
+            bundle.putCharSequence(
+                "$EXTRA_CREDENTIAL_ENTRY_ENTRY_GROUP_ID_PREFIX$index",
+                this.entryGroupId
+            )
+            bundle.putBoolean(
+                "$EXTRA_CREDENTIAL_ENTRY_IS_DEFAULT_ICON_PREFERRED_AS_SINGLE_PROV_PREFIX$index",
+                this.isDefaultIconPreferredAsSingleProvider
+            )
+            this.affiliatedDomain?.let {
+                bundle.putCharSequence("$EXTRA_CREDENTIAL_ENTRY_AFFILIATED_DOMAIN_PREFIX$index", it)
+            }
+        }
+
+        @RequiresApi(23)
+        internal fun Bundle.unmarshallCredentialEntries(): List<CredentialEntry> {
+            val entries = mutableListOf<CredentialEntry>()
+            val size = this.getInt(EXTRA_CREDENTIAL_ENTRY_SIZE, 0)
+            for (index in 0 until size) {
+                val type =
+                    this.getString("$EXTRA_CREDENTIAL_ENTRY_ENTRY_TYPE_PREFIX$index")
+                        ?: return emptyList()
+                val entry: CredentialEntry =
+                    when (type) {
+                        TYPE_PASSWORD_CREDENTIAL -> PasswordCredentialEntry.unmarshall(this, index)
+                        TYPE_PUBLIC_KEY_CREDENTIAL ->
+                            PublicKeyCredentialEntry.unmarshall(this, index)
+                        else -> CustomCredentialEntry.unmarshall(this, index, type)
+                    } ?: return emptyList()
+                entries.add(entry)
+            }
+            return entries
         }
     }
 }

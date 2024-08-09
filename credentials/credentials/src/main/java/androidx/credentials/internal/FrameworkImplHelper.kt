@@ -17,51 +17,18 @@
 package androidx.credentials.internal
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.drawable.Icon
 import android.os.Build
-import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.CreateCredentialRequest
-import androidx.credentials.CreatePasswordRequest
-import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.Credential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
-import androidx.credentials.R
 
 @RequiresApi(34)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class FrameworkImplHelper {
     companion object {
-        /** Take the create request's `credentialData` and add SDK specific values to it. */
-        @JvmStatic
-        fun getFinalCreateCredentialData(
-            request: CreateCredentialRequest,
-            context: Context,
-        ): Bundle {
-            val createCredentialData = request.credentialData
-            val displayInfoBundle = request.displayInfo.toBundle()
-            displayInfoBundle.putParcelable(
-                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_CREDENTIAL_TYPE_ICON,
-                Icon.createWithResource(
-                    context,
-                    when (request) {
-                        is CreatePasswordRequest -> R.drawable.ic_password
-                        is CreatePublicKeyCredentialRequest -> R.drawable.ic_passkey
-                        else -> R.drawable.ic_other_sign_in
-                    }
-                )
-            )
-            createCredentialData.putBundle(
-                CreateCredentialRequest.DisplayInfo.BUNDLE_KEY_REQUEST_DISPLAY_INFO,
-                displayInfoBundle
-            )
-            return createCredentialData
-        }
-
         @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
         @JvmStatic
         fun convertGetResponseToJetpackClass(

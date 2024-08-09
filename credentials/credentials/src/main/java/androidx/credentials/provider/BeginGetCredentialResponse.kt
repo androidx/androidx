@@ -19,6 +19,14 @@ package androidx.credentials.provider
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.credentials.provider.Action.Companion.marshall
+import androidx.credentials.provider.Action.Companion.unmarshallActionList
+import androidx.credentials.provider.AuthenticationAction.Companion.marshall
+import androidx.credentials.provider.AuthenticationAction.Companion.unmarshallAuthActionList
+import androidx.credentials.provider.CredentialEntry.Companion.marshallToIntent
+import androidx.credentials.provider.CredentialEntry.Companion.unmarshallCredentialEntries
+import androidx.credentials.provider.RemoteEntry.Companion.marshall
+import androidx.credentials.provider.RemoteEntry.Companion.unmarshallRemoteEntry
 import androidx.credentials.provider.utils.BeginGetCredentialUtil
 
 /**
@@ -173,6 +181,39 @@ constructor(
         }
     }
 
+    @RequiresApi(23)
+    private object Api23Impl {
+        @JvmStatic
+        fun asBundle(bundle: Bundle, response: BeginGetCredentialResponse) {
+            response.credentialEntries.marshallToIntent(bundle)
+            response.actions.marshall(bundle)
+            response.authenticationActions.marshall(bundle)
+            response.remoteEntry?.marshall(bundle)
+        }
+
+        @JvmStatic
+        fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
+            val credentialEntries = bundle.unmarshallCredentialEntries()
+            val actions = bundle.unmarshallActionList()
+            val authenticationActions = bundle.unmarshallAuthActionList()
+            val remoteEntry = bundle.unmarshallRemoteEntry()
+            if (
+                credentialEntries.isEmpty() &&
+                    actions.isEmpty() &&
+                    authenticationActions.isEmpty() &&
+                    remoteEntry == null
+            ) {
+                return null
+            }
+            return BeginGetCredentialResponse(
+                credentialEntries,
+                actions,
+                authenticationActions,
+                remoteEntry
+            )
+        }
+    }
+
     companion object {
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
@@ -184,6 +225,8 @@ constructor(
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, response)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.asBundle(bundle, response)
             }
             return bundle
         }
@@ -194,10 +237,11 @@ constructor(
          */
         @JvmStatic
         fun fromBundle(bundle: Bundle): BeginGetCredentialResponse? {
-            if (Build.VERSION.SDK_INT >= 34) { // Android U
-                return Api34Impl.fromBundle(bundle)
-            }
-            return null
+            return if (Build.VERSION.SDK_INT >= 34) { // Android U
+                Api34Impl.fromBundle(bundle)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.fromBundle(bundle)
+            } else null
         }
     }
 }
