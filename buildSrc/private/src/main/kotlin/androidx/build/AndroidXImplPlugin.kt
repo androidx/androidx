@@ -786,7 +786,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     @Suppress("UnstableApiUsage") // usage of HasDeviceTests
     private fun HasDeviceTests.configureTests() {
-        deviceTests.forEach { deviceTest ->
+        deviceTestsForEachCompat { deviceTest ->
             deviceTest.packaging.resources.apply {
                 excludeVersionFiles(this)
 
@@ -814,7 +814,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     @Suppress("UnstableApiUsage") // usage of HasDeviceTests
     private fun HasDeviceTests.enableLongMethodTracingInMicrobenchmark(project: Project) {
         if (project.hasBenchmarkPlugin()) {
-            deviceTests.forEach { deviceTest ->
+            deviceTestsForEachCompat { deviceTest ->
                 deviceTest.instrumentationRunnerArguments.put(
                     "androidx.benchmark.profiling.skipWhenDurationRisksAnr",
                     "false"

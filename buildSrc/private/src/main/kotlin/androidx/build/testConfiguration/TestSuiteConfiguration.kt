@@ -20,6 +20,7 @@ import androidx.build.AndroidXExtension
 import androidx.build.AndroidXImplPlugin.Companion.FINALIZE_TEST_CONFIGS_WITH_APKS_TASK
 import androidx.build.asFilenamePrefix
 import androidx.build.dependencyTracker.AffectedModuleDetector
+import androidx.build.deviceTestsForEachCompat
 import androidx.build.getFileInTestConfigDirectory
 import androidx.build.getPrivacySandboxFilesDirectory
 import androidx.build.getSupportRootFolder
@@ -517,7 +518,7 @@ fun Project.configureTestConfigGeneration(commonExtension: CommonExtension<*, *,
         onVariants { variant ->
             when {
                 variant is HasDeviceTests -> {
-                    variant.deviceTests.forEach { deviceTest ->
+                    variant.deviceTestsForEachCompat { deviceTest ->
                         when {
                             path.contains("media:version-compat-tests:") -> {
                                 createOrUpdateMediaTestConfigurationGenerationTask(
@@ -566,7 +567,7 @@ fun Project.configureTestConfigGeneration(
     componentsExtension: KotlinMultiplatformAndroidComponentsExtension
 ) {
     componentsExtension.onVariant { variant ->
-        variant.deviceTests.forEach { deviceTest ->
+        variant.deviceTestsForEachCompat { deviceTest ->
             createTestConfigurationGenerationTask(
                 deviceTest.name,
                 deviceTest.artifacts,

@@ -89,7 +89,7 @@ fun setupTestApkCopy(project: Project) {
             @Suppress("UnstableApiUsage") // usage of HasDeviceTests
             when {
                 variant is HasDeviceTests -> {
-                    variant.deviceTests.forEach { deviceTest ->
+                    variant.deviceTestsForEachCompat { deviceTest ->
                         registerAndAddToBuildOnServer(deviceTest.name, deviceTest.artifacts)
                     }
                 }
