@@ -148,6 +148,8 @@ const val MIGRATE_ARRAY_ANNOTATIONS = "androidx.migrateArrayAnnotations"
 /** If true, yarn dependencies are fetched from an offline mirror */
 const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 
+const val FORCE_KOTLIN_2_0_TARGET = "androidx.forceKotlin20Target"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -183,7 +185,11 @@ val ALL_ANDROIDX_PROPERTIES =
         INCLUDE_OPTIONAL_PROJECTS,
         MIGRATE_ARRAY_ANNOTATIONS,
         YARN_OFFLINE_MODE,
+        FORCE_KOTLIN_2_0_TARGET,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
+
+fun Project.shouldForceKotlin20Target() =
+    project.providers.gradleProperty(FORCE_KOTLIN_2_0_TARGET).map { it.toBoolean() }.orElse(false)
 
 /**
  * Whether to enable constraints for projects in same-version groups See the property definition for

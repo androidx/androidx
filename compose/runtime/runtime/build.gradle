@@ -49,7 +49,7 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation kotlin("test-junit")
+                implementation kotlin("test")
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(libs.kotlinReflect)
                 implementation(project(":compose:runtime:runtime-test-utils"))

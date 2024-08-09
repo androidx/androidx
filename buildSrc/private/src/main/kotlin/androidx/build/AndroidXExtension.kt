@@ -78,7 +78,10 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
                 spec.parameters.settingsFile = settings
             }
 
-        kotlinTarget.set(KotlinTarget.DEFAULT)
+        kotlinTarget.set(
+            if (project.shouldForceKotlin20Target().get()) KotlinTarget.KOTLIN_2_0
+            else KotlinTarget.DEFAULT
+        )
         kotlinTestTarget.set(kotlinTarget)
     }
 
