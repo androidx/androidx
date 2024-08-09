@@ -24,13 +24,13 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 
 /** Simplified wrapper for [ImageReader]-like classes. */
-interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
+public interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
     /**
      * Get a Surface that can be used to produce images for this ImageReader.
      *
      * @see [ImageReader.getSurface]
      */
-    val surface: Surface
+    public val surface: Surface
 
     /**
      * Get the maximum number of images that can be produced before stalling or throwing exceptions.
@@ -38,12 +38,12 @@ interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
      * @see [ImageReader.acquireNextImage]
      * @see [ImageReader.acquireLatestImage]
      */
-    val capacity: Int
+    public val capacity: Int
 
     /**
      * Set the [OnImageListener]. Setting additional listeners will override the previous listener.]
      */
-    fun setOnImageListener(onImageListener: OnImageListener)
+    public fun setOnImageListener(onImageListener: OnImageListener)
 
     /**
      * Discard free buffers from the internal memory pool.
@@ -51,14 +51,14 @@ interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
      * @see [ImageReader.discardFreeBuffers]
      * @see [MultiResolutionImageReader.flush]
      */
-    fun flush()
+    public fun flush()
 
     /**
      * The OnNextImageListener adapts the standard [ImageReader.OnImageAvailableListener] to push
      * images into a consumer. This consumer is responsible for processing and/or closing images
      * when they are no longer needed.
      */
-    fun interface OnImageListener {
+    public fun interface OnImageListener {
         /**
          * Handle the next [ImageWrapper] from an [ImageReaderWrapper]. Implementations are
          * responsible for closing images when they are no longer in use.
@@ -66,6 +66,6 @@ interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
          * [ImageWrapper.timestamp] is not guaranteed to be in order when used with a multi-sensor
          * camera system, but should *usually* be in order
          */
-        fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper)
+        public fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper)
     }
 }

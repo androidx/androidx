@@ -28,8 +28,8 @@ import androidx.camera.camera2.pipe.core.Threads
  * between [CameraController] instances.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraContext {
-    val appContext: Context
-    val threads: Threads
-    val cameraBackends: CameraBackends
+public interface CameraContext {
+    public val appContext: Context
+    public val threads: Threads
+    public val cameraBackends: CameraBackends
 }

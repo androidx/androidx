@@ -23,8 +23,8 @@ import androidx.camera.camera2.pipe.CaptureSequence.CaptureSequenceListener
  * Fake [CaptureSequenceListener] instance that can be used to check to see if
  * [onCaptureSequenceComplete] has been invoked.
  */
-class FakeCaptureSequenceListener : CaptureSequenceListener {
-    var isComplete: Boolean = false
+public class FakeCaptureSequenceListener : CaptureSequenceListener {
+    public var isComplete: Boolean = false
         private set
 
     override fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>) {

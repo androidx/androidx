@@ -19,37 +19,37 @@ package androidx.camera.camera2.pipe.graph
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 
-interface GraphListener {
+public interface GraphListener {
     /**
      * Used to indicate that the graph is starting. This is called immediately when a [CameraGraph]
      * is being started.
      */
-    fun onGraphStarting() {}
+    public fun onGraphStarting() {}
 
     /**
      * Used to indicate that the graph has been initialized and is ready to actively process
      * requests using the provided [GraphRequestProcessor] interface.
      */
-    fun onGraphStarted(requestProcessor: GraphRequestProcessor)
+    public fun onGraphStarted(requestProcessor: GraphRequestProcessor)
 
     /**
      * Used to indicate that the graph is stopping. This is called immediately when a [CameraGraph]
      * is being stopped.
      */
-    fun onGraphStopping() {}
+    public fun onGraphStopping() {}
 
     /**
      * Used to indicate that a previously initialized [GraphRequestProcessor] is no longer
      * available.
      */
-    fun onGraphStopped(requestProcessor: GraphRequestProcessor?)
+    public fun onGraphStopped(requestProcessor: GraphRequestProcessor?)
 
     /**
      * Used to indicate that the internal state of the [GraphRequestProcessor] has changed. This is
      * a signal that previously queued requests may now succeed if they previously failed.
      */
-    fun onGraphModified(requestProcessor: GraphRequestProcessor)
+    public fun onGraphModified(requestProcessor: GraphRequestProcessor)
 
     /** Used to indicate that the graph has encountered an error. */
-    fun onGraphError(graphStateError: GraphStateError)
+    public fun onGraphError(graphStateError: GraphStateError)
 }

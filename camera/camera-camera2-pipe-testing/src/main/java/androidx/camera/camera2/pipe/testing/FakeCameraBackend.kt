@@ -33,12 +33,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
 /** The FakeCameraBackend implements [CameraBackend] and creates [CameraControllerSimulator]s. */
-class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) : CameraBackend {
+public class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) :
+    CameraBackend {
     private val lock = Any()
     private val fakeCameraIds = fakeCameras.keys.toList()
 
     private val _cameraControllers = mutableListOf<CameraControllerSimulator>()
-    val cameraControllers: List<CameraControllerSimulator>
+    public val cameraControllers: List<CameraControllerSimulator>
         get() = synchronized(lock) { _cameraControllers.toList() }
 
     override val id: CameraBackendId
@@ -99,8 +100,8 @@ class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMetadata>) 
         _cameraControllers.forEach { it.simulateCameraStopped() }
     }
 
-    companion object {
-        val FAKE_CAMERA_BACKEND_ID =
+    public companion object {
+        public val FAKE_CAMERA_BACKEND_ID: CameraBackendId =
             CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraBackend")
     }
 }

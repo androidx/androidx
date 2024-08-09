@@ -29,20 +29,20 @@ import androidx.camera.camera2.pipe.core.Log
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class CameraError private constructor(val value: Int) {
-    companion object {
+public value class CameraError private constructor(public val value: Int) {
+    public companion object {
         /**
          * Convenient placeholder for errors like CameraAccessException.CAMERA_ERROR where the cause
          * of the error will be determined later through onError().
          */
-        val ERROR_UNDETERMINED = CameraError(0)
+        public val ERROR_UNDETERMINED: CameraError = CameraError(0)
 
         /**
          * Indicates that the camera is in use. This can occur when:
          * - Camera is in use by another app or process.
          * - Camera is in use by a higher priority process
          */
-        val ERROR_CAMERA_IN_USE = CameraError(1)
+        public val ERROR_CAMERA_IN_USE: CameraError = CameraError(1)
 
         /**
          * The system-wide limit for number of open cameras or camera resources has been reached.
@@ -50,21 +50,21 @@ value class CameraError private constructor(val value: Int) {
          *   number of cameras has reached the system-wide limit, and the app attempts to open
          *   another one, this error can occur.
          */
-        val ERROR_CAMERA_LIMIT_EXCEEDED = CameraError(2)
+        public val ERROR_CAMERA_LIMIT_EXCEEDED: CameraError = CameraError(2)
 
         /**
          * The camera is disabled and cannot be opened. This can occur when:
          * - Camera(s) are disabled due to security policy on the device.
          * - Camera(s) are disabled because the app is not considered "foreground".
          */
-        val ERROR_CAMERA_DISABLED = CameraError(3)
+        public val ERROR_CAMERA_DISABLED: CameraError = CameraError(3)
 
         /**
          * The camera device has encountered a fatal error. This can occur when:
          * - A critical error took place in the camera HAL.
          * - A critical error in the driver or the underlying hardware.
          */
-        val ERROR_CAMERA_DEVICE = CameraError(4)
+        public val ERROR_CAMERA_DEVICE: CameraError = CameraError(4)
 
         /**
          * The camera service (framework) has encountered a fatal error. This can occur when:
@@ -73,7 +73,7 @@ value class CameraError private constructor(val value: Int) {
          * - We have Native-level crashes that brought down the camera service.
          * - There are persistent hardware issues preventing the service from running.
          */
-        val ERROR_CAMERA_SERVICE = CameraError(5)
+        public val ERROR_CAMERA_SERVICE: CameraError = CameraError(5)
 
         /**
          * The camera has been disconnected for one of the following potential causes:
@@ -81,39 +81,39 @@ value class CameraError private constructor(val value: Int) {
          * - The camera ID is no longer valid.
          * - The camera has been taken for a higher-priority process.
          */
-        val ERROR_CAMERA_DISCONNECTED = CameraError(6)
+        public val ERROR_CAMERA_DISCONNECTED: CameraError = CameraError(6)
 
         /** This indicates that we received IllegalArgumentException while opening the camera. */
-        val ERROR_ILLEGAL_ARGUMENT_EXCEPTION = CameraError(7)
+        public val ERROR_ILLEGAL_ARGUMENT_EXCEPTION: CameraError = CameraError(7)
 
         /** This indicates that we received SecurityException while opening the camera. */
-        val ERROR_SECURITY_EXCEPTION = CameraError(8)
+        public val ERROR_SECURITY_EXCEPTION: CameraError = CameraError(8)
 
         /**
          * This indicates we've encountered an error while configuring our camera graph, such as
          * creating, finalizing capture sessions, and creating, submitting capture requests.
          */
-        val ERROR_GRAPH_CONFIG = CameraError(9)
+        public val ERROR_GRAPH_CONFIG: CameraError = CameraError(9)
 
         /**
          * The camera cannot be opened because Do Not Disturb (DND) mode is on. This is actually a
          * quirk for legacy devices on P, where we encounter RuntimeExceptions while opening the
          * camera when it tries to enable shutter sound.
          */
-        val ERROR_DO_NOT_DISTURB_ENABLED = CameraError(10)
+        public val ERROR_DO_NOT_DISTURB_ENABLED: CameraError = CameraError(10)
 
         /**
          * The CameraManager.openCamera() call threw an undocumented Exception. This can happen on
          * camera devices that encountered an unhandled error, and thereby throwing an unknown
          * Exception.
          */
-        val ERROR_UNKNOWN_EXCEPTION = CameraError(11)
+        public val ERROR_UNKNOWN_EXCEPTION: CameraError = CameraError(11)
 
         /**
          * The internal camera manager at CameraPipe has encountered an error, and isn't able to
          * handle the incoming camera request.
          */
-        val ERROR_CAMERA_OPENER = CameraError(12)
+        public val ERROR_CAMERA_OPENER: CameraError = CameraError(12)
 
         internal fun from(throwable: Throwable) =
             when (throwable) {
@@ -189,8 +189,8 @@ value class CameraError private constructor(val value: Int) {
 
 // TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class DoNotDisturbException(message: String) : RuntimeException(message)
+public class DoNotDisturbException(message: String) : RuntimeException(message)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // An exception indicating that the CameraDevice.close() call has stalled.
-class CameraCloseStallException(message: String) : RuntimeException(message)
+public class CameraCloseStallException(message: String) : RuntimeException(message)

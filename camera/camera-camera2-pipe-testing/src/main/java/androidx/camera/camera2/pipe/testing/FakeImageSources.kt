@@ -29,16 +29,16 @@ import androidx.camera.camera2.pipe.media.ImageSources
  * be retrieved based on [Surface] or by [StreamId], and supports both single and
  * MultiResolutionImageReader-like implementations.
  */
-class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : ImageSources {
+public class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : ImageSources {
     private val lock = Any()
 
     @GuardedBy("lock") private val fakeImageSources = mutableListOf<FakeImageSource>()
 
-    operator fun get(surface: Surface): FakeImageSource? {
+    public operator fun get(surface: Surface): FakeImageSource? {
         return synchronized(lock) { fakeImageSources.find { it.surface == surface } }
     }
 
-    operator fun get(streamId: StreamId): FakeImageSource? {
+    public operator fun get(streamId: StreamId): FakeImageSource? {
         return synchronized(lock) { fakeImageSources.find { it.streamId == streamId } }
     }
 
@@ -62,7 +62,7 @@ class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : ImageSo
     }
 
     /** [check] that all [FakeImageSource]s are closed. */
-    fun checkImageSourcesClosed() =
+    public fun checkImageSourcesClosed(): Unit =
         synchronized(lock) {
             for (fakeImageSource in fakeImageSources) {
                 check(fakeImageSource.isClosed) { "Failed to close ImageSource!: $fakeImageSource" }
@@ -70,7 +70,7 @@ class FakeImageSources(private val fakeImageReaders: FakeImageReaders) : ImageSo
         }
 
     /** [check] that all images from all [FakeImageReader]s are closed. */
-    fun checkImagesClosed() =
+    public fun checkImagesClosed(): Unit =
         synchronized(lock) {
             for ((i, fakeImageSource) in fakeImageSources.withIndex()) {
                 for ((j, fakeImage) in fakeImageSource.images.withIndex()) {

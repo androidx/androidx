@@ -51,27 +51,32 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
  * Implementations are expected to be thread safe, and to associate each image with the [OutputId]
  * it is associated with.
  */
-interface ImageSource : UnsafeWrapper, AutoCloseable {
+public interface ImageSource : UnsafeWrapper, AutoCloseable {
     /** The graphics surface that the Camera produces images into. */
-    val surface: Surface
+    public val surface: Surface
 
-    fun setListener(listener: ImageSourceListener)
+    public fun setListener(listener: ImageSourceListener)
 }
 
 /** Listener for handling [ImageWrapper]s as they are produced. */
-fun interface ImageSourceListener {
+public fun interface ImageSourceListener {
     /**
      * Handle the next image from the [ImageSource]. Implementations *must* close the [image] when
      * they are done with it. Receiving a null [image] indicates the that an image was produced, but
      * that this image source is at capacity and that the image was dropped and closed to avoid
      * stalling the camera.
      */
-    fun onImage(streamId: StreamId, outputId: OutputId, outputTimestamp: Long, image: ImageWrapper?)
+    public fun onImage(
+        streamId: StreamId,
+        outputId: OutputId,
+        outputTimestamp: Long,
+        image: ImageWrapper?
+    )
 }
 
 /** Provider for creating an [ImageSource] based on an [ImageSourceConfig] */
-fun interface ImageSources {
-    fun createImageSource(
+public fun interface ImageSources {
+    public fun createImageSource(
         cameraStream: CameraStream,
         imageSourceConfig: ImageSourceConfig,
     ): ImageSource

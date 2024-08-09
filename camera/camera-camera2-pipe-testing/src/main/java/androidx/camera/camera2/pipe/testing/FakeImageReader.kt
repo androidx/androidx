@@ -27,12 +27,12 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** Utility class for simulating [FakeImage] and testing code that uses an [ImageReaderWrapper]. */
-class FakeImageReader
+public class FakeImageReader
 private constructor(
     private val format: StreamFormat,
     override val capacity: Int,
     override val surface: Surface,
-    val streamId: StreamId,
+    public val streamId: StreamId,
     private val outputs: Map<OutputId, Size>
 ) : ImageReaderWrapper {
     private val debugId = debugIds.incrementAndGet()
@@ -43,17 +43,17 @@ private constructor(
     private val _images = mutableListOf<FakeImage>()
 
     /** Retrieve a list of every image that has been created from this FakeImageReader. */
-    val images: List<FakeImage>
+    public val images: List<FakeImage>
         get() = synchronized(lock) { _images.toMutableList() }
 
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = closed.value
 
     /**
      * Simulate an image at a specific [imageTimestamp] for a particular (optional) [OutputId]. The
      * timebase for an imageReader is left undefined.
      */
-    fun simulateImage(imageTimestamp: Long, outputId: OutputId? = null): FakeImage {
+    public fun simulateImage(imageTimestamp: Long, outputId: OutputId? = null): FakeImage {
         val output = outputId ?: outputs.keys.single()
         val size =
             checkNotNull(outputs[output]) { "Unexpected $output! Available outputs are $outputs" }
@@ -66,7 +66,7 @@ private constructor(
      * Simulate an image using a specific [ImageWrapper] for the given outputId. The size must
      * match.
      */
-    fun simulateImage(image: ImageWrapper, outputId: OutputId) {
+    public fun simulateImage(image: ImageWrapper, outputId: OutputId) {
         val size =
             checkNotNull(outputs[outputId]) {
                 "Unexpected $outputId! Available outputs are $outputs"
@@ -104,7 +104,7 @@ private constructor(
     override fun toString(): String = "FakeImageReader-$debugId"
 
     /** [check] that all images produced by this [FakeImageReader] have been closed. */
-    fun checkImagesClosed() {
+    public fun checkImagesClosed() {
         for ((i, fakeImage) in images.withIndex()) {
             check(fakeImage.isClosed) {
                 "Failed to close image $i / ${images.size} $fakeImage from $this"
@@ -112,11 +112,11 @@ private constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private val debugIds = atomic(0)
 
         /** Create a [FakeImageReader] that can simulate images. */
-        fun create(
+        public fun create(
             format: StreamFormat,
             streamId: StreamId,
             outputId: OutputId,
@@ -127,7 +127,7 @@ private constructor(
             create(format, streamId, mapOf(outputId to size), capacity, fakeSurfaces)
 
         /** Create a [FakeImageReader] that can simulate different sized images. */
-        fun create(
+        public fun create(
             format: StreamFormat,
             streamId: StreamId,
             outputIdMap: Map<OutputId, Size>,
@@ -146,14 +146,14 @@ private constructor(
     }
 }
 
-class FakeOnImageListener : ImageReaderWrapper.OnImageListener {
-    val onImageEvents = mutableListOf<OnImageEvent>()
+public class FakeOnImageListener : ImageReaderWrapper.OnImageListener {
+    public val onImageEvents: MutableList<OnImageEvent> = mutableListOf<OnImageEvent>()
 
     override fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
         onImageEvents.add(OnImageEvent(streamId, outputId, image))
     }
 
-    data class OnImageEvent(
+    public data class OnImageEvent(
         val streamId: StreamId,
         val outputId: OutputId,
         val image: ImageWrapper

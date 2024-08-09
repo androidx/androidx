@@ -26,30 +26,30 @@ import androidx.camera.camera2.pipe.core.Debug
  * A CaptureSequence should be created from a [CaptureSequenceProcessor].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CaptureSequence<out TCaptureRequest> {
-    val cameraId: CameraId
-    val repeating: Boolean
-    val captureRequestList: List<TCaptureRequest>
-    val captureMetadataList: List<RequestMetadata>
-    val listeners: List<Request.Listener>
-    val sequenceListener: CaptureSequenceListener
+public interface CaptureSequence<out TCaptureRequest> {
+    public val cameraId: CameraId
+    public val repeating: Boolean
+    public val captureRequestList: List<TCaptureRequest>
+    public val captureMetadataList: List<RequestMetadata>
+    public val listeners: List<Request.Listener>
+    public val sequenceListener: CaptureSequenceListener
 
     /** This value must be set to the return value of [CaptureSequenceProcessor.submit] */
-    var sequenceNumber: Int
+    public var sequenceNumber: Int
 
-    interface CaptureSequenceListener {
-        fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>)
+    public interface CaptureSequenceListener {
+        public fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>)
     }
 }
 
 /** Utility functions for interacting with [CaptureSequence] callbacks and listeners. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-object CaptureSequences {
+public object CaptureSequences {
     /**
      * Efficient, inlined utility function for invoking a call on each of the listeners defined on a
      * [CaptureSequence] instance using the provided [RequestMetadata] object.
      */
-    inline fun <T> CaptureSequence<T>.invokeOnRequests(
+    public inline fun <T> CaptureSequence<T>.invokeOnRequests(
         crossinline fn: (RequestMetadata, Int, Request.Listener) -> Any
     ) {
         Debug.traceStart { "InvokeInternalListeners" }
@@ -80,7 +80,7 @@ object CaptureSequences {
      * Efficient, inlined utility function for invoking a call on each of the listeners defined on a
      * [CaptureSequence] instance using the provided [RequestMetadata] object.
      */
-    inline fun <T> CaptureSequence<T>.invokeOnRequest(
+    public inline fun <T> CaptureSequence<T>.invokeOnRequest(
         request: RequestMetadata,
         crossinline fn: (Request.Listener) -> Any
     ) {

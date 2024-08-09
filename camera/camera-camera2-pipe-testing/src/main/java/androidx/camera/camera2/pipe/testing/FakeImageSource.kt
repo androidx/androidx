@@ -24,24 +24,24 @@ import androidx.camera.camera2.pipe.media.ImageReaderImageSource
 import androidx.camera.camera2.pipe.media.ImageSource
 import kotlinx.atomicfu.atomic
 
-class FakeImageSource
+public class FakeImageSource
 private constructor(
     private val fakeImageReader: FakeImageReader,
     private val imageSource: ImageSource
 ) : ImageSource by imageSource {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic<Boolean>(false)
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = closed.value
 
-    val streamId: StreamId
+    public val streamId: StreamId
         get() = fakeImageReader.streamId
 
     /** Retrieve a list of every image that has been created from this FakeImageSource. */
-    val images: List<FakeImage>
+    public val images: List<FakeImage>
         get() = fakeImageReader.images
 
-    fun simulateImage(timestamp: Long, outputId: OutputId? = null): FakeImage {
+    public fun simulateImage(timestamp: Long, outputId: OutputId? = null): FakeImage {
         return fakeImageReader.simulateImage(timestamp, outputId)
     }
 
@@ -53,10 +53,10 @@ private constructor(
 
     override fun toString(): String = "FakeImageSource-$debugId"
 
-    companion object {
+    public companion object {
         private val debugIds = atomic(0)
 
-        fun create(
+        public fun create(
             streamFormat: StreamFormat,
             streamId: StreamId,
             outputs: Map<OutputId, Size>,

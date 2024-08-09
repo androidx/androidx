@@ -26,7 +26,7 @@ import kotlin.reflect.KClass
  * This class implements the [RequestFailure] interface by passing the package-private
  * [CaptureFailure] object.
  */
-class AndroidCaptureFailure(
+public class AndroidCaptureFailure(
     override val requestMetadata: RequestMetadata,
     private val captureFailure: CaptureFailure
 ) : RequestFailure {

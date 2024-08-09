@@ -32,7 +32,7 @@ import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageWriterWrapper] using an [ImageWriter]. */
 @RequiresApi(Build.VERSION_CODES.M)
-class AndroidImageWriter
+public class AndroidImageWriter
 private constructor(
     private val imageWriter: ImageWriter,
     private val inputStreamId: InputStreamId
@@ -76,7 +76,7 @@ private constructor(
         onImageReleasedListener.value?.onImageReleased(inputStreamId)
     }
 
-    override fun close() = imageWriter.close()
+    override fun close(): Unit = imageWriter.close()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> unwrapAs(type: KClass<T>): T? =
@@ -89,13 +89,13 @@ private constructor(
         return "ImageWriter-${StreamFormat(imageWriter.format).name}-$inputStreamId"
     }
 
-    companion object {
+    public companion object {
         /**
          * Create and configure a new ImageWriter instance as an [ImageWriter].
          *
          * See [ImageWriter.newInstance] for details.
          */
-        fun create(
+        public fun create(
             surface: Surface,
             inputStreamId: InputStreamId,
             maxImages: Int,

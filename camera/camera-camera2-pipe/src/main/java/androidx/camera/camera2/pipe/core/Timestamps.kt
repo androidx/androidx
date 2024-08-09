@@ -24,21 +24,25 @@ import javax.inject.Singleton
 
 /** A nanosecond timestamp */
 @JvmInline
-value class TimestampNs constructor(val value: Long) {
-    inline operator fun minus(other: TimestampNs): DurationNs = DurationNs(value - other.value)
+public value class TimestampNs constructor(public val value: Long) {
+    public inline operator fun minus(other: TimestampNs): DurationNs =
+        DurationNs(value - other.value)
 
-    inline operator fun plus(other: DurationNs): TimestampNs = TimestampNs(value + other.value)
+    public inline operator fun plus(other: DurationNs): TimestampNs =
+        TimestampNs(value + other.value)
 }
 
 @JvmInline
-value class DurationNs(val value: Long) {
-    inline operator fun minus(other: DurationNs): DurationNs = DurationNs(value - other.value)
+public value class DurationNs(public val value: Long) {
+    public inline operator fun minus(other: DurationNs): DurationNs =
+        DurationNs(value - other.value)
 
-    inline operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
+    public inline operator fun plus(other: DurationNs): DurationNs = DurationNs(value + other.value)
 
-    inline operator fun plus(other: TimestampNs): TimestampNs = TimestampNs(value + other.value)
+    public inline operator fun plus(other: TimestampNs): TimestampNs =
+        TimestampNs(value + other.value)
 
-    operator fun compareTo(other: DurationNs): Int {
+    public operator fun compareTo(other: DurationNs): Int {
         return if (value == other.value) {
             0
         } else if (value < other.value) {
@@ -48,32 +52,33 @@ value class DurationNs(val value: Long) {
         }
     }
 
-    companion object {
-        inline fun fromMs(durationMs: Long) = DurationNs(durationMs * 1_000_000L)
+    public companion object {
+        public inline fun fromMs(durationMs: Long): DurationNs = DurationNs(durationMs * 1_000_000L)
     }
 }
 
-interface TimeSource {
-    fun now(): TimestampNs
+public interface TimeSource {
+    public fun now(): TimestampNs
 }
 
 @Singleton
-class SystemTimeSource @Inject constructor() : TimeSource {
-    override fun now() = TimestampNs(SystemClock.elapsedRealtimeNanos())
+public class SystemTimeSource @Inject constructor() : TimeSource {
+    override fun now(): TimestampNs = TimestampNs(SystemClock.elapsedRealtimeNanos())
 }
 
-object Timestamps {
-    inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
+public object Timestamps {
+    public inline fun now(timeSource: TimeSource): TimestampNs = timeSource.now()
 
-    inline fun DurationNs.formatNs(): String = "$this ns"
+    public inline fun DurationNs.formatNs(): String = "$this ns"
 
-    inline fun DurationNs.formatMs(decimals: Int = 3): String =
+    public inline fun DurationNs.formatMs(decimals: Int = 3): String =
         "%.${decimals}f ms".format(null, this.value / 1_000_000.0)
 
-    inline fun TimestampNs.formatNs(): String = "$this ns"
+    public inline fun TimestampNs.formatNs(): String = "$this ns"
 
-    inline fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
+    public inline fun TimestampNs.formatMs(): String = "${this.value / 1_000_000} ms"
 
-    inline fun TimestampNs.measureNow(timeSource: TimeSource = SystemTimeSource()) =
-        now(timeSource) - this
+    public inline fun TimestampNs.measureNow(
+        timeSource: TimeSource = SystemTimeSource()
+    ): DurationNs = now(timeSource) - this
 }

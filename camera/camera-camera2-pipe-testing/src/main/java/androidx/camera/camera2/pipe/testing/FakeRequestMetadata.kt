@@ -33,7 +33,7 @@ internal fun nextFakeRequestNumber(): RequestNumber =
     RequestNumber(fakeRequestNumbers.incrementAndGet())
 
 /** Utility class for interacting with objects require specific [CaptureRequest] metadata. */
-class FakeRequestMetadata(
+public class FakeRequestMetadata(
     private val requestParameters: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val template: RequestTemplate = RequestTemplate(0),
@@ -50,9 +50,9 @@ class FakeRequestMetadata(
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
 
-    companion object {
+    public companion object {
         /** Initialize FakeRequestMetadata based on a specific [Request] object. */
-        fun from(
+        public fun from(
             request: Request,
             streamToSurfaces: Map<StreamId, Surface>,
             repeating: Boolean = false

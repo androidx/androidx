@@ -28,7 +28,7 @@ import kotlin.reflect.KClass
  * of the object is managed by CameraPipe.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface UnsafeWrapper {
+public interface UnsafeWrapper {
     /**
      * Attempt to unwrap this object into an underlying type.
      *
@@ -39,5 +39,5 @@ interface UnsafeWrapper {
      *
      * @return unwrapped object matching T or null
      */
-    fun <T : Any> unwrapAs(type: KClass<T>): T?
+    public fun <T : Any> unwrapAs(type: KClass<T>): T?
 }

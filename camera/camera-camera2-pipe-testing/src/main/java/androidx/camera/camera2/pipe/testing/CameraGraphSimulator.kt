@@ -55,21 +55,21 @@ import kotlinx.coroutines.withTimeout
  * of a [CameraGraph]. Tests using CameraGraphSimulators should also close them after they've
  * completed their use of the simulator.
  */
-class CameraGraphSimulator
+public class CameraGraphSimulator
 internal constructor(
     private val cameraMetadata: CameraMetadata,
     private val cameraController: CameraControllerSimulator,
     private val fakeImageReaders: FakeImageReaders,
     private val fakeImageSources: FakeImageSources,
     private val realCameraGraph: CameraGraph,
-    val config: CameraGraph.Config,
+    public val config: CameraGraph.Config,
 ) : CameraGraph by realCameraGraph, AutoCloseable {
 
     @Deprecated("CameraGraphSimulator directly implements CameraGraph")
-    val cameraGraph: CameraGraph
+    public val cameraGraph: CameraGraph
         get() = this
 
-    companion object {
+    public companion object {
         /**
          * Create a CameraGraphSimulator using the current [TestScope] provided by a Kotlin
          * `runTest` block. This will create the [CameraPipe] and [CameraGraph] using the parent
@@ -77,7 +77,7 @@ internal constructor(
          * test completes and allows the test to provide more fine grained control over the
          * interactions.
          */
-        fun create(
+        public fun create(
             testScope: TestScope,
             testContext: Context,
             cameraMetadata: CameraMetadata,
@@ -105,7 +105,7 @@ internal constructor(
     private val fakeSurfaces = FakeSurfaces()
 
     /** Return true if this [CameraGraphSimulator] has been closed. */
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = closed.value
 
     override fun close() {
@@ -115,22 +115,22 @@ internal constructor(
         }
     }
 
-    fun simulateCameraStarted() {
+    public fun simulateCameraStarted() {
         check(!closed.value) { "Cannot call simulateCameraStarted on $this after close." }
         cameraController.simulateCameraStarted()
     }
 
-    fun simulateCameraStopped() {
+    public fun simulateCameraStopped() {
         check(!closed.value) { "Cannot call simulateCameraStopped on $this after close." }
         cameraController.simulateCameraStopped()
     }
 
-    fun simulateCameraModified() {
+    public fun simulateCameraModified() {
         check(!closed.value) { "Cannot call simulateCameraModified on $this after close." }
         cameraController.simulateCameraModified()
     }
 
-    fun simulateCameraError(graphStateError: GraphStateError) {
+    public fun simulateCameraError(graphStateError: GraphStateError) {
         check(!closed.value) { "Cannot call simulateCameraError on $this after close." }
         cameraController.simulateCameraError(graphStateError)
     }
@@ -139,7 +139,7 @@ internal constructor(
      * Configure all streams in the CameraGraph with fake surfaces that match the size of the first
      * output stream.
      */
-    fun initializeSurfaces() {
+    public fun initializeSurfaces() {
         check(!closed.value) {
             "Cannot call simulateFakeSurfaceConfiguration on $this after close."
         }
@@ -166,7 +166,7 @@ internal constructor(
         }
     }
 
-    suspend fun simulateNextFrame(
+    public suspend fun simulateNextFrame(
         advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
     ): FrameSimulator =
         generateNextFrame().also {
@@ -196,7 +196,7 @@ internal constructor(
     }
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */
-    fun simulateImage(
+    public fun simulateImage(
         streamId: StreamId,
         imageTimestamp: Long,
         outputId: OutputId? = null,
@@ -212,7 +212,11 @@ internal constructor(
      * [physicalCameraId] should be used to select the correct output id when simulating images from
      * multi-resolution [ImageReader]s and [ImageSource]s
      */
-    fun simulateImages(request: Request, imageTimestamp: Long, physicalCameraId: CameraId? = null) {
+    public fun simulateImages(
+        request: Request,
+        imageTimestamp: Long,
+        physicalCameraId: CameraId? = null
+    ) {
         var imageSimulated = false
         for (streamId in request.streams) {
             val outputId =
@@ -265,17 +269,17 @@ internal constructor(
      * each frame, and allows tests to simulate unusual ordering or delays that may appear under
      * real conditions.
      */
-    inner class FrameSimulator
+    public inner class FrameSimulator
     internal constructor(
-        val request: Request,
-        val requestSequence: FakeCaptureSequence,
+        public val request: Request,
+        public val requestSequence: FakeCaptureSequence,
     ) {
         private val requestMetadata = requestSequence.requestMetadata[request]!!
 
-        val frameNumber: FrameNumber = FrameNumber(frameCounter.incrementAndGet())
-        var timestampNanos: Long? = null
+        public val frameNumber: FrameNumber = FrameNumber(frameCounter.incrementAndGet())
+        public var timestampNanos: Long? = null
 
-        fun simulateStarted(timestampNanos: Long) {
+        public fun simulateStarted(timestampNanos: Long) {
             this.timestampNanos = timestampNanos
 
             requestSequence.invokeOnRequest(requestMetadata) {
@@ -283,7 +287,7 @@ internal constructor(
             }
         }
 
-        fun simulatePartialCaptureResult(
+        public fun simulatePartialCaptureResult(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
@@ -300,7 +304,7 @@ internal constructor(
             }
         }
 
-        fun simulateTotalCaptureResult(
+        public fun simulateTotalCaptureResult(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
@@ -324,7 +328,7 @@ internal constructor(
             }
         }
 
-        fun simulateComplete(
+        public fun simulateComplete(
             resultMetadata: Map<CaptureResult.Key<*>, Any?>,
             extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
             extraMetadata: Map<*, Any?> = emptyMap<Any, Any>(),
@@ -348,23 +352,23 @@ internal constructor(
             }
         }
 
-        fun simulateFailure(requestFailure: RequestFailure) {
+        public fun simulateFailure(requestFailure: RequestFailure) {
             requestSequence.invokeOnRequest(requestMetadata) {
                 it.onFailed(requestMetadata, frameNumber, requestFailure)
             }
         }
 
-        fun simulateBufferLoss(streamId: StreamId) {
+        public fun simulateBufferLoss(streamId: StreamId) {
             requestSequence.invokeOnRequest(requestMetadata) {
                 it.onBufferLost(requestMetadata, frameNumber, streamId)
             }
         }
 
-        fun simulateAbort() {
+        public fun simulateAbort() {
             requestSequence.invokeOnRequest(requestMetadata) { it.onAborted(request) }
         }
 
-        fun simulateImage(
+        public fun simulateImage(
             streamId: StreamId,
             imageTimestamp: Long? = null,
             outputId: OutputId? = null,
@@ -381,7 +385,10 @@ internal constructor(
          * Utility function to simulate the production of [FakeImage]s for all outputs on a Frame.
          * Use [simulateImage] to directly control simulation of each individual image.
          */
-        fun simulateImages(imageTimestamp: Long? = null, physicalCameraId: CameraId? = null) {
+        public fun simulateImages(
+            imageTimestamp: Long? = null,
+            physicalCameraId: CameraId? = null
+        ) {
             val timestamp = imageTimestamp ?: timestampNanos
             checkNotNull(timestamp) {
                 "Cannot simulate an image without a timestamp! Provide an " +

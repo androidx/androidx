@@ -125,15 +125,16 @@ internal class ImageReaderImageSources @Inject constructor(private val threads: 
 }
 
 /** An ImageReaderImageSource implements an [ImageSource] using an [ImageReader] */
-class ImageReaderImageSource(
+public class ImageReaderImageSource(
     private val imageReader: ImageReaderWrapper,
     private val maxImages: Int,
 ) : ImageSource {
-    companion object {
+    public companion object {
         private const val IMAGE_SOURCE_CAPACITY_MARGIN = 2
-        const val IMAGE_SOURCE_CAPACITY = IMAGEREADER_MAX_CAPACITY - IMAGE_SOURCE_CAPACITY_MARGIN
+        public const val IMAGE_SOURCE_CAPACITY: Int =
+            IMAGEREADER_MAX_CAPACITY - IMAGE_SOURCE_CAPACITY_MARGIN
 
-        fun create(imageReader: ImageReaderWrapper): ImageSource {
+        public fun create(imageReader: ImageReaderWrapper): ImageSource {
             // Reduce the maxImages of the ImageSource relative to the ImageReader to ensure there
             // is enough headroom to avoid acquiring too many images that could otherwise stall the
             // camera or trigger IllegalStateExceptions from the underlying ImageReader.

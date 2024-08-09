@@ -27,22 +27,22 @@ import androidx.annotation.RestrictTo
  * These interfaces are read-only.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface Metadata {
-    operator fun <T> get(key: Key<T>): T?
+public interface Metadata {
+    public operator fun <T> get(key: Key<T>): T?
 
-    fun <T> getOrDefault(key: Key<T>, default: T): T
+    public fun <T> getOrDefault(key: Key<T>, default: T): T
 
     /** Metadata keys provide values or controls that are provided or computed by CameraPipe. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    class Key<T> private constructor(private val name: String) {
-        companion object {
+    public class Key<T> private constructor(private val name: String) {
+        public companion object {
             @JvmStatic internal val keys: MutableSet<String> = HashSet()
 
             /**
              * This will create a new Key instance, and will check to see that the key has not been
              * previously created somewhere else.
              */
-            fun <T> create(name: String): Key<T> {
+            public fun <T> create(name: String): Key<T> {
                 synchronized(keys) { check(keys.add(name)) { "$name is already defined!" } }
                 return Key(name)
             }

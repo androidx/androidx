@@ -73,6 +73,5 @@ androidx {
     description = "Testing components for the Camera2 Pipe Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-    legacyDisableKotlinStrictApiMode = true
     doNotDocumentReason = "Not shipped externally"
 }

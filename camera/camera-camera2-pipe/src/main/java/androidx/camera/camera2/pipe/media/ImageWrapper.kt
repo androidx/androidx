@@ -22,30 +22,30 @@ import java.nio.ByteBuffer
 /**
  * Wrapper interfaces that mirrors the primary read-only properties of {@link android.media.Image}.
  */
-interface ImageWrapper : UnsafeWrapper, AutoCloseable {
+public interface ImageWrapper : UnsafeWrapper, AutoCloseable {
     /** @see {@link android.media.Image.getWidth} */
-    val width: Int
+    public val width: Int
 
     /** @see {@link android.media.Image.getHeight} */
-    val height: Int
+    public val height: Int
 
     /** @see {@link android.media.Image.getFormat} */
-    val format: Int
+    public val format: Int
 
     /** @see {@link android.media.Image.getPlanes} */
-    val planes: List<ImagePlane>
+    public val planes: List<ImagePlane>
 
     /** @see {@link android.media.Image.getTimestamp} */
-    val timestamp: Long
+    public val timestamp: Long
 }
 
-interface ImagePlane : UnsafeWrapper {
+public interface ImagePlane : UnsafeWrapper {
     /** @see {@link android.media.Image.Plane.getRowStride */
-    val rowStride: Int
+    public val rowStride: Int
 
     /** @see {@link android.media.Image.Plane.getPixelStride */
-    val pixelStride: Int
+    public val pixelStride: Int
 
     /** @see {@link android.media.Image.Plane.getBuffer */
-    val buffer: ByteBuffer?
+    public val buffer: ByteBuffer?
 }

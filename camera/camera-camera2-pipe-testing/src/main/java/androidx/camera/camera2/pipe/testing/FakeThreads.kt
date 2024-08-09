@@ -25,13 +25,13 @@ import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 
-object FakeThreads {
-    fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
+public object FakeThreads {
+    public fun fromDispatcher(dispatcher: CoroutineDispatcher): Threads {
         val scope = CoroutineScope(dispatcher + CoroutineName("CXCP-TestScope"))
         return create(scope, dispatcher)
     }
 
-    fun fromTestScope(scope: TestScope): Threads {
+    public fun fromTestScope(scope: TestScope): Threads {
         val dispatcher = StandardTestDispatcher(scope.testScheduler, "CXCP-TestScope")
         return create(scope, dispatcher)
     }

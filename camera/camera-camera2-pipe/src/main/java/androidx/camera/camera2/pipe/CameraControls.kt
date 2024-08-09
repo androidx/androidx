@@ -27,92 +27,99 @@ import androidx.camera.camera2.pipe.Result3A.Status
 /** An enum to match the CameraMetadata.CONTROL_AF_MODE_* constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class AfMode(val value: Int) {
-    fun isOn(): Boolean {
+public value class AfMode(public val value: Int) {
+    public fun isOn(): Boolean {
         return value != CameraMetadata.CONTROL_AF_MODE_OFF
     }
 
-    fun isContinuous(): Boolean {
+    public fun isContinuous(): Boolean {
         return value == CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO ||
             value == CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE
     }
 
-    companion object {
-        val OFF = AfMode(CameraMetadata.CONTROL_AF_MODE_OFF)
-        val AUTO = AfMode(CameraMetadata.CONTROL_AF_MODE_AUTO)
-        val MACRO = AfMode(CameraMetadata.CONTROL_AF_MODE_MACRO)
-        val CONTINUOUS_VIDEO = AfMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
-        val CONTINUOUS_PICTURE = AfMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
-        val EDOF = AfMode(CameraMetadata.CONTROL_AF_MODE_EDOF)
+    public companion object {
+        public val OFF: AfMode = AfMode(CameraMetadata.CONTROL_AF_MODE_OFF)
+        public val AUTO: AfMode = AfMode(CameraMetadata.CONTROL_AF_MODE_AUTO)
+        public val MACRO: AfMode = AfMode(CameraMetadata.CONTROL_AF_MODE_MACRO)
+        public val CONTINUOUS_VIDEO: AfMode =
+            AfMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_VIDEO)
+        public val CONTINUOUS_PICTURE: AfMode =
+            AfMode(CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE)
+        public val EDOF: AfMode = AfMode(CameraMetadata.CONTROL_AF_MODE_EDOF)
+        public val values: List<AfMode> =
+            listOf(OFF, AUTO, MACRO, CONTINUOUS_VIDEO, CONTINUOUS_PICTURE, EDOF)
 
-        val values = listOf(OFF, AUTO, MACRO, CONTINUOUS_VIDEO, CONTINUOUS_PICTURE, EDOF)
-
-        @JvmStatic fun fromIntOrNull(value: Int): AfMode? = values.firstOrNull { it.value == value }
+        @JvmStatic
+        public fun fromIntOrNull(value: Int): AfMode? = values.firstOrNull { it.value == value }
     }
 }
 
 /** An enum to match the CameraMetadata.CONTROL_AE_MODE_* constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class AeMode(val value: Int) {
-    fun isOn(): Boolean {
+public value class AeMode(public val value: Int) {
+    public fun isOn(): Boolean {
         return value != CameraMetadata.CONTROL_AE_MODE_OFF
     }
 
-    companion object {
-        val OFF = AeMode(CameraMetadata.CONTROL_AE_MODE_OFF)
-        val ON = AeMode(CameraMetadata.CONTROL_AE_MODE_ON)
-        val ON_ALWAYS_FLASH = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
-        val ON_AUTO_FLASH = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH)
-        val ON_AUTO_FLASH_REDEYE = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE)
-        val ON_EXTERNAL_FLASH = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
+    public companion object {
+        public val OFF: AeMode = AeMode(CameraMetadata.CONTROL_AE_MODE_OFF)
+        public val ON: AeMode = AeMode(CameraMetadata.CONTROL_AE_MODE_ON)
+        public val ON_ALWAYS_FLASH: AeMode = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+        public val ON_AUTO_FLASH: AeMode = AeMode(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH)
+        public val ON_AUTO_FLASH_REDEYE: AeMode =
+            AeMode(CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE)
+        public val ON_EXTERNAL_FLASH: AeMode =
+            AeMode(CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
 
-        val values =
+        public val values: List<AeMode> =
             listOf(OFF, ON, ON_AUTO_FLASH, ON_ALWAYS_FLASH, ON_AUTO_FLASH_REDEYE, ON_EXTERNAL_FLASH)
 
-        @JvmStatic fun fromIntOrNull(value: Int): AeMode? = values.firstOrNull { it.value == value }
+        @JvmStatic
+        public fun fromIntOrNull(value: Int): AeMode? = values.firstOrNull { it.value == value }
     }
 }
 
 /** An enum to match the CameraMetadata.CONTROL_AWB_MODE_* constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class AwbMode(val value: Int) {
-    fun isOn(): Boolean {
+public value class AwbMode(public val value: Int) {
+    public fun isOn(): Boolean {
         return value != CameraMetadata.CONTROL_AWB_MODE_OFF
     }
 
-    companion object {
-        val OFF = AwbMode(CameraMetadata.CONTROL_AWB_MODE_OFF)
-        val AUTO = AwbMode(CameraMetadata.CONTROL_AWB_MODE_AUTO)
-        val CLOUDY_DAYLIGHT = AwbMode(CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT)
-        val DAYLIGHT = AwbMode(CameraMetadata.CONTROL_AWB_MODE_DAYLIGHT)
-        val INCANDESCENT = AwbMode(CameraMetadata.CONTROL_AWB_MODE_INCANDESCENT)
-        val FLUORESCENT = AwbMode(CameraMetadata.CONTROL_AWB_MODE_FLUORESCENT)
-        val SHADE = AwbMode(CameraMetadata.CONTROL_AWB_MODE_SHADE)
-        val TWILIGHT = AwbMode(CameraMetadata.CONTROL_AWB_MODE_TWILIGHT)
+    public companion object {
+        public val OFF: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_OFF)
+        public val AUTO: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_AUTO)
+        public val CLOUDY_DAYLIGHT: AwbMode =
+            AwbMode(CameraMetadata.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT)
+        public val DAYLIGHT: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_DAYLIGHT)
+        public val INCANDESCENT: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_INCANDESCENT)
+        public val FLUORESCENT: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_FLUORESCENT)
+        public val SHADE: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_SHADE)
+        public val TWILIGHT: AwbMode = AwbMode(CameraMetadata.CONTROL_AWB_MODE_TWILIGHT)
 
-        val values =
+        public val values: List<AwbMode> =
             listOf(OFF, AUTO, CLOUDY_DAYLIGHT, DAYLIGHT, INCANDESCENT, FLUORESCENT, SHADE, TWILIGHT)
 
         @JvmStatic
-        fun fromIntOrNull(value: Int): AwbMode? = values.firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): AwbMode? = values.firstOrNull { it.value == value }
     }
 }
 
 /** An enum to match the CameraMetadata.FLASH_MODE_* constants. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class FlashMode(val value: Int) {
-    companion object {
-        val OFF = FlashMode(CameraMetadata.FLASH_MODE_OFF)
-        val SINGLE = FlashMode(CameraMetadata.FLASH_MODE_SINGLE)
-        val TORCH = FlashMode(CameraMetadata.FLASH_MODE_TORCH)
+public value class FlashMode(public val value: Int) {
+    public companion object {
+        public val OFF: FlashMode = FlashMode(CameraMetadata.FLASH_MODE_OFF)
+        public val SINGLE: FlashMode = FlashMode(CameraMetadata.FLASH_MODE_SINGLE)
+        public val TORCH: FlashMode = FlashMode(CameraMetadata.FLASH_MODE_TORCH)
 
         private val values = listOf(OFF, SINGLE, TORCH)
 
         @JvmStatic
-        fun fromIntOrNull(value: Int): FlashMode? = values.firstOrNull { it.value == value }
+        public fun fromIntOrNull(value: Int): FlashMode? = values.firstOrNull { it.value == value }
     }
 }
 
@@ -127,18 +134,18 @@ value class FlashMode(val value: Int) {
  * #CONTROL_AE_MODE_ON
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class TorchState private constructor() {
-    companion object {
-        val ON = TorchState()
-        val OFF = TorchState()
+public class TorchState private constructor() {
+    public companion object {
+        public val ON: TorchState = TorchState()
+        public val OFF: TorchState = TorchState()
     }
 }
 
 /** Requirement to consider prior to locking auto-exposure, auto-focus and auto-whitebalance. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class Lock3ABehavior private constructor(val value: Int) {
-    companion object {
+public value class Lock3ABehavior private constructor(public val value: Int) {
+    public companion object {
         /**
          * This requirement means that we want to lock the values for 3A immediately.
          *
@@ -150,16 +157,16 @@ value class Lock3ABehavior private constructor(val value: Int) {
          * [android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER] to
          * [android.hardware.camera2.CaptureRequest.CONTROL_AF_TRIGGER_START].
          */
-        val IMMEDIATE = Lock3ABehavior(1)
+        public val IMMEDIATE: Lock3ABehavior = Lock3ABehavior(1)
 
         /**
          * Lock 3A values after their current scan is finished. If there is no active ongoing scan
          * then the values will be locked to the current values.
          */
-        val AFTER_CURRENT_SCAN = Lock3ABehavior(2)
+        public val AFTER_CURRENT_SCAN: Lock3ABehavior = Lock3ABehavior(2)
 
         /** Initiate a new scan, and then lock the values once the scan is done. */
-        val AFTER_NEW_SCAN = Lock3ABehavior(3)
+        public val AFTER_NEW_SCAN: Lock3ABehavior = Lock3ABehavior(3)
     }
 }
 
@@ -174,7 +181,7 @@ value class Lock3ABehavior private constructor(val value: Int) {
  *   pairs associated with the final result i.e. [TotalCaptureResult] of this frame.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null) {
+public data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null) {
     /**
      * Enum to know the status of 3A operation in case the method returns before the desired
      * operation is complete. The reason could be that the operation was talking a lot longer and an
@@ -182,13 +189,13 @@ data class Result3A(val status: Status, val frameMetadata: FrameMetadata? = null
      * etc.
      */
     @JvmInline
-    value class Status private constructor(val value: Int) {
-        companion object {
-            val OK = Status(0)
-            val FRAME_LIMIT_REACHED = Status(1)
-            val TIME_LIMIT_REACHED = Status(2)
-            val SUBMIT_CANCELLED = Status(3)
-            val SUBMIT_FAILED = Status(4)
+    public value class Status private constructor(public val value: Int) {
+        public companion object {
+            public val OK: Status = Status(0)
+            public val FRAME_LIMIT_REACHED: Status = Status(1)
+            public val TIME_LIMIT_REACHED: Status = Status(2)
+            public val SUBMIT_CANCELLED: Status = Status(3)
+            public val SUBMIT_FAILED: Status = Status(4)
         }
     }
 }

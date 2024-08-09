@@ -24,15 +24,15 @@ import androidx.annotation.RestrictTo
  * [CameraStream]s can be used to build [Request]s that are sent to a [CameraGraph].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface StreamGraph {
-    val streams: List<CameraStream>
-    val streamIds: Set<StreamId>
-    val inputs: List<InputStream>
-    val outputs: List<OutputStream>
+public interface StreamGraph {
+    public val streams: List<CameraStream>
+    public val streamIds: Set<StreamId>
+    public val inputs: List<InputStream>
+    public val outputs: List<OutputStream>
 
-    operator fun get(config: CameraStream.Config): CameraStream?
+    public operator fun get(config: CameraStream.Config): CameraStream?
 
-    operator fun get(streamId: StreamId): CameraStream? = streams.find { it.id == streamId }
+    public operator fun get(streamId: StreamId): CameraStream? = streams.find { it.id == streamId }
 
-    operator fun get(outputId: OutputId): OutputStream? = outputs.find { it.id == outputId }
+    public operator fun get(outputId: OutputId): OutputStream? = outputs.find { it.id == outputId }
 }

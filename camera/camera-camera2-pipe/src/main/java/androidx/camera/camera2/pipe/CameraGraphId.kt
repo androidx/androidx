@@ -25,10 +25,10 @@ import kotlinx.atomicfu.atomic
  * memory leaks and circular dependencies.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CameraGraphId private constructor(private val name: String) {
+public class CameraGraphId private constructor(private val name: String) {
     override fun toString(): String = name
 
-    companion object {
+    public companion object {
         private val cameraGraphIds = atomic(0)
 
         /**
@@ -37,7 +37,7 @@ class CameraGraphId private constructor(private val name: String) {
          * directly as the toString representation for a [CameraGraph].
          */
         @JvmStatic
-        fun nextId(): CameraGraphId {
+        public fun nextId(): CameraGraphId {
             return CameraGraphId("CameraGraph-${cameraGraphIds.incrementAndGet()}")
         }
     }

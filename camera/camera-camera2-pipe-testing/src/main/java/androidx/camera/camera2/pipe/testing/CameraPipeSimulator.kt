@@ -36,17 +36,17 @@ import kotlinx.coroutines.test.TestScope
  * test complicated interactions with [CameraPipe] and [CameraGraph] and to simulate how code
  * responds to a range of behaviors by the underlying camera within unit tests.
  */
-class CameraPipeSimulator
+public class CameraPipeSimulator
 private constructor(
     private val cameraPipeInternal: CameraPipe,
     private val fakeCameraBackend: FakeCameraBackend,
-    val fakeSurfaces: FakeSurfaces,
-    val fakeImageReaders: FakeImageReaders,
-    val fakeImageSources: FakeImageSources,
+    public val fakeSurfaces: FakeSurfaces,
+    public val fakeImageReaders: FakeImageReaders,
+    public val fakeImageSources: FakeImageSources,
 ) : CameraPipe, AutoCloseable {
     private val closed = atomic(false)
     private val _cameraGraphs = mutableListOf<CameraGraphSimulator>()
-    val cameraGraphs: List<CameraGraphSimulator>
+    public val cameraGraphs: List<CameraGraphSimulator>
         get() = _cameraGraphs
 
     override fun create(config: CameraGraph.Config): CameraGraphSimulator {
@@ -91,7 +91,7 @@ private constructor(
         }
 
     /** Directly create and return a new [CameraGraph] and [CameraGraphSimulator]. */
-    fun createCameraGraphSimulator(graphConfig: CameraGraph.Config): CameraGraphSimulator {
+    public fun createCameraGraphSimulator(graphConfig: CameraGraph.Config): CameraGraphSimulator {
         check(!closed.value) { "Cannot interact with CameraPipeSimulator after close!" }
         val cameraGraph = cameraPipeInternal.create(graphConfig)
         val cameraController =
@@ -103,7 +103,7 @@ private constructor(
     }
 
     /** Directly create and return a new set of [CameraGraph]s and [CameraGraphSimulator]s. */
-    fun createCameraGraphSimulators(
+    public fun createCameraGraphSimulators(
         config: CameraGraph.ConcurrentConfig
     ): List<CameraGraphSimulator> = config.graphConfigs.map { createCameraGraphSimulator(it) }
 
@@ -129,17 +129,17 @@ private constructor(
         return cameraGraphSimulator
     }
 
-    fun checkImageReadersClosed() {
+    public fun checkImageReadersClosed() {
         fakeImageSources.checkImageSourcesClosed()
         fakeImageReaders.checkImageReadersClosed()
     }
 
-    fun checkImagesClosed() {
+    public fun checkImagesClosed() {
         fakeImageSources.checkImagesClosed()
         fakeImageReaders.checkImagesClosed()
     }
 
-    fun checkCameraGraphsClosed() {
+    public fun checkCameraGraphsClosed() {
         for (cameraGraph in _cameraGraphs) {
             check(cameraGraph.isClosed) { "$cameraGraph was not closed!" }
         }
@@ -155,8 +155,8 @@ private constructor(
         return "CameraPipeSimulator($cameraPipeInternal)"
     }
 
-    companion object {
-        fun create(
+    public companion object {
+        public fun create(
             testScope: TestScope,
             testContext: Context,
             fakeCameras: List<CameraMetadata> = listOf(FakeCameraMetadata())

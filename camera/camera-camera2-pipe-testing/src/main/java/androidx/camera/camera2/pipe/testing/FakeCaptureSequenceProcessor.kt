@@ -40,7 +40,7 @@ import kotlinx.coroutines.withTimeout
  * This allows kotlin tests to check sequences of interactions that dispatch in the background
  * without blocking between events.
  */
-class FakeCaptureSequenceProcessor(
+public class FakeCaptureSequenceProcessor(
     private val cameraId: CameraId = CameraId("test-camera"),
     private val defaultTemplate: RequestTemplate = RequestTemplate(1)
 ) : CaptureSequenceProcessor<Request, FakeCaptureSequence> {
@@ -57,14 +57,14 @@ class FakeCaptureSequenceProcessor(
 
     @GuardedBy("lock") private var _rejectRequests = false
 
-    var rejectRequests: Boolean
+    public var rejectRequests: Boolean
         get() = synchronized(lock) { _rejectRequests }
         set(value) {
             synchronized(lock) { _rejectRequests = value }
         }
 
     private var _surfaceMap: Map<StreamId, Surface> = emptyMap()
-    var surfaceMap: Map<StreamId, Surface>
+    public var surfaceMap: Map<StreamId, Surface>
         get() = synchronized(lock) { _surfaceMap }
         set(value) =
             synchronized(lock) {
@@ -147,10 +147,10 @@ class FakeCaptureSequenceProcessor(
     }
 
     /** Get the next event from queue with an option to specify a timeout for tests. */
-    suspend fun nextEvent(timeMillis: Long = 500): Event =
+    public suspend fun nextEvent(timeMillis: Long = 500): Event =
         withTimeout(timeMillis) { eventChannel.receive() }
 
-    suspend fun nextRequestSequence(): FakeCaptureSequence {
+    public suspend fun nextRequestSequence(): FakeCaptureSequence {
         while (true) {
             val pending: Deferred<FakeCaptureSequence>
             synchronized(lock) {
@@ -260,7 +260,7 @@ class FakeCaptureSequenceProcessor(
     }
 
     /** TODO: It's probably better to model this as a sealed class. */
-    data class Event(
+    public data class Event(
         val requestSequence: FakeCaptureSequence? = null,
         val rejected: Boolean = false,
         val abort: Boolean = false,
@@ -269,8 +269,8 @@ class FakeCaptureSequenceProcessor(
         val submit: Boolean = false
     )
 
-    companion object {
-        suspend fun FakeCaptureSequenceProcessor.awaitEvent(
+    public companion object {
+        public suspend fun FakeCaptureSequenceProcessor.awaitEvent(
             request: Request? = null,
             filter: (event: Event) -> Boolean
         ): Event {

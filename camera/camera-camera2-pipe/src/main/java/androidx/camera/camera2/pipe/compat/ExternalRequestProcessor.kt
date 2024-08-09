@@ -40,7 +40,7 @@ import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
-class ExternalCameraController(
+public class ExternalCameraController(
     private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
     private val graphListener: GraphListener,
@@ -57,7 +57,7 @@ class ExternalCameraController(
     override val cameraGraphId: CameraGraphId
         get() = graphId
 
-    override var isForeground = false
+    override var isForeground: Boolean = false
 
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {

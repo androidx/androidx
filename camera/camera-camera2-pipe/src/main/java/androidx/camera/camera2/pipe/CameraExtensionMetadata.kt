@@ -34,28 +34,28 @@ import androidx.annotation.RestrictTo
  * easier to test and reason about.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraExtensionMetadata : Metadata, UnsafeWrapper {
-    operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
+public interface CameraExtensionMetadata : Metadata, UnsafeWrapper {
+    public operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
 
-    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
+    public fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
 
-    val camera: CameraId
-    val cameraExtension: Int
+    public val camera: CameraId
+    public val cameraExtension: Int
 
-    val isRedacted: Boolean
-    val isPostviewSupported: Boolean
-    val isCaptureProgressSupported: Boolean
+    public val isRedacted: Boolean
+    public val isPostviewSupported: Boolean
+    public val isCaptureProgressSupported: Boolean
 
-    val keys: Set<CameraCharacteristics.Key<*>>
-    val requestKeys: Set<CaptureRequest.Key<*>>
-    val resultKeys: Set<CaptureResult.Key<*>>
+    public val keys: Set<CameraCharacteristics.Key<*>>
+    public val requestKeys: Set<CaptureRequest.Key<*>>
+    public val resultKeys: Set<CaptureResult.Key<*>>
 
     /** Get output sizes that can be used for high-quality capture requests. */
-    fun getOutputSizes(imageFormat: Int): Set<Size>
+    public fun getOutputSizes(imageFormat: Int): Set<Size>
 
     /** Get output sizes that can be used for repeating preview requests. */
-    fun getOutputSizes(klass: Class<*>): Set<Size>
+    public fun getOutputSizes(klass: Class<*>): Set<Size>
 
     /** Get sizes that may be used for the postview stream. */
-    fun getPostviewSizes(captureSize: Size, format: Int): Set<Size>
+    public fun getPostviewSizes(captureSize: Size, format: Int): Set<Size>
 }
