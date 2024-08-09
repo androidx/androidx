@@ -32,15 +32,15 @@ import androidx.camera.core.impl.Quirk
  *
  * @see androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio
  */
-class AspectRatioLegacyApi21Quirk : Quirk {
+public class AspectRatioLegacyApi21Quirk : Quirk {
     /** Get the corrected aspect ratio. */
     @TargetAspectRatio.Ratio
-    fun getCorrectedAspectRatio(): Int {
+    public fun getCorrectedAspectRatio(): Int {
         return TargetAspectRatio.RATIO_MAX_JPEG
     }
 
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata) =
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
             cameraMetadata.isHardwareLevelLegacy && Build.VERSION.SDK_INT == 21
     }
 }

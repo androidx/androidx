@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
  * OFF then ON after the capturing.
  */
 @UseCaseCameraScope
-class CapturePipelineTorchCorrection
+public class CapturePipelineTorchCorrection
 @Inject
 constructor(
     cameraProperties: CameraProperties,
@@ -115,7 +115,8 @@ constructor(
 
     private fun isTorchOn() = torchControl.torchStateLiveData.value == TorchState.ON
 
-    companion object {
-        val isEnabled = DeviceQuirks[TorchIsClosedAfterImageCapturingQuirk::class.java] != null
+    public companion object {
+        public val isEnabled: Boolean =
+            DeviceQuirks[TorchIsClosedAfterImageCapturingQuirk::class.java] != null
     }
 }

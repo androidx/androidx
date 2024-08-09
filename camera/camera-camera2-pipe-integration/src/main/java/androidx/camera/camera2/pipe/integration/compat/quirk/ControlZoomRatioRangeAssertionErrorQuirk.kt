@@ -37,10 +37,11 @@ import java.nio.BufferUnderflowException
  *
  * @see androidx.camera.camera2.pipe.integration.compat.workaround.getControlZoomRatioRangeSafely
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class ControlZoomRatioRangeAssertionErrorQuirk : Quirk {
-    companion object {
-        fun isEnabled() = isJioPhoneNext() || isSamsungA2s() || isVivo2039()
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class ControlZoomRatioRangeAssertionErrorQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean = isJioPhoneNext() || isSamsungA2s() || isVivo2039()
 
         private fun isJioPhoneNext() =
             isJioDevice() && Build.MODEL.startsWith("LS1542QW", ignoreCase = true)

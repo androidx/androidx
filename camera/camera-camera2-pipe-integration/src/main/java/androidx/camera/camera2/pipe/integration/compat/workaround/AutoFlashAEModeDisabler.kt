@@ -29,14 +29,14 @@ import dagger.Provides
  * A workaround to turn off the auto flash AE mode if device has the
  * [CrashWhenTakingPhotoWithAutoFlashAEModeQuirk] or [ImageCaptureFailWithAutoFlashQuirk].
  */
-interface AutoFlashAEModeDisabler {
-    fun getCorrectedAeMode(aeMode: Int): Int
+public interface AutoFlashAEModeDisabler {
+    public fun getCorrectedAeMode(aeMode: Int): Int
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideAEModeDisabler(cameraQuirks: CameraQuirks): AutoFlashAEModeDisabler {
+            public fun provideAEModeDisabler(cameraQuirks: CameraQuirks): AutoFlashAEModeDisabler {
                 val isFailWithAutoFlashQuirkEnabled =
                     cameraQuirks.quirks.contains(ImageCaptureFailWithAutoFlashQuirk::class.java)
 
@@ -51,7 +51,7 @@ interface AutoFlashAEModeDisabler {
     }
 }
 
-object AutoFlashAEModeDisablerImpl : AutoFlashAEModeDisabler {
+public object AutoFlashAEModeDisablerImpl : AutoFlashAEModeDisabler {
 
     /**
      * Get AE mode corrected by the [CrashWhenTakingPhotoWithAutoFlashAEModeQuirk] and
@@ -62,6 +62,6 @@ object AutoFlashAEModeDisablerImpl : AutoFlashAEModeDisabler {
     }
 }
 
-object NoOpAutoFlashAEModeDisabler : AutoFlashAEModeDisabler {
+public object NoOpAutoFlashAEModeDisabler : AutoFlashAEModeDisabler {
     override fun getCorrectedAeMode(aeMode: Int): Int = aeMode
 }

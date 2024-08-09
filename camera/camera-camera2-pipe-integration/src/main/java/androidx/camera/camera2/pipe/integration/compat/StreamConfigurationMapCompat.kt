@@ -33,7 +33,7 @@ import javax.inject.Inject
  * @param outputSizesCorrector [OutputSizesCorrector] class to perform correction on sizes.
  */
 @CameraScope
-class StreamConfigurationMapCompat
+public class StreamConfigurationMapCompat
 @Inject
 constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: OutputSizesCorrector) {
     private val tag = "StreamConfigurationMapCompat"
@@ -61,7 +61,7 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @see [ImageFormat]
      * @see [PixelFormat]
      */
-    fun getOutputFormats(): Array<Int>? {
+    public fun getOutputFormats(): Array<Int>? {
         return impl.getOutputFormats()
     }
 
@@ -73,7 +73,7 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @param format an image format from [ImageFormat] or [PixelFormat]
      * @return an array of supported sizes, or `null` if the `format` is not a supported output
      */
-    fun getOutputSizes(format: Int): Array<Size>? {
+    public fun getOutputSizes(format: Int): Array<Size>? {
         if (cachedFormatOutputSizes.contains(format)) {
             return cachedFormatOutputSizes[format]?.clone()
         }
@@ -101,7 +101,7 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      *   `klass` is not a supported output.
      * @throws NullPointerException if `klass` was `null`
      */
-    fun <T> getOutputSizes(klass: Class<T>): Array<Size>? {
+    public fun <T> getOutputSizes(klass: Class<T>): Array<Size>? {
         if (cachedClassOutputSizes.contains(klass)) {
             return cachedClassOutputSizes[klass]?.clone()
         }
@@ -128,7 +128,7 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
      * @param format an image format from [ImageFormat] or [PixelFormat]
      * @return an array of supported sizes, or `null` if the `format` is not a supported output
      */
-    fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
+    public fun getHighResolutionOutputSizes(format: Int): Array<Size>? {
         if (cachedFormatHighResolutionOutputSizes.contains(format)) {
             return cachedFormatHighResolutionOutputSizes[format]?.clone()
         }
@@ -144,12 +144,12 @@ constructor(map: StreamConfigurationMap?, private val outputSizesCorrector: Outp
         return outputSizes?.clone()
     }
 
-    fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
+    public fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
         return impl.getOutputMinFrameDuration(format, size)
     }
 
     /** Returns the [StreamConfigurationMap] represented by this object. */
-    fun toStreamConfigurationMap(): StreamConfigurationMap? {
+    public fun toStreamConfigurationMap(): StreamConfigurationMap? {
         return impl.unwrap()
     }
 

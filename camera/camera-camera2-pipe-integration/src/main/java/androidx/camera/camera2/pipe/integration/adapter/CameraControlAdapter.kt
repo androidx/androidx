@@ -62,7 +62,7 @@ import kotlinx.coroutines.async
 @SuppressLint("UnsafeOptInUsageError")
 @CameraScope
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
-class CameraControlAdapter
+public class CameraControlAdapter
 @Inject
 constructor(
     private val cameraProperties: CameraProperties,
@@ -74,7 +74,7 @@ constructor(
     private val threads: UseCaseThreads,
     private val zoomControl: ZoomControl,
     private val zslControl: ZslControl,
-    val camera2cameraControl: Camera2CameraControl,
+    public val camera2cameraControl: Camera2CameraControl,
 ) : CameraControlInternal {
     override fun getSensorRect(): Rect {
         return cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
@@ -162,7 +162,8 @@ constructor(
         captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
-    ) = stillCaptureRequestControl.issueCaptureRequests(captureConfigs, captureMode, flashType)
+    ): ListenableFuture<List<Void?>> =
+        stillCaptureRequestControl.issueCaptureRequests(captureConfigs, captureMode, flashType)
 
     override fun getSessionConfig(): SessionConfig {
         warn { "TODO: getSessionConfig is not yet supported" }

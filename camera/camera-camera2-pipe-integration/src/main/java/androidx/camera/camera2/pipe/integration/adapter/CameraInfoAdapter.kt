@@ -79,7 +79,7 @@ import kotlin.reflect.KClass
     "UnsafeOptInUsageError" // Suppressed due to experimental ExposureState
 )
 @CameraScope
-class CameraInfoAdapter
+public class CameraInfoAdapter
 @Inject
 constructor(
     private val cameraProperties: CameraProperties,
@@ -127,7 +127,7 @@ constructor(
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
-    override fun getCameraCharacteristics() =
+    override fun getCameraCharacteristics(): CameraCharacteristics =
         cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
 
     override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
@@ -182,10 +182,12 @@ constructor(
 
     override fun getCameraState(): LiveData<CameraState> = cameraStateAdapter.cameraState
 
-    override fun addSessionCaptureCallback(executor: Executor, callback: CameraCaptureCallback) =
-        cameraCallbackMap.addCaptureCallback(callback, executor)
+    override fun addSessionCaptureCallback(
+        executor: Executor,
+        callback: CameraCaptureCallback
+    ): Unit = cameraCallbackMap.addCaptureCallback(callback, executor)
 
-    override fun removeSessionCaptureCallback(callback: CameraCaptureCallback) =
+    override fun removeSessionCaptureCallback(callback: CameraCaptureCallback): Unit =
         cameraCallbackMap.removeCaptureCallback(callback)
 
     override fun getImplementationType(): String =
@@ -237,7 +239,7 @@ constructor(
         return cameraQuirks.quirks
     }
 
-    override fun isFocusMeteringSupported(action: FocusMeteringAction) =
+    override fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean =
         focusMeteringControl.isFocusMeteringSupported(action)
 
     override fun getSupportedFrameRateRanges(): Set<Range<Int>> =
@@ -306,7 +308,7 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> =
             mapOf(
                 DynamicRangeProfiles.STANDARD to SDR,
@@ -323,7 +325,7 @@ constructor(
                 DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
             )
 
-        fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
+        public fun <T : Any> CameraInfo.unwrapAs(type: KClass<T>): T? =
             when (this) {
                 is UnsafeWrapper -> this.unwrapAs(type)
                 is CameraInfoInternal -> {
@@ -336,7 +338,7 @@ constructor(
                 else -> null
             }
 
-        val CameraInfo.cameraId: CameraId?
+        public val CameraInfo.cameraId: CameraId?
             get() = this.unwrapAs(CameraMetadata::class)?.camera
     }
 }

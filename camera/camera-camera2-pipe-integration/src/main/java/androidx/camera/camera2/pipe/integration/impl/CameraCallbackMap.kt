@@ -46,12 +46,12 @@ import javax.inject.Inject
 
 /** A map of [CameraCaptureCallback] that are invoked on each [Request]. */
 @CameraScope
-class CameraCallbackMap @Inject constructor() : Request.Listener {
+public class CameraCallbackMap @Inject constructor() : Request.Listener {
     private val callbackMap = mutableMapOf<CameraCaptureCallback, Executor>()
 
     @Volatile private var callbacks: Map<CameraCaptureCallback, Executor> = mapOf()
 
-    fun addCaptureCallback(callback: CameraCaptureCallback, executor: Executor) {
+    public fun addCaptureCallback(callback: CameraCaptureCallback, executor: Executor) {
         check(!callbacks.contains(callback)) { "$callback was already registered!" }
 
         synchronized(callbackMap) {
@@ -60,7 +60,7 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
         }
     }
 
-    fun removeCaptureCallback(callback: CameraCaptureCallback) {
+    public fun removeCaptureCallback(callback: CameraCaptureCallback) {
         synchronized(callbackMap) {
             callbackMap.remove(callback)
             callbacks = callbackMap.toMap()
@@ -290,8 +290,8 @@ class CameraCallbackMap @Inject constructor() : Request.Listener {
         }
     }
 
-    companion object {
-        fun createFor(
+    public companion object {
+        public fun createFor(
             callbacks: Collection<CameraCaptureCallback>,
             executor: Executor
         ): CameraCallbackMap {

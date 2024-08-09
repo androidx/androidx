@@ -38,7 +38,7 @@ private const val DEFAULT_EXPOSURE_COMPENSATION = 0
  * [CameraControl.OperationCanceledException] if the camera is closed.
  */
 @CameraScope
-class EvCompControl
+public class EvCompControl
 @Inject
 constructor(
     private val compat: EvCompCompat,
@@ -49,7 +49,7 @@ constructor(
             exposureState = exposureState.updateIndex(value)
         }
 
-    var exposureState =
+    public var exposureState: EvCompValue =
         EvCompValue(
             compat.supported,
             evCompIndex,
@@ -70,7 +70,7 @@ constructor(
         updateAsync(DEFAULT_EXPOSURE_COMPENSATION)
     }
 
-    fun updateAsync(exposureIndex: Int, cancelPreviousTask: Boolean = true): Deferred<Int> {
+    public fun updateAsync(exposureIndex: Int, cancelPreviousTask: Boolean = true): Deferred<Int> {
         if (!compat.supported) {
             return createFailureResult(
                 IllegalArgumentException("ExposureCompensation is not supported")
@@ -103,9 +103,9 @@ constructor(
         CompletableDeferred<Int>().apply { completeExceptionally(exception) }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
         @IntoSet
-        abstract fun provideControls(evCompControl: EvCompControl): UseCaseCameraControl
+        public abstract fun provideControls(evCompControl: EvCompControl): UseCaseCameraControl
     }
 }

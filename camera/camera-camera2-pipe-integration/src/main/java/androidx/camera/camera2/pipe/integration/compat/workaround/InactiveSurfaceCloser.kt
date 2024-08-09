@@ -32,19 +32,25 @@ import dagger.Provides
  * This workaround will be enabled when one of the [ConfigureSurfaceToSecondarySessionFailQuirk],
  * [PreviewOrientationIncorrectQuirk], [TextureViewIsClosedQuirk] is loaded.
  */
-interface InactiveSurfaceCloser {
+public interface InactiveSurfaceCloser {
 
-    fun configure(streamId: StreamId, deferrableSurface: DeferrableSurface, graph: CameraGraph)
+    public fun configure(
+        streamId: StreamId,
+        deferrableSurface: DeferrableSurface,
+        graph: CameraGraph
+    )
 
-    fun onSurfaceInactive(deferrableSurface: DeferrableSurface)
+    public fun onSurfaceInactive(deferrableSurface: DeferrableSurface)
 
-    fun closeAll()
+    public fun closeAll()
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideInactiveSurfaceCloser(cameraQuirks: CameraQuirks): InactiveSurfaceCloser {
+            public fun provideInactiveSurfaceCloser(
+                cameraQuirks: CameraQuirks
+            ): InactiveSurfaceCloser {
                 val enabled =
                     cameraQuirks.quirks.run {
                         contains(ConfigureSurfaceToSecondarySessionFailQuirk::class.java) ||
@@ -58,7 +64,7 @@ interface InactiveSurfaceCloser {
     }
 }
 
-class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
+public class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
     private val lock = Any()
     private val configuredOutputs = mutableListOf<ConfiguredOutput>()
 
@@ -83,17 +89,17 @@ class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
         }
     }
 
-    data class ConfiguredOutput(
+    public data class ConfiguredOutput(
         val streamId: StreamId,
         val deferrableSurface: DeferrableSurface,
         val graph: CameraGraph
     ) {
-        fun close() {
+        public fun close() {
             graph.setSurface(streamId, null)
             deferrableSurface.close()
         }
 
-        fun contains(deferrableSurface: DeferrableSurface): Boolean {
+        public fun contains(deferrableSurface: DeferrableSurface): Boolean {
             return this.deferrableSurface == deferrableSurface
         }
     }
@@ -106,7 +112,7 @@ class InactiveSurfaceCloserImpl : InactiveSurfaceCloser {
         }
 }
 
-object NoOpInactiveSurfaceCloser : InactiveSurfaceCloser {
+public object NoOpInactiveSurfaceCloser : InactiveSurfaceCloser {
     override fun configure(
         streamId: StreamId,
         deferrableSurface: DeferrableSurface,

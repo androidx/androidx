@@ -21,7 +21,7 @@ import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.compat.AndroidCaptureFailure
 import androidx.camera.core.impl.CameraCaptureFailure
 
-class CaptureFailureAdapter(
+public class CaptureFailureAdapter(
     private val requestFailure: RequestFailure,
 ) : CameraCaptureFailure(Reason.ERROR) {
     override fun getCaptureFailure(): CaptureFailure =

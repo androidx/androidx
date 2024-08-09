@@ -31,10 +31,10 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.Nexus4AndroidLTarge
  * @see Nexus4AndroidLTargetAspectRatioQuirk
  * @see AspectRatioLegacyApi21Quirk
  */
-class TargetAspectRatio {
+public class TargetAspectRatio {
     /** Gets corrected target aspect ratio based on device and camera quirks. */
     @Ratio
-    operator fun get(
+    public operator fun get(
         cameraMetadata: CameraMetadata,
         streamConfigurationMapCompat: StreamConfigurationMapCompat
     ): Int {
@@ -54,19 +54,19 @@ class TargetAspectRatio {
     @IntDef(RATIO_4_3, RATIO_16_9, RATIO_MAX_JPEG, RATIO_ORIGINAL)
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    annotation class Ratio
+    public annotation class Ratio
 
-    companion object {
+    public companion object {
         /** 4:3 standard aspect ratio. */
-        const val RATIO_4_3 = 0
+        public const val RATIO_4_3: Int = 0
 
         /** 16:9 standard aspect ratio. */
-        const val RATIO_16_9 = 1
+        public const val RATIO_16_9: Int = 1
 
         /** The same aspect ratio as the maximum JPEG resolution. */
-        const val RATIO_MAX_JPEG = 2
+        public const val RATIO_MAX_JPEG: Int = 2
 
         /** No correction is needed. */
-        const val RATIO_ORIGINAL = 3
+        public const val RATIO_ORIGINAL: Int = 3
     }
 }

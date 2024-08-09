@@ -37,11 +37,11 @@ import java.util.Locale
  * - Device(s): All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class FinalizeSessionOnCloseQuirk : Quirk {
-    companion object {
-        fun isEnabled() = true
+public class FinalizeSessionOnCloseQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean = true
 
-        fun getBehavior() =
+        public fun getBehavior(): FinalizeSessionOnCloseBehavior =
             if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                 // Finalize immediately for devices that allow immediate Surface reuse.
                 FinalizeSessionOnCloseBehavior.IMMEDIATE

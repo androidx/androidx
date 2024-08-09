@@ -18,34 +18,34 @@ package androidx.camera.camera2.pipe.integration.compat.quirk
 
 import android.os.Build
 
-object Device {
-    fun isBluDevice() = isDeviceFrom("Blu")
+public object Device {
+    public fun isBluDevice(): Boolean = isDeviceFrom("Blu")
 
-    fun isHuaweiDevice() = isDeviceFrom("Huawei")
+    public fun isHuaweiDevice(): Boolean = isDeviceFrom("Huawei")
 
-    fun isInfinixDevice() = isDeviceFrom("Infinix")
+    public fun isInfinixDevice(): Boolean = isDeviceFrom("Infinix")
 
-    fun isItelDevice() = isDeviceFrom("Itel")
+    public fun isItelDevice(): Boolean = isDeviceFrom("Itel")
 
-    fun isJioDevice() = isDeviceFrom("Jio")
+    public fun isJioDevice(): Boolean = isDeviceFrom("Jio")
 
-    fun isGoogleDevice() = isDeviceFrom("Google")
+    public fun isGoogleDevice(): Boolean = isDeviceFrom("Google")
 
-    fun isMotorolaDevice() = isDeviceFrom("Motorola")
+    public fun isMotorolaDevice(): Boolean = isDeviceFrom("Motorola")
 
-    fun isOnePlusDevice() = isDeviceFrom("OnePlus")
+    public fun isOnePlusDevice(): Boolean = isDeviceFrom("OnePlus")
 
-    fun isOppoDevice() = isDeviceFrom("Oppo")
+    public fun isOppoDevice(): Boolean = isDeviceFrom("Oppo")
 
-    fun isPositivoDevice() = isDeviceFrom("Positivo")
+    public fun isPositivoDevice(): Boolean = isDeviceFrom("Positivo")
 
-    fun isRedmiDevice() = isDeviceFrom("Redmi")
+    public fun isRedmiDevice(): Boolean = isDeviceFrom("Redmi")
 
-    fun isSamsungDevice() = isDeviceFrom("Samsung")
+    public fun isSamsungDevice(): Boolean = isDeviceFrom("Samsung")
 
-    fun isXiaomiDevice() = isDeviceFrom("Xiaomi")
+    public fun isXiaomiDevice(): Boolean = isDeviceFrom("Xiaomi")
 
-    fun isVivoDevice() = isDeviceFrom("Vivo")
+    public fun isVivoDevice(): Boolean = isDeviceFrom("Vivo")
 
     private fun isDeviceFrom(vendor: String) =
         Build.MANUFACTURER.equalsCaseInsensitive(vendor) ||

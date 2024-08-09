@@ -32,8 +32,8 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): All devices.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CloseCaptureSessionOnVideoQuirk : Quirk {
-    companion object {
-        fun isEnabled(): Boolean = true
+public class CloseCaptureSessionOnVideoQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean = true
     }
 }

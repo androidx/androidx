@@ -33,7 +33,7 @@ import androidx.camera.camera2.pipe.integration.internal.ZoomMath.nearZero
  * @param key the [CameraCharacteristics.Key] of the characteristic
  * @return the value of the characteristic
  */
-fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
+public fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
     if (
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
             key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
@@ -58,7 +58,7 @@ fun <T> CameraMetadata.getSafely(key: CameraCharacteristics.Key<T>): T? {
  * @return the CONTROL_ZOOM_RATIO_RANGE characteristic value, null in case of [AssertionError].
  */
 @RequiresApi(Build.VERSION_CODES.R)
-fun CameraMetadata.getControlZoomRatioRangeSafely(): Range<Float>? =
+public fun CameraMetadata.getControlZoomRatioRangeSafely(): Range<Float>? =
     try {
         var range = get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
         if (range == null) {

@@ -32,7 +32,7 @@ import kotlinx.atomicfu.atomic
  * graph is created, CameraX updates these internal callbacks with Camera Interop callbacks so that
  * they may be triggered in camera-pipe.
  */
-class CameraInteropStateCallbackRepository {
+public class CameraInteropStateCallbackRepository {
 
     private val _deviceStateCallback = CameraInteropDeviceStateCallback()
     private val _sessionStateCallback = CameraInteropSessionStateCallback()
@@ -45,18 +45,18 @@ class CameraInteropStateCallbackRepository {
      *
      * @param sessionConfig the final merged sessionConfig used to create camera graph
      */
-    fun updateCallbacks(sessionConfig: SessionConfig) {
+    public fun updateCallbacks(sessionConfig: SessionConfig) {
         _deviceStateCallback.updateCallbacks(sessionConfig)
         _sessionStateCallback.updateCallbacks(sessionConfig)
     }
 
-    val deviceStateCallback
+    public val deviceStateCallback: CameraInteropDeviceStateCallback
         get() = _deviceStateCallback
 
-    val sessionStateCallback
+    public val sessionStateCallback: CameraInteropSessionStateCallback
         get() = _sessionStateCallback
 
-    class CameraInteropDeviceStateCallback : CameraDevice.StateCallback() {
+    public class CameraInteropDeviceStateCallback : CameraDevice.StateCallback() {
 
         private var callbacks: AtomicRef<List<CameraDevice.StateCallback>> = atomic(listOf())
 
@@ -89,7 +89,7 @@ class CameraInteropStateCallbackRepository {
         }
     }
 
-    class CameraInteropSessionStateCallback() : CameraCaptureSession.StateCallback() {
+    public class CameraInteropSessionStateCallback : CameraCaptureSession.StateCallback() {
 
         private var callbacks: AtomicRef<List<CameraCaptureSession.StateCallback>> =
             atomic(listOf())

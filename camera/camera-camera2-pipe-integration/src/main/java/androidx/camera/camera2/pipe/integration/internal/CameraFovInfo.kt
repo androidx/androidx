@@ -31,7 +31,7 @@ import javax.inject.Inject
 import kotlin.math.atan
 
 @CameraScope
-class CameraFovInfo
+public class CameraFovInfo
 @Inject
 constructor(
     private val cameraDevices: CameraDevices,
@@ -142,7 +142,7 @@ constructor(
      * @throws IllegalStateException If a valid view angle could not be found.
      */
     @Throws(IllegalStateException::class)
-    fun getDefaultViewAngleDegrees(): Int {
+    public fun getDefaultViewAngleDegrees(): Int {
         try {
             return focalLengthToViewAngleDegrees(
                 getDefaultFocalLength(),
@@ -164,7 +164,7 @@ constructor(
      * @throws IllegalStateException If a valid view angle could not be found.
      */
     @Throws(IllegalStateException::class)
-    fun getDefaultCameraDefaultViewAngleDegrees(): Int {
+    public fun getDefaultCameraDefaultViewAngleDegrees(): Int {
         try {
             val cameraIds =
                 Preconditions.checkNotNull(

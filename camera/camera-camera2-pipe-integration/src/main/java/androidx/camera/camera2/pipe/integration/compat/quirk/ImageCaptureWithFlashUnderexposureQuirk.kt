@@ -37,8 +37,8 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureWithFlashUnderexposureQuirk : UseTorchAsFlashQuirk {
-    companion object {
+public class ImageCaptureWithFlashUnderexposureQuirk : UseTorchAsFlashQuirk {
+    public companion object {
         // List of devices with the issue. See b/228800282.
         private val BUILD_MODELS =
             listOf(
@@ -50,7 +50,7 @@ class ImageCaptureWithFlashUnderexposureQuirk : UseTorchAsFlashQuirk {
                 "sm-j710mn", // Samsung Galaxy J7
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return BUILD_MODELS.contains(Build.MODEL.lowercase()) &&
                 cameraMetadata[LENS_FACING] == LENS_FACING_BACK
         }

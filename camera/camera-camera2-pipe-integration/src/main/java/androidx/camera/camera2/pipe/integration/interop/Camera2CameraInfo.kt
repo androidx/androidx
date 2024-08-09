@@ -25,7 +25,7 @@ import androidx.camera.core.CameraInfo
 
 /** An interface for retrieving Camera2-related camera information. */
 @ExperimentalCamera2Interop
-class Camera2CameraInfo
+public class Camera2CameraInfo
 private constructor(
     private val cameraProperties: CameraProperties,
 ) {
@@ -40,7 +40,7 @@ private constructor(
      * @param key The [CameraCharacteristics.Key] of the characteristic.
      * @return the value of the characteristic. </T>
      */
-    fun <T> getCameraCharacteristic(key: CameraCharacteristics.Key<T>): T? {
+    public fun <T> getCameraCharacteristic(key: CameraCharacteristics.Key<T>): T? {
         return cameraProperties.metadata.getSafely(key)
     }
 
@@ -60,9 +60,9 @@ private constructor(
      * @throws IllegalStateException if the camera info does not contain the camera 2 camera ID
      *   (e.g., if CameraX was not initialized with a [androidx.camera.camera2.Camera2Config]).
      */
-    fun getCameraId(): String = cameraProperties.cameraId.value
+    public fun getCameraId(): String = cameraProperties.cameraId.value
 
-    companion object {
+    public companion object {
 
         /**
          * Gets the [Camera2CameraInfo] from a [CameraInfo].
@@ -74,7 +74,7 @@ private constructor(
          *   [androidx.camera.camera2.Camera2Config]).
          */
         @JvmStatic
-        fun from(cameraInfo: CameraInfo): Camera2CameraInfo {
+        public fun from(cameraInfo: CameraInfo): Camera2CameraInfo {
             val camera2CameraInfo = cameraInfo.unwrapAs(Camera2CameraInfo::class)
             requireNotNull(camera2CameraInfo) {
                 "Could not unwrap $cameraInfo as Camera2CameraInfo!"
@@ -85,6 +85,7 @@ private constructor(
         /** This is the workaround to prevent constructor from being added to public API. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun create(cameraProperties: CameraProperties) = Camera2CameraInfo(cameraProperties)
+        public fun create(cameraProperties: CameraProperties): Camera2CameraInfo =
+            Camera2CameraInfo(cameraProperties)
     }
 }

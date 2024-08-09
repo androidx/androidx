@@ -22,8 +22,8 @@ import androidx.camera.camera2.pipe.core.Log.info
 /**
  * Logs the required device info, e.g. camera hardware level required by CameraXHardwareLevelPlugin.
  */
-object DeviceInfoLogger {
-    fun logDeviceInfo(cameraProperties: CameraProperties) {
+public object DeviceInfoLogger {
+    public fun logDeviceInfo(cameraProperties: CameraProperties) {
         // Extend by adding logging here as needed.
         logDeviceLevel(cameraProperties)
     }

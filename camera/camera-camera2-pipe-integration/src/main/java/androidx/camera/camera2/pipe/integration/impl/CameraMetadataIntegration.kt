@@ -22,7 +22,7 @@ import android.os.Build
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /** Contains the CameraX-specific logic for [CameraMetadata]. */
-val CameraMetadata.availableAfModes
+public val CameraMetadata.availableAfModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AF_AVAILABLE_MODES,
@@ -30,7 +30,7 @@ val CameraMetadata.availableAfModes
             )
             .asList()
 
-val CameraMetadata.availableAeModes
+public val CameraMetadata.availableAeModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES,
@@ -38,7 +38,7 @@ val CameraMetadata.availableAeModes
             )
             .asList()
 
-val CameraMetadata.availableAwbModes
+public val CameraMetadata.availableAwbModes: List<Int>
     get() =
         getOrDefault(
                 CameraCharacteristics.CONTROL_AWB_AVAILABLE_MODES,
@@ -47,7 +47,7 @@ val CameraMetadata.availableAwbModes
             .asList()
 
 /** If preferredMode not available, priority is CONTINUOUS_PICTURE > AUTO > OFF */
-fun CameraMetadata.getSupportedAfMode(preferredMode: Int) =
+public fun CameraMetadata.getSupportedAfMode(preferredMode: Int): Int =
     when {
         availableAfModes.contains(preferredMode) -> {
             preferredMode
@@ -64,7 +64,7 @@ fun CameraMetadata.getSupportedAfMode(preferredMode: Int) =
     }
 
 /** If preferredMode not available, priority is AE_ON > AE_OFF */
-fun CameraMetadata.getSupportedAeMode(preferredMode: Int) =
+public fun CameraMetadata.getSupportedAeMode(preferredMode: Int): Int =
     when {
         availableAeModes.contains(preferredMode) -> {
             preferredMode
@@ -80,12 +80,12 @@ fun CameraMetadata.getSupportedAeMode(preferredMode: Int) =
 private fun CameraMetadata.isAeModeSupported(aeMode: Int) = getSupportedAeMode(aeMode) == aeMode
 
 /** Returns whether [CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH] is supported. */
-fun CameraMetadata.isExternalFlashAeModeSupported() =
+public fun CameraMetadata.isExternalFlashAeModeSupported(): Boolean =
     Build.VERSION.SDK_INT >= 28 &&
         isAeModeSupported(CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH)
 
 /** If preferredMode not available, priority is AWB_AUTO > AWB_OFF */
-fun CameraMetadata.getSupportedAwbMode(preferredMode: Int) =
+public fun CameraMetadata.getSupportedAwbMode(preferredMode: Int): Int =
     when {
         availableAwbModes.contains(preferredMode) -> {
             preferredMode
@@ -98,5 +98,5 @@ fun CameraMetadata.getSupportedAwbMode(preferredMode: Int) =
         }
     }
 
-fun <T> CameraMetadata?.getOrDefault(key: CameraCharacteristics.Key<T>, default: T) =
+public fun <T> CameraMetadata?.getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
     this?.getOrDefault(key, default) ?: default

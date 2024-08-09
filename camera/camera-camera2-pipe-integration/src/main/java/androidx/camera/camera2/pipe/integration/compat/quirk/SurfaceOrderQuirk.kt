@@ -40,12 +40,13 @@ import java.util.Locale
  *
  * @see SurfaceSorter
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class SurfaceOrderQuirk : Quirk {
-    companion object {
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class SurfaceOrderQuirk : Quirk {
+    public companion object {
         private val BUILD_HARDWARE_SET = listOf("samsungexynos7570", "samsungexynos7870")
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             // Apply this quirk to all devices to avoid that there are still some other devices with
             // the same quirk. The workaround is only to sort the input surface list when creating
             // CameraCaptureSession, so it does not cost much performance and should be safe to

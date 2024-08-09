@@ -29,10 +29,10 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.Device.isSamsungDev
  * - Device(s): Samsung J3, Samsung J5, Samsung J7, Samsung J1 Ace neo and Oppo A37F
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class PreviewStretchWhenVideoCaptureIsBoundQuirk : CaptureIntentPreviewQuirk {
+public class PreviewStretchWhenVideoCaptureIsBoundQuirk : CaptureIntentPreviewQuirk {
 
-    companion object {
-        fun isEnabled(): Boolean {
+    public companion object {
+        public fun isEnabled(): Boolean {
             return isHuaweiP8Lite() ||
                 isSamsungJ3() ||
                 isSamsungJ7() ||

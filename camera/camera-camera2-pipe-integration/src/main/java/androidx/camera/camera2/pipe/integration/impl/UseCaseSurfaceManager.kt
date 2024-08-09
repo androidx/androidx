@@ -42,7 +42,7 @@ private const val TIMEOUT_GET_SURFACE_IN_MS = 5_000L
 
 /** Configure the [DeferrableSurface]s to the [CameraGraph] and monitor the usage. */
 @UseCaseCameraScope
-class UseCaseSurfaceManager
+public class UseCaseSurfaceManager
 @Inject
 constructor(
     private val threads: UseCaseThreads,
@@ -63,7 +63,7 @@ constructor(
     @GuardedBy("lock") private var _sessionConfigAdapter: SessionConfigAdapter? = null
 
     /** Async set up the Surfaces to the [CameraGraph] */
-    fun setupAsync(
+    public fun setupAsync(
         graph: CameraGraph,
         sessionConfigAdapter: SessionConfigAdapter,
         surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
@@ -117,7 +117,7 @@ constructor(
     }
 
     /** Cancel the Surface set up and stop the monitoring of Surface usage. */
-    fun stopAsync(): Deferred<Unit> {
+    public fun stopAsync(): Deferred<Unit> {
         setupSurfaceDeferred?.cancel()
 
         return synchronized(lock) {

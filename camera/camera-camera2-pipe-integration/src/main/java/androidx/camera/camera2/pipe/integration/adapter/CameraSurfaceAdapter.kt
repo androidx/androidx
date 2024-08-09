@@ -41,7 +41,7 @@ import androidx.camera.core.impl.UseCaseConfig
  * This class provides Context-specific utility methods for querying and computing supported
  * outputs.
  */
-class CameraSurfaceAdapter(
+public class CameraSurfaceAdapter(
     context: Context,
     cameraComponent: Any?,
     availableCameraIds: Set<String>

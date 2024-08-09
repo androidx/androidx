@@ -30,11 +30,11 @@ import javax.inject.Singleton
 
 @Suppress("DEPRECATION") // getRealSize
 @Singleton
-class DisplayInfoManager @Inject constructor(context: Context) {
+public class DisplayInfoManager @Inject constructor(context: Context) {
     private val MAX_PREVIEW_SIZE = Size(1920, 1080)
     private val maxPreviewSize: MaxPreviewSize = MaxPreviewSize()
 
-    companion object {
+    public companion object {
         private var lazyMaxDisplay: Display? = null
         private var lazyPreviewSize: Size? = null
 
@@ -66,13 +66,13 @@ class DisplayInfoManager @Inject constructor(context: Context) {
         }
     }
 
-    val defaultDisplay: Display
+    public val defaultDisplay: Display
         get() = getMaxSizeDisplay()
 
     private var previewSize: Size? = null
 
     /** Update the preview size according to current display size. */
-    fun refresh() {
+    public fun refresh() {
         previewSize = calculatePreviewSize()
     }
 
@@ -80,7 +80,7 @@ class DisplayInfoManager @Inject constructor(context: Context) {
      * PREVIEW refers to the best size match to the device's screen resolution, or to 1080p
      * (1920x1080), whichever is smaller.
      */
-    fun getPreviewSize(): Size {
+    public fun getPreviewSize(): Size {
         // Use cached value to speed up since this would be called multiple times.
         if (previewSize != null) {
             return previewSize as Size

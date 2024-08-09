@@ -28,7 +28,7 @@ import javax.inject.Inject
 
 /** Provider of camera specific quirks. */
 @CameraScope
-class CameraQuirks
+public class CameraQuirks
 @Inject
 constructor(
     private val cameraMetadata: CameraMetadata?,
@@ -38,7 +38,7 @@ constructor(
      * Goes through all defined camera specific quirks, then filters them to retrieve quirks
      * required for the camera identified by the provided [CameraMetadata].
      */
-    val quirks: Quirks by lazy {
+    public val quirks: Quirks by lazy {
         val quirkSettings = QuirkSettingsHolder.instance().get()
         val quirks: MutableList<Quirk> = mutableListOf()
         if (cameraMetadata == null) {
@@ -246,10 +246,10 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "CameraQuirks"
 
-        fun isImmediateSurfaceReleaseAllowed(): Boolean {
+        public fun isImmediateSurfaceReleaseAllowed(): Boolean {
             // TODO(b/285956022): Releasing a Surface too early turns out to cause memory leaks
             //  where an Image may not be eventually closed. When the issue is resolved on an
             //  architectural level, uncomment the following, allowing compliant devices to recycle

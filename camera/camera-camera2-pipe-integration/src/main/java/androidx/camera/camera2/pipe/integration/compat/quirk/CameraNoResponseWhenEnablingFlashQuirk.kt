@@ -33,10 +33,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CameraNoResponseWhenEnablingFlashQuirk : UseTorchAsFlashQuirk {
+public class CameraNoResponseWhenEnablingFlashQuirk : UseTorchAsFlashQuirk {
 
-    companion object {
-        val AFFECTED_MODELS =
+    public companion object {
+        public val AFFECTED_MODELS: List<String> =
             listOf(
                 // Enables on all Samsung Galaxy Note 5 devices.
                 "SM-N9200",
@@ -60,7 +60,7 @@ class CameraNoResponseWhenEnablingFlashQuirk : UseTorchAsFlashQuirk {
                 "SM-J510FN" // Galaxy J5
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return AFFECTED_MODELS.contains(Build.MODEL.uppercase()) &&
                 cameraMetadata[CameraCharacteristics.LENS_FACING] == LENS_FACING_BACK
         }

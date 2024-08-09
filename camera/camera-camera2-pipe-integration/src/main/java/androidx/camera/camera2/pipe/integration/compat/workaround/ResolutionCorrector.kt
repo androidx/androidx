@@ -25,7 +25,7 @@ import androidx.camera.core.impl.SurfaceConfig.ConfigType
  * Helper class that overrides user configured resolution with resolution selected based on device
  * quirks.
  */
-class ResolutionCorrector {
+public class ResolutionCorrector {
     private val extraCroppingQuirk = DeviceQuirks[ExtraCroppingQuirk::class.java]
 
     /**
@@ -38,7 +38,7 @@ class ResolutionCorrector {
      * @param configType the config type based on which the supported resolution is calculated.
      * @param supportedResolutions a ordered list of resolutions calculated by CameraX.
      */
-    fun insertOrPrioritize(
+    public fun insertOrPrioritize(
         configType: ConfigType,
         supportedResolutions: List<Size>,
     ): List<Size> {

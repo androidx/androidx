@@ -26,14 +26,14 @@ import dagger.Provides
  *
  * @see UseTorchAsFlashQuirk
  */
-interface UseTorchAsFlash {
-    fun shouldUseTorchAsFlash(): Boolean
+public interface UseTorchAsFlash {
+    public fun shouldUseTorchAsFlash(): Boolean
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideUseTorchAsFlash(cameraQuirks: CameraQuirks): UseTorchAsFlash =
+            public fun provideUseTorchAsFlash(cameraQuirks: CameraQuirks): UseTorchAsFlash =
                 if (cameraQuirks.quirks.contains(UseTorchAsFlashQuirk::class.java))
                     UseTorchAsFlashImpl
                 else NotUseTorchAsFlash
@@ -41,11 +41,11 @@ interface UseTorchAsFlash {
     }
 }
 
-object UseTorchAsFlashImpl : UseTorchAsFlash {
+public object UseTorchAsFlashImpl : UseTorchAsFlash {
     /** Returns true for torch should be used as flash. */
-    override fun shouldUseTorchAsFlash() = true
+    override fun shouldUseTorchAsFlash(): Boolean = true
 }
 
-object NotUseTorchAsFlash : UseTorchAsFlash {
-    override fun shouldUseTorchAsFlash() = false
+public object NotUseTorchAsFlash : UseTorchAsFlash {
+    override fun shouldUseTorchAsFlash(): Boolean = false
 }

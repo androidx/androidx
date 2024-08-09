@@ -26,20 +26,20 @@ import androidx.camera.core.impl.Quirks
  * [CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD].
  * - Subclasses of this quirk may contain device specific information.
  */
-interface CaptureIntentPreviewQuirk : Quirk {
+public interface CaptureIntentPreviewQuirk : Quirk {
     /**
      * Returns if the device specific issue can be workaround by using
      * [CaptureRequest.CONTROL_CAPTURE_INTENT_PREVIEW] to replace
      * [CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD].
      */
-    fun workaroundByCaptureIntentPreview() = true
+    public fun workaroundByCaptureIntentPreview(): Boolean = true
 
-    companion object {
+    public companion object {
         /**
          * Returns if input quirks contains at least one [CaptureIntentPreviewQuirk] which
          * [CaptureIntentPreviewQuirk.workaroundByCaptureIntentPreview] is true.
          */
-        fun workaroundByCaptureIntentPreview(quirks: Quirks): Boolean {
+        public fun workaroundByCaptureIntentPreview(quirks: Quirks): Boolean {
             for (quirk in quirks.getAll(CaptureIntentPreviewQuirk::class.java)) {
                 if (quirk.workaroundByCaptureIntentPreview()) {
                     return true

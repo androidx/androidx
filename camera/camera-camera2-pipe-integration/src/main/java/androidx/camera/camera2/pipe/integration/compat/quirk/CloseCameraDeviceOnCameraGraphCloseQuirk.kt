@@ -34,10 +34,10 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
-    companion object {
+public class CloseCameraDeviceOnCameraGraphCloseQuirk : Quirk {
+    public companion object {
         @JvmStatic
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return Build.HARDWARE == "samsungexynos7870"
         }
     }

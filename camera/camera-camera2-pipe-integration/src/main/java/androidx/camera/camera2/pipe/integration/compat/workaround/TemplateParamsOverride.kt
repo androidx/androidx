@@ -43,15 +43,17 @@ import dagger.Provides
  * @see TemporalNoiseQuirk
  * @see ImageCaptureFailedForVideoSnapshotQuirk
  */
-interface TemplateParamsOverride {
+public interface TemplateParamsOverride {
     /** Returns capture parameters used to override the default parameters of the input template. */
-    fun getOverrideParams(template: RequestTemplate?): Map<CaptureRequest.Key<*>, Any>
+    public fun getOverrideParams(template: RequestTemplate?): Map<CaptureRequest.Key<*>, Any>
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideTemplateParamsOverride(cameraQuirks: CameraQuirks): TemplateParamsOverride {
+            public fun provideTemplateParamsOverride(
+                cameraQuirks: CameraQuirks
+            ): TemplateParamsOverride {
                 val quirks = cameraQuirks.quirks
                 return if (
                     workaroundByCaptureIntentPreview(quirks) ||
@@ -64,7 +66,7 @@ interface TemplateParamsOverride {
     }
 }
 
-class TemplateParamsQuirkOverride(quirks: Quirks) : TemplateParamsOverride {
+public class TemplateParamsQuirkOverride(quirks: Quirks) : TemplateParamsOverride {
     private val workaroundByCaptureIntentPreview = workaroundByCaptureIntentPreview(quirks)
     private val workaroundByCaptureIntentStillCapture =
         quirks.contains(ImageCaptureFailedForVideoSnapshotQuirk::class.java)
@@ -80,7 +82,7 @@ class TemplateParamsQuirkOverride(quirks: Quirks) : TemplateParamsOverride {
     }
 }
 
-object NoOpTemplateParamsOverride : TemplateParamsOverride {
+public object NoOpTemplateParamsOverride : TemplateParamsOverride {
     override fun getOverrideParams(template: RequestTemplate?): Map<CaptureRequest.Key<*>, Any> {
         return emptyMap()
     }

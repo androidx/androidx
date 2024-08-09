@@ -35,11 +35,11 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCapturePixelHDRPlusQuirk : Quirk {
-    companion object {
+public class ImageCapturePixelHDRPlusQuirk : Quirk {
+    public companion object {
         private val BUILD_MODELS = listOf("Pixel 2", "Pixel 2 XL", "Pixel 3", "Pixel 3 XL")
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return BUILD_MODELS.contains(Build.MODEL) &&
                 isGoogleDevice() &&
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.O

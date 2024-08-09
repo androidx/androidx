@@ -40,7 +40,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 @CameraScope
-class StillCaptureRequestControl
+public class StillCaptureRequestControl
 @Inject
 constructor(
     private val flashControl: FlashControl,
@@ -56,7 +56,7 @@ constructor(
             _useCaseCamera?.let { submitPendingRequests() }
         }
 
-    data class CaptureRequest(
+    public data class CaptureRequest(
         val captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode val captureMode: Int,
         @ImageCapture.FlashType val flashType: Int,
@@ -89,7 +89,7 @@ constructor(
         }
     }
 
-    fun issueCaptureRequests(
+    public fun issueCaptureRequests(
         captureConfigs: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
@@ -202,9 +202,11 @@ constructor(
     }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
         @IntoSet
-        abstract fun provideControls(control: StillCaptureRequestControl): UseCaseCameraControl
+        public abstract fun provideControls(
+            control: StillCaptureRequestControl
+        ): UseCaseCameraControl
     }
 }

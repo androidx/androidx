@@ -39,7 +39,7 @@ import androidx.camera.core.impl.SessionProcessorSurface
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 
-class RequestProcessorAdapter(
+public class RequestProcessorAdapter(
     private val useCaseGraphConfig: UseCaseGraphConfig,
     private val processorSurfaces: List<SessionProcessorSurface>,
     private val scope: CoroutineScope,

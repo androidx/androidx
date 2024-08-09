@@ -38,14 +38,14 @@ import java.util.Locale
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class PreviewPixelHDRnetQuirk : Quirk {
+public class PreviewPixelHDRnetQuirk : Quirk {
 
-    companion object {
+    public companion object {
 
         /** The devices that support wysiwyg preview in 3rd party apps (go/p20-wysiwyg-hdr) */
         private val SUPPORTED_DEVICES = listOf("sunfish", "bramble", "redfin", "barbet")
 
-        fun isEnabled(): Boolean =
+        public fun isEnabled(): Boolean =
             isGoogleDevice() &&
                 SUPPORTED_DEVICES.contains(Build.DEVICE.lowercase(Locale.getDefault()))
     }

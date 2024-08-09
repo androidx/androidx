@@ -32,7 +32,7 @@ import javax.inject.Inject
  * 2. ExcludedSupportedSizesContainer
  */
 @CameraScope
-class OutputSizesCorrector
+public class OutputSizesCorrector
 @Inject
 constructor(
     private val cameraMetadata: CameraMetadata?,
@@ -45,7 +45,7 @@ constructor(
         DeviceQuirks[ExtraSupportedOutputSizeQuirk::class.java]
 
     /** Applies the output sizes related quirks onto the input sizes array. */
-    fun applyQuirks(sizes: Array<Size>, format: Int): Array<Size> {
+    public fun applyQuirks(sizes: Array<Size>, format: Int): Array<Size> {
         val sizeList = sizes.toMutableList()
         addExtraSupportedOutputSizesByFormat(sizeList, format)
         excludeProblematicOutputSizesByFormat(sizeList, format)
@@ -56,7 +56,7 @@ constructor(
     }
 
     /** Applies the output sizes related quirks onto the input sizes array. */
-    fun <T> applyQuirks(sizes: Array<Size>, klass: Class<T>): Array<Size> {
+    public fun <T> applyQuirks(sizes: Array<Size>, klass: Class<T>): Array<Size> {
         val sizeList = sizes.toMutableList()
         addExtraSupportedOutputSizesByClass(sizeList, klass)
         excludeProblematicOutputSizesByClass(sizeList, klass)

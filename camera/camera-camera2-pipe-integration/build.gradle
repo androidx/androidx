@@ -107,6 +107,5 @@ androidx {
     description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
             "and reliable camera foundation that enables great camera driven experiences across " +
             "all of Android."
-    legacyDisableKotlinStrictApiMode = true
     doNotDocumentReason = "Not shipped externally"
 }

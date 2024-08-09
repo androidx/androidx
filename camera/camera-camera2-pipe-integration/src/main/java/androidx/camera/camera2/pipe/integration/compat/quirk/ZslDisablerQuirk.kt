@@ -29,15 +29,16 @@ import androidx.camera.core.impl.Quirk
  *   to disable zero-shutter lag and return false for [CameraInfo.isZslSupported].
  * - Device(s): Samsung Fold4, Samsung s22, Xiaomi Mi 8
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class ZslDisablerQuirk : Quirk {
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class ZslDisablerQuirk : Quirk {
 
-    companion object {
+    public companion object {
         private val AFFECTED_SAMSUNG_MODEL = listOf("SM-F936", "SM-S901U", "SM-S908U", "SM-S908U1")
 
         private val AFFECTED_XIAOMI_MODEL = listOf("MI 8")
 
-        fun load(): Boolean {
+        public fun load(): Boolean {
             return isAffectedSamsungDevices() || isAffectedXiaoMiDevices()
         }
 

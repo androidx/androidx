@@ -20,13 +20,13 @@ import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.QuirkSettings
 
 /** Loads all device specific quirks required for the current device. */
-object DeviceQuirksLoader {
+public object DeviceQuirksLoader {
 
     /**
      * Goes through all defined device-specific quirks, and returns those that should be loaded on
      * the current device.
      */
-    fun loadQuirks(quirkSettings: QuirkSettings): List<Quirk> {
+    public fun loadQuirks(quirkSettings: QuirkSettings): List<Quirk> {
         val quirks: MutableList<Quirk> = mutableListOf()
 
         // Load all device specific quirks, preferably in lexicographical order

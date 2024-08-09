@@ -36,8 +36,8 @@ import androidx.camera.core.impl.SessionProcessor
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class DisableAbortCapturesOnStopWithSessionProcessorQuirk : Quirk {
-    companion object {
-        fun isEnabled() = isSamsungDevice()
+public class DisableAbortCapturesOnStopWithSessionProcessorQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean = isSamsungDevice()
     }
 }

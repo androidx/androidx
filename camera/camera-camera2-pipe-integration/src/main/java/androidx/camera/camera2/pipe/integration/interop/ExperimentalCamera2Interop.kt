@@ -31,4 +31,6 @@ package androidx.camera.camera2.pipe.integration.interop
  *
  * These will be changed in future release possibly, hence add @Experimental annotation.
  */
-@Retention(AnnotationRetention.BINARY) @RequiresOptIn annotation class ExperimentalCamera2Interop
+@Retention(AnnotationRetention.BINARY)
+@RequiresOptIn
+public annotation class ExperimentalCamera2Interop

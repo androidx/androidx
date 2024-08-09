@@ -31,7 +31,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * The return value of the Future is null, and canceling the future will not cancel the Job. The tag
  * field may be used to help debug futures.
  */
-fun Job.asListenableFuture(tag: Any? = "Job.asListenableFuture"): ListenableFuture<Void> {
+public fun Job.asListenableFuture(tag: Any? = "Job.asListenableFuture"): ListenableFuture<Void> {
     val resolver: CallbackToFutureAdapter.Resolver<Void> =
         CallbackToFutureAdapter.Resolver<Void> { completer ->
             this.invokeOnCompletion {
@@ -52,7 +52,7 @@ fun Job.asListenableFuture(tag: Any? = "Job.asListenableFuture"): ListenableFutu
 
 /** Convert a job into a ListenableFuture<T>. */
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T> Deferred<T>.asListenableFuture(
+public fun <T> Deferred<T>.asListenableFuture(
     tag: Any? = "Deferred.asListenableFuture"
 ): ListenableFuture<T> {
     val resolver: CallbackToFutureAdapter.Resolver<T> =
@@ -74,12 +74,12 @@ fun <T> Deferred<T>.asListenableFuture(
     return CallbackToFutureAdapter.getFuture(resolver)
 }
 
-fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
+public fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
     invokeOnCompletion { propagateOnceTo(destination, it) }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-fun <T> Deferred<T>.propagateOnceTo(
+public fun <T> Deferred<T>.propagateOnceTo(
     destination: CompletableDeferred<T>,
     throwable: Throwable?,
 ) {
@@ -100,5 +100,5 @@ fun <T> Deferred<T>.propagateOnceTo(
  *
  * @return true if `Deferred.await` had completed, false otherwise.
  */
-suspend fun <T> Deferred<T>.awaitUntil(timeoutMillis: Long) =
+public suspend fun <T> Deferred<T>.awaitUntil(timeoutMillis: Long): Boolean =
     withTimeoutOrNull(timeoutMillis) { this@awaitUntil.await() }?.let { true } ?: false

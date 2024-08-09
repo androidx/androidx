@@ -76,7 +76,7 @@ import kotlin.math.min
  */
 @Suppress("DEPRECATION")
 // TODO(b/200306659): Remove and replace with annotation on package-info.java
-class SupportedSurfaceCombination(
+public class SupportedSurfaceCombination(
     context: Context,
     private val cameraMetadata: CameraMetadata,
     private val encoderProfilesProviderAdapter: EncoderProfilesProviderAdapter
@@ -155,7 +155,7 @@ class SupportedSurfaceCombination(
      * @param surfaceConfigList the surface configuration list to be compared
      * @return the check result that whether it could be supported
      */
-    fun checkSupported(
+    public fun checkSupported(
         featureSettings: FeatureSettings,
         surfaceConfigList: List<SurfaceConfig>
     ): Boolean {
@@ -232,7 +232,11 @@ class SupportedSurfaceCombination(
      * @param size the size info for the surface configuration object
      * @return new [SurfaceConfig] object
      */
-    fun transformSurfaceConfig(cameraMode: Int, imageFormat: Int, size: Size): SurfaceConfig {
+    public fun transformSurfaceConfig(
+        cameraMode: Int,
+        imageFormat: Int,
+        size: Size
+    ): SurfaceConfig {
         return SurfaceConfig.transformSurfaceConfig(
             cameraMode,
             imageFormat,
@@ -255,7 +259,7 @@ class SupportedSurfaceCombination(
      * @throws IllegalArgumentException if the suggested solution for newUseCaseConfigs cannot be
      *   found. This may be due to no available output size or no available surface combination.
      */
-    fun getSuggestedStreamSpecifications(
+    public fun getSuggestedStreamSpecifications(
         cameraMode: Int,
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
@@ -1144,7 +1148,7 @@ class SupportedSurfaceCombination(
      * @see ResolutionCorrector
      */
     @VisibleForTesting
-    fun applyResolutionSelectionOrderRelatedWorkarounds(
+    public fun applyResolutionSelectionOrderRelatedWorkarounds(
         sizeList: List<Size>,
         imageFormat: Int
     ): List<Size> {
@@ -1308,7 +1312,7 @@ class SupportedSurfaceCombination(
 
     /** Updates the surface size definition for the specified format then return it. */
     @VisibleForTesting
-    fun getUpdatedSurfaceSizeDefinitionByFormat(format: Int): SurfaceSizeDefinition {
+    public fun getUpdatedSurfaceSizeDefinitionByFormat(format: Int): SurfaceSizeDefinition {
         if (!surfaceSizeDefinitionFormats.contains(format)) {
             updateS720pOrS1440pSizeByFormat(
                 surfaceSizeDefinition.s720pSizeMap,
@@ -1588,21 +1592,21 @@ class SupportedSurfaceCombination(
      *   [CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_DYNAMIC_RANGE_TEN_BIT].
      * @param isPreviewStabilizationOn Whether the preview stabilization is enabled.
      */
-    data class FeatureSettings(
+    public data class FeatureSettings(
         @CameraMode.Mode val cameraMode: Int,
         val requiredMaxBitDepth: Int,
         val isPreviewStabilizationOn: Boolean = false,
         val isUltraHdrOn: Boolean = false
     )
 
-    data class BestSizesAndMaxFpsForConfigs(
+    public data class BestSizesAndMaxFpsForConfigs(
         val bestSizes: List<Size>,
         val bestSizesForStreamUseCase: List<Size>?,
         val maxFps: Int,
         val maxFpsForStreamUseCase: Int
     )
 
-    companion object {
+    public companion object {
         private fun isUltraHdrOn(
             attachedSurfaces: List<AttachedSurfaceInfo>,
             newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>

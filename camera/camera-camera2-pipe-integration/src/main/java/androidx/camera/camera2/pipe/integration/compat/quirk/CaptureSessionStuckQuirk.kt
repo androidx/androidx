@@ -31,13 +31,13 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): Devices in LEGACY camera hardware level.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CaptureSessionStuckQuirk : Quirk {
-    companion object {
+public class CaptureSessionStuckQuirk : Quirk {
+    public companion object {
         /**
          * Always return false as CameraPipe handles this automatically. Please refer to
          * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for the
          * conditions under which the quirk will be applied.
          */
-        fun isEnabled(): Boolean = false
+        public fun isEnabled(): Boolean = false
     }
 }

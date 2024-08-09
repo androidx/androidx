@@ -54,7 +54,7 @@ private val DEFAULT_PREVIEW_SIZE = Size(0, 0)
  * enabled, since taking a picture may require a repeating surface to perform pre-capture checks,
  * mainly around 3A.
  */
-class MeteringRepeating(
+public class MeteringRepeating(
     private val cameraProperties: CameraProperties,
     config: MeteringRepeatingConfig,
     private val displayInfoManager: DisplayInfoManager
@@ -68,10 +68,12 @@ class MeteringRepeating(
 
     @GuardedBy("deferrableSurfaceLock") private var deferrableSurface: DeferrableSurface? = null
 
-    override fun getDefaultConfig(applyDefaultConfig: Boolean, factory: UseCaseConfigFactory) =
-        Builder(cameraProperties, displayInfoManager).useCaseConfig
+    override fun getDefaultConfig(
+        applyDefaultConfig: Boolean,
+        factory: UseCaseConfigFactory
+    ): MeteringRepeatingConfig = Builder(cameraProperties, displayInfoManager).useCaseConfig
 
-    override fun getUseCaseConfigBuilder(config: Config) =
+    override fun getUseCaseConfigBuilder(config: Config): Builder =
         Builder(cameraProperties, displayInfoManager)
 
     override fun onSuggestedStreamSpecUpdated(
@@ -91,7 +93,7 @@ class MeteringRepeating(
     }
 
     /** Sets up the use case's session configuration, mainly its [DeferrableSurface]. */
-    fun setupSession() {
+    public fun setupSession() {
         // The suggested stream spec passed to `updateSuggestedStreamSpec` doesn't matter since
         // this use case uses the min preview size.
         updateSuggestedStreamSpec(StreamSpec.builder(DEFAULT_PREVIEW_SIZE).build(), null)
@@ -194,7 +196,7 @@ class MeteringRepeating(
         return outputSizes[0]
     }
 
-    class MeteringRepeatingConfig : UseCaseConfig<MeteringRepeating>, ImageInputConfig {
+    public class MeteringRepeatingConfig : UseCaseConfig<MeteringRepeating>, ImageInputConfig {
         private val config =
             MutableOptionsBundle.create().apply {
                 insertOption(
@@ -204,41 +206,47 @@ class MeteringRepeating(
                 insertOption(OPTION_CAPTURE_TYPE, CaptureType.METERING_REPEATING)
             }
 
-        override fun getCaptureType() = UseCaseConfigFactory.CaptureType.METERING_REPEATING
+        override fun getCaptureType(): CaptureType =
+            UseCaseConfigFactory.CaptureType.METERING_REPEATING
 
-        override fun getConfig() = config
+        override fun getConfig(): MutableOptionsBundle = config
 
-        override fun getInputFormat() = ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
+        override fun getInputFormat(): Int =
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE
     }
 
-    class Builder(
+    public class Builder(
         private val cameraProperties: CameraProperties,
         private val displayInfoManager: DisplayInfoManager
     ) : UseCaseConfig.Builder<MeteringRepeating, MeteringRepeatingConfig, Builder> {
 
-        override fun getMutableConfig() = MutableOptionsBundle.create()
+        override fun getMutableConfig(): MutableOptionsBundle = MutableOptionsBundle.create()
 
-        override fun getUseCaseConfig() = MeteringRepeatingConfig()
+        override fun getUseCaseConfig(): MeteringRepeatingConfig = MeteringRepeatingConfig()
 
-        override fun setTargetClass(targetClass: Class<MeteringRepeating>) = this
+        override fun setTargetClass(targetClass: Class<MeteringRepeating>): Builder = this
 
-        override fun setTargetName(targetName: String) = this
+        override fun setTargetName(targetName: String): Builder = this
 
-        override fun setDefaultSessionConfig(sessionConfig: SessionConfig) = this
+        override fun setDefaultSessionConfig(sessionConfig: SessionConfig): Builder = this
 
-        override fun setDefaultCaptureConfig(captureConfig: CaptureConfig) = this
+        override fun setDefaultCaptureConfig(captureConfig: CaptureConfig): Builder = this
 
-        override fun setSessionOptionUnpacker(optionUnpacker: SessionConfig.OptionUnpacker) = this
+        override fun setSessionOptionUnpacker(
+            optionUnpacker: SessionConfig.OptionUnpacker
+        ): Builder = this
 
-        override fun setCaptureOptionUnpacker(optionUnpacker: CaptureConfig.OptionUnpacker) = this
+        override fun setCaptureOptionUnpacker(
+            optionUnpacker: CaptureConfig.OptionUnpacker
+        ): Builder = this
 
-        override fun setSurfaceOccupancyPriority(priority: Int) = this
+        override fun setSurfaceOccupancyPriority(priority: Int): Builder = this
 
-        override fun setZslDisabled(disabled: Boolean) = this
+        override fun setZslDisabled(disabled: Boolean): Builder = this
 
-        override fun setHighResolutionDisabled(disabled: Boolean) = this
+        override fun setHighResolutionDisabled(disabled: Boolean): Builder = this
 
-        override fun setCaptureType(captureType: UseCaseConfigFactory.CaptureType) = this
+        override fun setCaptureType(captureType: UseCaseConfigFactory.CaptureType): Builder = this
 
         override fun build(): MeteringRepeating {
             return MeteringRepeating(cameraProperties, useCaseConfig, displayInfoManager)

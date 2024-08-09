@@ -35,9 +35,9 @@ import java.util.Locale
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class FlashAvailabilityBufferUnderflowQuirk : Quirk {
+public class FlashAvailabilityBufferUnderflowQuirk : Quirk {
 
-    companion object {
+    public companion object {
         private val KNOWN_AFFECTED_MODELS =
             setOf(
                 // Devices enumerated as DeviceInfo(Build.MANUFACTURER, Build.MODEL).
@@ -45,14 +45,14 @@ class FlashAvailabilityBufferUnderflowQuirk : Quirk {
                 DeviceInfo("sprd", "DM20C"),
             )
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return KNOWN_AFFECTED_MODELS.contains(DeviceInfo(Build.MANUFACTURER, Build.MODEL))
         }
     }
 
-    data class DeviceInfo private constructor(val manufacturer: String, val model: String) {
-        companion object {
-            operator fun invoke(manufacturer: String, model: String) =
+    public data class DeviceInfo private constructor(val manufacturer: String, val model: String) {
+        public companion object {
+            public operator fun invoke(manufacturer: String, model: String): DeviceInfo =
                 DeviceInfo(manufacturer.lowercase(Locale.US), model.lowercase(Locale.US))
         }
     }

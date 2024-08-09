@@ -33,10 +33,10 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class TextureViewIsClosedQuirk : Quirk {
-    companion object {
+public class TextureViewIsClosedQuirk : Quirk {
+    public companion object {
         @Suppress("UNUSED_PARAMETER")
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return Build.VERSION.SDK_INT <= Build.VERSION_CODES.M
         }
     }

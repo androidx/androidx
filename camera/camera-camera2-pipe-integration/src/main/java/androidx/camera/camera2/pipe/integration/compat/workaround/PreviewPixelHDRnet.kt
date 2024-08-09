@@ -31,7 +31,7 @@ private val ASPECT_RATIO_16_9 = Rational(16, 9)
  *
  * @see PreviewPixelHDRnetQuirk
  */
-fun SessionConfig.Builder.setupHDRnet(resolution: Size) {
+public fun SessionConfig.Builder.setupHDRnet(resolution: Size) {
     DeviceQuirks[PreviewPixelHDRnetQuirk::class.java] ?: return
 
     if (isAspectRatioMatch(resolution, ASPECT_RATIO_16_9)) return

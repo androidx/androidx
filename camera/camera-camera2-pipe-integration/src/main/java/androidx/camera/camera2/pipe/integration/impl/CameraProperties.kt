@@ -23,15 +23,15 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import javax.inject.Inject
 
 /** Pre-computed camera properties */
-interface CameraProperties {
-    val cameraId: CameraId
-    val metadata: CameraMetadata
+public interface CameraProperties {
+    public val cameraId: CameraId
+    public val metadata: CameraMetadata
 
     // TODO: Consider exposing additional properties, such as quirks.
 }
 
 @CameraScope
-class CameraPipeCameraProperties
+public class CameraPipeCameraProperties
 @Inject
 constructor(
     private val cameraConfig: CameraConfig,

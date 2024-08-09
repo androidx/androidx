@@ -25,10 +25,10 @@ import androidx.camera.camera2.pipe.core.checkApi
 import androidx.camera.core.DynamicRange
 
 /** Helper for accessing features in DynamicRangeProfiles in a backwards compatible fashion. */
-class DynamicRangeProfilesCompat
+public class DynamicRangeProfilesCompat
 internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
     /** The set of supported dynamic ranges. */
-    val supportedDynamicRanges: Set<DynamicRange>
+    public val supportedDynamicRanges: Set<DynamicRange>
         get() = impl.supportedDynamicRanges
 
     /**
@@ -50,7 +50,9 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
      * @throws IllegalArgumentException If the dynamic range argument is not within the set returned
      *   by [supportedDynamicRanges].
      */
-    fun getDynamicRangeCaptureRequestConstraints(dynamicRange: DynamicRange): Set<DynamicRange> {
+    public fun getDynamicRangeCaptureRequestConstraints(
+        dynamicRange: DynamicRange
+    ): Set<DynamicRange> {
         return impl.getDynamicRangeCaptureRequestConstraints(dynamicRange)
     }
 
@@ -69,7 +71,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
      * @throws IllegalArgumentException If the dynamic range argument is not within the set returned
      *   by [supportedDynamicRanges].
      */
-    fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean {
+    public fun isExtraLatencyPresent(dynamicRange: DynamicRange): Boolean {
         return impl.isExtraLatencyPresent(dynamicRange)
     }
 
@@ -80,7 +82,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
      *   dynamic range.
      */
     @RequiresApi(33)
-    fun toDynamicRangeProfiles(): DynamicRangeProfiles? {
+    public fun toDynamicRangeProfiles(): DynamicRangeProfiles? {
         checkApi(
             33,
             "DynamicRangesCompat can only be " +
@@ -99,7 +101,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
         fun unwrap(): DynamicRangeProfiles?
     }
 
-    companion object {
+    public companion object {
         /**
          * Returns a [DynamicRangeProfilesCompat] using the capabilities derived from the provided
          * characteristics.
@@ -107,7 +109,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
          * @param cameraMetadata the metaData used to derive dynamic range information.
          * @return a [DynamicRangeProfilesCompat] object.
          */
-        fun fromCameraMetaData(cameraMetadata: CameraMetadata): DynamicRangeProfilesCompat {
+        public fun fromCameraMetaData(cameraMetadata: CameraMetadata): DynamicRangeProfilesCompat {
             var rangesCompat: DynamicRangeProfilesCompat? = null
             if (Build.VERSION.SDK_INT >= 33) {
                 rangesCompat =
@@ -126,7 +128,7 @@ internal constructor(private val impl: DynamicRangeProfilesCompatImpl) {
          * @return an equivalent [DynamicRangeProfilesCompat] object.
          */
         @RequiresApi(33)
-        fun toDynamicRangesCompat(
+        public fun toDynamicRangesCompat(
             dynamicRangeProfiles: DynamicRangeProfiles?
         ): DynamicRangeProfilesCompat? {
             if (dynamicRangeProfiles == null) {

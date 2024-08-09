@@ -48,7 +48,7 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CamcorderProfileResolutionQuirk(
+public class CamcorderProfileResolutionQuirk(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat
 ) : Quirk {
 
@@ -64,11 +64,12 @@ class CamcorderProfileResolutionQuirk(
     }
 
     /** Returns the supported video resolutions. */
-    fun getSupportedResolutions(): List<Size> {
+    public fun getSupportedResolutions(): List<Size> {
         return supportedResolution.toList()
     }
 
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
+            cameraMetadata.isHardwareLevelLegacy
     }
 }
