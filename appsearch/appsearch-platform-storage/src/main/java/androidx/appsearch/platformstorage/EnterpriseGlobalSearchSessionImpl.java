@@ -16,6 +16,8 @@
 
 package androidx.appsearch.platformstorage;
 
+import static androidx.appsearch.app.AppSearchResult.RESULT_NOT_FOUND;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -77,7 +79,25 @@ class EnterpriseGlobalSearchSessionImpl implements EnterpriseGlobalSearchSession
         mPlatformSession.getByDocumentId(packageName, databaseName,
                 RequestToPlatformConverter.toPlatformGetByDocumentIdRequest(request), mExecutor,
                 new BatchResultCallbackAdapter<>(future,
-                        GenericDocumentToPlatformConverter::toJetpackGenericDocument));
+                        GenericDocumentToPlatformConverter::toJetpackGenericDocument,
+                        result -> {
+                            // Due to b/349805579, when the enterprise user is missing, the batch
+                            // result returned may be empty when it should instead contain NOT_FOUND
+                            // errors. When this happens, we populate the batch result with
+                            // NOT_FOUND errors before returning it to the caller.
+                            if (!request.getIds().isEmpty() && result.getAll().isEmpty()) {
+                                AppSearchBatchResult.Builder<String, GenericDocument>
+                                        resultBuilder =
+                                        new AppSearchBatchResult.Builder<>();
+                                String namespace = request.getNamespace();
+                                for (String id : request.getIds()) {
+                                    resultBuilder.setFailure(id, RESULT_NOT_FOUND,
+                                            "Document (" + namespace + ", " + id + ") not found.");
+                                }
+                                result = resultBuilder.build();
+                            }
+                            return result;
+                        }));
         return future;
     }
 
