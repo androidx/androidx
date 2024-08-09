@@ -252,7 +252,7 @@ open class ScreenshotTestRule(config: ScreenshotTestRuleConfig = ScreenshotTestR
                 Status.PASSED -> DiffResultProto.DiffResult.Status.PASSED
                 Status.FAILED -> DiffResultProto.DiffResult.Status.FAILED
                 Status.MISSING_GOLDEN -> DiffResultProto.DiffResult.Status.MISSING_REFERENCE
-                Status.SIZE_MISMATCH -> DiffResultProto.DiffResult.Status.FLAKY
+                Status.SIZE_MISMATCH -> DiffResultProto.DiffResult.Status.FAILED
                 Status.UNRECOGNIZED -> DiffResultProto.DiffResult.Status.UNRECOGNIZED
             }
 
