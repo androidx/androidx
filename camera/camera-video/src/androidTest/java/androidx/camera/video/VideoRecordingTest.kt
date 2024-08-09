@@ -66,6 +66,7 @@ import androidx.camera.testing.impl.getRotatedAspectRatio
 import androidx.camera.testing.impl.getRotation
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.testing.impl.useAndRelease
+import androidx.camera.testing.impl.video.AudioChecker
 import androidx.camera.testing.impl.video.Recording
 import androidx.camera.testing.impl.video.RecordingSession
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
@@ -202,11 +203,7 @@ class VideoRecordingTest(
     }
 
     private val audioStreamAvailable by lazy {
-        AudioChecker.canAudioStreamBeStarted(
-            context,
-            cameraSelector,
-            Recorder.DEFAULT_QUALITY_SELECTOR
-        )
+        AudioChecker.canAudioStreamBeStarted(videoCapabilities, Recorder.DEFAULT_QUALITY_SELECTOR)
     }
 
     @Before
