@@ -272,7 +272,7 @@ public class PaginationModel {
 
     /** Return the estimated full height. */
     public int getEstimatedFullHeight() {
-        if (!isInitialized()) {
+        if (!isInitialized() || mSize == 0) {
             return 0;
         }
         // If we've rendered the entire document, we know exactly how tall we are
