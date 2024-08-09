@@ -16,16 +16,14 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.hardware.camera2.CameraExtensionCharacteristics
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.compat.Camera2MetadataProvider
 
 /** Utility class for providing fake metadata for tests. */
-class FakeCameraMetadataProvider(
-    private val fakeMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
-    private val fakeExtensionMetadata: Map<CameraId, CameraExtensionMetadata> = emptyMap()
+class FakeCamera2MetadataProvider(
+    private val fakeMetadata: Map<CameraId, CameraMetadata> = emptyMap()
 ) : Camera2MetadataProvider {
     override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata =
         awaitCameraMetadata(cameraId)
@@ -35,12 +33,6 @@ class FakeCameraMetadataProvider(
             "Failed to find metadata for $cameraId. Available fakeMetadata is $fakeMetadata"
         }
 
-    override fun getCameraExtensionCharacteristics(
-        cameraId: CameraId
-    ): CameraExtensionCharacteristics {
-        TODO("b/299356087 - Add support for fake extension metadata")
-    }
-
     override suspend fun getCameraExtensionMetadata(
         cameraId: CameraId,
         extension: Int
@@ -49,9 +41,8 @@ class FakeCameraMetadataProvider(
     override fun awaitCameraExtensionMetadata(
         cameraId: CameraId,
         extension: Int
-    ): CameraExtensionMetadata =
-        checkNotNull(fakeExtensionMetadata[cameraId]) {
-            "Failed to find extension metadata for $cameraId. Available " +
-                "fakeExtensionMetadata is $fakeExtensionMetadata"
-        }
+    ): CameraExtensionMetadata = awaitCameraMetadata(cameraId).awaitExtensionMetadata(extension)
+
+    override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> =
+        awaitCameraMetadata(cameraId).supportedExtensions
 }

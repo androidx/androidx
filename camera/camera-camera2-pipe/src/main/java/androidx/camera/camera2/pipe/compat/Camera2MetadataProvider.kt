@@ -16,13 +16,13 @@
 
 package androidx.camera.camera2.pipe.compat
 
-import android.hardware.camera2.CameraExtensionCharacteristics
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 
 /** Interface that can be used to query for [CameraMetadata] using an existing [CameraId]. */
 internal interface Camera2MetadataProvider {
+
     /** Attempt to retrieve [CameraMetadata], suspending the caller if it is not yet available. */
     suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata
 
@@ -30,9 +30,6 @@ internal interface Camera2MetadataProvider {
      * Attempt to retrieve [CameraMetadata], blocking the calling thread if it is not yet available.
      */
     fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata
-
-    /** Attempt to retrieve [CameraExtensionCharacteristics] */
-    fun getCameraExtensionCharacteristics(cameraId: CameraId): CameraExtensionCharacteristics
 
     /**
      * Attempt to retrieve [CameraExtensionMetadata], blocking the calling thread if it is not yet
@@ -48,4 +45,7 @@ internal interface Camera2MetadataProvider {
      * available.
      */
     fun awaitCameraExtensionMetadata(cameraId: CameraId, extension: Int): CameraExtensionMetadata
+
+    /** Retrieve the set of supported Camera2 Extensions for the given camera. */
+    fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int>
 }

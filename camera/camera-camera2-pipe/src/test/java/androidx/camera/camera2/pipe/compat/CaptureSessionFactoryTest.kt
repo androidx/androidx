@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.compat
 
 import android.content.Context
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CameraExtensionCharacteristics
 import android.os.Build
 import android.os.Looper
 import android.util.Size
@@ -55,7 +54,6 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
@@ -66,7 +64,6 @@ import org.robolectric.annotation.Config
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-@OptIn(ExperimentalCoroutinesApi::class)
 internal class CaptureSessionFactoryTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val mainLooper = Shadows.shadowOf(Looper.getMainLooper())
@@ -212,24 +209,22 @@ class FakeCamera2Module {
                 return fakeCamera.metadata
             }
 
-            override fun getCameraExtensionCharacteristics(
-                cameraId: CameraId
-            ): CameraExtensionCharacteristics {
-                TODO("b/299356087 - Add support for fake extension metadata")
-            }
-
             override suspend fun getCameraExtensionMetadata(
                 cameraId: CameraId,
                 extension: Int
             ): CameraExtensionMetadata {
-                TODO("b/299356087 - Add support for fake extension metadata")
+                throw UnsupportedOperationException("Unused for internal tests")
             }
 
             override fun awaitCameraExtensionMetadata(
                 cameraId: CameraId,
                 extension: Int
             ): CameraExtensionMetadata {
-                TODO("b/299356087 - Add support for fake extension metadata")
+                throw UnsupportedOperationException("Unused for internal tests")
+            }
+
+            override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
+                throw UnsupportedOperationException("Unused for internal tests")
             }
         }
 }

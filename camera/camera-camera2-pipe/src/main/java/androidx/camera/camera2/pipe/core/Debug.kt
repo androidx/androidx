@@ -44,7 +44,7 @@ object Debug {
      * @param label A name of the code section to appear in the trace.
      * @param block A block of code which is being traced.
      */
-    inline fun <T> trace(label: String, crossinline block: () -> T): T {
+    inline fun <T> trace(label: String, block: () -> T): T {
         try {
             traceStart { label }
             return block()
@@ -54,7 +54,7 @@ object Debug {
     }
 
     /** Wrap the specified [block] in a trace and timing calls. */
-    internal inline fun <T> instrument(label: String, crossinline block: () -> T): T {
+    internal inline fun <T> instrument(label: String, block: () -> T): T {
         val start = systemTimeSource.now()
         try {
             traceStart { label }

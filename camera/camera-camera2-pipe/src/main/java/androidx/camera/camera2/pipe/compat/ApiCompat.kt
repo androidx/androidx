@@ -497,6 +497,12 @@ internal object Api34Compat {
     ): Boolean = extensionCharacteristics.isPostviewAvailable(extension)
 
     @JvmStatic
+    fun isCaptureProcessProgressAvailable(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Boolean = extensionCharacteristics.isCaptureProcessProgressAvailable(extension)
+
+    @JvmStatic
     fun getPostviewSupportedSizes(
         extensionCharacteristics: CameraExtensionCharacteristics,
         extension: Int,
