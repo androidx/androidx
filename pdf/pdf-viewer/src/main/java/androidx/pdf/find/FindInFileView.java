@@ -216,6 +216,7 @@ public class FindInFileView extends LinearLayout {
 
     /** Resets the visibility of the FindInFileView and resets the search query */
     public void resetFindInFile() {
+        mOnClosedButtonCallback.run();
         this.setVisibility(GONE);
         mQueryBox.clearFocus();
         mQueryBox.setText("");
