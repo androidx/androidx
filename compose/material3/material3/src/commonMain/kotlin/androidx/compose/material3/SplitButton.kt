@@ -477,8 +477,11 @@ object SplitButtonDefaults {
      */
     val OuterCornerSize = CornerSize(50)
 
-    /** Default shape of the leading button */
+    /** Default content padding of the leading button */
     val LeadingButtonContentPadding = PaddingValues(16.dp, 10.dp, 12.dp, 10.dp)
+
+    /** Default content padding of the trailing button */
+    val TrailingButtonContentPadding = PaddingValues(horizontal = 13.dp)
 
     /**
      * Default minimum width of the [LeadingButton], applies to all 4 variants of the split button
@@ -675,6 +678,8 @@ object SplitButtonDefaults {
      *   [ButtonElevation.shadowElevation].
      * @param border the border to draw around the container of this button contentPadding the
      *   spacing values to apply internally between the container and the content
+     * @param contentPadding the spacing values to apply internally between the container and the
+     *   content
      * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
      *   emitting [Interaction]s for this button. You can use this to change the button's appearance
      *   or preview the button in different states. Note that if `null` is provided, interactions
@@ -692,6 +697,7 @@ object SplitButtonDefaults {
         colors: ButtonColors = ButtonDefaults.buttonColors(),
         elevation: ButtonElevation? = ButtonDefaults.buttonElevation(),
         border: BorderStroke? = null,
+        contentPadding: PaddingValues = TrailingButtonContentPadding,
         interactionSource: MutableInteractionSource? = null,
         content: @Composable RowScope.() -> Unit
     ) {
@@ -709,8 +715,16 @@ object SplitButtonDefaults {
             border = border,
             interactionSource = interactionSource,
             shape = rememberTrailingButtonShape(density, startCornerSize) { cornerMorphProgress },
-            content = content,
-        )
+        ) {
+            Row(
+                modifier =
+                    modifier.opticalCentering(
+                        trailingButtonShape(if (expanded) OuterCornerSize else startCornerSize),
+                        contentPadding
+                    ),
+                content = content
+            )
+        }
     }
 }
 

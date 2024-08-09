@@ -73,7 +73,6 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingButton = {
                         SplitButtonDefaults.AnimatedTrailingButton(
-                            modifier = Modifier.fillMaxHeight(),
                             onClick = {},
                             expanded = false,
                         ) {
@@ -284,7 +283,6 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         SplitButtonDefaults.AnimatedTrailingButton(
                             onClick = {},
                             expanded = false,
-                            modifier = Modifier.fillMaxHeight()
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,

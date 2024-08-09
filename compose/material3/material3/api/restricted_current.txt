@@ -2081,7 +2081,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class SplitButtonDefaults {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void AnimatedTrailingButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean expanded, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.shape.CornerSize startCornerSize, optional androidx.compose.material3.ButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void AnimatedTrailingButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean expanded, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.shape.CornerSize startCornerSize, optional androidx.compose.material3.ButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void LeadingButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.ButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public void TrailingButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.graphics.Shape shape, optional boolean enabled, optional androidx.compose.material3.ButtonColors colors, optional androidx.compose.material3.ButtonElevation? elevation, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method public androidx.compose.foundation.shape.CornerSize getInnerCornerSize();
@@ -2089,6 +2089,7 @@ package androidx.compose.material3 {
     method public float getLeadingIconSize();
     method public androidx.compose.foundation.shape.CornerSize getOuterCornerSize();
     method public float getSpacing();
+    method public androidx.compose.foundation.layout.PaddingValues getTrailingButtonContentPadding();
     method public float getTrailingIconSize();
     method public androidx.compose.foundation.shape.RoundedCornerShape leadingButtonShape(optional androidx.compose.foundation.shape.CornerSize endCornerSize);
     method public androidx.compose.foundation.shape.RoundedCornerShape trailingButtonShape(optional androidx.compose.foundation.shape.CornerSize startCornerSize);
@@ -2097,6 +2098,7 @@ package androidx.compose.material3 {
     property public final float LeadingIconSize;
     property public final androidx.compose.foundation.shape.CornerSize OuterCornerSize;
     property public final float Spacing;
+    property public final androidx.compose.foundation.layout.PaddingValues TrailingButtonContentPadding;
     property public final float TrailingIconSize;
     field public static final androidx.compose.material3.SplitButtonDefaults INSTANCE;
   }
