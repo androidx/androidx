@@ -978,3 +978,72 @@ fun ExitAlwaysBottomAppBarFixed() {
         }
     )
 }
+
+/**
+ * A sample for a vibrant [BottomAppBar] that collapses when the content is scrolled up, and appears
+ * when the content scrolled down. The content arrangement is fixed.
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun ExitAlwaysBottomAppBarFixedVibrant() {
+    val context = LocalContext.current
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
+    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
+    Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        bottomBar = {
+            BottomAppBar(
+                horizontalArrangement = BottomAppBarDefaults.HorizontalArrangement,
+                scrollBehavior = if (!isTouchExplorationEnabled) scrollBehavior else null,
+                containerColor =
+                    MaterialTheme.colorScheme.primaryContainer, // TODO(b/356885344): tokens
+                content = {
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                    FilledIconButton(
+                        modifier = Modifier.width(56.dp),
+                        onClick = { /* doSomething() */ }
+                    ) {
+                        Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                    }
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Filled.Check, contentDescription = "Localized description")
+                    }
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+                    }
+                }
+            )
+        },
+        content = { innerPadding ->
+            LazyColumn(
+                contentPadding = innerPadding,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val list = (0..75).map { it.toString() }
+                items(count = list.size) {
+                    Text(
+                        text = list[it],
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                    )
+                }
+            }
+        }
+    )
+}
