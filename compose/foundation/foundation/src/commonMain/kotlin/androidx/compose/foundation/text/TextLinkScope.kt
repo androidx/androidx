@@ -194,10 +194,13 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
             )
 
             if (!range.item.styles.isNullOrEmpty()) {
-                val linkStateObserver = remember { LinkStateInteractionSourceObserver() }
-                LaunchedEffect(interactionSource) {
-                    linkStateObserver.collectInteractionsForLinks(interactionSource)
+                // the interaction source is not hoisted, we create and remember it in the
+                // code above. Therefore there's no need to pass it as a key to the remember and a
+                // launch effect.
+                val linkStateObserver = remember {
+                    LinkStateInteractionSourceObserver(interactionSource)
                 }
+                LaunchedEffect(Unit) { linkStateObserver.collectInteractionsForLinks() }
 
                 StyleAnnotation(
                     linkStateObserver.isHovered,

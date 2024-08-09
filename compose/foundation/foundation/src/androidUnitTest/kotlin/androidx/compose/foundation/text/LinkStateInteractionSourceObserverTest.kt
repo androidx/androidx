@@ -27,7 +27,6 @@ import kotlin.test.Test
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import org.junit.Before
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
@@ -35,17 +34,13 @@ import org.junit.runners.JUnit4
 class TextLinkScopeTest {
     private lateinit var observer: LinkStateInteractionSourceObserver
 
-    @Before
-    fun setup() {
-        observer = LinkStateInteractionSourceObserver()
-    }
-
     @Test
     fun calculateStateForLink_focused() {
-        val interactionSource = constructInteractionSource(FocusInteraction.Focus())
+        observer =
+            LinkStateInteractionSourceObserver(constructInteractionSource(FocusInteraction.Focus()))
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isFocused).isTrue()
         }
     }
@@ -53,21 +48,24 @@ class TextLinkScopeTest {
     @Test
     fun calculateStateForLink_unFocused() {
         val focusInt = FocusInteraction.Focus()
-        val interactionSource =
-            constructInteractionSource(focusInt, FocusInteraction.Unfocus(focusInt))
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(focusInt, FocusInteraction.Unfocus(focusInt))
+            )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isFocused).isFalse()
         }
     }
 
     @Test
     fun calculateStateForLink_hovered() {
-        val interactionSource = constructInteractionSource(HoverInteraction.Enter())
+        observer =
+            LinkStateInteractionSourceObserver(constructInteractionSource(HoverInteraction.Enter()))
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isHovered).isTrue()
         }
     }
@@ -75,21 +73,26 @@ class TextLinkScopeTest {
     @Test
     fun calculateStateForLink_unHovered() {
         val hoverInt = HoverInteraction.Enter()
-        val interactionSource =
-            constructInteractionSource(hoverInt, HoverInteraction.Exit(hoverInt))
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(hoverInt, HoverInteraction.Exit(hoverInt))
+            )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isHovered).isFalse()
         }
     }
 
     @Test
     fun calculateStateForLink_pressed() {
-        val interactionSource = constructInteractionSource(PressInteraction.Press(Offset.Zero))
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(PressInteraction.Press(Offset.Zero))
+            )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isPressed).isTrue()
         }
     }
@@ -97,11 +100,13 @@ class TextLinkScopeTest {
     @Test
     fun calculateStateForLink_unPressed_cancel() {
         val pressInt = PressInteraction.Press(Offset.Zero)
-        val interactionSource =
-            constructInteractionSource(pressInt, PressInteraction.Cancel(pressInt))
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(pressInt, PressInteraction.Cancel(pressInt))
+            )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isPressed).isFalse()
         }
     }
@@ -109,21 +114,24 @@ class TextLinkScopeTest {
     @Test
     fun calculateStateForLink_unPressed_release() {
         val pressInt = PressInteraction.Press(Offset.Zero)
-        val interactionSource =
-            constructInteractionSource(pressInt, PressInteraction.Release(pressInt))
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(pressInt, PressInteraction.Release(pressInt))
+            )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isPressed).isFalse()
         }
     }
 
     @Test
     fun calculateStateForLink_noFocusHoverPress_differentInteraction() {
-        val interactionSource = constructInteractionSource(object : Interaction {})
+        observer =
+            LinkStateInteractionSourceObserver(constructInteractionSource(object : Interaction {}))
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isFocused).isFalse()
             assertThat(observer.isHovered).isFalse()
             assertThat(observer.isPressed).isFalse()
@@ -132,15 +140,17 @@ class TextLinkScopeTest {
 
     @Test
     fun calculateStateForLink_allFocusHoverPress() {
-        val interactionSource =
-            constructInteractionSource(
-                FocusInteraction.Focus(),
-                PressInteraction.Press(Offset.Zero),
-                HoverInteraction.Enter()
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(
+                    FocusInteraction.Focus(),
+                    PressInteraction.Press(Offset.Zero),
+                    HoverInteraction.Enter()
+                )
             )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isFocused).isTrue()
             assertThat(observer.isHovered).isTrue()
             assertThat(observer.isPressed).isTrue()
@@ -153,18 +163,20 @@ class TextLinkScopeTest {
         val focusInt = FocusInteraction.Focus()
         val hoverInt = HoverInteraction.Enter()
 
-        val interactionSource =
-            constructInteractionSource(
-                pressInt,
-                focusInt,
-                hoverInt,
-                HoverInteraction.Exit(hoverInt),
-                PressInteraction.Release(pressInt),
-                FocusInteraction.Unfocus(focusInt)
+        observer =
+            LinkStateInteractionSourceObserver(
+                constructInteractionSource(
+                    pressInt,
+                    focusInt,
+                    hoverInt,
+                    HoverInteraction.Exit(hoverInt),
+                    PressInteraction.Release(pressInt),
+                    FocusInteraction.Unfocus(focusInt)
+                )
             )
 
         runTest {
-            observer.collectInteractionsForLinks(interactionSource)
+            observer.collectInteractionsForLinks()
             assertThat(observer.isFocused).isFalse()
             assertThat(observer.isHovered).isFalse()
             assertThat(observer.isPressed).isFalse()
