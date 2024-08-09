@@ -129,6 +129,66 @@ private fun LayoutNode.findClosestParentNode(selector: (LayoutNode) -> Boolean):
     return null
 }
 
+private object TopBottomBoundsComparator : Comparator<Pair<Rect, MutableList<SemanticsNode>>> {
+    override fun compare(
+        a: Pair<Rect, MutableList<SemanticsNode>>,
+        b: Pair<Rect, MutableList<SemanticsNode>>
+    ): Int {
+        val r = a.first.top.compareTo(b.first.top)
+        if (r != 0) return r
+        return a.first.bottom.compareTo(b.first.bottom)
+    }
+}
+
+private object LtrBoundsComparator : Comparator<SemanticsNode> {
+    override fun compare(a: SemanticsNode, b: SemanticsNode): Int {
+        // TODO: boundsInWindow is quite expensive and allocates several objects,
+        // we need to fix this since this is called during sorting
+        val ab = a.boundsInWindow
+        val bb = b.boundsInWindow
+        var r = ab.left.compareTo(bb.left)
+        if (r != 0) return r
+        r = ab.top.compareTo(bb.top)
+        if (r != 0) return r
+        r = ab.bottom.compareTo(bb.bottom)
+        if (r != 0) return r
+        return ab.right.compareTo(bb.right)
+    }
+}
+
+private object RtlBoundsComparator : Comparator<SemanticsNode> {
+    override fun compare(a: SemanticsNode, b: SemanticsNode): Int {
+        // TODO: boundsInWindow is quite expensive and allocates several objects,
+        // we need to fix this since this is called during sorting
+        val ab = a.boundsInWindow
+        val bb = b.boundsInWindow
+        // We want to compare the right-most bounds, with the largest values first — that way
+        // the nodes will be sorted from right to left. Since `compareTo` returns a positive
+        // number if the first object is greater than the second, we want to call
+        // `b.compareTo(a)`, since we want our values in descending order, rather than
+        // ascending order.
+        var r = bb.right.compareTo(ab.right)
+        if (r != 0) return r
+        // Since in RTL layouts we still read from top to bottom, we compare the top and
+        // bottom bounds as usual.
+        r = ab.top.compareTo(bb.top)
+        if (r != 0) return r
+        r = ab.bottom.compareTo(bb.bottom)
+        if (r != 0) return r
+        // We also want to sort the left bounds in descending order, so call `b.compareTo(a)`
+        // here too.
+        return bb.left.compareTo(ab.left)
+    }
+}
+
+// Kotlin `sortWith` should just pull out the highest traversal indices, but keep everything
+// else in place. If the element does not have a `traversalIndex` then `0f` will be used.
+private val UnmergedConfigComparator: (SemanticsNode, SemanticsNode) -> Int = { a, b ->
+    a.unmergedConfig
+        .getOrElse(SemanticsProperties.TraversalIndex) { 0f }
+        .compareTo(b.unmergedConfig.getOrElse(SemanticsProperties.TraversalIndex) { 0f })
+}
+
 @Suppress("NullAnnotationGroup")
 @OptIn(InternalTextApi::class)
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
@@ -493,58 +553,6 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         )
     }
 
-    private object TopBottomBoundsComparator : Comparator<Pair<Rect, MutableList<SemanticsNode>>> {
-        override fun compare(
-            a: Pair<Rect, MutableList<SemanticsNode>>,
-            b: Pair<Rect, MutableList<SemanticsNode>>
-        ): Int {
-            val r = a.first.top.compareTo(b.first.top)
-            if (r != 0) return r
-            return a.first.bottom.compareTo(b.first.bottom)
-        }
-    }
-
-    private object LtrBoundsComparator : Comparator<SemanticsNode> {
-        override fun compare(a: SemanticsNode, b: SemanticsNode): Int {
-            // TODO: boundsInWindow is quite expensive and allocates several objects,
-            // we need to fix this since this is called during sorting
-            val ab = a.boundsInWindow
-            val bb = b.boundsInWindow
-            var r = ab.left.compareTo(bb.left)
-            if (r != 0) return r
-            r = ab.top.compareTo(bb.top)
-            if (r != 0) return r
-            r = ab.bottom.compareTo(bb.bottom)
-            if (r != 0) return r
-            return ab.right.compareTo(bb.right)
-        }
-    }
-
-    private object RtlBoundsComparator : Comparator<SemanticsNode> {
-        override fun compare(a: SemanticsNode, b: SemanticsNode): Int {
-            // TODO: boundsInWindow is quite expensive and allocates several objects,
-            // we need to fix this since this is called during sorting
-            val ab = a.boundsInWindow
-            val bb = b.boundsInWindow
-            // We want to compare the right-most bounds, with the largest values first — that way
-            // the nodes will be sorted from right to left. Since `compareTo` returns a positive
-            // number if the first object is greater than the second, we want to call
-            // `b.compareTo(a)`, since we want our values in descending order, rather than
-            // ascending order.
-            var r = bb.right.compareTo(ab.right)
-            if (r != 0) return r
-            // Since in RTL layouts we still read from top to bottom, we compare the top and
-            // bottom bounds as usual.
-            r = ab.top.compareTo(bb.top)
-            if (r != 0) return r
-            r = ab.bottom.compareTo(bb.bottom)
-            if (r != 0) return r
-            // We also want to sort the left bounds in descending order, so call `b.compareTo(a)`
-            // here too.
-            return bb.left.compareTo(ab.left)
-        }
-    }
-
     private val semanticComparators: Array<Comparator<SemanticsNode>> =
         Array(2) { index ->
             val comparator =
@@ -634,19 +642,14 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         rowGroupings.sortWith(TopBottomBoundsComparator)
 
         val returnList = ArrayList<SemanticsNode>()
+        val comparator = semanticComparator(layoutIsRtl)
         rowGroupings.fastForEach { row ->
             // Sort each individual row's parent nodes
-            row.second.sortWith(semanticComparator(layoutIsRtl))
+            row.second.sortWith(comparator)
             returnList.addAll(row.second)
         }
 
-        // Kotlin `sortWith` should just pull out the highest traversal indices, but keep everything
-        // else in place. If the element does not have a `traversalIndex` then `0f` will be used.
-        returnList.sortWith { a, b ->
-            a.unmergedConfig
-                .getOrElse(SemanticsProperties.TraversalIndex) { 0f }
-                .compareTo(b.unmergedConfig.getOrElse(SemanticsProperties.TraversalIndex) { 0f })
-        }
+        returnList.sortWith(UnmergedConfigComparator)
 
         var i = 0
         // Afterwards, go in and add the containers' children.
@@ -697,7 +700,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         if (isTraversalGroup) {
             // Recurse and record the container's children, sorted
             containerMapToChildren[currNode.id] =
-                subtreeSortedByGeometryGrouping(currRTL, currNode.children.toMutableList())
+                subtreeSortedByGeometryGrouping(currRTL, currNode.children)
         } else {
             // Otherwise, continue adding children to the list that'll be sorted regardless of
             // hierarchy
@@ -715,7 +718,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      */
     private fun subtreeSortedByGeometryGrouping(
         layoutIsRtl: Boolean,
-        listToSort: MutableList<SemanticsNode>
+        listToSort: List<SemanticsNode>
     ): MutableList<SemanticsNode> {
         // This should be mapping of [containerID: listOfSortedChildren], only populated if there
         // are container nodes in this level. If there are container nodes, `containerMapToChildren`
@@ -739,7 +742,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         val hostLayoutIsRtl = hostSemanticsNode.isRtl
 
         val semanticsOrderList =
-            subtreeSortedByGeometryGrouping(hostLayoutIsRtl, mutableListOf(hostSemanticsNode))
+            subtreeSortedByGeometryGrouping(hostLayoutIsRtl, listOf(hostSemanticsNode))
 
         // Iterate through our ordered list, and creating a mapping of current node to next node ID
         // We'll later read through this and set traversal order with IdToBeforeMap
@@ -1820,19 +1823,19 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 return false
             }
             android.R.id.accessibilityActionPageUp -> {
-                val pageAction = node.unmergedConfig.getOrNull(SemanticsActions.PageUp)
+                val pageAction = node.unmergedConfig.getOrNull(PageUp)
                 return pageAction?.action?.invoke() ?: false
             }
             android.R.id.accessibilityActionPageDown -> {
-                val pageAction = node.unmergedConfig.getOrNull(SemanticsActions.PageDown)
+                val pageAction = node.unmergedConfig.getOrNull(PageDown)
                 return pageAction?.action?.invoke() ?: false
             }
             android.R.id.accessibilityActionPageLeft -> {
-                val pageAction = node.unmergedConfig.getOrNull(SemanticsActions.PageLeft)
+                val pageAction = node.unmergedConfig.getOrNull(PageLeft)
                 return pageAction?.action?.invoke() ?: false
             }
             android.R.id.accessibilityActionPageRight -> {
-                val pageAction = node.unmergedConfig.getOrNull(SemanticsActions.PageRight)
+                val pageAction = node.unmergedConfig.getOrNull(PageRight)
                 return pageAction?.action?.invoke() ?: false
             }
             android.R.id.accessibilityActionSetProgress -> {
@@ -3226,12 +3229,12 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         @JvmStatic
         fun addPageActions(info: AccessibilityNodeInfoCompat, semanticsNode: SemanticsNode) {
             if (semanticsNode.enabled()) {
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PageUp)?.let {
+                semanticsNode.unmergedConfig.getOrNull(PageUp)?.let {
                     info.addAction(
                         AccessibilityActionCompat(android.R.id.accessibilityActionPageUp, it.label)
                     )
                 }
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PageDown)?.let {
+                semanticsNode.unmergedConfig.getOrNull(PageDown)?.let {
                     info.addAction(
                         AccessibilityActionCompat(
                             android.R.id.accessibilityActionPageDown,
@@ -3239,7 +3242,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         )
                     )
                 }
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PageLeft)?.let {
+                semanticsNode.unmergedConfig.getOrNull(PageLeft)?.let {
                     info.addAction(
                         AccessibilityActionCompat(
                             android.R.id.accessibilityActionPageLeft,
@@ -3247,7 +3250,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         )
                     )
                 }
-                semanticsNode.unmergedConfig.getOrNull(SemanticsActions.PageRight)?.let {
+                semanticsNode.unmergedConfig.getOrNull(PageRight)?.let {
                     info.addAction(
                         AccessibilityActionCompat(
                             android.R.id.accessibilityActionPageRight,
