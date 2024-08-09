@@ -539,10 +539,10 @@ internal constructor(@PublishedApi internal var content: Array<T?>, size: Int) :
     }
 
     /** Returns `true` if the [MutableVector] has no elements in it or `false` otherwise. */
-    fun isEmpty(): Boolean = size == 0
+    inline fun isEmpty(): Boolean = size == 0
 
     /** Returns `true` if there are elements in the [MutableVector] or `false` if it is empty. */
-    fun isNotEmpty(): Boolean = size != 0
+    inline fun isNotEmpty(): Boolean = size != 0
 
     /**
      * Returns the last element in the [MutableVector] or throws a [NoSuchElementException] if it

@@ -74,7 +74,7 @@ class LazyLayoutPrefetchState(
     }
 
     internal fun collectNestedPrefetchRequests(): List<PrefetchRequest> {
-        val onNestedPrefetch = onNestedPrefetch ?: return listOf()
+        val onNestedPrefetch = onNestedPrefetch ?: return emptyList()
 
         return NestedPrefetchScopeImpl().run {
             onNestedPrefetch()

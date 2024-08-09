@@ -311,7 +311,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
      * be useful. This is used for tooling to retrieve layout modifier and layer information.
      */
     fun getModifierInfo(): List<ModifierInfo> {
-        val current = current ?: return listOf()
+        val current = current ?: return emptyList()
         val infoList = MutableVector<ModifierInfo>(current.size)
         var i = 0
         headToTailExclusive { node ->

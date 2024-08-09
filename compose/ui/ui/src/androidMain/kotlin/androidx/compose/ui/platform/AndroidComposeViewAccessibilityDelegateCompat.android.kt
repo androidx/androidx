@@ -2469,24 +2469,21 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
             var propertyChanged = false
 
-            for (entry in newNode.unmergedConfig) {
+            newNode.unmergedConfig.props.forEach { key, value ->
                 var newlyObservingScroll = false
                 if (
-                    entry.key == SemanticsProperties.HorizontalScrollAxisRange ||
-                        entry.key == SemanticsProperties.VerticalScrollAxisRange
+                    key == SemanticsProperties.HorizontalScrollAxisRange ||
+                        key == SemanticsProperties.VerticalScrollAxisRange
                 ) {
                     newlyObservingScroll = registerScrollingId(id, oldScrollObservationScopes)
                 }
-                if (
-                    !newlyObservingScroll &&
-                        entry.value == oldNode.unmergedConfig.getOrNull(entry.key)
-                ) {
-                    continue
+                if (!newlyObservingScroll && value == oldNode.unmergedConfig.getOrNull(key)) {
+                    return@forEach
                 }
                 @Suppress("UNCHECKED_CAST")
-                when (entry.key) {
+                when (key) {
                     SemanticsProperties.PaneTitle -> {
-                        val paneTitle = entry.value as String
+                        val paneTitle = value as String
                         // If oldNode doesn't have pane title, it will be handled in
                         // updateSemanticsNodesCopyAndPanes().
                         if (oldNode.unmergedConfig.contains(SemanticsProperties.PaneTitle)) {
@@ -2590,7 +2587,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                             semanticsNodeIdToAccessibilityVirtualNodeId(id),
                             AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED,
                             AccessibilityEvent.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION,
-                            entry.value as List<String>
+                            value as List<String>
                         )
                     }
                     SemanticsProperties.EditableText -> {
@@ -2724,7 +2721,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         scheduleScrollEventIfNeeded(scope)
                     }
                     SemanticsProperties.Focused -> {
-                        if (entry.value as Boolean) {
+                        if (value as Boolean) {
                             sendEvent(
                                 createEvent(
                                     semanticsNodeIdToAccessibilityVirtualNodeId(newNode.id),
@@ -2760,10 +2757,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                     //  selected.
                     else -> {
                         propertyChanged =
-                            if (entry.value is AccessibilityAction<*>) {
-                                !(entry.value as AccessibilityAction<*>).accessibilityEquals(
-                                    oldNode.unmergedConfig.getOrNull(entry.key)
-                                )
+                            if (value is AccessibilityAction<*>) {
+                                !value.accessibilityEquals(oldNode.unmergedConfig.getOrNull(key))
                             } else {
                                 true
                             }

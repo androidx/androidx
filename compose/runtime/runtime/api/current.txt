@@ -692,8 +692,8 @@ package androidx.compose.runtime.collection {
     method public int indexOf(T element);
     method public inline int indexOfFirst(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public inline int indexOfLast(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
-    method public boolean isEmpty();
-    method public boolean isNotEmpty();
+    method public inline boolean isEmpty();
+    method public inline boolean isNotEmpty();
     method public T last();
     method public inline T last(kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> predicate);
     method public int lastIndexOf(T element);

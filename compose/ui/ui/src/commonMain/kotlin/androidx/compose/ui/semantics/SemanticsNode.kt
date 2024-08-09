@@ -37,7 +37,8 @@ import androidx.compose.ui.node.touchBoundsInRoot
 import androidx.compose.ui.node.useMinimumTouchTarget
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastForEach
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
 internal fun SemanticsNode(layoutNode: LayoutNode, mergingEnabled: Boolean) =
     SemanticsNode(
@@ -215,21 +216,24 @@ internal constructor(
         get() {
             if (isMergingSemanticsOfDescendants) {
                 val mergedConfig = unmergedConfig.copy()
-                mergeConfig(mergedConfig)
+                mergeConfig(mutableListOf(), mergedConfig)
                 return mergedConfig
             } else {
                 return unmergedConfig
             }
         }
 
-    private fun mergeConfig(mergedConfig: SemanticsConfiguration) {
+    private fun mergeConfig(
+        unmergedChildren: MutableList<SemanticsNode>,
+        mergedConfig: SemanticsConfiguration
+    ) {
         if (!unmergedConfig.isClearingSemantics) {
-            unmergedChildren().fastForEach { child ->
+            unmergedChildren.forEachUnmergedChild { child ->
                 // Don't merge children that themselves merge all their descendants (because that
                 // indicates they're independently screen-reader-focusable).
                 if (!child.isMergingSemanticsOfDescendants) {
                     mergedConfig.mergeChild(child.unmergedConfig)
-                    child.mergeConfig(mergedConfig)
+                    child.mergeConfig(unmergedChildren, mergedConfig)
                 }
             }
         }
@@ -239,14 +243,14 @@ internal constructor(
         get() = mergingEnabled && unmergedConfig.isMergingSemanticsOfDescendants
 
     internal fun unmergedChildren(
+        unmergedChildren: MutableList<SemanticsNode> = mutableListOf(),
         includeFakeNodes: Boolean = false,
         includeDeactivatedNodes: Boolean = false
     ): List<SemanticsNode> {
         // TODO(lmr): we should be able to do this more efficiently using visitSubtree
-        if (this.isFake) return listOf()
-        val unmergedChildren: MutableList<SemanticsNode> = mutableListOf()
+        if (isFake) return emptyList()
 
-        this.layoutNode.fillOneLayerOfSemanticsWrappers(unmergedChildren, includeDeactivatedNodes)
+        layoutNode.fillOneLayerOfSemanticsWrappers(unmergedChildren, includeDeactivatedNodes)
 
         if (includeFakeNodes) {
             emitFakeNodes(unmergedChildren)
@@ -314,17 +318,19 @@ internal constructor(
         includeDeactivatedNodes: Boolean = false
     ): List<SemanticsNode> {
         if (!includeReplacedSemantics && unmergedConfig.isClearingSemantics) {
-            return listOf()
+            return emptyList()
         }
+
+        val unmergedChildren = mutableListOf<SemanticsNode>()
 
         if (isMergingSemanticsOfDescendants) {
             // In most common merging scenarios like Buttons, this will return nothing.
             // In cases like a clickable Row itself containing a Button, this will
             // return the Button as a child.
-            return findOneLayerOfMergingSemanticsNodes()
+            return findOneLayerOfMergingSemanticsNodes(unmergedChildren)
         }
 
-        return unmergedChildren(includeFakeNodes, includeDeactivatedNodes)
+        return unmergedChildren(unmergedChildren, includeFakeNodes, includeDeactivatedNodes)
     }
 
     /** Whether this SemanticNode is the root of a tree or not */
@@ -353,18 +359,35 @@ internal constructor(
         }
 
     private fun findOneLayerOfMergingSemanticsNodes(
+        unmergedChildren: MutableList<SemanticsNode>,
         list: MutableList<SemanticsNode> = mutableListOf()
     ): List<SemanticsNode> {
-        unmergedChildren().fastForEach { child ->
+        unmergedChildren.forEachUnmergedChild { child ->
             if (child.isMergingSemanticsOfDescendants) {
                 list.add(child)
             } else {
                 if (!child.unmergedConfig.isClearingSemantics) {
-                    child.findOneLayerOfMergingSemanticsNodes(list)
+                    child.findOneLayerOfMergingSemanticsNodes(unmergedChildren, list)
                 }
             }
         }
         return list
+    }
+
+    @Suppress("BanInlineOptIn")
+    @OptIn(ExperimentalContracts::class)
+    private inline fun MutableList<SemanticsNode>.forEachUnmergedChild(
+        block: (SemanticsNode) -> Unit
+    ) {
+        contract { callsInPlace(block) }
+
+        // This allows block() to invoke unmergedChildren() recursively
+        val start = size
+        unmergedChildren(this)
+        val end = size
+        for (i in start until end) {
+            block(this[i])
+        }
     }
 
     /**

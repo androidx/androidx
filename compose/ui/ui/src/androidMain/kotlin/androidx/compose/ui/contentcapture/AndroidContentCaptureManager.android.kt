@@ -52,7 +52,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
-import androidx.core.util.keyIterator
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import java.util.function.Consumer
@@ -305,8 +304,9 @@ internal class AndroidContentCaptureManager(
 
             // Content capture requires events to be sent when an item is added/removed.
             if (oldNode == null) {
-                for (entry in newNode.unmergedConfig) {
-                    if (entry.key != SemanticsProperties.Text) continue
+                newNode.unmergedConfig.props.forEachKey { key ->
+                    @Suppress("LABEL_NAME_CLASH")
+                    if (key != SemanticsProperties.Text) return@forEachKey
                     val newText =
                         newNode.unmergedConfig.getOrNull(SemanticsProperties.Text)?.firstOrNull()
                     sendContentCaptureTextUpdateEvent(newNode.id, newText.toString())
@@ -314,8 +314,8 @@ internal class AndroidContentCaptureManager(
                 return@forEachKey
             }
 
-            for (entry in newNode.unmergedConfig) {
-                when (entry.key) {
+            newNode.unmergedConfig.props.forEachKey { key ->
+                when (key) {
                     SemanticsProperties.Text -> {
                         val oldText =
                             oldNode.unmergedConfig
@@ -609,7 +609,9 @@ internal class AndroidContentCaptureManager(
             contentCaptureManager: AndroidContentCaptureManager,
             response: LongSparseArray<ViewTranslationResponse?>
         ) {
-            for (key in response.keyIterator()) {
+            val size = response.size()
+            for (i in 0 until size) {
+                val key = response.keyAt(i)
                 response.get(key)?.getValue(ViewTranslationRequest.ID_TEXT)?.text?.let {
                     contentCaptureManager.currentSemanticsNodes[key.toInt()]?.semanticsNode?.let {
                         semanticsNode ->
