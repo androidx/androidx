@@ -17,6 +17,7 @@
 package androidx.build.clang
 
 import androidx.build.androidExtension
+import androidx.build.deviceTestsForEachCompat
 import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.SourceDirectories
 import com.android.utils.appendCapitalized
@@ -104,7 +105,7 @@ class NativeLibraryBundler(private val project: Project) {
             @Suppress("UnstableApiUsage") // usage of HasDeviceTests
             if (forTest) {
                 check(variant is HasDeviceTests) { "Variant $variant does not have a test target" }
-                variant.deviceTests.forEach { deviceTest ->
+                variant.deviceTestsForEachCompat { deviceTest ->
                     setup(deviceTest.name, deviceTest.sources.jniLibs)
                 }
             } else {
