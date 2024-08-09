@@ -40,7 +40,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.StopExecutionException
+import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.intellij.lang.annotations.Language
@@ -87,7 +87,7 @@ abstract class BaseKtfmtTask : DefaultTask() {
 
     @get:Internal val projectPath: String = project.path
 
-    @[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
+    @[InputFiles PathSensitive(PathSensitivity.RELATIVE) SkipWhenEmpty]
     open fun getInputFiles(): FileTree {
         val projectDirectory = overrideDirectory
         val subdirectories = overrideSubdirectories
@@ -219,7 +219,9 @@ abstract class KtfmtCheckFileTask : BaseKtfmtTask() {
     var format = false
 
     override fun getInputFiles(): FileTree {
-        if (files.isEmpty()) throw StopExecutionException()
+        if (files.isEmpty()) {
+            return objects.fileTree().setDir(projectDir).apply { exclude("**") }
+        }
         val kotlinFiles =
             files
                 .filter { file ->
@@ -233,7 +235,9 @@ abstract class KtfmtCheckFileTask : BaseKtfmtTask() {
                 }
                 .map { it.replace("./", "**/") }
 
-        if (kotlinFiles.isEmpty()) throw StopExecutionException()
+        if (kotlinFiles.isEmpty()) {
+            return objects.fileTree().setDir(projectDir).apply { exclude("**") }
+        }
         return objects.fileTree().setDir(projectDir).apply { include(kotlinFiles) }
     }
 
