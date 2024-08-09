@@ -27,8 +27,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Text
@@ -36,6 +38,7 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.material3.expressiveLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -83,6 +86,40 @@ fun MaterialThemeSample() {
         val currentTheme = if (!isSystemInDarkTheme()) "light" else "dark"
         ExtendedFloatingActionButton(
             text = { Text("FAB with text style and color from $currentTheme theme") },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
+            onClick = {}
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Preview
+@Sampled
+@Composable
+fun MaterialExpressiveThemeSample() {
+    val isDarkTheme = isSystemInDarkTheme()
+    val supportsDynamicColor = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+    val darkColorScheme = darkColorScheme(primary = Color(0xFF66ffc7))
+
+    val colorScheme =
+        when {
+            supportsDynamicColor && isDarkTheme -> {
+                dynamicDarkColorScheme(LocalContext.current)
+            }
+            supportsDynamicColor && !isDarkTheme -> {
+                dynamicLightColorScheme(LocalContext.current)
+            }
+            isDarkTheme -> darkColorScheme
+            else -> expressiveLightColorScheme()
+        }
+
+    val shapes = Shapes(largeIncreased = RoundedCornerShape(36.0.dp))
+
+    MaterialExpressiveTheme(colorScheme = colorScheme, shapes = shapes) {
+        val currentTheme = if (!isSystemInDarkTheme()) "light" else "dark"
+        ExtendedFloatingActionButton(
+            text = { Text("FAB with text style and color from $currentTheme expressive theme") },
             icon = { Icon(Icons.Filled.Favorite, contentDescription = "Localized Description") },
             onClick = {}
         )
