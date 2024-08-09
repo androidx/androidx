@@ -24,6 +24,7 @@ import androidx.compose.foundation.text.LocalTextContextMenu
 import androidx.compose.foundation.text.TextContextMenu
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
@@ -93,6 +94,7 @@ class PlatformLocalizationTest {
             override val copy = { }
             override val paste = { }
             override val selectAll = { }
+            override fun selectWordAtPositionIfNotAlreadySelected(offset: Offset) { }
         }
 
         setContent {

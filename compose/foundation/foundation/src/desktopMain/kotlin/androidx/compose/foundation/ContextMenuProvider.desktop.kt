@@ -38,7 +38,7 @@ import androidx.compose.ui.util.fastAll
 
 /**
  * Defines a container where context menu is available. Menu is triggered by right mouse clicks.
- * Representation of menu is defined by [LocalContextMenuRepresentation]`
+ * Representation of menu is defined by [LocalContextMenuRepresentation].
  *
  * @param items List of context menu items. Final context menu contains all items from descendant
  * [ContextMenuArea] and [ContextMenuDataProvider].
@@ -53,9 +53,38 @@ fun ContextMenuArea(
     enabled: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    ContextMenuArea(
+        items = items,
+        state = state,
+        modifier = Modifier.contextMenuOpenDetector(state, enabled),
+        content = content
+    )
+}
+
+/**
+ * Defines a container where context menu is available. Representation of menu is defined by
+ * [LocalContextMenuRepresentation].
+ *
+ * This overload does not trigger the opening of the context menu; it's up to the caller to do so
+ * by passing a [modifier] that does so.
+ *
+ * @param items List of context menu items. Final context menu contains all items from descendant
+ * [ContextMenuArea] and [ContextMenuDataProvider].
+ * @param state [ContextMenuState] of menu controlled by this area.
+ * @param modifier The modifier to attach to the element; this should include the trigger that opens
+ * the context menu (e.g. on right-click).
+ * @param content The content of the [ContextMenuArea].
+ */
+@Composable
+internal fun ContextMenuArea(
+    items: () -> List<ContextMenuItem>,
+    state: ContextMenuState,
+    modifier: Modifier,
+    content: @Composable () -> Unit
+) {
     val data = ContextMenuData(items, LocalContextMenuData.current)
 
-    Box(Modifier.contextMenuOpenDetector(state, enabled), propagateMinConstraints = true) {
+    Box(modifier, propagateMinConstraints = true) {
         content()
         LocalContextMenuRepresentation.current.Representation(state) { data.allItems }
     }
@@ -94,7 +123,10 @@ internal fun ContextMenuDataProvider(
     }
 }
 
-private val LocalContextMenuData = staticCompositionLocalOf<ContextMenuData?> {
+/**
+ * The composition local for specifying the local [ContextMenuData].
+ */
+val LocalContextMenuData = staticCompositionLocalOf<ContextMenuData?> {
     null
 }
 
@@ -251,7 +283,7 @@ class ContextMenuState {
             }
         }
 
-        object Closed : Status()
+        data object Closed : Status()
     }
 
     var status: Status by mutableStateOf(Status.Closed)

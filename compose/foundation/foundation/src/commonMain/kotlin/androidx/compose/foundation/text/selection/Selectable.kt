@@ -78,7 +78,7 @@ internal interface Selectable {
      * Return the [TextLayoutResult] of the selectable.
      *
      * @return [TextLayoutResult] of the [Selectable]. This could be null if called before
-     *   composing.
+     * composing.
      */
     fun textLayoutResult(): TextLayoutResult?
 
