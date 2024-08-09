@@ -16,43 +16,87 @@
 
 package androidx.privacysandbox.sdkruntime.integration.testapp
 
-import android.app.Activity
 import android.os.Bundle
+import android.os.IBinder
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
-import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
-import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
+import android.widget.Button
+import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
+import kotlinx.coroutines.launch
 
-class TestMainActivity : Activity() {
+class TestMainActivity : AppCompatActivity() {
 
-    private lateinit var sdkSandboxManager: SdkSandboxManagerCompat
+    lateinit var api: TestAppApi
+    private lateinit var logView: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        sdkSandboxManager = SdkSandboxManagerCompat.from(applicationContext)
+        setContentView(R.layout.activity_main)
+        api = TestAppApi(applicationContext)
+
+        logView = findViewById(R.id.logView)
+        logView.setMovementMethod(ScrollingMovementMethod())
+
+        setupLoadSdkButton()
+        setupUnloadSdkButton()
+        setupGetSandboxedSdksButton()
     }
 
-    suspend fun loadSdk(): ISdkApi {
-        Log.i(TAG, "Loading SDK")
-        val loadedSdk = sdkSandboxManager.loadSdk(SDK_NAME, Bundle())
-        val sdkApi = ISdkApi.Stub.asInterface(loadedSdk.getInterface())
-        Log.i(TAG, "Loaded successfully")
-        return sdkApi
+    private fun addLogMessage(message: String) {
+        Log.i(TAG, message)
+        logView.append(message + System.lineSeparator())
     }
 
-    fun unloadAllSdks() {
-        sdkSandboxManager
-            .getSandboxedSdks()
-            .mapNotNull(SandboxedSdkCompat::getSdkInfo)
-            .map(SandboxedSdkInfo::name)
-            .forEach(sdkSandboxManager::unloadSdk)
+    private fun setupLoadSdkButton() {
+        val loadSdkButton = findViewById<Button>(R.id.loadSdkButton)
+        loadSdkButton.setOnClickListener {
+            lifecycleScope.launch {
+                try {
+                    addLogMessage("Loading TestSDK...")
+                    val testSdk = api.loadTestSdk()
+                    addLogMessage("TestSDK Message: " + testSdk.getMessage())
+                    addLogMessage("Successfully loaded TestSDK")
+                } catch (ex: LoadSdkCompatException) {
+                    addLogMessage("Failed to load TestSDK: " + ex.message)
+                }
+            }
+        }
+    }
+
+    private fun setupUnloadSdkButton() {
+        val unloadSdkButton = findViewById<Button>(R.id.unloadSdkButton)
+        unloadSdkButton.setOnClickListener {
+            api.unloadTestSdk()
+            addLogMessage("Unloaded TestSDK")
+        }
+    }
+
+    private fun setupGetSandboxedSdksButton() {
+        val getSandboxedSdksButton = findViewById<Button>(R.id.getSandboxedSdksButton)
+        getSandboxedSdksButton.setOnClickListener {
+            val sdks = api.getSandboxedSdks()
+            addLogMessage("GetSandboxedSdks results (${sdks.size}):")
+            sdks.forEach {
+                addLogMessage("   SDK Package: ${it.getSdkInfo()?.name}")
+                addLogMessage("   SDK Version: ${it.getSdkInfo()?.version}")
+                addLogMessage("   SDK Message: ${getTestSdkMessage(it.getInterface())}")
+            }
+        }
+    }
+
+    private fun getTestSdkMessage(sdkInterface: IBinder?): String? {
+        return if (ISdkApi.DESCRIPTOR == sdkInterface?.interfaceDescriptor) {
+            ISdkApi.Stub.asInterface(sdkInterface).getMessage()
+        } else {
+            null
+        }
     }
 
     companion object {
         private const val TAG = "TestMainActivity"
-
-        /** Name of the SDK to be loaded. */
-        private const val SDK_NAME = "androidx.privacysandbox.sdkruntime.integrationtest.sdk"
     }
 }
