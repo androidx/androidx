@@ -29,10 +29,10 @@ import androidx.annotation.DoNotInline
 import kotlinx.coroutines.CompletableDeferred
 
 /** Convenient suspend functions for invoking camera2 APIs. */
-object Camera2Util {
+public object Camera2Util {
     /** Open the camera device and return the [CameraDevice] instance. */
     @DoNotInline
-    suspend fun openCameraDevice(
+    public suspend fun openCameraDevice(
         cameraManager: CameraManager,
         cameraId: String,
         handler: Handler
@@ -61,7 +61,7 @@ object Camera2Util {
     }
 
     /** Creates and returns a configured [CameraCaptureSession]. */
-    suspend fun openCaptureSession(
+    public suspend fun openCaptureSession(
         cameraDevice: CameraDevice,
         surfaceList: List<Surface>,
         handler: Handler
@@ -89,7 +89,7 @@ object Camera2Util {
      * Submits a single capture request to the [CameraCaptureSession] and returns the
      * [TotalCaptureResult].
      */
-    suspend fun submitSingleRequest(
+    public suspend fun submitSingleRequest(
         cameraDevice: CameraDevice,
         session: CameraCaptureSession,
         surfaces: List<Surface>,
@@ -127,7 +127,7 @@ object Camera2Util {
     /**
      * Starts the repeating request, and invokes the given block when [TotalCaptureResult] arrives.
      */
-    fun startRepeating(
+    public fun startRepeating(
         cameraDevice: CameraDevice,
         session: CameraCaptureSession,
         surfaces: List<Surface>,

@@ -53,7 +53,7 @@ import kotlin.math.roundToInt
  * @constructor Creates a ZoomGestureDetector for detecting zooming gesture.
  */
 // TODO(b/357735083): Remove the class and use the public release in camera-viewfinder-core.
-class ZoomGestureDetector
+public class ZoomGestureDetector
 @SuppressLint("ExecutorRegistration")
 @JvmOverloads
 constructor(
@@ -70,11 +70,11 @@ constructor(
      * @param focusX The X coordinate of the current gesture's focal point in pixels.
      * @param focusY The Y coordinate of the current gesture's focal point in pixels.
      */
-    abstract class ZoomEvent
+    public abstract class ZoomEvent
     private constructor(
-        @IntRange(from = 0) val eventTime: Long,
-        @Px @IntRange(from = 0) val focusX: Int,
-        @Px @IntRange(from = 0) val focusY: Int
+        @IntRange(from = 0) public val eventTime: Long,
+        @Px @IntRange(from = 0) public val focusX: Int,
+        @Px @IntRange(from = 0) public val focusY: Int
     ) {
         /**
          * The beginning of a zoom gesture. Reported by new pointers going down.
@@ -84,7 +84,7 @@ constructor(
          * @param focusX The X coordinate of the current gesture's focal point in pixels.
          * @param focusY The Y coordinate of the current gesture's focal point in pixels.
          */
-        class Begin(
+        public class Begin(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int
@@ -101,11 +101,11 @@ constructor(
          *   current event. The value will be less than `1.0` when zooming out (larger FOV) and will
          *   be larger than `1.0` when zooming in (narrower FOV).
          */
-        class Move(
+        public class Move(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) public val incrementalScaleFactor: Float
         ) : ZoomEvent(eventTime, focusX, focusY)
 
         /**
@@ -119,11 +119,11 @@ constructor(
          *   current event. The value will be less than `1.0` when zooming out (larger FOV) and will
          *   be larger than `1.0` when zooming in (narrower FOV).
          */
-        class End(
+        public class End(
             @IntRange(from = 0) eventTime: Long,
             @Px @IntRange(from = 0) focusX: Int,
             @Px @IntRange(from = 0) focusY: Int,
-            @FloatRange(from = 0.0, fromInclusive = false) val incrementalScaleFactor: Float
+            @FloatRange(from = 0.0, fromInclusive = false) public val incrementalScaleFactor: Float
         ) : ZoomEvent(eventTime, focusX, focusY)
     }
 
@@ -135,7 +135,7 @@ constructor(
      * - Zero or more [ZoomEvent.Move]
      * - One [ZoomEvent.End]
      */
-    fun interface OnZoomGestureListener {
+    public fun interface OnZoomGestureListener {
         /**
          * Responds to the events of a zooming gesture.
          *
@@ -156,7 +156,7 @@ constructor(
          * @param zoomEvent The zoom event that contains extended info about event state.
          * @return Whether or not the detector should consider this event as handled.
          */
-        @UiThread fun onZoomEvent(zoomEvent: ZoomEvent): Boolean
+        @UiThread public fun onZoomEvent(zoomEvent: ZoomEvent): Boolean
     }
 
     /**
@@ -181,7 +181,7 @@ constructor(
      *
      * If not set, this is enabled by default.
      */
-    var isQuickZoomEnabled: Boolean = true
+    public var isQuickZoomEnabled: Boolean = true
 
     /**
      * Whether the stylus zoom gesture, in which the user uses a stylus and presses the button,
@@ -189,7 +189,7 @@ constructor(
      *
      * If not set, this is enabled by default.
      */
-    var isStylusZoomEnabled = true
+    public var isStylusZoomEnabled: Boolean = true
 
     /**
      * The average distance in pixels between each of the pointers forming the gesture in progress
@@ -268,7 +268,7 @@ constructor(
      *   case.
      */
     @UiThread
-    fun onTouchEvent(event: MotionEvent): Boolean {
+    public fun onTouchEvent(event: MotionEvent): Boolean {
         eventTime = event.eventTime
 
         val action = event.actionMasked
@@ -465,7 +465,7 @@ constructor(
         return if (previousSpan > 0) currentSpan / previousSpan else 1.0f
     }
 
-    val timeDelta: Long
+    public val timeDelta: Long
         /**
          * Returns the time difference in milliseconds between the previous accepted zooming event
          * and the current zooming event.
@@ -474,7 +474,7 @@ constructor(
          */
         get() = eventTime - prevTime
 
-    companion object {
+    public companion object {
         // The default minimum span that the detector interprets a zooming event with. It's set to 0
         // to give the most responsiveness.
         // TODO(b/314702145): define a different span if appropriate.

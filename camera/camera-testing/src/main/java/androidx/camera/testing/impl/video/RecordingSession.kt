@@ -25,10 +25,10 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeoutOrNull
 
-class RecordingSession(
+public class RecordingSession(
     private val defaults: Defaults,
 ) {
-    data class Defaults(
+    public data class Defaults(
         val context: Context,
         val recorder: Recorder,
         val outputOptionsProvider: () -> OutputOptions,
@@ -45,7 +45,7 @@ class RecordingSession(
 
     private val recordingsToStop = mutableListOf<Recording>()
 
-    fun createRecording(
+    public fun createRecording(
         context: Context = defaults.context,
         recorder: Recorder = defaults.recorder,
         outputOptions: OutputOptions = defaults.outputOptionsProvider.invoke(),
@@ -68,7 +68,7 @@ class RecordingSession(
     }
 
     // Intentionally made a non-suspend function, which is convenient at the end of most tests.
-    fun release(timeoutMs: Long) = runBlocking {
+    public fun release(timeoutMs: Long): Unit = runBlocking {
         withTimeoutOrNull(timeoutMs) {
             recordingsToStop
                 .filter { !it.stoppedDeferred.isCompleted }

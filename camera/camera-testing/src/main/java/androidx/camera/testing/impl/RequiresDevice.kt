@@ -33,4 +33,4 @@ import androidx.test.filters.CustomFilter
 @CustomFilter(filterClass = RequiresDeviceFilter::class)
 @Retention(AnnotationRetention.RUNTIME)
 @Target(AnnotationTarget.FUNCTION)
-annotation class RequiresDevice
+public annotation class RequiresDevice

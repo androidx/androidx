@@ -37,7 +37,7 @@ private const val TAG = "FileUtil"
 private const val EXTENSION_MP4 = "mp4"
 private const val EXTENSION_TEXT = "txt"
 
-object FileUtil {
+public object FileUtil {
 
     /**
      * Write the given text to the external storage.
@@ -49,7 +49,7 @@ object FileUtil {
      * @return the [FileOutputOptions] instance.
      */
     @JvmStatic
-    fun writeTextToExternalFile(
+    public fun writeTextToExternalFile(
         text: String,
         fileName: String,
         extension: String = EXTENSION_TEXT
@@ -80,7 +80,7 @@ object FileUtil {
      * @see MediaStoreVideoCannotWrite
      */
     @JvmStatic
-    fun canDeviceWriteToMediaStore(): Boolean {
+    public fun canDeviceWriteToMediaStore(): Boolean {
         return DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
     }
 
@@ -93,7 +93,7 @@ object FileUtil {
      * @return the [FileOutputOptions] instance.
      */
     @JvmStatic
-    fun generateVideoFileOutputOptions(
+    public fun generateVideoFileOutputOptions(
         fileName: String,
         extension: String = EXTENSION_MP4
     ): FileOutputOptions {
@@ -113,7 +113,7 @@ object FileUtil {
      * @return the [MediaStoreOutputOptions] instance.
      */
     @JvmStatic
-    fun generateVideoMediaStoreOptions(
+    public fun generateVideoMediaStoreOptions(
         contentResolver: ContentResolver,
         fileName: String
     ): MediaStoreOutputOptions =
@@ -136,7 +136,7 @@ object FileUtil {
      * @return `true` if the given file name is valid, otherwise `false`.
      */
     @JvmStatic
-    fun isFileNameValid(fileName: String?): Boolean {
+    public fun isFileNameValid(fileName: String?): Boolean {
         return !fileName.isNullOrBlank()
     }
 
@@ -148,7 +148,7 @@ object FileUtil {
      *   existing parent folder path is not a folder or failed to create.
      */
     @JvmStatic
-    fun createParentFolder(filePath: String): Boolean {
+    public fun createParentFolder(filePath: String): Boolean {
         return createParentFolder(File(filePath))
     }
 
@@ -160,7 +160,8 @@ object FileUtil {
      *   existing parent folder path is not a folder or failed to create.
      */
     @JvmStatic
-    fun createParentFolder(file: File): Boolean = file.parentFile?.let { createFolder(it) } ?: false
+    public fun createParentFolder(file: File): Boolean =
+        file.parentFile?.let { createFolder(it) } ?: false
 
     /**
      * Creates folder for the input file.
@@ -170,7 +171,7 @@ object FileUtil {
      *   existing folder path is not a folder or failed to create.
      */
     @JvmStatic
-    fun createFolder(file: File): Boolean =
+    public fun createFolder(file: File): Boolean =
         if (file.exists()) {
             file.isDirectory
         } else {
@@ -185,7 +186,7 @@ object FileUtil {
      * @return the file path of the content uri or null if not found.
      */
     @JvmStatic
-    fun getAbsolutePathFromUri(resolver: ContentResolver, contentUri: Uri): String? {
+    public fun getAbsolutePathFromUri(resolver: ContentResolver, contentUri: Uri): String? {
         // MediaStore.Video.Media.DATA was deprecated in API level 29.
         val column = MediaStore.Video.Media.DATA
         try {

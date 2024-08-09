@@ -32,5 +32,6 @@ import androidx.concurrent.futures.await
  *   [InitializationException.cause] to get the error cause.
  * @see ProcessCameraProvider.getInstance
  */
-suspend fun ProcessCameraProvider.Companion.awaitInstance(context: Context) =
-    getInstance(context).await()
+public suspend fun ProcessCameraProvider.Companion.awaitInstance(
+    context: Context
+): ProcessCameraProvider = getInstance(context).await()

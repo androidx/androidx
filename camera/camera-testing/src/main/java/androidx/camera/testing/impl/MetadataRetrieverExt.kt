@@ -30,7 +30,7 @@ import android.util.Size
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rotateSize
 
-fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
+public fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit) {
     try {
         block(this)
     } finally {
@@ -38,28 +38,34 @@ fun MediaMetadataRetriever.useAndRelease(block: (MediaMetadataRetriever) -> Unit
     }
 }
 
-fun MediaMetadataRetriever.hasAudio(): Boolean = extractMetadata(METADATA_KEY_HAS_AUDIO) == "yes"
+public fun MediaMetadataRetriever.hasAudio(): Boolean =
+    extractMetadata(METADATA_KEY_HAS_AUDIO) == "yes"
 
-fun MediaMetadataRetriever.hasVideo(): Boolean = extractMetadata(METADATA_KEY_HAS_VIDEO) == "yes"
+public fun MediaMetadataRetriever.hasVideo(): Boolean =
+    extractMetadata(METADATA_KEY_HAS_VIDEO) == "yes"
 
-fun MediaMetadataRetriever.getDurationMs(): Long = extractMetadata(METADATA_KEY_DURATION)!!.toLong()
+public fun MediaMetadataRetriever.getDurationMs(): Long =
+    extractMetadata(METADATA_KEY_DURATION)!!.toLong()
 
-fun MediaMetadataRetriever.getRotation(): Int =
+public fun MediaMetadataRetriever.getRotation(): Int =
     extractMetadata(METADATA_KEY_VIDEO_ROTATION)?.toInt() ?: 0
 
-fun MediaMetadataRetriever.getWidth(): Int = extractMetadata(METADATA_KEY_VIDEO_WIDTH)!!.toInt()
+public fun MediaMetadataRetriever.getWidth(): Int =
+    extractMetadata(METADATA_KEY_VIDEO_WIDTH)!!.toInt()
 
-fun MediaMetadataRetriever.getHeight(): Int = extractMetadata(METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
+public fun MediaMetadataRetriever.getHeight(): Int =
+    extractMetadata(METADATA_KEY_VIDEO_HEIGHT)!!.toInt()
 
-fun MediaMetadataRetriever.getResolution(): Size = Size(getWidth(), getHeight())
+public fun MediaMetadataRetriever.getResolution(): Size = Size(getWidth(), getHeight())
 
-fun MediaMetadataRetriever.getRotatedResolution(): Size = rotateSize(getResolution(), getRotation())
+public fun MediaMetadataRetriever.getRotatedResolution(): Size =
+    rotateSize(getResolution(), getRotation())
 
-fun MediaMetadataRetriever.getAspectRatio(): Rational = Rational(getWidth(), getHeight())
+public fun MediaMetadataRetriever.getAspectRatio(): Rational = Rational(getWidth(), getHeight())
 
-fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational =
+public fun MediaMetadataRetriever.getRotatedAspectRatio(): Rational =
     if (is90or270(getRotation())) Rational(getHeight(), getWidth()) else getAspectRatio()
 
-fun MediaMetadataRetriever.getMimeType(): String = extractMetadata(METADATA_KEY_MIMETYPE)!!
+public fun MediaMetadataRetriever.getMimeType(): String = extractMetadata(METADATA_KEY_MIMETYPE)!!
 
-fun MediaMetadataRetriever.getLocation(): String = extractMetadata(METADATA_KEY_LOCATION)!!
+public fun MediaMetadataRetriever.getLocation(): String = extractMetadata(METADATA_KEY_LOCATION)!!

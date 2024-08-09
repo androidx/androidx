@@ -59,5 +59,4 @@ androidx {
     runApiTasks = new RunApiTasks.Yes()
     description = "Camera feature combination components for the Jetpack Camera Library, a " +
             "library providing camera feature combination with Google Play Services dependencies."
-    legacyDisableKotlinStrictApiMode = true
 }

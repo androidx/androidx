@@ -22,7 +22,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /** A mock implementations of [ScreenFlashListener] for testing purpose. */
-class MockScreenFlashListener : ScreenFlashListener {
+public class MockScreenFlashListener : ScreenFlashListener {
     private val lock = Object()
 
     @GuardedBy("lock") private var completeCount: Int = 0
@@ -34,7 +34,7 @@ class MockScreenFlashListener : ScreenFlashListener {
     }
 
     /** Gets the number of times [onCompleted] was invoked. */
-    fun getCompleteCount() = synchronized(lock) { completeCount }
+    public fun getCompleteCount(): Int = synchronized(lock) { completeCount }
 
     /**
      * Waits for [onCompleted] to be invoked once.
@@ -42,7 +42,7 @@ class MockScreenFlashListener : ScreenFlashListener {
      * @param timeoutInMillis The timeout of waiting in milliseconds.
      * @return True if [onCompleted] was invoked, false if timed out.
      */
-    fun awaitComplete(timeoutInMillis: Long): Boolean {
+    public fun awaitComplete(timeoutInMillis: Long): Boolean {
         return completeLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS)
     }
 }

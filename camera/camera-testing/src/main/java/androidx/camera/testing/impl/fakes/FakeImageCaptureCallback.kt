@@ -31,9 +31,10 @@ import kotlinx.coroutines.withTimeoutOrNull
 private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
 
 /** A fake implementation of the [ImageCapture.OnImageCapturedCallback] and used for test. */
-class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapturedCallback() {
+public class FakeImageCaptureCallback(captureCount: Int = 1) :
+    ImageCapture.OnImageCapturedCallback() {
     /** Data class of various image properties which are tested. */
-    data class ImageProperties(
+    public data class ImageProperties(
         val size: Size? = null,
         val format: Int = -1,
         val rotationDegrees: Int = -1,
@@ -42,8 +43,8 @@ class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapt
     )
 
     private val latch = CountdownDeferred(captureCount)
-    val results = mutableListOf<ImageProperties>()
-    val errors = mutableListOf<ImageCaptureException>()
+    public val results: MutableList<ImageProperties> = mutableListOf()
+    public val errors: MutableList<ImageCaptureException> = mutableListOf()
 
     override fun onCaptureSuccess(image: ImageProxy) {
         results.add(
@@ -75,11 +76,11 @@ class FakeImageCaptureCallback(captureCount: Int = 1) : ImageCapture.OnImageCapt
         return null
     }
 
-    suspend fun awaitCaptures(timeout: Long = CAPTURE_TIMEOUT) {
+    public suspend fun awaitCaptures(timeout: Long = CAPTURE_TIMEOUT) {
         Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
     }
 
-    suspend fun awaitCapturesAndAssert(
+    public suspend fun awaitCapturesAndAssert(
         timeout: Long = CAPTURE_TIMEOUT,
         capturedImagesCount: Int = 0,
         errorsCount: Int = 0
