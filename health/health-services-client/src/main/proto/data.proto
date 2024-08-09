@@ -194,7 +194,8 @@ message ExerciseCapabilities {
 enum BatchingMode {
   BATCHING_MODE_UNKNOWN = 0;
   BATCHING_MODE_HEART_RATE_5_SECONDS = 1;
-  reserved 2 to max;  // Next ID
+  reserved 2;
+  reserved 3 to max;  // Next ID
 }
 
 enum GolfShotTrackingPlaceInfoType {
