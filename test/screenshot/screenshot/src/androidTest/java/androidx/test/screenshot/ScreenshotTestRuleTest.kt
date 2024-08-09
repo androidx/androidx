@@ -112,7 +112,7 @@ class ScreenshotTestRuleTest {
         val textResultProto = rule.getPathOnDeviceFor(TEXT_RESULT_PROTO)
         val diffTextResultProto = rule.getPathOnDeviceFor(DIFF_TEXT_RESULT_PROTO)
         assertThat(textResultProto.readText()).contains("SIZE_MISMATCH")
-        assertThat(diffTextResultProto.readText()).contains("FLAKY")
+        assertThat(diffTextResultProto.readText()).contains("FAILED")
         assertThat(rule.getPathOnDeviceFor(IMAGE_ACTUAL).exists()).isTrue()
         assertThat(rule.getPathOnDeviceFor(IMAGE_DIFF).exists()).isFalse()
         assertThat(rule.getPathOnDeviceFor(IMAGE_EXPECTED).exists()).isTrue()
