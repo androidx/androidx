@@ -32,18 +32,21 @@ import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.tokens.SplitButtonSmallTokens
+import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
@@ -497,6 +500,9 @@ object SplitButtonDefaults {
     /** Default minimum width of the [TrailingButton]. */
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
 
+    /** Trailng button state layer alpha when in expanded state */
+    private const val TrailingButtonStateLayerAlpha = StateTokens.PressedStateLayerOpacity
+
     /**
      * Default shape of the leading button.
      *
@@ -705,16 +711,27 @@ object SplitButtonDefaults {
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
         val density = LocalDensity.current
+        val shape = rememberTrailingButtonShape(density, startCornerSize) { cornerMorphProgress }
 
         TrailingButton(
             onClick = onClick,
-            modifier = modifier,
+            modifier =
+                modifier.drawWithContent {
+                    drawContent()
+                    if (expanded) {
+                        drawOutline(
+                            outline = shape.createOutline(size, layoutDirection, density),
+                            color = colors.contentColor,
+                            alpha = TrailingButtonStateLayerAlpha
+                        )
+                    }
+                },
             enabled = enabled,
             colors = colors,
             elevation = elevation,
             border = border,
             interactionSource = interactionSource,
-            shape = rememberTrailingButtonShape(density, startCornerSize) { cornerMorphProgress },
+            shape = shape,
         ) {
             Row(
                 modifier =
