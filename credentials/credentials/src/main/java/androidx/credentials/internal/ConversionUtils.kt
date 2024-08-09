@@ -31,12 +31,16 @@ import androidx.credentials.exceptions.CreateCredentialCustomException
 import androidx.credentials.exceptions.CreateCredentialException
 import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.CreateCredentialNoCreateOptionException
+import androidx.credentials.exceptions.CreateCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialUnknownException
+import androidx.credentials.exceptions.CreateCredentialUnsupportedException
 import androidx.credentials.exceptions.GetCredentialCancellationException
 import androidx.credentials.exceptions.GetCredentialCustomException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.GetCredentialInterruptedException
+import androidx.credentials.exceptions.GetCredentialProviderConfigurationException
 import androidx.credentials.exceptions.GetCredentialUnknownException
+import androidx.credentials.exceptions.GetCredentialUnsupportedException
 import androidx.credentials.exceptions.NoCredentialException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
 import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialException
@@ -84,6 +88,11 @@ internal fun toJetpackGetException(
             GetCredentialInterruptedException(errorMsg)
         android.credentials.GetCredentialException.TYPE_UNKNOWN ->
             GetCredentialUnknownException(errorMsg)
+        GetCredentialProviderConfigurationException
+            .TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION ->
+            GetCredentialProviderConfigurationException(errorMsg)
+        GetCredentialUnsupportedException.TYPE_GET_CREDENTIAL_UNSUPPORTED_EXCEPTION ->
+            GetCredentialUnsupportedException(errorMsg)
         else -> {
             if (
                 errorType.startsWith(
@@ -111,6 +120,11 @@ internal fun toJetpackCreateException(
             CreateCredentialInterruptedException(errorMsg)
         android.credentials.CreateCredentialException.TYPE_UNKNOWN ->
             CreateCredentialUnknownException(errorMsg)
+        CreateCredentialProviderConfigurationException
+            .TYPE_CREATE_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION ->
+            CreateCredentialProviderConfigurationException(errorMsg)
+        CreateCredentialUnsupportedException.TYPE_CREATE_CREDENTIAL_UNSUPPORTED_EXCEPTION ->
+            CreateCredentialUnsupportedException(errorMsg)
         else -> {
             if (
                 errorType.startsWith(

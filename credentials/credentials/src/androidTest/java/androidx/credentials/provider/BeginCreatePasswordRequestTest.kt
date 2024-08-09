@@ -15,9 +15,13 @@
  */
 package androidx.credentials.provider
 
+import android.content.Context
 import android.content.pm.SigningInfo
 import android.os.Bundle
+import androidx.credentials.assertEquals
 import androidx.credentials.equals
+import androidx.credentials.getTestCallingAppInfo
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -26,17 +30,16 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 28)
 @SmallTest
 class BeginCreatePasswordRequestTest {
+    private val mContext: Context = ApplicationProvider.getApplicationContext()
+
     @Test
     fun constructor_success() {
-        BeginCreatePasswordCredentialRequest(
-            CallingAppInfo("sample_package_name", SigningInfo()),
-            Bundle()
-        )
+        BeginCreatePasswordCredentialRequest(getTestCallingAppInfo(mContext), Bundle())
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun getter_callingAppInfo() {
         val expectedCandidateQueryBundle = Bundle()
@@ -52,15 +55,14 @@ class BeginCreatePasswordRequestTest {
             )
 
         equals(request.candidateQueryData, expectedCandidateQueryBundle)
-        assertThat(request.callingAppInfo?.packageName).isEqualTo(expectedPackageName)
-        assertThat(request.callingAppInfo?.signingInfo).isEqualTo(expectedSigningInfo)
+        assertThat(request.callingAppInfo).isEqualTo(expectedCallingAppInfo)
     }
 
     @Test
     fun constructor_createFrom_success() {
         BeginCreatePasswordCredentialRequest.createFrom(
             Bundle(),
-            CallingAppInfo("sample_package_name", SigningInfo()),
+            getTestCallingAppInfo(mContext),
         )
     }
 
@@ -70,5 +72,50 @@ class BeginCreatePasswordRequestTest {
             Bundle(),
             null,
         )
+    }
+
+    @Test
+    fun bundleConversion_success() {
+        val expected =
+            BeginCreatePasswordCredentialRequest(
+                getTestCallingAppInfo(mContext, "origin"),
+                Bundle().apply {
+                    putBoolean("test1", true)
+                    putBundle("test2", Bundle())
+                    putString("test3", "test")
+                }
+            )
+
+        val actual =
+            BeginCreateCredentialRequest.fromBundle(BeginCreateCredentialRequest.asBundle(expected))
+
+        assertThat(actual).isInstanceOf(BeginCreatePasswordCredentialRequest::class.java)
+        assertEquals(actual!!, expected)
+    }
+
+    @Test
+    fun bundleConversion_noCallingAppInfo_success() {
+        val expected =
+            BeginCreatePasswordCredentialRequest(
+                null,
+                Bundle().apply {
+                    putBoolean("test1", true)
+                    putBundle("test2", Bundle())
+                    putString("test3", "test")
+                }
+            )
+
+        val actual =
+            BeginCreateCredentialRequest.fromBundle(BeginCreateCredentialRequest.asBundle(expected))
+
+        assertThat(actual).isInstanceOf(BeginCreatePasswordCredentialRequest::class.java)
+        assertEquals(actual!!, expected)
+    }
+
+    @Test
+    fun bundleConversion_emptyBundle_returnsNull() {
+        val actual = BeginCreateCredentialRequest.fromBundle(Bundle())
+
+        assertThat(actual).isNull()
     }
 }

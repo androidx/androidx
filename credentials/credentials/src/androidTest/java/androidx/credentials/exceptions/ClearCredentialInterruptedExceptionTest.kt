@@ -44,4 +44,38 @@ class ClearCredentialInterruptedExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedMessage = "msg"
+        val exception = ClearCredentialInterruptedException(expectedMessage)
+        val expectedType =
+            ClearCredentialInterruptedException.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialInterruptedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedMessage = null
+        val exception = ClearCredentialInterruptedException(expectedMessage)
+        val expectedType =
+            ClearCredentialInterruptedException.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialInterruptedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

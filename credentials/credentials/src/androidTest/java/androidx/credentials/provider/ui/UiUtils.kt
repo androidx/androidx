@@ -94,7 +94,7 @@ class UiUtils {
         @JvmStatic
         fun constructCreateEntryWithSimpleParams(
             accountName: CharSequence,
-            description: CharSequence
+            description: CharSequence?
         ): CreateEntry {
             return CreateEntry.Builder(accountName, sPendingIntent)
                 .setDescription(description)

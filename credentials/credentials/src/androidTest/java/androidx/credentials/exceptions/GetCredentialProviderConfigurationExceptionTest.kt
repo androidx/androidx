@@ -45,4 +45,34 @@ class GetCredentialProviderConfigurationExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType =
+            GetCredentialProviderConfigurationException
+                .TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+        val expectedMessage = "message"
+        val exception = GetCredentialProviderConfigurationException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialProviderConfigurationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType =
+            GetCredentialProviderConfigurationException
+                .TYPE_GET_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+        val expectedMessage = null
+        val exception = GetCredentialProviderConfigurationException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialProviderConfigurationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

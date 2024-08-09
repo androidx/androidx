@@ -44,4 +44,34 @@ class CreateCredentialCancellationExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType =
+            CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION
+        val expectedMessage = "message"
+        val exception = CreateCredentialCancellationException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(CreateCredentialCancellationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType =
+            CreateCredentialCancellationException.TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION
+        val expectedMessage = null
+        val exception = CreateCredentialCancellationException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(CreateCredentialCancellationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

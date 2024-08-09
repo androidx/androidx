@@ -43,4 +43,32 @@ class ClearCredentialUnknownExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedMessage = "msg"
+        val exception = ClearCredentialUnknownException(expectedMessage)
+        val expectedType = ClearCredentialUnknownException.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialUnknownException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedMessage = null
+        val exception = ClearCredentialUnknownException(expectedMessage)
+        val expectedType = ClearCredentialUnknownException.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialUnknownException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

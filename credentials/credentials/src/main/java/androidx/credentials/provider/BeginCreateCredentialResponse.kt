@@ -19,6 +19,10 @@ package androidx.credentials.provider
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.credentials.provider.CreateEntry.Companion.marshall
+import androidx.credentials.provider.CreateEntry.Companion.unmarshallCreateEntries
+import androidx.credentials.provider.RemoteEntry.Companion.marshall
+import androidx.credentials.provider.RemoteEntry.Companion.unmarshallRemoteEntry
 import androidx.credentials.provider.utils.BeginCreateCredentialUtil
 
 /**
@@ -125,6 +129,27 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
         }
     }
 
+    @RequiresApi(23)
+    private object Api23Impl {
+
+        @JvmStatic
+        fun asBundle(bundle: Bundle, response: BeginCreateCredentialResponse) {
+            response.createEntries.marshall(bundle)
+            response.remoteEntry?.marshall(bundle)
+        }
+
+        @JvmStatic
+        fun fromBundle(bundle: Bundle): BeginCreateCredentialResponse? {
+            val createEntries = bundle.unmarshallCreateEntries()
+            val remoteEntry = bundle.unmarshallRemoteEntry()
+            return if (createEntries.isEmpty() && remoteEntry == null) {
+                null
+            } else {
+                BeginCreateCredentialResponse(createEntries, remoteEntry)
+            }
+        }
+    }
+
     companion object {
         /**
          * Helper method to convert the class to a parcelable [Bundle], in case the class instance
@@ -136,6 +161,8 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, response)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.asBundle(bundle, response)
             }
             return bundle
         }
@@ -148,6 +175,8 @@ constructor(val createEntries: List<CreateEntry> = listOf(), val remoteEntry: Re
         fun fromBundle(bundle: Bundle): BeginCreateCredentialResponse? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
+            } else if (Build.VERSION.SDK_INT >= 23) {
+                Api23Impl.fromBundle(bundle)
             } else {
                 null
             }

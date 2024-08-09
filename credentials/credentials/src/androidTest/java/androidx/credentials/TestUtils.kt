@@ -17,16 +17,20 @@
 package androidx.credentials
 
 import android.content.Context
+import android.content.pm.PackageManager
 import android.content.pm.SigningInfo
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmap
+import androidx.credentials.provider.BeginCreateCredentialRequest
+import androidx.credentials.provider.BeginCreateCredentialResponse
 import androidx.credentials.provider.BeginGetCredentialOption
 import androidx.credentials.provider.BeginGetCredentialRequest
 import androidx.credentials.provider.BeginGetCredentialResponse
 import androidx.credentials.provider.CallingAppInfo
+import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.CustomCredentialEntry
 import androidx.credentials.provider.PasswordCredentialEntry
@@ -483,4 +487,83 @@ fun equals(
 fun equals(credential1: Credential, credential2: Credential) {
     assertThat(credential1.type).isEqualTo(credential2.type)
     equals(credential1.data, credential2.data)
+}
+
+fun assertEquals(
+    actual: BeginCreateCredentialRequest,
+    expected: BeginCreateCredentialRequest,
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
+    assertThat(equals(actual.candidateQueryData, expected.candidateQueryData)).isTrue()
+}
+
+@Suppress("deprecation")
+fun getTestCallingAppInfo(context: Context, origin: String? = null): CallingAppInfo {
+    val packageName = context.packageName
+    if (Build.VERSION.SDK_INT >= 28) {
+        val packageInfo =
+            context.packageManager.getPackageInfo(
+                packageName,
+                PackageManager.GET_SIGNING_CERTIFICATES
+            )
+        assertThat(packageInfo.signingInfo).isNotNull()
+        return CallingAppInfo(packageName, packageInfo.signingInfo!!, null)
+    } else {
+        val packageInfo =
+            context.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
+        return CallingAppInfo(packageName, packageInfo.signatures!!.filterNotNull(), origin)
+    }
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: BeginCreateCredentialResponse,
+    expected: BeginCreateCredentialResponse,
+) {
+    if (actual === expected) return
+    assertCreateEntryListEquals(context, actual.createEntries, expected.createEntries)
+    assertThat(actual.remoteEntry).isEqualTo(expected.remoteEntry)
+}
+
+@RequiresApi(23)
+fun assertCreateEntryListEquals(
+    context: Context,
+    actual: List<CreateEntry>,
+    expected: List<CreateEntry>,
+) {
+    if (actual === expected) return
+    assertThat(actual).hasSize(expected.size)
+    for (i in expected.indices) {
+        assertEquals(context, actual[i], expected[i])
+    }
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: CreateEntry,
+    expected: CreateEntry,
+) {
+    if (actual === expected) return
+    assertThat(actual.accountName).isEqualTo(expected.accountName)
+    assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+    assertEquals(context, actual.icon, expected.icon)
+    assertThat(actual.description).isEqualTo(expected.description)
+    if (Build.VERSION.SDK_INT >= 26) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            assertThat(actual.lastUsedTime?.toEpochMilli())
+                .isEqualTo(expected.lastUsedTime?.toEpochMilli())
+        } else {
+            assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+        }
+    }
+    assertThat(actual.getTotalCredentialCount()).isEqualTo(expected.getTotalCredentialCount())
+    assertThat(actual.getPasswordCredentialCount()).isEqualTo(expected.getPasswordCredentialCount())
+    assertThat(actual.getPublicKeyCredentialCount())
+        .isEqualTo(expected.getPublicKeyCredentialCount())
+    assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+    assertThat(actual.biometricPromptData).isEqualTo(expected.biometricPromptData)
 }

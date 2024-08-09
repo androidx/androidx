@@ -16,6 +16,7 @@
 
 package androidx.credentials.exceptions
 
+import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManager
 
@@ -32,4 +33,41 @@ abstract class ClearCredentialException
 internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null
-) : Exception(errorMessage?.toString())
+) : Exception(errorMessage?.toString()) {
+    internal companion object {
+        private const val EXTRA_CLEAR_CREDENTIAL_EXCEPTION_TYPE =
+            "androidx.credentials.provider.extra.CLEAR_CREDENTIAL_EXCEPTION_TYPE"
+        private const val EXTRA_CLEAR_CREDENTIAL_EXCEPTION_MESSAGE =
+            "androidx.credentials.provider.extra.CLEAR_CREDENTIAL_EXCEPTION_MESSAGE"
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun asBundle(ex: ClearCredentialException): Bundle {
+            val bundle = Bundle()
+            bundle.putString(EXTRA_CLEAR_CREDENTIAL_EXCEPTION_TYPE, ex.type)
+            ex.errorMessage?.let {
+                bundle.putCharSequence(EXTRA_CLEAR_CREDENTIAL_EXCEPTION_MESSAGE, it)
+            }
+            return bundle
+        }
+
+        @JvmStatic
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        fun fromBundle(bundle: Bundle): ClearCredentialException? {
+            val type = bundle.getString(EXTRA_CLEAR_CREDENTIAL_EXCEPTION_TYPE) ?: return null
+            val msg = bundle.getCharSequence(EXTRA_CLEAR_CREDENTIAL_EXCEPTION_MESSAGE)
+            return when (type) {
+                ClearCredentialUnknownException.TYPE_CLEAR_CREDENTIAL_UNKNOWN_EXCEPTION ->
+                    ClearCredentialUnknownException(msg)
+                ClearCredentialInterruptedException.TYPE_CLEAR_CREDENTIAL_INTERRUPTED_EXCEPTION ->
+                    ClearCredentialInterruptedException(msg)
+                ClearCredentialUnsupportedException.TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION ->
+                    ClearCredentialUnsupportedException(msg)
+                ClearCredentialProviderConfigurationException
+                    .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION ->
+                    ClearCredentialProviderConfigurationException(msg)
+                else -> ClearCredentialCustomException(type, msg)
+            }
+        }
+    }
+}

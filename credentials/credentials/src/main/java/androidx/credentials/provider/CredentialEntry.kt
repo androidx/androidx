@@ -257,7 +257,7 @@ internal constructor(
 
         /** Marshall a list of credential entries through an intent. */
         @RequiresApi(23)
-        internal fun List<CredentialEntry>.marshallToIntent(bundle: Bundle) {
+        internal fun List<CredentialEntry>.marshall(bundle: Bundle) {
             bundle.putInt(EXTRA_CREDENTIAL_ENTRY_SIZE, this.size)
             for (i in indices) {
                 when (val entry = this[i]) {

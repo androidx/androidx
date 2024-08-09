@@ -43,4 +43,32 @@ class CreateCredentialUnknownExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType = CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
+        val expectedMessage = "message"
+        val exception = CreateCredentialUnknownException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(CreateCredentialUnknownException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType = CreateCredentialUnknownException.TYPE_CREATE_CREDENTIAL_UNKNOWN_EXCEPTION
+        val expectedMessage = null
+        val exception = CreateCredentialUnknownException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(CreateCredentialUnknownException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

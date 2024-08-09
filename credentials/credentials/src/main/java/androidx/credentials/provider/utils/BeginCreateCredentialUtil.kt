@@ -18,65 +18,31 @@ package androidx.credentials.provider.utils
 
 import android.annotation.SuppressLint
 import androidx.annotation.RequiresApi
-import androidx.credentials.PasswordCredential
-import androidx.credentials.PublicKeyCredential
-import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.provider.BeginCreateCredentialRequest
 import androidx.credentials.provider.BeginCreateCredentialResponse
-import androidx.credentials.provider.BeginCreateCustomCredentialRequest
-import androidx.credentials.provider.BeginCreatePasswordCredentialRequest
-import androidx.credentials.provider.BeginCreatePublicKeyCredentialRequest
 import androidx.credentials.provider.CallingAppInfo
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.RemoteEntry
 import java.util.stream.Collectors
 
-@RequiresApi(34)
 internal class BeginCreateCredentialUtil {
     internal companion object {
+
         @JvmStatic
+        @RequiresApi(34)
         internal fun convertToJetpackRequest(
             request: android.service.credentials.BeginCreateCredentialRequest
         ): BeginCreateCredentialRequest {
-            return try {
-                when (request.type) {
-                    PasswordCredential.TYPE_PASSWORD_CREDENTIAL -> {
-                        BeginCreatePasswordCredentialRequest.createFrom(
-                            request.data,
-                            request.callingAppInfo?.let {
-                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
-                            }
-                        )
-                    }
-                    PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL -> {
-                        BeginCreatePublicKeyCredentialRequest.createFrom(
-                            request.data,
-                            request.callingAppInfo?.let {
-                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
-                            }
-                        )
-                    }
-                    else -> {
-                        BeginCreateCustomCredentialRequest(
-                            request.type,
-                            request.data,
-                            request.callingAppInfo?.let {
-                                CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
-                            }
-                        )
-                    }
+            return BeginCreateCredentialRequest.createFrom(
+                request.type,
+                request.data,
+                request.callingAppInfo?.let {
+                    CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
                 }
-            } catch (e: FrameworkClassParsingException) {
-                BeginCreateCustomCredentialRequest(
-                    request.type,
-                    request.data,
-                    request.callingAppInfo?.let {
-                        CallingAppInfo.create(it.packageName, it.signingInfo, it.origin)
-                    }
-                )
-            }
+            )
         }
 
+        @RequiresApi(34)
         fun convertToFrameworkResponse(
             response: BeginCreateCredentialResponse
         ): android.service.credentials.BeginCreateCredentialResponse {
@@ -89,6 +55,7 @@ internal class BeginCreateCredentialUtil {
 
         @SuppressLint("MissingPermission") // This is an internal util. Actual permission check
         // happens at the framework level
+        @RequiresApi(34)
         private fun populateRemoteEntry(
             frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
             remoteEntry: RemoteEntry?
@@ -101,6 +68,7 @@ internal class BeginCreateCredentialUtil {
             )
         }
 
+        @RequiresApi(34)
         private fun populateCreateEntries(
             frameworkBuilder: android.service.credentials.BeginCreateCredentialResponse.Builder,
             createEntries: List<CreateEntry>
@@ -115,6 +83,7 @@ internal class BeginCreateCredentialUtil {
             }
         }
 
+        @RequiresApi(34)
         fun convertToFrameworkRequest(
             request: BeginCreateCredentialRequest
         ): android.service.credentials.BeginCreateCredentialRequest {
@@ -134,6 +103,7 @@ internal class BeginCreateCredentialUtil {
             )
         }
 
+        @RequiresApi(34)
         fun convertToJetpackResponse(
             frameworkResponse: android.service.credentials.BeginCreateCredentialResponse
         ): BeginCreateCredentialResponse {

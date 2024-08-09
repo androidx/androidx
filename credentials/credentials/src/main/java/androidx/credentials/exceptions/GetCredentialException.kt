@@ -38,9 +38,9 @@ internal constructor(
 ) : Exception(errorMessage?.toString()) {
     internal companion object {
         private const val EXTRA_GET_CREDENTIAL_EXCEPTION_TYPE =
-            "androidx.credentials.provider.extra.EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE"
+            "androidx.credentials.provider.extra.CREATE_CREDENTIAL_EXCEPTION_TYPE"
         private const val EXTRA_GET_CREDENTIAL_EXCEPTION_MESSAGE =
-            "androidx.credentials.provider.extra.EXTRA_CREATE_CREDENTIAL_EXCEPTION_MESSAGE"
+            "androidx.credentials.provider.extra.CREATE_CREDENTIAL_EXCEPTION_MESSAGE"
 
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY)
