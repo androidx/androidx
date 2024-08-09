@@ -56,45 +56,43 @@ val WearMaterial3Demos =
             Material3DemoCategory(
                 "Button",
                 listOf(
-                    Material3DemoCategory(
-                        "Edge Button",
-                        listOf(
-                            ComposableDemo("Simple Edge Button") { EdgeButtonSample() },
-                            ComposableDemo("Simple Edge Button below SLC") {
-                                EdgeButtonListSample()
-                            },
-                            ComposableDemo("Edge Button Sizes") { EdgeButtonSizeDemo() },
-                            ComposableDemo("Edge Button Below C") { EdgeButtonBelowColumnDemo() },
-                            ComposableDemo("Edge Button Below LC") {
-                                EdgeButtonBelowLazyColumnDemo()
-                            },
-                            ComposableDemo("Edge Button Below SLC") {
-                                EdgeButtonBelowScalingLazyColumnDemo()
-                            },
-                        )
-                    ),
-                    Material3DemoCategory(
-                        "Button Group",
-                        listOf(
-                            ComposableDemo("Button Group") { ButtonGroupDemo() },
-                            ComposableDemo("Button Group Sample") { ButtonGroupSample() },
-                        )
-                    ),
-                    ComposableDemo("Button") { ButtonDemo() },
+                    ComposableDemo("Filled Button") { ButtonDemo() },
                     ComposableDemo("Filled Tonal Button") { FilledTonalButtonDemo() },
+                    ComposableDemo("Filled Variant Button") { FilledVariantButtonDemo() },
                     ComposableDemo("Outlined Button") { OutlinedButtonDemo() },
                     ComposableDemo("Child Button") { ChildButtonDemo() },
-                    ComposableDemo("Compact Button") { CompactButtonDemo() },
                     ComposableDemo("Multiline Button") { MultilineButtonDemo() },
                     ComposableDemo("Avatar Button") { AvatarButtonDemo() },
                     ComposableDemo("Button (Image Background)") { ButtonBackgroundImageDemo() },
                 )
             ),
+            ComposableDemo("Compact Button") { CompactButtonDemo() },
+            ComposableDemo("Icon Button") { IconButtonDemo() },
+            ComposableDemo("Text Button") { TextButtonDemo() },
+            Material3DemoCategory(
+                "Edge Button",
+                listOf(
+                    ComposableDemo("Simple Edge Button") { EdgeButtonSample() },
+                    ComposableDemo("Sizes and Colors") { EdgeButtonMultiDemo() },
+                    ComposableDemo("Configurable") { EdgeButtonConfigurableDemo() },
+                    ComposableDemo("Simple Edge Button below SLC") { EdgeButtonListSample() },
+                    ComposableDemo("Edge Button Below C") { EdgeButtonBelowColumnDemo() },
+                    ComposableDemo("Edge Button Below LC") { EdgeButtonBelowLazyColumnDemo() },
+                    ComposableDemo("Edge Button Below SLC") {
+                        EdgeButtonBelowScalingLazyColumnDemo()
+                    },
+                )
+            ),
+            Material3DemoCategory(
+                "Button Group",
+                listOf(
+                    ComposableDemo("Two buttons") { ButtonGroupSample() },
+                    ComposableDemo("Three buttons") { ButtonGroupDemo() },
+                )
+            ),
             ComposableDemo("List Header") { Centralize { ListHeaderDemo() } },
             Material3DemoCategory("Time Text", TimeTextDemos),
             ComposableDemo("Card") { CardDemo() },
-            ComposableDemo("Text Button") { TextButtonDemo() },
-            ComposableDemo("Icon Button") { IconButtonDemo() },
             ComposableDemo("Animated Shape Buttons") { AnimatedShapeButtonDemo() },
             ComposableDemo("Text Toggle Button") { TextToggleButtonDemo() },
             ComposableDemo("Icon Toggle Button") { IconToggleButtonDemo() },

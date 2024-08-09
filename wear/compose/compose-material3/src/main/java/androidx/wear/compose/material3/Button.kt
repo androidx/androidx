@@ -1058,6 +1058,67 @@ object ButtonDefaults {
         )
 
     /**
+     * Creates a [ButtonColors] as an alternative to the [filledTonalButtonColors], giving a surface
+     * with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha]) value
+     * applied and container will have alpha ([DisabledContainerAlpha]) value applied.
+     *
+     * Example of a [Button] with [filledVariantButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.SimpleFilledVariantButtonSample
+     */
+    @Composable
+    fun filledVariantButtonColors() = MaterialTheme.colorScheme.defaultFilledVariantButtonColors
+
+    /**
+     * Creates a [ButtonColors] as an alternative to the [filledTonalButtonColors], giving a surface
+     * with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * If a button is disabled then the content will have an alpha([DisabledContentAlpha]) value
+     * applied and container will have alpha ([DisabledContainerAlpha]) value applied.
+     *
+     * Example of a [Button] with [filledVariantButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.FilledVariantButtonSample
+     * @param containerColor The background color of this [Button] when enabled
+     * @param contentColor The content color of this [Button] when enabled
+     * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
+     *   for secondaryLabel content
+     * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContainerColor The background color of this [Button] when not enabled
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
+     *   enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
+     */
+    @Composable
+    fun filledVariantButtonColors(
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        secondaryContentColor: Color = Color.Unspecified,
+        iconColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+        disabledSecondaryContentColor: Color = Color.Unspecified,
+        disabledIconColor: Color = Color.Unspecified
+    ): ButtonColors =
+        MaterialTheme.colorScheme.defaultFilledVariantButtonColors.copy(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            secondaryContentColor = secondaryContentColor,
+            iconColor = iconColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor
+        )
+
+    /**
      * Creates a [ButtonColors] with a transparent background (typically paired with
      * [ButtonDefaults.outlinedButtonBorder]), the defaults for medium emphasis buttons like
      * [OutlinedButton], for important, non-primary actions that need attention.
@@ -1360,38 +1421,6 @@ object ButtonDefaults {
      */
     val CompactButtonTapTargetPadding: PaddingValues = PaddingValues(top = 8.dp, bottom = 8.dp)
 
-    private val ColorScheme.defaultFilledButtonColors: ButtonColors
-        get() {
-            return defaultFilledButtonColorsCached
-                ?: ButtonColors(
-                        containerColor = fromToken(FilledButtonTokens.ContainerColor),
-                        contentColor = fromToken(FilledButtonTokens.LabelColor),
-                        secondaryContentColor = fromToken(FilledButtonTokens.SecondaryLabelColor),
-                        iconColor = fromToken(FilledButtonTokens.IconColor),
-                        disabledContainerColor =
-                            fromToken(FilledButtonTokens.DisabledContainerColor)
-                                .toDisabledColor(
-                                    disabledAlpha = FilledButtonTokens.DisabledContainerOpacity
-                                ),
-                        disabledContentColor =
-                            fromToken(FilledButtonTokens.DisabledContentColor)
-                                .toDisabledColor(
-                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
-                                ),
-                        disabledSecondaryContentColor =
-                            fromToken(FilledButtonTokens.DisabledContentColor)
-                                .toDisabledColor(
-                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
-                                ),
-                        disabledIconColor =
-                            fromToken(FilledButtonTokens.DisabledContentColor)
-                                .toDisabledColor(
-                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
-                                )
-                    )
-                    .also { defaultFilledButtonColorsCached = it }
-        }
-
     private val ColorScheme.defaultFilledTonalButtonColors: ButtonColors
         get() {
             return defaultFilledTonalButtonColorsCached
@@ -1423,6 +1452,40 @@ object ButtonDefaults {
                                 )
                     )
                     .also { defaultFilledTonalButtonColorsCached = it }
+        }
+
+    private val ColorScheme.defaultFilledVariantButtonColors: ButtonColors
+        get() {
+            return defaultFilledVariantButtonColorsCached
+                ?: ButtonColors(
+                        containerColor = fromToken(FilledButtonTokens.VariantContainerColor),
+                        contentColor = fromToken(FilledButtonTokens.VariantLabelColor),
+                        secondaryContentColor =
+                            fromToken(FilledButtonTokens.VariantSecondaryLabelColor)
+                                .copy(alpha = FilledButtonTokens.VariantSecondaryLabelOpacity),
+                        iconColor = fromToken(FilledButtonTokens.VariantIconColor),
+                        disabledContainerColor =
+                            fromToken(FilledButtonTokens.DisabledContainerColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledButtonTokens.DisabledContainerOpacity
+                                ),
+                        disabledContentColor =
+                            fromToken(FilledButtonTokens.DisabledContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+                                ),
+                        disabledSecondaryContentColor =
+                            fromToken(FilledButtonTokens.DisabledContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+                                ),
+                        disabledIconColor =
+                            fromToken(FilledButtonTokens.DisabledContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+                                )
+                    )
+                    .also { defaultFilledVariantButtonColorsCached = it }
         }
 
     private val ColorScheme.defaultOutlinedButtonColors: ButtonColors

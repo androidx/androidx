@@ -466,6 +466,48 @@ object IconButtonDefaults {
         )
 
     /**
+     * Creates a [IconButtonColors] as an alternative to the [filledTonalIconButtonColors], giving a
+     * surface with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * Example of creating a [FilledIconButton] with [filledVariantIconButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.FilledVariantIconButtonSample
+     */
+    @Composable
+    fun filledVariantIconButtonColors() =
+        MaterialTheme.colorScheme.defaultFilledVariantIconButtonColors
+
+    /**
+     * Creates a [IconButtonColors] as an alternative to the [filledTonalIconButtonColors], giving a
+     * surface with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * Example of creating a [FilledIconButton] with [filledVariantIconButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.FilledVariantIconButtonSample
+     * @param containerColor The background color of this icon button when enabled.
+     * @param contentColor The color of this icon when enabled.
+     * @param disabledContainerColor The background color of this icon button when not enabled.
+     * @param disabledContentColor The color of this icon when not enabled.
+     */
+    @Composable
+    fun filledVariantIconButtonColors(
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified
+    ): IconButtonColors =
+        MaterialTheme.colorScheme.defaultFilledVariantIconButtonColors.copy(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor
+        )
+
+    /**
      * Creates a [IconButtonColors] with the colors for [FilledTonalIconButton]- by default, a muted
      * colored background with a contrasting icon color. If the icon button is disabled then the
      * colors will default to the MaterialTheme onSurface color with suitable alpha values applied.
@@ -672,6 +714,26 @@ object IconButtonDefaults {
                                 )
                     )
                     .also { defaultFilledIconButtonColorsCached = it }
+        }
+
+    private val ColorScheme.defaultFilledVariantIconButtonColors: IconButtonColors
+        get() {
+            return defaultFilledVariantIconButtonColorsCached
+                ?: IconButtonColors(
+                        containerColor = fromToken(FilledIconButtonTokens.VariantContainerColor),
+                        contentColor = fromToken(FilledIconButtonTokens.VariantContentColor),
+                        disabledContainerColor =
+                            fromToken(FilledIconButtonTokens.DisabledContainerColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledIconButtonTokens.DisabledContainerOpacity
+                                ),
+                        disabledContentColor =
+                            fromToken(FilledIconButtonTokens.DisabledContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledIconButtonTokens.DisabledContentOpacity
+                                )
+                    )
+                    .also { defaultFilledVariantIconButtonColorsCached = it }
         }
 
     private val ColorScheme.defaultFilledTonalIconButtonColors: IconButtonColors

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: v0_67
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -25,4 +25,6 @@ internal object FilledIconButtonTokens {
     val DisabledContainerOpacity = 0.12f
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContentOpacity = 0.38f
+    val VariantContainerColor = ColorSchemeKeyTokens.PrimaryContainer
+    val VariantContentColor = ColorSchemeKeyTokens.OnPrimaryContainer
 }

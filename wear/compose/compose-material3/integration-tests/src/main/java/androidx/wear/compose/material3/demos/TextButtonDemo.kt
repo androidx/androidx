@@ -37,6 +37,7 @@ import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.samples.FilledTextButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalTextButtonSample
+import androidx.wear.compose.material3.samples.FilledVariantTextButtonSample
 import androidx.wear.compose.material3.samples.LargeFilledTonalTextButtonSample
 import androidx.wear.compose.material3.samples.OutlinedTextButtonSample
 import androidx.wear.compose.material3.samples.TextButtonSample
@@ -83,6 +84,20 @@ fun TextButtonDemo() {
                 }
             }
         }
+        item { ListHeader { Text("Filled Variant") } }
+        item {
+            Row {
+                FilledVariantTextButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
+                TextButton(
+                    onClick = {},
+                    enabled = false,
+                    colors = TextButtonDefaults.filledVariantTextButtonColors()
+                ) {
+                    Text(text = "ABC")
+                }
+            }
+        }
         item { ListHeader { Text("Outlined") } }
         item {
             Row {
@@ -100,6 +115,64 @@ fun TextButtonDemo() {
         }
         item { ListHeader { Text("With onLongClick") } }
         item { TextButtonWithOnLongClickSample { showOnLongClickToast(context) } }
+        item { ListHeader { Text("Corner Animation") } }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val interactionSource1 = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    colors = TextButtonDefaults.filledTextButtonColors(),
+                    shape = TextButtonDefaults.animatedShape(interactionSource1),
+                    interactionSource = interactionSource1
+                ) {
+                    Text(text = "ABC")
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                val interactionSource2 = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    colors = TextButtonDefaults.filledVariantTextButtonColors(),
+                    shape = TextButtonDefaults.animatedShape(interactionSource2),
+                    interactionSource = interactionSource2
+                ) {
+                    Text(text = "ABC")
+                }
+            }
+        }
+        item { ListHeader { Text("Morphed Animation") } }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                val interactionSource1 = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    colors = TextButtonDefaults.filledTextButtonColors(),
+                    shape =
+                        TextButtonDefaults.animatedShape(
+                            interactionSource1,
+                            shape = CutCornerShape(5.dp),
+                            pressedShape = RoundedCornerShape(5.dp)
+                        ),
+                    interactionSource = interactionSource1
+                ) {
+                    Text(text = "ABC")
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                val interactionSource2 = remember { MutableInteractionSource() }
+                TextButton(
+                    onClick = {},
+                    colors = TextButtonDefaults.filledVariantTextButtonColors(),
+                    shape =
+                        TextButtonDefaults.animatedShape(
+                            interactionSource2,
+                            shape = CutCornerShape(5.dp),
+                            pressedShape = RoundedCornerShape(5.dp)
+                        ),
+                    interactionSource = interactionSource2
+                ) {
+                    Text(text = "ABC")
+                }
+            }
+        }
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -120,39 +193,6 @@ fun TextButtonDemo() {
                 Text("${TextButtonDefaults.SmallButtonSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 TextButtonWithSize(TextButtonDefaults.SmallButtonSize)
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Rounded Corner Animation")
-                Spacer(Modifier.width(4.dp))
-                val interactionSource = remember { MutableInteractionSource() }
-                TextButton(
-                    onClick = {},
-                    shape = TextButtonDefaults.animatedShape(interactionSource),
-                    interactionSource = interactionSource
-                ) {
-                    Text(text = "ABC")
-                }
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Morphed Corner Animation")
-                Spacer(Modifier.width(4.dp))
-                val interactionSource = remember { MutableInteractionSource() }
-                TextButton(
-                    onClick = {},
-                    shape =
-                        TextButtonDefaults.animatedShape(
-                            interactionSource,
-                            shape = CutCornerShape(5.dp),
-                            pressedShape = RoundedCornerShape(5.dp)
-                        ),
-                    interactionSource = interactionSource
-                ) {
-                    Text(text = "ABC")
-                }
             }
         }
     }

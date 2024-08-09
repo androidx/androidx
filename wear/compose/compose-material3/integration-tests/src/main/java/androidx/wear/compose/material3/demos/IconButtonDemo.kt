@@ -39,6 +39,7 @@ import androidx.wear.compose.material3.OutlinedIconButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FilledIconButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalIconButtonSample
+import androidx.wear.compose.material3.samples.FilledVariantIconButtonSample
 import androidx.wear.compose.material3.samples.IconButtonSample
 import androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedIconButtonSample
@@ -76,6 +77,20 @@ fun IconButtonDemo() {
                 }
             }
         }
+        item { ListHeader { Text("Filled Variant") } }
+        item {
+            Row {
+                FilledVariantIconButtonSample()
+                Spacer(modifier = Modifier.width(5.dp))
+                FilledIconButton(
+                    onClick = {},
+                    enabled = false,
+                    colors = IconButtonDefaults.filledVariantIconButtonColors()
+                ) {
+                    StandardIcon(ButtonDefaults.IconSize)
+                }
+            }
+        }
         item { ListHeader { Text("Outlined") } }
         item {
             Row {
@@ -88,6 +103,62 @@ fun IconButtonDemo() {
         }
         item { ListHeader { Text("With onLongClick") } }
         item { IconButtonWithOnLongClickSample { showOnLongClickToast(context) } }
+        item { ListHeader { Text("Corner Animation") } }
+        item {
+            Row {
+                val interactionSource1 = remember { MutableInteractionSource() }
+                FilledIconButton(
+                    onClick = {},
+                    shape = IconButtonDefaults.animatedShape(interactionSource1),
+                    interactionSource = interactionSource1
+                ) {
+                    StandardIcon(ButtonDefaults.IconSize)
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                val interactionSource2 = remember { MutableInteractionSource() }
+                FilledIconButton(
+                    onClick = {},
+                    colors = IconButtonDefaults.filledVariantIconButtonColors(),
+                    shape = IconButtonDefaults.animatedShape(interactionSource2),
+                    interactionSource = interactionSource2
+                ) {
+                    StandardIcon(ButtonDefaults.IconSize)
+                }
+            }
+        }
+        item { ListHeader { Text("Morphed Animation") } }
+        item {
+            Row {
+                val interactionSource1 = remember { MutableInteractionSource() }
+                FilledIconButton(
+                    onClick = {},
+                    shape =
+                        IconButtonDefaults.animatedShape(
+                            interactionSource1,
+                            shape = CutCornerShape(5.dp),
+                            pressedShape = RoundedCornerShape(5.dp)
+                        ),
+                    interactionSource = interactionSource1
+                ) {
+                    StandardIcon(ButtonDefaults.IconSize)
+                }
+                Spacer(modifier = Modifier.width(5.dp))
+                val interactionSource2 = remember { MutableInteractionSource() }
+                FilledIconButton(
+                    onClick = {},
+                    colors = IconButtonDefaults.filledVariantIconButtonColors(),
+                    shape =
+                        IconButtonDefaults.animatedShape(
+                            interactionSource2,
+                            shape = CutCornerShape(5.dp),
+                            pressedShape = RoundedCornerShape(5.dp)
+                        ),
+                    interactionSource = interactionSource2
+                ) {
+                    StandardIcon(ButtonDefaults.IconSize)
+                }
+            }
+        }
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -115,39 +186,6 @@ fun IconButtonDemo() {
                 Text("${IconButtonDefaults.ExtraSmallButtonSize.value.toInt()}dp")
                 Spacer(Modifier.width(4.dp))
                 IconButtonWithSize(IconButtonDefaults.ExtraSmallButtonSize)
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Rounded Corner Animation")
-                Spacer(Modifier.width(4.dp))
-                val interactionSource = remember { MutableInteractionSource() }
-                IconButton(
-                    onClick = {},
-                    shape = IconButtonDefaults.animatedShape(interactionSource),
-                    interactionSource = interactionSource
-                ) {
-                    StandardIcon(ButtonDefaults.IconSize)
-                }
-            }
-        }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Morphed Corner Animation")
-                Spacer(Modifier.width(4.dp))
-                val interactionSource = remember { MutableInteractionSource() }
-                IconButton(
-                    onClick = {},
-                    shape =
-                        IconButtonDefaults.animatedShape(
-                            interactionSource,
-                            shape = CutCornerShape(5.dp),
-                            pressedShape = RoundedCornerShape(5.dp)
-                        ),
-                    interactionSource = interactionSource
-                ) {
-                    StandardIcon(ButtonDefaults.IconSize)
-                }
             }
         }
     }

@@ -61,12 +61,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
+import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
+import androidx.wear.compose.material3.samples.SimpleButtonSample
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
 class ButtonTest {
     @get:Rule val rule = createComposeRule()
+
+    @Test
+    fun simple_button_sample_builds() {
+        rule.setContentWithTheme { SimpleButtonSample() }
+    }
+
+    @Test
+    fun filled_tonal_compact_button_sample_builds() {
+        rule.setContentWithTheme { FilledTonalCompactButtonSample() }
+    }
 
     @Test
     fun supports_testtag() {
@@ -411,6 +423,32 @@ class ButtonTest {
                 MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
             },
             content = { FilledTonalButton(Status.Disabled) }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun gives_enabled_button_correct_filled_variant_colors() {
+        rule.verifyButtonColors(
+            status = Status.Enabled,
+            expectedContainerColor = { MaterialTheme.colorScheme.primaryContainer },
+            expectedContentColor = { MaterialTheme.colorScheme.onPrimaryContainer },
+            content = { FilledVariantButton(Status.Enabled) }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun gives_disabled_button_correct_filled_variant_colors() {
+        rule.verifyButtonColors(
+            status = Status.Disabled,
+            expectedContainerColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContainerAlpha)
+            },
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            },
+            content = { FilledVariantButton(Status.Disabled) }
         )
     }
 
@@ -1188,6 +1226,22 @@ private fun FilledTonalButton(
     var actualContentColor = Color.Transparent
     FilledTonalButton(
         onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+    ) {
+        actualContentColor = LocalContentColor.current
+    }
+    return actualContentColor
+}
+
+@Composable
+private fun FilledVariantButton(
+    status: Status,
+): Color {
+    var actualContentColor = Color.Transparent
+    Button(
+        onClick = {},
+        colors = ButtonDefaults.filledVariantButtonColors(),
         enabled = status.enabled(),
         modifier = Modifier.testTag(TEST_TAG),
     ) {

@@ -387,6 +387,32 @@ class TextButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
+    fun gives_enabled_filled_variant_text_button_colors() {
+        rule.verifyTextButtonColors(
+            status = Status.Enabled,
+            colors = { TextButtonDefaults.filledVariantTextButtonColors() },
+            expectedContainerColor = { MaterialTheme.colorScheme.primaryContainer },
+            expectedContentColor = { MaterialTheme.colorScheme.onPrimaryContainer }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    fun gives_disabled_filled_variant_text_button_colors() {
+        rule.verifyTextButtonColors(
+            status = Status.Disabled,
+            colors = { TextButtonDefaults.filledVariantTextButtonColors() },
+            expectedContainerColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContainerAlpha)
+            },
+            expectedContentColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledContentAlpha)
+            }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
     fun gives_enabled_filled_tonal_text_button_colors() {
         rule.verifyTextButtonColors(
             status = Status.Enabled,

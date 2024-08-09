@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: v0_68
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -37,4 +37,9 @@ internal object FilledButtonTokens {
     val SecondaryLabelColor = ColorSchemeKeyTokens.OnPrimary
     val SecondaryLabelFont = TypographyKeyTokens.LabelSmall
     val SecondaryLabelOpacity = 0.8f
+    val VariantContainerColor = ColorSchemeKeyTokens.PrimaryContainer
+    val VariantIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val VariantLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val VariantSecondaryLabelColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val VariantSecondaryLabelOpacity = 0.8f
 }
