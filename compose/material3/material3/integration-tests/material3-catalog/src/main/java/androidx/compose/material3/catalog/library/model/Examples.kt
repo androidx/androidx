@@ -127,6 +127,7 @@ import androidx.compose.material3.samples.ModalBottomSheetSample
 import androidx.compose.material3.samples.ModalExpandedNavigationRailSample
 import androidx.compose.material3.samples.ModalNavigationDrawerSample
 import androidx.compose.material3.samples.MultiAutocompleteExposedDropdownMenuSample
+import androidx.compose.material3.samples.MultiSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.NavigationBarItemWithBadge
 import androidx.compose.material3.samples.NavigationBarSample
 import androidx.compose.material3.samples.NavigationBarWithOnlySelectedLabelsSample
@@ -188,6 +189,7 @@ import androidx.compose.material3.samples.SimpleOutlinedTextFieldSample
 import androidx.compose.material3.samples.SimpleTextFieldSample
 import androidx.compose.material3.samples.SimpleTopAppBar
 import androidx.compose.material3.samples.SimpleTopAppBarWithSubtitle
+import androidx.compose.material3.samples.SingleSelectConnectedButtonGroupSample
 import androidx.compose.material3.samples.SliderSample
 import androidx.compose.material3.samples.SliderWithCustomThumbSample
 import androidx.compose.material3.samples.SliderWithCustomTrackAndThumb
@@ -384,7 +386,21 @@ val ButtonGroupsExamples =
             sourceUrl = ButtonGroupsExampleSourceUrl,
         ) {
             ButtonGroupSample()
-        }
+        },
+        Example(
+            name = "SingleSelectConnectedButtonGroupSample",
+            description = ButtonGroupsExampleDescription,
+            sourceUrl = ButtonGroupsExampleSourceUrl,
+        ) {
+            SingleSelectConnectedButtonGroupSample()
+        },
+        Example(
+            name = "MultiSelectConnectedButtonGroupSample",
+            description = ButtonGroupsExampleDescription,
+            sourceUrl = ButtonGroupsExampleSourceUrl,
+        ) {
+            MultiSelectConnectedButtonGroupSample()
+        },
     )
 
 private const val CardsExampleDescription = "Cards examples"

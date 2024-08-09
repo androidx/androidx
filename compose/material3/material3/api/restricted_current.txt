@@ -235,10 +235,20 @@ package androidx.compose.material3 {
   @androidx.compose.runtime.Stable public final class ButtonElevation {
   }
 
-  public final class ButtonGroupDefaults {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class ButtonGroupDefaults {
     method public float getAnimateFraction();
+    method public androidx.compose.ui.graphics.Shape getConnectedLeadingButtonPressShape();
+    method public androidx.compose.ui.graphics.Shape getConnectedLeadingButtonShape();
+    method public float getConnectedSpaceBetween();
+    method public androidx.compose.ui.graphics.Shape getConnectedTrailingButtonPressShape();
+    method public androidx.compose.ui.graphics.Shape getConnectedTrailingButtonShape();
     method public float getSpaceBetween();
     property public final float animateFraction;
+    property public final androidx.compose.ui.graphics.Shape connectedLeadingButtonPressShape;
+    property public final androidx.compose.ui.graphics.Shape connectedLeadingButtonShape;
+    property public final float connectedSpaceBetween;
+    property public final androidx.compose.ui.graphics.Shape connectedTrailingButtonPressShape;
+    property public final androidx.compose.ui.graphics.Shape connectedTrailingButtonShape;
     property public final float spaceBetween;
     field public static final androidx.compose.material3.ButtonGroupDefaults INSTANCE;
   }
