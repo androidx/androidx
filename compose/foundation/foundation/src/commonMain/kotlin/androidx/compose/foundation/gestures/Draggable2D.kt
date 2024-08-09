@@ -60,7 +60,7 @@ interface Draggable2DState {
     /**
      * Dispatch drag delta in pixels avoiding all drag related priority mechanisms.
      *
-     * **Note:** unlike [drag], dispatching any delta with this method will bypass scrolling of any
+     * **Note:** unlike [drag], dispatching any delta with this method will bypass dragging of any
      * priority. This method will also ignore `reverseDirection` and other parameters set in
      * draggable2D.
      *
@@ -69,7 +69,7 @@ interface Draggable2DState {
      * this method will likely result in a bad user experience, you must prefer [drag] method over
      * this one.
      *
-     * @param delta amount of scroll dispatched in the nested drag process
+     * @param delta amount of drag dispatched in the nested drag process
      */
     fun dispatchRawDelta(delta: Offset)
 }
@@ -133,8 +133,8 @@ fun rememberDraggable2DState(onDelta: (Offset) -> Unit): Draggable2DState {
  *   position, allowing user to perform preparation for drag.
  * @param onDragStopped callback that will be invoked when drag is finished, allowing the user to
  *   react on velocity and process it.
- * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will behave
- *   like bottom to top and left to right will behave like right to left.
+ * @param reverseDirection reverse the direction of the dragging, so top to bottom dragging will
+ *   behave like bottom to top and left to right will behave like right to left.
  */
 @Stable
 fun Modifier.draggable2D(
