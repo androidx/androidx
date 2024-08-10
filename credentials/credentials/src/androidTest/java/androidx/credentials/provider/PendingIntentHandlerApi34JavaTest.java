@@ -49,7 +49,7 @@ import java.util.Collections;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 @SdkSuppress(minSdkVersion = 34, codeName = "UpsideDownCake")
-public class PendingIntentHandlerJavaTest {
+public class PendingIntentHandlerApi34JavaTest {
     private static final Intent BLANK_INTENT = new Intent();
 
     private static final android.credentials.CredentialOption

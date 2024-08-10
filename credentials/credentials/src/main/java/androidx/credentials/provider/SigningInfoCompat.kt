@@ -56,6 +56,31 @@ internal constructor(
     val hasPastSigningCertificates: Boolean,
     @RequiresApi(28) @get:JvmName("hasMultipleSigners") val hasMultipleSigners: Boolean,
 ) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+        if (other !is SigningInfoCompat) {
+            return false
+        }
+        return signingCertificateHistory == other.signingCertificateHistory &&
+            apkContentsSigners == other.apkContentsSigners &&
+            publicKeys == other.publicKeys &&
+            schemeVersion == other.schemeVersion &&
+            hasPastSigningCertificates == other.hasPastSigningCertificates &&
+            hasMultipleSigners == other.hasMultipleSigners
+    }
+
+    override fun hashCode(): Int {
+        var result = signingCertificateHistory.hashCode()
+        result = 31 * result + apkContentsSigners.hashCode()
+        result = 31 * result + publicKeys.hashCode()
+        result = 31 * result + schemeVersion
+        result = 31 * result + hasPastSigningCertificates.hashCode()
+        result = 31 * result + hasMultipleSigners.hashCode()
+        return result
+    }
+
     companion object {
         /**
          * Creates a [SigningInfoCompat] from [SigningInfo].

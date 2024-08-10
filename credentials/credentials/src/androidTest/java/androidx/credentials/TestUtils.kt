@@ -16,14 +16,23 @@
 
 package androidx.credentials
 
+import android.content.Context
 import android.content.pm.SigningInfo
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.drawable.toBitmap
+import androidx.credentials.provider.BeginGetCredentialOption
+import androidx.credentials.provider.BeginGetCredentialRequest
+import androidx.credentials.provider.BeginGetCredentialResponse
 import androidx.credentials.provider.CallingAppInfo
+import androidx.credentials.provider.CredentialEntry
+import androidx.credentials.provider.CustomCredentialEntry
+import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.ProviderCreateCredentialRequest
 import androidx.credentials.provider.ProviderGetCredentialRequest
+import androidx.credentials.provider.PublicKeyCredentialEntry
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert
 
@@ -50,6 +59,20 @@ fun equals(a: Bundle, b: Bundle): Boolean {
         }
     }
     return true
+}
+
+@Suppress("DEPRECATION")
+fun assertEquals(a: Bundle, b: Bundle) {
+    assertThat(a.keySet()).containsExactlyElementsIn(b.keySet())
+    for (key in a.keySet()) {
+        val valA = a.get(key)
+        val valB = b.get(key)
+        if (valA is Bundle && valB is Bundle) {
+            assertEquals(valA, valB)
+        } else {
+            assertThat(valA).isEqualTo(valB)
+        }
+    }
 }
 
 /**
@@ -107,6 +130,264 @@ fun equals(
         createCredentialRequest.callingAppInfo.origin,
         request.callingAppInfo.origin
     )
+}
+
+fun assertEquals(
+    actual: ProviderGetCredentialRequest,
+    expected: ProviderGetCredentialRequest,
+) {
+    if (actual === expected) return
+    assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
+    assertThat(actual.biometricPromptResult).isEqualTo(expected.biometricPromptResult)
+    assertEquals(actual.credentialOptions, expected.credentialOptions)
+}
+
+fun assertEquals(
+    actual: List<CredentialOption>,
+    expected: List<CredentialOption>,
+) {
+    if (actual === expected) return
+    assertThat(actual).hasSize(expected.size)
+    for (i in expected.indices) {
+        assertEquals(actual[i], expected[i])
+    }
+}
+
+fun assertEquals(
+    actual: CredentialOption,
+    expected: CredentialOption,
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertEquals(actual.requestData, expected.requestData)
+    assertEquals(actual.candidateQueryData, expected.candidateQueryData)
+    assertThat(actual.isSystemProviderRequired).isEqualTo(expected.isSystemProviderRequired)
+    assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+    assertThat(actual.allowedProviders).containsExactlyElementsIn(expected.allowedProviders)
+    assertThat(actual.typePriorityHint).isEqualTo(expected.typePriorityHint)
+    when (expected) {
+        is GetPasswordOption -> {
+            assertThat(actual).isInstanceOf(GetPasswordOption::class.java)
+            assertThat((actual as GetPasswordOption).allowedUserIds)
+                .containsExactlyElementsIn(expected.allowedUserIds)
+        }
+        is GetPublicKeyCredentialOption -> {
+            assertThat(actual).isInstanceOf(GetPublicKeyCredentialOption::class.java)
+            assertThat((actual as GetPublicKeyCredentialOption).requestJson)
+                .isEqualTo(expected.requestJson)
+            assertThat(actual.clientDataHash).isEqualTo(expected.clientDataHash)
+        }
+        is GetCustomCredentialOption -> {
+            assertThat(actual).isInstanceOf(GetCustomCredentialOption::class.java)
+        }
+    }
+}
+
+fun assertEquals(
+    actual: CreateCredentialResponse,
+    expected: CreateCredentialResponse,
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertEquals(actual.data, expected.data)
+    when (expected) {
+        is CreatePasswordResponse -> {
+            assertThat(actual).isInstanceOf(CreatePasswordResponse::class.java)
+        }
+        is CreatePublicKeyCredentialResponse -> {
+            assertThat(actual).isInstanceOf(CreatePublicKeyCredentialResponse::class.java)
+            assertThat((actual as CreatePublicKeyCredentialResponse).registrationResponseJson)
+                .isEqualTo(expected.registrationResponseJson)
+        }
+        is CreateCustomCredentialResponse -> {
+            assertThat(actual).isInstanceOf(CreateCustomCredentialResponse::class.java)
+        }
+    }
+}
+
+fun assertEquals(
+    actual: BeginGetCredentialRequest,
+    expected: BeginGetCredentialRequest,
+) {
+    if (actual === expected) return
+    assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
+    assertEqual(actual.beginGetCredentialOptions, expected.beginGetCredentialOptions)
+}
+
+fun assertEqual(actual: List<BeginGetCredentialOption>, expected: List<BeginGetCredentialOption>) {
+    if (actual === expected) return
+    assertThat(actual).hasSize(expected.size)
+    for (i in expected.indices) {
+        assertEqual(actual[i], expected[i])
+    }
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: BeginGetCredentialResponse,
+    expected: BeginGetCredentialResponse,
+) {
+    if (actual === expected) return
+    assertEquals(context, actual.credentialEntries, expected.credentialEntries)
+    assertThat(actual.actions).isEqualTo(expected.actions)
+    assertThat(actual.authenticationActions).isEqualTo(expected.authenticationActions)
+    assertThat(actual.remoteEntry).isEqualTo(expected.remoteEntry)
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: List<CredentialEntry>,
+    expected: List<CredentialEntry>,
+) {
+    if (actual === expected) return
+    assertThat(actual).hasSize(expected.size)
+    for (i in expected.indices) {
+        assertEquals(context, actual[i], expected[i])
+    }
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: CredentialEntry,
+    expected: CredentialEntry,
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertEqual(actual.beginGetCredentialOption, expected.beginGetCredentialOption)
+    assertThat(actual.entryGroupId).isEqualTo(expected.entryGroupId)
+    assertThat(actual.isDefaultIconPreferredAsSingleProvider)
+        .isEqualTo(expected.isDefaultIconPreferredAsSingleProvider)
+    assertThat(actual.affiliatedDomain).isEqualTo(expected.affiliatedDomain)
+    assertThat(actual.biometricPromptData).isEqualTo(expected.biometricPromptData)
+    when (expected) {
+        is PasswordCredentialEntry -> {
+            assertThat(actual).isInstanceOf(PasswordCredentialEntry::class.java)
+            assertThat((actual as PasswordCredentialEntry).username).isEqualTo(expected.username)
+            assertThat(actual.displayName).isEqualTo(expected.displayName)
+            assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
+            assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+            if (Build.VERSION.SDK_INT >= 26) {
+                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+            }
+            assertEquals(context, actual.icon, expected.icon)
+            assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+            assertThat(actual.isAutoSelectAllowedFromOption)
+                .isEqualTo(expected.isAutoSelectAllowedFromOption)
+            assertThat(actual.hasDefaultIcon).isEqualTo(expected.hasDefaultIcon)
+        }
+        is PublicKeyCredentialEntry -> {
+            assertThat(actual).isInstanceOf(PublicKeyCredentialEntry::class.java)
+            assertThat((actual as PublicKeyCredentialEntry).username).isEqualTo(expected.username)
+            assertThat(actual.displayName).isEqualTo(expected.displayName)
+            assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
+            assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+            if (Build.VERSION.SDK_INT >= 26) {
+                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+            }
+            assertEquals(context, actual.icon, expected.icon)
+            assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+            assertThat(actual.isAutoSelectAllowedFromOption)
+                .isEqualTo(expected.isAutoSelectAllowedFromOption)
+            assertThat(actual.hasDefaultIcon).isEqualTo(expected.hasDefaultIcon)
+        }
+        is CustomCredentialEntry -> {
+            assertThat(actual).isInstanceOf(CustomCredentialEntry::class.java)
+            assertThat((actual as CustomCredentialEntry).type).isEqualTo(expected.type)
+            assertThat(actual.title).isEqualTo(expected.title)
+            assertThat(actual.subtitle).isEqualTo(expected.subtitle)
+            assertThat(actual.typeDisplayName).isEqualTo(expected.typeDisplayName)
+            assertThat(actual.pendingIntent).isEqualTo(expected.pendingIntent)
+            if (Build.VERSION.SDK_INT >= 26) {
+                assertThat(actual.lastUsedTime).isEqualTo(expected.lastUsedTime)
+            }
+            assertEquals(context, actual.icon, expected.icon)
+            assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+            assertThat(actual.isAutoSelectAllowedFromOption)
+                .isEqualTo(expected.isAutoSelectAllowedFromOption)
+            assertThat(actual.hasDefaultIcon).isEqualTo(expected.hasDefaultIcon)
+        }
+        else -> {
+            assertThat(actual).isInstanceOf(expected.javaClass)
+        }
+    }
+}
+
+fun assertEqual(
+    actual: BeginGetCredentialOption,
+    expected: BeginGetCredentialOption,
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertThat(actual.id).isEqualTo(expected.id)
+    assertEquals(actual.candidateQueryData, expected.candidateQueryData)
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: ProviderCreateCredentialRequest,
+    expected: ProviderCreateCredentialRequest
+) {
+    if (actual === expected) return
+    assertThat(actual.biometricPromptResult).isEqualTo(expected.biometricPromptResult)
+    assertThat(actual.callingAppInfo).isEqualTo(expected.callingAppInfo)
+    assertEquals(context, actual.callingRequest, expected.callingRequest)
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: CreateCredentialRequest,
+    expected: CreateCredentialRequest
+) {
+    if (actual === expected) return
+    assertThat(actual.type).isEqualTo(expected.type)
+    assertEquals(actual.credentialData, expected.credentialData)
+    assertEquals(actual.candidateQueryData, expected.candidateQueryData)
+    assertThat(actual.isSystemProviderRequired).isEqualTo(expected.isSystemProviderRequired)
+    assertThat(actual.isAutoSelectAllowed).isEqualTo(expected.isAutoSelectAllowed)
+    assertEquals(context, actual.displayInfo, expected.displayInfo)
+    assertThat(actual.origin).isEqualTo(expected.origin)
+    assertThat(actual.preferImmediatelyAvailableCredentials)
+        .isEqualTo(expected.preferImmediatelyAvailableCredentials)
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: CreateCredentialRequest.DisplayInfo,
+    expected: CreateCredentialRequest.DisplayInfo
+) {
+    if (actual === expected) return
+    assertThat(actual.userId).isEqualTo(expected.userId)
+    assertThat(actual.userDisplayName).isEqualTo(expected.userDisplayName)
+    assertThat(actual.preferDefaultProvider).isEqualTo(expected.preferDefaultProvider)
+    assertEquals(context, actual.credentialTypeIcon, expected.credentialTypeIcon)
+}
+
+@RequiresApi(23)
+fun assertEquals(
+    context: Context,
+    actual: Icon?,
+    expected: Icon?,
+) {
+    if (actual === expected) return
+    if (actual != null && expected != null) {
+        val actualDrawable = actual.loadDrawable(context)
+        val expectedDrawable = expected.loadDrawable(context)
+        if (actualDrawable != null && expectedDrawable != null) {
+            val actualBm = actualDrawable.toBitmap()
+            val expectedBm = expectedDrawable.toBitmap()
+            assertThat(actualBm.sameAs(expectedBm)).isTrue()
+        } else {
+            assertThat(actualDrawable).isEqualTo(expectedDrawable)
+        }
+    } else {
+        assertThat(actual).isEqualTo(expected)
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
