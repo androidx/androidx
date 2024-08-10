@@ -43,6 +43,7 @@ import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 
 @ExperimentalTestApi
 actual fun runComposeUiTest(effectContext: CoroutineContext, block: ComposeUiTest.() -> Unit) {
@@ -363,22 +364,26 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         // Then await composition(s)
         idlingStrategy.runUntilIdle()
         // Then wait for the next frame to ensure any scheduled drawing has completed
-        if (testReceiverScope.hasContent) {
-            try {
-                val view = activity?.window?.decorView
-                if (view != null && view.isAttachedToWindow) {
-                    var frameHit = false
-                    view.postOnAnimation { view.post { frameHit = true } }
-                    while (!frameHit) {
-                        idlingStrategy.runUntilIdle()
-                    }
-                }
-            } catch (_: NullPointerException) {
-                // An NPE is thrown when the activity has already been destroyed. Just continue.
-            }
-        }
+        waitForNextChoreographerFrame()
         // Check if a coroutine threw an uncaught exception
         coroutineExceptionHandler.throwUncaught()
+    }
+
+    private fun waitForNextChoreographerFrame() {
+        val view =
+            composeRootRegistry
+                .getRegisteredComposeRoots()
+                .map { it.view.rootView }
+                .firstOrNull { it.isAttachedToWindow }
+        if (view != null) {
+            var frameHit = false
+            // The animation callback is called before draw, so post a message from the callback
+            // that will be executed after draw happened
+            view.postOnAnimation { view.post { frameHit = true } }
+            while (!frameHit) {
+                idlingStrategy.runUntilIdle()
+            }
+        }
     }
 
     private fun <R> withWindowRecomposer(block: () -> R): R {
@@ -422,9 +427,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     internal inner class AndroidComposeUiTestImpl : AndroidComposeUiTest<A> {
         private var disposeContentHook: (() -> Unit)? = null
 
-        val hasContent: Boolean
-            get() = disposeContentHook != null
-
         override val activity: A?
             get() = this@AndroidComposeUiTestEnvironment.activity
 
@@ -453,8 +455,13 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         override suspend fun awaitIdle() {
             // First wait until we have a compose root (in case an Activity is being started)
             composeRootRegistry.awaitComposeRoots()
-            // Then await composition(s)
-            idlingStrategy.awaitIdle()
+            // Switch to a thread where we're allowed to call synchronization methods
+            withContext(idlingStrategy.synchronizationContext) {
+                // Then await composition(s)
+                idlingStrategy.runUntilIdle()
+                // Then wait for the next frame to ensure any scheduled drawing has completed
+                waitForNextChoreographerFrame()
+            }
             // Check if a coroutine threw an uncaught exception
             coroutineExceptionHandler.throwUncaught()
         }

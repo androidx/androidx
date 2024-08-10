@@ -18,8 +18,8 @@ package androidx.compose.ui.test
 
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /**
  * Idling strategy for use with Robolectric.
@@ -41,6 +41,13 @@ internal class RobolectricIdlingStrategy(
     private val composeIdlingResource: ComposeIdlingResource
 ) : IdlingStrategy {
     override val canSynchronizeOnUiThread: Boolean = true
+
+    /*
+     * On Robolectric, Espresso.onIdle() needs to be called from the main thread; so use
+     * Dispatchers.Main. Use `.immediate` in case we're already on the main thread.
+     */
+    override val synchronizationContext: CoroutineContext
+        get() = Dispatchers.Main.immediate
 
     override fun runUntilIdle() {
         val policy = IdlingPolicies.getMasterIdlingPolicy()
@@ -71,12 +78,6 @@ internal class RobolectricIdlingStrategy(
                 // Repeat while not idle
             } while (!isIdle)
         }
-    }
-
-    override suspend fun awaitIdle() {
-        // On Robolectric, Espresso.onIdle() must be called from the main thread; so use
-        // Dispatchers.Main. Use `.immediate` in case we're already on the main thread.
-        withContext(Dispatchers.Main.immediate) { runUntilIdle() }
     }
 
     /**

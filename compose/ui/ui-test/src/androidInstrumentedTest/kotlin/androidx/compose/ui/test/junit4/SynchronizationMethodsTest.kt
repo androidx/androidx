@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.test.junit4
 
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.compose.testutils.expectError
 import androidx.compose.ui.platform.ViewRootForTest
@@ -149,7 +150,15 @@ class SynchronizationMethodsTest {
     private fun mockResumedComposeRoot(): ViewRootForTest {
         val composeRoot = mock<ViewRootForTest>()
         doReturn(true).whenever(composeRoot).isLifecycleInResumedState
+        doReturn(mockRootView()).whenever(composeRoot).view
         return composeRoot
+    }
+
+    private fun mockRootView(): View {
+        val rootView = mock<View>()
+        doReturn(false).whenever(rootView).isAttachedToWindow
+        doReturn(rootView).whenever(rootView).rootView
+        return rootView
     }
 }
 
