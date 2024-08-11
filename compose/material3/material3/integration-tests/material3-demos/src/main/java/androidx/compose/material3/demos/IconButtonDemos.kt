@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Narrow
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Wide
+import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -46,6 +47,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -482,6 +485,7 @@ fun IconButtonCornerRadiusDemo() {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun IconToggleButtonsDemo() {
     Column {
@@ -511,27 +515,59 @@ fun IconToggleButtonsDemo() {
             horizontalArrangement = Arrangement.spacedBy(padding),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var checked by remember { mutableStateOf(false) }
+
             Text("Unselected")
 
-            FilledIconToggleButton(checked = false, onCheckedChange = { /* change the state */ }) {
+            FilledIconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
+            ) {
                 Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
             }
 
             FilledTonalIconToggleButton(
-                checked = false,
-                onCheckedChange = { /* change the state */ }
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
             ) {
                 Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
             }
 
             OutlinedIconToggleButton(
-                checked = false,
-                onCheckedChange = { /* change the state */ }
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
             ) {
                 Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
             }
 
-            IconToggleButton(checked = false, onCheckedChange = { /* change the state */ }) {
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
+            ) {
                 Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
             }
         }
@@ -545,23 +581,57 @@ fun IconToggleButtonsDemo() {
             horizontalArrangement = Arrangement.spacedBy(padding),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            var checked by remember { mutableStateOf(true) }
             Text("Selected")
-            FilledIconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
-                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
-            }
-
-            FilledTonalIconToggleButton(
-                checked = true,
-                onCheckedChange = { /* change the state */ }
+            FilledIconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
             ) {
                 Icon(Icons.Filled.Edit, contentDescription = "Localized description")
             }
 
-            OutlinedIconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
+            FilledTonalIconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
+            ) {
                 Icon(Icons.Filled.Edit, contentDescription = "Localized description")
             }
 
-            IconToggleButton(checked = true, onCheckedChange = { /* change the state */ }) {
+            OutlinedIconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
+            ) {
+                Icon(Icons.Filled.Edit, contentDescription = "Localized description")
+            }
+
+            IconToggleButton(
+                checked = checked,
+                onCheckedChange = { checked = it },
+                shapes =
+                    IconButtonShapes(
+                        shape = IconButtonDefaults.smallRoundShape,
+                        pressedShape = IconButtonDefaults.smallPressedShape,
+                        checkedShape = IconButtonDefaults.smallSquareShape
+                    )
+            ) {
                 Icon(Icons.Filled.Edit, contentDescription = "Localized description")
             }
         }

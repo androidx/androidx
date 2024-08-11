@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_9_0
+// VERSION: v0_11_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
@@ -28,8 +28,9 @@ internal object XSmallIconButtonTokens {
     val NarrowLeadingSpace = 4.0.dp
     val NarrowTrailingSpace = 4.0.dp
     val OutlinedOutlineWidth = 1.0.dp
-    val PressedContainerCornerSizeMultiplierPercent = 50.0f
-    val SelectedPressedContainerShape = ShapeKeyTokens.CornerMedium
+    val PressedContainerShape = ShapeKeyTokens.CornerSmall
+    val SelectedContainerShapeRound = ShapeKeyTokens.CornerMedium
+    val SelectedContainerShapeSquare = ShapeKeyTokens.CornerFull
     val UniformLeadingSpace = 6.0.dp
     val UniformTrailingSpace = 6.0.dp
     val WideLeadingSpace = 10.0.dp

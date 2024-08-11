@@ -104,7 +104,7 @@ fun OutlinedToggleButtonSample() {
 @Composable
 fun ToggleButtonWithIconSample() {
     var checked by remember { mutableStateOf(false) }
-    ToggleButton(checked = checked, onCheckedChange = { checked = it }) {
+    ElevatedToggleButton(checked = checked, onCheckedChange = { checked = it }) {
         Icon(
             if (checked) Icons.Filled.Favorite else Icons.Outlined.Favorite,
             contentDescription = "Localized description",

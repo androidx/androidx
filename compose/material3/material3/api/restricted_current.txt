@@ -271,10 +271,6 @@ package androidx.compose.material3 {
 
   public final class ButtonShapes {
     ctor public ButtonShapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
-    method public androidx.compose.ui.graphics.Shape component1();
-    method public androidx.compose.ui.graphics.Shape component2();
-    method public androidx.compose.ui.graphics.Shape component3();
-    method public androidx.compose.material3.ButtonShapes copy(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
     method public androidx.compose.ui.graphics.Shape getCheckedShape();
     method public androidx.compose.ui.graphics.Shape getPressedShape();
     method public androidx.compose.ui.graphics.Shape getShape();
@@ -975,20 +971,25 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors filledTonalIconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getFilledShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public float getLargeIconSize();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getLargePressedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getLargeRoundShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getLargeSquareShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public float getMediumIconSize();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getMediumPressedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getMediumRoundShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getMediumSquareShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public float getSmallIconSize();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSmallPressedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSmallRoundShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getSmallSquareShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getStandardShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public float getXLargeIconSize();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXLargePressedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXLargeRoundShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXLargeSquareShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public float getXSmallIconSize();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXSmallPressedShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXSmallRoundShape();
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getXSmallSquareShape();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonColors iconButtonColors();
@@ -1003,25 +1004,31 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke? outlinedIconToggleButtonBorder(boolean enabled, boolean checked);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors outlinedIconToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.IconToggleButtonColors outlinedIconToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.IconButtonShapes shapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public long smallContainerSize(optional int widthOption);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public long xLargeContainerSize(optional int widthOption);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public long xSmallContainerSize(optional int widthOption);
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape filledShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final float largeIconSize;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape largePressedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape largeRoundShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape largeSquareShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final float mediumIconSize;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape mediumPressedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape mediumRoundShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape mediumSquareShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape outlinedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final float smallIconSize;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape smallPressedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape smallRoundShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape smallSquareShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape standardShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final float xLargeIconSize;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xLargePressedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xLargeRoundShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xLargeSquareShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final float xSmallIconSize;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xSmallPressedShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xSmallRoundShape;
     property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape xSmallSquareShape;
     field public static final androidx.compose.material3.IconButtonDefaults INSTANCE;
@@ -1042,15 +1049,29 @@ package androidx.compose.material3 {
 
   public final class IconButtonKt {
     method @androidx.compose.runtime.Composable public static void FilledIconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void FilledIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.material3.IconButtonShapes shapes, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void FilledIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void FilledTonalIconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void FilledTonalIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.material3.IconButtonShapes shapes, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void FilledTonalIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @Deprecated @androidx.compose.runtime.Composable public static void IconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.material3.IconButtonShapes shapes, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @Deprecated @androidx.compose.runtime.Composable public static void IconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void OutlinedIconButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void OutlinedIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.material3.IconButtonShapes shapes, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void OutlinedIconToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.material3.IconToggleButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class IconButtonShapes {
+    ctor public IconButtonShapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
+    method public androidx.compose.ui.graphics.Shape getCheckedShape();
+    method public androidx.compose.ui.graphics.Shape getPressedShape();
+    method public androidx.compose.ui.graphics.Shape getShape();
+    property public final androidx.compose.ui.graphics.Shape checkedShape;
+    property public final androidx.compose.ui.graphics.Shape pressedShape;
+    property public final androidx.compose.ui.graphics.Shape shape;
   }
 
   public final class IconKt {
@@ -2603,7 +2624,7 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTonalShape();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors outlinedToggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
-    method public androidx.compose.material3.ButtonShapes shapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonShapes shapes(androidx.compose.ui.graphics.Shape shape, androidx.compose.ui.graphics.Shape pressedShape, androidx.compose.ui.graphics.Shape checkedShape);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors toggleButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors toggleButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor, optional long checkedContainerColor, optional long checkedContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ToggleButtonColors tonalToggleButtonColors();

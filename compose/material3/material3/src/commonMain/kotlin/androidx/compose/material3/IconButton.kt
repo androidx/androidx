@@ -15,20 +15,27 @@
  */
 package androidx.compose.material3
 
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CornerBasedShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.childSemantics
+import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.FilledIconButtonTokens
 import androidx.compose.material3.tokens.FilledTonalIconButtonTokens
 import androidx.compose.material3.tokens.LargeIconButtonTokens
 import androidx.compose.material3.tokens.MediumIconButtonTokens
+import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.OutlinedIconButtonTokens
 import androidx.compose.material3.tokens.SmallIconButtonTokens
 import androidx.compose.material3.tokens.StandardIconButtonTokens
@@ -39,6 +46,8 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -226,7 +235,6 @@ fun IconButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Deprecated(
     message = "Use overload with `shape`",
     replaceWith =
@@ -291,6 +299,86 @@ fun IconToggleButton(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun IconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.iconToggleButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    shape: Shape = IconButtonDefaults.standardShape,
+    content: @Composable () -> Unit
+) =
+    IconToggleButtonImpl(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled,
+        colors = colors,
+        interactionSource = interactionSource,
+        shape = shape,
+        content = content
+    )
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design standard icon toggle button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Standard icon toggle button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/standard-icon-toggle-button.png)
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * @sample androidx.compose.material3.samples.IconToggleButtonWithAnimatedShapeSample
+ * @param checked whether this icon button is toggled on or off
+ * @param onCheckedChange called when this icon button is clicked
+ * @param shapes the [IconButtonShapes] that the icon toggle button will morph between depending on
+ *   the user's interaction with the icon toggle button.
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.iconToggleButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun IconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: IconButtonShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.iconToggleButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit
+) {
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+    IconToggleButtonImpl(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shapeForInteraction(checked, shapes, interactionSource),
+        colors = colors,
+        interactionSource = interactionSource,
+        content = content
+    )
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+private fun IconToggleButtonImpl(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -490,6 +578,63 @@ fun FilledIconToggleButton(
 
 /**
  * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design filled icon toggle button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Filled icon toggle button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/filled-icon-toggle-button.png)
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * Toggleable filled icon button sample:
+ *
+ * @sample androidx.compose.material3.samples.FilledIconToggleButtonWithAnimatedShapeSample
+ * @param checked whether this icon button is toggled on or off
+ * @param onCheckedChange called when this icon button is clicked
+ * @param shapes the [IconButtonShapes] that the icon toggle button will morph between depending on
+ *   the user's interaction with the icon toggle button.
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.filledIconToggleButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun FilledIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: IconButtonShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.filledIconToggleButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit
+) =
+    SurfaceIconToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { role = Role.Checkbox },
+        enabled = enabled,
+        shapes = shapes,
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
  * target="_blank">Material Design filled tonal icon toggle button</a>.
  *
  * Icon buttons help people take supplementary actions with a single tap. They’re used when a
@@ -525,7 +670,6 @@ fun FilledIconToggleButton(
  *   interactions will still happen internally.
  * @param content the content of this icon button, typically an [Icon]
  */
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FilledTonalIconToggleButton(
     checked: Boolean,
@@ -543,6 +687,68 @@ fun FilledTonalIconToggleButton(
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
+        colors = colors,
+        border = null,
+        interactionSource = interactionSource,
+        content = content
+    )
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design filled tonal icon toggle button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Filled tonal icon toggle button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/filled-tonal-icon-toggle-button.png)
+ *
+ * A filled tonal toggle icon button is a medium-emphasis icon button that is an alternative middle
+ * ground between the default [FilledIconToggleButton] and [OutlinedIconToggleButton]. They can be
+ * used in contexts where the lower-priority icon button requires slightly more emphasis than an
+ * outline would give.
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * Toggleable filled tonal icon button with animatable shape sample:
+ *
+ * @sample androidx.compose.material3.samples.FilledTonalIconToggleButtonWithAnimatedShapeSample
+ * @param checked whether this icon button is toggled on or off
+ * @param onCheckedChange called when this icon button is clicked
+ * @param shapes the [IconButtonShapes] that the icon toggle button will morph between depending on
+ *   the user's interaction with the icon toggle button.
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.filledIconToggleButtonColors].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun FilledTonalIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: IconButtonShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.filledTonalIconToggleButtonColors(),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit
+) =
+    SurfaceIconToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { role = Role.Checkbox },
+        enabled = enabled,
+        shapes = shapes,
         colors = colors,
         border = null,
         interactionSource = interactionSource,
@@ -670,13 +876,78 @@ private fun SurfaceIconToggleButton(
         Box(
             modifier =
                 Modifier.size(
-                    IconButtonDefaults.smallContainerSize(),
-                ),
+                        IconButtonDefaults.smallContainerSize(),
+                    )
+                    .then(
+                        when (shape) {
+                            is ShapeWithOpticalCentering -> {
+                                Modifier.opticalCentering(
+                                    shape = shape,
+                                    basePadding = PaddingValues()
+                                )
+                            }
+                            is CornerBasedShape -> {
+                                Modifier.opticalCentering(
+                                    shape = shape,
+                                    basePadding = PaddingValues()
+                                )
+                            }
+                            else -> {
+                                Modifier
+                            }
+                        }
+                    ),
             contentAlignment = Alignment.Center
         ) {
             content()
         }
     }
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+private fun SurfaceIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    shapes: IconButtonShapes,
+    colors: IconToggleButtonColors,
+    border: BorderStroke?,
+    interactionSource: MutableInteractionSource?,
+    content: @Composable () -> Unit
+) {
+
+    @Suppress("NAME_SHADOWING")
+    val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+    SurfaceIconToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shapeForInteraction(checked, shapes, interactionSource),
+        colors = colors,
+        border = border,
+        interactionSource = interactionSource,
+        content = content
+    )
+}
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+private fun shapeForInteraction(
+    checked: Boolean,
+    shapes: IconButtonShapes,
+    interactionSource: MutableInteractionSource,
+): Shape {
+    // TODO Load the motionScheme tokens from the component tokens file
+    // MotionSchemeKeyTokens.DefaultEffects is intentional here to prevent
+    // any bounce in this component.
+    val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
+    val pressed by interactionSource.collectIsPressedAsState()
+
+    return shapeByInteraction(shapes, pressed, checked, defaultAnimationSpec)
 }
 
 /**
@@ -730,6 +1001,64 @@ fun OutlinedIconToggleButton(
         modifier = modifier.semantics { role = Role.Checkbox },
         enabled = enabled,
         shape = shape,
+        colors = colors,
+        border = border,
+        interactionSource = interactionSource,
+        content = content
+    )
+
+/**
+ * <a href="https://m3.material.io/components/icon-button/overview" class="external"
+ * target="_blank">Material Design outlined icon toggle button</a>.
+ *
+ * Icon buttons help people take supplementary actions with a single tap. They’re used when a
+ * compact button is required, such as in a toolbar or image list.
+ *
+ * ![Outlined icon toggle button
+ * image](https://developer.android.com/images/reference/androidx/compose/material3/outlined-icon-toggle-button.png)
+ *
+ * [content] should typically be an [Icon] (see [androidx.compose.material.icons.Icons]). If using a
+ * custom icon, note that the typical size for the internal icon is 24 x 24 dp. This icon button has
+ * an overall minimum touch target size of 48 x 48dp, to meet accessibility guidelines.
+ *
+ * @sample androidx.compose.material3.samples.OutlinedIconToggleButtonWithAnimatedShapeSample
+ * @param checked whether this icon button is toggled on or off
+ * @param onCheckedChange called when this icon button is clicked
+ * @param shapes the [IconButtonShapes] that the icon toggle button will morph between depending on
+ *   the user's interaction with the icon toggle button.
+ * @param modifier the [Modifier] to be applied to this icon button
+ * @param enabled controls the enabled state of this icon button. When `false`, this component will
+ *   not respond to user input, and it will appear visually disabled and disabled to accessibility
+ *   services.
+ * @param colors [IconToggleButtonColors] that will be used to resolve the colors used for this icon
+ *   button in different states. See [IconButtonDefaults.outlinedIconToggleButtonColors].
+ * @param border the border to draw around the container of this icon button. Pass `null` for no
+ *   border. See [IconButtonDefaults.outlinedIconToggleButtonBorder].
+ * @param interactionSource an optional hoisted [MutableInteractionSource] for observing and
+ *   emitting [Interaction]s for this icon button. You can use this to change the icon button's
+ *   appearance or preview the icon button in different states. Note that if `null` is provided,
+ *   interactions will still happen internally.
+ * @param content the content of this icon button, typically an [Icon]
+ */
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+fun OutlinedIconToggleButton(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    shapes: IconButtonShapes,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    colors: IconToggleButtonColors = IconButtonDefaults.outlinedIconToggleButtonColors(),
+    border: BorderStroke? = IconButtonDefaults.outlinedIconToggleButtonBorder(enabled, checked),
+    interactionSource: MutableInteractionSource? = null,
+    content: @Composable () -> Unit
+) =
+    SurfaceIconToggleButton(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier.semantics { role = Role.Checkbox },
+        enabled = enabled,
+        shapes = shapes,
         colors = colors,
         border = border,
         interactionSource = interactionSource,
@@ -1283,6 +1612,13 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
+    /** Default pressed shape for any extra small icon button. */
+    val xSmallPressedShape: Shape
+        @Composable get() = XSmallIconButtonTokens.PressedContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any small icon button. */
     val smallRoundShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeRound.value
@@ -1293,6 +1629,13 @@ object IconButtonDefaults {
     /** Default shape for any small icon button. */
     val smallSquareShape: Shape
         @Composable get() = SmallIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default pressed shape for any small icon button. */
+    val smallPressedShape: Shape
+        @Composable get() = SmallIconButtonTokens.PressedContainerShape.value
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
@@ -1311,6 +1654,13 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
+    /** Default pressed shape for any medium icon button. */
+    val mediumPressedShape: Shape
+        @Composable get() = MediumIconButtonTokens.PressedContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any large icon button. */
     val largeRoundShape: Shape
         @Composable get() = LargeIconButtonTokens.ContainerShapeRound.value
@@ -1325,6 +1675,13 @@ object IconButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
+    /** Default pressed shape for any large icon button. */
+    val largePressedShape: Shape
+        @Composable get() = LargeIconButtonTokens.PressedContainerShape.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
     /** Default shape for any xlarge icon button. */
     val xLargeRoundShape: Shape
         @Composable get() = XLargeIconButtonTokens.ContainerShapeRound.value
@@ -1335,6 +1692,29 @@ object IconButtonDefaults {
     /** Default shape for any xlarge icon button. */
     val xLargeSquareShape: Shape
         @Composable get() = XLargeIconButtonTokens.ContainerShapeSquare.value
+
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    /** Default pressed shape for any extra large icon button. */
+    val xLargePressedShape: Shape
+        @Composable get() = XLargeIconButtonTokens.PressedContainerShape.value
+
+    /**
+     * Creates a [ButtonShapes] that correspond to the shapes in the default, pressed, and checked
+     * states. Toggle button will morph between these shapes as long as the shapes are all
+     * [CornerBasedShape]s.
+     *
+     * @param shape the unchecked shape for [ButtonShapes]
+     * @param pressedShape the unchecked shape for [ButtonShapes]
+     * @param checkedShape the unchecked shape for [ButtonShapes]
+     */
+    @ExperimentalMaterial3ExpressiveApi
+    @Composable
+    fun shapes(shape: Shape, pressedShape: Shape, checkedShape: Shape): IconButtonShapes =
+        remember(shape, pressedShape, checkedShape) {
+            IconButtonShapes(shape, pressedShape, checkedShape)
+        }
 
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
@@ -1719,4 +2099,64 @@ class IconToggleButtonColors(
 
         return result
     }
+}
+
+/**
+ * The shapes that will be used in toggle buttons. Toggle button will morph between these three
+ * shapes depending on the interaction of the toggle button, assuming all of the shapes are
+ * [CornerBasedShape]s.
+ *
+ * @property shape is the unchecked shape.
+ * @property pressedShape is the pressed shape.
+ * @property checkedShape is the checked shape.
+ */
+@ExperimentalMaterial3ExpressiveApi
+class IconButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape) {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is IconButtonShapes) return false
+
+        if (shape != other.shape) return false
+        if (pressedShape != other.pressedShape) return false
+        if (checkedShape != other.checkedShape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = shape.hashCode()
+        result = 31 * result + pressedShape.hashCode()
+        result = 31 * result + checkedShape.hashCode()
+
+        return result
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+internal val IconButtonShapes.isCornerBasedShape: Boolean
+    get() =
+        shape is RoundedCornerShape &&
+            pressedShape is CornerBasedShape &&
+            checkedShape is CornerBasedShape
+
+@ExperimentalMaterial3ExpressiveApi
+@Composable
+private fun shapeByInteraction(
+    shapes: IconButtonShapes,
+    pressed: Boolean,
+    checked: Boolean,
+    animationSpec: FiniteAnimationSpec<Float>
+): Shape {
+    val shape =
+        if (pressed) {
+            shapes.pressedShape
+        } else if (checked) {
+            shapes.checkedShape
+        } else shapes.shape
+
+    if (shapes.isCornerBasedShape) {
+        return key(shapes) { rememberAnimatedShape(shape as RoundedCornerShape, animationSpec) }
+    }
+    return shape
 }
