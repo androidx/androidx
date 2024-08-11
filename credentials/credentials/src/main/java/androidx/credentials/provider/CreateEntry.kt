@@ -540,40 +540,6 @@ internal constructor(
                 null
             }
         }
-
-        @JvmStatic
-        internal fun convertBundleToCredentialCountInfo(bundle: Bundle?): Map<String, Int?> {
-            val credentialCountMap = HashMap<String, Int?>()
-            if (bundle == null) {
-                return credentialCountMap
-            }
-            bundle.keySet().forEach {
-                try {
-                    credentialCountMap[it] = bundle.getInt(it)
-                } catch (e: Exception) {
-                    Log.i(TAG, "Issue unpacking credential count info bundle: " + e.message)
-                }
-            }
-            return credentialCountMap
-        }
-
-        @JvmStatic
-        internal fun convertCredentialCountInfoToBundle(
-            credentialCountInformationMap: Map<String, Int?>
-        ): Bundle? {
-            var foundCredentialCount = false
-            val bundle = Bundle()
-            credentialCountInformationMap.forEach {
-                if (it.value != null) {
-                    bundle.putInt(it.key, it.value!!)
-                    foundCredentialCount = true
-                }
-            }
-            if (!foundCredentialCount) {
-                return null
-            }
-            return bundle
-        }
     }
 
     companion object {
@@ -654,6 +620,152 @@ internal constructor(
                 return Api34Impl.fromCreateEntry(createEntry)
             }
             return null
+        }
+
+        @JvmStatic
+        internal fun convertBundleToCredentialCountInfo(bundle: Bundle?): Map<String, Int?> {
+            val credentialCountMap = HashMap<String, Int?>()
+            if (bundle == null) {
+                return credentialCountMap
+            }
+            bundle.keySet().forEach {
+                try {
+                    credentialCountMap[it] = bundle.getInt(it)
+                } catch (e: Exception) {
+                    Log.i(TAG, "Issue unpacking credential count info bundle: " + e.message)
+                }
+            }
+            return credentialCountMap
+        }
+
+        @JvmStatic
+        internal fun convertCredentialCountInfoToBundle(
+            credentialCountInformationMap: Map<String, Int?>
+        ): Bundle? {
+            var foundCredentialCount = false
+            val bundle = Bundle()
+            credentialCountInformationMap.forEach {
+                if (it.value != null) {
+                    bundle.putInt(it.key, it.value!!)
+                    foundCredentialCount = true
+                }
+            }
+            if (!foundCredentialCount) {
+                return null
+            }
+            return bundle
+        }
+
+        private const val EXTRA_CREATE_ENTRY_SIZE =
+            "androidx.credentials.provider.extra.CREATE_ENTRY_SIZE"
+        private const val EXTRA_CREATE_ACCOUNT_NAME_PREFIX =
+            "androidx.credentials.provider.extra.ACCOUNT_NAME_"
+        private const val EXTRA_CREATE_ENTRY_PENDING_INTENT_PREFIX =
+            "androidx.credentials.provider.extra.PENDING_INTENT_"
+        private const val EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX =
+            "androidx.credentials.provider.extra.IS_AUTO_SELECT_ALLOWED_"
+        private const val EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX =
+            "androidx.credentials.provider.extra.LAST_USED_TIME_"
+        private const val EXTRA_CREATE_DESCRIPTION_PREFIX =
+            "androidx.credentials.provider.extra.DESCRIPTION_"
+        private const val EXTRA_CREATE_TYPE_ICON_PREFIX =
+            "androidx.credentials.provider.extra.ICON_"
+        private const val EXTRA_CREATE_CREDENTIAL_COUNT_INFO_PREFIX =
+            "androidx.credentials.provider.extra.CREDENTIAL_COUNT_INFO_"
+
+        @RequiresApi(23)
+        internal fun List<CreateEntry>.marshall(bundle: Bundle) {
+            bundle.putInt(EXTRA_CREATE_ENTRY_SIZE, this.size)
+            this.forEachIndexed { index, entry ->
+                bundle.putCharSequence("$EXTRA_CREATE_ACCOUNT_NAME_PREFIX$index", entry.accountName)
+                bundle.putParcelable(
+                    "$EXTRA_CREATE_ENTRY_PENDING_INTENT_PREFIX$index",
+                    entry.pendingIntent
+                )
+                entry.icon?.let { bundle.putParcelable("$EXTRA_CREATE_TYPE_ICON_PREFIX$index", it) }
+                entry.description?.let {
+                    bundle.putCharSequence("$EXTRA_CREATE_DESCRIPTION_PREFIX$index", it)
+                }
+                // TODO: b/356939416 - provide backward compatible timestamp API.
+                if (Build.VERSION.SDK_INT >= 26) {
+                    entry.lastUsedTime?.let {
+                        bundle.putSerializable(
+                            "$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index",
+                            it
+                        )
+                    }
+                }
+                val countInfo =
+                    convertCredentialCountInfoToBundle(entry.credentialCountInformationMap)
+                countInfo?.let {
+                    bundle.putBundle("$EXTRA_CREATE_CREDENTIAL_COUNT_INFO_PREFIX$index", it)
+                }
+                bundle.putBoolean(
+                    "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
+                    entry.isAutoSelectAllowed
+                )
+            }
+        }
+
+        @RequiresApi(23)
+        internal fun Bundle.unmarshallCreateEntries(): List<CreateEntry> {
+            try {
+                val entries = mutableListOf<CreateEntry>()
+                val size = this.getInt(EXTRA_CREATE_ENTRY_SIZE, 0)
+                for (index in 0 until size) {
+                    val accountName =
+                        this.getCharSequence("$EXTRA_CREATE_ACCOUNT_NAME_PREFIX$index")
+                            ?: return emptyList()
+                    val pendingIntent: PendingIntent =
+                        this.getParcelable("$EXTRA_CREATE_ENTRY_PENDING_INTENT_PREFIX$index")
+                            ?: return emptyList()
+                    val icon: Icon? = this.getParcelable("$EXTRA_CREATE_TYPE_ICON_PREFIX$index")
+                    val description: CharSequence? =
+                        this.getCharSequence("$EXTRA_CREATE_DESCRIPTION_PREFIX$index")
+                    val countInfo: MutableMap<String, Int?> =
+                        convertBundleToCredentialCountInfo(
+                                this.getBundle("$EXTRA_CREATE_CREDENTIAL_COUNT_INFO_PREFIX$index")
+                            )
+                            .toMutableMap()
+                    val isAutoSelectAllowed =
+                        this.getBoolean(
+                            "$EXTRA_CREATE_ENTRY_IS_AUTO_SELECT_ALLOWED_PREFIX$index",
+                            false
+                        )
+                    // TODO: b/356939416 - provide backward compatible timestamp API.
+                    if (Build.VERSION.SDK_INT >= 26) {
+                        val lastUsedTime: Instant? =
+                            this.getSerializable("$EXTRA_CREATE_ENTRY_LAST_USED_TIME_PREFIX$index")
+                                as Instant?
+                        entries.add(
+                            CreateEntry(
+                                accountName = accountName,
+                                pendingIntent = pendingIntent,
+                                icon = icon,
+                                description = description,
+                                lastUsedTime = lastUsedTime,
+                                credentialCountInformationMap = countInfo,
+                                isAutoSelectAllowed = isAutoSelectAllowed,
+                            )
+                        )
+                    } else {
+                        entries.add(
+                            CreateEntry(
+                                accountName = accountName,
+                                pendingIntent = pendingIntent,
+                                icon = icon,
+                                description = description,
+                                lastUsedTime = null,
+                                credentialCountInformationMap = countInfo,
+                                isAutoSelectAllowed = isAutoSelectAllowed,
+                            )
+                        )
+                    }
+                }
+                return entries
+            } catch (e: Exception) {
+                return emptyList()
+            }
         }
     }
 }

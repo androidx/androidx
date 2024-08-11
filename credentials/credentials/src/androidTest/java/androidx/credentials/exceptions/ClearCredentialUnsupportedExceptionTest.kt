@@ -44,4 +44,34 @@ class ClearCredentialUnsupportedExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType =
+            ClearCredentialUnsupportedException.TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION
+        val expectedMessage = "message"
+        val exception = ClearCredentialUnsupportedException(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialUnsupportedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType =
+            ClearCredentialUnsupportedException.TYPE_CLEAR_CREDENTIAL_UNSUPPORTED_EXCEPTION
+        val expectedMessage = null
+        val exception = ClearCredentialUnsupportedException(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialUnsupportedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

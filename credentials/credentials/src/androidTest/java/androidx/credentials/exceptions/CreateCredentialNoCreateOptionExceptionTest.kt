@@ -49,4 +49,30 @@ class CreateCredentialNoCreateOptionExceptionTest {
                 CreateCredentialNoCreateOptionException.TYPE_CREATE_CREDENTIAL_NO_CREATE_OPTION
             )
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedClass = CreateCredentialNoCreateOptionException::class.java
+        val expectedMessage = "message"
+        val exception = CreateCredentialNoCreateOptionException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedClass = CreateCredentialNoCreateOptionException::class.java
+        val expectedMessage = null
+        val exception = CreateCredentialNoCreateOptionException(expectedMessage)
+
+        val actual =
+            CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

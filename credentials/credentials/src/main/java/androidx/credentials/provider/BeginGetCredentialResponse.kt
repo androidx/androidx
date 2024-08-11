@@ -23,7 +23,7 @@ import androidx.credentials.provider.Action.Companion.marshall
 import androidx.credentials.provider.Action.Companion.unmarshallActionList
 import androidx.credentials.provider.AuthenticationAction.Companion.marshall
 import androidx.credentials.provider.AuthenticationAction.Companion.unmarshallAuthActionList
-import androidx.credentials.provider.CredentialEntry.Companion.marshallToIntent
+import androidx.credentials.provider.CredentialEntry.Companion.marshall
 import androidx.credentials.provider.CredentialEntry.Companion.unmarshallCredentialEntries
 import androidx.credentials.provider.RemoteEntry.Companion.marshall
 import androidx.credentials.provider.RemoteEntry.Companion.unmarshallRemoteEntry
@@ -185,7 +185,7 @@ constructor(
     private object Api23Impl {
         @JvmStatic
         fun asBundle(bundle: Bundle, response: BeginGetCredentialResponse) {
-            response.credentialEntries.marshallToIntent(bundle)
+            response.credentialEntries.marshall(bundle)
             response.actions.marshall(bundle)
             response.authenticationActions.marshall(bundle)
             response.remoteEntry?.marshall(bundle)

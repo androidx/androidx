@@ -71,8 +71,7 @@ constructor(
         }
     }
 
-    @RequiresApi(23)
-    private object Api23Impl {
+    private object Api21Impl {
         private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE =
             "androidx.credentials.provider.extra.EXTRA_BEGIN_GET_CREDENTIAL_OPTION_SIZE"
         private const val EXTRA_BEGIN_GET_CREDENTIAL_OPTION_ID_PREFIX =
@@ -123,7 +122,7 @@ constructor(
                 val candidateQueryData =
                     bundle.getBundle(
                         "$EXTRA_BEGIN_GET_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i"
-                    ) ?: return null
+                    ) ?: Bundle()
                 options.add(BeginGetCredentialOption.createFrom(id, type, candidateQueryData))
             }
             return BeginGetCredentialRequest(options, callingAppInfo)
@@ -141,8 +140,8 @@ constructor(
             val bundle = Bundle()
             if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.asBundle(bundle, request)
-            } else if (Build.VERSION.SDK_INT >= 23) {
-                Api23Impl.asBundle(bundle, request)
+            } else {
+                Api21Impl.asBundle(bundle, request)
             }
             return bundle
         }
@@ -155,10 +154,8 @@ constructor(
         fun fromBundle(bundle: Bundle): BeginGetCredentialRequest? {
             return if (Build.VERSION.SDK_INT >= 34) { // Android U
                 Api34Impl.fromBundle(bundle)
-            } else if (Build.VERSION.SDK_INT >= 23) {
-                Api23Impl.fromBundle(bundle)
             } else {
-                null
+                Api21Impl.fromBundle(bundle)
             }
         }
     }

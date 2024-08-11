@@ -16,6 +16,7 @@
 
 package androidx.credentials.exceptions
 
+import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -47,5 +48,38 @@ class GetCredentialCustomExceptionTest {
         val exception = GetCredentialCustomException(expectedType, expectedMessage)
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType = "type"
+        val expectedMessage = "message"
+        val exception = GetCredentialCustomException(expectedType, expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialCustomException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType = "type"
+        val expectedMessage = null
+        val exception = GetCredentialCustomException(expectedType, expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialCustomException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_emptyBundle_returnsNull() {
+        val actual = GetCredentialException.fromBundle(Bundle())
+
+        assertThat(actual).isNull()
     }
 }

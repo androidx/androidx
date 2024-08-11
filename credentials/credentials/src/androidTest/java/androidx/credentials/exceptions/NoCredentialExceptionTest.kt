@@ -43,4 +43,28 @@ class NoCredentialExceptionTest {
         assertThat(exception.javaClass).isEqualTo(expectedClass)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedClass = NoCredentialException::class.java
+        val expectedMessage = "message"
+        val exception = NoCredentialException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedClass = NoCredentialException::class.java
+        val expectedMessage = null
+        val exception = NoCredentialException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

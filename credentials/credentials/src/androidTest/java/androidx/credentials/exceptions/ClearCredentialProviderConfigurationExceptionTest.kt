@@ -45,4 +45,36 @@ class ClearCredentialProviderConfigurationExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType =
+            ClearCredentialProviderConfigurationException
+                .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+        val expectedMessage = "message"
+        val exception = ClearCredentialProviderConfigurationException(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialProviderConfigurationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType =
+            ClearCredentialProviderConfigurationException
+                .TYPE_CLEAR_CREDENTIAL_PROVIDER_CONFIGURATION_EXCEPTION
+        val expectedMessage = null
+        val exception = ClearCredentialProviderConfigurationException(expectedMessage)
+
+        val actual =
+            ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(ClearCredentialProviderConfigurationException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }

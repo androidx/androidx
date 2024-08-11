@@ -44,4 +44,32 @@ class GetCredentialInterruptedExceptionTest {
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
     }
+
+    @Test
+    fun bundleConversion_withMessage_success() {
+        val expectedType =
+            GetCredentialInterruptedException.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION
+        val expectedMessage = "message"
+        val exception = GetCredentialInterruptedException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialInterruptedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun bundleConversion_withoutMessage_success() {
+        val expectedType =
+            GetCredentialInterruptedException.TYPE_GET_CREDENTIAL_INTERRUPTED_EXCEPTION
+        val expectedMessage = null
+        val exception = GetCredentialInterruptedException(expectedMessage)
+
+        val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
+
+        assertThat(actual!!).isInstanceOf(GetCredentialInterruptedException::class.java)
+        assertThat(actual.type).isEqualTo(expectedType)
+        assertThat(actual.errorMessage).isEqualTo(expectedMessage)
+    }
 }
