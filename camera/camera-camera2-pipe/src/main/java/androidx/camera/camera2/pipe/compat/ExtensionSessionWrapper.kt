@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(31) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraCaptureSession
@@ -67,7 +65,7 @@ internal interface CameraExtensionSessionWrapper :
     }
 }
 
-@RequiresApi(31) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RequiresApi(31)
 internal class AndroidExtensionSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraExtensionSessionWrapper.StateCallback,
@@ -137,7 +135,7 @@ internal class AndroidExtensionSessionStateCallback(
     }
 }
 
-@RequiresApi(31) // TODO(b/200306659): Remove and replace with annotation on package-info.java
+@RequiresApi(31)
 internal open class AndroidCameraExtensionSession(
     override val device: CameraDeviceWrapper,
     private val cameraExtensionSession: CameraExtensionSession,

@@ -18,7 +18,6 @@ package androidx.camera.camera2.pipe.compat
 
 import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraDevice
-import android.hardware.camera2.CameraExtensionCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraError
 import androidx.camera.camera2.pipe.CameraError.Companion.ERROR_CAMERA_DISABLED
@@ -70,24 +69,22 @@ class RetryingCameraStateOpenerTest {
             override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata =
                 FakeCameraMetadata(cameraId = cameraId)
 
-            override fun getCameraExtensionCharacteristics(
-                cameraId: CameraId
-            ): CameraExtensionCharacteristics {
-                TODO("b/299356087 - Add support for fake extension metadata")
-            }
-
             override suspend fun getCameraExtensionMetadata(
                 cameraId: CameraId,
                 extension: Int
             ): CameraExtensionMetadata {
-                TODO("b/299356087 - Add support for fake extension metadata")
+                throw UnsupportedOperationException("Not supported for this test")
             }
 
             override fun awaitCameraExtensionMetadata(
                 cameraId: CameraId,
                 extension: Int
             ): CameraExtensionMetadata {
-                TODO("b/299356087 - Add support for fake extension metadata")
+                throw UnsupportedOperationException("Not supported for this test")
+            }
+
+            override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
+                throw UnsupportedOperationException("Not supported for this test")
             }
         }
 

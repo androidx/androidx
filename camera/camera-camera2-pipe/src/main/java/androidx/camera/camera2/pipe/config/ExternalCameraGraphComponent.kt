@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(b/200306659): Remove and replace with annotation on package-info.java
 @file:Suppress("DEPRECATION")
 
 package androidx.camera.camera2.pipe.config

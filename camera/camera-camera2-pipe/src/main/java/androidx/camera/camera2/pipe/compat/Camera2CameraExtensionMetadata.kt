@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -26,8 +27,8 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Metadata
-import androidx.camera.camera2.pipe.core.Debug
-import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.lazyOrEmptySet
+import androidx.camera.camera2.pipe.core.lazyOrFalse
 import kotlin.reflect.KClass
 
 /**
@@ -36,7 +37,6 @@ import kotlin.reflect.KClass
  * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
 @RequiresApi(Build.VERSION_CODES.S)
-// TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class Camera2CameraExtensionMetadata(
     override val camera: CameraId,
     override val isRedacted: Boolean,
@@ -53,8 +53,15 @@ internal class Camera2CameraExtensionMetadata(
     @GuardedBy("supportedPostviewSizes")
     private val supportedPostviewSizes = mutableMapOf<Size, Lazy<Set<Size>>>()
 
-    // TODO: b/299356087 - this here may need a switch statement on the key
+    override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
+        return null // TODO: Add support for this when VIC can be targeted in AndroidX
+    }
+
     @Suppress("UNCHECKED_CAST") override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
+
+    override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T {
+        return default // TODO: Add support for this when VIC can be targeted in AndroidX
+    }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T> getOrDefault(key: Metadata.Key<T>, default: T): T =
@@ -70,6 +77,12 @@ internal class Camera2CameraExtensionMetadata(
     override val isPostviewSupported: Boolean
         get() = _isPostviewSupported.value
 
+    override val isCaptureProgressSupported: Boolean
+        get() = _isCaptureProgressSupported.value
+
+    override val keys: Set<CameraCharacteristics.Key<*>>
+        get() = emptySet() // TODO: Add support for this when VIC can be targeted in AndroidX
+
     override val requestKeys: Set<CaptureRequest.Key<*>>
         get() = _requestKeys.value
 
@@ -77,10 +90,10 @@ internal class Camera2CameraExtensionMetadata(
         get() = _resultKeys.value
 
     override fun getOutputSizes(imageFormat: Int): Set<Size> {
-        val supportedExtensionSizes =
+        val lazySizes =
             synchronized(supportedExtensionSizesByFormat) {
                 supportedExtensionSizesByFormat.getOrPut(imageFormat) {
-                    lazy(LazyThreadSafetyMode.PUBLICATION) {
+                    lazyOrEmptySet({ "$camera#getExtensionSupportedSizes(${imageFormat})" }) {
                         Api31Compat.getExtensionSupportedSizes(
                                 extensionCharacteristics,
                                 cameraExtension,
@@ -90,14 +103,14 @@ internal class Camera2CameraExtensionMetadata(
                     }
                 }
             }
-        return supportedExtensionSizes.value
+        return lazySizes.value
     }
 
     override fun getOutputSizes(klass: Class<*>): Set<Size> {
-        val supportedExtensionSizes =
+        val lazySizes =
             synchronized(supportedExtensionSizesByClass) {
                 supportedExtensionSizesByClass.getOrPut(klass) {
-                    lazy(LazyThreadSafetyMode.PUBLICATION) {
+                    lazyOrEmptySet("$camera#getExtensionSupportedSizes(${klass.name})") {
                         Api31Compat.getExtensionSupportedSizes(
                                 extensionCharacteristics,
                                 cameraExtension,
@@ -107,82 +120,71 @@ internal class Camera2CameraExtensionMetadata(
                     }
                 }
             }
-        return supportedExtensionSizes.value
+        return lazySizes.value
     }
 
     override fun getPostviewSizes(captureSize: Size, format: Int): Set<Size> {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            val supportedPostviewSizes =
-                synchronized(supportedPostviewSizes) {
-                    supportedPostviewSizes.getOrPut(captureSize) {
-                        lazy(LazyThreadSafetyMode.PUBLICATION) {
-                            Api34Compat.getPostviewSupportedSizes(
-                                    extensionCharacteristics,
-                                    cameraExtension,
-                                    captureSize,
-                                    format
-                                )
-                                .toSet()
-                        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return emptySet()
+        }
+
+        val lazySizes =
+            synchronized(supportedPostviewSizes) {
+                supportedPostviewSizes.getOrPut(captureSize) {
+                    lazyOrEmptySet("$camera#getPostviewSupportedSizes($captureSize, $format)") {
+                        Api34Compat.getPostviewSupportedSizes(
+                                extensionCharacteristics,
+                                cameraExtension,
+                                captureSize,
+                                format
+                            )
+                            .toSet()
                     }
                 }
-            return supportedPostviewSizes.value
-        }
-        return emptySet()
+            }
+        return lazySizes.value
     }
 
     private val _requestKeys: Lazy<Set<CaptureRequest.Key<*>>> =
-        lazy(LazyThreadSafetyMode.PUBLICATION) {
-            try {
-                Debug.trace("Camera-$camera#availableCaptureRequestKeys") {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        Api33Compat.getAvailableCaptureRequestKeys(
-                                extensionCharacteristics,
-                                cameraExtension
-                            )
-                            .toSet()
-                    } else {
-                        emptySet()
-                    }
-                }
-            } catch (e: AssertionError) {
-                Log.warn(e) { "Failed to getAvailableCaptureRequestKeys from Camera-$camera" }
+        lazyOrEmptySet({ "$camera#availableCaptureRequestKeys" }) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Api33Compat.getAvailableCaptureRequestKeys(
+                        extensionCharacteristics,
+                        cameraExtension
+                    )
+                    .toSet()
+            } else {
                 emptySet()
             }
         }
 
     private val _resultKeys: Lazy<Set<CaptureResult.Key<*>>> =
-        lazy(LazyThreadSafetyMode.PUBLICATION) {
-            try {
-                Debug.trace("Camera-$camera#availableCaptureResultKeys") {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        Api33Compat.getAvailableCaptureResultKeys(
-                                extensionCharacteristics,
-                                cameraExtension
-                            )
-                            .toSet()
-                    } else {
-                        emptySet()
-                    }
-                }
-            } catch (e: AssertionError) {
-                Log.warn(e) { "Failed to getAvailableCaptureResultKeys from Camera-$camera" }
+        lazyOrEmptySet({ "$camera#availableCaptureResultKeys" }) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Api33Compat.getAvailableCaptureResultKeys(extensionCharacteristics, cameraExtension)
+                    .toSet()
+            } else {
                 emptySet()
             }
         }
 
     private val _isPostviewSupported: Lazy<Boolean> =
-        lazy(LazyThreadSafetyMode.PUBLICATION) {
-            try {
-                Debug.trace("Camera-$camera#isPostviewSupported") {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-                        Api34Compat.isPostviewAvailable(extensionCharacteristics, cameraExtension)
-                    } else {
-                        false
-                    }
-                }
-            } catch (e: AssertionError) {
-                Log.warn(e) { "Failed to get isPostviewSupported from Camera-$camera" }
+        lazyOrFalse({ "$camera#isPostviewSupported" }) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Api34Compat.isPostviewAvailable(extensionCharacteristics, cameraExtension)
+            } else {
+                false
+            }
+        }
+
+    private val _isCaptureProgressSupported: Lazy<Boolean> =
+        lazyOrFalse({ "$camera#isCaptureProgressSupported" }) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                Api34Compat.isCaptureProcessProgressAvailable(
+                    extensionCharacteristics,
+                    cameraExtension
+                )
+            } else {
                 false
             }
         }

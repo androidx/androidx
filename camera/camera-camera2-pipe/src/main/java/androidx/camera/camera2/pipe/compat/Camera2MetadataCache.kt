@@ -138,6 +138,14 @@ constructor(
         }
     }
 
+    override fun getSupportedCameraExtensions(cameraId: CameraId): Set<Int> {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val extensionCharacteristics = getCameraExtensionCharacteristics(cameraId)
+            return Api31Compat.getSupportedExtensions(extensionCharacteristics).toSet()
+        }
+        return emptySet()
+    }
+
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): Camera2CameraMetadata {
         val start = Timestamps.now(timeSource)
 
@@ -240,7 +248,7 @@ constructor(
                 return@trace extensionMetadata
             } catch (throwable: Throwable) {
                 throw IllegalStateException(
-                    "Failed to load extension metadata " + "for $cameraId!",
+                    "Failed to load extension metadata for $cameraId!",
                     throwable
                 )
             }
@@ -248,7 +256,7 @@ constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.S)
-    override fun getCameraExtensionCharacteristics(
+    private fun getCameraExtensionCharacteristics(
         cameraId: CameraId
     ): CameraExtensionCharacteristics {
         synchronized(extensionCharacteristicsCache) {

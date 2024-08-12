@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-@file:RequiresApi(31) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-
 package androidx.camera.camera2.pipe
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.util.Size
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 
 /**
@@ -37,17 +35,27 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CameraExtensionMetadata : Metadata, UnsafeWrapper {
-    val camera: CameraId
-    val isRedacted: Boolean
-    val cameraExtension: Int
-    val isPostviewSupported: Boolean
+    operator fun <T> get(key: CameraCharacteristics.Key<T>): T?
 
+    fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T
+
+    val camera: CameraId
+    val cameraExtension: Int
+
+    val isRedacted: Boolean
+    val isPostviewSupported: Boolean
+    val isCaptureProgressSupported: Boolean
+
+    val keys: Set<CameraCharacteristics.Key<*>>
     val requestKeys: Set<CaptureRequest.Key<*>>
     val resultKeys: Set<CaptureResult.Key<*>>
 
+    /** Get output sizes that can be used for high-quality capture requests. */
     fun getOutputSizes(imageFormat: Int): Set<Size>
 
+    /** Get output sizes that can be used for repeating preview requests. */
     fun getOutputSizes(klass: Class<*>): Set<Size>
 
+    /** Get sizes that may be used for the postview stream. */
     fun getPostviewSizes(captureSize: Size, format: Int): Set<Size>
 }
