@@ -50,7 +50,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun SplitButtonSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -68,17 +68,17 @@ fun SplitButtonSample() {
         },
         trailingButton = {
             SplitButtonDefaults.AnimatedTrailingButton(
-                onClick = { expanded = !expanded },
-                expanded = expanded,
+                onClick = { checked = !checked },
+                checked = checked,
                 modifier =
                     Modifier.semantics {
-                        stateDescription = if (expanded) "Expanded" else "Collapsed"
+                        stateDescription = if (checked) "Checked" else "Unchecked"
                         contentDescription = "Toggle Button"
                     },
             ) {
                 val rotation: Float by
                     animateFloatAsState(
-                        targetValue = if (expanded) 180f else 0f,
+                        targetValue = if (checked) 180f else 0f,
                         label = "Trailing Icon Rotation"
                     )
                 Icon(
@@ -99,12 +99,12 @@ fun SplitButtonSample() {
 @Composable
 @Preview
 fun FilledSplitButtonSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     FilledSplitButton(
         onLeadingButtonClick = {},
-        expanded = expanded,
-        onTrailingButtonClick = { expanded = !expanded },
+        checked = checked,
+        onTrailingButtonClick = { checked = !checked },
         leadingContent = {
             Icon(
                 Icons.Outlined.Edit,
@@ -117,7 +117,7 @@ fun FilledSplitButtonSample() {
         trailingContent = {
             val rotation: Float by
                 animateFloatAsState(
-                    targetValue = if (expanded) 180f else 0f,
+                    targetValue = if (checked) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
             Icon(
@@ -137,12 +137,12 @@ fun FilledSplitButtonSample() {
 @Composable
 @Preview
 fun TonalSplitButtonSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     TonalSplitButton(
         onLeadingButtonClick = {},
-        expanded = expanded,
-        onTrailingButtonClick = { expanded = !expanded },
+        checked = checked,
+        onTrailingButtonClick = { checked = !checked },
         leadingContent = {
             Icon(
                 Icons.Outlined.Edit,
@@ -155,7 +155,7 @@ fun TonalSplitButtonSample() {
         trailingContent = {
             val rotation: Float by
                 animateFloatAsState(
-                    targetValue = if (expanded) 180f else 0f,
+                    targetValue = if (checked) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
             Icon(
@@ -175,12 +175,12 @@ fun TonalSplitButtonSample() {
 @Composable
 @Preview
 fun ElevatedSplitButtonSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     ElevatedSplitButton(
         onLeadingButtonClick = {},
-        expanded = expanded,
-        onTrailingButtonClick = { expanded = !expanded },
+        checked = checked,
+        onTrailingButtonClick = { checked = !checked },
         leadingContent = {
             Icon(
                 Icons.Outlined.Edit,
@@ -193,7 +193,7 @@ fun ElevatedSplitButtonSample() {
         trailingContent = {
             val rotation: Float by
                 animateFloatAsState(
-                    targetValue = if (expanded) 180f else 0f,
+                    targetValue = if (checked) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
             Icon(
@@ -213,12 +213,12 @@ fun ElevatedSplitButtonSample() {
 @Composable
 @Preview
 fun OutlinedSplitButtonSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     OutlinedSplitButton(
         onLeadingButtonClick = {},
-        expanded = expanded,
-        onTrailingButtonClick = { expanded = !expanded },
+        checked = checked,
+        onTrailingButtonClick = { checked = !checked },
         leadingContent = {
             Icon(
                 Icons.Outlined.Edit,
@@ -231,7 +231,7 @@ fun OutlinedSplitButtonSample() {
         trailingContent = {
             val rotation: Float by
                 animateFloatAsState(
-                    targetValue = if (expanded) 180f else 0f,
+                    targetValue = if (checked) 180f else 0f,
                     label = "Trailing Icon Rotation"
                 )
             Icon(
@@ -251,7 +251,7 @@ fun OutlinedSplitButtonSample() {
 @Composable
 @Preview
 fun SplitButtonWithTextSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -263,12 +263,12 @@ fun SplitButtonWithTextSample() {
         },
         trailingButton = {
             SplitButtonDefaults.AnimatedTrailingButton(
-                onClick = { expanded = !expanded },
-                expanded = expanded,
+                onClick = { checked = !checked },
+                checked = checked,
             ) {
                 val rotation: Float by
                     animateFloatAsState(
-                        targetValue = if (expanded) 180f else 0f,
+                        targetValue = if (checked) 180f else 0f,
                         label = "Trailing Icon Rotation"
                     )
                 Icon(
@@ -289,7 +289,7 @@ fun SplitButtonWithTextSample() {
 @Composable
 @Preview
 fun SplitButtonWithIconSample() {
-    var expanded by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(false) }
 
     SplitButton(
         leadingButton = {
@@ -305,12 +305,12 @@ fun SplitButtonWithIconSample() {
         },
         trailingButton = {
             SplitButtonDefaults.AnimatedTrailingButton(
-                onClick = { expanded = !expanded },
-                expanded = expanded,
+                onClick = { checked = !checked },
+                checked = checked,
             ) {
                 val rotation: Float by
                     animateFloatAsState(
-                        targetValue = if (expanded) 180f else 0f,
+                        targetValue = if (checked) 180f else 0f,
                         label = "Trailing Icon Rotation"
                     )
                 Icon(
