@@ -188,6 +188,7 @@ import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -208,6 +209,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.window.layout.WindowMetricsCalculator
 import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
@@ -574,7 +576,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     // on a different position, but also in the position of each of the grandparents as all these
     // positions add up to final global position)
     private val globalLayoutListener =
-        ViewTreeObserver.OnGlobalLayoutListener { updatePositionCacheAndDispatch() }
+        ViewTreeObserver.OnGlobalLayoutListener {
+            updatePositionCacheAndDispatch()
+            updateWindowMetrics()
+        }
 
     // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
     // this could affect our global position
@@ -1702,6 +1707,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         _windowInfo.isWindowFocused = hasWindowFocus()
+        updateWindowMetrics()
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
@@ -2221,6 +2227,11 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         viewToWindowMatrix.invertTo(windowToViewMatrix)
     }
 
+    private fun updateWindowMetrics() {
+        val metrics = WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(context)
+        _windowInfo.containerSize = metrics.bounds.toComposeIntSize()
+    }
+
     override fun onCheckIsTextEditor(): Boolean {
         val parentSession =
             textInputSessionMutex.currentSession
@@ -2253,6 +2264,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         density = Density(context)
+        updateWindowMetrics()
         if (newConfig.fontWeightAdjustmentCompat != currentFontWeightAdjustment) {
             currentFontWeightAdjustment = newConfig.fontWeightAdjustmentCompat
             fontFamilyResolver = createFontFamilyResolver(context)
@@ -2842,3 +2854,5 @@ private fun View.getContentCaptureSessionCompat(): ContentCaptureSessionCompat? 
     )
     return ViewCompatShims.getContentCaptureSession(this)
 }
+
+private fun Rect.toComposeIntSize() = IntSize(width = width(), height = height())
