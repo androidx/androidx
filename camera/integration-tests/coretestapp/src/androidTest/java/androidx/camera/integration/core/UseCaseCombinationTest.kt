@@ -57,8 +57,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -197,7 +195,7 @@ class UseCaseCombinationTest(
 
         // Assert.
         imageCapture.waitForCapturing()
-        previewMonitor.waitForStreamIdle()
+        previewMonitor.assertNoResultReceived()
     }
 
     /** Test Combination: Preview + ImageAnalysis */
@@ -219,7 +217,7 @@ class UseCaseCombinationTest(
         checkAndBindUseCases(preview, imageAnalysis)
 
         // Assert.
-        previewMonitor.waitForStreamIdle()
+        previewMonitor.assertNoResultReceived()
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
@@ -274,7 +272,7 @@ class UseCaseCombinationTest(
     }
 
     @Test
-    fun unbindPreview_captureAndAnalysisStillWorking(): Unit = runBlocking {
+    fun unbindPreview_captureAndAnalysisStillWorking() {
         // Arrange.
         checkAndBindUseCases(preview, imageCapture, imageAnalysis)
 
@@ -284,8 +282,7 @@ class UseCaseCombinationTest(
 
         // Act.
         unbindUseCases(preview)
-        delay(1000) // Unbind and stop the output stream should be done within 1 sec.
-        previewMonitor.waitForStreamIdle(count = 1, timeMillis = TimeUnit.SECONDS.toMillis(2))
+        previewMonitor.waitForStreamIdle()
 
         // Assert
         imageCapture.waitForCapturing()
@@ -519,17 +516,30 @@ class UseCaseCombinationTest(
                 .isTrue()
         }
 
-        fun waitForStreamIdle(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
-            Truth.assertWithMessage("Preview doesn't become idle")
-                .that(
-                    synchronized(this) {
-                            countDown = CountDownLatch(count)
-                            countDown
-                        }!!
-                        .await(timeMillis, TimeUnit.MILLISECONDS)
-                )
+        fun assertNoResultReceived() =
+            Truth.assertWithMessage("There is still some capture results received unexpectedly.")
+                .that(waitForCaptureResultReceived(/* count= */ 1, /* timeSeconds= */ 2))
                 .isFalse()
+
+        fun waitForStreamIdle() {
+            // Monitor 2 seconds to confirm that less than 10 capture results are received. (It
+            // might take some time to stop the preview)
+            Truth.assertWithMessage(
+                    "There are still more than 10 capture results received in the" +
+                        " recent 2 seconds."
+                )
+                .that(waitForCaptureResultReceived())
+                .isFalse()
+            // Monitor 2 seconds to confirm that no any capture result can be received.
+            assertNoResultReceived()
         }
+
+        private fun waitForCaptureResultReceived(count: Int = 10, timeSeconds: Long = 2) =
+            synchronized(this) {
+                    countDown = CountDownLatch(count)
+                    countDown
+                }!!
+                .await(timeSeconds, TimeUnit.SECONDS)
 
         override fun onCaptureCompleted(
             session: CameraCaptureSession,
