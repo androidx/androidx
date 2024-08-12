@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.Manifest
+import androidx.annotation.RequiresApi
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.benchmark.json.BenchmarkData
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -285,6 +286,7 @@ class BenchmarkStateTest {
         assertEquals(expectedReport, ResultWriter.reports.last())
     }
 
+    @RequiresApi(22) // 21 profiler has flaky platform crashes, see b/353716346
     private fun validateProfilerUsage(simplifiedTimingOnlyMode: Boolean?) {
         val config = MicrobenchmarkConfig(profiler = ProfilerConfig.StackSamplingLegacy())
 
@@ -327,11 +329,17 @@ class BenchmarkStateTest {
         }
     }
 
-    @Test fun profiler_default() = validateProfilerUsage(null)
+    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
+    @Test
+    fun profiler_default() = validateProfilerUsage(null)
 
-    @Test fun profiler_false() = validateProfilerUsage(false)
+    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
+    @Test
+    fun profiler_false() = validateProfilerUsage(false)
 
-    @Test fun profiler_true() = validateProfilerUsage(true)
+    @SdkSuppress(minSdkVersion = 22) // 21 profiler has flaky platform crashes, see b/353716346
+    @Test
+    fun profiler_true() = validateProfilerUsage(true)
 
     @OptIn(ExperimentalBenchmarkStateApi::class)
     @Test
