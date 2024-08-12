@@ -16,6 +16,7 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchBlobHandle;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.EmbeddingVector;
 import androidx.appsearch.app.GetByDocumentIdRequest;
@@ -194,5 +195,10 @@ public class StubCreators {
     /** Stub creator for {@link EmbeddingVector}. */
     public static class EmbeddingVectorCreator extends
             AbstractCreator<EmbeddingVector> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.AppSearchBlobHandle}. */
+    public static class AppSearchBlobHandleCreator extends
+            AbstractCreator<AppSearchBlobHandle> {
     }
 }

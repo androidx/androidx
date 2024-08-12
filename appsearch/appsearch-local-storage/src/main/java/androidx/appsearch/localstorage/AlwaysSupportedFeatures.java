@@ -83,6 +83,8 @@ public class AlwaysSupportedFeatures implements Features {
             case Features.SET_SCHEMA_REQUEST_ADD_SCHEMA_TYPE_VISIBLE_TO_CONFIG:
                 // fall through
             case Features.SEARCH_SPEC_ADD_INFORMATIONAL_RANKING_EXPRESSIONS:
+                // fall through
+            case Features.BLOB_STORAGE:
                 return true;
             default:
                 return false;
