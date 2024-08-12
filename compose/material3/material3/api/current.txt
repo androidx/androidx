@@ -2779,39 +2779,71 @@ package androidx.compose.material3 {
   }
 
   @androidx.compose.runtime.Immutable public final class Typography {
-    ctor public Typography();
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public Typography();
     ctor public Typography(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
+    ctor @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public Typography(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall, optional androidx.compose.ui.text.TextStyle displayLargeEmphasized, optional androidx.compose.ui.text.TextStyle displayMediumEmphasized, optional androidx.compose.ui.text.TextStyle displaySmallEmphasized, optional androidx.compose.ui.text.TextStyle headlineLargeEmphasized, optional androidx.compose.ui.text.TextStyle headlineMediumEmphasized, optional androidx.compose.ui.text.TextStyle headlineSmallEmphasized, optional androidx.compose.ui.text.TextStyle titleLargeEmphasized, optional androidx.compose.ui.text.TextStyle titleMediumEmphasized, optional androidx.compose.ui.text.TextStyle titleSmallEmphasized, optional androidx.compose.ui.text.TextStyle bodyLargeEmphasized, optional androidx.compose.ui.text.TextStyle bodyMediumEmphasized, optional androidx.compose.ui.text.TextStyle bodySmallEmphasized, optional androidx.compose.ui.text.TextStyle labelLargeEmphasized, optional androidx.compose.ui.text.TextStyle labelMediumEmphasized, optional androidx.compose.ui.text.TextStyle labelSmallEmphasized);
     method public androidx.compose.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.material3.Typography copy(optional androidx.compose.ui.text.TextStyle displayLarge, optional androidx.compose.ui.text.TextStyle displayMedium, optional androidx.compose.ui.text.TextStyle displaySmall, optional androidx.compose.ui.text.TextStyle headlineLarge, optional androidx.compose.ui.text.TextStyle headlineMedium, optional androidx.compose.ui.text.TextStyle headlineSmall, optional androidx.compose.ui.text.TextStyle titleLarge, optional androidx.compose.ui.text.TextStyle titleMedium, optional androidx.compose.ui.text.TextStyle titleSmall, optional androidx.compose.ui.text.TextStyle bodyLarge, optional androidx.compose.ui.text.TextStyle bodyMedium, optional androidx.compose.ui.text.TextStyle bodySmall, optional androidx.compose.ui.text.TextStyle labelLarge, optional androidx.compose.ui.text.TextStyle labelMedium, optional androidx.compose.ui.text.TextStyle labelSmall, optional androidx.compose.ui.text.TextStyle displayLargeEmphasized, optional androidx.compose.ui.text.TextStyle displayMediumEmphasized, optional androidx.compose.ui.text.TextStyle displaySmallEmphasized, optional androidx.compose.ui.text.TextStyle headlineLargeEmphasized, optional androidx.compose.ui.text.TextStyle headlineMediumEmphasized, optional androidx.compose.ui.text.TextStyle headlineSmallEmphasized, optional androidx.compose.ui.text.TextStyle titleLargeEmphasized, optional androidx.compose.ui.text.TextStyle titleMediumEmphasized, optional androidx.compose.ui.text.TextStyle titleSmallEmphasized, optional androidx.compose.ui.text.TextStyle bodyLargeEmphasized, optional androidx.compose.ui.text.TextStyle bodyMediumEmphasized, optional androidx.compose.ui.text.TextStyle bodySmallEmphasized, optional androidx.compose.ui.text.TextStyle labelLargeEmphasized, optional androidx.compose.ui.text.TextStyle labelMediumEmphasized, optional androidx.compose.ui.text.TextStyle labelSmallEmphasized);
     method public androidx.compose.ui.text.TextStyle getBodyLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getBodyLargeEmphasized();
     method public androidx.compose.ui.text.TextStyle getBodyMedium();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getBodyMediumEmphasized();
     method public androidx.compose.ui.text.TextStyle getBodySmall();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getBodySmallEmphasized();
     method public androidx.compose.ui.text.TextStyle getDisplayLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getDisplayLargeEmphasized();
     method public androidx.compose.ui.text.TextStyle getDisplayMedium();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getDisplayMediumEmphasized();
     method public androidx.compose.ui.text.TextStyle getDisplaySmall();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getDisplaySmallEmphasized();
     method public androidx.compose.ui.text.TextStyle getHeadlineLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getHeadlineLargeEmphasized();
     method public androidx.compose.ui.text.TextStyle getHeadlineMedium();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getHeadlineMediumEmphasized();
     method public androidx.compose.ui.text.TextStyle getHeadlineSmall();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getHeadlineSmallEmphasized();
     method public androidx.compose.ui.text.TextStyle getLabelLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getLabelLargeEmphasized();
     method public androidx.compose.ui.text.TextStyle getLabelMedium();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getLabelMediumEmphasized();
     method public androidx.compose.ui.text.TextStyle getLabelSmall();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getLabelSmallEmphasized();
     method public androidx.compose.ui.text.TextStyle getTitleLarge();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getTitleLargeEmphasized();
     method public androidx.compose.ui.text.TextStyle getTitleMedium();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getTitleMediumEmphasized();
     method public androidx.compose.ui.text.TextStyle getTitleSmall();
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public androidx.compose.ui.text.TextStyle getTitleSmallEmphasized();
     property public final androidx.compose.ui.text.TextStyle bodyLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle bodyLargeEmphasized;
     property public final androidx.compose.ui.text.TextStyle bodyMedium;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle bodyMediumEmphasized;
     property public final androidx.compose.ui.text.TextStyle bodySmall;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle bodySmallEmphasized;
     property public final androidx.compose.ui.text.TextStyle displayLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle displayLargeEmphasized;
     property public final androidx.compose.ui.text.TextStyle displayMedium;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle displayMediumEmphasized;
     property public final androidx.compose.ui.text.TextStyle displaySmall;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle displaySmallEmphasized;
     property public final androidx.compose.ui.text.TextStyle headlineLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle headlineLargeEmphasized;
     property public final androidx.compose.ui.text.TextStyle headlineMedium;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle headlineMediumEmphasized;
     property public final androidx.compose.ui.text.TextStyle headlineSmall;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle headlineSmallEmphasized;
     property public final androidx.compose.ui.text.TextStyle labelLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle labelLargeEmphasized;
     property public final androidx.compose.ui.text.TextStyle labelMedium;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle labelMediumEmphasized;
     property public final androidx.compose.ui.text.TextStyle labelSmall;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle labelSmallEmphasized;
     property public final androidx.compose.ui.text.TextStyle titleLarge;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle titleLargeEmphasized;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle titleMediumEmphasized;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
+    property @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final androidx.compose.ui.text.TextStyle titleSmallEmphasized;
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class WavyProgressIndicatorDefaults {
