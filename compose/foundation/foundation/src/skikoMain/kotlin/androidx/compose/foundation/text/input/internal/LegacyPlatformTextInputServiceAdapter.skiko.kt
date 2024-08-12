@@ -28,15 +28,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.input.TextInputSession
 
 // TODO remove after https://youtrack.jetbrains.com/issue/COMPOSE-740/Implement-BasicTextField2
 @Suppress("DEPRECATION")
 @OptIn(InternalTextApi::class)
 @Composable
-internal actual fun legacyPlatformTextInputServiceAdapter(): LegacyPlatformTextInputServiceAdapter {
-    val service = LocalTextInputService.current
-    return remember(service) {
+internal actual fun legacyTextInputServiceAdapterAndService():
+    Pair<LegacyPlatformTextInputServiceAdapter, TextInputService>
+{
+    val service = LocalTextInputService.current!!
+    val adapter = remember(service) {
         object : LegacyPlatformTextInputServiceAdapter() {
             private var session: TextInputSession? = null
             override fun startStylusHandwriting() {}
@@ -47,11 +50,11 @@ internal actual fun legacyPlatformTextInputServiceAdapter(): LegacyPlatformTextI
                 onEditCommand: (List<EditCommand>) -> Unit,
                 onImeActionPerformed: (ImeAction) -> Unit
             ) {
-                session = service?.startInput(value, imeOptions, onEditCommand, onImeActionPerformed)
+                session = service.startInput(value, imeOptions, onEditCommand, onImeActionPerformed)
             }
 
             override fun stopInput() {
-                service?.stopInput()
+                service.stopInput()
                 session?.dispose()
                 session = null
             }
@@ -79,4 +82,5 @@ internal actual fun legacyPlatformTextInputServiceAdapter(): LegacyPlatformTextI
             }
         }
     }
+    return adapter to service
 }

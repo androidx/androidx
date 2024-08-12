@@ -34,6 +34,7 @@ import kotlinx.coroutines.withTimeout
 import org.jetbrains.skiko.MainUIDispatcher
 import org.junit.Assume.assumeFalse
 import androidx.compose.ui.window.launchApplication as realLaunchApplication
+import javax.swing.JFrame
 
 
 internal fun runApplicationTest(
@@ -120,12 +121,23 @@ internal class WindowTestScope(
     var isOpen by mutableStateOf(true)
     private val initialRecomposers = Recomposer.runningRecomposers.value
 
+    lateinit var window: JFrame
+
     fun launchTestApplication(
         content: @Composable ApplicationScope.() -> Unit
     ) = realLaunchApplication {
         if (isOpen) {
             content()
         }
+    }
+
+    fun launchTestWindowApplication(
+        content: @Composable WindowScope.() -> Unit
+    ) = launchTestApplication {
+       Window(onCloseRequest = ::exitApplication) {
+           this@WindowTestScope.window = window
+           content()
+       }
     }
 
     // Overload `launchApplication` to prohibit calling it from tests

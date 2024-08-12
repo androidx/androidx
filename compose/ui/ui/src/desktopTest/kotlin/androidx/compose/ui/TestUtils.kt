@@ -33,6 +33,7 @@ import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
 import java.awt.event.MouseWheelEvent
 import java.awt.font.TextHitInfo
+import java.awt.im.InputMethodRequests
 import java.awt.image.BufferedImage
 import java.awt.image.MultiResolutionImage
 import java.text.AttributedString
@@ -85,6 +86,9 @@ fun Window.sendKeyEvent(
     mostRecentFocusOwner!!.dispatchEvent(event)
     return event.isConsumed
 }
+
+fun Window.focusedInputMethodRequests(): InputMethodRequests? =
+    mostRecentFocusOwner!!.inputMethodRequests
 
 fun Window.sendKeyTypedEvent(
     char: Char,

@@ -26,11 +26,12 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.text.input.TextInputService
 import kotlinx.coroutines.Job
 
 @Composable
-internal expect fun legacyPlatformTextInputServiceAdapter():
-    LegacyPlatformTextInputServiceAdapter
+internal expect fun legacyTextInputServiceAdapterAndService():
+    Pair<LegacyPlatformTextInputServiceAdapter, TextInputService>
 
 /**
  * An implementation of the legacy [PlatformTextInputService] interface that delegates to a
