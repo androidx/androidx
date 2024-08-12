@@ -31,6 +31,7 @@ import com.intellij.psi.PsiArrayType
 import com.intellij.psi.PsiEllipsisType
 import java.util.EnumSet
 import org.jetbrains.uast.UAnnotation
+import org.jetbrains.uast.UElement
 import org.jetbrains.uast.UField
 import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParameter
@@ -72,7 +73,7 @@ class ArrayNullnessMigration : Detector(), Detector.UastScanner {
             // This is where the annotation itself is located.
             val annotationLocation = context.getLocation(node)
             // This is where the element being annotated is located.
-            val annotatedLocation = context.getLocation(annotated)
+            val annotatedLocation = context.getLocation(annotated as UElement)
             // If the annotation and annotated element aren't on the same line, that probably means
             // the annotation is on its own line, with indentation before it. To also get rid of
             // that indentation, start the range at the start of the annotation's line.
@@ -143,7 +144,7 @@ class ArrayNullnessMigration : Detector(), Detector.UastScanner {
                 Incident(context)
                     .message("Nullness annotation on array will apply to element")
                     .issue(ISSUE)
-                    .location(context.getLocation(annotated))
+                    .location(context.getLocation(annotated as UElement))
                     .scope(annotated)
                     .fix(fix)
             context.report(incident)
