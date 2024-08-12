@@ -50,13 +50,13 @@ import kotlin.math.sqrt
 @Suppress("NOTHING_TO_INLINE")
 @Immutable
 @kotlin.jvm.JvmInline
-value class Offset internal constructor(internal val packedValue: Long) {
+value class Offset internal constructor(@PublishedApi internal val packedValue: Long) {
     @Stable
-    val x: Float
+    inline val x: Float
         get() = unpackFloat1(packedValue)
 
     @Stable
-    val y: Float
+    inline val y: Float
         get() = unpackFloat2(packedValue)
 
     @Stable inline operator fun component1(): Float = x

@@ -23,6 +23,9 @@ import androidx.compose.ui.graphics.Matrix
  * failed.
  */
 internal fun Matrix.invertTo(other: Matrix): Boolean {
+    // See comment in Matrix.kt
+    if (values.size < 16 || other.values.size < 16) return false
+
     val a00 = this[0, 0]
     val a01 = this[0, 1]
     val a02 = this[0, 2]
@@ -39,6 +42,7 @@ internal fun Matrix.invertTo(other: Matrix): Boolean {
     val a31 = this[3, 1]
     val a32 = this[3, 2]
     val a33 = this[3, 3]
+
     val b00 = a00 * a11 - a01 * a10
     val b01 = a00 * a12 - a02 * a10
     val b02 = a00 * a13 - a03 * a10
@@ -51,26 +55,26 @@ internal fun Matrix.invertTo(other: Matrix): Boolean {
     val b09 = a21 * a32 - a22 * a31
     val b10 = a21 * a33 - a23 * a31
     val b11 = a22 * a33 - a23 * a32
+
     val det = (b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06)
-    if (det == 0.0f) {
-        return false
+    if (det != 0.0f) {
+        val invDet = 1.0f / det
+        other[0, 0] = ((a11 * b11 - a12 * b10 + a13 * b09) * invDet)
+        other[0, 1] = ((-a01 * b11 + a02 * b10 - a03 * b09) * invDet)
+        other[0, 2] = ((a31 * b05 - a32 * b04 + a33 * b03) * invDet)
+        other[0, 3] = ((-a21 * b05 + a22 * b04 - a23 * b03) * invDet)
+        other[1, 0] = ((-a10 * b11 + a12 * b08 - a13 * b07) * invDet)
+        other[1, 1] = ((a00 * b11 - a02 * b08 + a03 * b07) * invDet)
+        other[1, 2] = ((-a30 * b05 + a32 * b02 - a33 * b01) * invDet)
+        other[1, 3] = ((a20 * b05 - a22 * b02 + a23 * b01) * invDet)
+        other[2, 0] = ((a10 * b10 - a11 * b08 + a13 * b06) * invDet)
+        other[2, 1] = ((-a00 * b10 + a01 * b08 - a03 * b06) * invDet)
+        other[2, 2] = ((a30 * b04 - a31 * b02 + a33 * b00) * invDet)
+        other[2, 3] = ((-a20 * b04 + a21 * b02 - a23 * b00) * invDet)
+        other[3, 0] = ((-a10 * b09 + a11 * b07 - a12 * b06) * invDet)
+        other[3, 1] = ((a00 * b09 - a01 * b07 + a02 * b06) * invDet)
+        other[3, 2] = ((-a30 * b03 + a31 * b01 - a32 * b00) * invDet)
+        other[3, 3] = ((a20 * b03 - a21 * b01 + a22 * b00) * invDet)
     }
-    val invDet = 1.0f / det
-    other[0, 0] = ((a11 * b11 - a12 * b10 + a13 * b09) * invDet)
-    other[0, 1] = ((-a01 * b11 + a02 * b10 - a03 * b09) * invDet)
-    other[0, 2] = ((a31 * b05 - a32 * b04 + a33 * b03) * invDet)
-    other[0, 3] = ((-a21 * b05 + a22 * b04 - a23 * b03) * invDet)
-    other[1, 0] = ((-a10 * b11 + a12 * b08 - a13 * b07) * invDet)
-    other[1, 1] = ((a00 * b11 - a02 * b08 + a03 * b07) * invDet)
-    other[1, 2] = ((-a30 * b05 + a32 * b02 - a33 * b01) * invDet)
-    other[1, 3] = ((a20 * b05 - a22 * b02 + a23 * b01) * invDet)
-    other[2, 0] = ((a10 * b10 - a11 * b08 + a13 * b06) * invDet)
-    other[2, 1] = ((-a00 * b10 + a01 * b08 - a03 * b06) * invDet)
-    other[2, 2] = ((a30 * b04 - a31 * b02 + a33 * b00) * invDet)
-    other[2, 3] = ((-a20 * b04 + a21 * b02 - a23 * b00) * invDet)
-    other[3, 0] = ((-a10 * b09 + a11 * b07 - a12 * b06) * invDet)
-    other[3, 1] = ((a00 * b09 - a01 * b07 + a02 * b06) * invDet)
-    other[3, 2] = ((-a30 * b03 + a31 * b01 - a32 * b00) * invDet)
-    other[3, 3] = ((a20 * b03 - a21 * b01 + a22 * b00) * invDet)
-    return true
+    return det != 0.0f
 }

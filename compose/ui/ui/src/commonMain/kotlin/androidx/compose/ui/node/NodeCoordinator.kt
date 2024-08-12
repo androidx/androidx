@@ -1048,14 +1048,13 @@ internal abstract class NodeCoordinator(
     }
 
     protected fun drawBorder(canvas: Canvas, paint: Paint) {
-        val rect =
-            Rect(
-                left = 0.5f,
-                top = 0.5f,
-                right = measuredSize.width.toFloat() - 0.5f,
-                bottom = measuredSize.height.toFloat() - 0.5f
-            )
-        canvas.drawRect(rect, paint)
+        canvas.drawRect(
+            left = 0.5f,
+            top = 0.5f,
+            right = measuredSize.width.toFloat() - 0.5f,
+            bottom = measuredSize.height.toFloat() - 0.5f,
+            paint = paint
+        )
     }
 
     /**
