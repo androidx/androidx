@@ -45,12 +45,14 @@
             android:exported="true" />
         <activity
             android:name=".SmallInterstitialActivity"
+            android:theme="@style/AppDayNightTheme"
             android:exported="true" />
         <activity
             android:name=".MediumInterstitialActivity"
             android:exported="true" />
         <activity
             android:name=".FullPageInterstitialActivity"
+            android:theme="@style/AppDayNightTheme"
             android:exported="true" />
         <activity
             android:name=".GiantInterstitialActivity"
@@ -158,6 +160,7 @@
             android:exported="true" />
         <activity
             android:name=".TinyInterstitialActivity"
+            android:theme="@style/AppDayNightTheme"
             android:exported="true" />
         <provider
             android:authorities="com.example.androidx.webkit.DropDataProvider"
