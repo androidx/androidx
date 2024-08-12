@@ -108,6 +108,34 @@ fun FilledTonalButtonSample() {
 
 @Sampled
 @Composable
+fun SimpleFilledVariantButtonSample() {
+    Button(
+        onClick = { /* Do something */ },
+        colors = ButtonDefaults.filledVariantButtonColors(),
+        label = { Text("Filled Variant Button") }
+    )
+}
+
+@Sampled
+@Composable
+fun FilledVariantButtonSample() {
+    Button(
+        onClick = { /* Do something */ },
+        colors = ButtonDefaults.filledVariantButtonColors(),
+        label = { Text("Filled Variant Button") },
+        secondaryLabel = { Text("Secondary label") },
+        icon = {
+            Icon(
+                Icons.Filled.Favorite,
+                contentDescription = "Favorite icon",
+                modifier = Modifier.size(ButtonDefaults.IconSize)
+            )
+        }
+    )
+}
+
+@Sampled
+@Composable
 fun SimpleOutlinedButtonSample() {
     OutlinedButton(onClick = { /* Do something */ }, label = { Text("Outlined Button") })
 }

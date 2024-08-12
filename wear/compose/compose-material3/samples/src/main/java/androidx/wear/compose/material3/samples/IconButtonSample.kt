@@ -47,6 +47,17 @@ fun FilledIconButtonSample() {
 
 @Composable
 @Sampled
+fun FilledVariantIconButtonSample() {
+    FilledIconButton(
+        onClick = { /* Do something */ },
+        colors = IconButtonDefaults.filledVariantIconButtonColors()
+    ) {
+        Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")
+    }
+}
+
+@Composable
+@Sampled
 fun FilledTonalIconButtonSample() {
     FilledTonalIconButton(onClick = { /* Do something */ }) {
         Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite icon")

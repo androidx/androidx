@@ -258,6 +258,48 @@ object TextButtonDefaults {
         )
 
     /**
+     * Creates a [TextButtonColors] as an alternative to the [filledTonal TextButtonColors], giving
+     * a surface with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * Example of creating a [TextButton] with [filledVariantTextButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.FilledVariantTextButtonSample
+     */
+    @Composable
+    fun filledVariantTextButtonColors() =
+        MaterialTheme.colorScheme.defaultFilledVariantTextButtonColors
+
+    /**
+     * Creates a [TextButtonColors] as an alternative to the [filledTonal TextButtonColors], giving
+     * a surface with more chroma to indicate selected or highlighted states that are not primary
+     * calls-to-action. If the icon button is disabled then the colors will default to the
+     * MaterialTheme onSurface color with suitable alpha values applied.
+     *
+     * Example of creating a [TextButton] with [filledVariantTextButtonColors]:
+     *
+     * @sample androidx.wear.compose.material3.samples.FilledVariantTextButtonSample
+     * @param containerColor The background color of this text button when enabled
+     * @param contentColor The content color of this text button when enabled
+     * @param disabledContainerColor the background color of this text button when not enabled
+     * @param disabledContentColor the content color of this text button when not enabled
+     */
+    @Composable
+    fun filledVariantTextButtonColors(
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+    ): TextButtonColors =
+        MaterialTheme.colorScheme.defaultFilledVariantTextButtonColors.copy(
+            containerColor = containerColor,
+            contentColor = contentColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor
+        )
+
+    /**
      * Creates a [TextButtonColors] with the colors for a filled, tonal [TextButton]- by default, a
      * muted colored background with a contrasting content color. If the text button is disabled
      * then the colors will default to [ColorScheme.onSurface] with suitable alpha values applied.
@@ -457,6 +499,26 @@ object TextButtonDefaults {
                                 )
                     )
                     .also { defaultFilledTextButtonColorsCached = it }
+        }
+
+    private val ColorScheme.defaultFilledVariantTextButtonColors: TextButtonColors
+        get() {
+            return defaultFilledVariantTextButtonColorsCached
+                ?: TextButtonColors(
+                        containerColor = fromToken(FilledTextButtonTokens.VariantContainerColor),
+                        contentColor = fromToken(FilledTextButtonTokens.VariantContentColor),
+                        disabledContainerColor =
+                            fromToken(FilledTextButtonTokens.DisabledContainerColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledTextButtonTokens.DisabledContainerOpacity
+                                ),
+                        disabledContentColor =
+                            fromToken(FilledTextButtonTokens.DisabledContentColor)
+                                .toDisabledColor(
+                                    disabledAlpha = FilledTextButtonTokens.DisabledContentOpacity
+                                )
+                    )
+                    .also { defaultFilledVariantTextButtonColorsCached = it }
         }
 
     private val ColorScheme.defaultFilledTonalTextButtonColors: TextButtonColors

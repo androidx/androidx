@@ -47,6 +47,8 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors childButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledVariantButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledVariantButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method public float getButtonHorizontalPadding();
     method public float getButtonVerticalPadding();
     method public androidx.compose.foundation.layout.PaddingValues getCompactButtonContentPadding();
@@ -336,6 +338,8 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledTonalIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledTonalIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledVariantIconButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledVariantIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float getDefaultButtonSize();
     method public float getDefaultIconSize();
     method public float getExtraSmallButtonSize();
@@ -1016,6 +1020,8 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledTonalTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledVariantTextButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors filledVariantTextButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float getDefaultButtonSize();
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public androidx.compose.ui.text.TextStyle getDefaultButtonTextStyle();
     method public float getLargeButtonSize();

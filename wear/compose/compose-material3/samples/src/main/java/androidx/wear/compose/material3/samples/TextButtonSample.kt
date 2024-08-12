@@ -46,6 +46,17 @@ fun FilledTextButtonSample() {
 
 @Composable
 @Sampled
+fun FilledVariantTextButtonSample() {
+    TextButton(
+        onClick = { /* Do something */ },
+        colors = TextButtonDefaults.filledVariantTextButtonColors()
+    ) {
+        Text(text = "ABC")
+    }
+}
+
+@Composable
+@Sampled
 fun LargeFilledTonalTextButtonSample() {
     TextButton(
         onClick = { /* Do something */ },
