@@ -67,7 +67,7 @@ fun SplitButtonSample() {
             }
         },
         trailingButton = {
-            SplitButtonDefaults.AnimatedTrailingButton(
+            SplitButtonDefaults.TrailingButton(
                 onClick = { checked = !checked },
                 checked = checked,
                 modifier =
@@ -262,7 +262,7 @@ fun SplitButtonWithTextSample() {
             }
         },
         trailingButton = {
-            SplitButtonDefaults.AnimatedTrailingButton(
+            SplitButtonDefaults.TrailingButton(
                 onClick = { checked = !checked },
                 checked = checked,
             ) {
@@ -304,7 +304,7 @@ fun SplitButtonWithIconSample() {
             }
         },
         trailingButton = {
-            SplitButtonDefaults.AnimatedTrailingButton(
+            SplitButtonDefaults.TrailingButton(
                 onClick = { checked = !checked },
                 checked = checked,
             ) {

@@ -69,8 +69,8 @@ class SplitButtonTest {
                 trailingButton = {
                     SplitButtonDefaults.TrailingButton(
                         modifier = Modifier.size(34.dp).testTag("trailingButton"),
+                        checked = false,
                         onClick = {},
-                        shape = SplitButtonDefaults.trailingButtonShape(),
                     ) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
                     }
@@ -99,9 +99,9 @@ class SplitButtonTest {
                 },
                 trailingButton = {
                     SplitButtonDefaults.TrailingButton(
-                        modifier = Modifier.size(34.dp).testTag("trailing button"),
                         onClick = {},
-                        shape = SplitButtonDefaults.trailingButtonShape(),
+                        checked = false,
+                        modifier = Modifier.size(34.dp).testTag("trailing button"),
                     ) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")
                     }
@@ -134,9 +134,9 @@ class SplitButtonTest {
                 },
                 trailingButton = {
                     SplitButtonDefaults.TrailingButton(
-                        modifier = Modifier.size(34.dp).testTag("trailing button"),
                         onClick = {},
-                        shape = SplitButtonDefaults.trailingButtonShape(),
+                        checked = false,
+                        modifier = Modifier.size(34.dp).testTag("trailing button"),
                         enabled = false,
                     ) {
                         Icon(Icons.Outlined.KeyboardArrowDown, contentDescription = "Trailing Icon")

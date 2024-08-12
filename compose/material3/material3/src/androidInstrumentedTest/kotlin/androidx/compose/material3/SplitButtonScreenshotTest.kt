@@ -72,7 +72,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         }
                     },
                     trailingButton = {
-                        SplitButtonDefaults.AnimatedTrailingButton(
+                        SplitButtonDefaults.TrailingButton(
                             onClick = {},
                             checked = false,
                         ) {
@@ -144,18 +144,14 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         Text("My Button")
                     },
                     trailingContent = {
-                        Box(
-                            modifier = Modifier.fillMaxHeight(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Outlined.KeyboardArrowDown,
-                                modifier =
-                                    Modifier.size(SplitButtonDefaults.TrailingIconSize)
-                                        .graphicsLayer { this.rotationZ = 180f },
-                                contentDescription = "Localized description"
-                            )
-                        }
+                        Icon(
+                            Icons.Outlined.KeyboardArrowDown,
+                            modifier =
+                                Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
+                                    this.rotationZ = 180f
+                                },
+                            contentDescription = "Localized description"
+                        )
                     }
                 )
             }
@@ -280,7 +276,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         }
                     },
                     trailingButton = {
-                        SplitButtonDefaults.AnimatedTrailingButton(
+                        SplitButtonDefaults.TrailingButton(
                             onClick = {},
                             checked = false,
                         ) {
@@ -311,7 +307,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         }
                     },
                     trailingButton = {
-                        SplitButtonDefaults.AnimatedTrailingButton(onClick = {}, checked = false) {
+                        SplitButtonDefaults.TrailingButton(onClick = {}, checked = false) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",
