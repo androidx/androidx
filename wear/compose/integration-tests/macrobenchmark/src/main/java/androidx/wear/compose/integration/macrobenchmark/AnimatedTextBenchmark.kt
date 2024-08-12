@@ -20,7 +20,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingMetric
+import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.MemoryUsageMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,7 +61,7 @@ class AnimatedTextBenchmark {
             packageName = PACKAGE_NAME,
             metrics =
                 listOf(
-                    FrameTimingMetric(),
+                    FrameTimingGfxInfoMetric(),
                     MemoryUsageMetric(MemoryUsageMetric.Mode.Last),
                 ),
             compilationMode = CompilationMode.Full(),

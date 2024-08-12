@@ -18,6 +18,8 @@ package androidx.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
+import androidx.benchmark.macro.ExperimentalMetricApi
+import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -53,10 +55,11 @@ class FrameExperimentBenchmark {
 
     @Test fun prefetchSomeFrames() = benchmark(FrameMode.PrefetchSomeFrames)
 
+    @OptIn(ExperimentalMetricApi::class)
     private fun benchmark(mode: FrameMode) {
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric()),
+            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 1,
             setupBlock = {
