@@ -45,6 +45,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.view.ViewCompat;
 import androidx.pdf.R;
+import androidx.pdf.ViewState;
 import androidx.pdf.util.GestureTracker;
 import androidx.pdf.util.GestureTrackingView;
 import androidx.pdf.util.MathUtils;
@@ -55,6 +56,8 @@ import androidx.pdf.util.Screen;
 import androidx.pdf.util.ThreadUtils;
 import androidx.pdf.util.ZoomScrollRestorer;
 import androidx.pdf.util.ZoomUtils;
+import androidx.pdf.viewer.LayoutHandler;
+import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.PdfSelectionModel;
 
 import com.google.android.material.motion.MotionUtils;
@@ -884,6 +887,60 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
         mContentView.setScaleX(zoom);
         mContentView.setScaleY(zoom);
         scrollBy(deltaX, deltaY);
+    }
+
+    /**
+     * Loads and refreshes page assets based on the current zoom and scroll state.
+     */
+    public void loadPageAssets(@NonNull LayoutHandler layoutHandler,
+            @Nullable ObservableValue<ViewState> viewState) {
+
+        PaginatedView paginatedView = this.findViewById(R.id.pdf_view);
+        ZoomScroll position = this.zoomScroll().get();
+        if (position == null || !paginatedView.getPaginationModel().isInitialized()) {
+            return;
+        }
+
+        // Change the resolution of the bitmaps only when a gesture is not in progress.
+        if (position.stable || this.getStableZoom() == 0f) {
+            this.setStableZoom(position.zoom);
+        }
+
+        paginatedView.getPaginationModel().setViewArea(this.getVisibleAreaInContentCoords());
+        paginatedView.refreshPageRangeInVisibleArea(position, this.getHeight());
+        paginatedView.handleGonePages(false);
+        paginatedView.loadInvisibleNearPageRange(this.getStableZoom());
+
+        // The step (4) below requires page Views to be created and laid out.
+
+        // So we create them here and set this flag
+        // if that operation needs to wait for a layout pass.
+        boolean requiresLayoutPass = paginatedView.createPageViewsForVisiblePageRange();
+
+        // 4. Refresh tiles and/or full pages.
+        if (position.stable) {
+            if (viewState != null) {
+                // Perform a full refresh on all visible pages
+                ViewState currentViewState = viewState.get();
+                if (currentViewState != null) {
+                    paginatedView.refreshVisiblePages(
+                            requiresLayoutPass, currentViewState, this.getStableZoom());
+                }
+            }
+            paginatedView.handleGonePages(true);
+        } else if (this.getStableZoom() == position.zoom) {
+            // Just load a few more tiles in case of tile-scroll
+            ViewState currentViewState = viewState.get();
+            if (currentViewState != null) {
+                paginatedView.refreshVisibleTiles(requiresLayoutPass, currentViewState);
+            }
+        }
+
+        if (paginatedView.getPageRangeHandler().getVisiblePages() != null) {
+            layoutHandler.maybeLayoutPages(
+                    paginatedView.getPageRangeHandler().getVisiblePages().getLast()
+            );
+        }
     }
 
     /**

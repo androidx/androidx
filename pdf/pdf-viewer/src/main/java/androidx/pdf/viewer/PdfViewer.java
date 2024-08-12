@@ -315,7 +315,7 @@ public class PdfViewer extends LoadingViewer {
         }
 
         if (mPaginatedView != null && mPaginatedView.getChildCount() > 0) {
-            loadPageAssets(mZoomView.zoomScroll().get());
+            mZoomView.loadPageAssets(mLayoutHandler, null);
         }
     }
 
@@ -538,31 +538,6 @@ public class PdfViewer extends LoadingViewer {
         pageView.setOverlay(selection.getOverlay());
     }
 
-    private void loadPageAssets(ZoomScroll position) {
-        // Change the resolution of the bitmaps only when a gesture is not in progress.
-        if (position.stable || mZoomView.getStableZoom() == 0) {
-            mZoomView.setStableZoom(position.zoom);
-        }
-
-        mPaginationModel.setViewArea(mZoomView.getVisibleAreaInContentCoords());
-        mPaginatedView.refreshPageRangeInVisibleArea(position, mZoomView.getHeight());
-        mPaginatedView.handleGonePages(/* clearViews= */ false);
-        mPaginatedView.loadInvisibleNearPageRange(mZoomView.getStableZoom());
-
-        // The step (4) below requires page Views to be created and laid out. So we create them here
-        // and set this flag if that operation needs to wait for a layout pass.
-        boolean requiresLayoutPass = mPaginatedView.createPageViewsForVisiblePageRange();
-
-        // 4. Refresh tiles and/or full pages.
-        if (position.stable) {
-            // Perform a full refresh on all visible pages
-            mPaginatedView.handleGonePages(/* clearViews= */ true);
-        }
-
-        mLayoutHandler.maybeLayoutPages(
-                mPaginatedView.getPageRangeHandler().getVisiblePages().getLast());
-    }
-
     /** Show the loading spinner. */
     @UiThread
     public void showSpinner() {
@@ -753,7 +728,7 @@ public class PdfViewer extends LoadingViewer {
                                 mLayoutHandler.maybeLayoutPages(newRange.getLast());
                             } else if (newRange.contains(pageNum)) {
                                 // The new page is visible, fetch its assets.
-                                loadPageAssets(mZoomView.zoomScroll().get());
+                                mZoomView.loadPageAssets(mLayoutHandler, null);
                             }
                         }
                     }

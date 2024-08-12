@@ -378,7 +378,7 @@ public open class PdfViewerFragment : Fragment() {
         }
 
         if (paginatedView != null && paginatedView?.childCount!! > 0) {
-            pdfLoaderCallbacks?.loadPageAssets(zoomView?.zoomScroll()?.get()!!)
+            zoomView?.let { layoutHandler?.let { it1 -> it.loadPageAssets(it1, viewState) } }
         }
     }
 

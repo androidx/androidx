@@ -72,7 +72,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 || position == null || mPaginatedView.getPaginationModel().getSize() == 0) {
             return;
         }
-        loadPageAssets(position);
+        mZoomView.loadPageAssets(mLayoutHandler, mViewState);
 
         if (oldPosition.scrollY > position.scrollY) {
             mIsPageScrollingUp = true;
@@ -140,42 +140,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         scaleAnimator.start();
         mAnnotationButton.setVisibility(View.VISIBLE);
     }
-
-    private void loadPageAssets(ZoomView.ZoomScroll position) {
-        if (!mPaginatedView.getPaginationModel().isInitialized()) {
-            return;
-        }
-        // Change the resolution of the bitmaps only when a gesture is not in progress.
-        if (position.stable || mZoomView.getStableZoom() == 0) {
-            mZoomView.setStableZoom(position.zoom);
-        }
-
-        mPaginatedView.getPaginationModel().setViewArea(mZoomView.getVisibleAreaInContentCoords());
-        mPaginatedView.refreshPageRangeInVisibleArea(position, mZoomView.getHeight());
-        mPaginatedView.handleGonePages(/* clearViews= */ false);
-        mPaginatedView.loadInvisibleNearPageRange(mZoomView.getStableZoom());
-
-        // The step (4) below requires page Views to be created and laid out. So we create them here
-        // and set this flag if that operation needs to wait for a layout pass.
-        boolean requiresLayoutPass = mPaginatedView.createPageViewsForVisiblePageRange();
-
-        // 4. Refresh tiles and/or full pages.
-        if (position.stable) {
-            // Perform a full refresh on all visible pages
-            mPaginatedView.refreshVisiblePages(requiresLayoutPass, mViewState.get(),
-                    mZoomView.getStableZoom());
-            mPaginatedView.handleGonePages(/* clearViews= */ true);
-        } else if (mZoomView.getStableZoom() == position.zoom) {
-            // Just load a few more tiles in case of tile-scroll
-            mPaginatedView.refreshVisibleTiles(requiresLayoutPass, mViewState.get());
-        }
-
-        if (mPaginatedView.getPageRangeHandler().getVisiblePages() != null) {
-            mLayoutHandler.maybeLayoutPages(
-                    mPaginatedView.getPageRangeHandler().getVisiblePages().getLast());
-        }
-    }
-
 
     /** Exposing a function to clear the handler when PDFViewer Fragment is destroyed. */
     public void clearAnnotationHandler() {
