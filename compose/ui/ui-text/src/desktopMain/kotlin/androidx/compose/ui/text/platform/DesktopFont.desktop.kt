@@ -24,7 +24,6 @@ import org.jetbrains.skia.Data
 import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.FontSlant
 import org.jetbrains.skia.FontWidth
-import org.jetbrains.skia.makeFromFile
 
 actual sealed class PlatformFont : Font {
     actual abstract val identity: String
@@ -168,10 +167,11 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
     return when (font) {
         is ResourceFont -> typefaceResource(font.name)
         // TODO: replace with FontMgr.makeFromFile(font.file.toString())
-        is FileFont -> SkTypeface.makeFromFile(font.file.toString())
+        is FileFont -> FontMgr.default.makeFromFile(font.file.toString())
         is LoadedFont -> FontMgr.default.makeFromData(Data.makeFromBytes(font.getData()))
         is SystemFont -> FontMgr.default.matchFamilyStyle(font.identity, font.skFontStyle)
-    } ?: SkTypeface.makeFromName(SkTypeface.makeDefault().familyName, font.skFontStyle)
+    } ?: (FontMgr.default.legacyMakeTypeface(font.identity, font.skFontStyle)
+        ?: error("loadTypeface legacyMakeTypeface failed"))
 }
 
 private fun typefaceResource(resourceName: String): SkTypeface {
@@ -181,7 +181,7 @@ private fun typefaceResource(resourceName: String): SkTypeface {
         ?: error("Can't load font from $resourceName")
 
     val bytes = resource.use { it.readAllBytes() }
-    return SkTypeface.makeFromData(Data.makeFromBytes(bytes))
+    return FontMgr.default.makeFromData(Data.makeFromBytes(bytes))!!
 }
 
 private val Font.skFontStyle: SkFontStyle

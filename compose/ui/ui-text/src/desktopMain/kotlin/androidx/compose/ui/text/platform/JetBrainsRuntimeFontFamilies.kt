@@ -23,8 +23,8 @@ import androidx.compose.ui.text.font.FontWeight
 import java.io.File
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
+import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.FontSlant
-import org.jetbrains.skia.makeFromFile
 
 internal object JetBrainsRuntimeFontFamilies {
 
@@ -97,7 +97,8 @@ internal object JetBrainsRuntimeFontFamilies {
                     val absolutePath = path.absolutePathString()
 
                     // We need to parse the typeface to extract its weight and style
-                    val typeface = org.jetbrains.skia.Typeface.makeFromFile(absolutePath)
+                    val typeface = FontMgr.default.makeFromFile(absolutePath)
+                        ?: error("makeFromFile $absolutePath failed")
                     val weight = FontWeight(typeface.fontStyle.weight)
                     val style = when (typeface.fontStyle.slant) {
                         FontSlant.UPRIGHT -> FontStyle.Normal

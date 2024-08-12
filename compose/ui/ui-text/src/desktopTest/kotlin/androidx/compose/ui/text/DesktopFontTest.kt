@@ -25,7 +25,7 @@ import androidx.compose.ui.text.platform.Typeface
 import androidx.compose.ui.text.platform.aliases
 import com.google.common.truth.Truth
 import org.jetbrains.skia.Data
-import org.jetbrains.skia.Typeface
+import org.jetbrains.skia.FontMgr
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -56,7 +56,8 @@ class DesktopFontTest {
             .contextClassLoader
             .getResourceAsStream("font/sample_font.ttf")!!
             .readAllBytes()
-        Typeface.makeFromData(Data.makeFromBytes(bytes))
+        FontMgr.default.makeFromData(Data.makeFromBytes(bytes))
+            ?: error("loadedTypeface failed: FontMgr.default.makeFromData returned null")
     }
 
     private val loadedFontFamily by lazy {

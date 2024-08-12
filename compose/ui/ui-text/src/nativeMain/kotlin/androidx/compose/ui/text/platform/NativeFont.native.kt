@@ -21,6 +21,7 @@ import org.jetbrains.skia.FontStyle as SkFontStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontStyle
 import org.jetbrains.skia.Data
+import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.FontSlant
 import org.jetbrains.skia.FontWidth
 
@@ -30,8 +31,10 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
     }
     @Suppress("REDUNDANT_ELSE_IN_WHEN")
     return when (font) {
-        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.getData()))
-        is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
+        is LoadedFont -> FontMgr.default.makeFromData(Data.makeFromBytes(font.getData()))
+            ?: error("loadTypeface makeFromData failed")
+        is SystemFont -> FontMgr.default.legacyMakeTypeface(font.identity, font.skFontStyle)
+            ?: error("loadTypeface legacyMakeTypeface failed")
         // TODO: compilation fails without `else` see https://youtrack.jetbrains.com/issue/KT-43875
         else -> throw IllegalArgumentException("Unsupported font type: $font")
     }
