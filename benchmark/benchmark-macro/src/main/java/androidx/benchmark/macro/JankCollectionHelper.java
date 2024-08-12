@@ -282,9 +282,13 @@ class JankCollectionHelper {
             } else {
                 String command = String.format(GFXINFO_COMMAND_RESET, pkg);
                 String output = getDevice().executeShellCommand(command);
-                // Success if the specified package header exists in the output.
-                verifyMatches(output, getHeaderMatcher(pkg), "No package header in output.");
-                Log.v(LOG_TAG, String.format("Cleared %s gfxinfo.", pkg));
+                if (output.trim().equals("No process found for: " + pkg)) {
+                    Log.v(LOG_TAG, "Skipped clearing " + pkg + " gfxinfo, not running.");
+                } else {
+                    // Success if the specified package header exists in the output.
+                    verifyMatches(output, getHeaderMatcher(pkg), "No package header in output.");
+                    Log.v(LOG_TAG, String.format("Cleared %s gfxinfo.", pkg));
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException("Failed to clear gfxinfo.", e);
