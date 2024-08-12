@@ -43,12 +43,14 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
@@ -192,7 +194,8 @@ class LazyGridItemDisappearanceAnimationTest {
 
     @Test
     fun itemRemovedOutsideOfViewportIsNotAnimated() {
-        var list by mutableStateOf(listOf(Color.Black, Color.Red, Color.Blue, Color.Green))
+        var list by
+            mutableStateOf(listOf(Color.Black, Color.Red, Color.Blue, Color.Green, Color.Yellow))
         rule.setContent {
             LazyGrid(containerSize = itemSizeDp * 2) {
                 items(list, key = { it.toArgb() }) { Item(it) }
@@ -201,7 +204,7 @@ class LazyGridItemDisappearanceAnimationTest {
 
         rule.runOnUiThread {
             // Blue is removed before Green, both are outside the bounds
-            list = listOf(Color.Black, Color.Red, Color.Green)
+            list = listOf(Color.Black, Color.Red, Color.Green, Color.Yellow)
         }
 
         rule.runOnIdle {
@@ -220,6 +223,52 @@ class LazyGridItemDisappearanceAnimationTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun itemMovingAwayToOutOfViewPort_shouldNotTriggerPrefetching() {
+        var list by
+            mutableStateOf(
+                listOf(
+                    Color.Black,
+                    Color.Red,
+                    Color.Blue,
+                    Color.Green,
+                    Color.Yellow,
+                    Color.DarkGray
+                )
+            )
+        rule.setContent {
+            LazyGrid(containerSize = itemSizeDp * 2, startIndex = 2) {
+                items(list, span = { GridItemSpan(1) }, key = { it.toArgb() }) {
+                    Item(it, placementSpec = tween(Duration.toInt(), easing = LinearEasing))
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            // Blue is removed before Green, both are outside the bounds
+            list =
+                listOf(
+                    Color.Yellow,
+                    Color.Green,
+                    Color.Red,
+                    Color.DarkGray,
+                    Color.Black,
+                    Color.Blue
+                )
+        }
+
+        val result = runCatching {
+            rule.runOnIdle {
+                runBlocking {
+                    // scroll 0.5 items so we now see half of Black, Red and half of Green
+                    state.scrollBy(itemSize * -1.0f)
+                }
+            }
+        }
+
+        assertThat(result.isFailure).isFalse()
     }
 
     @Test
@@ -458,12 +507,13 @@ class LazyGridItemDisappearanceAnimationTest {
         size: Dp = itemSizeDp,
         crossAxisSize: Dp = crossAxisSizeDp,
         disappearanceSpec: FiniteAnimationSpec<Float>? = AnimSpec,
-        appearanceSpec: FiniteAnimationSpec<Float>? = null
+        appearanceSpec: FiniteAnimationSpec<Float>? = null,
+        placementSpec: FiniteAnimationSpec<IntOffset>? = null
     ) {
         Box(
             Modifier.animateItem(
                     fadeInSpec = appearanceSpec,
-                    placementSpec = null,
+                    placementSpec = placementSpec,
                     fadeOutSpec = disappearanceSpec
                 )
                 .background(color)

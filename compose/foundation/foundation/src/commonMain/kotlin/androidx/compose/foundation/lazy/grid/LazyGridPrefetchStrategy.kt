@@ -162,7 +162,10 @@ private class DefaultLazyGridPrefetchStrategy(private val nestedPrefetchItemCoun
                 closestNextItemToPrefetch = layoutInfo.visibleItemsInfo.first().index - 1
             }
             if (closestNextItemToPrefetch in 0 until layoutInfo.totalItemsCount) {
-                if (lineToPrefetch != this@DefaultLazyGridPrefetchStrategy.lineToPrefetch) {
+                if (
+                    lineToPrefetch != this@DefaultLazyGridPrefetchStrategy.lineToPrefetch &&
+                        lineToPrefetch >= 0
+                ) {
                     if (wasScrollingForward != scrollingForward) {
                         // the scrolling direction has been changed which means the last prefetched
                         // is not going to be reached anytime soon so it is safer to dispose it.
