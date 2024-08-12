@@ -122,8 +122,8 @@ fun SplitButton(
  *   provided internally to offer the standard design and style for a [FilledSplitButton].
  * @param trailingContent the content to be placed inside the trailing button. A container is
  *   provided internally to ensure the standard design and style of a [FilledSplitButton]. The
- *   container corner radius morphs to `full` when the [expanded] state changes to `true`.
- * @param expanded indicates if the trailing button is toggled. This can be used to indicate a new
+ *   container corner radius morphs to `full` when the [checked] state changes to `true`.
+ * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
  *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
  * @param modifier the [Modifier] to be applied to this this split button.
  * @param enabled controls the enabled state of the split button. When `false`, this component will
@@ -145,7 +145,7 @@ fun FilledSplitButton(
     onTrailingButtonClick: () -> Unit,
     leadingContent: @Composable RowScope.() -> Unit,
     trailingContent: @Composable RowScope.() -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
@@ -167,7 +167,7 @@ fun FilledSplitButton(
                 onClick = onTrailingButtonClick,
                 modifier = Modifier,
                 enabled = enabled,
-                expanded = expanded,
+                checked = checked,
                 startCornerSize = innerCornerSize,
                 content = trailingContent,
             )
@@ -194,8 +194,8 @@ fun FilledSplitButton(
  *   provided internally to offer the standard design and style for a [TonalSplitButton].
  * @param trailingContent the content to be placed inside the trailing button. A container is
  *   provided internally to ensure the standard design and style of a [TonalSplitButton]. The
- *   container corner radius morphs to full when the [expanded] state changes to `true`.
- * @param expanded indicates if the trailing button is toggled. This can be used to indicate a new
+ *   container corner radius morphs to full when the [checked] state changes to `true`.
+ * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
  *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
  * @param modifier the [Modifier] to be applied to this split button.
  * @param enabled controls the enabled state of the split button. When `false`, this component will
@@ -217,7 +217,7 @@ fun TonalSplitButton(
     onTrailingButtonClick: () -> Unit,
     leadingContent: @Composable RowScope.() -> Unit,
     trailingContent: @Composable RowScope.() -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
@@ -238,7 +238,7 @@ fun TonalSplitButton(
                 modifier = Modifier,
                 enabled = enabled,
                 startCornerSize = innerCornerSize,
-                expanded = expanded,
+                checked = checked,
                 content = trailingContent,
             )
         },
@@ -267,8 +267,8 @@ fun TonalSplitButton(
  *   provided internally to offer the standard design and style for a [ElevatedSplitButton].
  * @param trailingContent the content to be placed inside the trailing button. A container is
  *   provided internally to ensure the standard design and style of a [ElevatedSplitButton]. The
- *   container corner radius morphs to full when the [expanded] state changes to `true`.
- * @param expanded indicates if the trailing button is toggled. This can be used to indicate a new
+ *   container corner radius morphs to full when the [checked] state changes to `true`.
+ * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
  *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
  * @param modifier the [Modifier] to be applied to this split button.
  * @param enabled controls the enabled state of the split button. When `false`, this component will
@@ -290,7 +290,7 @@ fun ElevatedSplitButton(
     onTrailingButtonClick: () -> Unit,
     leadingContent: @Composable RowScope.() -> Unit,
     trailingContent: @Composable RowScope.() -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
@@ -311,7 +311,7 @@ fun ElevatedSplitButton(
                 modifier = Modifier,
                 enabled = enabled,
                 startCornerSize = innerCornerSize,
-                expanded = expanded,
+                checked = checked,
                 content = trailingContent
             )
         },
@@ -340,8 +340,8 @@ fun ElevatedSplitButton(
  *   provided internally to offer the standard design and style for a [OutlinedSplitButton].
  * @param trailingContent the content to be placed inside the trailing button. A container is
  *   provided internally to ensure the standard design and style of a [OutlinedSplitButton]. The
- *   container corner radius morphs to full when the [expanded] state changes to `true`.
- * @param expanded indicates if the trailing button is toggled. This can be used to indicate a new
+ *   container corner radius morphs to full when the [checked] state changes to `true`.
+ * @param checked indicates if the trailing button is toggled. This can be used to indicate a new
  *   state that's a result of [onTrailingButtonClick]. For example, a drop down menu or pop up.
  * @param modifier the [Modifier] to be applied to this split button.
  * @param enabled controls the enabled state of the split button. When `false`, this component will
@@ -363,7 +363,7 @@ fun OutlinedSplitButton(
     onTrailingButtonClick: () -> Unit,
     leadingContent: @Composable RowScope.() -> Unit,
     trailingContent: @Composable RowScope.() -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     innerCornerSize: CornerSize = SplitButtonDefaults.InnerCornerSize,
@@ -384,7 +384,7 @@ fun OutlinedSplitButton(
                 modifier = Modifier,
                 enabled = enabled,
                 startCornerSize = innerCornerSize,
-                expanded = expanded,
+                checked = checked,
                 content = trailingContent
             )
         },
@@ -500,7 +500,7 @@ object SplitButtonDefaults {
     /** Default minimum width of the [TrailingButton]. */
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
 
-    /** Trailng button state layer alpha when in expanded state */
+    /** Trailng button state layer alpha when in checked state */
     private const val TrailingButtonStateLayerAlpha = StateTokens.PressedStateLayerOpacity
 
     /**
@@ -663,7 +663,7 @@ object SplitButtonDefaults {
 
     /**
      * Create a animated `trailing` button that has the same visual as a Filled[Button]. When
-     * [expanded] is updated from `false` to `true`, the buttons corners will morph to `full`.
+     * [checked] is updated from `false` to `true`, the buttons corners will morph to `full`.
      *
      * To create a `tonal`, `outlined`, or `elevated` version, the default value of [Button] params
      * can be passed in. For example, [ElevatedButton].
@@ -671,7 +671,7 @@ object SplitButtonDefaults {
      * The default text style for internal [Text] components will be set to [Typography.labelLarge].
      *
      * @param onClick called when the button is clicked
-     * @param expanded indicates whether the button is toggled to a `expanded` state. This will
+     * @param checked indicates whether the button is toggled to a `checked` state. This will
      *   trigger the corner morphing animation to reflect the updated state.
      * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
@@ -696,7 +696,7 @@ object SplitButtonDefaults {
     @ExperimentalMaterial3ExpressiveApi
     fun AnimatedTrailingButton(
         onClick: () -> Unit,
-        expanded: Boolean,
+        checked: Boolean,
         modifier: Modifier = Modifier,
         enabled: Boolean = true,
         startCornerSize: CornerSize = InnerCornerSize,
@@ -707,7 +707,7 @@ object SplitButtonDefaults {
         interactionSource: MutableInteractionSource? = null,
         content: @Composable RowScope.() -> Unit
     ) {
-        val cornerMorphProgress: Float by animateFloatAsState(if (expanded) 1f else 0f)
+        val cornerMorphProgress: Float by animateFloatAsState(if (checked) 1f else 0f)
         @Suppress("NAME_SHADOWING")
         val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
         val density = LocalDensity.current
@@ -718,7 +718,7 @@ object SplitButtonDefaults {
             modifier =
                 modifier.drawWithContent {
                     drawContent()
-                    if (expanded) {
+                    if (checked) {
                         drawOutline(
                             outline = shape.createOutline(size, layoutDirection, density),
                             color = colors.contentColor,
@@ -736,7 +736,7 @@ object SplitButtonDefaults {
             Row(
                 modifier =
                     modifier.opticalCentering(
-                        trailingButtonShape(if (expanded) OuterCornerSize else startCornerSize),
+                        trailingButtonShape(if (checked) OuterCornerSize else startCornerSize),
                         contentPadding
                     ),
                 content = content
@@ -814,7 +814,7 @@ private fun TonalLeadingButton(
 @Composable
 private fun TonalTrailingButton(
     onClick: () -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     startCornerSize: CornerSize,
@@ -825,7 +825,7 @@ private fun TonalTrailingButton(
         onClick = onClick,
         enabled = enabled,
         startCornerSize = startCornerSize,
-        expanded = expanded,
+        checked = checked,
         colors = ButtonDefaults.filledTonalButtonColors(),
         elevation = ButtonDefaults.filledTonalButtonElevation(),
         border = null,
@@ -858,7 +858,7 @@ private fun OutlinedLeadingButton(
 @Composable
 private fun OutlinedTrailingButton(
     onClick: () -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     startCornerSize: CornerSize,
@@ -869,7 +869,7 @@ private fun OutlinedTrailingButton(
         onClick = onClick,
         enabled = enabled,
         startCornerSize = startCornerSize,
-        expanded = expanded,
+        checked = checked,
         colors = ButtonDefaults.outlinedButtonColors(),
         elevation = null,
         border = ButtonDefaults.outlinedButtonBorder(enabled),
@@ -902,7 +902,7 @@ private fun ElevatedLeadingButton(
 @Composable
 private fun ElevatedTrailingButton(
     onClick: () -> Unit,
-    expanded: Boolean,
+    checked: Boolean,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     startCornerSize: CornerSize,
@@ -913,7 +913,7 @@ private fun ElevatedTrailingButton(
         onClick = onClick,
         enabled = enabled,
         startCornerSize = startCornerSize,
-        expanded = expanded,
+        checked = checked,
         colors = ButtonDefaults.elevatedButtonColors(),
         elevation = ButtonDefaults.elevatedButtonElevation(),
         border = null,

@@ -74,7 +74,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     trailingButton = {
                         SplitButtonDefaults.AnimatedTrailingButton(
                             onClick = {},
-                            expanded = false,
+                            checked = false,
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
@@ -97,7 +97,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 FilledSplitButton(
                     onLeadingButtonClick = {},
                     onTrailingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     leadingContent = {
                         Icon(
                             Icons.Outlined.Edit,
@@ -127,12 +127,12 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
     }
 
     @Test
-    fun filledSplitButtonExpanded() {
+    fun filledSplitButtonChecked() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) {
                 FilledSplitButton(
                     onLeadingButtonClick = {},
-                    expanded = true,
+                    checked = true,
                     onTrailingButtonClick = {},
                     leadingContent = {
                         Icon(
@@ -161,7 +161,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
             }
         }
 
-        assertAgainstGolden("filledSplitButton_expanded_${scheme.name}")
+        assertAgainstGolden("filledSplitButton_checked_${scheme.name}")
     }
 
     @Test
@@ -171,7 +171,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 TonalSplitButton(
                     onLeadingButtonClick = {},
                     onTrailingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     leadingContent = {
                         Icon(
                             Icons.Outlined.Edit,
@@ -204,7 +204,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 ElevatedSplitButton(
                     onLeadingButtonClick = {},
                     onTrailingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     leadingContent = {
                         Icon(
                             Icons.Outlined.Edit,
@@ -237,7 +237,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                 OutlinedSplitButton(
                     onLeadingButtonClick = {},
                     onTrailingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     leadingContent = {
                         Icon(
                             Icons.Outlined.Edit,
@@ -282,7 +282,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     trailingButton = {
                         SplitButtonDefaults.AnimatedTrailingButton(
                             onClick = {},
-                            expanded = false,
+                            checked = false,
                         ) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
@@ -311,7 +311,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                         }
                     },
                     trailingButton = {
-                        SplitButtonDefaults.AnimatedTrailingButton(onClick = {}, expanded = false) {
+                        SplitButtonDefaults.AnimatedTrailingButton(onClick = {}, checked = false) {
                             Icon(
                                 Icons.Outlined.KeyboardArrowDown,
                                 contentDescription = "Localized description",

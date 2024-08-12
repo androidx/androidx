@@ -114,7 +114,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
             SplitButtonType.Filled ->
                 FilledSplitButton(
                     onLeadingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     onTrailingButtonClick = { /* Do Nothing */ },
                     leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },
@@ -122,7 +122,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
             SplitButtonType.Tonal ->
                 TonalSplitButton(
                     onLeadingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     onTrailingButtonClick = { /* Do Nothing */ },
                     leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },
@@ -130,7 +130,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
             SplitButtonType.Elevated ->
                 ElevatedSplitButton(
                     onLeadingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     onTrailingButtonClick = { /* Do Nothing */ },
                     leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },
@@ -138,7 +138,7 @@ internal class SplitButtonTestCase(private val type: SplitButtonType) : LayeredC
             SplitButtonType.Outlined ->
                 OutlinedSplitButton(
                     onLeadingButtonClick = {},
-                    expanded = false,
+                    checked = false,
                     onTrailingButtonClick = { /* Do Nothing */ },
                     leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },

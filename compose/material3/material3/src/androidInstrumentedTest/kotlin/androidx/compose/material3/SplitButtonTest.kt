@@ -160,7 +160,7 @@ class SplitButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             FilledSplitButton(
                 onLeadingButtonClick = {},
-                expanded = false,
+                checked = false,
                 onTrailingButtonClick = {},
                 leadingContent = {
                     Icon(
@@ -187,7 +187,7 @@ class SplitButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             TonalSplitButton(
                 onLeadingButtonClick = {},
-                expanded = false,
+                checked = false,
                 onTrailingButtonClick = {},
                 leadingContent = {
                     Icon(
@@ -214,7 +214,7 @@ class SplitButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             ElevatedSplitButton(
                 onLeadingButtonClick = {},
-                expanded = false,
+                checked = false,
                 onTrailingButtonClick = {},
                 leadingContent = {
                     Icon(
@@ -241,7 +241,7 @@ class SplitButtonTest {
         rule.setMaterialContent(lightColorScheme()) {
             OutlinedSplitButton(
                 onLeadingButtonClick = {},
-                expanded = false,
+                checked = false,
                 onTrailingButtonClick = {},
                 leadingContent = {
                     Icon(
