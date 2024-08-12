@@ -16,6 +16,10 @@
 
 package androidx.compose.foundation.lazy
 
+import androidx.collection.IntList
+import androidx.collection.MutableIntList
+import androidx.collection.emptyIntList
+import androidx.collection.mutableIntListOf
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
@@ -27,10 +31,9 @@ internal class LazyListIntervalContent(
 ) : LazyLayoutIntervalContent<LazyListInterval>(), LazyListScope {
     override val intervals: MutableIntervalList<LazyListInterval> = MutableIntervalList()
 
-    private var _headerIndexes: MutableList<Int>? = null
-    @Suppress("PrimitiveInCollection")
-    val headerIndexes: List<Int>
-        get() = _headerIndexes ?: emptyList()
+    private var _headerIndexes: MutableIntList? = null
+    val headerIndexes: IntList
+        get() = _headerIndexes ?: emptyIntList()
 
     init {
         apply(content)
@@ -64,10 +67,8 @@ internal class LazyListIntervalContent(
         contentType: Any?,
         content: @Composable LazyItemScope.() -> Unit
     ) {
-        @Suppress("PrimitiveInCollection")
-        val headersIndexes = _headerIndexes ?: mutableListOf<Int>().also { _headerIndexes = it }
+        val headersIndexes = _headerIndexes ?: mutableIntListOf().also { _headerIndexes = it }
         headersIndexes.add(intervals.size)
-
         item(key, contentType, content)
     }
 }
