@@ -20,9 +20,11 @@
     </style>
 
     <style name="Base.v21.Theme.SplashScreen.Light" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+        <item name="isLightTheme">true</item>
     </style>
 
     <style name="Base.Theme.SplashScreen.Light" parent="Base.v21.Theme.SplashScreen.Light" />
+
     <style name="Base.Theme.SplashScreen" parent="Base.v21.Theme.SplashScreen" />
 
     <style name="Base.Theme.SplashScreen.DayNight" parent="Base.Theme.SplashScreen.Light" />

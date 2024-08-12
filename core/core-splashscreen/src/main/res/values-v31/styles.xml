@@ -20,6 +20,7 @@
     corrupt activity's theme -->
     <style name="Base.Theme.SplashScreen" parent="android:Theme.DeviceDefault.DayNight">
         <item name="android:enforceNavigationBarContrast">true</item>
+        <item name="isLightTheme">?android:attr/isLightTheme</item>
     </style>
 
     <style name="Theme.SplashScreen" parent="Base.Theme.SplashScreen.DayNight">
