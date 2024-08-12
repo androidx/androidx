@@ -21,8 +21,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.ElevatedButtonTokens
+import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
-import androidx.compose.material3.tokens.PrimaryButtonTokens
 import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -187,19 +187,18 @@ class ToggleButtonTest {
                 )
                 .isEqualTo(
                     ToggleButtonColors(
-                        containerColor = PrimaryButtonTokens.UnselectedContainerColor.value,
-                        contentColor = PrimaryButtonTokens.UnselectedPressedLabelTextColor.value,
+                        containerColor = FilledButtonTokens.UnselectedContainerColor.value,
+                        contentColor = FilledButtonTokens.UnselectedPressedLabelTextColor.value,
                         disabledContainerColor =
-                            PrimaryButtonTokens.DisabledContainerColor.value.copy(
-                                alpha = PrimaryButtonTokens.DisabledContainerOpacity
+                            FilledButtonTokens.DisabledContainerColor.value.copy(
+                                alpha = FilledButtonTokens.DisabledContainerOpacity
                             ),
                         disabledContentColor =
-                            PrimaryButtonTokens.DisabledLabelTextColor.value.copy(
-                                alpha = PrimaryButtonTokens.DisabledLabelTextOpacity
+                            FilledButtonTokens.DisabledLabelTextColor.value.copy(
+                                alpha = FilledButtonTokens.DisabledLabelTextOpacity
                             ),
-                        checkedContainerColor = PrimaryButtonTokens.SelectedContainerColor.value,
-                        checkedContentColor =
-                            PrimaryButtonTokens.SelectedPressedLabelTextColor.value
+                        checkedContainerColor = FilledButtonTokens.SelectedContainerColor.value,
+                        checkedContentColor = FilledButtonTokens.SelectedPressedLabelTextColor.value
                     )
                 )
         }
