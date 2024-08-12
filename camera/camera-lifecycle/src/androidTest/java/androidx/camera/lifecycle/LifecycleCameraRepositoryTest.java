@@ -333,14 +333,6 @@ public final class LifecycleCameraRepositoryTest {
         assertThat(useCase.isDetached()).isTrue();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void exception_whenCreatingWithDestroyedLifecycle() {
-        mLifecycle.destroy();
-
-        // Should throw IllegalArgumentException
-        mRepository.createLifecycleCamera(mLifecycle, mCameraUseCaseAdapter);
-    }
-
     @Test
     public void lifecycleCameraIsStopped_whenNewLifecycleIsStarted() {
         // Starts first lifecycle and check LifecycleCamera active state is true.
@@ -615,6 +607,17 @@ public final class LifecycleCameraRepositoryTest {
         secondLifecycle.stop();
         assertThat(secondLifecycleCamera.isActive()).isFalse();
         assertThat(firstLifecycleCamera.isActive()).isTrue();
+    }
+
+    @Test
+    public void lifecycleCameraIsInactive_createAndBindToLifecycleCamera_AfterLifecycleDestroyed() {
+        mLifecycle.destroy();
+        LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(mLifecycle,
+                mCameraUseCaseAdapter);
+        mRepository.bindToLifecycleCamera(lifecycleCamera, null, emptyList(),
+                Collections.singletonList(new FakeUseCase()), mCameraCoordinator);
+
+        assertThat(lifecycleCamera.isActive()).isFalse();
     }
 
     private CameraUseCaseAdapter createNewCameraUseCaseAdapter() {

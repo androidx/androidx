@@ -106,11 +106,6 @@ final class LifecycleCameraRepository {
             Preconditions.checkArgument(mCameraMap.get(key) == null, "LifecycleCamera already "
                     + "exists for the given LifecycleOwner and set of cameras");
 
-            if (lifecycleOwner.getLifecycle().getCurrentState() == State.DESTROYED) {
-                throw new IllegalArgumentException(
-                        "Trying to create LifecycleCamera with destroyed lifecycle.");
-            }
-
             // Need to add observer before creating LifecycleCamera to make sure
             // it can be stopped before the latest active one is started.'
             lifecycleCamera = new LifecycleCamera(lifecycleOwner, cameraUseCaseAdaptor);
@@ -118,6 +113,12 @@ final class LifecycleCameraRepository {
             if (cameraUseCaseAdaptor.getUseCases().isEmpty()) {
                 lifecycleCamera.suspend();
             }
+
+            // If the lifecycle is already DESTROYED, we don't need to register the camera.
+            if (lifecycleOwner.getLifecycle().getCurrentState() == State.DESTROYED) {
+                return lifecycleCamera;
+            }
+
             registerCamera(lifecycleCamera);
         }
         return lifecycleCamera;
@@ -280,6 +281,10 @@ final class LifecycleCameraRepository {
             // LifecycleOwner.
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
+            if (observer == null) {
+                // LifecycleCamera is not registered due to lifecycle destroyed, simply do nothing.
+                return;
+            }
             Set<Key> lifecycleCameraKeySet = mLifecycleObserverMap.get(observer);
 
             // Bypass the use cases lifecycle owner validation when concurrent camera mode is on.
