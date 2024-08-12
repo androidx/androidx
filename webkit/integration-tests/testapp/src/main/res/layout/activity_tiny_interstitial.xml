@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-  Copyright 2019 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -17,15 +16,15 @@
 
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/activity_loud_interstitial"
+    android:id="@+id/activity_tiny_interstitial"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorBackground">
 
     <WebView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/loud_webview"/>
+        android:layout_width="200dp"
+        android:layout_height="25dp"
+        android:id="@+id/tiny_webview"/>
 
 </LinearLayout>
