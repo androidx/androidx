@@ -86,7 +86,7 @@ credentials with the AOSP Gerrit code review system by signing in to
 least once using the account you will use to submit patches.
 
 Next, you will need to
-[set up authentication](https://android-review.googlesource.com/new-password).
+[set up authentication](https://android.googlesource.com/new-password).
 This will give you a shell command to update your local Git cookies, which will
 allow you to upload changes.
 
