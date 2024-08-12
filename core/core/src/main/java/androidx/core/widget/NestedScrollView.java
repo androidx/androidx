@@ -54,6 +54,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.R;
+import androidx.core.os.BuildCompat;
 import androidx.core.view.AccessibilityDelegateCompat;
 import androidx.core.view.DifferentialMotionFlingController;
 import androidx.core.view.DifferentialMotionFlingTarget;
@@ -1960,6 +1961,11 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         final int range = getScrollRange();
 
+        if (BuildCompat.isAtLeastV()) {
+            Api35Impl.setFrameContentVelocity(NestedScrollView.this,
+                    Math.abs(mScroller.getCurrVelocity()));
+        }
+
         if (unconsumed != 0) {
             // Internal Scroll
             final int oldScrollY = getScrollY();
@@ -2316,6 +2322,10 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
                     Integer.MIN_VALUE, Integer.MAX_VALUE, // y
                     0, 0); // overscroll
             runAnimatedScroll(true);
+            if (BuildCompat.isAtLeastV()) {
+                Api35Impl.setFrameContentVelocity(NestedScrollView.this,
+                        Math.abs(mScroller.getCurrVelocity()));
+            }
         }
     }
 
@@ -2601,6 +2611,17 @@ public class NestedScrollView extends FrameLayout implements NestedScrollingPare
 
         static boolean getClipToPadding(ViewGroup viewGroup) {
             return viewGroup.getClipToPadding();
+        }
+    }
+
+    @RequiresApi(35)
+    private static final class Api35Impl {
+        public static void setFrameContentVelocity(View view, float velocity) {
+            try {
+                view.setFrameContentVelocity(velocity);
+            } catch (LinkageError e) {
+                // The setFrameContentVelocity method is unavailable on this device.
+            }
         }
     }
 }
