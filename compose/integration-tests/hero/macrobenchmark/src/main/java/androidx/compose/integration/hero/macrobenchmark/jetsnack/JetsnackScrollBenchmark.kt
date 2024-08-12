@@ -18,8 +18,6 @@ package androidx.compose.integration.hero.macrobenchmark.jetsnack
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
-import androidx.benchmark.macro.ExperimentalMetricApi
-import androidx.benchmark.macro.FrameTimingGfxInfoMetric
 import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
@@ -71,11 +69,10 @@ class JetsnackScrollBenchmark(val compilationMode: CompilationMode) {
             }
         )
 
-    @OptIn(ExperimentalMetricApi::class)
     private fun benchmarkScroll(action: String, measureBlock: MacrobenchmarkScope.() -> Unit) =
         benchmarkRule.measureRepeated(
             packageName = PACKAGE_NAME,
-            metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
+            metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
             iterations = ITERATIONS,
             measureBlock = {
