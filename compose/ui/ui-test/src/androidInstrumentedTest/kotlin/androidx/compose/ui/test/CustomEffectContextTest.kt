@@ -86,55 +86,17 @@ class CustomEffectContextTest {
 
     @Test
     fun customDispatcher_ignoredWhenNotSubclassOfTestDispatcher() {
-        class CustomNonTestDispatcher : CoroutineDispatcher() {
-            private var queuedTasks = mutableListOf<Runnable>()
-
-            override fun dispatch(context: CoroutineContext, block: Runnable) {
-                queuedTasks.add(block)
-            }
-
-            fun runQueuedTasks() {
-                val tasksToRun = queuedTasks
-                queuedTasks = mutableListOf()
-                tasksToRun.forEach { it.run() }
-            }
-        }
-
-        val customDispatcher = CustomNonTestDispatcher()
-
-        var expectCounter = 0
-        fun expect(value: Int) {
-            Truth.assertWithMessage("Expected sequence").that(expectCounter).isEqualTo(value)
-            expectCounter++
-        }
-
-        runComposeUiTest(effectContext = customDispatcher) {
-            setContent {
-                LaunchedEffect(Unit) {
-                    expect(2)
-                    withFrameNanos { expect(4) }
-                    expect(6)
+        val notATestDispatcher =
+            object : CoroutineDispatcher() {
+                override fun dispatch(context: CoroutineContext, block: Runnable) {
+                    throw AssertionError("This dispatcher should be unused")
                 }
             }
-            expect(0)
 
-            // None of these will actually start the effect, because we control tasks.
-            waitForIdle()
-            mainClock.advanceTimeByFrame()
-            waitForIdle()
-            expect(1)
-
-            // This will actually start the effect.
-            customDispatcher.runQueuedTasks()
-            expect(3)
-
-            // This runs the first withFrameNanos.
-            mainClock.advanceTimeByFrame()
-            expect(5)
-
-            // And this resumes the effect coroutine after withFrameNanos.
-            customDispatcher.runQueuedTasks()
-            expect(7)
+        // The custom dispatcher is not a TestDispatcher, so should be completely discarded.
+        // The custom dispatcher throws when it is used, so running the below is enough
+        runComposeUiTest(effectContext = notATestDispatcher) {
+            setContent { LaunchedEffect(Unit) { withFrameNanos {} } }
         }
     }
 

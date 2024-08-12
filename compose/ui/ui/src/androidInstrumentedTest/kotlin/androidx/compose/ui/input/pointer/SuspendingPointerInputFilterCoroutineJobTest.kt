@@ -27,16 +27,12 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -44,13 +40,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @OptIn(ExperimentalCoroutinesApi::class)
 class SuspendingPointerInputFilterCoroutineJobTest {
-    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule(Dispatchers.Main)
+    @OptIn(ExperimentalTestApi::class) @get:Rule val rule = createComposeRule()
 
     @Test
     @LargeTest
     fun isPointerInputJobStillActive_cancelPointerEvent_assertsTrue() {
-        val latch = CountDownLatch(1)
-
         var repeatActualNumber = 0
         val repeatExpectedNumber = 4
 
@@ -76,7 +70,6 @@ class SuspendingPointerInputFilterCoroutineJobTest {
                             repeatActualNumber++
                             delay(100)
                         }
-                        latch.countDown()
                     }
                 }
             }
@@ -92,6 +85,7 @@ class SuspendingPointerInputFilterCoroutineJobTest {
             )
         }
 
+        // Send pointer down event
         rule.runOnIdle {
             suspendingPointerInputModifierNode.onPointerEvent(
                 change.toPointerEvent(),
@@ -100,10 +94,13 @@ class SuspendingPointerInputFilterCoroutineJobTest {
             )
         }
 
+        // Send pointer cancel event
         suspendingPointerInputModifierNode.onCancelPointerInput()
 
-        val resultOfLatch = latch.await(3000, TimeUnit.MILLISECONDS)
-        assertTrue("Waiting for coroutine's tasks to finish", resultOfLatch)
+        // Execute tasks on the TestCoroutineScheduler
+        rule.mainClock.advanceTimeBy(400)
+
+        // Verify the expected number of repeats after the pointer cancellation
         assertEquals(repeatExpectedNumber, repeatActualNumber)
     }
 }

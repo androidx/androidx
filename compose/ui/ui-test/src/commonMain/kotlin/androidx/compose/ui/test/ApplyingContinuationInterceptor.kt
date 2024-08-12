@@ -18,7 +18,6 @@ package androidx.compose.ui.test
 
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.test.internal.DelayPropagatingContinuationInterceptorWrapper
-import kotlin.coroutines.AbstractCoroutineContextKey
 import kotlin.coroutines.Continuation
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
@@ -36,18 +35,9 @@ import kotlin.coroutines.CoroutineContext
  * recompose during the same call to `advanceTimeBy`, if state was changed by coroutines that were
  * dispatched more than a frame before the end of that advancement.
  */
-@OptIn(ExperimentalStdlibApi::class, InternalTestApi::class)
+@OptIn(InternalTestApi::class)
 internal class ApplyingContinuationInterceptor(private val delegate: ContinuationInterceptor) :
     DelayPropagatingContinuationInterceptorWrapper(delegate) {
-
-    companion object Key :
-        AbstractCoroutineContextKey<ContinuationInterceptor, ApplyingContinuationInterceptor>(
-            ContinuationInterceptor,
-            { it as? ApplyingContinuationInterceptor }
-        )
-
-    override val key: CoroutineContext.Key<*>
-        get() = Key
 
     override fun <T> interceptContinuation(continuation: Continuation<T>): Continuation<T> {
         return delegate.interceptContinuation(SendApplyContinuation(continuation))
