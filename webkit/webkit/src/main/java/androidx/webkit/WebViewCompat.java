@@ -929,15 +929,6 @@ public class WebViewCompat {
      * Callbacks represent renderer events from the perspective of this WebView, and may or may
      * not be correlated with renderer events affecting other WebViews.
      *
-     * <p>The renderer client encapsulates callbacks relevant to WebView renderer
-     * state. See {@link WebViewRenderProcessClient} for details.
-     *
-     * <p>Although many WebView instances may share a single underlying renderer, and renderers may
-     * live either in the application process, or in a sandboxed process that is isolated from
-     * the application process, instances of {@link WebViewRenderProcessClient} are set per-WebView.
-     * Callbacks represent renderer events from the perspective of this WebView, and may or may
-     * not be correlated with renderer events affecting other WebViews.
-     *
      * <p>This method should only be called if
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#WEB_VIEW_RENDERER_CLIENT_BASIC_USAGE}.
