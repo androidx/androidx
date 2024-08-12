@@ -211,7 +211,6 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 mFrontBufferTarget.set(false)
                 mDrawCompleteRunnable.set(drawingFinished)
                 mFrontBufferedRenderer?.render(Unit)
-                hideFrontBuffer()
             }
         }
 
@@ -223,6 +222,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 holder.addCallback(mSurfaceHolderCallbacks)
             }
         mSurfaceView = surfaceView
+        hideFrontBuffer()
         addView(surfaceView)
     }
 

@@ -40,8 +40,6 @@ import org.junit.runner.RunWith
 @SmallTest
 class LowLatencyCanvasViewTest {
 
-    private val executor = Executors.newSingleThreadExecutor()
-
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testFrontBufferRender() {
@@ -65,9 +63,7 @@ class LowLatencyCanvasViewTest {
                     }
                 },
             scenarioCallback = { scenario ->
-                scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                    it.getLowLatencyCanvasView().renderFrontBufferedLayer()
-                }
+                scenario.onActivity { it.getLowLatencyCanvasView().renderFrontBufferedLayer() }
                 assertTrue(frontBufferRenderLatch.await(3000, TimeUnit.MILLISECONDS))
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
@@ -79,23 +75,21 @@ class LowLatencyCanvasViewTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testRedrawScene() {
+        val redrawSceneLatch = CountDownLatch(1)
         lowLatencyViewTest(
             renderCallbacks =
                 object : LowLatencyCanvasView.Callback {
                     override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
                         canvas.drawColor(Color.RED)
+                        redrawSceneLatch.countDown()
                     }
 
                     override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
                         // NO-OP
                     }
                 },
-            scenarioCallback = { scenario ->
-                val drawLatch = CountDownLatch(1)
-                scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                    it.getLowLatencyCanvasView().post { drawLatch.countDown() }
-                }
-                drawLatch.await(3000, TimeUnit.MILLISECONDS)
+            scenarioCallback = { _ ->
+                assertTrue(redrawSceneLatch.await(3000, TimeUnit.MILLISECONDS))
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
                 Color.RED == bitmap.getPixel(left + (right - left) / 2, top + (bottom - top) / 2)
@@ -118,12 +112,15 @@ class LowLatencyCanvasViewTest {
                     }
                 },
             scenarioCallback = { scenario ->
+                val resumeLatch = CountDownLatch(1)
                 val drawLatch = CountDownLatch(1)
                 scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
                     val view = it.getLowLatencyCanvasView()
                     view.clear()
                     view.post { drawLatch.countDown() }
+                    resumeLatch.countDown()
                 }
+                assertTrue(resumeLatch.await(3000, TimeUnit.MILLISECONDS))
                 assertTrue(drawLatch.await(3000, TimeUnit.MILLISECONDS))
             },
             validateBitmap = { bitmap, left, top, right, bottom ->
@@ -137,11 +134,13 @@ class LowLatencyCanvasViewTest {
     fun testCancel() {
         val cancelLatch = CountDownLatch(1)
         val frontBufferRenderLatch = CountDownLatch(1)
+        val redrawLatch = CountDownLatch(1)
         lowLatencyViewTest(
             renderCallbacks =
                 object : LowLatencyCanvasView.Callback {
                     override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
                         canvas.drawColor(Color.RED)
+                        redrawLatch.countDown()
                     }
 
                     override fun onDrawFrontBufferedLayer(canvas: Canvas, width: Int, height: Int) {
@@ -150,15 +149,16 @@ class LowLatencyCanvasViewTest {
                     }
                 },
             scenarioCallback = { scenario ->
-                val renderLatch = CountDownLatch(1)
                 var lowLatencyView: LowLatencyCanvasView? = null
-                scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                    lowLatencyView = it.getLowLatencyCanvasView()
-                    lowLatencyView!!.post { renderLatch.countDown() }
-                }
-                assertTrue(renderLatch.await(3000, TimeUnit.MILLISECONDS))
+                scenario.onActivity { lowLatencyView = it.getLowLatencyCanvasView() }
+                assertTrue(redrawLatch.await(3000, TimeUnit.MILLISECONDS))
 
-                lowLatencyView!!.execute { cancelLatch.await() }
+                val executeLatch = CountDownLatch(1)
+                lowLatencyView!!.execute {
+                    executeLatch.countDown()
+                    cancelLatch.await()
+                }
+                assertTrue(executeLatch.await(3000, TimeUnit.MILLISECONDS))
 
                 repeat(3) { lowLatencyView!!.renderFrontBufferedLayer() }
 
@@ -215,6 +215,7 @@ class LowLatencyCanvasViewTest {
         validateBitmap: (Bitmap, Int, Int, Int, Int) -> Boolean
     ) {
         val renderLatch = CountDownLatch(1)
+        val executor = Executors.newSingleThreadExecutor()
         val callbacks =
             object : LowLatencyCanvasView.Callback {
                 override fun onRedrawRequested(canvas: Canvas, width: Int, height: Int) {
@@ -247,16 +248,21 @@ class LowLatencyCanvasViewTest {
                     }
                 }
             }
+        val createdLatch = CountDownLatch(1)
         val destroyLatch = CountDownLatch(1)
         var lowLatencyView: LowLatencyCanvasView? = null
         val scenario =
-            ActivityScenario.launch(LowLatencyActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity { activity ->
-                    with(activity) { setOnDestroyCallback { destroyLatch.countDown() } }
+            ActivityScenario.launch(LowLatencyActivity::class.java).onActivity { activity ->
+                with(activity) {
+                    setOnDestroyCallback { destroyLatch.countDown() }
                     lowLatencyView =
                         activity.getLowLatencyCanvasView().apply { setRenderCallback(callbacks) }
+                    attachLowLatencyView()
                 }
+
+                createdLatch.countDown()
+            }
+        assertTrue(createdLatch.await(3000, TimeUnit.MILLISECONDS))
         scenarioCallback(scenario)
 
         val coords = IntArray(2)
@@ -279,6 +285,7 @@ class LowLatencyCanvasViewTest {
         } finally {
             scenario.moveToState(Lifecycle.State.DESTROYED)
             assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
+            executor.shutdownNow()
         }
     }
 }
