@@ -84,6 +84,7 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public final class GetAdSelectionDataOutcome {
+    ctor public GetAdSelectionDataOutcome(long adSelectionId);
     ctor public GetAdSelectionDataOutcome(long adSelectionId, optional byte[]? adSelectionData);
     method public byte[]? getAdSelectionData();
     method public long getAdSelectionId();
@@ -101,6 +102,8 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public final class PersistAdSelectionResultRequest {
+    ctor public PersistAdSelectionResultRequest(long adSelectionId);
+    ctor public PersistAdSelectionResultRequest(long adSelectionId, optional androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? seller);
     ctor public PersistAdSelectionResultRequest(long adSelectionId, optional androidx.privacysandbox.ads.adservices.common.AdTechIdentifier? seller, optional byte[]? adSelectionResult);
     method public long getAdSelectionId();
     method public byte[]? getAdSelectionResult();
@@ -111,6 +114,7 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class ReportEventRequest {
+    ctor public ReportEventRequest(long adSelectionId, String eventKey, String eventData, int reportingDestinations);
     ctor public ReportEventRequest(long adSelectionId, String eventKey, String eventData, int reportingDestinations, optional android.view.InputEvent? inputEvent);
     method public long getAdSelectionId();
     method public String getEventData();
@@ -320,6 +324,10 @@ package androidx.privacysandbox.ads.adservices.customaudience {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public final class FetchAndJoinCustomAudienceRequest {
+    ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri);
+    ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri, optional String? name);
+    ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri, optional String? name, optional java.time.Instant? activationTime);
+    ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri, optional String? name, optional java.time.Instant? activationTime, optional java.time.Instant? expirationTime);
     ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri, optional String? name, optional java.time.Instant? activationTime, optional java.time.Instant? expirationTime, optional androidx.privacysandbox.ads.adservices.common.AdSelectionSignals? userBiddingSignals);
     method public java.time.Instant? getActivationTime();
     method public java.time.Instant? getExpirationTime();

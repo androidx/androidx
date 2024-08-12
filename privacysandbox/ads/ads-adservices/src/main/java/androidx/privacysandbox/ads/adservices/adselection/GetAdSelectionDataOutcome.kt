@@ -33,6 +33,7 @@ import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
  */
 @ExperimentalFeatures.Ext10OptIn
 class GetAdSelectionDataOutcome
+@JvmOverloads
 public constructor(val adSelectionId: Long, val adSelectionData: ByteArray? = null) {
 
     /** Checks whether two [GetAdSelectionDataOutcome] objects contain the same information. */
