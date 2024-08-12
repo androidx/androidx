@@ -69,10 +69,15 @@ import androidx.compose.ui.unit.toSize
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import kotlin.math.abs
 import org.junit.Assert
+import org.junit.rules.TestName
 
 /** Constant to emulate very big but finite constraints */
 val BigTestMaxWidth = 5000.dp
 val BigTestMaxHeight = 5000.dp
+
+/** Screen size constants for screenshot tests */
+val SCREEN_SIZE_SMALL = 192
+val SCREEN_SIZE_LARGE = 228
 
 internal const val TEST_TAG = "test-item"
 
@@ -217,6 +222,17 @@ fun ImageBitmap.assertColorInPercentageRange(
         }
     }
 }
+
+enum class ScreenSize(val size: Int) {
+    SMALL(SCREEN_SIZE_SMALL),
+    LARGE(SCREEN_SIZE_LARGE)
+}
+
+/**
+ * Valid characters for golden identifiers are [A-Za-z0-9_-] TestParameterInjector adds '[' +
+ * parameter_values + ']' to the test name.
+ */
+fun TestName.methodNameWithValidCharacters(): String = methodName.replace("[", "_").replace("]", "")
 
 /**
  * Asserts that the layout of this node has height equal to [expectedHeight].
