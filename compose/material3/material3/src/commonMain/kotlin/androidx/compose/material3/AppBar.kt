@@ -1279,11 +1279,12 @@ private fun BottomAppBarLayout(
         modifier =
             modifier
                 .layout { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+
                     // Sets the app bar's height offset to collapse the entire bar's height when
                     // content is scrolled.
-                    scrollBehavior?.state?.heightOffsetLimit = -containerHeight.toPx()
+                    scrollBehavior?.state?.heightOffsetLimit = -placeable.height.toFloat()
 
-                    val placeable = measurable.measure(constraints)
                     val height = placeable.height + (scrollBehavior?.state?.heightOffset ?: 0f)
                     layout(placeable.width, height.roundToInt()) { placeable.place(0, 0) }
                 }
