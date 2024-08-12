@@ -147,7 +147,6 @@ public open class PdfViewerFragment : Fragment() {
     private var shouldRedrawOnDocumentLoaded = false
     private var isAnnotationIntentResolvable = false
     private var documentLoaded = false
-    private var isDocumentLoadedFirstTime = false
 
     /**
      * The URI of the PDF document to display defaulting to `null`.
@@ -294,9 +293,8 @@ public open class PdfViewerFragment : Fragment() {
                         shouldRedrawOnDocumentLoaded = false
                     }
                     annotationButton?.let { button ->
-                        if (isDocumentLoadedFirstTime && isAnnotationIntentResolvable) {
+                        if ((savedInstanceState == null) && isAnnotationIntentResolvable) {
                             button.visibility = View.VISIBLE
-                            isDocumentLoadedFirstTime = false
                         }
                     }
                 },
@@ -304,6 +302,9 @@ public open class PdfViewerFragment : Fragment() {
             )
 
         setUpEditFab()
+        if (savedInstanceState != null) {
+            paginatedView?.isConfigurationChanged = true
+        }
 
         // Need to adjust the view only after the layout phase is completed for the views to
         // accurately calculate the height of the view
@@ -467,6 +468,12 @@ public open class PdfViewerFragment : Fragment() {
                 val showAnnotationButton = state.getBoolean(KEY_SHOW_ANNOTATION)
                 isAnnotationIntentResolvable =
                     showAnnotationButton && findInFileView!!.visibility != View.VISIBLE
+                if (
+                    isAnnotationIntentResolvable &&
+                        state.getBoolean(KEY_ANNOTATION_BUTTON_VISIBILITY)
+                ) {
+                    annotationButton?.visibility = View.VISIBLE
+                }
             }
         }
 
@@ -714,6 +721,10 @@ public open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.selectionModel?.let {
             outState.putParcelable(KEY_PAGE_SELECTION, it.selection().get())
         }
+        outState.putBoolean(
+            KEY_ANNOTATION_BUTTON_VISIBILITY,
+            (annotationButton?.visibility == View.VISIBLE)
+        )
     }
 
     private fun loadFile(fileUri: Uri) {
@@ -744,7 +755,6 @@ public open class PdfViewerFragment : Fragment() {
             annotationButton?.visibility = View.GONE
         }
         localUri = fileUri
-        isDocumentLoadedFirstTime = true
     }
 
     private fun validateFileUri(fileUri: Uri) {
@@ -835,5 +845,6 @@ public open class PdfViewerFragment : Fragment() {
         private const val KEY_SHOW_ANNOTATION: String = "showEditFab"
         private const val KEY_PAGE_SELECTION: String = "currentPageSelection"
         private const val KEY_DOCUMENT_URI: String = "documentUri"
+        private const val KEY_ANNOTATION_BUTTON_VISIBILITY = "isAnnotationVisible"
     }
 }

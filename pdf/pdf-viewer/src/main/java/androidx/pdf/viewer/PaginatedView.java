@@ -66,6 +66,8 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private PageViewFactory mPageViewFactory;
 
+    private boolean mIsConfigurationChanged = false;
+
     public PaginatedView(@NonNull Context context) {
         this(context, null);
     }
@@ -443,5 +445,13 @@ public class PaginatedView extends AbstractPaginatedView {
                         refreshTiles(pages);
                     }
                 });
+    }
+
+    public void setConfigurationChanged(boolean configurationChanged) {
+        this.mIsConfigurationChanged = configurationChanged;
+    }
+
+    public boolean isConfigurationChanged() {
+        return mIsConfigurationChanged;
     }
 }
