@@ -18,6 +18,7 @@ package androidx.wear.compose.integration.demos
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.samples.CurvedAndNormalText
 import androidx.wear.compose.foundation.samples.CurvedBackground
 import androidx.wear.compose.foundation.samples.CurvedBottomLayout
@@ -183,6 +184,24 @@ val WearFoundationDemos =
                             ComposableDemo("Material S2R Card") { params ->
                                 Centralize {
                                     SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                                }
+                            },
+                            ComposableDemo("Material S2R Cards Inside SLC") { params ->
+                                Centralize {
+                                    ScalingLazyColumn {
+                                        item {
+                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                                        }
+                                        item {
+                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                                        }
+                                        item {
+                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                                        }
+                                        item {
+                                            SwipeToRevealCardSample(params.swipeToDismissBoxState)
+                                        }
+                                    }
                                 }
                             },
                         )

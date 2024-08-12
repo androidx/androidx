@@ -33,16 +33,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.absoluteOffset
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,11 +49,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -67,6 +72,7 @@ import kotlinx.coroutines.launch
 
 /** Short animation in milliseconds. */
 internal const val SHORT_ANIMATION = 50
+
 /** Flash animation length in milliseconds. */
 internal const val FLASH_ANIMATION = 100
 
@@ -396,9 +402,13 @@ public fun SwipeToReveal(
     val revealScope = remember(state) { RevealScopeImpl(state) }
     // A no-op NestedScrollConnection which does not consume scroll/fling events
     val noOpNestedScrollConnection = remember { object : NestedScrollConnection {} }
+
+    var globalPosition by remember { mutableStateOf<LayoutCoordinates?>(null) }
+
     Box(
         modifier =
             modifier
+                .onGloballyPositioned { layoutCoordinates -> globalPosition = layoutCoordinates }
                 .swipeableV2(
                     state = state.swipeableState,
                     orientation = Orientation.Horizontal,
@@ -501,9 +511,11 @@ public fun SwipeToReveal(
                                     tween(durationMillis = FLASH_ANIMATION, easing = LinearEasing),
                                 label = "RevealedContentAlpha"
                             )
+                        var revealedContentHeight by remember { mutableIntStateOf(0) }
                         Row(
                             modifier =
                                 Modifier.graphicsLayer { alpha = revealedContentAlpha.value }
+                                    .onSizeChanged { revealedContentHeight = it.height }
                                     .layout { measurable, constraints ->
                                         val placeable =
                                             measurable.measure(
@@ -518,7 +530,13 @@ public fun SwipeToReveal(
                                                 )
                                             )
                                         layout(placeable.width, placeable.height) {
-                                            placeable.placeRelative(0, 0)
+                                            placeable.placeRelative(
+                                                0,
+                                                calculateVerticalOffsetBasedOnScreenPosition(
+                                                    revealedContentHeight,
+                                                    globalPosition
+                                                )
+                                            )
                                         }
                                     },
                             horizontalArrangement = Arrangement.Absolute.Right
@@ -638,7 +656,7 @@ private fun RowScope.ActionSlot(
     content: @Composable RevealScope.() -> Unit
 ) {
     Box(
-        modifier = modifier.fillMaxHeight().weight(weight).graphicsLayer { alpha = opacity.value },
+        modifier = modifier.weight(weight).graphicsLayer { alpha = opacity.value },
         contentAlignment = Alignment.Center
     ) {
         with(revealScope) { content() }
@@ -681,3 +699,28 @@ private fun fadeOutUndo(): ContentTransform =
         initialContentExit =
             fadeOut(animationSpec = tween(durationMillis = SHORT_ANIMATION, easing = LinearEasing))
     )
+
+private fun calculateVerticalOffsetBasedOnScreenPosition(
+    childHeight: Int,
+    globalPosition: LayoutCoordinates?
+): Int {
+    if (globalPosition == null || !globalPosition.positionOnScreen().isSpecified) {
+        return 0
+    }
+    val positionOnScreen = globalPosition.positionOnScreen()
+    val boundsInWindow = globalPosition.boundsInWindow()
+    val parentTop = positionOnScreen.y.toInt()
+    val parentHeight = globalPosition.size.height
+    val parentBottom = parentTop + parentHeight
+    if (parentTop >= boundsInWindow.top && parentBottom <= boundsInWindow.bottom) {
+        // Don't offset if the item is fully on screen
+        return 0
+    }
+
+    // Avoid going outside parent bounds
+    val minCenter = parentTop + childHeight / 2
+    val maxCenter = parentTop + parentHeight - childHeight / 2
+    val desiredCenter = boundsInWindow.center.y.toInt().coerceIn(minCenter, maxCenter)
+    val actualCenter = parentTop + parentHeight / 2
+    return desiredCenter - actualCenter
+}
