@@ -27,10 +27,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.interop.UIKitView
 import androidx.compose.ui.interop.UIKitViewController
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import kotlinx.cinterop.ObjCAction
+import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
@@ -71,13 +75,18 @@ private class TouchReactingView: UIView(frame = CGRectZero.readValue()) {
 
 val UIKitInteropExample = Screen.Example("UIKitInterop") {
     var text by remember { mutableStateOf("Type something") }
+    var updatedValue by remember { mutableStateOf(null as Offset?) }
+
     LazyColumn(Modifier.fillMaxSize()) {
         item {
             UIKitView(
                 factory = {
                     MKMapView()
                 },
-                modifier = Modifier.fillMaxWidth().height(200.dp)
+                modifier = Modifier.fillMaxWidth().height(200.dp),
+                update = {
+                    println("MKMapView updated")
+                }
             )
         }
 
@@ -85,10 +94,18 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
             UIKitViewController(
                 factory = {
                     object : UIViewController(nibName = null, bundle = null) {
+                        val label = UILabel()
+
+                        override fun loadView() {
+                            setView(label)
+                        }
+
                         override fun viewDidLoad() {
                             super.viewDidLoad()
 
-                            view.backgroundColor = UIColor.blueColor
+                            label.textAlignment = NSTextAlignmentCenter
+                            label.textColor = UIColor.whiteColor
+                            label.backgroundColor = UIColor.blueColor
                         }
 
                         override fun viewWillAppear(animated: Boolean) {
@@ -116,7 +133,20 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
                         }
                     }
                 },
-                modifier = Modifier.fillMaxWidth().height(100.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .onGloballyPositioned { coordinates ->
+                        val rootCoordinates = coordinates.findRootCoordinates()
+                        val box = coordinates.localBoundingBoxOf(rootCoordinates, clipBounds = false)
+                        updatedValue = box.topLeft
+                    },
+                update = { viewController ->
+                    updatedValue?.let {
+                        viewController.label.text = "${it.x}, ${it.y}"
+                    }
+                },
+                interactive = false
             )
         }
         items(100) { index ->
@@ -136,7 +166,7 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
                 3 -> ComposeUITextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth().height(40.dp))
                 4 -> UIKitView(
                     factory = { TouchReactingView() },
-                    modifier = Modifier.fillMaxWidth().height(40.dp)
+                    modifier = Modifier.fillMaxWidth().height(40.dp),
                 )
             }
         }
@@ -171,6 +201,7 @@ private fun ComposeUITextField(value: String, onValueChange: (String) -> Unit, m
         },
         modifier = modifier,
         update = { textField ->
+            println("Update called for UITextField(0x${textField.objcPtr().toLong().toString(16)}, value = $value")
             textField.text = value
         }
     )

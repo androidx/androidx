@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.CUPERTINO_TOUCH_SLOP
 import androidx.compose.ui.uikit.utils.CMPGestureRecognizer
 import androidx.compose.ui.uikit.utils.CMPGestureRecognizerHandlerProtocol
 import androidx.compose.ui.viewinterop.InteropView
-import androidx.compose.ui.viewinterop.UIKitInteropViewGroup
+import androidx.compose.ui.viewinterop.InteropWrappingView
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.useContents
@@ -442,7 +442,7 @@ private class GestureRecognizerHandlerImpl(
  * lightweight generics.
  */
 internal class InteractionUIView(
-    private var hitTestInteropView: (point: CValue<CGPoint>, event: UIEvent?) -> InteropView?,
+    private var hitTestInteropView: (point: CValue<CGPoint>, event: UIEvent?) -> UIView?,
     onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) -> Unit,
     private var onTouchesCountChange: (count: Int) -> Unit,
     private var inInteractionBounds: (CValue<CGPoint>) -> Boolean,
@@ -500,7 +500,7 @@ internal class InteractionUIView(
             if (!inInteractionBounds(point)) {
                 null
             } else {
-                // Find if a scene contains a [InteropViewAnchorModifierNode] at the given point.
+                // Find if a scene contains an [InteropView]
                 val interopView = hitTestInteropView(point, withEvent)
 
                 if (interopView == null) {
@@ -552,7 +552,7 @@ internal class InteractionUIView(
                 // If the hit-tested view is not a descendant of [InteropWrappingView], then it
                 // should be considered as a view that doesn't want to cooperate with Compose.
 
-                val areTouchesDelayed = result.interopViewGroup?.areTouchesDelayed ?: false
+                val areTouchesDelayed = result.findAncestorInteropWrappingView()?.areTouchesDelayed ?: false
 
                 if (areTouchesDelayed) {
                     InteractionUIViewHitTestResult.COOPERATIVE_CHILD_VIEW
@@ -566,18 +566,17 @@ internal class InteractionUIView(
 }
 
 /**
- * There is no way to associate [UIKitInteropViewGroup.areTouchesDelayed] with a given hitTest query.
- * This extension property allows to find the nearest [UIKitInteropViewGroup] up the view hierarchy
+ * There is no way to associate [InteropWrappingView.areTouchesDelayed] with a given hitTest query.
+ * This extension property allows to find the nearest [InteropWrappingView] up the view hierarchy
  * and request the value retroactively.
  */
-private val UIView.interopViewGroup: UIKitInteropViewGroup?
-    get() {
-        var view: UIView? = this
-        while (view != null) {
-            if (view is UIKitInteropViewGroup) {
-                return view
-            }
-            view = view.superview
+private fun UIView.findAncestorInteropWrappingView(): InteropWrappingView? {
+    var view: UIView? = this
+    while (view != null) {
+        if (view is InteropWrappingView) {
+            return view
         }
-        return null
+        view = view.superview
     }
+    return null
+}

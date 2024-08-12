@@ -21,16 +21,19 @@ import androidx.compose.ui.semantics.AccessibilityKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.uikit.utils.CMPInteropWrappingView
+import androidx.compose.ui.interop.UIKitView
+import androidx.compose.ui.interop.UIKitViewController
 import kotlinx.cinterop.readValue
 import platform.CoreGraphics.CGRectZero
+import platform.UIKit.UIResponder
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
 
 /**
- * On iOS, [InteropView] is a typealias for [UIView]. Interop entity can in fact be
- * a [UIViewController], in this case it will be wrapped in a [UIView] anyway.
+ * On iOS [InteropView] is a [UIResponder], which is a base class for [UIView] and [UIViewController]
+ * that can be both created in interop API exposed on iOS.
  */
-actual typealias InteropView = UIView
+actual typealias InteropView = UIResponder
 
 @Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias InteropViewGroup = UIView
@@ -39,11 +42,15 @@ internal actual typealias InteropViewGroup = UIView
  * A [UIView] that contains underlying interop element, such as an independent [UIView]
  * or [UIViewController]'s root [UIView].
  *
+ * Also contains [actualAccessibilityContainer] property that overrides default (superview)
+ * accessibility container to allow proper traversal of a Compose semantics tree containing
+ * interop views.
+ *
  * @param areTouchesDelayed indicates whether the touches are allowed to be delayed by Compose
  * in attempt to intercept touches, or should get delivered to the interop view immediately without
  * Compose being aware of them.
  */
-internal class UIKitInteropViewGroup(
+internal class InteropWrappingView(
     val areTouchesDelayed: Boolean
 ) : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
@@ -59,8 +66,8 @@ internal class UIKitInteropViewGroup(
     }
 }
 
-internal val InteropViewSemanticsKey = AccessibilityKey<UIKitInteropViewGroup>(
-    name = "InteropView",
+internal val NativeAccessibilityViewSemanticsKey = AccessibilityKey<InteropWrappingView>(
+    name = "NativeAccessibilityView",
     mergePolicy = { parentValue, childValue ->
         if (parentValue == null) {
             childValue
@@ -77,15 +84,19 @@ internal val InteropViewSemanticsKey = AccessibilityKey<UIKitInteropViewGroup>(
     }
 )
 
-private var SemanticsPropertyReceiver.interopView by InteropViewSemanticsKey
+private var SemanticsPropertyReceiver.nativeAccessibilityView by NativeAccessibilityViewSemanticsKey
 
+// TODO: align "platform" vs "native" naming
 /**
- * Chain [this] with [Modifier.semantics] that sets the [trackInteropPlacement] of the node
- * if [enabled] is true. If [enabled] is false, [this] is returned as is.
+ * Chain [this] with [Modifier.semantics] that sets the [nativeAccessibilityView] of the node to
+ * the [interopWrappingView] if [isEnabled] is true.
+ * If [isEnabled] is false, [this] is returned as is.
+ *
+ * See [UIKitView] and [UIKitViewController] accessibility argument for description of effects introduced by this semantics.
  */
-internal fun Modifier.interopViewSemantics(enabled: Boolean, interopViewHolder: InteropViewHolder) =
-    if (enabled) {
-        this.semantics { interopView = interopViewHolder.group as UIKitInteropViewGroup }
+internal fun Modifier.nativeAccessibility(isEnabled: Boolean, interopWrappingView: InteropWrappingView) =
+    if (isEnabled) {
+        this.semantics { nativeAccessibilityView = interopWrappingView }
     } else {
         this
     }

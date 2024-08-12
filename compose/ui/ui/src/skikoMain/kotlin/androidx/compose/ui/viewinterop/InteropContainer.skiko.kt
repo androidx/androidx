@@ -17,6 +17,7 @@
 package androidx.compose.ui.viewinterop
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -42,30 +43,54 @@ internal val LocalInteropContainer = staticCompositionLocalOf<InteropContainer> 
 internal interface InteropContainer {
     val root: InteropViewGroup
     var rootModifier: TrackInteropPlacementModifierNode?
-    val interopViews: Set<InteropViewHolder>
+    val snapshotObserver: SnapshotStateObserver
 
-    fun placeInteropView(interopView: InteropViewHolder)
-    fun unplaceInteropView(interopView: InteropViewHolder)
+    fun contains(holder: InteropViewHolder): Boolean
 
-    // TODO: Should be the same as [Owner.onInteropViewLayoutChange]
-    fun changeInteropViewLayout(action: () -> Unit) {
-        action()
-    }
+    /**
+     * Calculates the proper index for the interop view in the container and issues a request to
+     * update the view hierarchy.
+     */
+    fun place(holder: InteropViewHolder)
+
+    /**
+     * Issues a request to remove the interop view from the hierarchy.
+     */
+    fun unplace(holder: InteropViewHolder)
+
+    /**
+     * Schedule an update to be performed on interop view. Platforms have their different strategy
+     * to align the updates with the rendering and threading requirements when modifying
+     * interop views.
+     *
+     * @param action The action to be performed. Could be layout change, or other visual updates
+     * to the view state, such as background, corner radius, etc.
+     */
+    fun scheduleUpdate(action: () -> Unit)
+
+    // TODO: Should be the same as [Owner.onInteropViewLayoutChange]?
+//    /**
+//     * Callback to be invoked when the layout of the interop view changes to notify the system
+//     * that something has changed.
+//     */
+//    fun onInteropViewLayoutChange(holder: InteropViewHolder)
 }
 
 /**
  * Counts the number of interop components before the given native view in the container.
  *
- * @param interopView The native view to count interop components before.
+ * @param holder The holder for native view to count interop components before.
  * @return The number of interop components before the given native view.
  */
-internal fun InteropContainer.countInteropComponentsBelow(interopView: InteropViewHolder): Int {
+internal fun InteropContainer.countInteropComponentsBelow(holder: InteropViewHolder): Int {
     var componentsBefore = 0
     rootModifier?.traverseDescendantsInDrawOrder {
-        if (it.interopView != interopView) {
+        val currentHolder = it.interopViewHolder
+        if (currentHolder != null && currentHolder != holder) {
             // It might be inside a Compose tree before adding in InteropContainer in case
             // if it was initiated out of scroll visible bounds for example.
-            if (it.interopView in interopViews) {
+
+            if (contains(currentHolder)) {
                 componentsBefore++
             }
             true
@@ -79,6 +104,9 @@ internal fun InteropContainer.countInteropComponentsBelow(interopView: InteropVi
 /**
  * Wrapper of Compose content that might contain interop views. It adds a helper modifier to root
  * that allows traversing interop views in the tree with the right order.
+ *
+ * TODO: refactor to use a root node modifier instead of emitting an extra node
+ *      https://youtrack.jetbrains.com/issue/CMP-5896
  */
 @Composable
 internal fun InteropContainer.TrackInteropPlacementContainer(content: @Composable () -> Unit) {
@@ -98,7 +126,7 @@ private data class RootTrackInteropPlacementModifierElement(
     val onModifierNodeCreated: (TrackInteropPlacementModifierNode) -> Unit
 ) : ModifierNodeElement<TrackInteropPlacementModifierNode>() {
     override fun create() = TrackInteropPlacementModifierNode(
-        interopView = null
+        interopViewHolder = null
     ).also {
         onModifierNodeCreated.invoke(it)
     }
@@ -110,28 +138,28 @@ private data class RootTrackInteropPlacementModifierElement(
 /**
  * Modifier to track interop view inside [LayoutNode] hierarchy.
  *
- * @param interopView The interop view that matches the current node.
+ * @param interopViewHolder The interop view holder that matches the current node.
  */
-internal fun Modifier.trackInteropPlacement(interopView: InteropViewHolder): Modifier =
-    this then TrackInteropPlacementModifierElement(interopView)
+internal fun Modifier.trackInteropPlacement(interopViewHolder: InteropViewHolder): Modifier =
+    this then TrackInteropPlacementModifierElement(interopViewHolder)
 
 /**
  * A helper modifier element that tracks an interop view inside a [LayoutNode] hierarchy.
  *
- * @property interopView The native view associated with this modifier element.
+ * @property interopViewHolder The native view associated with this modifier element.
  *
  * @see TrackInteropPlacementModifierNode
  * @see ModifierNodeElement
  */
 private data class TrackInteropPlacementModifierElement(
-    val interopView: InteropViewHolder,
+    val interopViewHolder: InteropViewHolder,
 ) : ModifierNodeElement<TrackInteropPlacementModifierNode>() {
     override fun create() = TrackInteropPlacementModifierNode(
-        interopView = interopView
+        interopViewHolder = interopViewHolder
     )
 
     override fun update(node: TrackInteropPlacementModifierNode) {
-        node.interopView = interopView
+        node.interopViewHolder = interopViewHolder
     }
 }
 
@@ -141,23 +169,21 @@ private const val TRAVERSAL_NODE_KEY =
 /**
  * A modifier node for tracking and traversing interop purposes.
  *
- * @property interopView the native view that matches the current node.
+ * @property interopViewHolder the native view that matches the current node.
  *
  * @see TraversableNode
  */
 internal class TrackInteropPlacementModifierNode(
-    var interopView: InteropViewHolder?,
+    var interopViewHolder: InteropViewHolder?,
 ) : Modifier.Node(), TraversableNode, LayoutAwareModifierNode, OnUnplacedModifierNode {
     override val traverseKey = TRAVERSAL_NODE_KEY
 
     override fun onPlaced(coordinates: LayoutCoordinates) {
-        val interopView = interopView ?: return
-        interopView.container.placeInteropView(interopView)
+        interopViewHolder?.place()
     }
 
     override fun onUnplaced() {
-        val interopView = interopView ?: return
-        interopView.container.unplaceInteropView(interopView)
+        interopViewHolder?.unplace()
     }
 
     override fun onDetach() {

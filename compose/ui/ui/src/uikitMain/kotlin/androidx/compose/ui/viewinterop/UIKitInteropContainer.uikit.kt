@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.viewinterop
 
+import androidx.compose.runtime.snapshots.SnapshotStateObserver
+
 /**
  * A container that controls interop views/components.
  * It's using a modifier of [TrackInteropPlacementModifierNode] to properly sort native interop
@@ -27,10 +29,27 @@ internal class UIKitInteropContainer(
     val requestRedraw: () -> Unit
 ) : InteropContainer {
     override var rootModifier: TrackInteropPlacementModifierNode? = null
-    override var interopViews = mutableSetOf<InteropViewHolder>()
-        private set
-
+    private var interopViews = mutableMapOf<InteropView, InteropViewHolder>()
     private var transaction = UIKitInteropMutableTransaction()
+
+    // TODO: Android reuses `owner.snapshotObserver`. We should probably do the same with RootNodeOwner.
+    /**
+     * Snapshot observer that is used by underlying [InteropViewHolder] to observe changes in
+     * Compose state and trigger changes in UIKit objects.
+     * It starts observing when the first interop view is added and stops when the last one is
+     * removed.
+     */
+    override val snapshotObserver = SnapshotStateObserver { command ->
+        command()
+    }
+
+    override fun contains(holder: InteropViewHolder): Boolean =
+        interopViews.contains(holder.getInteropView())
+
+    fun groupForInteropView(interopView: InteropView): InteropViewGroup? {
+        val holder = interopViews[interopView] ?: return null
+        return holder.group
+    }
 
     /**
      * Dispose by immediately executing all UIKit interop actions that can't be deferred to be
@@ -42,6 +61,9 @@ internal class UIKitInteropContainer(
         for (action in lastTransaction.actions) {
             action.invoke()
         }
+
+        // snapshotObserver.stop() is not needed, because unplaceInteropView will be called
+        // for all interop views and it will stop observing when the last one is removed.
     }
 
     /**
@@ -53,34 +75,53 @@ internal class UIKitInteropContainer(
         return result
     }
 
-    override fun placeInteropView(interopView: InteropViewHolder) {
+    override fun place(holder: InteropViewHolder) {
+        val interopView = checkNotNull(holder.getInteropView())
+
         if (interopViews.isEmpty()) {
             transaction.state = UIKitInteropState.BEGAN
+            snapshotObserver.start()
         }
-        interopViews.add(interopView)
 
-        val countBelow = countInteropComponentsBelow(interopView)
-        changeInteropViewLayout {
-            root.insertSubview(interopView.group, countBelow.toLong())
+        val isAdded = interopViews.put(interopView, holder) == null
+
+        val countBelow = countInteropComponentsBelow(holder)
+
+        if (isAdded) {
+            scheduleUpdate {
+                holder.insertInteropView(root = root, index = countBelow)
+            }
+        } else {
+            scheduleUpdate {
+                holder.changeInteropViewIndex(root = root, index = countBelow)
+            }
         }
     }
 
-    override fun unplaceInteropView(interopView: InteropViewHolder) {
+    override fun unplace(holder: InteropViewHolder) {
+        val interopView = requireNotNull(holder.getInteropView())
+
         interopViews.remove(interopView)
         if (interopViews.isEmpty()) {
             transaction.state = UIKitInteropState.ENDED
+            snapshotObserver.stop()
         }
 
-        changeInteropViewLayout {
-            interopView.group.removeFromSuperview()
+        scheduleUpdate {
+            holder.removeInteropView(root = root)
         }
     }
 
-    override fun changeInteropViewLayout(action: () -> Unit) {
+    override fun scheduleUpdate(action: () -> Unit) {
         requestRedraw()
 
         // Add lambda to a list of commands which will be executed later
         // in the same [CATransaction], when the next rendered Compose frame is presented.
         transaction.add(action)
     }
+
+    // TODO: Should be the same as [Owner.onInteropViewLayoutChange]?
+//    override fun onInteropViewLayoutChange(holder: InteropViewHolder) {
+//        // No-op
+//    }
 }

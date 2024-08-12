@@ -16,50 +16,21 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.focusTarget
-import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.EmptyLayout
-import androidx.compose.ui.layout.OverlayLayout
-import androidx.compose.ui.layout.findRootCoordinates
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.viewinterop.InteropContainer
 import androidx.compose.ui.viewinterop.InteropView
-import androidx.compose.ui.viewinterop.InteropViewGroup
-import androidx.compose.ui.viewinterop.InteropViewHolder
-import androidx.compose.ui.viewinterop.InteropViewUpdater
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.SwingInteropViewHolder
-import androidx.compose.ui.viewinterop.pointerInteropFilter
-import androidx.compose.ui.viewinterop.trackInteropPlacement
 import java.awt.Component
 import java.awt.Container
 import java.awt.event.FocusEvent
-import java.awt.event.FocusListener
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
-import javax.swing.SwingUtilities
-import kotlin.math.ceil
-import kotlin.math.floor
-import kotlinx.atomicfu.atomic
 
 val NoOpUpdate: Component.() -> Unit = {}
 
@@ -87,71 +58,46 @@ public fun <T : Component> SwingPanel(
     update: (T) -> Unit = NoOpUpdate,
 ) {
     val interopContainer = LocalInteropContainer.current
-    val compositeKey = currentCompositeKeyHash
-    val interopViewHolder = remember {
-        SwingInteropViewHolder2(
-            container = interopContainer,
-            group = SwingInteropViewGroup(
-                key = compositeKey,
-                focusComponent = interopContainer.root,
-            ),
-            update = update,
+    val compositeKeyHash = currentCompositeKeyHash
+    val focusManager = LocalFocusManager.current
+
+    // TODO: entire interop context must be inside SwingInteropViewHolder in order to
+    //  expose a version of this API with `onReset` callback and integrated with ReusableComposeNode
+    //  https://youtrack.jetbrains.com/issue/CMP-5897/Desktop-self-contained-InteropViewHolder
+
+    val group = remember {
+        SwingInteropViewGroup(
+            key = compositeKeyHash,
+            focusComponent = interopContainer.root
         )
     }
 
-    val density = LocalDensity.current
-    val focusManager = LocalFocusManager.current
-    val focusSwitcher = remember { FocusSwitcher(interopViewHolder, focusManager) }
+    val focusSwitcher = remember { InteropFocusSwitcher(group, focusManager) }
 
-    OverlayLayout(
-        modifier = modifier.onGloballyPositioned { coordinates ->
-            val rootCoordinates = coordinates.findRootCoordinates()
-            val clippedBounds = rootCoordinates
-                .localBoundingBoxOf(coordinates, clipBounds = true).round(density)
-            val bounds = rootCoordinates
-                .localBoundingBoxOf(coordinates, clipBounds = false).round(density)
-
-            interopViewHolder.setBounds(bounds, clippedBounds)
-        }.drawBehind {
-            // Clear interop area to make visible the component under our canvas.
-            drawRect(Color.Transparent, blendMode = BlendMode.Clear)
-        }.trackInteropPlacement(interopViewHolder)
-            .pointerInteropFilter(interopViewHolder)
-    ) {
-        focusSwitcher.Content()
+    val interopViewHolder = remember {
+        SwingInteropViewHolder(
+            factory = factory,
+            container = interopContainer,
+            group = group,
+            focusSwitcher = focusSwitcher,
+            compositeKeyHash = compositeKeyHash
+        )
     }
 
-    DisposableEffect(Unit) {
-        val focusListener = object : FocusListener {
-            override fun focusGained(e: FocusEvent) {
-                if (e.isFocusGainedHandledBySwingPanel(interopViewHolder.group)) {
-                    when (e.cause) {
-                        FocusEvent.Cause.TRAVERSAL_FORWARD -> focusSwitcher.moveForward()
-                        FocusEvent.Cause.TRAVERSAL_BACKWARD -> focusSwitcher.moveBackward()
-                        else -> Unit
-                    }
-                }
-            }
+    EmptyLayout(focusSwitcher.backwardTrackerModifier)
 
-            override fun focusLost(e: FocusEvent) = Unit
+    InteropView(
+        factory = {
+            interopViewHolder
+        },
+        modifier = modifier,
+        update = {
+            it.background = background.toAwtColor()
+            update(it)
         }
-        interopContainer.root.addFocusListener(focusListener)
-        onDispose {
-            interopContainer.root.removeFocusListener(focusListener)
-        }
-    }
+    )
 
-    DisposableEffect(factory) {
-        interopViewHolder.setupUserComponent(factory())
-        onDispose {
-            interopViewHolder.cleanUserComponent()
-        }
-    }
-
-    SideEffect {
-        interopViewHolder.group.background = background.toAwtColor()
-        interopViewHolder.update = update
-    }
+    EmptyLayout(focusSwitcher.forwardTrackerModifier)
 }
 
 /**
@@ -176,12 +122,15 @@ internal fun FocusEvent.isFocusGainedHandledBySwingPanel(container: Container) =
 private class SwingInteropViewGroup(
     key: Int,
     private val focusComponent: Component
-): JPanel() {
+) : JPanel() {
     init {
         name = "SwingPanel #${key.toString(MaxSupportedRadix)}"
         layout = null
         focusTraversalPolicy = object : LayoutFocusTraversalPolicy() {
-            override fun getComponentAfter(aContainer: Container?, aComponent: Component?): Component? {
+            override fun getComponentAfter(
+                aContainer: Container?,
+                aComponent: Component?
+            ): Component? {
                 return if (aComponent == getLastComponent(aContainer)) {
                     focusComponent
                 } else {
@@ -189,7 +138,10 @@ private class SwingInteropViewGroup(
                 }
             }
 
-            override fun getComponentBefore(aContainer: Container?, aComponent: Component?): Component? {
+            override fun getComponentBefore(
+                aContainer: Container?,
+                aComponent: Component?
+            ): Component? {
                 return if (aComponent == getFirstComponent(aContainer)) {
                     focusComponent
                 } else {
@@ -199,143 +151,6 @@ private class SwingInteropViewGroup(
         }
         isFocusCycleRoot = true
     }
-}
-
-private class FocusSwitcher(
-    private val interopViewHolder: InteropViewHolder,
-    private val focusManager: FocusManager,
-) {
-    private val backwardTracker = FocusTracker {
-        val group = interopViewHolder.group
-        val component = group.focusTraversalPolicy.getFirstComponent(group)
-        if (component != null) {
-            component.requestFocus(FocusEvent.Cause.TRAVERSAL_FORWARD)
-        } else {
-            moveForward()
-        }
-    }
-
-    private val forwardTracker = FocusTracker {
-        val group = interopViewHolder.group
-        val component = group.focusTraversalPolicy.getLastComponent(group)
-        if (component != null) {
-            component.requestFocus(FocusEvent.Cause.TRAVERSAL_BACKWARD)
-        } else {
-            moveBackward()
-        }
-    }
-
-    fun moveBackward() {
-        backwardTracker.requestFocusWithoutEvent()
-        focusManager.moveFocus(FocusDirection.Previous)
-    }
-
-    fun moveForward() {
-        forwardTracker.requestFocusWithoutEvent()
-        focusManager.moveFocus(FocusDirection.Next)
-    }
-
-    @Composable
-    fun Content() {
-        EmptyLayout(backwardTracker.modifier)
-        EmptyLayout(forwardTracker.modifier)
-    }
-
-    /**
-     * A helper class that can help:
-     * - to prevent recursive focus events
-     *   (a case when we focus the same element inside `onFocusEvent`)
-     * - to prevent triggering `onFocusEvent` while requesting focus somewhere else
-     */
-    private class FocusTracker(
-        private val onNonRecursiveFocused: () -> Unit
-    ) {
-        private val requester = FocusRequester()
-
-        private var isRequestingFocus = false
-        private var isHandlingFocus = false
-
-        fun requestFocusWithoutEvent() {
-            try {
-                isRequestingFocus = true
-                requester.requestFocus()
-            } finally {
-                isRequestingFocus = false
-            }
-        }
-
-        val modifier = Modifier
-            .focusRequester(requester)
-            .onFocusEvent {
-                if (!isRequestingFocus && !isHandlingFocus && it.isFocused) {
-                    try {
-                        isHandlingFocus = true
-                        onNonRecursiveFocused()
-                    } finally {
-                        isHandlingFocus = false
-                    }
-                }
-            }
-            .focusTarget()
-    }
-}
-
-// TODO: Align naming. It's typed version of view holder, On Android it's called "ViewFactoryHolder"
-private class SwingInteropViewHolder2<T : Component>(
-    container: InteropContainer,
-    group: InteropViewGroup,
-    var update: (T) -> Unit
-): SwingInteropViewHolder(container, group) {
-    private var userComponent: T? = null
-    private var updater: InteropViewUpdater<T>? = null
-
-    override fun getInteropView(): InteropView? =
-        userComponent
-
-    fun setupUserComponent(component: T) {
-        check(userComponent == null)
-        userComponent = component
-        group.add(component)
-        updater = InteropViewUpdater(component, update) { SwingUtilities.invokeLater(it) }
-    }
-
-    fun cleanUserComponent() {
-        group.remove(userComponent)
-        updater?.dispose()
-        userComponent = null
-        updater = null
-    }
-
-    fun setBounds(
-        bounds: IntRect,
-        clippedBounds: IntRect = bounds
-    ) = container.changeInteropViewLayout {
-        clipBounds = clippedBounds // Clipping area for skia canvas
-        group.isVisible = !clippedBounds.isEmpty // Hide if it's fully clipped
-        // Swing clips children based on parent's bounds, so use our container for clipping
-        group.setBounds(
-            /* x = */ clippedBounds.left,
-            /* y = */ clippedBounds.top,
-            /* width = */ clippedBounds.width,
-            /* height = */ clippedBounds.height
-        )
-
-        // The real size and position should be based on not-clipped bounds
-        userComponent?.setBounds(
-            /* x = */ bounds.left - clippedBounds.left, // Local position relative to container
-            /* y = */ bounds.top - clippedBounds.top,
-            /* width = */ bounds.width,
-            /* height = */ bounds.height
-        )
-    }
-}
-
-private fun Rect.round(density: Density): IntRect {
-    val left = floor(left / density.density).toInt()
-    val top = floor(top / density.density).toInt()
-    val right = ceil(right / density.density).toInt()
-    val bottom = ceil(bottom / density.density).toInt()
-    return IntRect(left, top, right, bottom)
 }
 
 /**

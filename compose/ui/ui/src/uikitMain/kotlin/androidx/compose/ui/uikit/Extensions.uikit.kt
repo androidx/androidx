@@ -35,9 +35,14 @@ internal val UITraitEnvironmentProtocol.systemDensity: Density
         )
     }
 
-internal fun Color.toUIColor() = UIColor(
-    red = red.toDouble(),
-    green = green.toDouble(),
-    blue = blue.toDouble(),
-    alpha = alpha.toDouble(),
-)
+internal fun Color.toUIColor(): UIColor? =
+    if (this == Color.Unspecified) {
+        null
+    } else {
+        UIColor(
+            red = red.toDouble(),
+            green = green.toDouble(),
+            blue = blue.toDouble(),
+            alpha = alpha.toDouble(),
+        )
+    }
