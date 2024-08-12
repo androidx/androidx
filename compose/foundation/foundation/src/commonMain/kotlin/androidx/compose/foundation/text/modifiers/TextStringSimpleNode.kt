@@ -344,11 +344,11 @@ internal class TextStringSimpleNode(
             // Map<AlignmentLine, Int> required for use in public API `layout` below
             @Suppress("PrimitiveInCollection") var cache = baselineCache
             if (cache == null) {
-                cache = LinkedHashMap(2)
+                cache = HashMap(2)
+                baselineCache = cache
             }
             cache[FirstBaseline] = paragraph.firstBaseline.fastRoundToInt()
             cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
-            baselineCache = cache
         }
 
         // then allow children to measure _inside_ our final box, with the above placeholders

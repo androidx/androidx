@@ -27,7 +27,7 @@ internal class MutableVectorWithMutationTracking<T>(
     val onVectorMutated: () -> Unit,
 ) {
     val size: Int
-        get() = vector.size
+        inline get() = vector.size
 
     fun clear() {
         vector.clear()
@@ -43,9 +43,9 @@ internal class MutableVectorWithMutationTracking<T>(
         return vector.removeAt(index).also { onVectorMutated() }
     }
 
-    inline fun forEach(block: (T) -> Unit) = vector.forEach(block)
+    @Suppress("NOTHING_TO_INLINE") inline fun forEach(block: (T) -> Unit) = vector.forEach(block)
 
-    fun asList(): List<T> = vector.asMutableList()
+    @Suppress("NOTHING_TO_INLINE") inline fun asList(): List<T> = vector.asMutableList()
 
-    operator fun get(index: Int): T = vector[index]
+    @Suppress("NOTHING_TO_INLINE") inline operator fun get(index: Int): T = vector[index]
 }

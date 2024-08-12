@@ -28,7 +28,7 @@ import androidx.compose.ui.platform.simpleIdentityToString
 class SemanticsConfiguration :
     SemanticsPropertyReceiver, Iterable<Map.Entry<SemanticsPropertyKey<*>, Any?>> {
 
-    private val props: MutableScatterMap<SemanticsPropertyKey<*>, Any?> = mutableScatterMapOf()
+    internal val props: MutableScatterMap<SemanticsPropertyKey<*>, Any?> = mutableScatterMapOf()
     private var mapWrapper: Map<SemanticsPropertyKey<*>, Any?>? = null
 
     /**

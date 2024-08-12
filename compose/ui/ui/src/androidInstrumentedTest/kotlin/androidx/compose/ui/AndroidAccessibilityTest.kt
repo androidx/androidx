@@ -4638,8 +4638,8 @@ class AndroidAccessibilityTest {
 
         // Assert.
         rule.runOnIdle {
-            assertThat(parent.unmergedChildren(true).size).isEqualTo(1)
-            assertThat(child.unmergedChildren(true).size).isEqualTo(0)
+            assertThat(parent.unmergedChildren(includeFakeNodes = true).size).isEqualTo(1)
+            assertThat(child.unmergedChildren(includeFakeNodes = true).size).isEqualTo(0)
         }
     }
 
@@ -4669,7 +4669,9 @@ class AndroidAccessibilityTest {
         }
 
         // Assert.
-        rule.runOnIdle { assertThat(parent.unmergedChildren(true).size).isEqualTo(2) }
+        rule.runOnIdle {
+            assertThat(parent.unmergedChildren(includeFakeNodes = true).size).isEqualTo(2)
+        }
     }
 
     @Test
