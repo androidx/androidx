@@ -1,7 +1,7 @@
 [versions]
 ACTIVITY = "1.10.0-beta01"
-ANNOTATION = "1.9.0-alpha01"
-ANNOTATION_EXPERIMENTAL = "1.4.0-rc01"
+ANNOTATION = "1.9.0-alpha02"
+ANNOTATION_EXPERIMENTAL = "1.5.0-alpha01"
 APPCOMPAT = "1.8.0-alpha01"
 APPSEARCH = "1.1.0-alpha04"
 ARCH_CORE = "2.3.0-alpha01"
