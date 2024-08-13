@@ -241,6 +241,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.kotlinStdlib)
                     implementation(libs.create("skikoWasm"))
                     implementation(libs.create("skikoWasmWasm"))
+                    api(libs.kotlinXw3c)
                 }
             }
 

@@ -219,6 +219,13 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     implementation(libs.mockitoKotlin)
                 }
             }
+
+            wasmJsMain {
+                dependencies {
+                    implementation(libs.kotlinXw3c)
+                }
+            }
+
             desktopTest.kotlin.srcDirs("src/desktopTest/kotlin")
 
             nativeTest.dependsOn(jsNativeTest)
