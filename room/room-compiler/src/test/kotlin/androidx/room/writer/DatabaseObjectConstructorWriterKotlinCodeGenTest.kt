@@ -93,6 +93,26 @@ class DatabaseObjectConstructorWriterKotlinCodeGenTest {
         )
     }
 
+    @Test
+    fun actualDatabaseConstructor_overridesInitialize() {
+        val ctorSrc =
+            Source.kotlin(
+                "MyDatabaseCtor.kt",
+                """
+            import androidx.room.*
+
+            expect object MyDatabaseCtor : RoomDatabaseConstructor<MyDatabase> {
+                override fun initialize(): MyDatabase
+            }
+            """
+                    .trimIndent()
+            )
+        runTest(
+            sources = listOf(databaseSrc, ctorSrc),
+            expectedFilePath = getTestGoldenPath(testName.methodName)
+        )
+    }
+
     private fun getTestGoldenPath(testName: String): String {
         return "kotlinCodeGen/$testName.kt"
     }

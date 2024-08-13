@@ -18,10 +18,10 @@ package androidx.room.writer
 
 import androidx.room.compiler.codegen.toKotlinPoet
 import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.ext.RoomTypeNames.ROOM_DB_CONSTRUCTOR
 import androidx.room.vo.Database
+import androidx.room.vo.DatabaseConstructor
 import com.squareup.kotlinpoet.FileSpec
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.KModifier
@@ -30,19 +30,19 @@ import com.squareup.kotlinpoet.TypeSpec
 
 class DatabaseObjectConstructorWriter(
     private val database: Database,
-    private val constructorObjectElement: XTypeElement
+    private val constructorObject: DatabaseConstructor
 ) {
     fun write(processingEnv: XProcessingEnv) {
         val databaseClassName = database.typeName.toKotlinPoet()
-        val objectClassName = constructorObjectElement.asClassName().toKotlinPoet()
+        val objectClassName = constructorObject.element.asClassName().toKotlinPoet()
         val typeSpec =
             TypeSpec.objectBuilder(objectClassName)
                 .apply {
                     addOriginatingElement(database.element)
                     addModifiers(KModifier.ACTUAL)
-                    if (constructorObjectElement.isInternal()) {
+                    if (constructorObject.element.isInternal()) {
                         addModifiers(KModifier.INTERNAL)
-                    } else if (constructorObjectElement.isPublic()) {
+                    } else if (constructorObject.element.isPublic()) {
                         addModifiers(KModifier.PUBLIC)
                     }
                     addSuperinterface(
@@ -50,9 +50,14 @@ class DatabaseObjectConstructorWriter(
                     )
                     addFunction(
                         FunSpec.builder("initialize")
-                            .addModifiers(KModifier.OVERRIDE)
-                            .returns(databaseClassName)
-                            .addStatement("return %L()", database.implTypeName.toKotlinPoet())
+                            .apply {
+                                if (constructorObject.overridesInitialize) {
+                                    addModifiers(KModifier.ACTUAL)
+                                }
+                                addModifiers(KModifier.OVERRIDE)
+                                returns(databaseClassName)
+                                addStatement("return %L()", database.implTypeName.toKotlinPoet())
+                            }
                             .build()
                     )
                 }

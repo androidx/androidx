@@ -34,6 +34,7 @@ import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
+import androidx.room.vo.DatabaseConstructor
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
 import androidx.room.vo.FtsEntity
@@ -135,7 +136,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             errorMsg = ProcessorErrors.INVALID_DATABASE_VERSION
         )
 
-        val constructorObjectElement = processConstructorObject(element)
+        val constructorObject = processConstructorObject(element)
 
         val database =
             Database(
@@ -148,7 +149,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 exportSchema = dbAnnotation.value.exportSchema,
                 enableForeignKeys = hasForeignKeys,
                 overrideClearAllTables = hasClearAllTables,
-                constructorObjectElement = constructorObjectElement
+                constructorObject = constructorObject
             )
         database.autoMigrations = processAutoMigrations(element, database.bundle)
         return database
@@ -543,7 +544,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
         return result
     }
 
-    private fun processConstructorObject(element: XTypeElement): XTypeElement? {
+    private fun processConstructorObject(element: XTypeElement): DatabaseConstructor? {
         val annotation = element.getAnnotation(androidx.room.ConstructedBy::class)
         if (annotation == null) {
             // If no @ConstructedBy is present then validate target is JVM (including Android)
@@ -604,6 +605,16 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             return null
         }
 
-        return typeElement
+        val initializeExecutableElement =
+            context.processingEnv
+                .requireTypeElement(RoomTypeNames.ROOM_DB_CONSTRUCTOR)
+                .getDeclaredMethods()
+                .single()
+        val isInitOverridden =
+            typeElement.getDeclaredMethods().any {
+                it.overrides(initializeExecutableElement, typeElement)
+            }
+
+        return DatabaseConstructor(typeElement, isInitOverridden)
     }
 }
