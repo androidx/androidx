@@ -20,6 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.Density
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestDispatcher
 
 /**
  * Sets up the test environment, runs the given [test][block] and then tears down the test
@@ -38,7 +40,9 @@ import kotlin.coroutines.EmptyCoroutineContext
  * Keeping a reference to the [ComposeUiTest] outside of this function is an error.
  *
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  * @param block The test function.
  */
 @ExperimentalTestApi

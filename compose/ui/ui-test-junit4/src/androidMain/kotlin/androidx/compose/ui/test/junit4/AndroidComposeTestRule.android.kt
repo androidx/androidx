@@ -34,6 +34,8 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.TestDispatcher
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -83,6 +85,11 @@ inline fun <reified A : ComponentActivity> createAndroidComposeRule():
  * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
+ *
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  */
 @ExperimentalTestApi
 inline fun <reified A : ComponentActivity> createAndroidComposeRule(
@@ -132,6 +139,12 @@ fun <A : ComponentActivity> createAndroidComposeRule(
  * with your own launcher.
  *
  * If your test doesn't require a specific Activity, use [createComposeRule] instead.
+ *
+ * @param activityClass The activity type to use in the activity scenario
+ * @param effectContext The [CoroutineContext] used to run the composition. The context for
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  */
 @ExperimentalTestApi
 fun <A : ComponentActivity> createAndroidComposeRule(
@@ -180,7 +193,9 @@ fun createEmptyComposeRule(): ComposeTestRule =
  * after one or more dependencies have been injected.
  *
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  */
 @ExperimentalTestApi
 fun createEmptyComposeRule(
@@ -249,7 +264,9 @@ private constructor(
      *
      * @param activityRule Test rule to use to launch the Activity.
      * @param effectContext The [CoroutineContext] used to run the composition. The context for
-     *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+     *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+     *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+     *   used for composition and the [MainTestClock].
      * @param activityProvider Function to retrieve the Activity from the given [activityRule].
      */
     @ExperimentalTestApi
