@@ -39,7 +39,7 @@
         android:layout_gravity="bottom|end"
         android:visibility="gone"
         android:src="@drawable/edit_fab"
-        app:backgroundTint="#5D4200"
-        app:tint="#FFDEA5"/>
+        app:backgroundTint="?attr/colorPrimaryContainer"
+        app:tint="?attr/colorOnPrimaryContainer" />
 
 </FrameLayout>
