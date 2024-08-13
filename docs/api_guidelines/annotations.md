@@ -255,7 +255,7 @@ Java visibility should be set as appropriate for the code in question
 (`private`, `package`, or `public`) and is unrelated to hiding.
 
 For more, read the section in
-[Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/master/api-guidelines/index.md#no-public-typedefs)
+[Android API Council Guidelines](https://android.googlesource.com/platform/developers/docs/+/refs/heads/main/api-guidelines/framework.md#framework-hide-typedefs)
 
 #### `*current.txt` File Explanation {#currenttxt}
 
