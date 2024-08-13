@@ -35,6 +35,13 @@
                 <action android:name="android.media.MediaRouteProviderService" />
             </intent-filter>
         </service>
+        <service
+            android:name="androidx.mediarouter.media.StubDynamicMediaRouteProviderService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.MediaRouteProviderService" />
+            </intent-filter>
+        </service>
 
         <receiver android:name="androidx.media.session.MediaButtonReceiver"
             android:exported="true">
