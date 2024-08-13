@@ -41,7 +41,7 @@ internal fun finalMaxWidth(
     overflow: TextOverflow,
     maxIntrinsicWidth: Float
 ): Int {
-    val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
+    val widthMatters = softWrap || overflow.isEllipsis
     val maxWidth =
         if (widthMatters && constraints.hasBoundedWidth) {
             constraints.maxWidth
@@ -81,6 +81,13 @@ internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn
     //     AA…
     // Here we assume there won't be any '\n' character when softWrap is false. And make
     // maxLines 1 to implement the similar behavior.
-    val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
+    val overwriteMaxLines = !softWrap && overflow.isEllipsis
     return if (overwriteMaxLines) 1 else maxLinesIn.coerceAtLeast(1)
 }
+
+internal val TextOverflow.isEllipsis: Boolean
+    get() {
+        return this == TextOverflow.Ellipsis ||
+            this == TextOverflow.StartEllipsis ||
+            this == TextOverflow.MiddleEllipsis
+    }

@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.LineHeightStyle.Alignment
 import androidx.compose.ui.text.style.LineHeightStyle.Trim
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
@@ -922,7 +923,6 @@ class ParagraphIntegrationLineHeightStyleTest {
         text: String = "",
         style: TextStyle? = null,
         maxLines: Int = Int.MAX_VALUE,
-        ellipsis: Boolean = false,
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         width: Float = Float.MAX_VALUE
     ): Paragraph {
@@ -939,7 +939,7 @@ class ParagraphIntegrationLineHeightStyleTest {
                     )
                     .merge(style),
             maxLines = maxLines,
-            ellipsis = ellipsis,
+            overflow = TextOverflow.Clip,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context)

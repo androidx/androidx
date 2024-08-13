@@ -277,7 +277,7 @@ class TextMeasurer(
                     )
 
                 val minWidth = constraints.minWidth
-                val widthMatters = softWrap || overflow == TextOverflow.Ellipsis
+                val widthMatters = softWrap || overflow.isEllipsis
                 val maxWidth =
                     if (widthMatters && constraints.hasBoundedWidth) {
                         constraints.maxWidth
@@ -300,7 +300,7 @@ class TextMeasurer(
                 //     AA…
                 // Here we assume there won't be any '\n' character when softWrap is false. And make
                 // maxLines 1 to implement the similar behavior.
-                val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
+                val overwriteMaxLines = !softWrap && overflow.isEllipsis
                 val finalMaxLines = if (overwriteMaxLines) 1 else maxLines
 
                 // if minWidth == maxWidth the width is fixed.
@@ -332,7 +332,7 @@ class TextMeasurer(
                             ),
                         // This is a fallback behavior for ellipsis. Native
                         maxLines = finalMaxLines,
-                        ellipsis = overflow == TextOverflow.Ellipsis
+                        overflow = overflow
                     )
 
                 return TextLayoutResult(
@@ -447,3 +447,10 @@ internal class CacheTextLayoutInput(val textLayoutInput: TextLayoutInput) {
         return true
     }
 }
+
+private val TextOverflow.isEllipsis: Boolean
+    get() {
+        return this == TextOverflow.Ellipsis ||
+            this == TextOverflow.StartEllipsis ||
+            this == TextOverflow.MiddleEllipsis
+    }

@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
@@ -358,7 +359,7 @@ class ParagraphIntegrationBoundingBoxTest {
             text = TEST_CONTENT_MAP[textDirection]!![lineBreakFrom]!!,
             style = TextStyle(fontFamily = fontFamilyMeasureFont, fontSize = fontSize),
             maxLines = maxLines,
-            ellipsis = true,
+            overflow = TextOverflow.Ellipsis,
             constraints =
                 Constraints(
                     maxWidth = (widthInFontSize * fontSizeInPx),

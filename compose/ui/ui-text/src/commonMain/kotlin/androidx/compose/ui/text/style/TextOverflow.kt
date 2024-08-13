@@ -26,7 +26,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
         return when (this) {
             Clip -> "Clip"
             Ellipsis -> "Ellipsis"
+            MiddleEllipsis -> "MiddleEllipsis"
             Visible -> "Visible"
+            StartEllipsis -> "StartEllipsis"
             else -> "Invalid"
         }
     }
@@ -40,7 +42,9 @@ value class TextOverflow internal constructor(internal val value: Int) {
         @Stable val Clip = TextOverflow(1)
 
         /**
-         * Use an ellipsis to indicate that the text has overflowed.
+         * Use an ellipsis at the end of the string to indicate that the text has overflowed.
+         *
+         * For example, [This is a ...].
          *
          * @sample androidx.compose.ui.text.samples.TextOverflowEllipsisSample
          */
@@ -66,5 +70,29 @@ value class TextOverflow internal constructor(internal val value: Int) {
          * such as `Modifier.clipToBounds`.
          */
         @Stable val Visible = TextOverflow(3)
+
+        /**
+         * Use an ellipsis at the start of the string to indicate that the text has overflowed.
+         *
+         * For example, [... is a text].
+         *
+         * Note that not all platforms support the ellipsis at the start. For example, on Android
+         * the start ellipsis is only available for a single line text (i.e. when either a soft wrap
+         * is disabled or a maximum number of lines maxLines set to 1). In case of multiline text it
+         * will fallback to [Clip].
+         */
+        @Stable val StartEllipsis = TextOverflow(4)
+
+        /**
+         * Use an ellipsis in the middle of the string to indicate that the text has overflowed.
+         *
+         * For example, [This ... text].
+         *
+         * Note that not all platforms support the ellipsis in the middle. For example, on Android
+         * the middle ellipsis is only available for a single line text (i.e. when either a soft
+         * wrap is disabled or a maximum number of lines maxLines set to 1). In case of multiline
+         * text it will fallback to [Clip].
+         */
+        @Stable val MiddleEllipsis = TextOverflow(5)
     }
 }

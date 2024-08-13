@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import android.graphics.Paint
 import android.graphics.Typeface
+import android.os.Build
 import android.text.TextPaint
 import android.text.style.AbsoluteSizeSpan
 import android.text.style.BackgroundColorSpan
@@ -68,6 +69,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.text.style.TextMotion
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
@@ -1119,7 +1121,7 @@ class AndroidParagraphTest {
                 simpleParagraph(
                     text = text,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     width = paragraphWidth
                 )
 
@@ -1139,7 +1141,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = paragraphWidth
@@ -1159,7 +1161,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     maxLines = maxLines,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = paragraphWidth
@@ -1179,7 +1181,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 6 * fontSize.toPx(),
@@ -1199,7 +1201,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 2.2f * fontSize.toPx(), // fits 2 lines
@@ -1211,14 +1213,14 @@ class AndroidParagraphTest {
     }
 
     @Test
-    fun testEllipsis_withLimitedHeight_ellipsisFalse_doesNotEllipsis() {
+    fun testEllipsis_withLimitedHeight_overflowNotEllipsis_doesNotEllipsis() {
         with(defaultDensity) {
             val text = "This is a text"
             val fontSize = 30.sp
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = false,
+                    overflow = TextOverflow.Clip,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 2.2f * fontSize.toPx(), // fits 2 lines
@@ -1238,7 +1240,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 2.2f * fontSize.toPx(), // fits 2 lines
@@ -1258,7 +1260,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 4 * fontSize.toPx(),
@@ -1278,7 +1280,7 @@ class AndroidParagraphTest {
             val paragraph =
                 simpleParagraph(
                     text = text,
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = fontSize.toPx() / 4
@@ -1300,7 +1302,7 @@ class AndroidParagraphTest {
                     text = text,
                     spanStyles =
                         listOf(AnnotatedString.Range(SpanStyle(fontSize = fontSize * 2), 0, 2)),
-                    ellipsis = true,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
                     width = 4 * fontSize.toPx(),
                     height = 2.2f * fontSize.toPx() // fits 2 lines
@@ -1308,6 +1310,52 @@ class AndroidParagraphTest {
 
             assertThat(paragraph.lineCount).isEqualTo(1)
             assertThat(paragraph.isLineEllipsized(paragraph.lineCount - 1)).isTrue()
+        }
+    }
+
+    // Experimentally verified that middle and start ellipsis don't work correctly on API 21
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
+    @Test
+    fun testEllipsis_withMaxLinesOne_doesStartEllipsis() {
+        with(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 100.sp
+            val paragraphWidth = (text.length - 2f) * fontSize.toPx()
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    overflow = TextOverflow.StartEllipsis,
+                    maxLines = 1,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = paragraphWidth
+                )
+
+            assertThat(paragraph.isLineEllipsized(0)).isTrue()
+            assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(0)
+            assertThat(paragraph.getLineEllipsisCount(0)).isEqualTo(3)
+        }
+    }
+
+    // Experimentally verified that middle and start ellipsis don't work correctly on API 21
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP_MR1)
+    @Test
+    fun testEllipsis_withMaxLinesOne_doesMiddleEllipsis() {
+        with(defaultDensity) {
+            val text = "abcde"
+            val fontSize = 100.sp
+            val paragraphWidth = (text.length - 2f) * fontSize.toPx()
+            val paragraph =
+                simpleParagraph(
+                    text = text,
+                    overflow = TextOverflow.MiddleEllipsis,
+                    maxLines = 1,
+                    style = TextStyle(fontFamily = basicFontFamily, fontSize = fontSize),
+                    width = paragraphWidth
+                )
+
+            assertThat(paragraph.isLineEllipsized(0)).isTrue()
+            assertThat(paragraph.getLineEllipsisOffset(0)).isEqualTo(1)
+            assertThat(paragraph.getLineEllipsisCount(0)).isEqualTo(3)
         }
     }
 
@@ -1909,7 +1957,7 @@ class AndroidParagraphTest {
             spanStyles = listOf(),
             placeholders = listOf(),
             maxLines = Int.MAX_VALUE,
-            ellipsis = true,
+            overflow = TextOverflow.Ellipsis,
             constraints = minWidthConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             density = defaultDensity,
@@ -1925,7 +1973,7 @@ class AndroidParagraphTest {
             spanStyles = listOf(),
             placeholders = listOf(),
             maxLines = Int.MAX_VALUE,
-            ellipsis = true,
+            overflow = TextOverflow.Ellipsis,
             constraints = minHeightConstraints,
             fontFamilyResolver = UncachedFontFamilyResolver(context),
             density = defaultDensity,
@@ -2035,7 +2083,7 @@ class AndroidParagraphTest {
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign = TextAlign.Unspecified,
-        ellipsis: Boolean = false,
+        overflow: TextOverflow = TextOverflow.Clip,
         maxLines: Int = Int.MAX_VALUE,
         width: Float,
         height: Float = Float.POSITIVE_INFINITY,
@@ -2048,7 +2096,7 @@ class AndroidParagraphTest {
             placeholders = listOf(),
             style = TextStyle(textAlign = textAlign, textIndent = textIndent).merge(style),
             maxLines = maxLines,
-            ellipsis = ellipsis,
+            overflow = overflow,
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver

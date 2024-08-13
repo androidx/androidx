@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.rangeOf
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
@@ -500,7 +501,6 @@ class AndroidParagraphGetRangeForRectTest {
         spanStyles: List<AnnotatedString.Range<SpanStyle>> = listOf(),
         textIndent: TextIndent? = null,
         textAlign: TextAlign = TextAlign.Unspecified,
-        ellipsis: Boolean = false,
         maxLines: Int = Int.MAX_VALUE,
         width: Float,
         height: Float = Float.POSITIVE_INFINITY,
@@ -519,7 +519,7 @@ class AndroidParagraphGetRangeForRectTest {
                     )
                     .merge(style),
             maxLines = maxLines,
-            ellipsis = ellipsis,
+            overflow = TextOverflow.Clip,
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = Density(density = 1f),
             fontFamilyResolver = fontFamilyResolver
