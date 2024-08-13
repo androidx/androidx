@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"יש לגעת בחיישן טביעות האצבע"</string>
+    <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"צריך לגעת בחיישן טביעות האצבע"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"לא זוהתה"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"החומרה בשביל טביעת אצבע אינה זמינה."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"לא נרשמו טביעות אצבע."</string>
