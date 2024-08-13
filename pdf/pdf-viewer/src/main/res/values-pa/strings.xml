@@ -52,12 +52,8 @@
     <string name="action_edit" msgid="5882082700509010966">"ਫ਼ਾਈਲ ਦਾ ਸੰਪਾਦਨ ਕਰੋ"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ਅਣਲਾਕ ਕਰਨ ਲਈ ਪਾਸਵਰਡ ਦਾਖਲ ਕਰੋ"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"ਮੁੜ-ਕੋਸ਼ਿਸ਼ ਕਰੋ"</string>
-    <!-- no translation found for pdf_error (3287950599604474450) -->
-    <skip />
-    <!-- no translation found for file_error (4003885928556884091) -->
-    <skip />
-    <!-- no translation found for page_broken (2968770793669433462) -->
-    <skip />
-    <!-- no translation found for needs_more_data (3520133467908240802) -->
-    <skip />
+    <string name="pdf_error" msgid="3287950599604474450">"PDF ਦਸਤਾਵੇਜ਼ \'ਤੇ ਪ੍ਰਕਿਰਿਆ ਨਹੀਂ ਕੀਤੀ ਜਾ ਸਕੀ!"</string>
+    <string name="file_error" msgid="4003885928556884091">"ਫ਼ਾਈਲ ਨੂੰ ਖੋਲ੍ਹਣਾ ਅਸਫਲ ਰਿਹਾ। ਕੀ ਸੰਭਵ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਸਮੱਸਿਆ ਹੈ?"</string>
+    <string name="page_broken" msgid="2968770793669433462">"PDF ਦਸਤਾਵੇਜ਼ ਲਈ ਪੰਨਾ ਲੋਡ ਨਹੀਂ ਹੋ ਰਿਹਾ"</string>
+    <string name="needs_more_data" msgid="3520133467908240802">"PDF ਦਸਤਾਵੇਜ਼ \'ਤੇ ਪ੍ਰਕਿਰਿਆ ਕਰਨ ਲਈ ਲੋੜੀਂਦਾ ਡਾਟਾ ਨਹੀਂ ਹੈ"</string>
 </resources>

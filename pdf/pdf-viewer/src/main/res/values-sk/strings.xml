@@ -52,12 +52,8 @@
     <string name="action_edit" msgid="5882082700509010966">"Upraviť súbor"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Zadajte heslo na odomknutie"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Skúsiť znova"</string>
-    <!-- no translation found for pdf_error (3287950599604474450) -->
-    <skip />
-    <!-- no translation found for file_error (4003885928556884091) -->
-    <skip />
-    <!-- no translation found for page_broken (2968770793669433462) -->
-    <skip />
-    <!-- no translation found for needs_more_data (3520133467908240802) -->
-    <skip />
+    <string name="pdf_error" msgid="3287950599604474450">"Dokument vo formáte PDF sa nepodarilo spracovať."</string>
+    <string name="file_error" msgid="4003885928556884091">"Súbor sa nepodarilo otvoriť. Možno sa vyskytol problém s povolením."</string>
+    <string name="page_broken" msgid="2968770793669433462">"Stránka sa v dokumente vo formáte PDF nedá načítať"</string>
+    <string name="needs_more_data" msgid="3520133467908240802">"V dokumente vo formáte PDF nie je dostatok údajov na spracovanie"</string>
 </resources>

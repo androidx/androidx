@@ -52,12 +52,8 @@
     <string name="action_edit" msgid="5882082700509010966">"Chỉnh sửa tệp"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Nhập mật khẩu để mở khoá"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"Thử lại"</string>
-    <!-- no translation found for pdf_error (3287950599604474450) -->
-    <skip />
-    <!-- no translation found for file_error (4003885928556884091) -->
-    <skip />
-    <!-- no translation found for page_broken (2968770793669433462) -->
-    <skip />
-    <!-- no translation found for needs_more_data (3520133467908240802) -->
-    <skip />
+    <string name="pdf_error" msgid="3287950599604474450">"Không xử lý được tài liệu PDF này!"</string>
+    <string name="file_error" msgid="4003885928556884091">"Không mở được tệp này. Có thể là do vấn đề về quyền?"</string>
+    <string name="page_broken" msgid="2968770793669433462">"Tài liệu PDF này bị lỗi trang"</string>
+    <string name="needs_more_data" msgid="3520133467908240802">"Không đủ dữ liệu để xử lý tài liệu PDF này"</string>
 </resources>

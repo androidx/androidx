@@ -52,12 +52,8 @@
     <string name="action_edit" msgid="5882082700509010966">"फाइल संपादित करा"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"अनलॉक करण्यासाठी पासवर्ड एंटर करा"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"पुन्हा प्रयत्न करा"</string>
-    <!-- no translation found for pdf_error (3287950599604474450) -->
-    <skip />
-    <!-- no translation found for file_error (4003885928556884091) -->
-    <skip />
-    <!-- no translation found for page_broken (2968770793669433462) -->
-    <skip />
-    <!-- no translation found for needs_more_data (3520133467908240802) -->
-    <skip />
+    <string name="pdf_error" msgid="3287950599604474450">"PDF दस्तऐवजावर प्रक्रिया करता आली नाही!"</string>
+    <string name="file_error" msgid="4003885928556884091">"फाइल उघडता आली नाही. परवानगीशी संबंधित संभाव्य समस्या?"</string>
+    <string name="page_broken" msgid="2968770793669433462">"पीडीएफ दस्तऐवजासाठी पेज खंडित झाले आहे"</string>
+    <string name="needs_more_data" msgid="3520133467908240802">"PDF दस्तऐवजावर प्रक्रिया करण्यासाठी डेटा पुरेसा नाही"</string>
 </resources>
