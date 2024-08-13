@@ -382,6 +382,17 @@ internal constructor(
                     " was destroyed before calling createHighSpeedRequestList."
             }
             null
+        } catch (e: UnsupportedOperationException) {
+
+            // b/358592149: When a high speed session is closed, and then another high speed session
+            // is opened, the resources from the previous session might not be available yet.
+            // Since Camera2CaptureSequenceProcessor will try to create the session again, log
+            // and rethrow the error as a standard exception that can be ignored.
+            Log.warn {
+                "Failed to createHighSpeedRequestList from $device because the output surface" +
+                    " was not available."
+            }
+            null
         }
 
     @Suppress("UNCHECKED_CAST")
