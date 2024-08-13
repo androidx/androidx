@@ -136,42 +136,6 @@ public class PdfLoaderCallbacksImpl(
             .setOverlay(selection.overlay)
     }
 
-    public fun loadPageAssets(position: ZoomScroll) {
-        // Change the resolution of the bitmaps only when a gesture is not in progress.
-        if (position.stable || zoomView.stableZoom == 0f) {
-            zoomView.stableZoom = position.zoom
-        }
-
-        zoomView.let {
-            paginatedView.paginationModel.setViewArea(it.visibleAreaInContentCoords)
-            paginatedView.refreshPageRangeInVisibleArea(position, it.height)
-            paginatedView.handleGonePages(/* clearViews= */ false)
-            paginatedView.loadInvisibleNearPageRange(it.stableZoom)
-        }
-
-        // The step (4) below requires page Views to be created and laid out. So we create them here
-        // and set this flag if that operation needs to wait for a layout pass.
-        val requiresLayoutPass: Boolean = paginatedView.createPageViewsForVisiblePageRange()
-
-        // 4. Refresh tiles and/or full pages.
-        if (position.stable) {
-            // Perform a full refresh on all visible pages
-            viewState.get()?.let {
-                zoomView.let { it1 ->
-                    paginatedView.refreshVisiblePages(requiresLayoutPass, it, it1.stableZoom)
-                }
-            }
-            paginatedView.handleGonePages(/* clearViews= */ true)
-        } else if (zoomView.stableZoom == position.zoom) {
-            // Just load a few more tiles in case of tile-scroll
-            viewState.get()?.let { paginatedView.refreshVisibleTiles(requiresLayoutPass, it) }
-        }
-
-        paginatedView.pageRangeHandler.visiblePages?.let {
-            layoutHandler!!.maybeLayoutPages(it.last)
-        }
-    }
-
     private fun isPageCreated(pageNum: Int): Boolean {
         return pageNum < paginatedView.paginationModel.size &&
             paginatedView.getViewAt(pageNum) != null
@@ -332,7 +296,7 @@ public class PdfLoaderCallbacksImpl(
                 layoutHandler!!.maybeLayoutPages(newRange.last)
             } else if (newRange.contains(pageNum)) {
                 // The new page is visible, fetch its assets.
-                loadPageAssets(zoomView.zoomScroll().get()!!)
+                zoomView.loadPageAssets(layoutHandler!!, viewState)
             }
         }
     }
