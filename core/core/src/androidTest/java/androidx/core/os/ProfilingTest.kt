@@ -59,13 +59,12 @@ class ProfilingTest {
     fun testRequestJavaHeapDump() {
         val listener = ResultListener()
 
-        requestJavaHeapDump()
-            .setBufferSizeKb(1000)
-            .request(
-                ApplicationProvider.getApplicationContext(),
-                Executors.newSingleThreadExecutor(),
-                listener
-            )
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            JavaHeapDumpRequestBuilder().setBufferSizeKb(1000).build(),
+            Executors.newSingleThreadExecutor(),
+            listener
+        )
 
         waitForSignal(listener.mAcceptedSignal)
 
@@ -78,16 +77,17 @@ class ProfilingTest {
     fun testRequestHeapProfile() {
         val listener = ResultListener()
 
-        requestHeapProfile()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setTrackJavaAllocations(false)
-            .setSamplingIntervalBytes(100)
-            .request(
-                ApplicationProvider.getApplicationContext(),
-                Executors.newSingleThreadExecutor(),
-                listener
-            )
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            HeapProfileRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setTrackJavaAllocations(false)
+                .setSamplingIntervalBytes(100)
+                .build(),
+            Executors.newSingleThreadExecutor(),
+            listener
+        )
 
         waitForSignal(listener.mAcceptedSignal)
 
@@ -100,15 +100,16 @@ class ProfilingTest {
     fun testRequestStackSampling() {
         val listener = ResultListener()
 
-        requestStackSampling()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setSamplingFrequencyHz(100)
-            .request(
-                ApplicationProvider.getApplicationContext(),
-                Executors.newSingleThreadExecutor(),
-                listener
-            )
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            StackSamplingRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setSamplingFrequencyHz(100)
+                .build(),
+            Executors.newSingleThreadExecutor(),
+            listener
+        )
 
         waitForSignal(listener.mAcceptedSignal)
 
@@ -121,15 +122,16 @@ class ProfilingTest {
     fun testRequestSystemTrace() {
         val listener = ResultListener()
 
-        requestSystemTrace()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setBufferFillPolicy(BufferFillPolicy.DISCARD)
-            .request(
-                ApplicationProvider.getApplicationContext(),
-                Executors.newSingleThreadExecutor(),
-                listener
-            )
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            SystemTraceRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setBufferFillPolicy(BufferFillPolicy.DISCARD)
+                .build(),
+            Executors.newSingleThreadExecutor(),
+            listener
+        )
 
         waitForSignal(listener.mAcceptedSignal)
 
@@ -146,16 +148,17 @@ class ProfilingTest {
         val cancellationSignal = CancellationSignal()
         val listener = ResultListener()
 
-        requestSystemTrace()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5 * 60 * 1000)
-            .setBufferFillPolicy(BufferFillPolicy.RING_BUFFER)
-            .setCancellationSignal(cancellationSignal)
-            .request(
-                ApplicationProvider.getApplicationContext(),
-                Executors.newSingleThreadExecutor(),
-                listener
-            )
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            SystemTraceRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5 * 60 * 1000)
+                .setBufferFillPolicy(BufferFillPolicy.RING_BUFFER)
+                .setCancellationSignal(cancellationSignal)
+                .build(),
+            Executors.newSingleThreadExecutor(),
+            listener
+        )
 
         // Schedule cancellation to occur after some short wait
         Handler(Looper.getMainLooper())
@@ -187,12 +190,17 @@ class ProfilingTest {
             listener2
         )
 
-        requestHeapProfile()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setTrackJavaAllocations(true)
-            .setSamplingIntervalBytes(100)
-            .request(ApplicationProvider.getApplicationContext(), null, null)
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            HeapProfileRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setTrackJavaAllocations(true)
+                .setSamplingIntervalBytes(100)
+                .build(),
+            null,
+            null
+        )
 
         waitForSignal(listener1.mAcceptedSignal)
         waitForSignal(listener2.mAcceptedSignal)
@@ -221,23 +229,33 @@ class ProfilingTest {
         // Wait for the other thread to actually register its listener
         runBlocking { delay(1000) }
 
-        requestHeapProfile()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setTrackJavaAllocations(true)
-            .setSamplingIntervalBytes(100)
-            .request(ApplicationProvider.getApplicationContext(), null, null)
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            HeapProfileRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setTrackJavaAllocations(true)
+                .setSamplingIntervalBytes(100)
+                .build(),
+            null,
+            null
+        )
 
         waitForSignal(acceptedSignal)
 
         // Reset the latch
         acceptedSignal = CountDownLatch(1)
 
-        requestStackSampling()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setSamplingFrequencyHz(100)
-            .request(ApplicationProvider.getApplicationContext(), null, null)
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            StackSamplingRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setSamplingFrequencyHz(100)
+                .build(),
+            null,
+            null
+        )
 
         waitForSignal(acceptedSignal)
 
@@ -266,11 +284,17 @@ class ProfilingTest {
             listener2
         )
 
-        requestHeapProfile()
-            .setBufferSizeKb(1000)
-            .setDurationMs(5000)
-            .setSamplingIntervalBytes(4096L)
-            .request(ApplicationProvider.getApplicationContext(), null, null)
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            HeapProfileRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(5000)
+                .setSamplingIntervalBytes(4096L)
+                .build(),
+            null,
+            null
+        )
+
         unregisterForAllProfilingResults(ApplicationProvider.getApplicationContext(), listener2)
 
         waitForSignal(listener1.mAcceptedSignal)
@@ -313,12 +337,17 @@ class ProfilingTest {
         // Wait for the other thread to actually register its listener
         runBlocking { delay(1000) }
 
-        requestHeapProfile()
-            .setBufferSizeKb(1000)
-            .setDurationMs(10 * 1000)
-            .setTrackJavaAllocations(true)
-            .setSamplingIntervalBytes(100)
-            .request(ApplicationProvider.getApplicationContext(), null, null)
+        requestProfiling(
+            ApplicationProvider.getApplicationContext(),
+            HeapProfileRequestBuilder()
+                .setBufferSizeKb(1000)
+                .setDurationMs(10 * 1000)
+                .setTrackJavaAllocations(true)
+                .setSamplingIntervalBytes(100)
+                .build(),
+            null,
+            null
+        )
 
         // Schedule cancellation to occur after some short wait
         Handler(Looper.getMainLooper()).postDelayed({ scopeToUnregister.cancel() }, 1000L)
