@@ -181,6 +181,26 @@ expect sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
      *   doesn't have access to a host to set content in.
      */
     fun setContent(composable: @Composable () -> Unit)
+
+    /**
+     * Enables accessibility checks that will be run before every action that is expected to change
+     * the UI.
+     *
+     * Accessibility checks are platform dependent, refer to the documentation of the platform
+     * specific variant of [ComposeUiTest] to see if it is supported and how you can configure it.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
+     * @see disableAccessibilityChecks
+     */
+    fun enableAccessibilityChecks()
+
+    /**
+     * Disables accessibility checks.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeUiTest_sample
+     * @see enableAccessibilityChecks
+     */
+    fun disableAccessibilityChecks()
 }
 
 /**

@@ -33,4 +33,18 @@ class TestContext internal constructor(internal val testOwner: TestOwner) {
      * actual object.
      */
     internal val states = mutableIntObjectMapOf<InputDispatcherState>()
+
+    /** Platform specific additions to the [TestContext]. */
+    internal val platform = createPlatformTestContext()
 }
+
+/** Factory method to create a [PlatformTestContext] */
+internal expect fun createPlatformTestContext(): PlatformTestContext
+
+/**
+ * An extension to [TestContext] that allows us to add platform specific context to [TestContext].
+ *
+ * For example, on Android it contains an AccessibilityValidator that is used by Android's
+ * implementation of [tryPerformAccessibilityChecks].
+ */
+internal expect class PlatformTestContext

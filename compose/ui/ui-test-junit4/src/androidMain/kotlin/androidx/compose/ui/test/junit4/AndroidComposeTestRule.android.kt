@@ -31,6 +31,7 @@ import androidx.compose.ui.test.waitUntilExactlyOneExists
 import androidx.compose.ui.test.waitUntilNodeCount
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import org.junit.rules.TestRule
@@ -299,6 +300,23 @@ private constructor(
     override val mainClock: MainTestClock
         get() = composeTest.mainClock
 
+    /**
+     * The [AccessibilityValidator] that will be used to run Android accessibility checks before
+     * every action that is expected to change the UI.
+     *
+     * If no validator is set (`null`), no checks will be performed. You can either supply your own
+     * validator directly, or have one configured for you with [enableAccessibilityChecks].
+     *
+     * The default value is `null`.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
+     */
+    var accessibilityValidator: AccessibilityValidator?
+        get() = composeTest.accessibilityValidator
+        set(value) {
+            composeTest.accessibilityValidator = value
+        }
+
     override fun <T> runOnUiThread(action: () -> T): T = composeTest.runOnUiThread(action)
 
     override fun <T> runOnIdle(action: () -> T): T = composeTest.runOnIdle(action)
@@ -339,6 +357,28 @@ private constructor(
 
     override fun unregisterIdlingResource(idlingResource: IdlingResource) =
         composeTest.unregisterIdlingResource(idlingResource)
+
+    /**
+     * Enables accessibility checks that will be run before every action that is expected to change
+     * the UI.
+     *
+     * This will create and set an [accessibilityValidator] if there isn't one yet, or will do
+     * nothing if an `accessibilityValidator` is already set.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withComposeTestRule_sample
+     * @see disableAccessibilityChecks
+     */
+    override fun enableAccessibilityChecks() = composeTest.enableAccessibilityChecks()
+
+    /**
+     * Disables accessibility checks.
+     *
+     * This will set the [accessibilityValidator] back to `null`.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeTestRule_sample
+     * @see enableAccessibilityChecks
+     */
+    override fun disableAccessibilityChecks() = composeTest.disableAccessibilityChecks()
 
     override fun onNode(
         matcher: SemanticsMatcher,

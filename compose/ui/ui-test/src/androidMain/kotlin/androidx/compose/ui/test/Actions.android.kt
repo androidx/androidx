@@ -13,9 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("AndroidActions")
 
 package androidx.compose.ui.test
 
+import androidx.compose.ui.platform.ViewRootForTest
+
 internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction {
     return performTouchInput { click() }
+}
+
+@Suppress("DocumentExceptions") // Documented in expect fun
+actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction {
+    testContext.platform.accessibilityValidator?.let { av ->
+        testContext.testOwner
+            .getRoots(true)
+            .map {
+                // We're on Android, so we're guaranteed a ViewRootForTest
+                (it as ViewRootForTest).view.rootView
+            }
+            .distinct()
+            .run {
+                // Synchronization needs to happen off the UI thread, so only switch to the UI
+                // thread after the call to getRoots, but before the call to forEach so we don't
+                // have to switch thread for each root view.
+                testContext.testOwner.runOnUiThread { forEach { av.check(it) } }
+            }
+    }
+    return this
 }

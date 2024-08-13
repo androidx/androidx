@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.test
 
-internal actual fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeInteraction =
-    implementedInJetBrainsFork()
+import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 
-actual fun SemanticsNodeInteraction.tryPerformAccessibilityChecks(): SemanticsNodeInteraction =
-    implementedInJetBrainsFork()
+internal actual fun createPlatformTestContext(): PlatformTestContext = PlatformTestContext()
+
+internal actual class PlatformTestContext(
+    var accessibilityValidator: AccessibilityValidator? = null
+)

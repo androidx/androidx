@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.test.samples
 
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.createComposeRule
 
 internal val composeTestRule = createComposeRule()
+internal val androidComposeTestRule = createAndroidComposeRule<ComponentActivity>()

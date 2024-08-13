@@ -30,6 +30,7 @@ import androidx.compose.ui.platform.WindowRecomposerPolicy
 import androidx.compose.ui.unit.Density
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import com.google.android.apps.common.testing.accessibility.framework.integrations.espresso.AccessibilityValidator
 import kotlin.coroutines.ContinuationInterceptor
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -144,8 +145,8 @@ fun runEmptyComposeUiTest(block: ComposeUiTest.() -> Unit) {
 }
 
 /**
- * Variant of [ComposeUiTest] for when you want to have access to the current [activity] of type
- * [A]. The activity might not always be available, for example if the test navigates to another
+ * Variant of [ComposeUiTest] for when you want to have access the current [activity] of type [A].
+ * The activity might not always be available, for example if the test navigates to another
  * activity. In such cases, [activity] will return `null`.
  *
  * An instance of [AndroidComposeUiTest] can be obtained by calling [runAndroidComposeUiTest], the
@@ -437,6 +438,12 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
         override val mainClock: MainTestClock
             get() = mainClockImpl
 
+        override var accessibilityValidator: AccessibilityValidator?
+            get() = testContext.platform.accessibilityValidator
+            set(value) {
+                testContext.platform.accessibilityValidator = value
+            }
+
         override fun <T> runOnUiThread(action: () -> T): T {
             return testOwner.runOnUiThread(action)
         }
@@ -492,6 +499,14 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
 
         override fun unregisterIdlingResource(idlingResource: IdlingResource) {
             idlingResourceRegistry.unregisterIdlingResource(idlingResource)
+        }
+
+        override fun enableAccessibilityChecks() {
+            accessibilityValidator = AccessibilityValidator().setRunChecksFromRootView(true)
+        }
+
+        override fun disableAccessibilityChecks() {
+            accessibilityValidator = null
         }
 
         override fun onNode(
@@ -595,6 +610,19 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual val density: Density
     actual val mainClock: MainTestClock
 
+    /**
+     * The [AccessibilityValidator] that will be used to run Android accessibility checks before
+     * every action that is expected to change the UI.
+     *
+     * If no validator is set (`null`), no checks will be performed. You can either supply your own
+     * validator directly, or have one configured for you with [enableAccessibilityChecks].
+     *
+     * The default value is `null`.
+     *
+     * @sample androidx.compose.ui.test.samples.accessibilityChecks_withAndroidComposeUiTest_sample
+     */
+    var accessibilityValidator: AccessibilityValidator?
+
     actual fun <T> runOnUiThread(action: () -> T): T
 
     actual fun <T> runOnIdle(action: () -> T): T
@@ -614,4 +642,8 @@ actual sealed interface ComposeUiTest : SemanticsNodeInteractionsProvider {
     actual fun unregisterIdlingResource(idlingResource: IdlingResource)
 
     actual fun setContent(composable: @Composable () -> Unit)
+
+    actual fun enableAccessibilityChecks()
+
+    actual fun disableAccessibilityChecks()
 }
