@@ -67,6 +67,7 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * }
  * ```
  */
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Frame : FrameReference, AutoCloseable {
     /**
@@ -264,6 +265,7 @@ public interface FrameCapture : AutoCloseable {
  * A FrameReference is a weak reference to a [Frame]. It will not prevent the underlying frame from
  * being closed or released unless the frame is acquired via [acquire] or [tryAcquire].
  */
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface FrameReference {
     /**

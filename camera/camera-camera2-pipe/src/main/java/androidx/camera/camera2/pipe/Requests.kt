@@ -71,6 +71,7 @@ public class Request(
      * in a repeating request may be issued multiple times within the same session, and should not
      * rely on [onRequestSequenceSubmitted] from being invoked only once.
      */
+    @JvmDefaultWithCompatibility
     public interface Listener {
         /**
          * This event indicates that the camera sensor has started exposing the frame associated

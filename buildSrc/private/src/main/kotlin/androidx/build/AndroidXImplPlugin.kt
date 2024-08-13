@@ -530,14 +530,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.tasks.withType(KotlinCompile::class.java).configureEach { task ->
             val kotlinCompilerArgs =
                 project.provider {
-                    val args =
-                        mutableListOf(
-                            "-Xskip-metadata-version-check",
-                        )
-                    // TODO (b/259578592): enable -Xjvm-default=all for camera-camera2-pipe projects
-                    if (!project.name.contains("camera-camera2-pipe")) {
-                        args += "-Xjvm-default=all"
-                    }
+                    val args = mutableListOf("-Xskip-metadata-version-check", "-Xjvm-default=all")
                     if (androidXExtension.type.targetsKotlinConsumersOnly) {
                         // The Kotlin Compiler adds intrinsic assertions which are only relevant
                         // when the code is consumed by Java users. Therefore we can turn this off

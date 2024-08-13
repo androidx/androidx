@@ -151,6 +151,7 @@ public value class StreamId(public val value: Int) {
  * the underlying HAL on the device may produce different sized images for the same request. This
  * represents one of those potential outputs.
  */
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface OutputStream {
     // Every output comes from one, and exactly one, CameraStream

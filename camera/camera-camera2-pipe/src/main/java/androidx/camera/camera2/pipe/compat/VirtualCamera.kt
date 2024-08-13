@@ -108,6 +108,7 @@ internal enum class ClosedReason {
  * Disconnecting the VirtualCamera will cause an artificial close events to be generated on the
  * state property, but may not cause the underlying [CameraDevice] to be closed.
  */
+@JvmDefaultWithCompatibility
 internal interface VirtualCamera {
     val state: Flow<CameraState>
     val value: CameraState

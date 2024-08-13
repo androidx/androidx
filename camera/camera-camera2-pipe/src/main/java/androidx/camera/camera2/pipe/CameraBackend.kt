@@ -57,6 +57,7 @@ public interface CameraStatusMonitor {
  * The lifecycle of an individual camera is managed by [CameraController]s, which may be created via
  * [CameraBackend.createCameraController].
  */
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface CameraBackend {
     public val id: CameraBackendId

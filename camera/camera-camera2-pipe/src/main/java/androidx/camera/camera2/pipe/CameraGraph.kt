@@ -419,6 +419,7 @@ public interface CameraGraph : AutoCloseable {
      * While this object is thread-safe, it should not shared or held for long periods of time.
      * Example: A [Session] should *not* be held during video recording.
      */
+    @JvmDefaultWithCompatibility
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public interface Session : AutoCloseable {
         /**

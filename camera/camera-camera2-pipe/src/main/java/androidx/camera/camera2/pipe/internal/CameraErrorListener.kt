@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.CameraId
  * Interface intended to be used to report camera errors. It will ensure only the current
  * [androidx.camera.camera2.pipe.graph.GraphListener] is notified of the error.
  */
+@JvmDefaultWithCompatibility
 public interface CameraErrorListener {
     public fun onCameraError(
         cameraId: CameraId,

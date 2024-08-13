@@ -23,6 +23,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 /** Methods for querying, iterating, and selecting the Cameras that are available on the device. */
 public interface CameraDevices {

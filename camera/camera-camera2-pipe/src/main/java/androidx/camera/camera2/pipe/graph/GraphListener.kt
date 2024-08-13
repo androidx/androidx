@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.graph
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateError
 
+@JvmDefaultWithCompatibility
 public interface GraphListener {
     /**
      * Used to indicate that the graph is starting. This is called immediately when a [CameraGraph]

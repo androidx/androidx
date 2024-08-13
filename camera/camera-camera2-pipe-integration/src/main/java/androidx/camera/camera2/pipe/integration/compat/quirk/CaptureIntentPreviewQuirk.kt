@@ -26,6 +26,7 @@ import androidx.camera.core.impl.Quirks
  * [CaptureRequest.CONTROL_CAPTURE_INTENT_VIDEO_RECORD].
  * - Subclasses of this quirk may contain device specific information.
  */
+@JvmDefaultWithCompatibility
 public interface CaptureIntentPreviewQuirk : Quirk {
     /**
      * Returns if the device specific issue can be workaround by using

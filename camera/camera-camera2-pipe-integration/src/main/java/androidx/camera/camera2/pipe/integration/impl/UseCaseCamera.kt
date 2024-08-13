@@ -47,6 +47,7 @@ internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
 internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
+@JvmDefaultWithCompatibility
 public interface UseCaseCamera {
     // UseCases
     public var runningUseCases: Set<UseCase>
