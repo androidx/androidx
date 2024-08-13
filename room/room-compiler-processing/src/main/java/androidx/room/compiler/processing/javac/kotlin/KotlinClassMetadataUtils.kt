@@ -146,7 +146,7 @@ internal class KmClassContainer(private val env: JavacProcessingEnv, private val
 
     private val functionByDescriptor: Map<String, KmFunctionContainer> by lazy {
         buildMap {
-            functionList.forEach { put(it.descriptor, it) }
+            functionList.forEach { function -> function.descriptor?.let { put(it, function) } }
             propertyList.forEach { property ->
                 property.getter?.descriptor?.let { put(it, property.getter) }
                 property.setter?.descriptor?.let { put(it, property.setter) }
@@ -221,7 +221,7 @@ internal interface KmFunctionContainer : KmVisibility {
     val name: String
     /** Name of the function in byte code */
     val jvmName: String
-    val descriptor: String
+    val descriptor: String?
     val typeParameters: List<KmTypeParameterContainer>
     val parameters: List<KmValueParameterContainer>
     val returnType: KmTypeContainer
@@ -255,8 +255,11 @@ private class KmFunctionContainerImpl(
     override val jvmName: String
         get() = kmFunction.signature!!.name
 
-    override val descriptor: String
-        get() = kmFunction.signature!!.toString()
+    override val descriptor: String?
+        get() {
+            // This could be null due to https://youtrack.jetbrains.com/issue/KT-70600
+            return kmFunction.signature?.toString()
+        }
 
     override val typeParameters: List<KmTypeParameterContainer>
         get() = kmFunction.typeParameters.map { it.asContainer() }
