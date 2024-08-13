@@ -110,11 +110,11 @@
     <string name="route_list_limit" msgid="505793441615134116">"Абмежаванне спіса маршрутаў"</string>
     <string name="content_limits" msgid="5726880972110281095">"Абмежаванні змесціва"</string>
     <string name="content_limits_demo_title" msgid="3207211638386727610">"Дэманстрацыя абмежаванняў змесціва"</string>
-    <string name="finish_app_msg" msgid="8354334557053141891">"Гэта дзеянне закрые праграму, а калі вы зноў запусціце яе, з\'явіцца папярэдне зададзены экран дазволаў"</string>
+    <string name="finish_app_msg" msgid="8354334557053141891">"Гэта дзеянне закрые праграму, а калі вы зноў запусціце яе, з’явіцца папярэдне зададзены экран дазволаў"</string>
     <string name="finish_app_title" msgid="9013328479438745074">"Завяршыць дэманстрацыю праграмы"</string>
-    <string name="finish_app_demo_title" msgid="8223819062053448384">"Дэманстрацыя папярэдне зададзенага экрана дазволаў, які з\'явіцца пры наступным запуску праграмы"</string>
+    <string name="finish_app_demo_title" msgid="8223819062053448384">"Дэманстрацыя папярэдне зададзенага экрана дазволаў, які з’явіцца пры наступным запуску праграмы"</string>
     <string name="preseed_permission_app_title" msgid="182847662545676962">"Дэманстрацыя праграмы з папярэдне зададзенымі дазволамі"</string>
-    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Дэманстрацыя экрана папярэдне зададзеных дазволаў, які з\'явіцца пры наступным запуску праграмы"</string>
+    <string name="preseed_permission_demo_title" msgid="5476541421753978071">"Дэманстрацыя экрана папярэдне зададзеных дазволаў, які з’явіцца пры наступным запуску праграмы"</string>
     <string name="loading_demo_title" msgid="1086529475809143517">"Загружаецца дэманстрацыя"</string>
     <string name="loading_demo_row_title" msgid="8933049915126088142">"Загрузка завершана!"</string>
     <string name="pop_to_root" msgid="2078277386355064198">"Перайсці да першага экрана"</string>
