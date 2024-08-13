@@ -31,7 +31,6 @@ import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
 import kotlinx.validation.KlibDumpMetadata
-import kotlinx.validation.KotlinApiCompareTask
 import kotlinx.validation.KotlinKlibAbiBuildTask
 import kotlinx.validation.KotlinKlibExtractAbiTask
 import kotlinx.validation.KotlinKlibMergeAbiTask
@@ -147,10 +146,10 @@ class BinaryCompatibilityValidation(
         project.tasks
             .register(
                 CHECK_NAME.appendCapitalized(NATIVE_SUFFIX),
-                KotlinApiCompareTask::class.java
+                CheckAbiEquivalenceTask::class.java
             ) {
-                it.projectApiFile.set(projectApiFile.map { fileProperty -> fileProperty.get() })
-                it.generatedApiFile.set(generatedApiFile.map { fileProperty -> fileProperty.get() })
+                it.checkedInDump = projectApiFile
+                it.builtDump = generatedApiFile
                 it.group = ABI_GROUP_NAME
             }
             .also { task -> task.configure { it.cacheEvenIfNoOutputs() } }
