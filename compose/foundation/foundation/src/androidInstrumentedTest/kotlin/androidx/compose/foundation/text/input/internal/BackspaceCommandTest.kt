@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.ui.text.TextRange
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -40,92 +42,105 @@ class BackspaceCommandTest {
 
     @Test
     fun test_delete() {
-        val eb = EditingBuffer("ABCDE", TextRange(1))
+        val eb = TextFieldBuffer("ABCDE", TextRange(1))
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("BCDE")
-        Truth.assertThat(eb.cursor).isEqualTo(0)
+        Truth.assertThat(eb.selection.start).isEqualTo(0)
+        Truth.assertThat(eb.selection.end).isEqualTo(0)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_from_offset0() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("ABCDE")
-        Truth.assertThat(eb.cursor).isEqualTo(0)
+        Truth.assertThat(eb.selection.start).isEqualTo(0)
+        Truth.assertThat(eb.selection.end).isEqualTo(0)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_with_selection() {
-        val eb = EditingBuffer("ABCDE", TextRange(2, 3))
+        val eb = TextFieldBuffer("ABCDE", TextRange(2, 3))
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("ABDE")
-        Truth.assertThat(eb.cursor).isEqualTo(2)
+        Truth.assertThat(eb.selection.start).isEqualTo(2)
+        Truth.assertThat(eb.selection.end).isEqualTo(2)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_with_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange(1))
+        val eb = TextFieldBuffer("ABCDE", TextRange(1))
         eb.setComposition(2, 3)
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("ABDE")
-        Truth.assertThat(eb.cursor).isEqualTo(1)
+        Truth.assertThat(eb.selection.start).isEqualTo(1)
+        Truth.assertThat(eb.selection.end).isEqualTo(1)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_surrogate_pair() {
-        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
+        val eb = TextFieldBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("$SP2$SP3$SP4$SP5")
-        Truth.assertThat(eb.cursor).isEqualTo(0)
+        Truth.assertThat(eb.selection.start).isEqualTo(0)
+        Truth.assertThat(eb.selection.end).isEqualTo(0)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_with_selection_surrogate_pair() {
-        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(4, 6))
+        val eb = TextFieldBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(4, 6))
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("$SP1$SP2$SP4$SP5")
-        Truth.assertThat(eb.cursor).isEqualTo(4)
+        Truth.assertThat(eb.selection.start).isEqualTo(4)
+        Truth.assertThat(eb.selection.end).isEqualTo(4)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_with_composition_surrogate_pair() {
-        val eb = EditingBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
+        val eb = TextFieldBuffer("$SP1$SP2$SP3$SP4$SP5", TextRange(2))
         eb.setComposition(4, 6)
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo("$SP1$SP2$SP4$SP5")
-        Truth.assertThat(eb.cursor).isEqualTo(2)
+        Truth.assertThat(eb.selection.start).isEqualTo(2)
+        Truth.assertThat(eb.selection.end).isEqualTo(2)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     @SdkSuppress(minSdkVersion = 26)
     fun test_delete_with_composition_zwj_emoji() {
-        val eb = EditingBuffer("$ZWJ_EMOJI$ZWJ_EMOJI", TextRange(ZWJ_EMOJI.length))
+        val eb = TextFieldBuffer("$ZWJ_EMOJI$ZWJ_EMOJI", TextRange(ZWJ_EMOJI.length))
 
         eb.backspace()
 
         Truth.assertThat(eb.toString()).isEqualTo(ZWJ_EMOJI)
-        Truth.assertThat(eb.cursor).isEqualTo(0)
+        Truth.assertThat(eb.selection.start).isEqualTo(0)
+        Truth.assertThat(eb.selection.end).isEqualTo(0)
         Truth.assertThat(eb.hasComposition()).isFalse()
     }
 }
+
+internal fun TextFieldBuffer(
+    initialValue: String = "",
+    initialSelection: TextRange = TextRange.Zero
+) = TextFieldBuffer(TextFieldCharSequence(initialValue, initialSelection))

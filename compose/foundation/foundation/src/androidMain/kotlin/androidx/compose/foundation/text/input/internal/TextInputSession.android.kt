@@ -23,6 +23,7 @@ import android.view.inputmethod.InputConnection
 import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.text.input.ImeAction
@@ -46,7 +47,7 @@ internal interface TextInputSession {
      *
      * @param block Lambda scoped to an EditingBuffer to apply changes direct onto a buffer.
      */
-    fun requestEdit(block: EditingBuffer.() -> Unit)
+    fun requestEdit(block: TextFieldBuffer.() -> Unit)
 
     /** Delegates IME requested KeyEvents. */
     fun sendKeyEvent(keyEvent: KeyEvent)

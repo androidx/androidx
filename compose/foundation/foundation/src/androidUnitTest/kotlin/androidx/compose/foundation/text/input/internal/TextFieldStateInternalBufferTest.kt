@@ -148,8 +148,8 @@ class TextFieldStateInternalBufferTest {
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(newTextFieldValue.selection.start).isEqualTo(state.mainBuffer.selectionStart)
-        assertThat(newTextFieldValue.selection.end).isEqualTo(state.mainBuffer.selectionEnd)
+        assertThat(newTextFieldValue.selection.start).isEqualTo(state.mainBuffer.selection.start)
+        assertThat(newTextFieldValue.selection.end).isEqualTo(state.mainBuffer.selection.end)
         assertThat(resetCalled).isEqualTo(2)
         assertThat(selectionCalled).isEqualTo(0)
     }
@@ -169,16 +169,14 @@ class TextFieldStateInternalBufferTest {
         val initialBuffer = state.mainBuffer
 
         // composition can not be set from app, IME owns it.
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(initialBuffer.compositionStart)
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(initialBuffer.compositionEnd)
+        assertThat(initialBuffer.composition).isNull()
 
         val newTextFieldValue =
             TextFieldCharSequence(textFieldValue, textFieldValue.selection, composition = null)
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionStart)
-        assertThat(EditingBuffer.NOWHERE).isEqualTo(state.mainBuffer.compositionEnd)
+        assertThat(state.mainBuffer.composition).isNull()
         assertThat(resetCalled).isEqualTo(2)
         assertThat(selectionCalled).isEqualTo(0)
     }
@@ -197,8 +195,8 @@ class TextFieldStateInternalBufferTest {
 
         val initialBuffer = state.mainBuffer
 
-        assertThat(initialSelection.start).isEqualTo(initialBuffer.selectionStart)
-        assertThat(initialSelection.end).isEqualTo(initialBuffer.selectionEnd)
+        assertThat(initialSelection.start).isEqualTo(initialBuffer.selection.start)
+        assertThat(initialSelection.end).isEqualTo(initialBuffer.selection.end)
 
         val updatedSelection = TextRange(3, 0)
         val newTextFieldValue = TextFieldCharSequence(textFieldValue, selection = updatedSelection)
@@ -206,8 +204,8 @@ class TextFieldStateInternalBufferTest {
         state.syncMainBufferToTemporaryBuffer(newTextFieldValue)
 
         assertThat(state.mainBuffer).isSameInstanceAs(initialBuffer)
-        assertThat(updatedSelection.start).isEqualTo(initialBuffer.selectionStart)
-        assertThat(updatedSelection.end).isEqualTo(initialBuffer.selectionEnd)
+        assertThat(updatedSelection.start).isEqualTo(initialBuffer.selection.start)
+        assertThat(updatedSelection.end).isEqualTo(initialBuffer.selection.end)
         assertThat(resetCalled).isEqualTo(1)
         assertThat(selectionCalled).isEqualTo(0)
     }
@@ -241,7 +239,7 @@ class TextFieldStateInternalBufferTest {
     }
 
     @Test
-    fun compositionIsNotCleared_when_textIsSame() {
+    fun compositionIsCleared_when_textIsSame() {
         val state = TextFieldState()
         val composition = TextRange(0, 2)
 
@@ -256,7 +254,7 @@ class TextFieldStateInternalBufferTest {
         state.syncMainBufferToTemporaryBuffer(newValue)
 
         assertThat(state.text.toString()).isEqualTo(newValue.toString())
-        assertThat(state.composition).isEqualTo(composition)
+        assertThat(state.composition).isNull()
     }
 
     @Test
@@ -298,7 +296,7 @@ class TextFieldStateInternalBufferTest {
     }
 
     @Test
-    fun compositionIsNotCleared_when_onlySelectionChanged() {
+    fun compositionIsCleared_when_onlySelectionChanged() {
         val state = TextFieldState()
 
         val composition = TextRange(0, 2)
@@ -322,7 +320,7 @@ class TextFieldStateInternalBufferTest {
         state.syncMainBufferToTemporaryBuffer(newValue)
 
         assertThat(state.text.toString()).isEqualTo(newValue.toString())
-        assertThat(state.composition).isEqualTo(composition)
+        assertThat(state.composition).isNull()
         assertThat(state.selection).isEqualTo(newSelection)
     }
 
@@ -549,7 +547,7 @@ class TextFieldStateInternalBufferTest {
     private fun TextFieldState(value: TextFieldCharSequence) =
         TextFieldState(value.toString(), value.selection)
 
-    private fun TextFieldState.editAsUser(block: EditingBuffer.() -> Unit) {
+    private fun TextFieldState.editAsUser(block: TextFieldBuffer.() -> Unit) {
         editAsUser(inputTransformation = null, restartImeIfContentChanges = false, block = block)
     }
 
@@ -565,8 +563,7 @@ class TextFieldStateInternalBufferTest {
         textFieldCharSequence: TextFieldCharSequence
     ) {
         syncMainBufferToTemporaryBuffer(
-            textFieldBuffer = TextFieldBuffer(textFieldCharSequence),
-            newComposition = textFieldCharSequence.composition,
+            temporaryBuffer = TextFieldBuffer(textFieldCharSequence),
             textChanged = !textFieldCharSequence.contentEquals(mainBuffer.toString()),
             selectionChanged = textFieldCharSequence.selection != mainBuffer.selection,
         )

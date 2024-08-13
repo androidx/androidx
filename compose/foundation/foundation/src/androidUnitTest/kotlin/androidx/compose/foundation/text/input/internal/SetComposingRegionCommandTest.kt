@@ -27,104 +27,111 @@ class SetComposingRegionCommandTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(1, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(1)
-        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(1)
+        assertThat(eb.composition?.end).isEqualTo(4)
     }
 
     @Test
     fun test_preserve_ongoing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 3)
 
         eb.setComposingRegion(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(2)
-        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(2)
+        assertThat(eb.composition?.end).isEqualTo(4)
     }
 
     @Test
     fun test_preserve_selection() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 4))
+        val eb = TextFieldBuffer("ABCDE", TextRange(1, 4))
 
         eb.setComposingRegion(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(1)
-        assertThat(eb.selectionEnd).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(1)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(2)
-        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(2)
+        assertThat(eb.composition?.end).isEqualTo(4)
     }
 
     @Test
     fun test_set_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(4, 1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(1)
-        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(1)
+        assertThat(eb.composition?.end).isEqualTo(4)
     }
 
     @Test
     fun test_set_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(-1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_set_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_set_too_small_and_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(-1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(0)
-        assertThat(eb.compositionEnd).isEqualTo(5)
+        assertThat(eb.composition?.start).isEqualTo(0)
+        assertThat(eb.composition?.end).isEqualTo(5)
     }
 
     @Test
     fun test_set_too_small_and_too_large_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposingRegion(1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(0)
-        assertThat(eb.compositionEnd).isEqualTo(5)
+        assertThat(eb.composition?.start).isEqualTo(0)
+        assertThat(eb.composition?.end).isEqualTo(5)
     }
 }

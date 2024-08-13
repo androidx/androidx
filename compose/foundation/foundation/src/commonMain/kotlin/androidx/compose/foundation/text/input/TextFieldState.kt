@@ -21,7 +21,6 @@ package androidx.compose.foundation.text.input
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.internal.checkPrecondition
-import androidx.compose.foundation.text.input.internal.EditingBuffer
 import androidx.compose.foundation.text.input.internal.undo.TextFieldEditUndoBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -38,15 +37,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.coerceIn
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextDecoration
-
-internal fun TextFieldState(initialValue: TextFieldValue): TextFieldState {
-    return TextFieldState(
-        initialText = initialValue.text,
-        initialSelection = initialValue.selection
-    )
-}
 
 /**
  * The editable text state of a text field, including both the [text] itself and position of the
@@ -81,14 +72,17 @@ internal constructor(
     internal val textUndoManager: TextUndoManager = initialTextUndoManager
 
     /**
-     * The editing buffer used for applying editor commands from IME. All edits coming from gestures
-     * or IME commands, must be reflected on this buffer eventually.
+     * The buffer used for applying editor commands from IME. All edits coming from gestures or IME
+     * commands must be reflected on this buffer eventually.
      */
     @VisibleForTesting
-    internal var mainBuffer: EditingBuffer =
-        EditingBuffer(
-            text = initialText,
-            selection = initialSelection.coerceIn(0, initialText.length)
+    internal var mainBuffer: TextFieldBuffer =
+        TextFieldBuffer(
+            initialValue =
+                TextFieldCharSequence(
+                    text = initialText,
+                    selection = initialSelection.coerceIn(0, initialText.length)
+                )
         )
 
     /**
@@ -225,8 +219,7 @@ internal constructor(
             textUndoManager.clearHistory()
         }
         syncMainBufferToTemporaryBuffer(
-            textFieldBuffer = newValue,
-            newComposition = null, // new composition will be decided by the IME
+            temporaryBuffer = newValue,
             textChanged = textChanged,
             selectionChanged = selectionChanged
         )
@@ -256,13 +249,13 @@ internal constructor(
      * @param restartImeIfContentChanges Whether IME should be restarted if the proposed changes end
      *   up editing the text content. Only pass false to this argument if the source of the changes
      *   is IME itself.
-     * @param block The function that updates the current editing buffer.
+     * @param block The function that updates the current buffer.
      */
     internal inline fun editAsUser(
         inputTransformation: InputTransformation?,
         restartImeIfContentChanges: Boolean = true,
         undoBehavior: TextFieldEditUndoBehavior = TextFieldEditUndoBehavior.MergeIfPossible,
-        block: EditingBuffer.() -> Unit
+        block: TextFieldBuffer.() -> Unit
     ) {
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
@@ -284,16 +277,11 @@ internal constructor(
      * allocate an additional buffer like [edit] method because changes are ignored and it's not a
      * public API.
      */
-    internal inline fun editWithNoSideEffects(block: EditingBuffer.() -> Unit) {
+    internal inline fun editWithNoSideEffects(block: TextFieldBuffer.() -> Unit) {
         mainBuffer.changeTracker.clearChanges()
         mainBuffer.block()
 
-        val afterEditValue =
-            TextFieldCharSequence(
-                text = mainBuffer.toString(),
-                selection = mainBuffer.selection,
-                composition = mainBuffer.composition
-            )
+        val afterEditValue = mainBuffer.toTextFieldCharSequence()
 
         updateValueAndNotifyListeners(
             oldValue = value,
@@ -395,10 +383,7 @@ internal constructor(
         val selectionChangedByFilter = textFieldBuffer.selection != afterEditValue.selection
         if (textChangedByFilter || selectionChangedByFilter) {
             syncMainBufferToTemporaryBuffer(
-                textFieldBuffer = textFieldBuffer,
-                // Composition should be decided by the IME after the content or selection has been
-                // changed programmatically, outside the knowledge of IME.
-                newComposition = null,
+                temporaryBuffer = textFieldBuffer,
                 textChanged = textChangedByFilter,
                 selectionChanged = selectionChangedByFilter
             )
@@ -430,10 +415,7 @@ internal constructor(
      * 3. Applying Undo/Redo actions that should not trigger side effects.
      *
      * Eventually all changes, no matter the source, should be committed to [value]. Also, they have
-     * to trigger the content change listeners. However, we have two different buffers called
-     * [EditingBuffer] and [TextFieldBuffer]. All developer facing APIs use [TextFieldBuffer] to
-     * change the state but internal ones use [EditingBuffer]. This function consolidates both forms
-     * of updates, then commits the result to [value].
+     * to trigger the content change listeners.
      *
      * Finally notifies the listeners in [notifyImeListeners] that the contents of this
      * [TextFieldState] has changed.
@@ -520,67 +502,52 @@ internal constructor(
     }
 
     /**
-     * Carries changes made to a [TextFieldBuffer] into [mainBuffer], then updates the [value]. This
+     * Carries changes made to a [temporaryBuffer] into [mainBuffer], then updates the [value]. This
      * usually happens when the edit source is something programmatic like [edit] or
-     * [InputTransformation]. IME commands are applied directly on [mainBuffer].
+     * [InputTransformation]. Normally IME commands are applied directly on [mainBuffer].
      *
-     * @param textFieldBuffer Source buffer that will be used to sync the mainBuffer.
-     * @param newComposition TextFieldBuffer does not allow changing composition. This parameter is
-     *   an opportunity to decide what the mainBuffer's new composition should be.
-     * @param textChanged Whether the text content inside [textFieldBuffer] is different than
+     * @param temporaryBuffer Source buffer that will be used to sync the mainBuffer.
+     * @param textChanged Whether the text content inside [temporaryBuffer] is different than
      *   [mainBuffer]'s text content. Although this value can be calculated by this function, some
      *   callers already do the comparison before hand, so there's no need to recalculate it.
-     * @param selectionChanged Whether the selection inside [textFieldBuffer] is different than
+     * @param selectionChanged Whether the selection inside [temporaryBuffer] is different than
      *   [mainBuffer]'s selection.
      */
     @VisibleForTesting
     internal fun syncMainBufferToTemporaryBuffer(
-        textFieldBuffer: TextFieldBuffer,
-        newComposition: TextRange?,
+        temporaryBuffer: TextFieldBuffer,
         textChanged: Boolean,
         selectionChanged: Boolean
     ) {
-        val bufferString = mainBuffer.toString()
-
-        val bufferState =
-            TextFieldCharSequence(bufferString, mainBuffer.selection, mainBuffer.composition)
-
-        val compositionChanged = newComposition != mainBuffer.composition
+        val oldValue = mainBuffer.toTextFieldCharSequence()
 
         if (textChanged) {
             // reset the buffer in its entirety
             mainBuffer =
-                EditingBuffer(
-                    text = textFieldBuffer.toString(),
-                    selection = textFieldBuffer.selection
+                TextFieldBuffer(
+                    initialValue =
+                        TextFieldCharSequence(
+                            text = temporaryBuffer.toString(),
+                            selection = temporaryBuffer.selection
+                        ),
                 )
         } else if (selectionChanged) {
-            mainBuffer.setSelection(textFieldBuffer.selection.start, textFieldBuffer.selection.end)
+            mainBuffer.selection =
+                TextRange(temporaryBuffer.selection.start, temporaryBuffer.selection.end)
         }
 
-        if (newComposition == null || newComposition.collapsed) {
-            mainBuffer.commitComposition()
-        } else {
-            mainBuffer.setComposition(newComposition.min, newComposition.max)
-        }
+        // Composition should be decided by the IME after the content or selection has been
+        // changed programmatically, outside the knowledge of the IME.
+        mainBuffer.commitComposition()
 
-        if (textChanged || (!selectionChanged && compositionChanged)) {
-            mainBuffer.commitComposition()
-        }
-
-        val finalValue =
-            TextFieldCharSequence(
-                text = if (textChanged) textFieldBuffer.toString() else bufferString,
-                selection = mainBuffer.selection,
-                composition = mainBuffer.composition
-            )
+        val finalValue = mainBuffer.toTextFieldCharSequence()
 
         // We cannot use `value` as the old value here because intermediate IME changes are only
         // applied on mainBuffer (this only happens if syncMainBufferToTemporaryBuffer is triggered
         // after an InputTransformation). We must pass in the latest state just before finalValue is
         // calculated. This is the state IME knows about and is synced with.
         updateValueAndNotifyListeners(
-            oldValue = bufferState,
+            oldValue = oldValue,
             newValue = finalValue,
             restartImeIfContentChanges = true
         )

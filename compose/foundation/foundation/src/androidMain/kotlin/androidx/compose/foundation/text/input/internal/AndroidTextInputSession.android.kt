@@ -29,6 +29,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.content.internal.ReceiveContentConfiguration
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.performHandwritingGesture
 import androidx.compose.foundation.text.input.internal.HandwritingGestureApi34.previewHandwritingGesture
@@ -133,7 +134,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     override val text: TextFieldCharSequence
                         get() = state.visualText
 
-                    override fun requestEdit(block: EditingBuffer.() -> Unit) {
+                    override fun requestEdit(block: TextFieldBuffer.() -> Unit) {
                         state.editUntransformedTextAsUser(
                             restartImeIfContentChanges = false,
                             block = block
