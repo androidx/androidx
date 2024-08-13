@@ -18,6 +18,10 @@
 
     <application
         android:supportsRtl="true">
+
+        <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
+            android:exported="true" />
+
         <activity
             android:name="androidx.mediarouter.app.MediaRouteChooserDialogTestActivity"
             android:label="MediaRouteChooserDialogTestActivity"
@@ -29,7 +33,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.media.MediaRouteProviderService" />
-                <action android:name="android.media.MediaRoute2ProviderService" />
             </intent-filter>
         </service>
 
