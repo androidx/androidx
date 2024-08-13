@@ -158,6 +158,14 @@ public class CameraCharacteristicsCompat {
     }
 
     /**
+     * Returns the camera id associated with the camera characteristics.
+     */
+    @NonNull
+    public String getCameraId() {
+        return mCameraId;
+    }
+
+    /**
      * CameraCharacteristic Implementation Interface
      */
     public interface CameraCharacteristicsCompatImpl {

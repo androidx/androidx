@@ -161,6 +161,12 @@ public class CameraQuirks {
                 ImageCaptureFailedForVideoSnapshotQuirk.load())) {
             quirks.add(new ImageCaptureFailedForVideoSnapshotQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(
+                CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk.class,
+                CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk.load(
+                        cameraCharacteristicsCompat))) {
+            quirks.add(new CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk());
+        }
 
         Quirks cameraQuirks = new Quirks(quirks);
         Logger.d(TAG, "camera2 CameraQuirks = " + Quirks.toString(cameraQuirks));
