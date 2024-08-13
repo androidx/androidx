@@ -52,12 +52,8 @@
     <string name="action_edit" msgid="5882082700509010966">"ஃபைலைத் திருத்து"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"அன்லாக் செய்ய கடவுச்சொல்லை டைப் செய்யவும்"</string>
     <string name="retry_button_text" msgid="3443862378337999137">"மீண்டும் முயலுங்கள்"</string>
-    <!-- no translation found for pdf_error (3287950599604474450) -->
-    <skip />
-    <!-- no translation found for file_error (4003885928556884091) -->
-    <skip />
-    <!-- no translation found for page_broken (2968770793669433462) -->
-    <skip />
-    <!-- no translation found for needs_more_data (3520133467908240802) -->
-    <skip />
+    <string name="pdf_error" msgid="3287950599604474450">"PDF ஆவணத்தைச் செயலாக்க முடியவில்லை!"</string>
+    <string name="file_error" msgid="4003885928556884091">"ஃபைலைத் திறக்க முடியவில்லை. அனுமதி தொடர்பான சிக்கல் உள்ளதா?"</string>
+    <string name="page_broken" msgid="2968770793669433462">"PDF ஆவணத்தை ஏற்ற முடியவில்லை"</string>
+    <string name="needs_more_data" msgid="3520133467908240802">"PDF ஆவணத்தைச் செயலாக்குவதற்குப் போதுமான தரவு இல்லை"</string>
 </resources>
