@@ -46,6 +46,7 @@ import androidx.camera.camera2.internal.compat.params.DynamicRangesCompat;
 import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.camera2.internal.compat.quirk.LegacyCameraOutputConfigNullPointerQuirk;
 import androidx.camera.camera2.internal.compat.quirk.LegacyCameraSurfaceCleanupQuirk;
+import androidx.camera.camera2.internal.compat.workaround.CloseCameraBeforeCreateNewSession;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.CameraUnavailableException;
@@ -185,7 +186,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @NonNull final CameraCoordinator mCameraCoordinator;
     @NonNull final CameraStateRegistry mCameraStateRegistry;
 
-    private final boolean mCloseCameraBeforeCreateNewSessionQuirk;
+    private final boolean mShouldCloseCameraBeforeCreateNewSession;
     private final boolean mConfigAndCloseQuirk;
     private boolean mIsConfigAndCloseRequired = false;
     private boolean mIsConfiguringForClose = false;
@@ -281,8 +282,9 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSessionOpenerBuilder = new SynchronizedCaptureSession.OpenerBuilder(mExecutor,
                 mScheduledExecutorService, schedulerHandler, mCaptureSessionRepository,
                 cameraInfoImpl.getCameraQuirks(), DeviceQuirks.getAll());
-        mCloseCameraBeforeCreateNewSessionQuirk = cameraInfoImpl.getCameraQuirks().contains(
-                LegacyCameraOutputConfigNullPointerQuirk.class);
+        mShouldCloseCameraBeforeCreateNewSession =
+                CloseCameraBeforeCreateNewSession.shouldCloseCamera(
+                        cameraInfoImpl.getCameraQuirks());
         mConfigAndCloseQuirk = cameraInfoImpl.getCameraQuirks().contains(
                 LegacyCameraSurfaceCleanupQuirk.class);
 
@@ -1675,7 +1677,7 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSession.issueCaptureRequests(unissuedCaptureConfigs);
         switch (mState) {
             case OPENED:
-                if (mCloseCameraBeforeCreateNewSessionQuirk && oldCaptureSession.isInOpenState()) {
+                if (mShouldCloseCameraBeforeCreateNewSession && oldCaptureSession.isInOpenState()) {
                     debugLog("Close camera before creating new session");
                     setState(InternalState.REOPENING_QUIRK);
                 }
