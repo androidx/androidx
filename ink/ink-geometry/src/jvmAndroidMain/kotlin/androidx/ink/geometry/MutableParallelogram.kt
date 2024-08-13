@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableParallelogram
 private constructor(
-    center: Point,
+    center: Vec,
     width: Float,
     override var height: Float,
     @AngleRadiansFloat rotation: Float,
@@ -35,7 +35,7 @@ private constructor(
 
     /* [_center] is a private backing field that is internally constructed such that no
      * caller can obtain a direct reference to it. */
-    private var _center: MutablePoint = MutablePoint(center.x, center.y)
+    private var _center: MutableVec = MutableVec(center.x, center.y)
     @AngleRadiansFloat private var _rotation: Float = Angle.normalized(rotation)
     override var rotation: Float
         @AngleRadiansFloat get() = _rotation
@@ -43,7 +43,7 @@ private constructor(
             _rotation = Angle.normalized(value)
         }
 
-    override var center: Point
+    override var center: Vec
         get() = _center
         set(value) {
             _center.x = value.x
@@ -65,7 +65,7 @@ private constructor(
             }
         }
 
-    public constructor() : this(ImmutablePoint(0f, 0f), 0f, 0f, Angle.ZERO, 0f)
+    public constructor() : this(ImmutableVec(0f, 0f), 0f, 0f, Angle.ZERO, 0f)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     // TODO: b/355248266 - @UsedByNative("parallelogram_jni_helper.cc") must go in Proguard config
@@ -106,7 +106,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterAndDimensions(
-            center: Point,
+            center: Vec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
         ): MutableParallelogram =
@@ -125,7 +125,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsAndRotation(
-            center: Point,
+            center: Vec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,
@@ -141,7 +141,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsRotationAndShear(
-            center: Point,
+            center: Vec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,

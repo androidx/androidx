@@ -47,13 +47,17 @@ androidXMultiplatform {
         implementation(libs.kotlinStdlib)
         api(libs.androidx.annotation)
         implementation(project(":collection:collection"))
+        implementation(project(":ink:ink-geometry"))
+        implementation(project(":ink:ink-nativeloader"))
       }
     }
 
     jvmAndroidTest {
       dependsOn(commonTest)
       dependencies {
+        implementation(libs.junit)
         implementation(libs.kotlinTest)
+        implementation(libs.truth)
       }
     }
 
@@ -64,7 +68,12 @@ androidXMultiplatform {
     androidInstrumentedTest {
       dependsOn(jvmAndroidTest)
       dependencies {
+        implementation(libs.testExtJunit)
+        implementation(libs.testRules)
         implementation(libs.testRunner)
+        implementation(libs.espressoCore)
+        implementation(libs.junit)
+        implementation(libs.truth)
       }
     }
 

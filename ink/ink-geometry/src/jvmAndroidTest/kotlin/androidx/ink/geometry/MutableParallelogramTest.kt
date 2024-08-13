@@ -28,7 +28,7 @@ class MutableParallelogramTest {
     fun defaultConstructor_constructsCorrectMutableParallelogram() {
         val parallelogram = MutableParallelogram()
 
-        assertThat(parallelogram.center).isEqualTo(MutablePoint(0f, 0f))
+        assertThat(parallelogram.center).isEqualTo(MutableVec(0f, 0f))
         assertThat(parallelogram.width).isZero()
         assertThat(parallelogram.height).isZero()
         assertThat(parallelogram.rotation).isZero()
@@ -38,7 +38,7 @@ class MutableParallelogramTest {
     @Test
     fun setCenter_changesCenter() {
         val parallelogram = MutableParallelogram()
-        val newCenter = MutablePoint(5f, -2f)
+        val newCenter = MutableVec(5f, -2f)
         parallelogram.center = newCenter
         assertThat(parallelogram.center).isEqualTo(newCenter)
     }
@@ -47,7 +47,7 @@ class MutableParallelogramTest {
     fun setWidth_toNegativeValue_forcesNormalizationOfParallelogram() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsAndRotation(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 6f,
                 4f,
                 Angle.QUARTER_TURN_RADIANS,
@@ -65,7 +65,7 @@ class MutableParallelogramTest {
     fun setRotation_toOutOfRangeNormalRange_forcesNormalizationOfAngle() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsAndRotation(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 6f,
                 4f,
                 Angle.QUARTER_TURN_RADIANS,
@@ -77,9 +77,9 @@ class MutableParallelogramTest {
     @Test
     fun fromCenterAndDimensions_constructsCorrectMutableParallelogram() {
         val parallelogram =
-            MutableParallelogram.fromCenterAndDimensions(MutablePoint(10f, 0f), 6f, 4f)
+            MutableParallelogram.fromCenterAndDimensions(MutableVec(10f, 0f), 6f, 4f)
 
-        assertThat(parallelogram.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogram.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
         assertThat(parallelogram.rotation).isZero()
@@ -89,9 +89,9 @@ class MutableParallelogramTest {
     @Test
     fun fromCenterAndDimensions_forNegativeWidth_constructsCorrectMutableParallelogram() {
         val parallelogramWithNegativeWidth =
-            MutableParallelogram.fromCenterAndDimensions(MutablePoint(10f, 0f), -6f, 4f)
+            MutableParallelogram.fromCenterAndDimensions(MutableVec(10f, 0f), -6f, 4f)
 
-        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogramWithNegativeWidth.width).isEqualTo(6f)
         assertThat(parallelogramWithNegativeWidth.height).isEqualTo(-4f)
         assertThat(parallelogramWithNegativeWidth.rotation).isEqualTo(Math.PI.toFloat())
@@ -102,13 +102,13 @@ class MutableParallelogramTest {
     fun fromCenterDimensionsAndRotation_constructsCorrectMutableParallelogram() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsAndRotation(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 6f,
                 4f,
                 Angle.FULL_TURN_RADIANS,
             )
 
-        assertThat(parallelogram.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogram.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
         assertThat(parallelogram.rotation).isZero()
@@ -119,13 +119,13 @@ class MutableParallelogramTest {
     fun fromCenterDimensionsAndRotation_forNegativeWidth_constructsCorrectMutableParallelogram() {
         val parallelogramWithNegativeWidth =
             MutableParallelogram.fromCenterDimensionsAndRotation(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 -6f,
                 4f,
                 Angle.FULL_TURN_RADIANS,
             )
 
-        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogramWithNegativeWidth.width).isEqualTo(6f)
         assertThat(parallelogramWithNegativeWidth.height).isEqualTo(-4f)
         assertThat(parallelogramWithNegativeWidth.rotation).isWithin(1e-6f).of(Math.PI.toFloat())
@@ -136,14 +136,14 @@ class MutableParallelogramTest {
     fun fromCenterDimensionsRotationAndShear_constructsCorrectMutableParallelogram() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 6f,
                 4f,
                 Angle.HALF_TURN_RADIANS,
                 1f,
             )
 
-        assertThat(parallelogram.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogram.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogram.width).isEqualTo(6f)
         assertThat(parallelogram.height).isEqualTo(4f)
         assertThat(parallelogram.rotation).isWithin(1e-6f).of(Math.PI.toFloat())
@@ -154,14 +154,14 @@ class MutableParallelogramTest {
     fun fromCenterDimensionsRotationAndShear_forNegativeWidth_constructsCorrectMutableParallelogram() {
         val parallelogramWithNegativeWidth =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(10f, 0f),
+                MutableVec(10f, 0f),
                 -6f,
                 4f,
                 Angle.FULL_TURN_RADIANS,
                 1f,
             )
 
-        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutablePoint(10f, 0f))
+        assertThat(parallelogramWithNegativeWidth.center).isEqualTo(MutableVec(10f, 0f))
         assertThat(parallelogramWithNegativeWidth.width).isEqualTo(6f)
         assertThat(parallelogramWithNegativeWidth.height).isEqualTo(-4f)
         assertThat(parallelogramWithNegativeWidth.rotation).isWithin(1e-6f).of(Math.PI.toFloat())
@@ -172,7 +172,7 @@ class MutableParallelogramTest {
     fun equals_whenSameInstance_returnsTrueAndSameHashCode() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(10f, 10f),
+                MutableVec(10f, 10f),
                 12f,
                 2f,
                 Angle.HALF_TURN_RADIANS,
@@ -186,7 +186,7 @@ class MutableParallelogramTest {
     fun equals_whenSameValues_returnsTrueAndSameHashCode() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -194,7 +194,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -210,13 +210,13 @@ class MutableParallelogramTest {
         // An axis-aligned rectangle with center at (0,0) and width and height equal to 2
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(0f, 0f),
+                MutableVec(0f, 0f),
                 2f,
                 2f,
                 Angle.ZERO,
                 0f,
             )
-        val other = MutableBox().fillFromTwoPoints(ImmutablePoint(-1f, -1f), ImmutablePoint(1f, 1f))
+        val other = MutableBox().populateFromTwoPoints(ImmutableVec(-1f, -1f), ImmutableVec(1f, 1f))
 
         assertThat(parallelogram).isNotEqualTo(other)
     }
@@ -225,7 +225,7 @@ class MutableParallelogramTest {
     fun equals_whenDifferentCenter_returnsFalse() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -233,7 +233,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(10f, -10.5f),
+                MutableVec(10f, -10.5f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -247,7 +247,7 @@ class MutableParallelogramTest {
     fun equals_whenDifferentWidth_returnsFalse() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 11f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -255,7 +255,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -269,7 +269,7 @@ class MutableParallelogramTest {
     fun equals_whenDifferentHeight_returnsFalse() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -277,7 +277,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -291,7 +291,7 @@ class MutableParallelogramTest {
     fun equals_whenDifferentRotation_returnsFalse() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -299,7 +299,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.QUARTER_TURN_RADIANS,
@@ -313,7 +313,7 @@ class MutableParallelogramTest {
     fun equals_whenDifferentShearFactor_returnsFalse() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -321,7 +321,7 @@ class MutableParallelogramTest {
             )
         val other =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(-10f, 10f),
+                MutableVec(-10f, 10f),
                 12f,
                 -7.5f,
                 Angle.HALF_TURN_RADIANS,
@@ -335,14 +335,14 @@ class MutableParallelogramTest {
     fun getters_returnCorrectValues() {
         val parallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                MutablePoint(3f, -5f),
+                MutableVec(3f, -5f),
                 8f,
                 -1f,
                 Angle.HALF_TURN_RADIANS,
                 0f,
             )
 
-        assertThat(parallelogram.center).isEqualTo(MutablePoint(3f, -5f))
+        assertThat(parallelogram.center).isEqualTo(MutableVec(3f, -5f))
         assertThat(parallelogram.width).isEqualTo(8f)
         assertThat(parallelogram.height).isEqualTo(-1f)
         assertThat(parallelogram.rotation).isEqualTo(Angle.HALF_TURN_RADIANS)
@@ -352,11 +352,11 @@ class MutableParallelogramTest {
     @Test
     fun signedArea_returnsCorrectValue() {
         val parallelogram =
-            MutableParallelogram.fromCenterAndDimensions(MutablePoint(0f, 10f), 6f, 4f)
+            MutableParallelogram.fromCenterAndDimensions(MutableVec(0f, 10f), 6f, 4f)
         val degenerateParallelogram =
-            MutableParallelogram.fromCenterAndDimensions(MutablePoint(0f, 10f), 0f, 4f)
+            MutableParallelogram.fromCenterAndDimensions(MutableVec(0f, 10f), 0f, 4f)
         val negativeAreaParallelogram =
-            MutableParallelogram.fromCenterAndDimensions(MutablePoint(0f, 10f), 2f, -3f)
+            MutableParallelogram.fromCenterAndDimensions(MutableVec(0f, 10f), 2f, -3f)
 
         assertThat(parallelogram.signedArea()).isEqualTo(24f)
         assertThat(degenerateParallelogram.signedArea()).isZero()
@@ -367,7 +367,7 @@ class MutableParallelogramTest {
     fun toString_returnsCorrectValue() {
         val parallelogramString =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutablePoint(3f, -5f),
+                    ImmutableVec(3f, -5f),
                     8f,
                     -1f,
                     Angle.HALF_TURN_RADIANS,

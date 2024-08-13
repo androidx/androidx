@@ -347,9 +347,9 @@ class SegmentTest {
         val segment1 = ImmutableSegment(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f))
 
         assertThat(segment0.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 1f), ImmutablePoint(5f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f)))
         assertThat(segment1.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(-1f, 0f), ImmutablePoint(0f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, 0f), ImmutableVec(0f, 2f)))
     }
 
     @Test
@@ -358,9 +358,9 @@ class SegmentTest {
         val segment1 = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
 
         assertThat(segment0.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(3f, 2f), ImmutablePoint(3f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(3f, 2f), ImmutableVec(3f, 2f)))
         assertThat(segment1.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(0f, 0f), ImmutablePoint(0f, 0f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)))
     }
 
     @Test
@@ -375,11 +375,11 @@ class SegmentTest {
 
         assertThat(box0)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(1f, 1f), ImmutablePoint(5f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f))
             )
         assertThat(box1)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(-1f, 0f), ImmutablePoint(0f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(-1f, 0f), ImmutableVec(0f, 2f))
             )
     }
 
@@ -395,11 +395,11 @@ class SegmentTest {
 
         assertThat(box0)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(3f, 2f), ImmutablePoint(3f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(3f, 2f), ImmutableVec(3f, 2f))
             )
         assertThat(box1)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(0f, 0f), ImmutablePoint(0f, 0f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
             )
     }
 

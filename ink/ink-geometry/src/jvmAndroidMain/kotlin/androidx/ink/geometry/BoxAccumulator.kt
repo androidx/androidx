@@ -59,9 +59,9 @@ public class BoxAccumulator {
     ) : this(
         true,
         MutableBox()
-            .fillFromTwoPoints(
-                ImmutablePoint(box.xMin, box.yMin),
-                ImmutablePoint(box.xMax, box.yMax)
+            .populateFromTwoPoints(
+                ImmutableVec(box.xMin, box.yMin),
+                ImmutableVec(box.xMax, box.yMax)
             ),
     )
 
@@ -219,7 +219,7 @@ public class BoxAccumulator {
      * Expands the accumulated bounding box (if necessary) such that it also contains [mesh]. If
      * [mesh] is null or empty, this is a no-op.
      */
-    public fun add(mesh: ModeledShape): BoxAccumulator = this.add(mesh.bounds)
+    public fun add(mesh: PartitionedMesh): BoxAccumulator = this.add(mesh.bounds)
 
     /**
      * Compares this [BoxAccumulator] with [other], and returns true if either: Both this and

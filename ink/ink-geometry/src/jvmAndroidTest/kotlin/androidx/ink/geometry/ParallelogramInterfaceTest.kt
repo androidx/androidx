@@ -35,11 +35,11 @@ class ParallelogramInterfaceTest {
                 assertThat(normalizedHeight).isEqualTo(expectedHeight)
                 assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotation)
                 TestParallelogram(
-                    ImmutablePoint(0f, 0f),
+                    ImmutableVec(0f, 0f),
                     expectedWidth,
                     expectedHeight,
                     expectedRotation,
-                    0f,
+                    0f
                 )
             }
         Parallelogram.normalizeAndRun(
@@ -61,11 +61,11 @@ class ParallelogramInterfaceTest {
                 assertThat(normalizedHeight).isEqualTo(expectedHeight)
                 assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotation)
                 TestParallelogram(
-                    ImmutablePoint(0f, 0f),
+                    ImmutableVec(0f, 0f),
                     expectedWidth,
                     expectedHeight,
                     expectedRotation,
-                    0f,
+                    0f
                 )
             }
 
@@ -90,7 +90,7 @@ class ParallelogramInterfaceTest {
     }
 
     private class TestParallelogram(
-        override val center: ImmutablePoint,
+        override val center: ImmutableVec,
         override val width: Float,
         override val height: Float,
         override val rotation: Float,
@@ -98,7 +98,7 @@ class ParallelogramInterfaceTest {
     ) : Parallelogram {
         companion object {
             val makeTestParallelogram = { w: Float, h: Float, r: Float ->
-                TestParallelogram(ImmutablePoint(0f, 0f), w, h, r, 0f)
+                TestParallelogram(ImmutableVec(0f, 0f), w, h, r, 0f)
             }
         }
     }

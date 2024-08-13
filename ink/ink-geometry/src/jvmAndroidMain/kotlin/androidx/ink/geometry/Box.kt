@@ -49,17 +49,18 @@ public interface Box {
         @FloatRange(from = 0.0) get() = yMax - yMin
 
     /** Populates [out] with the center of the [Box]. */
-    public fun center(out: MutablePoint)
+    public fun populateCenter(out: MutableVec): Unit =
+        BoxHelper.nativeCenter(xMin, yMin, xMax, yMax, out)
 
     /**
      * Populates the 4 [output] points with the corners of the [Box]. The order of the corners is:
      * (x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)
      */
     public fun corners(
-        outputXMinYMin: MutablePoint,
-        outputXMaxYMin: MutablePoint,
-        outputXMaxYMax: MutablePoint,
-        outputXMinYMax: MutablePoint,
+        outputXMinYMin: MutableVec,
+        outputXMaxYMin: MutableVec,
+        outputXMaxYMax: MutableVec,
+        outputXMinYMax: MutableVec,
     ) {
         outputXMinYMin.x = xMin
         outputXMinYMin.y = yMin
@@ -75,7 +76,7 @@ public interface Box {
      * Returns whether the given point is contained within the Box. Points that lie exactly on the
      * Box's boundary are considered to be contained.
      */
-    public operator fun contains(point: Point): Boolean =
+    public operator fun contains(point: Vec): Boolean =
         BoxHelper.nativeContainsPoint(xMin, yMin, xMax, yMax, point.x, point.y)
 
     /**

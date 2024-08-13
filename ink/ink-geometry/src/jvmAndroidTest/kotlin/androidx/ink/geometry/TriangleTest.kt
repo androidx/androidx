@@ -69,13 +69,13 @@ class TriangleTest {
             ImmutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
 
         assertThat(triangle0.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 1f), ImmutablePoint(5f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f)))
         assertThat(triangle1.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(-1f, -2f), ImmutablePoint(1f, 0f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 0f)))
         assertThat(triangle2.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(-2f, 1f), ImmutablePoint(0f, 3f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f)))
         assertThat(triangle3.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(5f, 2f), ImmutablePoint(5f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f)))
     }
 
     @Test
@@ -90,13 +90,13 @@ class TriangleTest {
             ImmutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
 
         assertThat(triangle0.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(2f, 2f), ImmutablePoint(5f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(2f, 2f), ImmutableVec(5f, 2f)))
         assertThat(triangle1.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(-1f, -2f), ImmutablePoint(1f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 2f)))
         assertThat(triangle2.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(-2f, 1f), ImmutablePoint(0f, 3f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f)))
         assertThat(triangle3.boundingBox)
-            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutablePoint(5f, 2f), ImmutablePoint(5f, 2f)))
+            .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f)))
     }
 
     @Test
@@ -121,19 +121,19 @@ class TriangleTest {
 
         assertThat(box0)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(1f, 1f), ImmutablePoint(5f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f))
             )
         assertThat(box1)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(-1f, -2f), ImmutablePoint(1f, 0f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 0f))
             )
         assertThat(box2)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(-2f, 1f), ImmutablePoint(0f, 3f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f))
             )
         assertThat(box3)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(5f, 2f), ImmutablePoint(5f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
             )
     }
 
@@ -159,19 +159,19 @@ class TriangleTest {
 
         assertThat(box0)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(2f, 2f), ImmutablePoint(5f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(2f, 2f), ImmutableVec(5f, 2f))
             )
         assertThat(box1)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(-1f, -2f), ImmutablePoint(1f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 2f))
             )
         assertThat(box2)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(-2f, 1f), ImmutablePoint(0f, 3f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f))
             )
         assertThat(box3)
             .isEqualTo(
-                MutableBox().fillFromTwoPoints(ImmutablePoint(5f, 2f), ImmutablePoint(5f, 2f))
+                MutableBox().populateFromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
             )
     }
 }

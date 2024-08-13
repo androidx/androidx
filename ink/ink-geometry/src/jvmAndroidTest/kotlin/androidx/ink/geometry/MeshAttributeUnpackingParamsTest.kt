@@ -138,8 +138,7 @@ class MeshAttributeUnpackingParamsTest {
                     )
                 ),
             )
-        val notATransform =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(2F, 4F), ImmutablePoint(1F, 3F))
+        val notATransform = ImmutableBox.fromTwoPoints(ImmutableVec(2F, 4F), ImmutableVec(1F, 3F))
 
         for (transform in transforms) {
             assertThat(transform).isNotEqualTo(notATransform)

@@ -36,9 +36,9 @@ class MutableVecTest {
     @Test
     fun equals_whenDifferentType_returnsFalse() {
         val vec = MutableVec(1f, 2f)
-        val point = MutablePoint(1f, 2f)
+        val segment = MutableSegment(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
 
-        assertThat(vec).isNotEqualTo(point)
+        assertThat(vec).isNotEqualTo(segment)
     }
 
     @Test

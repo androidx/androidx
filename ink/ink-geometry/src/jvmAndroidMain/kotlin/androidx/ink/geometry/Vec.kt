@@ -22,9 +22,9 @@ import kotlin.math.abs
 import kotlin.math.atan2
 
 /**
- * A 2-dimensional vector, representing an offset in space. See [MutableVec] for a mutable, and
- * [ImmutableVec] for an immutable implementation of [Vec]. See [Point] (and its concrete
- * implementations [ImmutablePoint] and [MutablePoint]) for a location in space.
+ * A two-dimensional vector, i.e. an (x, y) coordinate pair. It can be used to represent either:
+ * 1) A two-dimensional offset, i.e. the difference between two points
+ * 2) A point in space, i.e. treating the vector as an offset from the origin
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public interface Vec {
