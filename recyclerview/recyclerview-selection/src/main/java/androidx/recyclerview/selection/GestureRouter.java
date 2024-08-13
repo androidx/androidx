@@ -36,11 +36,11 @@ import androidx.annotation.Nullable;
 final class GestureRouter<T extends OnGestureListener & OnDoubleTapListener>
         implements OnGestureListener, OnDoubleTapListener {
 
-    private final ToolHandlerRegistry<T> mDelegates;
+    private final ToolSourceHandlerRegistry<T> mDelegates;
 
     GestureRouter(@NonNull T defaultDelegate) {
         checkArgument(defaultDelegate != null);
-        mDelegates = new ToolHandlerRegistry<>(defaultDelegate);
+        mDelegates = new ToolSourceHandlerRegistry<>(defaultDelegate);
     }
 
     @SuppressWarnings("unchecked")
@@ -49,11 +49,11 @@ final class GestureRouter<T extends OnGestureListener & OnDoubleTapListener>
     }
 
     /**
-     * @param toolType
+     * @param key
      * @param delegate the delegate, or null to unregister.
      */
-    public void register(int toolType, @Nullable T delegate) {
-        mDelegates.set(toolType, delegate);
+    public void register(@NonNull ToolSourceKey key, @Nullable T delegate) {
+        mDelegates.set(key, delegate);
     }
 
     @Override

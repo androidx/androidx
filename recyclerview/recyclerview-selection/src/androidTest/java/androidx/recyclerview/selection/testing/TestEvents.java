@@ -17,6 +17,7 @@
 package androidx.recyclerview.selection.testing;
 
 import android.graphics.Point;
+import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
@@ -185,6 +186,15 @@ public final class TestEvents {
     public @interface ToolType {
     }
 
+    // Add other types from InputDevice.SOURCE_* as needed.
+    @IntDef(flag = true, value = {
+            InputDevice.SOURCE_MOUSE,
+            InputDevice.SOURCE_UNKNOWN,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Source {
+    }
+
     @IntDef(flag = true, value = {
             MotionEvent.BUTTON_PRIMARY,
             MotionEvent.BUTTON_SECONDARY,
@@ -204,6 +214,7 @@ public final class TestEvents {
     private static final class State {
         private @Action int mAction = ACTION_UNSET;
         private @ToolType int mToolType = MotionEvent.TOOL_TYPE_UNKNOWN;
+        private @Source int mSource = InputDevice.SOURCE_UNKNOWN;
         private int mPointerCount = 1;
         private Set<Integer> mButtons = new HashSet<>();
         private Set<Integer> mKeys = new HashSet<>();
@@ -232,6 +243,15 @@ public final class TestEvents {
 
         public Builder type(@ToolType int type) {
             mState.mToolType = type;
+            return this;
+        }
+
+        /**
+         * @param source Any source type specified in {@link InputDevice}. When adding a new
+         *               source, ensure it is also added to the IntDef for @Source.
+         */
+        public Builder source(@Source int source) {
+            mState.mSource = source;
             return this;
         }
 
@@ -398,12 +418,12 @@ public final class TestEvents {
                     coords,
                     keys,
                     buttons,
-                    1.0f,  // x precision
-                    1.0f,  // y precision
-                    0,     // device id
-                    0,     // edge flags
-                    0,     // int source,
-                    0      // int flags
+                    1.0f,            // x precision
+                    1.0f,            // y precision
+                    0,               // device id
+                    0,               // edge flags
+                    mState.mSource,  // int source,
+                    0                // int flags
             );
         }
     }
