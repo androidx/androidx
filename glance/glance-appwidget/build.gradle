@@ -104,6 +104,8 @@ android {
     }
     // TODO(b/313699418): need to update compose.runtime version to 1.6.0+
     experimentalProperties["android.lint.useK2Uast"] = false
+
+    compileSdk 35
 }
 
 androidx {

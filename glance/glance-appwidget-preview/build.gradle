@@ -51,6 +51,7 @@ dependencies {
 
 android {
     namespace "androidx.glance.appwidget.preview"
+    compileSdk 35
 }
 
 androidx {

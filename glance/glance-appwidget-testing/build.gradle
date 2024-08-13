@@ -56,6 +56,7 @@ android {
 
     defaultConfig {
         minSdkVersion 23
+        compileSdk 35
     }
     namespace "androidx.glance.appwidget.testing"
     // TODO(b/313699418): need to update compose.runtime version to 1.6.0+ in glance-appwidget
