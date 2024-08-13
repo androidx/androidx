@@ -1,10 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <!-- Base application theme. -->
-    <style name="BaseAppTheme" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/google_grey</item>
-        <item name="colorPrimaryDark">@color/black</item>
-        <item name="colorAccent">@color/google_white</item>
-    </style>
-
-    <style name="AppTheme" parent="BaseAppTheme" />
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar" />
 </resources>
