@@ -521,6 +521,129 @@ class ListDetailPaneScaffoldNavigatorTest {
     }
 
     @Test
+    fun singlePaneLayout_previousScaffoldValue_popLatest() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator =
+                rememberListDetailPaneScaffoldNavigator(
+                    scaffoldDirective = MockSinglePaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
+                            ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                        )
+                )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.List])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopLatest)[
+                            ListDetailPaneScaffoldRole.Detail]
+                )
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopLatest)[
+                            ListDetailPaneScaffoldRole.List]
+                )
+                .isEqualTo(PaneAdaptedValue.Expanded)
+
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopLatest)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.List])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopLatest)[
+                            ListDetailPaneScaffoldRole.Detail]
+                )
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(BackNavigationBehavior.PopLatest)[
+                            ListDetailPaneScaffoldRole.List]
+                )
+                .isEqualTo(PaneAdaptedValue.Expanded)
+        }
+    }
+
+    @Test
+    fun singlePaneLayout_previousScaffoldValue_popUntilScaffoldValueChange() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
+
+        composeRule.setContent {
+            scaffoldNavigator =
+                rememberListDetailPaneScaffoldNavigator(
+                    scaffoldDirective = MockSinglePaneScaffoldDirective,
+                    initialDestinationHistory =
+                        listOf(
+                            ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.List),
+                            ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 0),
+                            ThreePaneScaffoldDestinationItem(ListDetailPaneScaffoldRole.Detail, 1),
+                        )
+                )
+        }
+
+        composeRule.runOnIdle {
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.List])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.Detail]
+                )
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.List]
+                )
+                .isEqualTo(PaneAdaptedValue.Expanded)
+
+            scaffoldNavigator.navigateBack(BackNavigationBehavior.PopUntilScaffoldValueChange)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.Detail])
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(scaffoldNavigator.scaffoldValue[ListDetailPaneScaffoldRole.List])
+                .isEqualTo(PaneAdaptedValue.Expanded)
+
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.Detail]
+                )
+                .isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(
+                    scaffoldNavigator
+                        .peekPreviousScaffoldValue(
+                            BackNavigationBehavior.PopUntilScaffoldValueChange
+                        )[ListDetailPaneScaffoldRole.List]
+                )
+                .isEqualTo(PaneAdaptedValue.Expanded)
+        }
+    }
+
+    @Test
     fun singlePaneToDualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<Int>
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)

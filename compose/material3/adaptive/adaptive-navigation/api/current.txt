@@ -29,6 +29,7 @@ package androidx.compose.material3.adaptive.navigation {
     method public boolean isDestinationHistoryAware();
     method public boolean navigateBack(optional String backNavigationBehavior);
     method public void navigateTo(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole pane, optional T? content);
+    method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue peekPreviousScaffoldValue(optional String backNavigationBehavior);
     method public void setDestinationHistoryAware(boolean);
     property public abstract androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem<T>? currentDestination;
     property public abstract boolean isDestinationHistoryAware;

@@ -22,8 +22,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 /**
- * A Material opinionated implementation of [ThreePaneScaffold] that will display the provided three
- * panes in a canonical list-detail layout.
+ * An opinionated implementation of [ThreePaneScaffold] following Material guidelines that displays
+ * the provided three panes in a canonical [list-detail layout](
+ * https://m3.material.io/foundations/layout/canonical-layouts/list-detail).
+ *
+ * This overload takes a [ThreePaneScaffoldValue] describing the adapted value of each pane within
+ * the scaffold.
  *
  * See usage samples at:
  *
@@ -58,6 +62,49 @@ fun ListDetailPaneScaffold(
         modifier = modifier.fillMaxSize(),
         scaffoldDirective = directive,
         scaffoldValue = value,
+        paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
+        secondaryPane = listPane,
+        tertiaryPane = extraPane,
+        primaryPane = detailPane
+    )
+}
+
+/**
+ * An opinionated implementation of [ThreePaneScaffold] following Material guidelines that displays
+ * the provided three panes in a canonical [list-detail layout](
+ * https://m3.material.io/foundations/layout/canonical-layouts/list-detail).
+ *
+ * This overload takes a [ThreePaneScaffoldState] describing the current [ThreePaneScaffoldValue]
+ * and any pane transitions or animations in progress.
+ *
+ * @param directive The top-level directives about how the scaffold should arrange its panes.
+ * @param scaffoldState The current state of the scaffold, containing information about the adapted
+ *   value of each pane of the scaffold and the transitions/animations in progress.
+ * @param listPane the list pane of the scaffold, which is supposed to hold a list of item summaries
+ *   that can be selected from, for example, the inbox mail list of a mail app. See
+ *   [ListDetailPaneScaffoldRole.List].
+ * @param detailPane the detail pane of the scaffold, which is supposed to hold the detailed info of
+ *   a selected item, for example, the mail content currently being viewed. See
+ *   [ListDetailPaneScaffoldRole.Detail].
+ * @param modifier [Modifier] of the scaffold layout.
+ * @param extraPane the extra pane of the scaffold, which is supposed to hold any supplementary info
+ *   besides the list and the detail panes, for example, a task list or a mini-calendar view of a
+ *   mail app. See [ListDetailPaneScaffoldRole.Extra].
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun ListDetailPaneScaffold(
+    directive: PaneScaffoldDirective,
+    scaffoldState: ThreePaneScaffoldState,
+    listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    detailPane: @Composable ThreePaneScaffoldScope.() -> Unit,
+    modifier: Modifier = Modifier,
+    extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+) {
+    ThreePaneScaffold(
+        modifier = modifier.fillMaxSize(),
+        scaffoldDirective = directive,
+        scaffoldState = scaffoldState,
         paneOrder = ListDetailPaneScaffoldDefaults.PaneOrder,
         secondaryPane = listPane,
         tertiaryPane = extraPane,

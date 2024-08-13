@@ -79,6 +79,18 @@ interface ThreePaneScaffoldNavigator<T> {
     val scaffoldValue: ThreePaneScaffoldValue
 
     /**
+     * Returns the scaffold value associated with the previous destination, assuming there is a
+     * previous destination to navigate back to. If not, this is the same as [scaffoldValue].
+     *
+     * @param backNavigationBehavior the behavior describing which backstack entries may be skipped
+     *   during the back navigation. See [BackNavigationBehavior].
+     */
+    fun peekPreviousScaffoldValue(
+        backNavigationBehavior: BackNavigationBehavior =
+            BackNavigationBehavior.PopUntilScaffoldValueChange
+    ): ThreePaneScaffoldValue
+
+    /**
      * The current destination as tracked by the navigator.
      *
      * Implementors of this interface should ensure this value is updated whenever a navigation
@@ -328,6 +340,13 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
 
     override val scaffoldValue by derivedStateOf {
         calculateScaffoldValue(destinationHistory.lastIndex)
+    }
+
+    override fun peekPreviousScaffoldValue(
+        backNavigationBehavior: BackNavigationBehavior
+    ): ThreePaneScaffoldValue {
+        val index = getPreviousDestinationIndex(backNavigationBehavior)
+        return if (index == -1) scaffoldValue else calculateScaffoldValue(index)
     }
 
     override fun navigateTo(pane: ThreePaneScaffoldRole, content: T?) {
