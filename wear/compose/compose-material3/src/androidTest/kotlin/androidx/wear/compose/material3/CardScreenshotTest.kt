@@ -18,11 +18,13 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -70,9 +72,31 @@ class CardScreenshotTest {
                                     id =
                                         androidx.wear.compose.material3.test.R.drawable
                                             .backgroundimage1
-                                )
+                                ),
+                            forcedSize = Size.Unspecified
                         )
-                )
+                ),
+            contentPadding = CardDefaults.ImageContentPadding,
+        )
+    }
+
+    @Test
+    fun card_image_background_with_intrinsic_size() = verifyScreenshot {
+        TestCard(
+            colors =
+                CardDefaults.imageCardColors(
+                    containerPainter =
+                        CardDefaults.imageWithScrimBackgroundPainter(
+                            backgroundImagePainter =
+                                painterResource(
+                                    id =
+                                        androidx.wear.compose.material3.test.R.drawable
+                                            .backgroundimage1
+                                ),
+                            forcedSize = null
+                        ),
+                ),
+            contentPadding = CardDefaults.ImageContentPadding,
         )
     }
 
@@ -172,18 +196,24 @@ class CardScreenshotTest {
                                     id =
                                         androidx.wear.compose.material3.test.R.drawable
                                             .backgroundimage1
-                                )
+                                ),
                         )
-                )
+                ),
+            contentPadding = CardDefaults.ImageContentPadding,
         )
     }
 
     @Composable
-    private fun TestCard(enabled: Boolean = true, colors: CardColors = CardDefaults.cardColors()) {
+    private fun TestCard(
+        enabled: Boolean = true,
+        colors: CardColors = CardDefaults.cardColors(),
+        contentPadding: PaddingValues = CardDefaults.ContentPadding
+    ) {
         Card(
             enabled = enabled,
             onClick = {},
             colors = colors,
+            contentPadding = contentPadding,
             modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
         ) {
             Text("Card: Some body content")
@@ -225,6 +255,7 @@ class CardScreenshotTest {
     @Composable
     private fun TestTitleCard(
         enabled: Boolean = true,
+        contentPadding: PaddingValues = CardDefaults.ContentPadding,
         colors: CardColors = CardDefaults.cardColors()
     ) {
         TitleCard(
@@ -233,6 +264,7 @@ class CardScreenshotTest {
             title = { Text("TitleCard") },
             time = { Text("now") },
             colors = colors,
+            contentPadding = contentPadding,
             modifier = Modifier.testTag(TEST_TAG).width(IntrinsicSize.Max),
         ) {
             Text("Some body content and some more body content")

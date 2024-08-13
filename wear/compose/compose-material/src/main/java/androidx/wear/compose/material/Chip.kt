@@ -60,6 +60,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.materialcore.ImageWithScrimPainter
 
 /**
  * Base level Wear Material [Chip] that offers a single slot to take any content.

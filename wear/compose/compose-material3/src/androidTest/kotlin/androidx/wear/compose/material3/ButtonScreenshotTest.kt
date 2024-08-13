@@ -25,6 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -80,11 +81,19 @@ class ButtonScreenshotTest {
 
     @Test fun button_outlined_disabled() = verifyScreenshot() { OutlinedButton(enabled = false) }
 
-    @Test fun button_image_background_enabled() = verifyScreenshot { ImageBackgroundButton() }
+    @Test
+    fun button_image_background_enabled() = verifyScreenshot {
+        ImageBackgroundButton(size = Size.Unspecified)
+    }
 
     @Test
     fun button_image_background_disabled() = verifyScreenshot {
-        ImageBackgroundButton(enabled = false)
+        ImageBackgroundButton(enabled = false, size = Size.Unspecified)
+    }
+
+    @Test
+    fun button_image_background_with_intrinsic_size() = verifyScreenshot {
+        ImageBackgroundButton(size = null)
     }
 
     @Test
@@ -213,7 +222,7 @@ class ButtonScreenshotTest {
     }
 
     @Composable
-    private fun ImageBackgroundButton(enabled: Boolean = true) {
+    private fun ImageBackgroundButton(enabled: Boolean = true, size: Size?) {
         Button(
             enabled = enabled,
             onClick = {},
@@ -221,7 +230,8 @@ class ButtonScreenshotTest {
             secondaryLabel = { Text("Secondary Label") },
             colors =
                 ButtonDefaults.imageBackgroundButtonColors(
-                    backgroundImagePainter = painterResource(R.drawable.backgroundimage1)
+                    backgroundImagePainter = painterResource(R.drawable.backgroundimage1),
+                    forcedSize = size
                 ),
             icon = { TestIcon() },
             modifier = Modifier.testTag(TEST_TAG)

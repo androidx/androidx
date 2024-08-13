@@ -444,9 +444,6 @@ fun TitleCard(
                     subtitle()
                 }
             }
-            if (colors.containerPainter.isImagePainter()) {
-                Spacer(modifier = Modifier.height(12.dp))
-            }
         }
     }
 }
@@ -599,14 +596,14 @@ object CardDefaults {
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
-     * [Card], [AppCard] or [TitleCard] with Image set as a background.
+     * [TitleCard] with Image set as a background.
      *
      * @param containerPainter a Painter which is used for background drawing.
      * @param contentColor the content color of this [Card].
      * @param appNameColor the color used for appName, only applies to [AppCard].
-     * @param timeColor the color used for time, applies to [AppCard] and [TitleCard].
-     * @param titleColor the color used for title, applies to [AppCard] and [TitleCard].
-     * @param subtitleColor the color used for subtitle, applies to [TitleCard].
+     * @param timeColor the color used for time.
+     * @param titleColor the color used for title.
+     * @param subtitleColor the color used for subtitle.
      */
     @Composable
     fun imageCardColors(
@@ -644,15 +641,20 @@ object CardDefaults {
      * @param backgroundImagePainter The [Painter] to use to draw the background of the [Card]
      * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
      *   image to ensure that any text drawn over the image is legible
+     * @param forcedSize The value for [Painter.intrinsicSize], a value of null will respect the
+     *   [backgroundImagePainter] size. Defaults to [Size.Unspecified] which does not affect
+     *   component size.
      */
     @Composable
     fun imageWithScrimBackgroundPainter(
         backgroundImagePainter: Painter,
-        backgroundImageScrimBrush: Brush = SolidColor(overlayScrimColor)
+        backgroundImageScrimBrush: Brush = SolidColor(overlayScrimColor),
+        forcedSize: Size? = Size.Unspecified,
     ): Painter {
         return ImageWithScrimPainter(
             imagePainter = backgroundImagePainter,
-            brush = backgroundImageScrimBrush
+            brush = backgroundImageScrimBrush,
+            forcedSize = forcedSize,
         )
     }
 
@@ -686,6 +688,21 @@ object CardDefaults {
             top = CardVerticalPadding,
             end = CardHorizontalPadding,
             bottom = CardVerticalPadding
+        )
+
+    /** Additional bottom padding added for TitleCard with an image background */
+    val ImageBottomPadding = 12.dp
+
+    /**
+     * ContentPadding for use with an image background in order to show more of the image. Expected
+     * to be used with TitleCard's with an image background
+     */
+    val ImageContentPadding: PaddingValues =
+        PaddingValues(
+            start = CardHorizontalPadding,
+            top = CardVerticalPadding,
+            end = CardHorizontalPadding,
+            bottom = CardVerticalPadding + ImageBottomPadding
         )
 
     /** The default size of the app icon/image when used inside a [AppCard]. */
@@ -723,8 +740,6 @@ object CardDefaults {
 @Composable
 private fun Modifier.cardSizeModifier(): Modifier =
     defaultMinSize(minHeight = CardTokens.ContainerMinHeight).height(IntrinsicSize.Min)
-
-private fun Painter.isImagePainter() = intrinsicSize != Size.Unspecified
 
 /**
  * Represents Colors used in [Card]. Unlike other Material 3 components, Cards do not change their

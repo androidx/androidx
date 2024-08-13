@@ -67,7 +67,7 @@ package androidx.wear.compose.material3 {
     method public float getLargeIconSize();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method public float getSmallIconSize();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors imageBackgroundButtonColors(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors imageBackgroundButtonColors(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor, optional androidx.compose.ui.geometry.Size? forcedSize);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedButtonBorder(boolean enabled, optional long borderColor, optional long disabledBorderColor, optional float borderWidth);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors outlinedButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors outlinedButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
@@ -143,13 +143,17 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     method public float getAppImageSize();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
+    method public float getImageBottomPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getImageContentPadding();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors imageCardColors(androidx.compose.ui.graphics.painter.Painter containerPainter, optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush);
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.painter.Painter imageWithScrimBackgroundPainter(androidx.compose.ui.graphics.painter.Painter backgroundImagePainter, optional androidx.compose.ui.graphics.Brush backgroundImageScrimBrush, optional androidx.compose.ui.geometry.Size? forcedSize);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional long outlineColor, optional float borderWidth);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.CardColors outlinedCardColors(optional long contentColor, optional long appNameColor, optional long timeColor, optional long titleColor, optional long subtitleColor);
     property public final float AppImageSize;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
+    property public final float ImageBottomPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ImageContentPadding;
     field public static final androidx.wear.compose.material3.CardDefaults INSTANCE;
   }
 
