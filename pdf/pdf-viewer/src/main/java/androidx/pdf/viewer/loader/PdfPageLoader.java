@@ -67,6 +67,7 @@ public class PdfPageLoader {
     SelectionTask mSelectionTask;
     GetPageLinksTask mLinksTask;
     GetPageGotoLinksTask mGotoLinksTask;
+    ReleasePageTask mReleasePageTask;
 
     /**
      * All currently scheduled tile tasks.
@@ -257,6 +258,14 @@ public class PdfPageLoader {
         }
     }
 
+    /** Releases object in memory related to a page when that page is no longer visible. */
+    public void releasePage() {
+        if (mReleasePageTask == null) {
+            mReleasePageTask = new ReleasePageTask();
+            mParent.mExecutor.schedule(mReleasePageTask);
+        }
+    }
+
     /**
      *
      */
@@ -363,6 +372,40 @@ public class PdfPageLoader {
         public String toString() {
             return String.format("RenderBitmapTask(page=%d width=%d height=%d)",
                     mPageNum, mDimensions.getWidth(), mDimensions.getHeight());
+        }
+    }
+
+    /** AsyncTask for releasing page objects from memory after it is no longer visible. */
+    class ReleasePageTask extends AbstractPdfTask<Void> {
+        ReleasePageTask() {
+            super(mParent, Priority.RELEASE);
+        }
+
+        @Override
+        protected String getLogTag() {
+            return "ReleasePageTask";
+        }
+
+        @Override
+        protected Void doInBackground(PdfDocumentRemoteProto pdfDocument) throws RemoteException {
+            pdfDocument.getPdfDocumentRemote().releasePage(mPageNum);
+            return null;
+        }
+
+        @Override
+        protected void doCallback(PdfLoaderCallbacks callbacks, Void unused) {
+            /* no-op */
+        }
+
+        @Override
+        protected void cleanup() {
+            mReleasePageTask = null;
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return String.format("ReleasePageTask(page=%d)", mPageNum);
         }
     }
 

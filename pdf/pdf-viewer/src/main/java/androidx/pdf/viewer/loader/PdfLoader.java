@@ -170,6 +170,11 @@ public class PdfLoader {
         getPageLoader(pageNum).cancelExceptSearchAndFormFilling();
     }
 
+    /** Releases object in memory related to a page when that page is no longer visible. */
+    public void releasePage(int pageNum) {
+        getPageLoader(pageNum).releasePage();
+    }
+
     /**
      * Loads page dimensions for the given page - once it is ready, will call the
      * {@link PdfLoaderCallbacks#setPageDimensions} callback.

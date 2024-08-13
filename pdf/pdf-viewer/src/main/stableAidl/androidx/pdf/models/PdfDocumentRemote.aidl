@@ -41,5 +41,7 @@ interface PdfDocumentRemote {
 
     boolean saveAs(in ParcelFileDescriptor destination);
 
+    void releasePage(int pageNum);
+
     // The PdfDocument is destroyed when this service is destroyed.
 }

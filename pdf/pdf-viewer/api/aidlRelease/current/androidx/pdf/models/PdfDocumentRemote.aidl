@@ -34,4 +34,5 @@ interface PdfDocumentRemote {
   int getFormType();
   boolean cloneWithoutSecurity(in ParcelFileDescriptor destination);
   boolean saveAs(in ParcelFileDescriptor destination);
+  void releasePage(int pageNum);
 }
