@@ -166,4 +166,6 @@ abstract class BaseAutoMigrationTest {
 }
 
 expect object BaseAutoMigrationTest_AutoMigrationDatabaseConstructor :
-    RoomDatabaseConstructor<AutoMigrationDatabase>
+    RoomDatabaseConstructor<AutoMigrationDatabase> {
+    override fun initialize(): AutoMigrationDatabase
+}

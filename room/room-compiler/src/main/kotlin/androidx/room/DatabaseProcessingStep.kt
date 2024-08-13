@@ -146,10 +146,10 @@ class DatabaseProcessingStep : XProcessingStep {
                     )
                     .write(context.processingEnv)
             }
-            if (db.constructorObjectElement != null) {
+            if (db.constructorObject != null) {
                 DatabaseObjectConstructorWriter(
                         database = db,
-                        constructorObjectElement = db.constructorObjectElement
+                        constructorObject = db.constructorObject
                     )
                     .write(context.processingEnv)
             }
