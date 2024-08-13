@@ -93,6 +93,19 @@ inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
 }
 
 /**
+ * Returns `true` if this float is a finite floating-point value; returns `false` otherwise (for
+ * `NaN` and infinity).
+ */
+inline fun Float.fastIsFinite(): Boolean = (toRawBits() and 0x7fffffff) < 0x7f800000
+
+/**
+ * Returns `true` if this double is a finite floating-point value; returns `false` otherwise (for
+ * `NaN` and infinity).
+ */
+inline fun Double.fastIsFinite(): Boolean =
+    (toRawBits() and 0x7fffffff_ffffffffL) < 0x7ff00000_00000000L
+
+/**
  * Fast, approximate cube root function. Returns the cube root of [x]; for any [x] `fastCbrt(-x) ==
  * -fastCbrt(x)`.
  *

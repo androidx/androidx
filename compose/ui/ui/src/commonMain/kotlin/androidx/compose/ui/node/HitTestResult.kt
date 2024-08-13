@@ -327,7 +327,7 @@ internal value class DistanceAndInLayer(val packedValue: Long) {
 }
 
 private fun DistanceAndInLayer(distance: Float, isInLayer: Boolean): DistanceAndInLayer {
-    val v1 = distance.toBits().toLong()
+    val v1 = distance.toRawBits().toLong()
     val v2 = if (isInLayer) 1L else 0L
     return DistanceAndInLayer(v1.shl(32) or (v2 and 0xFFFFFFFF))
 }

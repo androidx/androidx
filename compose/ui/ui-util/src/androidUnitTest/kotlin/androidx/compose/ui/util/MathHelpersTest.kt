@@ -24,6 +24,7 @@ import kotlin.math.cbrt
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.test.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -190,5 +191,54 @@ class MathHelpersTest {
 
             i++
         }
+    }
+
+    @Test
+    fun testIsFinite() {
+        assertFalse(Float.NaN.fastIsFinite())
+
+        assertFalse(Float.POSITIVE_INFINITY.fastIsFinite())
+        assertFalse(Float.NEGATIVE_INFINITY.fastIsFinite())
+
+        assertTrue(0.0f.fastIsFinite())
+        assertTrue((-0.0f).fastIsFinite())
+
+        assertTrue(1.0f.fastIsFinite())
+        assertTrue((-1.0f).fastIsFinite())
+
+        assertTrue(16.0f.fastIsFinite())
+        assertTrue((-16.0f).fastIsFinite())
+
+        assertTrue(2037.0f.fastIsFinite())
+        assertTrue((-2037.0f).fastIsFinite())
+
+        assertTrue(Float.MAX_VALUE.isFinite())
+        assertTrue((-Float.MAX_VALUE).isFinite())
+
+        assertTrue(Float.MIN_VALUE.isFinite())
+        assertTrue((-Float.MIN_VALUE).isFinite())
+
+        assertFalse(Double.NaN.fastIsFinite())
+
+        assertFalse(Double.POSITIVE_INFINITY.fastIsFinite())
+        assertFalse(Double.NEGATIVE_INFINITY.fastIsFinite())
+
+        assertTrue(0.0.fastIsFinite())
+        assertTrue((-0.0).fastIsFinite())
+
+        assertTrue(1.0.fastIsFinite())
+        assertTrue((-1.0).fastIsFinite())
+
+        assertTrue(16.0.fastIsFinite())
+        assertTrue((-16.0).fastIsFinite())
+
+        assertTrue(2037.0.fastIsFinite())
+        assertTrue((-2037.0).fastIsFinite())
+
+        assertTrue(Double.MAX_VALUE.isFinite())
+        assertTrue((-Double.MAX_VALUE).isFinite())
+
+        assertTrue(Double.MIN_VALUE.isFinite())
+        assertTrue((-Double.MIN_VALUE).isFinite())
     }
 }

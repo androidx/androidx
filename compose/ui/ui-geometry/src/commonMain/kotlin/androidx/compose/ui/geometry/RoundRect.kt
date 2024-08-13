@@ -17,6 +17,7 @@
 package androidx.compose.ui.geometry
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.lerp
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -339,7 +340,8 @@ val RoundRect.isEmpty
 
 /** Whether all coordinates of this rounded rectangle are finite. */
 val RoundRect.isFinite
-    get() = left.isFinite() && top.isFinite() && right.isFinite() && bottom.isFinite()
+    get() =
+        left.fastIsFinite() && top.fastIsFinite() && right.fastIsFinite() && bottom.fastIsFinite()
 
 /** Whether this rounded rectangle is a simple rectangle with zero corner radii. */
 val RoundRect.isRect

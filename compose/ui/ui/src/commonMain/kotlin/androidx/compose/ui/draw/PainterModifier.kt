@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 
@@ -347,9 +348,10 @@ private class PainterNode(
         drawContent()
     }
 
-    private fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.isFinite()
+    private fun Size.hasSpecifiedAndFiniteWidth() = this != Size.Unspecified && width.fastIsFinite()
 
-    private fun Size.hasSpecifiedAndFiniteHeight() = this != Size.Unspecified && height.isFinite()
+    private fun Size.hasSpecifiedAndFiniteHeight() =
+        this != Size.Unspecified && height.fastIsFinite()
 
     override fun toString(): String =
         "PainterModifier(" +

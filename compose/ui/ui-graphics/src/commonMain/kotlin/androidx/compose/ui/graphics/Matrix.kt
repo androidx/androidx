@@ -20,6 +20,7 @@ package androidx.compose.ui.graphics
 import androidx.compose.ui.geometry.MutableRect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastMaxOf
 import androidx.compose.ui.util.fastMinOf
 import androidx.compose.ui.util.normalizedAngleCos
@@ -68,7 +69,7 @@ value class Matrix(
         val y = point.y
         val z = v03 * x + v13 * y + v33
         val inverseZ = 1 / z
-        val pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        val pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
 
         return Offset(x = pZ * (v00 * x + v10 * y + v30), y = pZ * (v01 * x + v11 * y + v31))
     }
@@ -96,28 +97,28 @@ value class Matrix(
         var x = l
         var y = t
         var inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        var pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        var pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x0 = pZ * (v00 * x + v10 * y + v30)
         val y0 = pZ * (v01 * x + v11 * y + v31)
 
         x = l
         y = b
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x1 = pZ * (v00 * x + v10 * y + v30)
         val y1 = pZ * (v01 * x + v11 * y + v31)
 
         x = r
         y = t
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x2 = pZ * (v00 * x + v10 * y + v30)
         val y2 = pZ * (v01 * x + v11 * y + v31)
 
         x = r
         y = b
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x3 = pZ * (v00 * x + v10 * y + v30)
         val y3 = pZ * (v01 * x + v11 * y + v31)
 
@@ -152,28 +153,28 @@ value class Matrix(
         var x = l
         var y = t
         var inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        var pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        var pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x0 = pZ * (v00 * x + v10 * y + v30)
         val y0 = pZ * (v01 * x + v11 * y + v31)
 
         x = l
         y = b
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x1 = pZ * (v00 * x + v10 * y + v30)
         val y1 = pZ * (v01 * x + v11 * y + v31)
 
         x = r
         y = t
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x2 = pZ * (v00 * x + v10 * y + v30)
         val y2 = pZ * (v01 * x + v11 * y + v31)
 
         x = r
         y = b
         inverseZ = 1.0f / (v03 * x + v13 * y + v33)
-        pZ = if (inverseZ.isFinite()) inverseZ else 0f
+        pZ = if (inverseZ.fastIsFinite()) inverseZ else 0f
         val x3 = pZ * (v00 * x + v10 * y + v30)
         val y3 = pZ * (v01 * x + v11 * y + v31)
 

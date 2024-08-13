@@ -34,9 +34,9 @@ import kotlin.math.sqrt
  * 1. As representing a point in Cartesian space a specified distance from a separately-maintained
  *    origin. For example, the top-left position of children in the [RenderBox] protocol is
  *    typically represented as an [Offset] from the top left of the parent box.
- * 2. As a vector that can be applied to coordinates. For example, when painting a [RenderObject],
- *    the parent is passed an [Offset] from the screen's origin which it can add to the offsets of
- *    its children to find the [Offset] from the screen's origin to each of the children.
+ * 2. As a vector that can be applied to coordinates. For example, when painting a widget, the
+ *    parent is passed an [Offset] from the screen's origin which it can add to the offsets of its
+ *    children to find the [Offset] from the screen's origin to each of the children.
  *
  * Because a particular [Offset] can be interpreted as one sense at one time then as the other sense
  * at a later time, the same class is used for both senses.
@@ -50,7 +50,9 @@ import kotlin.math.sqrt
 @Suppress("NOTHING_TO_INLINE")
 @Immutable
 @kotlin.jvm.JvmInline
-value class Offset internal constructor(@PublishedApi internal val packedValue: Long) {
+value class Offset
+@PublishedApi
+internal constructor(@PublishedApi internal val packedValue: Long) {
     @Stable
     inline val x: Float
         get() = unpackFloat1(packedValue)
@@ -97,7 +99,7 @@ value class Offset internal constructor(@PublishedApi internal val packedValue: 
      * - True otherwise
      */
     @Stable
-    fun isValid(): Boolean {
+    inline fun isValid(): Boolean {
         // Take the unsigned packed floats and see if they are < InfinityBase + 1 (first NaN)
         val v = packedValue and DualUnsignedFloatMask
         return (v - DualFirstNaN) and Uint64High32 == Uint64High32
@@ -137,7 +139,7 @@ value class Offset internal constructor(@PublishedApi internal val packedValue: 
      * pointing in the reverse direction.
      */
     @Stable
-    operator fun unaryMinus(): Offset {
+    inline operator fun unaryMinus(): Offset {
         return Offset(packedValue xor DualFloatSignBit)
     }
 
@@ -249,7 +251,7 @@ fun lerp(start: Offset, stop: Offset, fraction: Float): Offset {
 
 /** True if both x and y values of the [Offset] are finite. NaN values are not considered finite. */
 @Stable
-val Offset.isFinite: Boolean
+inline val Offset.isFinite: Boolean
     get() {
         // Mask out the sign bit and do an equality check in each 32-bit lane
         // against the "infinity base" mask (to check whether each packed float
@@ -260,12 +262,12 @@ val Offset.isFinite: Boolean
 
 /** `false` when this is [Offset.Unspecified]. */
 @Stable
-val Offset.isSpecified: Boolean
+inline val Offset.isSpecified: Boolean
     get() = packedValue and DualUnsignedFloatMask != UnspecifiedPackedFloats
 
 /** `true` when this is [Offset.Unspecified]. */
 @Stable
-val Offset.isUnspecified: Boolean
+inline val Offset.isUnspecified: Boolean
     get() = packedValue and DualUnsignedFloatMask == UnspecifiedPackedFloats
 
 /**

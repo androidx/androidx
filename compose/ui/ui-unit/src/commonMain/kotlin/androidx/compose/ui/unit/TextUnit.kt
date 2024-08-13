@@ -243,8 +243,8 @@ inline val TextUnit.isSpecified: Boolean
 
 /** `true` when this is [TextUnit.Unspecified]. */
 @Stable
-val TextUnit.isUnspecified: Boolean
-    get() = rawType == UNIT_TYPE_UNSPECIFIED
+inline val TextUnit.isUnspecified: Boolean
+    get() = rawType == 0x0L // UNIT_TYPE_UNSPECIFIED
 
 /**
  * If this [TextUnit] [isSpecified] then this is returned, otherwise [block] is executed and its
@@ -320,27 +320,27 @@ inline operator fun Int.times(other: TextUnit): TextUnit {
 
 @PublishedApi
 internal fun pack(unitType: Long, v: Float): TextUnit =
-    TextUnit(unitType or (v.toBits().toLong() and 0xFFFF_FFFFL))
+    TextUnit(unitType or (v.toRawBits().toLong() and 0xFFFF_FFFFL))
 
 @PublishedApi
 internal fun checkArithmetic(a: TextUnit) {
-    require(!a.isUnspecified) { "Cannot perform operation for Unspecified type." }
+    requirePrecondition(!a.isUnspecified) { "Cannot perform operation for Unspecified type." }
 }
 
 @PublishedApi
 internal fun checkArithmetic(a: TextUnit, b: TextUnit) {
-    require(!a.isUnspecified && !b.isUnspecified) {
+    requirePrecondition(!a.isUnspecified && !b.isUnspecified) {
         "Cannot perform operation for Unspecified type."
     }
-    require(a.type == b.type) { "Cannot perform operation for ${a.type} and ${b.type}" }
+    requirePrecondition(a.type == b.type) { "Cannot perform operation for ${a.type} and ${b.type}" }
 }
 
 @PublishedApi
 internal fun checkArithmetic(a: TextUnit, b: TextUnit, c: TextUnit) {
-    require(!a.isUnspecified && !b.isUnspecified && !c.isUnspecified) {
+    requirePrecondition(!a.isUnspecified && !b.isUnspecified && !c.isUnspecified) {
         "Cannot perform operation for Unspecified type."
     }
-    require(a.type == b.type && b.type == c.type) {
+    requirePrecondition(a.type == b.type && b.type == c.type) {
         "Cannot perform operation for ${a.type} and ${b.type}"
     }
 }

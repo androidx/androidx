@@ -27,20 +27,22 @@ import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 
 /** Constructs an [IntSize] from width and height [Int] values. */
-@Stable fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
+@Stable inline fun IntSize(width: Int, height: Int): IntSize = IntSize(packInts(width, height))
 
 /** A two-dimensional size class used for measuring in [Int] pixels. */
 @Immutable
 @kotlin.jvm.JvmInline
-value class IntSize internal constructor(@PublishedApi internal val packedValue: Long) {
+value class IntSize
+@PublishedApi
+internal constructor(@PublishedApi internal val packedValue: Long) {
     /** The horizontal aspect of the size in [Int] pixels. */
     @Stable
-    val width: Int
+    inline val width: Int
         get() = unpackInt1(packedValue)
 
     /** The vertical aspect of the size in [Int] pixels. */
     @Stable
-    val height: Int
+    inline val height: Int
         get() = unpackInt2(packedValue)
 
     @Stable inline operator fun component1(): Int = width

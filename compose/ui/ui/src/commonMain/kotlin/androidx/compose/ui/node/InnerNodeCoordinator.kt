@@ -28,6 +28,7 @@ import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastIsFinite
 
 internal class TailModifierNode : Modifier.Node() {
     init {
@@ -197,7 +198,8 @@ internal class InnerNodeCoordinator(layoutNode: LayoutNode) : NodeCoordinator(la
                 hitTestChildren = true
             } else if (
                 isTouchEvent &&
-                    distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize).isFinite()
+                    distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize)
+                        .fastIsFinite()
             ) {
                 inLayer = false
                 hitTestChildren = true

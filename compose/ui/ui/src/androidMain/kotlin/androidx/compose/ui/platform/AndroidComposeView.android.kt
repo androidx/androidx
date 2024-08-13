@@ -190,6 +190,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastIsFinite
 import androidx.compose.ui.util.fastLastOrNull
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
@@ -2332,17 +2333,17 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     private fun isBadMotionEvent(event: MotionEvent): Boolean {
         var eventInvalid =
-            !event.x.isFinite() ||
-                !event.y.isFinite() ||
-                !event.rawX.isFinite() ||
-                !event.rawY.isFinite()
+            !event.x.fastIsFinite() ||
+                !event.y.fastIsFinite() ||
+                !event.rawX.fastIsFinite() ||
+                !event.rawY.fastIsFinite()
 
         if (!eventInvalid) {
             // First event x,y is checked above if block, so we can skip index 0.
             for (index in 1 until event.pointerCount) {
                 eventInvalid =
-                    !event.getX(index).isFinite() ||
-                        !event.getY(index).isFinite() ||
+                    !event.getX(index).fastIsFinite() ||
+                        !event.getY(index).fastIsFinite() ||
                         (SDK_INT >= Q && !isValidMotionEvent(event, index))
 
                 if (eventInvalid) break
@@ -2734,7 +2735,7 @@ private class CalculateMatrixToWindowApi21(private val tmpMatrix: Matrix) :
 private object MotionEventVerifierApi29 {
     @DoNotInline
     fun isValidMotionEvent(event: MotionEvent, index: Int): Boolean {
-        return event.getRawX(index).isFinite() && event.getRawY(index).isFinite()
+        return event.getRawX(index).fastIsFinite() && event.getRawY(index).fastIsFinite()
     }
 }
 
