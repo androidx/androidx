@@ -42,20 +42,20 @@ jobs:
             -Dorg.gradle.internal.repository.initial.backoff=500            \
             -Dorg.gradle.jvmargs=-XX:MaxMetaspaceSize=512m                  \
             --stacktrace"
-          echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
+          echo "gradlew_flags=GRADLEW_FLAGS" >> $GITHUB_OUTPUT
       - name: "Compute actions/checkout arguments"
         id: checkout-args
         env:
           REF: ${{ github.event.pull_request.head.ref || github.event.ref}}
         run: |
           set -x
-          echo "::set-output name=ref::$REF"
+          echo "ref=$REF" >> $GITHUB_OUTPUT
 
           REPOSITORY=${{ github.event.pull_request.head.repo.full_name }}
           if [ -z "$REPOSITORY" ]; then
             REPOSITORY=${{ github.repository }}
           fi
-          echo "::set-output name=repository::$REPOSITORY"
+          echo "repository=$REPOSITORY" >> $GITHUB_OUTPUT
 
   lint:
     runs-on: ubuntu-latest
@@ -110,14 +110,14 @@ jobs:
         run: |
           set -x
           KTFMT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=../&|g' | grep -v "*.txt"`
-          echo "::set-output name=ktfmt-file-args::$KTFMT_FILES"
+          echo "ktfmt-file-args=KTFMT_FILES" >> $GITHUB_OUTPUT
 
       - name: "Parse changed-files as affected files args"
         id: affected-file-args
         run: |
           set -x
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
-          echo "::set-output name=files::$AFFECTED_FILES"
+          echo "files=AFFECTED_FILES" >> $GITHUB_OUTPUT
       - name: "warm up gradle"
         id: warm-up-gradle-cache
         uses: gradle/gradle-command-action@v1

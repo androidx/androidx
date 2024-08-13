@@ -33,7 +33,7 @@ jobs:
           set -x
           git status
           HAS_CHANGES=`git status --porcelain|grep playground\.properties|wc -l`
-          echo "::set-output name=has_changes::$HAS_CHANGES"
+          echo "has_changes=HAS_CHANGES" >> $GITHUB_OUTPUT
       - name: "Create a PR"
         shell: bash
         id: "create-pr"

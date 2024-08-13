@@ -23,7 +23,7 @@ jobs:
             -Dorg.gradle.internal.repository.max.retries=20                 \
             -Dorg.gradle.internal.repository.initial.backoff=500            \
             --stacktrace"
-          echo "::set-output name=gradlew_flags::$GRADLEW_FLAGS"
+          echo "gradlew_flags=$GRADLEW_FLAGS" >> $GITHUB_OUTPUT
       - name: Publish build scans link
         # No scans are produced for PRs from forked repos, so omit this notice for forked PRs.
         if: ${{ !(github.event.pull_request && github.event.pull_request.head.repo.fork) }}
@@ -80,14 +80,14 @@ jobs:
         run: |
           set -x
           KTFMT_FILES=`echo "${{ steps.changed-files.outputs.files }}" | sed 's|[^ ]* *|--file=../&|g' | grep -v "*.txt"`
-          echo "::set-output name=ktfmt-file-args::$KTFMT_FILES"
+          echo "ktfmt-file-args=$KTFMT_FILES" >> $GITHUB_OUTPUT
 
       - name: "Parse changed-files as affected files args"
         id: affected-file-args
         run: |
           set -x
           AFFECTED_FILES=`echo "${{ steps.changed-files.outputs.files_including_removals }}" | sed 's|\([^ ]\+\)|--changedFilePath=\1|g'`
-          echo "::set-output name=files::$AFFECTED_FILES"
+          echo "files=$AFFECTED_FILES" >> $GITHUB_OUTPUT
 
       - name: "Setup Gradle"
         uses: gradle/gradle-build-action@v3-beta
@@ -146,7 +146,7 @@ jobs:
         run: |
           set -x
           RESULT=`.github/ci-control/should_run_project.py --project ${{ matrix.project }} --branch "$BRANCH_REF"`
-          echo "::set-output name=enabled::$RESULT"
+          echo "enabled=$RESULT" >> $GITHUB_OUTPUT
       - name: "Run build"
         uses: ./.github/actions/build-single-project
         if: ${{ steps.check-ci-config.outputs.enabled == 'true' }}
