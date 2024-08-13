@@ -34,7 +34,6 @@ import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
 import android.media.ImageWriter
-import android.os.Build
 import android.os.Handler
 import android.util.Size
 import android.view.Surface
@@ -43,7 +42,7 @@ import androidx.annotation.RequiresPermission
 import androidx.camera.camera2.pipe.CameraMetadata
 import java.util.concurrent.Executor
 
-@RequiresApi(Build.VERSION_CODES.M)
+@RequiresApi(23)
 internal object Api23Compat {
     @JvmStatic
     @Throws(CameraAccessException::class)
@@ -100,7 +99,7 @@ internal object Api23Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(24)
 internal object Api24Compat {
     @JvmStatic
     @Throws(CameraAccessException::class)
@@ -142,7 +141,7 @@ internal object Api24Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
+@RequiresApi(26)
 internal object Api26Compat {
     @JvmStatic
     @Throws(CameraAccessException::class)
@@ -172,9 +171,17 @@ internal object Api26Compat {
     fun addSurfaces(outputConfig: OutputConfiguration, surface: Surface) {
         return outputConfig.addSurface(surface)
     }
+
+    @JvmStatic
+    fun onCaptureQueueEmpty(
+        interopSessionStateCallback: CameraCaptureSession.StateCallback?,
+        session: CameraCaptureSession,
+    ) {
+        interopSessionStateCallback?.onCaptureQueueEmpty(session)
+    }
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
+@RequiresApi(28)
 @Suppress("DEPRECATION")
 internal object Api28Compat {
     @JvmStatic
@@ -277,7 +284,7 @@ internal object Api28Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
+@RequiresApi(29)
 internal object Api29Compat {
     @JvmStatic
     fun imageReaderNewInstance(
@@ -296,7 +303,7 @@ internal object Api29Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.R)
+@RequiresApi(30)
 internal object Api30Compat {
     @JvmStatic
     fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
@@ -314,7 +321,7 @@ internal object Api30Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(31)
 internal object Api31Compat {
     @JvmStatic
     fun newInputConfiguration(
@@ -404,7 +411,7 @@ internal object Api31Compat {
     ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
 }
 
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@RequiresApi(33)
 internal object Api33Compat {
     @JvmStatic
     fun setDynamicRangeProfile(outputConfig: OutputConfiguration, dynamicRangeProfile: Long) {
@@ -488,7 +495,7 @@ internal object Api33Compat {
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+@RequiresApi(34)
 internal object Api34Compat {
     @JvmStatic
     fun isPostviewAvailable(

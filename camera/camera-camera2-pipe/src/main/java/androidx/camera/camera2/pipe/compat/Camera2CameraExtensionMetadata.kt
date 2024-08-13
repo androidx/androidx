@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
  * that are either expensive to create and access, or that only exist on newer versions of the OS.
  * This allows all fields to be accessed and return reasonable values on all OS versions.
  */
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(31)
 internal class Camera2CameraExtensionMetadata(
     override val camera: CameraId,
     override val isRedacted: Boolean,

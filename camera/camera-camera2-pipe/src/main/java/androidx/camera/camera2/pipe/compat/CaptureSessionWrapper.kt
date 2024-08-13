@@ -188,7 +188,7 @@ internal class AndroidCaptureSessionStateCallback(
     override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
         stateCallback.onCaptureQueueEmpty(getWrapped(session, cameraErrorListener))
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Api26CompatImpl.onCaptureQueueEmpty(session, interopSessionStateCallback)
+            Api26Compat.onCaptureQueueEmpty(interopSessionStateCallback, session)
         }
     }
 
@@ -239,17 +239,6 @@ internal class AndroidCaptureSessionStateCallback(
         // Clear out the reference to the previous session, if one was set.
         val previousSession = _lastStateCallback.getAndSet(null)
         previousSession?.let { previousSession.onSessionFinalized() }
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private object Api26CompatImpl {
-        @JvmStatic
-        fun onCaptureQueueEmpty(
-            session: CameraCaptureSession,
-            interopSessionStateCallback: CameraCaptureSession.StateCallback?
-        ) {
-            interopSessionStateCallback?.onCaptureQueueEmpty(session)
-        }
     }
 }
 

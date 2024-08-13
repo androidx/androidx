@@ -197,7 +197,7 @@ private constructor(
 }
 
 /** Implements an [ImageReaderWrapper] using a [MultiResolutionImageReader]. */
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(31)
 public class AndroidMultiResolutionImageReader(
     private val multiResolutionImageReader: MultiResolutionImageReader,
     private val streamFormat: StreamFormat,
@@ -268,7 +268,7 @@ public class AndroidMultiResolutionImageReader(
     }
 
     public companion object {
-        @RequiresApi(Build.VERSION_CODES.S)
+        @RequiresApi(31)
         public fun create(
             outputFormat: Int,
             streamId: StreamId,
@@ -305,7 +305,7 @@ public class AndroidMultiResolutionImageReader(
             return androidMultiResolutionImageReader
         }
 
-        @RequiresApi(Build.VERSION_CODES.S)
+        @RequiresApi(31)
         public fun create(
             cameraStream: CameraStream,
             capacity: Int,
