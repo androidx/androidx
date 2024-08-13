@@ -58,7 +58,7 @@ import kotlinx.coroutines.launch
 /** Implementation of focus and metering controls exposed by [CameraControlInternal]. */
 @OptIn(ExperimentalCoroutinesApi::class)
 @CameraScope
-class FocusMeteringControl
+public class FocusMeteringControl
 @Inject
 constructor(
     private val cameraProperties: CameraProperties,
@@ -113,7 +113,7 @@ constructor(
     private var focusTimeoutJob: Job? = null
     private var autoCancelJob: Job? = null
 
-    fun startFocusAndMetering(
+    public fun startFocusAndMetering(
         action: FocusMeteringAction,
         autoFocusTimeoutMs: Long = AUTO_FOCUS_TIMEOUT_DURATION,
     ): ListenableFuture<FocusMeteringResult> {
@@ -314,7 +314,7 @@ constructor(
         }
     }
 
-    fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
+    public fun isFocusMeteringSupported(action: FocusMeteringAction): Boolean {
         val rectanglesAe =
             meteringRegionsFromMeteringPoints(
                 action.meteringPointsAe,
@@ -363,7 +363,7 @@ constructor(
         } else AeMode.OFF
     }
 
-    fun cancelFocusAndMeteringAsync(): Deferred<Result3A?> {
+    public fun cancelFocusAndMeteringAsync(): Deferred<Result3A?> {
         val signal = CompletableDeferred<Result3A?>()
         useCaseCamera?.let { useCaseCamera ->
             threads.sequentialScope.launch {
@@ -441,11 +441,11 @@ constructor(
         return modes.contains(afMode)
     }
 
-    companion object {
-        const val METERING_WEIGHT_DEFAULT = MeteringRectangle.METERING_WEIGHT_MAX
-        const val AUTO_FOCUS_TIMEOUT_DURATION = 5000L
+    public companion object {
+        public const val METERING_WEIGHT_DEFAULT: Int = MeteringRectangle.METERING_WEIGHT_MAX
+        public const val AUTO_FOCUS_TIMEOUT_DURATION: Long = 5000L
 
-        fun meteringRegionsFromMeteringPoints(
+        public fun meteringRegionsFromMeteringPoints(
             meteringPoints: List<MeteringPoint>,
             maxRegionCount: Int,
             cropSensorRegion: Rect,
@@ -552,10 +552,10 @@ constructor(
     }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
         @IntoSet
-        abstract fun provideControls(
+        public abstract fun provideControls(
             focusMeteringControl: FocusMeteringControl
         ): UseCaseCameraControl
     }

@@ -39,7 +39,7 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
+public class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
     /**
      * Returns the fps range whose upper is 30 and whose lower is the smallest, or null if no range
      * has an upper equal to 30. The rationale is:
@@ -47,7 +47,7 @@ class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
      * - Range lower contains the smallest supported value so that it can adapt as much as possible
      *   to low light conditions.
      */
-    val range: Range<Int>? by lazy {
+    public val range: Range<Int>? by lazy {
         val availableFpsRanges: Array<out Range<Int>>? =
             cameraMetadata[CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES]
         pickSuitableFpsRange(availableFpsRanges)
@@ -91,7 +91,8 @@ class AeFpsRangeLegacyQuirk(cameraMetadata: CameraMetadata) : Quirk {
         return Range(newLower, newUpper)
     }
 
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
+            cameraMetadata.isHardwareLevelLegacy
     }
 }

@@ -19,17 +19,20 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.graphics.Point
 import android.util.Size
 
-fun Size.area(): Int = this.width * this.height
+public fun Size.area(): Int = this.width * this.height
 
-fun Size.asLandscape(): Size =
+public fun Size.asLandscape(): Size =
     if (this.width >= this.height) this else Size(this.height, this.width)
 
-fun Size.asPortrait(): Size = if (this.width <= this.height) this else Size(this.height, this.width)
+public fun Size.asPortrait(): Size =
+    if (this.width <= this.height) this else Size(this.height, this.width)
 
-fun minByArea(left: Size, right: Size) = if (left.area() < right.area()) left else right
+public fun minByArea(left: Size, right: Size): Size =
+    if (left.area() < right.area()) left else right
 
-fun maxByArea(left: Size, right: Size) = if (left.area() > right.area()) left else right
+public fun maxByArea(left: Size, right: Size): Size =
+    if (left.area() > right.area()) left else right
 
-fun Point.area(): Int = this.x * this.y
+public fun Point.area(): Int = this.x * this.y
 
-fun Point.toSize() = Size(this.x, this.y)
+public fun Point.toSize(): Size = Size(this.x, this.y)

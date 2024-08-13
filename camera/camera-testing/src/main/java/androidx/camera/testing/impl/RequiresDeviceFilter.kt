@@ -27,9 +27,9 @@ import org.junit.runner.Description
  * The detection conditions of emulator should be the same as
  * androidx.test.internal.runner.TestRequestBuilder.RequiresDeviceFilter.
  */
-class RequiresDeviceFilter : AbstractFilter() {
+public class RequiresDeviceFilter : AbstractFilter() {
 
-    companion object {
+    private companion object {
         private val annotationClass = RequiresDevice::class.java
     }
 

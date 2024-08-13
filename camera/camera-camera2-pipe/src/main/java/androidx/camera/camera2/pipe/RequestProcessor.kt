@@ -36,7 +36,7 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Deprecated("Use CaptureSequence and CaptureSequenceProcessor instead.")
-interface RequestProcessor {
+public interface RequestProcessor {
 
     /**
      * Set the repeating [Request] with an optional set of parameters and listeners. Parameters are
@@ -54,7 +54,7 @@ interface RequestProcessor {
      *   addition to listeners that are specified on each [Request]
      * @return false if the repeating request was not successfully updated.
      */
-    fun startRepeating(
+    public fun startRepeating(
         request: Request,
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
@@ -65,7 +65,7 @@ interface RequestProcessor {
      * Stops the current repeating request, but does *not* close the session. The current repeating
      * request can be resumed by invoking [startRepeating] again.
      */
-    fun stopRepeating()
+    public fun stopRepeating()
 
     /**
      * Submit a single [Request] with optional sets of parameters and listeners. Parameters are
@@ -83,7 +83,7 @@ interface RequestProcessor {
      *   addition to listeners that are specified on each [Request]
      * @return false if this request was not submitted to the camera for any reason.
      */
-    fun submit(
+    public fun submit(
         request: Request,
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
@@ -106,7 +106,7 @@ interface RequestProcessor {
      *   addition to listeners that are specified on each [Request]
      * @return false if these requests were not submitted to the camera for any reason.
      */
-    fun submit(
+    public fun submit(
         requests: List<Request>,
         defaultParameters: Map<*, Any?>,
         requiredParameters: Map<*, Any?>,
@@ -114,11 +114,11 @@ interface RequestProcessor {
     ): Boolean
 
     /** Abort requests that have been submitted but not completed. */
-    fun abortCaptures()
+    public fun abortCaptures()
 
     /**
      * Puts the RequestProcessor into a closed state where it should immediately reject all incoming
      * requests. This should NOT call stopRepeating() or abortCaptures().
      */
-    fun close()
+    public fun close()
 }

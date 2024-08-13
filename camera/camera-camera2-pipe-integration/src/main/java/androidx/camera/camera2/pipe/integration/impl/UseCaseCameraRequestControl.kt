@@ -57,9 +57,9 @@ internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
  * The parameters can be stored for the different types of config respectively. Each type of the
  * config can be removed or overridden respectively without interfering with the other types.
  */
-interface UseCaseCameraRequestControl {
+public interface UseCaseCameraRequestControl {
     /** The declaration order is the ordering to merge. */
-    enum class Type {
+    public enum class Type {
         SESSION_CONFIG,
         DEFAULT,
         CAMERA2_CAMERA_CONTROL,
@@ -84,7 +84,7 @@ interface UseCaseCameraRequestControl {
      *   similar to the [CaptureRequest.Builder.setTag].
      * @param listeners to receive the capture results.
      */
-    fun addParametersAsync(
+    public fun addParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
         optionPriority: Config.OptionPriority = defaultOptionPriority,
@@ -110,7 +110,7 @@ interface UseCaseCameraRequestControl {
      *   will use the [RequestTemplate] that is previously specified.
      * @param listeners to receive the capture results.
      */
-    fun setConfigAsync(
+    public fun setConfigAsync(
         type: Type,
         config: Config? = null,
         tags: Map<String, Any> = emptyMap(),
@@ -121,9 +121,9 @@ interface UseCaseCameraRequestControl {
     ): Deferred<Unit>
 
     // 3A
-    suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
+    public suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
 
-    suspend fun startFocusAndMeteringAsync(
+    public suspend fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
@@ -134,10 +134,10 @@ interface UseCaseCameraRequestControl {
         timeLimitNs: Long = CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A>
 
-    suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
+    public suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
 
     // Capture
-    suspend fun issueSingleCaptureAsync(
+    public suspend fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
@@ -152,17 +152,17 @@ interface UseCaseCameraRequestControl {
      *
      * @see [CameraGraph.Session.update3A]
      */
-    suspend fun update3aRegions(
+    public suspend fun update3aRegions(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
     ): Deferred<Result3A>
 
-    fun close()
+    public fun close()
 }
 
 @UseCaseCameraScope
-class UseCaseCameraRequestControlImpl
+public class UseCaseCameraRequestControlImpl
 @Inject
 constructor(
     private val capturePipeline: CapturePipeline,
@@ -276,7 +276,7 @@ constructor(
             }
         } ?: submitFailedResult
 
-    override suspend fun cancelFocusAndMeteringAsync() =
+    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> =
         runIfNotClosed {
             useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }.await()
 
@@ -294,7 +294,7 @@ constructor(
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
-    ) =
+    ): List<Deferred<Void?>> =
         runIfNotClosed {
             if (captureSequence.hasInvalidSurface()) {
                 failedResults(captureSequence.size, "Capture request failed due to invalid surface")
@@ -324,7 +324,7 @@ constructor(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
-    ) =
+    ): Deferred<Result3A> =
         runIfNotClosed {
             useGraphSessionOrFailed {
                 it.update3A(
@@ -428,22 +428,22 @@ constructor(
         }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @UseCaseCameraScope
         @Binds
-        abstract fun provideRequestControls(
+        public abstract fun provideRequestControls(
             requestControl: UseCaseCameraRequestControlImpl
         ): UseCaseCameraRequestControl
     }
 
-    companion object {
+    public companion object {
         private val submitFailedResult =
             CompletableDeferred(Result3A(Result3A.Status.SUBMIT_FAILED))
         private val canceledResult = CompletableDeferred<Unit>().apply { cancel() }
     }
 }
 
-fun TagBundle.toMap(): Map<String, Any> =
+public fun TagBundle.toMap(): Map<String, Any> =
     mutableMapOf<String, Any>().also {
         listKeys().forEach { tagKey -> it[tagKey] = getTag(tagKey) as Any }
     }

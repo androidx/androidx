@@ -44,7 +44,7 @@ import kotlin.reflect.KClass
 @SuppressLint(
     "UnsafeOptInUsageError" // Suppressed due to experimental API
 )
-class PhysicalCameraInfoAdapter(private val cameraProperties: CameraProperties) :
+public class PhysicalCameraInfoAdapter(private val cameraProperties: CameraProperties) :
     CameraInfo, UnsafeWrapper {
 
     @OptIn(ExperimentalCamera2Interop::class)

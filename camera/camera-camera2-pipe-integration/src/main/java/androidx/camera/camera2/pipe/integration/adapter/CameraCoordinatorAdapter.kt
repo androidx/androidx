@@ -32,21 +32,24 @@ import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_U
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode
 import androidx.camera.core.impl.CameraInternal
 
-class CameraCoordinatorAdapter(
+public class CameraCoordinatorAdapter(
     private var cameraPipe: CameraPipe?,
     cameraDevices: CameraDevices,
 ) : CameraCoordinator {
-    @VisibleForTesting val cameraInternalMap = mutableMapOf<CameraId, CameraInternalAdapter>()
+    @VisibleForTesting
+    public val cameraInternalMap: MutableMap<CameraId, CameraInternalAdapter> = mutableMapOf()
 
-    @VisibleForTesting var concurrentCameraIdsSet = mutableSetOf<Set<CameraId>>()
+    @VisibleForTesting public var concurrentCameraIdsSet: MutableSet<Set<CameraId>> = mutableSetOf()
 
-    @VisibleForTesting var concurrentCameraIdMap = mutableMapOf<String, MutableList<String>>()
+    @VisibleForTesting
+    public var concurrentCameraIdMap: MutableMap<String, MutableList<String>> = mutableMapOf()
 
-    @VisibleForTesting var activeConcurrentCameraInfosList = mutableListOf<CameraInfo>()
+    @VisibleForTesting
+    public var activeConcurrentCameraInfosList: MutableList<CameraInfo> = mutableListOf()
 
-    @VisibleForTesting var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
+    @VisibleForTesting public var concurrentMode: Int = CAMERA_OPERATING_MODE_UNSPECIFIED
 
-    @VisibleForTesting var concurrentModeOn = false
+    @VisibleForTesting public var concurrentModeOn: Boolean = false
 
     init {
         val concurrentCameraIds = cameraDevices.awaitConcurrentCameraIds()!!.toMutableSet()
@@ -82,7 +85,7 @@ class CameraCoordinatorAdapter(
         }
     }
 
-    fun registerCamera(cameraId: String, cameraInternal: CameraInternal) {
+    public fun registerCamera(cameraId: String, cameraInternal: CameraInternal) {
         cameraInternalMap[CameraId.fromCamera2Id(cameraId)] =
             cameraInternal as CameraInternalAdapter
     }

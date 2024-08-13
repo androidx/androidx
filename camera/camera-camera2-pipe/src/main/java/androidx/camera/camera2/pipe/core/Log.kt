@@ -27,8 +27,8 @@ import android.util.Log
  *
  * Log.debug { "This is a log message with a $value" }
  */
-object Log {
-    const val TAG: String = "CXCP"
+public object Log {
+    public const val TAG: String = "CXCP"
 
     private const val LOG_LEVEL_DEBUG = 1
     private const val LOG_LEVEL_INFO = 2
@@ -38,26 +38,28 @@ object Log {
     // This indicates the lowest log level that will always log.
     private const val LOG_LEVEL = LOG_LEVEL_DEBUG
 
-    val DEBUG_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
-    val INFO_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
-    val WARN_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
-    val ERROR_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
+    public val DEBUG_LOGGABLE: Boolean =
+        LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
+    public val INFO_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
+    public val WARN_LOGGABLE: Boolean = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
+    public val ERROR_LOGGABLE: Boolean =
+        LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
 
     /** Debug functions log noisy information related to the internals of the system. */
-    inline fun debug(crossinline msg: () -> String) {
+    public inline fun debug(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg())
     }
 
-    inline fun debug(throwable: Throwable, crossinline msg: () -> String) {
+    public inline fun debug(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg(), throwable)
     }
 
     /** Info functions log standard, useful information about the state of the system. */
-    inline fun info(crossinline msg: () -> String) {
+    public inline fun info(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg())
     }
 
-    inline fun info(throwable: Throwable, crossinline msg: () -> String) {
+    public inline fun info(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg(), throwable)
     }
 
@@ -65,22 +67,22 @@ object Log {
      * Warning functions are used when something unexpected may lead to a crash or fatal exception
      * later on as a result if the unusual circumstances
      */
-    inline fun warn(crossinline msg: () -> String) {
+    public inline fun warn(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg())
     }
 
-    inline fun warn(throwable: Throwable, crossinline msg: () -> String) {
+    public inline fun warn(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg(), throwable)
     }
 
     /**
      * Error functions are reserved for something unexpected that will lead to a crash or data loss.
      */
-    inline fun error(crossinline msg: () -> String) {
+    public inline fun error(crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg())
     }
 
-    inline fun error(throwable: Throwable, crossinline msg: () -> String) {
+    public inline fun error(throwable: Throwable, crossinline msg: () -> String) {
         if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
 
@@ -92,7 +94,7 @@ object Log {
      * @return Original returned value of `block` in case of no exception.
      * @throws Exception that is caught while executing `block`.
      */
-    inline fun <T> rethrowExceptionAfterLogging(msg: String, crossinline block: () -> T) =
+    public inline fun <T> rethrowExceptionAfterLogging(msg: String, crossinline block: () -> T): T =
         try {
             block()
         } catch (e: Exception) {
@@ -101,7 +103,7 @@ object Log {
         }
 
     /** Read the stack trace of a calling method and join it to a formatted string. */
-    fun readStackTrace(limit: Int = 4): String {
+    public fun readStackTrace(limit: Int = 4): String {
         val elements = Thread.currentThread().stackTrace
         // Ignore the first 3 elements, which ignores:
         // VMStack.getThreadStackTrace
@@ -120,8 +122,8 @@ object Log {
      * Note that the message constants here may be used to parse test data, so these constant values
      * should be changed with caution. See b/356108571 for details.
      */
-    object MonitoredLogMessages {
-        const val REPEATING_REQUEST_STARTED_TIMEOUT =
+    public object MonitoredLogMessages {
+        public const val REPEATING_REQUEST_STARTED_TIMEOUT: String =
             "awaitStarted on last repeating request timed out"
     }
 }

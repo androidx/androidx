@@ -25,7 +25,7 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.UseCaseConfigFactory
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class FakeCameraConfig(
+public class FakeCameraConfig(
     private val sessionProcessor: SessionProcessor? = null,
     private val postviewSupported: Boolean = false,
     private val captureProcessProgressSupported: Boolean = false

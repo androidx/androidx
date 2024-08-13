@@ -25,18 +25,18 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraThreadConfig
 
 /** Convenience class for generating a pre-populated CameraPipe based [CameraXConfig]. */
-class CameraPipeConfig private constructor() {
-    companion object {
+public class CameraPipeConfig private constructor() {
+    public companion object {
         /** Creates a [CameraXConfig] containing a default CameraPipe implementation for CameraX. */
         @JvmStatic
-        fun defaultConfig(): CameraXConfig {
+        public fun defaultConfig(): CameraXConfig {
             return from()
         }
 
         /** Creates a [CameraXConfig] using a pre-existing [CameraPipe] instance. */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @JvmStatic
-        fun from(
+        public fun from(
             sharedCameraPipe: CameraPipe? = null,
             sharedAppContext: Context? = null,
             sharedThreadConfig: CameraThreadConfig? = null

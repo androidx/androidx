@@ -34,7 +34,7 @@ import androidx.camera.testing.impl.mocks.helpers.CallTimes
  *   condition is met.
  * @see [MockConsumer.verifyAcceptCall]
  */
-fun <T> MockConsumer<T>.verifyAcceptCallExt(
+public fun <T> MockConsumer<T>.verifyAcceptCallExt(
     classType: Class<*>,
     inOrder: Boolean = false,
     timeoutMs: Long = NO_TIMEOUT,

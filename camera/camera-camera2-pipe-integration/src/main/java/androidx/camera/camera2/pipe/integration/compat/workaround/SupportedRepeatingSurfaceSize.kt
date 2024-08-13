@@ -24,7 +24,7 @@ import androidx.camera.core.impl.utils.CompareSizesByArea
 private val MINI_PREVIEW_SIZE_HUAWEI_MATE_9 = Size(320, 240)
 private val SIZE_COMPARATOR: Comparator<Size> = CompareSizesByArea()
 
-fun Array<Size>.getSupportedRepeatingSurfaceSizes(): Array<Size> {
+public fun Array<Size>.getSupportedRepeatingSurfaceSizes(): Array<Size> {
     DeviceQuirks[RepeatingStreamConstraintForVideoRecordingQuirk::class.java] ?: return this
 
     val supportedSizes = mutableListOf<Size>()

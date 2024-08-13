@@ -30,7 +30,7 @@ import javax.inject.Singleton
  * should update CameraErrorProcessor with the [VirtualCameraState] that came with the open request.
  */
 @Singleton
-class Camera2ErrorProcessor @Inject constructor() : CameraErrorListener {
+public class Camera2ErrorProcessor @Inject constructor() : CameraErrorListener {
     private val lock = Any()
 
     @GuardedBy("lock")

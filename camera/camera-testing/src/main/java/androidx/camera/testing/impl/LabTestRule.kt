@@ -59,7 +59,7 @@ import org.junit.runners.model.Statement
  * adb shell setprop log.tag.rearCameraE2E DEBUG
  * ```
  */
-class LabTestRule : TestRule {
+public class LabTestRule : TestRule {
 
     /**
      * The annotation for tests that only want to run on the CameraX lab environment. Local device
@@ -68,7 +68,7 @@ class LabTestRule : TestRule {
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class LabTestOnly()
+    public annotation class LabTestOnly()
 
     /**
      * The annotation for tests that only want to run on the CameraX lab environment with enabling
@@ -77,7 +77,7 @@ class LabTestRule : TestRule {
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class LabTestFrontCamera()
+    public annotation class LabTestFrontCamera()
 
     /**
      * The annotation for tests that only want to run on the CameraX lab environment with enabling
@@ -86,9 +86,9 @@ class LabTestRule : TestRule {
      */
     @Target(AnnotationTarget.FUNCTION)
     @Retention(AnnotationRetention.RUNTIME)
-    annotation class LabTestRearCamera()
+    public annotation class LabTestRearCamera()
 
-    class LabTestStatement(private val statement: Statement) : Statement() {
+    public class LabTestStatement(private val statement: Statement) : Statement() {
 
         @Throws(Throwable::class)
         override fun evaluate() {
@@ -100,7 +100,7 @@ class LabTestRule : TestRule {
         }
     }
 
-    class LabTestFrontCameraStatement(private val statement: Statement) : Statement() {
+    public class LabTestFrontCameraStatement(private val statement: Statement) : Statement() {
 
         @Throws(Throwable::class)
         override fun evaluate() {
@@ -111,7 +111,7 @@ class LabTestRule : TestRule {
         }
     }
 
-    class LabTestRearCameraStatement(private val statement: Statement) : Statement() {
+    public class LabTestRearCameraStatement(private val statement: Statement) : Statement() {
 
         @Throws(Throwable::class)
         override fun evaluate() {
@@ -135,9 +135,9 @@ class LabTestRule : TestRule {
         }
     }
 
-    companion object {
+    public companion object {
         @JvmStatic
-        fun isInLabTest(): Boolean {
+        public fun isInLabTest(): Boolean {
             return Log.isLoggable("MH", Log.DEBUG)
         }
 
@@ -152,7 +152,9 @@ class LabTestRule : TestRule {
          * @return if enabled camera is in same direction as [lensFacing] in CameraX lab environment
          */
         @JvmStatic
-        fun isLensFacingEnabledInLabTest(@CameraSelector.LensFacing lensFacing: Int) =
+        public fun isLensFacingEnabledInLabTest(
+            @CameraSelector.LensFacing lensFacing: Int
+        ): Boolean =
             when (lensFacing) {
                 CameraSelector.LENS_FACING_BACK -> Log.isLoggable("rearCameraE2E", Log.DEBUG)
                 CameraSelector.LENS_FACING_FRONT -> Log.isLoggable("frontCameraE2E", Log.DEBUG)

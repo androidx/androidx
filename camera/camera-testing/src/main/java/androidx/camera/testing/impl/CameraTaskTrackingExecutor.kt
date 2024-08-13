@@ -32,7 +32,7 @@ import kotlinx.coroutines.awaitAll
  * CameraX uses when user doesn't set any executor via [CameraXConfig.Builder.setCameraExecutor].
  */
 @VisibleForTesting
-class CameraTaskTrackingExecutor : Executor {
+public class CameraTaskTrackingExecutor : Executor {
     private val lock = Object()
     private val cameraTasks = mutableListOf<CompletableDeferred<Unit>>()
     private val cameraExecutor = CameraExecutor()
@@ -55,7 +55,7 @@ class CameraTaskTrackingExecutor : Executor {
     }
 
     /** Waits for all submitted tasks to be completed. */
-    suspend fun awaitIdle() {
+    public suspend fun awaitIdle() {
         synchronized(lock) { cameraTasks }.awaitAll()
     }
 }

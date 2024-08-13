@@ -33,9 +33,9 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk : Quirk {
+public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk : Quirk {
 
-    companion object {
+    public companion object {
 
         private val AFFECTED_MODELS =
             listOf(
@@ -57,7 +57,7 @@ class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk : Quirk {
             )
 
         @JvmStatic
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return AFFECTED_MODELS.contains(Build.MODEL.uppercase())
         }
     }

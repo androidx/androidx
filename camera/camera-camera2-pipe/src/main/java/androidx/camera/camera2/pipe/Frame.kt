@@ -68,7 +68,7 @@ import androidx.camera.camera2.pipe.media.OutputImage
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface Frame : FrameReference, AutoCloseable {
+public interface Frame : FrameReference, AutoCloseable {
     /**
      * Return the [FrameInfo], if available or suspend until the FrameInfo has been resolved.
      *
@@ -76,13 +76,13 @@ interface Frame : FrameReference, AutoCloseable {
      * closed. If frameInfo is not available, [frameInfoStatus] can be used to understand why this
      * metadata is not available.
      */
-    suspend fun awaitFrameInfo(): FrameInfo?
+    public suspend fun awaitFrameInfo(): FrameInfo?
 
     /**
      * Return the [FrameInfo], if available, for this Frame. This method does not block and will
      * return null if the Frame has been closed, or if the [FrameInfo] has not yet been produced.
      */
-    fun getFrameInfo(): FrameInfo?
+    public fun getFrameInfo(): FrameInfo?
 
     /**
      * Return the [OutputImage] for this [streamId], if available or suspend until the output for
@@ -93,7 +93,7 @@ interface Frame : FrameReference, AutoCloseable {
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
      */
-    suspend fun awaitImage(streamId: StreamId): OutputImage?
+    public suspend fun awaitImage(streamId: StreamId): OutputImage?
 
     /**
      * Return the [OutputImage] for this [streamId], if available.
@@ -103,86 +103,88 @@ interface Frame : FrameReference, AutoCloseable {
      * was not produced by the camera. Each call produces a unique [OutputImage] that *must* be
      * closed to avoid memory leaks.
      */
-    fun getImage(streamId: StreamId): OutputImage?
+    public fun getImage(streamId: StreamId): OutputImage?
 
     /**
      * Listener for non-coroutine based applications that may need to be notified when the state of
      * this [Frame] changes.
      */
-    fun addListener(listener: Listener)
+    public fun addListener(listener: Listener)
 
     /** Listener for events about an [Frame] */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    interface Listener {
+    public interface Listener {
         /**
          * Invoked after an [Frame] has been created and has started.
          *
          * @param frameNumber is the camera-provided identifier for this Frame.
          * @param frameTimestamp is the primary camera-provided timestamp for this Frame.
          */
-        fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp)
+        public fun onFrameStarted(frameNumber: FrameNumber, frameTimestamp: CameraTimestamp)
 
         /** Invoked after [FrameInfo] is available, or has failed to be produced. */
-        fun onFrameInfoAvailable()
+        public fun onFrameInfoAvailable()
 
         /** Invoked after the output for a given [StreamId] has been produced. */
-        fun onImageAvailable(streamId: StreamId)
+        public fun onImageAvailable(streamId: StreamId)
 
         /**
          * Invoked after *all* outputs for this [Frame] have been produced. This method will be
          * invoked after [onImageAvailable] has been invoked for all relevant streams, and will be
          * invoked immediately after [onFrameStarted] for frames that do not produce outputs.
          */
-        fun onImagesAvailable()
+        public fun onImagesAvailable()
 
         /** Invoked after the [FrameInfo] and all outputs have been completed for this [Frame]. */
-        fun onFrameComplete()
+        public fun onFrameComplete()
     }
 
-    companion object {
-        val Frame.request
+    public companion object {
+        public val Frame.request: Request
             get() = this.requestMetadata.request
 
-        val FrameReference.isFrameInfoAvailable
+        public val FrameReference.isFrameInfoAvailable: Boolean
             get() = this.frameInfoStatus == OutputStatus.AVAILABLE
 
-        fun FrameReference.isImageAvailable(streamId: StreamId) =
+        public fun FrameReference.isImageAvailable(streamId: StreamId): Boolean =
             this.imageStatus(streamId) == OutputStatus.AVAILABLE
     }
 }
 
 /** A [FrameId] a unique identifier that represents the order a [Frame] was produced in. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline value class FrameId(val value: Long)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class FrameId(public val value: Long)
 
 /** Represents the status of an output from the camera with enum-like values. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class OutputStatus internal constructor(val value: Int) {
-    companion object {
+public value class OutputStatus internal constructor(public val value: Int) {
+    public companion object {
         /** Output is not yet available. */
-        val PENDING = OutputStatus(0)
+        public val PENDING: OutputStatus = OutputStatus(0)
 
         /** Output has arrived and is available. */
-        val AVAILABLE = OutputStatus(1)
+        public val AVAILABLE: OutputStatus = OutputStatus(1)
 
         /**
          * Output has been resolved, and is not available for some reason that is not due to Camera
          * operation, error, or other internal behavior. For example, if the object holding an
          * output is closed, the method to get the output may return [UNAVAILABLE].
          */
-        val UNAVAILABLE = OutputStatus(2)
+        public val UNAVAILABLE: OutputStatus = OutputStatus(2)
 
         /** Output is not available because the Camera reported an error for this output. */
-        val ERROR_OUTPUT_FAILED = OutputStatus(10)
+        public val ERROR_OUTPUT_FAILED: OutputStatus = OutputStatus(10)
 
         /** Output is not available because it was intentionally aborted, or arrived after close. */
-        val ERROR_OUTPUT_ABORTED = OutputStatus(11)
+        public val ERROR_OUTPUT_ABORTED: OutputStatus = OutputStatus(11)
 
         /**
          * Output is not available because it was unexpectedly dropped or failed to arrive from the
          * camera without some other kind of explicit error.
          */
-        val ERROR_OUTPUT_MISSING = OutputStatus(12)
+        public val ERROR_OUTPUT_MISSING: OutputStatus = OutputStatus(12)
 
         /**
          * Output is not available because it was intentionally dropped due to rate limiting. This
@@ -190,7 +192,7 @@ value class OutputStatus internal constructor(val value: Int) {
          * under normal usage, it can also indicate that some bit of code is not correctly closing
          * frames and/or images.
          */
-        val ERROR_OUTPUT_DROPPED = OutputStatus(13)
+        public val ERROR_OUTPUT_DROPPED: OutputStatus = OutputStatus(13)
     }
 }
 
@@ -229,12 +231,12 @@ value class OutputStatus internal constructor(val value: Int) {
  * ```
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FrameCapture : AutoCloseable {
+public interface FrameCapture : AutoCloseable {
     /** The [Request] that was used to issue this [FrameCapture]. */
-    val request: Request
+    public val request: Request
 
     /** Get the status of the pending [Frame]. */
-    val status: OutputStatus
+    public val status: OutputStatus
 
     /**
      * Get or suspend until the [Frame] that will be produced by the camera for this [request] is
@@ -243,7 +245,7 @@ interface FrameCapture : AutoCloseable {
      * Invoking this multiple times will produce distinct Frame instances that will need to be
      * individually closed.
      */
-    suspend fun awaitFrame(): Frame?
+    public suspend fun awaitFrame(): Frame?
 
     /**
      * Get the [Frame] that will was produced by the camera for this [request] or null if the
@@ -252,10 +254,10 @@ interface FrameCapture : AutoCloseable {
      * Invoking this multiple times will produce distinct Frame instances that will need to be
      * individually closed.
      */
-    fun getFrame(): Frame?
+    public fun getFrame(): Frame?
 
     /** Adds a [Frame.Listener] that will be invoked for each of the subsequent [Frame] events. */
-    fun addListener(listener: Frame.Listener)
+    public fun addListener(listener: Frame.Listener)
 }
 
 /**
@@ -263,32 +265,32 @@ interface FrameCapture : AutoCloseable {
  * being closed or released unless the frame is acquired via [acquire] or [tryAcquire].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FrameReference {
+public interface FrameReference {
     /**
      * Metadata about the request that produced this [Frame].
      *
      * [RequestMetadata] includes any modifications to the original request that were made due to
      * 3A, Zoom, default and required parameters defined, and more.
      */
-    val requestMetadata: RequestMetadata
+    public val requestMetadata: RequestMetadata
 
     /**
      * The unique, sequential identifier defined by CameraPipe for this Frame. This identifier is
      * incremented each time a new exposure starts from the Camera.
      */
-    val frameId: FrameId
+    public val frameId: FrameId
 
     /** The original camera provided [FrameNumber] from this [Frame] */
-    val frameNumber: FrameNumber
+    public val frameNumber: FrameNumber
 
     /** The original camera provided [CameraTimestamp] from this [Frame] */
-    val frameTimestamp: CameraTimestamp
+    public val frameTimestamp: CameraTimestamp
 
     /** Get the current [OutputStatus] for the FrameInfo of this Frame. */
-    val frameInfoStatus: OutputStatus
+    public val frameInfoStatus: OutputStatus
 
     /** Get the current [OutputStatus] of the output for a given [streamId]. */
-    fun imageStatus(streamId: StreamId): OutputStatus
+    public fun imageStatus(streamId: StreamId): OutputStatus
 
     /**
      * [StreamId]'s that can be used to access [OutputImage]s from this [Frame] via [Frame.getImage]
@@ -296,20 +298,20 @@ interface FrameReference {
      * **This may be different from the list of streams defined in the original [Request]!** since
      * this list will only include streams that were internally created and managed by CameraPipe.
      */
-    val imageStreams: Set<StreamId>
+    public val imageStreams: Set<StreamId>
 
     /**
      * Acquire a reference to a [Frame] that can be independently managed or closed. A filter can be
      * provided to limit which outputs are available.
      */
-    fun tryAcquire(streamFilter: Set<StreamId>? = null): Frame?
+    public fun tryAcquire(streamFilter: Set<StreamId>? = null): Frame?
 
-    companion object {
+    public companion object {
         /**
          * Acquire a [Frame] from a [FrameReference]. The outputs can be limited by specifying a
          * filter to restrict which outputs are acquired.
          */
-        fun FrameReference.acquire(streamFilter: Set<StreamId>? = null): Frame {
+        public fun FrameReference.acquire(streamFilter: Set<StreamId>? = null): Frame {
             return checkNotNull(tryAcquire(streamFilter)) {
                 "Failed to acquire a strong reference to $this!"
             }

@@ -31,10 +31,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * - Device(s): Pixel 8.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class TemporalNoiseQuirk : CaptureIntentPreviewQuirk {
+public class TemporalNoiseQuirk : CaptureIntentPreviewQuirk {
 
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return isPixel8 && cameraMetadata[LENS_FACING] == LENS_FACING_FRONT
         }
 

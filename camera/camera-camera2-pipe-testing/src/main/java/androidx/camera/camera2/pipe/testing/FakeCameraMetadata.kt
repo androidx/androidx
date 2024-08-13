@@ -35,11 +35,13 @@ internal fun nextFakeCameraId(): CameraId =
     CameraId("FakeCamera-${fakeCameraIds.incrementAndGet()}")
 
 /** Utility class for interacting with objects that require pre-populated Metadata. */
-open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) : Metadata {
-    companion object {
-        @JvmField val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
+public open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) :
+    Metadata {
+    public companion object {
+        @JvmField public val TEST_KEY: Metadata.Key<Int> = Metadata.Key.create("test.key")
 
-        @JvmField val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
+        @JvmField
+        public val TEST_KEY_ABSENT: Metadata.Key<Int> = Metadata.Key.create("test.key.absent")
     }
 
     override fun <T> get(key: Metadata.Key<T>): T? = metadata[key] as T?
@@ -51,7 +53,7 @@ open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = empty
 }
 
 /** Utility class for interacting with objects require specific [CameraCharacteristics] metadata. */
-class FakeCameraMetadata(
+public class FakeCameraMetadata(
     private val characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     cameraId: CameraId = nextFakeCameraId(),
@@ -59,7 +61,7 @@ class FakeCameraMetadata(
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),
     override val sessionKeys: Set<CaptureRequest.Key<*>> = emptySet(),
-    val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
+    public val physicalMetadata: Map<CameraId, CameraMetadata> = emptyMap(),
     override val physicalRequestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     private val extensions: Map<Int, FakeCameraExtensionMetadata> = emptyMap(),
 ) : FakeMetadata(metadata), CameraMetadata {
@@ -96,7 +98,7 @@ class FakeCameraMetadata(
 }
 
 /** Utility class for interacting with objects require [CameraExtensionMetadata] */
-class FakeCameraExtensionMetadata(
+public class FakeCameraExtensionMetadata(
     override val camera: CameraId,
     override val cameraExtension: Int,
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),

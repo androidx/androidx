@@ -85,7 +85,7 @@ import java.util.Objects.requireNonNull
  *
  * This is the standard provider for applications to use.
  */
-class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
+public class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
     private val mLock = Any()
 
     @GuardedBy("mLock") private var mCameraXConfigProvider: CameraXConfig.Provider? = null
@@ -116,7 +116,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      *   a no-op.
      */
     @VisibleForTesting
-    fun shutdownAsync(): ListenableFuture<Void> {
+    public fun shutdownAsync(): ListenableFuture<Void> {
         Threads.runOnMainSync {
             unbindAll()
             mLifecycleCameraRepository.clear()
@@ -196,7 +196,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * @throws UnsupportedOperationException If the camera is configured in concurrent mode.
      */
     @MainThread
-    fun bindToLifecycle(
+    public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
         vararg useCases: UseCase?
@@ -236,7 +236,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * @throws UnsupportedOperationException If the camera is configured in concurrent mode.
      */
     @MainThread
-    fun bindToLifecycle(
+    public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
         useCaseGroup: UseCaseGroup
@@ -323,7 +323,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      */
     @OptIn(ExperimentalCameraInfo::class)
     @MainThread
-    fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera =
+    public fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera =
         trace("CX:bindToLifecycle-Concurrent") {
             if (singleCameraConfigs.size < 2) {
                 throw IllegalArgumentException("Concurrent camera needs two camera configs.")
@@ -661,7 +661,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
      * @throws UnsupportedOperationException If called in concurrent mode.
      */
     @MainThread
-    override fun unbind(vararg useCases: UseCase?) =
+    public override fun unbind(vararg useCases: UseCase?): Unit =
         trace("CX:unbind") {
             Threads.checkMainThread()
 
@@ -675,7 +675,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
         }
 
     @MainThread
-    override fun unbindAll() =
+    public override fun unbindAll(): Unit =
         trace("CX:unbindAll") {
             Threads.checkMainThread()
             cameraOperatingMode = CAMERA_OPERATING_MODE_UNSPECIFIED
@@ -717,7 +717,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             return@trace availableCameraInfos
         }
 
-    val availableConcurrentCameraInfos: List<List<CameraInfo>>
+    public val availableConcurrentCameraInfos: List<List<CameraInfo>>
         /**
          * Returns list of [CameraInfo] instances of the available concurrent cameras.
          *
@@ -780,7 +780,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             return@trace restrictedCameraInfo!!
         }
 
-    val isConcurrentCameraModeOn: Boolean
+    public val isConcurrentCameraModeOn: Boolean
         /**
          * Returns whether there is a [ConcurrentCamera] bound.
          *
@@ -906,7 +906,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
             mCameraX!!.cameraFactory.cameraCoordinator.activeConcurrentCameraInfos = cameraInfos
         }
 
-    companion object {
+    public companion object {
         private val sAppInstance = ProcessCameraProvider()
 
         /**
@@ -945,7 +945,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          */
         @Suppress("AsyncSuffixFuture")
         @JvmStatic
-        fun getInstance(context: Context): ListenableFuture<ProcessCameraProvider> {
+        public fun getInstance(context: Context): ListenableFuture<ProcessCameraProvider> {
             Preconditions.checkNotNull(context)
             return Futures.transform(
                 sAppInstance.getOrCreateCameraXInstance(context),
@@ -988,7 +988,7 @@ class ProcessCameraProvider private constructor() : LifecycleCameraProvider {
          */
         @JvmStatic
         @ExperimentalCameraProviderConfiguration
-        fun configureInstance(cameraXConfig: CameraXConfig) =
+        public fun configureInstance(cameraXConfig: CameraXConfig): Unit =
             trace("CX:configureInstance") { sAppInstance.configureInstanceInternal(cameraXConfig) }
     }
 }

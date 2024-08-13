@@ -25,9 +25,9 @@ import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceConfig.ConfigType
 
-object GuaranteedConfigurationsUtil {
+public object GuaranteedConfigurationsUtil {
     @JvmStatic
-    fun getLegacySupportedCombinationList(): List<SurfaceCombination> {
+    public fun getLegacySupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
 
         // (PRIV, MAXIMUM)
@@ -84,7 +84,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getLimitedSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getLimitedSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
 
         // (PRIV, PREVIEW) + (PRIV, RECORD)
@@ -139,7 +139,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getFullSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getFullSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
 
         // (PRIV, PREVIEW) + (PRIV, MAXIMUM)
@@ -194,7 +194,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getRAWSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getRAWSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
 
         // (RAW, MAXIMUM)
@@ -259,7 +259,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getBurstSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getBurstSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
         // (PRIV, PREVIEW) + (PRIV, MAXIMUM)
         SurfaceCombination()
@@ -286,7 +286,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getLevel3SupportedCombinationList(): List<SurfaceCombination> {
+    public fun getLevel3SupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
         // (PRIV, PREVIEW) + (PRIV, VGA) + (YUV, MAXIMUM) + (RAW, MAXIMUM)
         SurfaceCombination()
@@ -310,7 +310,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getUltraHighResolutionSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getUltraHighResolutionSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
 
         // (YUV, ULTRA_MAXIMUM) + (PRIV, PREVIEW) + (PRIV, RECORD)
@@ -432,7 +432,7 @@ object GuaranteedConfigurationsUtil {
 
     /** Returns the minimally guaranteed stream combinations for Ultra HDR. */
     @JvmStatic
-    fun getUltraHdrSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getUltraHdrSupportedCombinationList(): List<SurfaceCombination> {
         // Due to the unique characteristics of JPEG/R, some devices might configure an extra 8-bit
         // JPEG stream internally in addition to the 10-bit YUV stream. The 10-bit mandatory
         // stream combination table is actually not suitable for use. Adds only (PRIV, PREVIEW) +
@@ -457,7 +457,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getConcurrentSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getConcurrentSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
         // (YUV, s1440p)
         SurfaceCombination()
@@ -517,7 +517,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun generateSupportedCombinationList(
+    public fun generateSupportedCombinationList(
         hardwareLevel: Int,
         isRawSupported: Boolean,
         isBurstCaptureSupported: Boolean
@@ -558,7 +558,7 @@ object GuaranteedConfigurationsUtil {
      * as a 10-bit input.
      */
     @JvmStatic
-    fun get10BitSupportedCombinationList(): List<SurfaceCombination> {
+    public fun get10BitSupportedCombinationList(): List<SurfaceCombination> {
         return listOf(
             // (PRIV, MAXIMUM)
             SurfaceCombination().apply {
@@ -607,7 +607,7 @@ object GuaranteedConfigurationsUtil {
      * Returns the entire supported stream combinations for devices with Stream Use Case capability
      */
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
-    fun getStreamUseCaseSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getStreamUseCaseSupportedCombinationList(): List<SurfaceCombination> {
         return listOf<SurfaceCombination>(
             // (PRIV, s1440p, PREVIEW_VIDEO_STILL)
             SurfaceCombination().apply {
@@ -834,7 +834,7 @@ object GuaranteedConfigurationsUtil {
     }
 
     @JvmStatic
-    fun getPreviewStabilizationSupportedCombinationList(): List<SurfaceCombination> {
+    public fun getPreviewStabilizationSupportedCombinationList(): List<SurfaceCombination> {
         val combinationList: MutableList<SurfaceCombination> = ArrayList()
         // (PRIV, s1440p)
         SurfaceCombination()

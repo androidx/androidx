@@ -39,11 +39,11 @@ import androidx.camera.core.internal.compat.quirk.SurfaceProcessingQuirk
  *   Samsung Tab A8
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
+public class ImageCaptureFailedWhenVideoCaptureIsBoundQuirk :
     CaptureIntentPreviewQuirk, SurfaceProcessingQuirk {
 
-    companion object {
-        fun isEnabled(): Boolean {
+    public companion object {
+        public fun isEnabled(): Boolean {
             return isBluStudioX10 ||
                 isItelW6004 ||
                 isVivo1805 ||

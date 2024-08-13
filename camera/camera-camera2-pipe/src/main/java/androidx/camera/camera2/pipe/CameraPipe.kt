@@ -53,38 +53,38 @@ internal val cameraPipeIds = atomic(0)
  * the [CameraGraph] interface.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraPipe {
+public interface CameraPipe {
 
     /**
      * This creates a new [CameraGraph] that can be used to interact with a single Camera on the
      * device. Multiple [CameraGraph]s can be created, but only one should be active at a time.
      */
-    fun create(config: CameraGraph.Config): CameraGraph
+    public fun create(config: CameraGraph.Config): CameraGraph
 
     /**
      * This creates a list of [CameraGraph]s that can be used to interact with multiple cameras on
      * the device concurrently. Device-specific constraints may apply, such as the set of cameras
      * that can be operated concurrently, or the combination of sizes we're allowed to configure.
      */
-    fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph>
+    public fun createCameraGraphs(config: CameraGraph.ConcurrentConfig): List<CameraGraph>
 
     /** This provides access to information about the available cameras on the device. */
-    fun cameras(): CameraDevices
+    public fun cameras(): CameraDevices
 
     /** This returns [CameraSurfaceManager] which tracks the lifetime of Surfaces in CameraPipe. */
-    fun cameraSurfaceManager(): CameraSurfaceManager
+    public fun cameraSurfaceManager(): CameraSurfaceManager
 
     /**
      * This gets and sets the global [AudioRestrictionMode] tracked by [AudioRestrictionController].
      */
-    var globalAudioRestrictionMode: AudioRestrictionMode
+    public var globalAudioRestrictionMode: AudioRestrictionMode
 
     /**
      * Application level configuration for [CameraPipe]. Nullable values are optional and reasonable
      * defaults will be provided if values are not specified.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    data class Config(
+    public data class Config(
         val appContext: Context,
         val threadConfig: ThreadConfig = ThreadConfig(),
         val cameraMetadataConfig: CameraMetadataConfig = CameraMetadataConfig(),
@@ -97,7 +97,7 @@ interface CameraPipe {
      * Application level configuration for Camera2Interop callbacks. If set, these callbacks will be
      * triggered at the appropriate places in CameraPipe.
      */
-    data class CameraInteropConfig(
+    public data class CameraInteropConfig(
         val cameraDeviceStateCallback: CameraDevice.StateCallback? = null,
         val cameraSessionStateCallback: CameraCaptureSession.StateCallback? = null,
         val cameraOpenRetryMaxTimeoutNs: DurationNs? = null
@@ -117,7 +117,7 @@ interface CameraPipe {
      * - [testOnlyScope] is used for testing to overwrite the internal global scope with the test
      *   method scope.
      */
-    data class ThreadConfig(
+    public data class ThreadConfig(
         val defaultLightweightExecutor: Executor? = null,
         val defaultBackgroundExecutor: Executor? = null,
         val defaultBlockingExecutor: Executor? = null,
@@ -135,9 +135,10 @@ interface CameraPipe {
      * @param cameraCacheBlocklist is used to prevent the metadata backend from caching the results
      *   of specific keys for specific cameraIds.
      */
-    class CameraMetadataConfig(
-        val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
-        val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> = emptyMap()
+    public class CameraMetadataConfig(
+        public val cacheBlocklist: Set<CameraCharacteristics.Key<*>> = emptySet(),
+        public val cameraCacheBlocklist: Map<CameraId, Set<CameraCharacteristics.Key<*>>> =
+            emptyMap()
     )
 
     /**
@@ -152,10 +153,10 @@ interface CameraPipe {
      * @param cameraBackends defines a map of unique [CameraBackendFactory] that may be used to
      *   create, query, and operate cameras via [CameraPipe].
      */
-    class CameraBackendConfig(
-        val internalBackend: CameraBackend? = null,
-        val defaultBackend: CameraBackendId? = null,
-        val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
+    public class CameraBackendConfig(
+        public val internalBackend: CameraBackend? = null,
+        public val defaultBackend: CameraBackendId? = null,
+        public val cameraBackends: Map<CameraBackendId, CameraBackendFactory> = emptyMap()
     ) {
         init {
             check(defaultBackend == null || cameraBackends.containsKey(defaultBackend)) {
@@ -172,7 +173,7 @@ interface CameraPipe {
     @Deprecated(
         "CameraPipe.External is deprecated, use customCameraBackend on " + "GraphConfig instead."
     )
-    class External(threadConfig: ThreadConfig = ThreadConfig()) {
+    public class External(threadConfig: ThreadConfig = ThreadConfig()) {
         private val component: ExternalCameraPipeComponent =
             DaggerExternalCameraPipeComponent.builder()
                 .threadConfigModule(ThreadConfigModule(threadConfig))
@@ -187,7 +188,7 @@ interface CameraPipe {
             "CameraPipe.External is deprecated, use customCameraBackend on " +
                 "GraphConfig instead."
         )
-        fun create(
+        public fun create(
             config: CameraGraph.Config,
             cameraMetadata: CameraMetadata,
             requestProcessor: RequestProcessor
@@ -207,8 +208,8 @@ interface CameraPipe {
         }
     }
 
-    companion object {
-        fun create(config: Config): CameraPipe {
+    public companion object {
+        public fun create(config: Config): CameraPipe {
             val cameraPipeComponent =
                 Debug.trace("CameraPipe") {
                     DaggerCameraPipeComponent.builder()
@@ -224,7 +225,7 @@ interface CameraPipe {
 
 /** Utility constructor for existing classes that construct CameraPipe directly */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun CameraPipe(config: Config): CameraPipe = CameraPipe.create(config)
+public fun CameraPipe(config: Config): CameraPipe = CameraPipe.create(config)
 
 internal class CameraPipeImpl(private val component: CameraPipeComponent) : CameraPipe {
     private val debugId = cameraPipeIds.incrementAndGet()

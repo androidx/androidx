@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.compat
 
 /** Base class for CameraCaptureSession.StateCallback() */
-interface OnSessionFinalized {
+public interface OnSessionFinalized {
     /**
      * Artificial event indicating the session is no longer in use and may be called several times.
      * onClosed() and [onConfigureFailed() methods should call this method directly. This method
@@ -26,5 +26,5 @@ interface OnSessionFinalized {
      *
      * See b/249258992 for more details.
      */
-    fun onSessionFinalized()
+    public fun onSessionFinalized()
 }

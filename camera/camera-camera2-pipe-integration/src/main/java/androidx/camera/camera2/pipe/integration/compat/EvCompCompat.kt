@@ -40,22 +40,22 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.launch
 
-interface EvCompCompat {
-    val supported: Boolean
-    val range: Range<Int>
-    val step: Rational
+public interface EvCompCompat {
+    public val supported: Boolean
+    public val range: Range<Int>
+    public val step: Rational
 
-    fun stopRunningTask(throwable: Throwable)
+    public fun stopRunningTask(throwable: Throwable)
 
-    fun applyAsync(
+    public fun applyAsync(
         evCompIndex: Int,
         camera: UseCaseCamera,
         cancelPreviousTask: Boolean,
     ): Deferred<Int>
 
     @Module
-    abstract class Bindings {
-        @Binds abstract fun bindEvCompImpl(impl: EvCompImpl): EvCompCompat
+    public abstract class Bindings {
+        @Binds public abstract fun bindEvCompImpl(impl: EvCompImpl): EvCompCompat
     }
 }
 
@@ -67,7 +67,7 @@ internal val EMPTY_RANGE: Range<Int> = Range(0, 0)
  * the [FrameInfo] via the [ComboRequestListener] to monitor the capture result.
  */
 @CameraScope
-class EvCompImpl
+public class EvCompImpl
 @Inject
 constructor(
     private val cameraProperties: CameraProperties,

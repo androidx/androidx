@@ -31,21 +31,21 @@ import androidx.camera.camera2.pipe.media.ImageReaderWrapper
  * retrieved based on [Surface] or by [StreamId], and supports both single and
  * MultiResolutionImageReader-like implementations.
  */
-class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
+public class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
     private val lock = Any()
 
     @GuardedBy("lock") private val fakeImageReaders = mutableListOf<FakeImageReader>()
 
-    operator fun get(surface: Surface): FakeImageReader? {
+    public operator fun get(surface: Surface): FakeImageReader? {
         return synchronized(lock) { fakeImageReaders.find { it.surface == surface } }
     }
 
-    operator fun get(streamId: StreamId): FakeImageReader? {
+    public operator fun get(streamId: StreamId): FakeImageReader? {
         return synchronized(lock) { fakeImageReaders.find { it.streamId == streamId } }
     }
 
     /** Create a [FakeImageReader] based on a single [CameraStream]. */
-    fun create(cameraStream: CameraStream, capacity: Int) =
+    public fun create(cameraStream: CameraStream, capacity: Int): FakeImageReader =
         create(
             cameraStream.outputs.first().format,
             cameraStream.id,
@@ -54,7 +54,7 @@ class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
         )
 
     /** Create a [FakeImageReader] from its properties. */
-    fun create(
+    public fun create(
         format: StreamFormat,
         streamId: StreamId,
         outputIdMap: Map<OutputId, Size>,
@@ -72,7 +72,7 @@ class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
     }
 
     /** Create a [FakeImageReader] based on a [CameraStream] and an [ImageSourceConfig]. */
-    fun create(
+    public fun create(
         cameraStream: CameraStream,
         imageSourceConfig: ImageSourceConfig
     ): ImageReaderWrapper =
@@ -85,14 +85,14 @@ class FakeImageReaders(private val fakeSurfaces: FakeSurfaces) {
         )
 
     /** [check] that all [FakeImageReader]s are closed. */
-    fun checkImageReadersClosed() {
+    public fun checkImageReadersClosed() {
         for (fakeImageReader in fakeImageReaders) {
             check(fakeImageReader.isClosed) { "Failed to close ImageReader: $fakeImageReader" }
         }
     }
 
     /** [check] that all images from all [FakeImageReader]s are closed. */
-    fun checkImagesClosed() {
+    public fun checkImagesClosed() {
         for (fakeImageReader in fakeImageReaders) {
             fakeImageReader.checkImagesClosed()
         }

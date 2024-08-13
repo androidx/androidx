@@ -25,23 +25,23 @@ import kotlinx.coroutines.CoroutineScope
  * This collection pre-configured executors, dispatchers, and scopes that are used throughout this
  * library.
  */
-class Threads(
-    val globalScope: CoroutineScope,
-    val blockingExecutor: Executor,
-    val blockingDispatcher: CoroutineDispatcher,
-    val backgroundExecutor: Executor,
-    val backgroundDispatcher: CoroutineDispatcher,
-    val lightweightExecutor: Executor,
-    val lightweightDispatcher: CoroutineDispatcher,
+public class Threads(
+    public val globalScope: CoroutineScope,
+    public val blockingExecutor: Executor,
+    public val blockingDispatcher: CoroutineDispatcher,
+    public val backgroundExecutor: Executor,
+    public val backgroundDispatcher: CoroutineDispatcher,
+    public val lightweightExecutor: Executor,
+    public val lightweightDispatcher: CoroutineDispatcher,
     camera2Handler: () -> Handler,
     camera2Executor: () -> Executor
 ) {
     private val _camera2Handler = lazy { camera2Handler() }
     private val _camera2Executor = lazy { camera2Executor() }
 
-    val camera2Handler: Handler
+    public val camera2Handler: Handler
         get() = _camera2Handler.value
 
-    val camera2Executor: Executor
+    public val camera2Executor: Executor
         get() = _camera2Executor.value
 }

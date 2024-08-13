@@ -32,10 +32,11 @@ import androidx.camera.core.impl.Quirk
  *   ahead of still capture and setRepeating again after capture is done can fix the issue.
  * - Device(s): Samsung SM-A716
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class StillCaptureFlashStopRepeatingQuirk : Quirk {
-    companion object {
-        fun isEnabled(): Boolean {
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class StillCaptureFlashStopRepeatingQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean {
             return isSamsungDevice() && Build.MODEL.uppercase().startsWith("SM-A716")
         }
     }

@@ -19,7 +19,7 @@ import androidx.camera.core.DynamicRange
 import androidx.core.util.Preconditions
 
 /** Utility methods for handling dynamic range. */
-object DynamicRanges {
+public object DynamicRanges {
 
     /**
      * Returns `true` if the test dynamic range can resolve to the fully specified dynamic range
@@ -30,7 +30,7 @@ object DynamicRanges {
      * specified dynamic range.
      */
     @JvmStatic
-    fun canResolve(
+    public fun canResolve(
         dynamicRangeToTest: DynamicRange,
         fullySpecifiedDynamicRanges: Set<DynamicRange>,
     ): Boolean {
@@ -52,7 +52,7 @@ object DynamicRanges {
      * fully specified dynamic range.
      */
     @JvmStatic
-    fun findAllPossibleMatches(
+    public fun findAllPossibleMatches(
         dynamicRangesToTest: Set<DynamicRange>,
         fullySpecifiedDynamicRanges: Set<DynamicRange>
     ): Set<DynamicRange> {

@@ -40,9 +40,9 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class InvalidVideoProfilesQuirk : Quirk {
+public class InvalidVideoProfilesQuirk : Quirk {
 
-    companion object {
+    public companion object {
         private val AFFECTED_PIXEL_MODELS: List<String> =
             listOf(
                 "pixel 4",
@@ -67,7 +67,7 @@ class InvalidVideoProfilesQuirk : Quirk {
                 "pht110",
             )
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return isAffectedSamsungDevices() ||
                 isAffectedPixelDevices() ||
                 isAffectedXiaomiDevices() ||

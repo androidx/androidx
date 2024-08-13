@@ -29,10 +29,11 @@ import androidx.camera.core.impl.Quirk
  *   video recording output. It requires an extra repeating stream in at least 320x240.
  * - Device(s): Huawei Mate 9
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class RepeatingStreamConstraintForVideoRecordingQuirk : Quirk {
-    companion object {
-        fun isEnabled() = isHuaweiMate9()
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class RepeatingStreamConstraintForVideoRecordingQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(): Boolean = isHuaweiMate9()
 
         private fun isHuaweiMate9() =
             isHuaweiDevice() && "mha-l29".equals(Build.MODEL, ignoreCase = true)

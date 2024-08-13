@@ -29,10 +29,10 @@ import javax.inject.Singleton
 
 /** Dependency bindings for adapting a [CameraFactory] instance to [CameraPipe] */
 @Module(subcomponents = [CameraComponent::class])
-abstract class CameraAppModule {
-    companion object {
+public abstract class CameraAppModule {
+    public companion object {
         @Provides
-        fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
+        public fun provideCameraDevices(cameraPipe: CameraPipe): CameraDevices {
             return cameraPipe.cameras()
         }
     }
@@ -40,37 +40,37 @@ abstract class CameraAppModule {
 
 /** Configuration properties that are shared across this app process */
 @Module
-class CameraAppConfig(
+public class CameraAppConfig(
     private val context: Context,
     private val cameraThreadConfig: CameraThreadConfig,
     private val cameraPipe: CameraPipe,
     private val camera2InteropCallbacks: CameraInteropStateCallbackRepository
 ) {
-    @Provides fun provideContext(): Context = context
+    @Provides public fun provideContext(): Context = context
 
-    @Provides fun provideCameraThreadConfig(): CameraThreadConfig = cameraThreadConfig
+    @Provides public fun provideCameraThreadConfig(): CameraThreadConfig = cameraThreadConfig
 
-    @Provides fun provideCameraPipe(): CameraPipe = cameraPipe
+    @Provides public fun provideCameraPipe(): CameraPipe = cameraPipe
 
     @Provides
-    fun provideCamera2InteropCallbacks(): CameraInteropStateCallbackRepository =
+    public fun provideCamera2InteropCallbacks(): CameraInteropStateCallbackRepository =
         camera2InteropCallbacks
 }
 
 /** Dagger component for Application (Process) scoped dependencies. */
 @Singleton
 @Component(modules = [CameraAppModule::class, CameraAppConfig::class])
-interface CameraAppComponent {
-    fun cameraBuilder(): CameraComponent.Builder
+public interface CameraAppComponent {
+    public fun cameraBuilder(): CameraComponent.Builder
 
-    fun getCameraPipe(): CameraPipe
+    public fun getCameraPipe(): CameraPipe
 
-    fun getCameraDevices(): CameraDevices
+    public fun getCameraDevices(): CameraDevices
 
     @Component.Builder
-    interface Builder {
-        fun config(config: CameraAppConfig): Builder
+    public interface Builder {
+        public fun config(config: CameraAppConfig): Builder
 
-        fun build(): CameraAppComponent
+        public fun build(): CameraAppComponent
     }
 }

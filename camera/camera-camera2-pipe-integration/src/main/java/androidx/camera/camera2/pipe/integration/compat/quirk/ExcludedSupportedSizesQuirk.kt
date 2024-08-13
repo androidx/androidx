@@ -40,12 +40,12 @@ import androidx.camera.core.impl.Quirk
  * 6T, Huawei P20, Samsung J7 Prime (SM-G610M) API 27, Samsung J7 (SM-J710MN) API 27, Redmi Note 9
  * Pro
  */
-class ExcludedSupportedSizesQuirk : Quirk {
+public class ExcludedSupportedSizesQuirk : Quirk {
     /**
      * Retrieves problematic supported surface sizes that have to be excluded on the current device,
      * for the given camera id and image format.
      */
-    fun getExcludedSizes(cameraId: String, imageFormat: Int): List<Size> {
+    public fun getExcludedSizes(cameraId: String, imageFormat: Int): List<Size> {
         if (isOnePlus6) {
             return getOnePlus6ExcludedSizes(cameraId, imageFormat)
         }
@@ -72,7 +72,7 @@ class ExcludedSupportedSizesQuirk : Quirk {
      * Retrieves problematic supported surface sizes that have to be excluded on the current device,
      * for the given camera id and class type.
      */
-    fun getExcludedSizes(cameraId: String, klass: Class<*>): List<Size> {
+    public fun getExcludedSizes(cameraId: String, klass: Class<*>): List<Size> {
         if (isHuaweiP20Lite) {
             return getHuaweiP20LiteExcludedSizes(cameraId, UNKNOWN_IMAGE_FORMAT, klass)
         }
@@ -222,11 +222,11 @@ class ExcludedSupportedSizesQuirk : Quirk {
         return sizes
     }
 
-    companion object {
+    public companion object {
         private const val TAG: String = "ExcludedSupportedSizesQuirk"
         private const val UNKNOWN_IMAGE_FORMAT: Int = -1
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return (isOnePlus6 ||
                 isOnePlus6T ||
                 isHuaweiP20Lite ||

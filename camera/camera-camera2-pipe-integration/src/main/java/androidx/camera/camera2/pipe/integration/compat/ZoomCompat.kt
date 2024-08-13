@@ -31,24 +31,24 @@ import dagger.Module
 import dagger.Provides
 import kotlinx.coroutines.Deferred
 
-interface ZoomCompat {
-    val minZoomRatio: Float
-    val maxZoomRatio: Float
+public interface ZoomCompat {
+    public val minZoomRatio: Float
+    public val maxZoomRatio: Float
 
-    fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit>
+    public fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit>
 
     /**
      * Returns the current crop sensor region which should be used for converting
      * [androidx.camera.core.MeteringPoint] to sensor coordinates. Returns the sensor rect if there
      * is no crop region being set.
      */
-    fun getCropSensorRegion(): Rect
+    public fun getCropSensorRegion(): Rect
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideZoomRatio(cameraProperties: CameraProperties): ZoomCompat {
+            public fun provideZoomRatio(cameraProperties: CameraProperties): ZoomCompat {
                 return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     val range = cameraProperties.metadata.getControlZoomRatioRangeSafely()
                     if (range != null) {
@@ -64,7 +64,7 @@ interface ZoomCompat {
     }
 }
 
-class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : ZoomCompat {
+public class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : ZoomCompat {
     override val minZoomRatio: Float
         get() = 1.0f
 
@@ -91,7 +91,7 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
         return camera.setParameterAsync(CaptureRequest.SCALER_CROP_REGION, currentCropRect)
     }
 
-    override fun getCropSensorRegion() =
+    override fun getCropSensorRegion(): Rect =
         currentCropRect
             ?: cameraProperties.metadata[CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE]!!
 
@@ -115,7 +115,7 @@ class CropRegionZoomCompat(private val cameraProperties: CameraProperties) : Zoo
 }
 
 @RequiresApi(Build.VERSION_CODES.R)
-class AndroidRZoomCompat(
+public class AndroidRZoomCompat(
     private val cameraProperties: CameraProperties,
     private val range: Range<Float>,
 ) : ZoomCompat {

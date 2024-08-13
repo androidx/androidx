@@ -20,7 +20,7 @@ import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 
-fun IdlingResource?.waitForIdle() {
+public fun IdlingResource?.waitForIdle() {
     if (this != null) {
         IdlingRegistry.getInstance().register(this)
         Espresso.onIdle()

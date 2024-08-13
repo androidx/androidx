@@ -32,7 +32,7 @@ private val fakeFrameNumbers = atomic(0L)
 internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.incrementAndGet())
 
 /** Utility class for interacting with objects require specific [CaptureResult] metadata */
-class FakeFrameMetadata(
+public class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
     override val camera: CameraId = nextFakeCameraId(),
@@ -53,7 +53,7 @@ class FakeFrameMetadata(
 }
 
 /** Utility class for interacting with objects require specific [TotalCaptureResult] metadata */
-class FakeFrameInfo(
+public class FakeFrameInfo(
     override val metadata: FrameMetadata = FakeFrameMetadata(),
     override val requestMetadata: RequestMetadata = FakeRequestMetadata(),
     private val physicalMetadata: Map<CameraId, FrameMetadata> = emptyMap()

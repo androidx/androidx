@@ -36,13 +36,15 @@ internal val graphRequestProcessorIds = atomic(0)
  * GraphRequestProcessors are intended to be in conjunction with a [GraphListener].
  */
 @Suppress("NOTHING_TO_INLINE")
-class GraphRequestProcessor
+public class GraphRequestProcessor
 private constructor(
     private val captureSequenceProcessor: CaptureSequenceProcessor<Any, CaptureSequence<Any>>
 ) {
-    companion object {
+    public companion object {
         /** Create a [GraphRequestProcessor] from a [CaptureSequenceProcessor] instance. */
-        fun from(captureSequenceProcessor: CaptureSequenceProcessor<*, *>): GraphRequestProcessor {
+        public fun from(
+            captureSequenceProcessor: CaptureSequenceProcessor<*, *>
+        ): GraphRequestProcessor {
             @Suppress("UNCHECKED_CAST")
             return GraphRequestProcessor(
                 captureSequenceProcessor as CaptureSequenceProcessor<Any, CaptureSequence<Any>>

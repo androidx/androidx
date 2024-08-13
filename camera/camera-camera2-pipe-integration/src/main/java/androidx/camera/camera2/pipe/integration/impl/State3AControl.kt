@@ -40,10 +40,10 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
 @CameraScope
-class State3AControl
+public class State3AControl
 @Inject
 constructor(
-    val cameraProperties: CameraProperties,
+    public val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
     private val aeFpsRange: AeFpsRange,
 ) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
@@ -78,15 +78,16 @@ constructor(
     @GuardedBy("lock") private val updateSignals = mutableSetOf<CompletableDeferred<Unit>>()
 
     @GuardedBy("lock")
-    var updateSignal: Deferred<Unit>? = null
+    public var updateSignal: Deferred<Unit>? = null
         private set
 
-    var flashMode by updateOnPropertyChange(DEFAULT_FLASH_MODE)
-    var template by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
-    var tryExternalFlashAeMode: Boolean by updateOnPropertyChange(false)
-    var preferredAeMode: Int? by updateOnPropertyChange(null)
-    var preferredFocusMode: Int? by updateOnPropertyChange(null)
-    var preferredAeFpsRange: Range<Int>? by updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
+    public var flashMode: Int by updateOnPropertyChange(DEFAULT_FLASH_MODE)
+    public var template: Int by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
+    public var tryExternalFlashAeMode: Boolean by updateOnPropertyChange(false)
+    public var preferredAeMode: Int? by updateOnPropertyChange(null)
+    public var preferredFocusMode: Int? by updateOnPropertyChange(null)
+    public var preferredAeFpsRange: Range<Int>? by
+        updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
 
     override fun reset() {
         synchronized(lock) { updateSignals.toList() }.cancelAll()
@@ -141,7 +142,7 @@ constructor(
         return preferAeMode
     }
 
-    fun invalidate() {
+    public fun invalidate() {
         // TODO(b/276779600): Refactor and move the setting of these parameter to
         //  CameraGraph.Config(requiredParameters = mapOf(....)).
         synchronized(invalidateLock) {
@@ -206,9 +207,9 @@ constructor(
     }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
         @IntoSet
-        abstract fun provideControls(state3AControl: State3AControl): UseCaseCameraControl
+        public abstract fun provideControls(state3AControl: State3AControl): UseCaseCameraControl
     }
 }

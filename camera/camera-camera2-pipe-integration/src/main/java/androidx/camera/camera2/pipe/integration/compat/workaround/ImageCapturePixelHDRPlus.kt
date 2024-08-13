@@ -33,7 +33,7 @@ import androidx.camera.core.impl.ImageCaptureConfig
  * @see ImageCapturePixelHDRPlusQuirk
  */
 @SuppressLint("NewApi")
-fun Camera2ImplConfig.Builder.toggleHDRPlus(imageCaptureConfig: ImageCaptureConfig) {
+public fun Camera2ImplConfig.Builder.toggleHDRPlus(imageCaptureConfig: ImageCaptureConfig) {
 
     DeviceQuirks[ImageCapturePixelHDRPlusQuirk::class.java] ?: return
     if (!imageCaptureConfig.hasCaptureMode()) return

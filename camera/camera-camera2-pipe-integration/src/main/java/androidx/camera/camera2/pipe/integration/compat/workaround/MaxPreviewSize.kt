@@ -22,7 +22,7 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraCroppingQuirk
 import androidx.camera.core.impl.SurfaceConfig
 
 /** Helper class that overrides the maximum preview size used in surface combination check. */
-class MaxPreviewSize
+public class MaxPreviewSize
 constructor(
     private val extraCroppingQuirk: ExtraCroppingQuirk? =
         DeviceQuirks[ExtraCroppingQuirk::class.java]
@@ -35,7 +35,7 @@ constructor(
      * select resolution has been manually tested on the device. Otherwise, return the default max
      * resolution.
      */
-    fun getMaxPreviewResolution(defaultMaxPreviewResolution: Size): Size {
+    public fun getMaxPreviewResolution(defaultMaxPreviewResolution: Size): Size {
         if (extraCroppingQuirk == null) {
             return defaultMaxPreviewResolution
         }

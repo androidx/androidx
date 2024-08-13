@@ -35,7 +35,7 @@ import androidx.lifecycle.MutableLiveData
 import javax.inject.Inject
 
 @CameraScope
-class CameraStateAdapter @Inject constructor() {
+public class CameraStateAdapter @Inject constructor() {
     private val lock = Any()
 
     internal val cameraInternalState = LiveDataObservable<CameraInternal.State>()
@@ -51,7 +51,7 @@ class CameraStateAdapter @Inject constructor() {
         postCameraState(CameraInternal.State.CLOSED)
     }
 
-    fun onGraphUpdated(cameraGraph: CameraGraph) =
+    public fun onGraphUpdated(cameraGraph: CameraGraph): Unit =
         synchronized(lock) {
             Log.debug { "Camera graph updated from $currentGraph to $cameraGraph" }
             if (currentCameraInternalState != CameraInternal.State.CLOSED) {
@@ -62,7 +62,7 @@ class CameraStateAdapter @Inject constructor() {
             currentCameraInternalState = CameraInternal.State.CLOSED
         }
 
-    fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState) =
+    public fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState): Unit =
         synchronized(lock) {
             Log.debug { "$cameraGraph state updated to $graphState" }
             handleStateTransition(cameraGraph, graphState)
@@ -198,7 +198,7 @@ class CameraStateAdapter @Inject constructor() {
         val error: CameraState.StateError? = null
     )
 
-    companion object {
+    public companion object {
         internal fun CameraError.toCameraStateError(): CameraState.StateError =
             CameraState.StateError.create(
                 when (this) {

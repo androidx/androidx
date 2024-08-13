@@ -24,7 +24,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /** Test class to set the TestRule that should not be run on the audio problematically devices. */
-class IgnoreAudioProblematicDeviceRule : TestRule {
+public class IgnoreAudioProblematicDeviceRule : TestRule {
     private val isProblematicDevices = isPixel2Api26Emulator || isPixel2Api30Emulator
 
     override fun apply(base: Statement, description: Description): Statement {

@@ -42,10 +42,10 @@ import androidx.camera.core.impl.Quirk
  *   sm-a035m, sm-f946u1, tecno mobile bf6, Huawei P Smart.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
+public class ImageCaptureFailedForVideoSnapshotQuirk : Quirk {
 
-    companion object {
-        fun isEnabled(): Boolean {
+    public companion object {
+        public fun isEnabled(): Boolean {
             return isUniSocChipsetDevice() || isHuaweiPSmart()
         }
 

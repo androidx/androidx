@@ -27,9 +27,9 @@ import kotlin.reflect.KClass
  * Note: [Image] is not thread-safe, so all interactions with the underlying properties must be
  * copied into local fields or guarded by a lock.
  */
-class AndroidImage(private val image: Image) : ImageWrapper {
+public class AndroidImage(private val image: Image) : ImageWrapper {
     /** A [Plane] backed by an [ImagePlane]. */
-    class Plane(private val imagePlane: Image.Plane) : ImagePlane {
+    public class Plane(private val imagePlane: Image.Plane) : ImagePlane {
         // Copying out the contents of the Image.Plane means that this Plane
         // implementation can be thread-safe (without requiring any locking)
         // and can have getters which do not throw a RuntimeException if

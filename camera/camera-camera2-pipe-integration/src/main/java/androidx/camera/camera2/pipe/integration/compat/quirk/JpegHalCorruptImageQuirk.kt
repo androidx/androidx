@@ -33,12 +33,13 @@ import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQ
  *   workaround this issue.
  * - Device(s): Samsung Galaxy S7 (SM-G930T and SM-G930V variants), Alps k61v1_basic_ref
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class JpegHalCorruptImageQuirk : SoftwareJpegEncodingPreferredQuirk {
-    companion object {
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class JpegHalCorruptImageQuirk : SoftwareJpegEncodingPreferredQuirk {
+    public companion object {
         private val KNOWN_AFFECTED_DEVICES = listOf("heroqltevzw", "heroqltetmo", "k61v1_basic_ref")
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return KNOWN_AFFECTED_DEVICES.contains(Build.DEVICE.lowercase())
         }
     }

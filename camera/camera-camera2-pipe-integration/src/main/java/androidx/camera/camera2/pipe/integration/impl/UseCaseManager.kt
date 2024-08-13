@@ -106,7 +106,7 @@ import kotlinx.coroutines.runBlocking
  */
 @OptIn(ExperimentalCamera2Interop::class)
 @CameraScope
-class UseCaseManager
+public class UseCaseManager
 @Inject
 constructor(
     private val cameraPipe: CameraPipe,
@@ -171,10 +171,10 @@ constructor(
     }
 
     @Volatile private var _activeComponent: UseCaseCameraComponent? = null
-    val camera: UseCaseCamera?
+    public val camera: UseCaseCamera?
         get() = _activeComponent?.getUseCaseCamera()
 
-    val useCaseGraphConfig: UseCaseGraphConfig?
+    public val useCaseGraphConfig: UseCaseGraphConfig?
         get() = _activeComponent?.getUseCaseGraphConfig()
 
     private val closingCameraJobs = mutableListOf<Job>()
@@ -199,7 +199,7 @@ constructor(
      * changes are identified (i.e., a new use case is added), the subsequent actions would trigger
      * a recreation of the current CameraGraph if there is one.
      */
-    fun attach(useCases: List<UseCase>): Unit =
+    public fun attach(useCases: List<UseCase>): Unit =
         synchronized(lock) {
             if (useCases.isEmpty()) {
                 Log.warn { "Attach [] from $this (Ignored)" }
@@ -237,7 +237,7 @@ constructor(
      * changes are identified (i.e., an existing use case is removed), the subsequent actions would
      * trigger a recreation of the current CameraGraph.
      */
-    fun detach(useCases: List<UseCase>): Unit =
+    public fun detach(useCases: List<UseCase>): Unit =
         synchronized(lock) {
             if (useCases.isEmpty()) {
                 Log.warn { "Detaching [] from $this (Ignored)" }
@@ -282,7 +282,7 @@ constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun activate(useCase: UseCase) =
+    public fun activate(useCase: UseCase): Unit =
         synchronized(lock) {
             if (activeUseCases.add(useCase)) {
                 refreshRunningUseCases()
@@ -295,38 +295,38 @@ constructor(
      * latest set of "running" (attached and active) use cases, which will in turn trigger actions
      * for SessionConfig updates.
      */
-    fun deactivate(useCase: UseCase) =
+    public fun deactivate(useCase: UseCase): Unit =
         synchronized(lock) {
             if (activeUseCases.remove(useCase)) {
                 refreshRunningUseCases()
             }
         }
 
-    fun update(useCase: UseCase) =
+    public fun update(useCase: UseCase): Unit =
         synchronized(lock) {
             if (attachedUseCases.contains(useCase)) {
                 refreshRunningUseCases()
             }
         }
 
-    fun reset(useCase: UseCase) =
+    public fun reset(useCase: UseCase): Unit =
         synchronized(lock) {
             if (attachedUseCases.contains(useCase)) {
                 refreshAttachedUseCases(attachedUseCases)
             }
         }
 
-    fun setPrimary(isPrimary: Boolean) {
+    public fun setPrimary(isPrimary: Boolean) {
         synchronized(lock) { this.isPrimary = isPrimary }
     }
 
-    fun setActiveResumeMode(enabled: Boolean) =
+    public fun setActiveResumeMode(enabled: Boolean): Unit? =
         synchronized(lock) {
             activeResumeEnabled = enabled
             camera?.setActiveResumeMode(enabled)
         }
 
-    suspend fun close() {
+    public suspend fun close() {
         val closingJobs =
             synchronized(lock) {
                 if (attachedUseCases.isNotEmpty()) {
@@ -689,7 +689,7 @@ constructor(
         cameraControl.setZslDisabledByUserCaseConfig(disableZsl)
     }
 
-    companion object {
+    public companion object {
         internal data class UseCaseManagerConfig(
             val useCases: List<UseCase>,
             val sessionConfigAdapter: SessionConfigAdapter,
@@ -697,11 +697,11 @@ constructor(
             val streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface>
         )
 
-        fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
+        public fun SessionConfig.toCamera2ImplConfig(): Camera2ImplConfig {
             return Camera2ImplConfig(implementationOptions)
         }
 
-        fun createCameraGraphConfig(
+        public fun createCameraGraphConfig(
             sessionConfigAdapter: SessionConfigAdapter,
             streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface>,
             callbackMap: CameraCallbackMap,

@@ -41,21 +41,24 @@ import kotlinx.coroutines.Deferred
 private const val TAG_KEY = "Camera2CameraControl.tag"
 
 @ExperimentalCamera2Interop
-interface Camera2CameraControlCompat : Request.Listener {
-    fun addRequestOption(bundle: CaptureRequestOptions)
+public interface Camera2CameraControlCompat : Request.Listener {
+    public fun addRequestOption(bundle: CaptureRequestOptions)
 
-    fun getRequestOption(): CaptureRequestOptions
+    public fun getRequestOption(): CaptureRequestOptions
 
-    fun clearRequestOption()
+    public fun clearRequestOption()
 
-    fun cancelCurrentTask()
+    public fun cancelCurrentTask()
 
-    fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean = true): Deferred<Void?>
+    public fun applyAsync(
+        camera: UseCaseCamera?,
+        cancelPreviousTask: Boolean = true
+    ): Deferred<Void?>
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
-        abstract fun bindCamera2CameraControlCompImpl(
+        public abstract fun bindCamera2CameraControlCompImpl(
             impl: Camera2CameraControlCompatImpl
         ): Camera2CameraControlCompat
     }
@@ -63,7 +66,7 @@ interface Camera2CameraControlCompat : Request.Listener {
 
 @CameraScope
 @ExperimentalCamera2Interop
-class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraControlCompat {
+public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2CameraControlCompat {
 
     private val lock = Any()
     private val updateSignalLock = Any()

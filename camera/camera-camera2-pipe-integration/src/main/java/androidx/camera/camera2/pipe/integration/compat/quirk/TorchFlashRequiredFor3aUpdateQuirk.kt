@@ -38,17 +38,20 @@ import androidx.camera.core.impl.Quirk
  *   thus setting `FLASH_MODE_TORCH` won't be required.
  * - Device(s): Pixel 6A, 6 PRO, 7, 7A, 7 PRO, 8, 8 PRO.
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO: b/270421716 - enable when kotlin is supported.
-class TorchFlashRequiredFor3aUpdateQuirk(private val cameraMetadata: CameraMetadata) : Quirk {
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO: b/270421716 - enable when kotlin is supported.
+public class TorchFlashRequiredFor3aUpdateQuirk(private val cameraMetadata: CameraMetadata) :
+    Quirk {
     /**
      * Returns whether [CaptureRequest.FLASH_MODE_TORCH] is required to be set.
      *
      * This will check if the [CaptureRequest.CONTROL_AE_MODE_ON_EXTERNAL_FLASH] is supported, which
      * is more recommended than using a quirk like using `FLASH_MODE_TORCH`.
      */
-    fun isFlashModeTorchRequired() = !cameraMetadata.isExternalFlashAeModeSupported()
+    public fun isFlashModeTorchRequired(): Boolean =
+        !cameraMetadata.isExternalFlashAeModeSupported()
 
-    companion object {
+    public companion object {
         private val AFFECTED_PIXEL_MODELS: List<String> =
             mutableListOf(
                 "PIXEL 6A",
@@ -60,7 +63,8 @@ class TorchFlashRequiredFor3aUpdateQuirk(private val cameraMetadata: CameraMetad
                 "PIXEL 8 PRO"
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata) = isAffectedModel(cameraMetadata)
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
+            isAffectedModel(cameraMetadata)
 
         private fun isAffectedModel(cameraMetadata: CameraMetadata) =
             isAffectedPixelModel() && cameraMetadata.isFrontCamera

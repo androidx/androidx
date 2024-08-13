@@ -50,14 +50,14 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 @OptIn(ExperimentalCamera2Interop::class)
-class SessionProcessorManager(
+public class SessionProcessorManager(
     private val sessionProcessor: SessionProcessor,
     private val cameraInfoInternal: CameraInfoInternal,
     private val scope: CoroutineScope,
 ) {
     private val lock = Any()
 
-    enum class State {
+    public enum class State {
         /**
          * [CREATED] is the initial state, and indicates that the [SessionProcessorManager] has been
          * created but not initialized yet.
@@ -394,7 +394,7 @@ class SessionProcessorManager(
         sessionProcessor.setParameters(builder.build())
     }
 
-    companion object {
+    public companion object {
         private suspend fun getSurfaces(
             deferrableSurfaces: List<DeferrableSurface>,
             timeoutMillis: Long,

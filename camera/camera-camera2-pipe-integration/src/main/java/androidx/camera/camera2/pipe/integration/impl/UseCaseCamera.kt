@@ -47,42 +47,43 @@ internal val useCaseCameraIds = atomic(0)
 internal val defaultOptionPriority = Config.OptionPriority.OPTIONAL
 internal const val defaultTemplate = CameraDevice.TEMPLATE_PREVIEW
 
-interface UseCaseCamera {
+public interface UseCaseCamera {
     // UseCases
-    var runningUseCases: Set<UseCase>
+    public var runningUseCases: Set<UseCase>
 
-    var isPrimary: Boolean
+    public var isPrimary: Boolean
 
-    interface RunningUseCasesChangeListener {
+    public interface RunningUseCasesChangeListener {
         /** Invoked when value of [UseCaseCamera.runningUseCases] has been changed. */
-        fun onRunningUseCasesChanged()
+        public fun onRunningUseCasesChanged()
     }
 
     // RequestControl of the UseCaseCamera
-    val requestControl: UseCaseCameraRequestControl
+    public val requestControl: UseCaseCameraRequestControl
 
     // Parameters
-    fun <T> setParameterAsync(
+    public fun <T> setParameterAsync(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
 
-    fun setParametersAsync(
+    public fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
 
-    fun setActiveResumeMode(enabled: Boolean) {}
+    public fun setActiveResumeMode(enabled: Boolean) {}
 
     // Lifecycle
-    fun close(): Job
+    public fun close(): Job
 }
 
 /** API for interacting with a [CameraGraph] that has been configured with a set of [UseCase]'s */
 @UseCaseCameraScope
-@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN") // Java version required for Dagger
-class UseCaseCameraImpl
+@Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
+// Java version required for Dagger
+public class UseCaseCameraImpl
 @Inject
 constructor(
     private val controls: java.util.Set<UseCaseCameraControl>,
@@ -97,7 +98,7 @@ constructor(
     private val debugId = useCaseCameraIds.incrementAndGet()
     private val closed = atomic(false)
 
-    override var runningUseCases = setOf<UseCase>()
+    override var runningUseCases: Set<UseCase> = setOf<UseCase>()
         set(value) {
             field = value
 
@@ -237,13 +238,13 @@ constructor(
     override fun toString(): String = "UseCaseCamera-$debugId"
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @UseCaseCameraScope
         @Binds
-        abstract fun provideUseCaseCamera(useCaseCamera: UseCaseCameraImpl): UseCaseCamera
+        public abstract fun provideUseCaseCamera(useCaseCamera: UseCaseCameraImpl): UseCaseCamera
     }
 
-    companion object {
+    public companion object {
         private val canceledResult = CompletableDeferred<Unit>().apply { cancel() }
     }
 }

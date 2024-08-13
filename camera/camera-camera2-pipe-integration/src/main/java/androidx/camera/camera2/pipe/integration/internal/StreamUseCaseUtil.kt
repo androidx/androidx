@@ -48,10 +48,10 @@ import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.streamsharing.StreamSharingConfig
 import androidx.core.util.Preconditions.checkState
 
-object StreamUseCaseUtil {
+public object StreamUseCaseUtil {
 
     @VisibleForTesting
-    val STREAM_USE_CASE_STREAM_SPEC_OPTION: Config.Option<Long> =
+    public val STREAM_USE_CASE_STREAM_SPEC_OPTION: Config.Option<Long> =
         Config.Option.create("camera2.streamSpec.streamUseCase", Long::class.javaPrimitiveType!!)
     private val STREAM_USE_CASE_TO_ELIGIBLE_CAPTURE_TYPES_MAP: Map<Long, Set<CaptureType>> =
         buildMap {
@@ -97,7 +97,7 @@ object StreamUseCaseUtil {
      * @param sessionConfigs collection of all session configs for this capture session
      * @param streamUseCaseMap the mapping between surfaces and Stream Use Case flag
      */
-    fun populateSurfaceToStreamUseCaseMapping(
+    public fun populateSurfaceToStreamUseCaseMapping(
         sessionConfigs: Collection<SessionConfig>,
         useCaseConfigs: Collection<UseCaseConfig<*>>,
         streamUseCaseMap: MutableMap<DeferrableSurface, Long>
@@ -162,7 +162,9 @@ object StreamUseCaseUtil {
      * Populate all implementation options needed to determine the StreamUseCase option in the
      * StreamSpec for this UseCaseConfig
      */
-    fun getStreamSpecImplementationOptions(useCaseConfig: UseCaseConfig<*>): Camera2ImplConfig {
+    public fun getStreamSpecImplementationOptions(
+        useCaseConfig: UseCaseConfig<*>
+    ): Camera2ImplConfig {
         val optionsBundle = MutableOptionsBundle.create()
         if (useCaseConfig.containsOption(STREAM_USE_CASE_OPTION)) {
             optionsBundle.insertOption(
@@ -192,7 +194,7 @@ object StreamUseCaseUtil {
     }
 
     /** Return true if the given camera characteristics support stream use case */
-    fun isStreamUseCaseSupported(cameraMetadata: CameraMetadata): Boolean {
+    public fun isStreamUseCaseSupported(cameraMetadata: CameraMetadata): Boolean {
         if (Build.VERSION.SDK_INT < 33) {
             return false
         }
@@ -202,7 +204,7 @@ object StreamUseCaseUtil {
     }
 
     /** Return true if the given feature settings is appropriate for stream use case usage. */
-    fun shouldUseStreamUseCase(
+    public fun shouldUseStreamUseCase(
         featureSettings: SupportedSurfaceCombination.FeatureSettings
     ): Boolean {
         return (featureSettings.cameraMode == CameraMode.DEFAULT &&
@@ -223,7 +225,7 @@ object StreamUseCaseUtil {
      *   whose StreamSpecs needs to be updated
      * @return true if StreamSpec options are populated. False if not.
      */
-    fun populateStreamUseCaseStreamSpecOptionWithInteropOverride(
+    public fun populateStreamUseCaseStreamSpecOptionWithInteropOverride(
         cameraMetadata: CameraMetadata,
         attachedSurfaces: List<AttachedSurfaceInfo>,
         suggestedStreamSpecMap: MutableMap<UseCaseConfig<*>, StreamSpec>,
@@ -290,7 +292,7 @@ object StreamUseCaseUtil {
      * Return true if the stream use cases in the given surface configurations are available for the
      * device.
      */
-    fun areStreamUseCasesAvailableForSurfaceConfigs(
+    public fun areStreamUseCasesAvailableForSurfaceConfigs(
         cameraMetadata: CameraMetadata,
         surfaceConfigs: List<SurfaceConfig>
     ): Boolean {
@@ -364,7 +366,7 @@ object StreamUseCaseUtil {
      * @param surfaceConfigsWithStreamUseCase the supported surfaceConfigs that contains accurate
      *   streamUseCases
      */
-    fun areCaptureTypesEligible(
+    public fun areCaptureTypesEligible(
         surfaceConfigIndexAttachedSurfaceInfoMap: Map<Int, AttachedSurfaceInfo?>,
         surfaceConfigIndexUseCaseConfigMap: Map<Int, UseCaseConfig<*>>,
         surfaceConfigsWithStreamUseCase: List<SurfaceConfig>
@@ -416,7 +418,7 @@ object StreamUseCaseUtil {
      * @param surfaceConfigsWithStreamUseCase the supported surfaceConfigs that contains accurate
      *   streamUseCases
      */
-    fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs(
+    public fun populateStreamUseCaseStreamSpecOptionWithSupportedSurfaceConfigs(
         suggestedStreamSpecMap: MutableMap<UseCaseConfig<*>, StreamSpec>,
         attachedSurfaceStreamSpecMap: MutableMap<AttachedSurfaceInfo, StreamSpec>,
         surfaceConfigIndexAttachedSurfaceInfoMap: Map<Int, AttachedSurfaceInfo>,
@@ -482,7 +484,7 @@ object StreamUseCaseUtil {
     }
 
     /** Return true if any one of the existing or new UseCases is ZSL. */
-    fun containsZslUseCase(
+    public fun containsZslUseCase(
         attachedSurfaces: List<AttachedSurfaceInfo>,
         newUseCaseConfigs: List<UseCaseConfig<*>>
     ): Boolean {

@@ -25,7 +25,7 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 
 /** Test class to set the TestRule should not be run on the problematic devices. */
-class IgnoreProblematicDeviceRule : TestRule {
+public class IgnoreProblematicDeviceRule : TestRule {
     private val api21Emulator = isEmulator && Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
 
     private val isProblematicDevices = isPixel2Api26Emulator || api21Emulator
@@ -48,7 +48,7 @@ class IgnoreProblematicDeviceRule : TestRule {
         }
     }
 
-    companion object {
+    public companion object {
         // Sync from TestRequestBuilder.RequiresDeviceFilter
         private const val EMULATOR_HARDWARE_GOLDFISH = "goldfish"
         private const val EMULATOR_HARDWARE_RANCHU = "ranchu"
@@ -66,12 +66,12 @@ class IgnoreProblematicDeviceRule : TestRule {
                 ""
             }
 
-        val isEmulator = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
-        val isPixel2Api26Emulator =
+        public val isEmulator: Boolean = emulatorHardwareNames.contains(Build.HARDWARE.lowercase())
+        public val isPixel2Api26Emulator: Boolean =
             isEmulator &&
                 avdName.contains("Pixel2", ignoreCase = true) &&
                 Build.VERSION.SDK_INT == Build.VERSION_CODES.O
-        val isPixel2Api30Emulator =
+        public val isPixel2Api30Emulator: Boolean =
             isEmulator &&
                 avdName.contains("Pixel2", ignoreCase = true) &&
                 Build.VERSION.SDK_INT == Build.VERSION_CODES.R

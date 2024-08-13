@@ -40,7 +40,7 @@ import javax.inject.Named
 
 /** Adapt the [EncoderProfilesProvider] interface to [CameraPipe]. */
 @CameraScope
-class EncoderProfilesProviderAdapter
+public class EncoderProfilesProviderAdapter
 @Inject
 constructor(
     @Named("CameraId") private val cameraIdString: String,
@@ -188,7 +188,7 @@ constructor(
         }
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "EncoderProfilesProviderAdapter"
     }
 }

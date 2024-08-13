@@ -31,14 +31,14 @@ import androidx.camera.core.impl.Quirk
  * - Device(s): Devices in Android API version <= 22
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CaptureSessionOnClosedNotCalledQuirk : Quirk {
-    companion object {
+public class CaptureSessionOnClosedNotCalledQuirk : Quirk {
+    public companion object {
         /**
          * The quirk is disabled for CameraPipe, as it intrinsically handles things without the
          * reliance on the onClosed callback. For [androidx.camera.core.impl.DeferrableSurface] that
          * does need this signal for ref-counting, CameraPipe has an extra pipeline that "finalizes"
          * the capture session when a new capture session is created or the camera device is closed.
          */
-        fun isEnabled(): Boolean = false
+        public fun isEnabled(): Boolean = false
     }
 }

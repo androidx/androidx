@@ -39,7 +39,7 @@ import dagger.Subcomponent
 import java.util.concurrent.CancellationException
 import javax.inject.Scope
 
-@Scope annotation class UseCaseCameraScope
+@Scope public annotation class UseCaseCameraScope
 
 /** Dependency bindings for building a [UseCaseCamera] */
 @Module(
@@ -49,13 +49,13 @@ import javax.inject.Scope
             UseCaseCameraRequestControlImpl.Bindings::class,
         ]
 )
-abstract class UseCaseCameraModule {
+public abstract class UseCaseCameraModule {
     // Used for dagger provider methods that are static.
-    companion object {
+    public companion object {
 
         @UseCaseCameraScope
         @Provides
-        fun provideCapturePipeline(
+        public fun provideCapturePipeline(
             capturePipelineImpl: CapturePipelineImpl,
             capturePipelineTorchCorrection: CapturePipelineTorchCorrection
         ): CapturePipeline {
@@ -70,7 +70,7 @@ abstract class UseCaseCameraModule {
 
 /** Dagger module for binding the [UseCase]'s to the [UseCaseCamera]. */
 @Module
-class UseCaseCameraConfig(
+public class UseCaseCameraConfig(
     private val useCases: List<UseCase>,
     private val sessionConfigAdapter: SessionConfigAdapter,
     private val cameraStateAdapter: CameraStateAdapter,
@@ -80,19 +80,19 @@ class UseCaseCameraConfig(
 ) {
     @UseCaseCameraScope
     @Provides
-    fun provideUseCaseList(): java.util.ArrayList<UseCase> {
+    public fun provideUseCaseList(): java.util.ArrayList<UseCase> {
         return java.util.ArrayList(useCases)
     }
 
     @UseCaseCameraScope
     @Provides
-    fun provideSessionConfigAdapter(): SessionConfigAdapter {
+    public fun provideSessionConfigAdapter(): SessionConfigAdapter {
         return sessionConfigAdapter
     }
 
     @UseCaseCameraScope
     @Provides
-    fun provideSessionProcessorManager(): SessionProcessorManager? {
+    public fun provideSessionProcessorManager(): SessionProcessorManager? {
         return sessionProcessorManager
     }
 
@@ -102,7 +102,7 @@ class UseCaseCameraConfig(
      */
     @UseCaseCameraScope
     @Provides
-    fun provideUseCaseGraphConfig(
+    public fun provideUseCaseGraphConfig(
         useCaseSurfaceManager: UseCaseSurfaceManager,
         cameraInteropStateCallbackRepository: CameraInteropStateCallbackRepository
     ): UseCaseGraphConfig {
@@ -149,12 +149,14 @@ class UseCaseCameraConfig(
     }
 }
 
-data class UseCaseGraphConfig(
+public data class UseCaseGraphConfig(
     val graph: CameraGraph,
     val surfaceToStreamMap: Map<DeferrableSurface, StreamId>,
     val cameraStateAdapter: CameraStateAdapter,
 ) {
-    fun getStreamIdsFromSurfaces(deferrableSurfaces: Collection<DeferrableSurface>): Set<StreamId> {
+    public fun getStreamIdsFromSurfaces(
+        deferrableSurfaces: Collection<DeferrableSurface>
+    ): Set<StreamId> {
         val streamIds = mutableSetOf<StreamId>()
         deferrableSurfaces.forEach {
             surfaceToStreamMap[it]?.let { streamId -> streamIds.add(streamId) }
@@ -166,15 +168,15 @@ data class UseCaseGraphConfig(
 /** Dagger subcomponent for a single [UseCaseCamera] instance. */
 @UseCaseCameraScope
 @Subcomponent(modules = [UseCaseCameraModule::class, UseCaseCameraConfig::class])
-interface UseCaseCameraComponent {
-    fun getUseCaseCamera(): UseCaseCamera
+public interface UseCaseCameraComponent {
+    public fun getUseCaseCamera(): UseCaseCamera
 
-    fun getUseCaseGraphConfig(): UseCaseGraphConfig
+    public fun getUseCaseGraphConfig(): UseCaseGraphConfig
 
     @Subcomponent.Builder
-    interface Builder {
-        fun config(config: UseCaseCameraConfig): Builder
+    public interface Builder {
+        public fun config(config: UseCaseCameraConfig): Builder
 
-        fun build(): UseCaseCameraComponent
+        public fun build(): UseCaseCameraComponent
     }
 }

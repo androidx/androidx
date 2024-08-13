@@ -36,9 +36,9 @@ import java.util.Locale
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class CloseCaptureSessionOnDisconnectQuirk : Quirk {
+public class CloseCaptureSessionOnDisconnectQuirk : Quirk {
 
-    companion object {
+    public companion object {
         private val androidTOrNewerSm8150Devices =
             mapOf(
                 "google" to setOf("pixel 4", "pixel 4 xl"),
@@ -46,7 +46,7 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
             )
 
         @JvmStatic
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
                 // If we can release Surfaces immediately, we'll finalize the session when the
                 // camera graph is closed (through FinalizeSessionOnCloseQuirk), and thus we won't

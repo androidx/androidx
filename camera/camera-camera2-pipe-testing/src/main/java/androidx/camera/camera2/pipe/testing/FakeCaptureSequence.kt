@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 
 /** A CaptureSequence used for testing interactions with a [FakeCaptureSequenceProcessor] */
-data class FakeCaptureSequence(
+public data class FakeCaptureSequence(
     override val repeating: Boolean,
     override val cameraId: CameraId,
     override val captureRequestList: List<Request>,
@@ -36,19 +36,20 @@ data class FakeCaptureSequence(
     override val sequenceListener: CaptureSequence.CaptureSequenceListener,
     override var sequenceNumber: Int,
 ) : CaptureSequence<Request> {
-    fun invokeOnSequenceCreated() = invokeOnRequests { requestMetadata, _, listener ->
+    public fun invokeOnSequenceCreated(): Unit = invokeOnRequests { requestMetadata, _, listener ->
         listener.onRequestSequenceCreated(requestMetadata)
     }
 
-    fun invokeOnSequenceSubmitted() = invokeOnRequests { requestMetadata, _, listener ->
-        listener.onRequestSequenceSubmitted(requestMetadata)
-    }
+    public fun invokeOnSequenceSubmitted(): Unit =
+        invokeOnRequests { requestMetadata, _, listener ->
+            listener.onRequestSequenceSubmitted(requestMetadata)
+        }
 
-    fun invokeOnSequenceAborted() = invokeOnRequests { requestMetadata, _, listener ->
+    public fun invokeOnSequenceAborted(): Unit = invokeOnRequests { requestMetadata, _, listener ->
         listener.onRequestSequenceAborted(requestMetadata)
     }
 
-    fun invokeOnSequenceCompleted(frameNumber: FrameNumber) =
+    public fun invokeOnSequenceCompleted(frameNumber: FrameNumber): Unit =
         invokeOnRequests { requestMetadata, _, listener ->
             listener.onRequestSequenceCompleted(requestMetadata, frameNumber)
         }

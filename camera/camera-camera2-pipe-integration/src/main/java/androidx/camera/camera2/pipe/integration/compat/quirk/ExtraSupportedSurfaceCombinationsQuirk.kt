@@ -30,9 +30,9 @@ import androidx.camera.core.impl.SurfaceConfig
  * Samsung S7's LIMITED-level camera device can support additional YUV/640x480 + PRIV/PREVIEW +
  * YUV/MAXIMUM combination. Device(s): Samsung S7 devices
  */
-class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
+public class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
     /** Returns the extra supported surface combinations for specific camera on the device. */
-    fun getExtraSupportedSurfaceCombinations(cameraId: String): List<SurfaceCombination> {
+    public fun getExtraSupportedSurfaceCombinations(cameraId: String): List<SurfaceCombination> {
         if (isSamsungS7) {
             return getSamsungS7ExtraCombinations(cameraId)
         }
@@ -66,7 +66,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
         return extraCombinations
     }
 
-    companion object {
+    public companion object {
         private const val TAG = "ExtraSupportedSurfaceCombinationsQuirk"
         private val FULL_LEVEL_YUV_PRIV_YUV_CONFIGURATION = createFullYuvPrivYuvConfiguration()
         private val FULL_LEVEL_YUV_YUV_YUV_CONFIGURATION = createFullYuvYuvYuvConfiguration()
@@ -86,7 +86,7 @@ class ExtraSupportedSurfaceCombinationsQuirk : Quirk {
                 "SCG26", // Galaxy S24 Ultra
             )
 
-        fun isEnabled(): Boolean {
+        public fun isEnabled(): Boolean {
             return (isSamsungS7 ||
                 supportExtraLevel3ConfigurationsGoogleDevice() ||
                 supportExtraLevel3ConfigurationsSamsungDevice())

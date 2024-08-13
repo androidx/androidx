@@ -28,12 +28,12 @@ import androidx.camera.video.internal.config.AudioSettingsAudioProfileResolver
 import androidx.camera.video.internal.config.AudioSettingsDefaultResolver
 import kotlinx.coroutines.runBlocking
 
-class AudioChecker {
+public class AudioChecker {
 
-    companion object {
+    public companion object {
         private const val TAG = "AudioChecker"
 
-        fun canAudioStreamBeStarted(
+        public fun canAudioStreamBeStarted(
             videoCapabilities: VideoCapabilities,
             qualitySelector: QualitySelector
         ): Boolean {

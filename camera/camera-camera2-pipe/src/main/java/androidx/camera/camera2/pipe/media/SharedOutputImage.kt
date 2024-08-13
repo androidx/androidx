@@ -27,18 +27,18 @@ import kotlinx.atomicfu.atomic
  * [setFinalizer] to get access to the underlying image once all outstanding references have been
  * closed.
  */
-interface SharedOutputImage : OutputImage {
+public interface SharedOutputImage : OutputImage {
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Throws an
      * exception if this reference is already closed.
      */
-    fun acquire(): SharedOutputImage
+    public fun acquire(): SharedOutputImage
 
     /**
      * Create a new [SharedOutputImage] copy that can be independently managed or closed. Returns
      * null if this image has already been finalized.
      */
-    fun acquireOrNull(): SharedOutputImage?
+    public fun acquireOrNull(): SharedOutputImage?
 
     /**
      * Set a finalizer that is responsible for closing the underlying [OutputImage] when all
@@ -46,12 +46,12 @@ interface SharedOutputImage : OutputImage {
      * the previous finalizer will receive [Finalizer.finalize] with null to indicate it will not
      * receive the [OutputImage].
      */
-    fun setFinalizer(finalizer: Finalizer<OutputImage>)
+    public fun setFinalizer(finalizer: Finalizer<OutputImage>)
 
-    companion object {
+    public companion object {
 
         /** Create a new [SharedOutputImage] from an [OutputImage] */
-        fun from(image: OutputImage): SharedOutputImage {
+        public fun from(image: OutputImage): SharedOutputImage {
             if (image is SharedOutputImage) {
                 return image.acquire()
             }

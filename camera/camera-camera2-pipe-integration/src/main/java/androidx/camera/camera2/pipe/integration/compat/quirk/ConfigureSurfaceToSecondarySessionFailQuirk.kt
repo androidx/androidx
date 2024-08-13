@@ -34,9 +34,10 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ConfigureSurfaceToSecondarySessionFailQuirk : Quirk {
+public class ConfigureSurfaceToSecondarySessionFailQuirk : Quirk {
 
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata) = cameraMetadata.isHardwareLevelLegacy
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
+            cameraMetadata.isHardwareLevelLegacy
     }
 }

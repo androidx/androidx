@@ -24,4 +24,4 @@ import androidx.camera.core.impl.Quirk
  * Subclasses of this interface can denote the reason why torch is required instead of AE
  * pre-capture.
  */
-interface UseTorchAsFlashQuirk : Quirk
+public interface UseTorchAsFlashQuirk : Quirk

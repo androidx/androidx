@@ -36,14 +36,16 @@ import kotlinx.coroutines.async
 private const val TAG = "CaptureSimulation"
 
 /** Simulates a capture frame being drawn on all of the provided surfaces. */
-suspend fun List<DeferrableSurface>.simulateCaptureFrame() = forEach { it.simulateCaptureFrame() }
+public suspend fun List<DeferrableSurface>.simulateCaptureFrame(): Unit = forEach {
+    it.simulateCaptureFrame()
+}
 
 /**
  * Simulates a capture frame being drawn on the provided surface.
  *
  * @throws IllegalStateException If [DeferrableSurface.getSurface] provides a null surface.
  */
-suspend fun DeferrableSurface.simulateCaptureFrame() {
+public suspend fun DeferrableSurface.simulateCaptureFrame() {
     val deferred = CompletableDeferred<Unit>()
 
     Futures.addCallback(
@@ -86,7 +88,7 @@ suspend fun DeferrableSurface.simulateCaptureFrame() {
  * @return A [ListenableFuture] representing when the operation has been completed.
  */
 @JvmOverloads
-fun List<DeferrableSurface>.simulateCaptureFrameAsync(
+public fun List<DeferrableSurface>.simulateCaptureFrameAsync(
     executor: Executor = Dispatchers.Default.asExecutor()
 ): ListenableFuture<Void> {
     val scope = CoroutineScope(SupervisorJob() + executor.asCoroutineDispatcher())
@@ -102,7 +104,7 @@ fun List<DeferrableSurface>.simulateCaptureFrameAsync(
  * @return A [ListenableFuture] representing when the operation has been completed.
  */
 @JvmOverloads
-fun DeferrableSurface.simulateCaptureFrameAsync(
+public fun DeferrableSurface.simulateCaptureFrameAsync(
     executor: Executor = Dispatchers.Default.asExecutor()
 ): ListenableFuture<Void> {
     val scope = CoroutineScope(SupervisorJob() + executor.asCoroutineDispatcher())

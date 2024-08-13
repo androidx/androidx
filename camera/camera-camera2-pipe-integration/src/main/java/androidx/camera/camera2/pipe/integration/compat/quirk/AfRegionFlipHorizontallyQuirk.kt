@@ -35,9 +35,9 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class AfRegionFlipHorizontallyQuirk : Quirk {
-    companion object {
-        fun isEnabled(cameraMetadata: CameraMetadata) =
+public class AfRegionFlipHorizontallyQuirk : Quirk {
+    public companion object {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean =
             isSamsungDevice() &&
                 Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU && // Samsung fixed it in T.
                 (cameraMetadata[CameraCharacteristics.LENS_FACING] ==

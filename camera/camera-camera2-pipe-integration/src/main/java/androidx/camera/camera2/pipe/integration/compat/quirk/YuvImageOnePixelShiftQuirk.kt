@@ -30,10 +30,11 @@ import androidx.camera.core.internal.compat.quirk.OnePixelShiftQuirk
  *   data. It leads to the leftmost column degradation when converting YUV to RGB in applications.
  * - Device(s): Motorola MotoG3, Samsung SM-G532F/SM-J700F/SM-J415F/SM-920F, Xiaomi Mi A1
  */
-@SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
-class YuvImageOnePixelShiftQuirk : OnePixelShiftQuirk {
-    companion object {
-        fun isEnabled() =
+@SuppressLint("CameraXQuirksClassDetector")
+// TODO(b/270421716): enable when kotlin is supported.
+public class YuvImageOnePixelShiftQuirk : OnePixelShiftQuirk {
+    public companion object {
+        public fun isEnabled(): Boolean =
             isMotorolaMotoG3() ||
                 isSamsungSMG532F() ||
                 isSamsungSMJ700F() ||

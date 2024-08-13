@@ -45,7 +45,7 @@ import javax.inject.Inject
  * CameraPipe can submit to the camera.
  */
 @UseCaseCameraScope
-class CaptureConfigAdapter
+public class CaptureConfigAdapter
 @Inject
 constructor(
     cameraProperties: CameraProperties,
@@ -63,7 +63,7 @@ constructor(
      *   surface is not recognized in [UseCaseGraphConfig.surfaceToStreamMap]
      */
     @OptIn(ExperimentalGetImage::class)
-    fun mapToRequest(
+    public fun mapToRequest(
         captureConfig: CaptureConfig,
         requestTemplate: RequestTemplate,
         sessionConfigOptions: Config,
@@ -151,7 +151,7 @@ constructor(
         )
     }
 
-    companion object {
+    public companion object {
         internal fun CaptureConfig.getStillCaptureTemplate(
             sessionTemplate: RequestTemplate,
             isLegacyDevice: Boolean,

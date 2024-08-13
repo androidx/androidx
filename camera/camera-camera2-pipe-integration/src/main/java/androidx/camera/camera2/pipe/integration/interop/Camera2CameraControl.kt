@@ -45,7 +45,7 @@ import kotlinx.coroutines.async
  */
 @SuppressWarnings("HiddenSuperclass")
 @ExperimentalCamera2Interop
-class Camera2CameraControl
+public class Camera2CameraControl
 private constructor(
     private val compat: Camera2CameraControlCompat,
     private val threads: UseCaseThreads,
@@ -53,7 +53,7 @@ private constructor(
 ) : UseCaseCameraControl {
 
     private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera
+    override var useCaseCamera: UseCaseCamera?
         @RestrictTo(RestrictTo.Scope.LIBRARY) get() = _useCaseCamera
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         set(value) {
@@ -91,7 +91,7 @@ private constructor(
      *   is a no-op.
      */
     @SuppressWarnings("AsyncSuffixFuture")
-    fun setCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
+    public fun setCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
         compat.clearRequestOption()
         compat.addRequestOption(bundle)
         return updateAsync("setCaptureRequestOptions")
@@ -115,7 +115,7 @@ private constructor(
      *   or camera is closed before the current request completes.
      */
     @SuppressWarnings("AsyncSuffixFuture")
-    fun addCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
+    public fun addCaptureRequestOptions(bundle: CaptureRequestOptions): ListenableFuture<Void?> {
         compat.addRequestOption(bundle)
         return updateAsync("addCaptureRequestOptions")
     }
@@ -128,7 +128,7 @@ private constructor(
      *
      * @return The [CaptureRequestOptions].
      */
-    fun getCaptureRequestOptions(): CaptureRequestOptions = compat.getRequestOption()
+    public fun getCaptureRequestOptions(): CaptureRequestOptions = compat.getRequestOption()
 
     /**
      * Clears all capture request options that is currently applied by the [Camera2CameraControl].
@@ -139,7 +139,7 @@ private constructor(
      *   or camera is closed before the current request completes.
      */
     @SuppressWarnings("AsyncSuffixFuture")
-    fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
+    public fun clearCaptureRequestOptions(): ListenableFuture<Void?> {
         compat.clearRequestOption()
         return updateAsync("clearCaptureRequestOptions")
     }
@@ -151,7 +151,7 @@ private constructor(
                 .asListenableFuture(tag)
         )
 
-    companion object {
+    public companion object {
 
         /**
          * Gets the [Camera2CameraControl] from a [CameraControl].
@@ -170,7 +170,7 @@ private constructor(
          *   [androidx.camera.camera2.pipe.integration.CameraPipeConfig]).
          */
         @JvmStatic
-        fun from(cameraControl: CameraControl): Camera2CameraControl {
+        public fun from(cameraControl: CameraControl): Camera2CameraControl {
             var cameraControlImpl = (cameraControl as CameraControlInternal).implementation
             Preconditions.checkArgument(
                 cameraControlImpl is CameraControlAdapter,
@@ -182,7 +182,7 @@ private constructor(
         /** This is the workaround to prevent constructor from being added to public API. */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
-        fun create(
+        public fun create(
             compat: Camera2CameraControlCompat,
             threads: UseCaseThreads,
             requestListener: ComboRequestListener,

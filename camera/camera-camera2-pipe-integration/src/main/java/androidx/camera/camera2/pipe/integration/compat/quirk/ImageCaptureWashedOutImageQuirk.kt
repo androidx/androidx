@@ -33,10 +33,10 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureWashedOutImageQuirk : UseTorchAsFlashQuirk {
+public class ImageCaptureWashedOutImageQuirk : UseTorchAsFlashQuirk {
 
-    companion object {
-        val BUILD_MODELS =
+    public companion object {
+        public val BUILD_MODELS: List<String> =
             listOf(
                 // List of devices with the issue. See b/181966663.
                 "SM-G9300", // Galaxy S7
@@ -57,7 +57,7 @@ class ImageCaptureWashedOutImageQuirk : UseTorchAsFlashQuirk {
                 "SM-G935P"
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return BUILD_MODELS.contains(Build.MODEL.uppercase()) &&
                 cameraMetadata[LENS_FACING] == LENS_FACING_BACK
         }

@@ -19,8 +19,8 @@ package androidx.camera.camera2.pipe.testing
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.TimestampNs
 
-class FakeTimeSource : TimeSource {
-    public var currentTimestamp = TimestampNs(0L)
+public class FakeTimeSource : TimeSource {
+    public var currentTimestamp: TimestampNs = TimestampNs(0L)
 
-    override fun now() = currentTimestamp
+    override fun now(): TimestampNs = currentTimestamp
 }

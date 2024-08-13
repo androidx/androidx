@@ -22,7 +22,7 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** FakeImage that can be used for testing classes that accept [ImageWrapper]. */
-class FakeImage(
+public class FakeImage(
     override val width: Int,
     override val height: Int,
     override val format: Int,
@@ -30,7 +30,7 @@ class FakeImage(
 ) : ImageWrapper {
     private val debugId = debugIds.incrementAndGet()
     private val closed = atomic(false)
-    val isClosed: Boolean
+    public val isClosed: Boolean
         get() = closed.value
 
     override val planes: List<ImagePlane>
@@ -49,7 +49,7 @@ class FakeImage(
 
     override fun toString(): String = "FakeImage-$debugId"
 
-    companion object {
+    public companion object {
         private val debugIds = atomic(0)
     }
 }

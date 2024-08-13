@@ -27,7 +27,8 @@ import androidx.camera.core.Logger
  * This allows us to clean up properly in case a capture is cancelled earlier (e.g. ImageCapture is
  * unbound after [apply] is invoked but [clear] is not).
  */
-class ScreenFlashWrapper private constructor(private val screenFlash: ScreenFlash?) : ScreenFlash {
+internal class ScreenFlashWrapper private constructor(private val screenFlash: ScreenFlash?) :
+    ScreenFlash {
     private val lock = Object()
 
     @GuardedBy("lock") private var isClearScreenFlashPending: Boolean = false

@@ -51,7 +51,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
  * and aspect ratios for the display.
  */
 @Suppress("DEPRECATION")
-class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
+public class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
     private val displayInfoManager by lazy { DisplayInfoManager(context) }
 
     init {
@@ -136,7 +136,7 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
         return OptionsBundle.from(mutableConfig)
     }
 
-    open class DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
+    public open class DefaultCaptureOptionsUnpacker : CaptureConfig.OptionUnpacker {
         @OptIn(ExperimentalCamera2Interop::class)
         override fun unpack(config: UseCaseConfig<*>, builder: CaptureConfig.Builder) {
             val defaultCaptureConfig = config.getDefaultCaptureConfig(null)
@@ -174,12 +174,12 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             builder.addImplementationOptions(camera2Config.captureRequestOptions)
         }
 
-        companion object {
-            val INSTANCE = DefaultCaptureOptionsUnpacker()
+        public companion object {
+            public val INSTANCE: DefaultCaptureOptionsUnpacker = DefaultCaptureOptionsUnpacker()
         }
     }
 
-    class ImageCaptureOptionUnpacker : DefaultCaptureOptionsUnpacker() {
+    public class ImageCaptureOptionUnpacker : DefaultCaptureOptionsUnpacker() {
 
         override fun unpack(config: UseCaseConfig<*>, builder: CaptureConfig.Builder) {
             super.unpack(config, builder)
@@ -189,12 +189,12 @@ class CameraUseCaseAdapter(context: Context) : UseCaseConfigFactory {
             )
         }
 
-        companion object {
-            val INSTANCE = ImageCaptureOptionUnpacker()
+        public companion object {
+            public val INSTANCE: ImageCaptureOptionUnpacker = ImageCaptureOptionUnpacker()
         }
     }
 
-    object DefaultSessionOptionsUnpacker : SessionConfig.OptionUnpacker {
+    public object DefaultSessionOptionsUnpacker : SessionConfig.OptionUnpacker {
         @OptIn(ExperimentalCamera2Interop::class)
         override fun unpack(
             resolution: Size,

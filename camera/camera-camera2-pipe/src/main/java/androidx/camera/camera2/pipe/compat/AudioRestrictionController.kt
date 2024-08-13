@@ -31,34 +31,37 @@ import javax.inject.Singleton
  * AudioRestrictionController keeps the global audio restriction mode and audio restriction mode on
  * each CameraGraph, and computes the final audio restriction mode based on the settings.
  */
-interface AudioRestrictionController {
+public interface AudioRestrictionController {
     /** Public global audio restriction mode across all CameraGraph instances. */
-    var globalAudioRestrictionMode: AudioRestrictionMode
+    public var globalAudioRestrictionMode: AudioRestrictionMode
 
     /** Update the audio restriction mode of the given CameraGraph. */
-    fun updateCameraGraphAudioRestrictionMode(cameraGraph: CameraGraph, mode: AudioRestrictionMode)
+    public fun updateCameraGraphAudioRestrictionMode(
+        cameraGraph: CameraGraph,
+        mode: AudioRestrictionMode
+    )
 
     /** Removes the CameraGraph from the local CameraGraph to audio restriction mode mapping. */
-    fun removeCameraGraph(cameraGraph: CameraGraph)
+    public fun removeCameraGraph(cameraGraph: CameraGraph)
 
     /** Adds the listener to the controller's stored collection of listeners. */
-    fun addListener(listener: Listener)
+    public fun addListener(listener: Listener)
 
     /** Removes the listener to the controller's stored collection of listeners. */
-    fun removeListener(listener: Listener)
+    public fun removeListener(listener: Listener)
 
     /**
      * [CameraDeviceWrapper] extends the [Listener]. When audio restriction mode changes, the
      * listener's update method would be invoked.
      */
-    interface Listener {
+    public interface Listener {
         /** @see CameraDevice.getCameraAudioRestriction */
-        fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode)
+        public fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode)
     }
 }
 
 @Singleton
-class AudioRestrictionControllerImpl @Inject constructor() : AudioRestrictionController {
+public class AudioRestrictionControllerImpl @Inject constructor() : AudioRestrictionController {
     private val lock = Any()
     override var globalAudioRestrictionMode: AudioRestrictionMode = AUDIO_RESTRICTION_NONE
         get() = synchronized(lock) { field }

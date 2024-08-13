@@ -24,12 +24,12 @@ import kotlin.reflect.KClass
  * An OutputImage is a reference to an [ImageWrapper] that was produced from CameraPipe for a
  * specific [StreamId]/[OutputId] combination.
  */
-interface OutputImage : ImageWrapper {
-    val streamId: StreamId
-    val outputId: OutputId
+public interface OutputImage : ImageWrapper {
+    public val streamId: StreamId
+    public val outputId: OutputId
 
-    companion object {
-        fun from(streamId: StreamId, outputId: OutputId, image: ImageWrapper): OutputImage {
+    public companion object {
+        public fun from(streamId: StreamId, outputId: OutputId, image: ImageWrapper): OutputImage {
             if (image is OutputImage) return image
             return OutputImageImpl(streamId, outputId, image)
         }

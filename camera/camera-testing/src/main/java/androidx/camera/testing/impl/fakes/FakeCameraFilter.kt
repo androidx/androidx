@@ -22,7 +22,7 @@ import androidx.camera.core.CameraInfo
 import androidx.camera.core.impl.Identifier
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class FakeCameraFilter(val id: Identifier = CameraFilter.DEFAULT_ID) : CameraFilter {
+public class FakeCameraFilter(private val id: Identifier = CameraFilter.DEFAULT_ID) : CameraFilter {
 
     override fun filter(cameraInfos: List<CameraInfo>): List<CameraInfo> {
         return ArrayList(cameraInfos)

@@ -33,9 +33,9 @@ import androidx.camera.core.impl.Quirk
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureFailWithAutoFlashQuirk : Quirk {
+public class ImageCaptureFailWithAutoFlashQuirk : Quirk {
 
-    companion object {
+    public companion object {
         /** List of devices with the issue. See b/228800360. */
         private val BUILD_MODELS_FRONT_CAMERA =
             listOf(
@@ -43,7 +43,7 @@ class ImageCaptureFailWithAutoFlashQuirk : Quirk {
                 "sm-j710f", // Samsung Galaxy J7
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             return BUILD_MODELS_FRONT_CAMERA.contains(Build.MODEL.lowercase()) &&
                 cameraMetadata[LENS_FACING] == LENS_FACING_FRONT
         }

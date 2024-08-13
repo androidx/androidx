@@ -36,4 +36,4 @@ import dagger.Module
             TemplateParamsOverride.Bindings::class,
         ],
 )
-abstract class CameraCompatModule
+public abstract class CameraCompatModule

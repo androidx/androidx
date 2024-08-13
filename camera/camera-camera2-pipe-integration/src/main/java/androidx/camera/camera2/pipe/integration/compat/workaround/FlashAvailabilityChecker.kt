@@ -35,7 +35,7 @@ import java.nio.BufferUnderflowException
  *   checking.
  * @see FlashAvailabilityBufferUnderflowQuirk
  */
-fun CameraProperties.isFlashAvailable(allowRethrowOnError: Boolean = false): Boolean {
+public fun CameraProperties.isFlashAvailable(allowRethrowOnError: Boolean = false): Boolean {
     val flashAvailable =
         try {
             metadata[CameraCharacteristics.FLASH_INFO_AVAILABLE]

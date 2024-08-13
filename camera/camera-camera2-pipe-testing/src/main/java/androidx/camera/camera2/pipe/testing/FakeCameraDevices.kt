@@ -26,7 +26,7 @@ import kotlinx.coroutines.Deferred
 /**
  * This provides a fake implementation of [CameraDevices] for tests with a fixed list of Cameras.
  */
-class FakeCameraDevices(
+public class FakeCameraDevices(
     private val defaultCameraBackendId: CameraBackendId,
     private val concurrentCameraBackendIds: Set<Set<CameraBackendId>>,
     private val cameraMetadataMap: Map<CameraBackendId, List<CameraMetadata>>

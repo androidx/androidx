@@ -33,9 +33,9 @@ import androidx.camera.core.impl.Quirk
  * TODO: enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ExtraSupportedOutputSizeQuirk : Quirk {
+public class ExtraSupportedOutputSizeQuirk : Quirk {
     /** Returns the extra supported resolutions on the device. */
-    fun getExtraSupportedResolutions(format: Int): Array<Size> {
+    public fun getExtraSupportedResolutions(format: Int): Array<Size> {
         return if (
             (format == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE && isMotoE5Play)
         ) {
@@ -46,7 +46,7 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
     }
 
     /** Returns the extra supported resolutions on the device. */
-    fun <T> getExtraSupportedResolutions(klass: Class<T>): Array<Size> {
+    public fun <T> getExtraSupportedResolutions(klass: Class<T>): Array<Size> {
         return if (StreamConfigurationMap.isOutputSupportedFor(klass) && isMotoE5Play) {
             motoE5PlayExtraSupportedResolutions
         } else {
@@ -65,8 +65,8 @@ class ExtraSupportedOutputSizeQuirk : Quirk {
                 // SD (640:480 is already included in the original list)
             )
 
-    companion object {
-        fun isEnabled(): Boolean {
+    public companion object {
+        public fun isEnabled(): Boolean {
             return isMotoE5Play
         }
 

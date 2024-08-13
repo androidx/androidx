@@ -20,12 +20,12 @@ import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.ExtraSupportedSurfaceCombinationsQuirk
 import androidx.camera.core.impl.SurfaceCombination
 
-class ExtraSupportedSurfaceCombinationsContainer {
+public class ExtraSupportedSurfaceCombinationsContainer {
     private val quirk: ExtraSupportedSurfaceCombinationsQuirk? =
         DeviceQuirks[ExtraSupportedSurfaceCombinationsQuirk::class.java]
 
     /** Retrieves the extra surface combinations which can be supported on the device. */
-    operator fun get(cameraId: String): List<SurfaceCombination> {
+    public operator fun get(cameraId: String): List<SurfaceCombination> {
         return quirk?.getExtraSupportedSurfaceCombinations(cameraId) ?: listOf()
     }
 }

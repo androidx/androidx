@@ -42,7 +42,7 @@ import kotlinx.atomicfu.atomic
  * Essentially each token means a single use on a [Surface].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class CameraSurfaceManager {
+public class CameraSurfaceManager {
 
     private val lock = Any()
 
@@ -54,7 +54,7 @@ class CameraSurfaceManager {
      * A new [SurfaceToken] is issued when a [Surface] is registered in CameraSurfaceManager. When
      * all [SurfaceToken]s issued for a [Surface] is closed, the [Surface] is considered "inactive".
      */
-    inner class SurfaceToken(internal val surface: Surface) : AutoCloseable {
+    public inner class SurfaceToken(internal val surface: Surface) : AutoCloseable {
         private val debugId = surfaceTokenDebugIds.incrementAndGet()
         private val closed = atomic(false)
 
@@ -65,10 +65,10 @@ class CameraSurfaceManager {
             }
         }
 
-        override fun toString() = "SurfaceToken-$debugId"
+        override fun toString(): String = "SurfaceToken-$debugId"
     }
 
-    interface SurfaceListener {
+    public interface SurfaceListener {
         /**
          * Called when a [Surface] is in use by a [CameraGraph]. Calling [CameraGraph.setSurface]
          * will cause [onSurfaceActive] to be called on any currently registered listener. The
@@ -76,7 +76,7 @@ class CameraSurfaceManager {
          * been released (Normally this means that it will remain in use until the camera device is
          * closed, or until the CaptureSession that uses it is replaced).
          */
-        fun onSurfaceActive(surface: Surface)
+        public fun onSurfaceActive(surface: Surface)
 
         /**
          * Called when a [Surface] is considered "inactive" and no longer in use by [CameraGraph].
@@ -87,14 +87,14 @@ class CameraSurfaceManager {
          * 3. [CameraGraph] is closed, and the [Surface] isn't not in use by some other camera
          *    subsystem.
          */
-        fun onSurfaceInactive(surface: Surface)
+        public fun onSurfaceInactive(surface: Surface)
     }
 
     /**
      * Adds a [SurfaceListener] to receive [Surface] lifetime updates. When a listener is added, it
      * will receive [SurfaceListener.onSurfaceActive] for all active Surfaces.
      */
-    fun addListener(listener: SurfaceListener) {
+    public fun addListener(listener: SurfaceListener) {
         val activeSurfaces =
             synchronized(lock) {
                 listeners.add(listener)
@@ -105,7 +105,7 @@ class CameraSurfaceManager {
     }
 
     /** Removes a [SurfaceListener] to stop receiving [Surface] lifetime updates. */
-    fun removeListener(listener: SurfaceListener) {
+    public fun removeListener(listener: SurfaceListener) {
         synchronized(lock) { listeners.remove(listener) }
     }
 
@@ -166,8 +166,8 @@ class CameraSurfaceManager {
         listenersToInvoke?.forEach { it.onSurfaceInactive(surface) }
     }
 
-    companion object {
-        const val DEBUG = false
+    public companion object {
+        public const val DEBUG: Boolean = false
 
         internal val surfaceTokenDebugIds = atomic(0)
     }

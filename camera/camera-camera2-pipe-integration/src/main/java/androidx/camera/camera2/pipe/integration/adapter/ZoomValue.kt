@@ -21,7 +21,7 @@ import androidx.camera.camera2.pipe.integration.internal.ZoomMath.getZoomRatioFr
 import androidx.camera.core.ZoomState
 
 /** Immutable adaptor to the ZoomState interface. */
-data class ZoomValue(
+public data class ZoomValue(
     private val zoomRatio: Float,
     private val minZoomRatio: Float,
     private val maxZoomRatio: Float,
@@ -34,9 +34,9 @@ data class ZoomValue(
      * value to use if the values don't align with conversion values. Secondary constructor with a
      * LinearZoom value wrapper class is used for this purpose.
      */
-    data class LinearZoom(val value: Float)
+    public data class LinearZoom(val value: Float)
 
-    constructor(
+    public constructor(
         linearZoom: LinearZoom,
         minZoomRatio: Float,
         maxZoomRatio: Float,
@@ -58,7 +58,7 @@ data class ZoomValue(
 
     override fun getMinZoomRatio(): Float = minZoomRatio
 
-    override fun getLinearZoom() =
+    override fun getLinearZoom(): Float =
         linearZoom
             ?: getLinearZoomFromZoomRatio(
                 zoomRatio = zoomRatio,

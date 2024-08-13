@@ -32,9 +32,9 @@ import androidx.camera.camera2.pipe.CameraMetadata
  * TODO(b/270421716): enable CameraXQuirksClassDetector lint check when kotlin is supported.
  */
 @SuppressLint("CameraXQuirksClassDetector")
-class ImageCaptureFlashNotFireQuirk : UseTorchAsFlashQuirk {
+public class ImageCaptureFlashNotFireQuirk : UseTorchAsFlashQuirk {
 
-    companion object {
+    public companion object {
         // List of devices with the issue. See b/228800360.
         private val BUILD_MODELS =
             listOf(
@@ -46,7 +46,7 @@ class ImageCaptureFlashNotFireQuirk : UseTorchAsFlashQuirk {
                 "sm-j710f", // Samsung Galaxy J7
             )
 
-        fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
+        public fun isEnabled(cameraMetadata: CameraMetadata): Boolean {
             val isFrontCameraAffected =
                 BUILD_MODELS_FRONT_CAMERA.contains(Build.MODEL.lowercase()) &&
                     cameraMetadata[LENS_FACING] == LENS_FACING_FRONT

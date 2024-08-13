@@ -25,39 +25,41 @@ import androidx.annotation.RestrictTo
  * increase within a specific CameraCaptureSession, and are not created until the HAL begins
  * processing a request.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) @JvmInline value class FrameNumber(val value: Long)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@JvmInline
+public value class FrameNumber(public val value: Long)
 
 /** [FrameInfo] is a wrapper around [TotalCaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FrameInfo : UnsafeWrapper {
-    val metadata: FrameMetadata
+public interface FrameInfo : UnsafeWrapper {
+    public val metadata: FrameMetadata
 
     /**
      * If this [FrameInfo] was produced from a logical camera there will be metadata associated with
      * the physical streams that were sent to the camera.
      */
-    operator fun get(camera: CameraId): FrameMetadata?
+    public operator fun get(camera: CameraId): FrameMetadata?
 
-    val camera: CameraId
-    val frameNumber: FrameNumber
-    val requestMetadata: RequestMetadata
+    public val camera: CameraId
+    public val frameNumber: FrameNumber
+    public val requestMetadata: RequestMetadata
 }
 
 /** [FrameMetadata] is a wrapper around [CaptureResult]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface FrameMetadata : Metadata, UnsafeWrapper {
-    operator fun <T> get(key: CaptureResult.Key<T>): T?
+public interface FrameMetadata : Metadata, UnsafeWrapper {
+    public operator fun <T> get(key: CaptureResult.Key<T>): T?
 
-    fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
+    public fun <T> getOrDefault(key: CaptureResult.Key<T>, default: T): T
 
-    val camera: CameraId
-    val frameNumber: FrameNumber
+    public val camera: CameraId
+    public val frameNumber: FrameNumber
 
     /**
      * Extra metadata will override values defined by the wrapped CaptureResult object. This is
      * exposed separately to allow other systems to know what is altered relative to Camera2.
      */
-    val extraMetadata: Map<*, Any?>
+    public val extraMetadata: Map<*, Any?>
 }
 
 /**
@@ -68,7 +70,7 @@ interface FrameMetadata : Metadata, UnsafeWrapper {
  * metadata.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class MetadataTransform(
+public data class MetadataTransform(
     /**
      * This defines the number of historical [TotalCaptureResult] objects this transform is allowed
      * to look at. Setting this value to > 0 increases the number of [TotalCaptureResult] the
@@ -97,8 +99,8 @@ data class MetadataTransform(
         check(future >= 0)
     }
 
-    interface TransformFn {
-        fun computeOverridesFor(
+    public interface TransformFn {
+        public fun computeOverridesFor(
             result: FrameInfo,
             camera: CameraId,
             related: List<FrameInfo?>

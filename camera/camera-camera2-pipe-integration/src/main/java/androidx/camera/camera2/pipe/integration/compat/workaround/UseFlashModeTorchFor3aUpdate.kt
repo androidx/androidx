@@ -27,14 +27,14 @@ import dagger.Provides
  *
  * @see TorchFlashRequiredFor3aUpdateQuirk
  */
-interface UseFlashModeTorchFor3aUpdate {
-    fun shouldUseFlashModeTorch(): Boolean
+public interface UseFlashModeTorchFor3aUpdate {
+    public fun shouldUseFlashModeTorch(): Boolean
 
     @Module
-    abstract class Bindings {
-        companion object {
+    public abstract class Bindings {
+        public companion object {
             @Provides
-            fun provideUseFlashModeTorchFor3aUpdate(
+            public fun provideUseFlashModeTorchFor3aUpdate(
                 cameraQuirks: CameraQuirks
             ): UseFlashModeTorchFor3aUpdate =
                 if (cameraQuirks.quirks.contains(TorchFlashRequiredFor3aUpdateQuirk::class.java))
@@ -44,11 +44,11 @@ interface UseFlashModeTorchFor3aUpdate {
     }
 }
 
-object UseFlashModeTorchFor3aUpdateImpl : UseFlashModeTorchFor3aUpdate {
+public object UseFlashModeTorchFor3aUpdateImpl : UseFlashModeTorchFor3aUpdate {
     /** Returns true for torch should be used as flash. */
-    override fun shouldUseFlashModeTorch() = true
+    override fun shouldUseFlashModeTorch(): Boolean = true
 }
 
-object NotUseFlashModeTorchFor3aUpdate : UseFlashModeTorchFor3aUpdate {
-    override fun shouldUseFlashModeTorch() = false
+public object NotUseFlashModeTorchFor3aUpdate : UseFlashModeTorchFor3aUpdate {
+    override fun shouldUseFlashModeTorch(): Boolean = false
 }

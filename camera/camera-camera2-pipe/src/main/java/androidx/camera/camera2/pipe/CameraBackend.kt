@@ -23,7 +23,7 @@ import kotlinx.coroutines.flow.Flow
 /** This is used to uniquely identify a specific backend implementation. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
-value class CameraBackendId(val value: String)
+public value class CameraBackendId(public val value: String)
 
 /**
  * A CameraStatusMonitors monitors the status of the cameras, and emits updates when the status of
@@ -31,15 +31,15 @@ value class CameraBackendId(val value: String)
  * camera has become available.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraStatusMonitor {
-    val cameraStatus: Flow<CameraStatus>
+public interface CameraStatusMonitor {
+    public val cameraStatus: Flow<CameraStatus>
 
-    abstract class CameraStatus internal constructor() {
-        object CameraPrioritiesChanged : CameraStatus() {
+    public abstract class CameraStatus internal constructor() {
+        public object CameraPrioritiesChanged : CameraStatus() {
             override fun toString(): String = "CameraPrioritiesChanged"
         }
 
-        class CameraAvailable(val cameraId: CameraId) : CameraStatus() {
+        public class CameraAvailable(public val cameraId: CameraId) : CameraStatus() {
             override fun toString(): String = "CameraAvailable(camera=$cameraId"
         }
     }
@@ -58,34 +58,34 @@ interface CameraStatusMonitor {
  * [CameraBackend.createCameraController].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraBackend {
-    val id: CameraBackendId
+public interface CameraBackend {
+    public val id: CameraBackendId
 
     /**
      * A flow of camera statuses that provide camera status updates such as when the camera access
      * priorities have changed, or a certain camera has become available.
      */
-    val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
+    public val cameraStatus: Flow<CameraStatusMonitor.CameraStatus>
 
     /**
      * Read out a list of _openable_ [CameraId]s for this backend. The backend may be able to report
      * Metadata for non-openable cameras. However, these cameras should not appear the list of
      * cameras returned by [getCameraIds].
      */
-    suspend fun getCameraIds(): List<CameraId>? = awaitCameraIds()
+    public suspend fun getCameraIds(): List<CameraId>? = awaitCameraIds()
 
     /** Thread-blocking version of [getCameraIds] for compatibility. */
-    fun awaitCameraIds(): List<CameraId>?
+    public fun awaitCameraIds(): List<CameraId>?
 
     /**
      * Read out a set of [CameraId] sets that can be operated concurrently. When multiple cameras
      * are open, the number of configurable streams, as well as their sizes, might be considerably
      * limited.
      */
-    suspend fun getConcurrentCameraIds(): Set<Set<CameraId>>? = awaitConcurrentCameraIds()
+    public suspend fun getConcurrentCameraIds(): Set<Set<CameraId>>? = awaitConcurrentCameraIds()
 
     /** Thread-blocking version of [getConcurrentCameraIds] for compatibility. */
-    fun awaitConcurrentCameraIds(): Set<Set<CameraId>>?
+    public fun awaitConcurrentCameraIds(): Set<Set<CameraId>>?
 
     /**
      * Retrieve [CameraMetadata] for this backend. Backends may cache the results of these calls.
@@ -94,11 +94,11 @@ interface CameraBackend {
      * [getCameraIds]. For some backends, it may be possible to retrieve metadata for cameras that
      * cannot be opened directly.
      */
-    suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata? =
+    public suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata? =
         awaitCameraMetadata(cameraId)
 
     /** Thread-blocking version of [getCameraMetadata] for compatibility. */
-    fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata?
+    public fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata?
 
     /**
      * Stops all active [CameraController]s, which may disconnect any cached camera connection(s).
@@ -109,7 +109,7 @@ interface CameraBackend {
      * Subsequent [CameraController]s may still be created after invoking [disconnectAllAsync], and
      * existing [CameraController]s may attempt to restart.
      */
-    fun disconnectAllAsync(): Deferred<Unit>
+    public fun disconnectAllAsync(): Deferred<Unit>
 
     /**
      * Shutdown this backend, closing active [CameraController]s, and clearing any cached resources.
@@ -118,7 +118,7 @@ interface CameraBackend {
      * camera lists, metadata, and state. Once a backend instance has been shut down it should not
      * be reused, and a new instance must be recreated.
      */
-    fun shutdownAsync(): Deferred<Unit>
+    public fun shutdownAsync(): Deferred<Unit>
 
     /**
      * Creates a new [CameraController] instance that can be used to initialize and interact with a
@@ -126,7 +126,7 @@ interface CameraBackend {
      * should _not_ begin opening or interacting with the Camera until [CameraController.start] is
      * called.
      */
-    fun createCameraController(
+    public fun createCameraController(
         cameraContext: CameraContext,
         graphId: CameraGraphId,
         graphConfig: CameraGraph.Config,
@@ -135,19 +135,19 @@ interface CameraBackend {
     ): CameraController
 
     /** Connects and starts the underlying camera */
-    fun prewarm(cameraId: CameraId)
+    public fun prewarm(cameraId: CameraId)
 
     /** Disconnects the underlying camera. */
-    fun disconnect(cameraId: CameraId)
+    public fun disconnect(cameraId: CameraId)
 
     /**
      * Disconnects the underlying camera. Once the connection is closed, the returned [Deferred]
      * should be completed.
      */
-    fun disconnectAsync(cameraId: CameraId): Deferred<Unit>
+    public fun disconnectAsync(cameraId: CameraId): Deferred<Unit>
 
     /** Disconnects all active Cameras. */
-    fun disconnectAll()
+    public fun disconnectAll()
 }
 
 /**
@@ -158,9 +158,9 @@ interface CameraBackend {
  * and release previously created [CameraBackend]s.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-fun interface CameraBackendFactory {
+public fun interface CameraBackendFactory {
     /** Create a new [CameraBackend] instance based on the provided [CameraContext]. */
-    fun create(cameraContext: CameraContext): CameraBackend
+    public fun create(cameraContext: CameraContext): CameraBackend
 }
 
 /**
@@ -168,29 +168,29 @@ fun interface CameraBackendFactory {
  * [CameraPipe] instance.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface CameraBackends {
+public interface CameraBackends {
     /**
      * This provides access to the default [CameraBackend]. Accessing this property will create the
      * backend if it is not already created.
      */
-    val default: CameraBackend
+    public val default: CameraBackend
 
     /**
      * This provides a list of all available [CameraBackend] instances, including the default one.
      * Accessing this set will not create or initialize [CameraBackend] instances.
      */
-    val allIds: Set<CameraBackendId>
+    public val allIds: Set<CameraBackendId>
 
     /**
      * This provides a list of [CameraBackend] instances that have been loaded, including the
      * default camera backend. Accessing this set will not create or initialize [CameraBackend]
      * instances.
      */
-    val activeIds: Set<CameraBackendId>
+    public val activeIds: Set<CameraBackendId>
 
     /**
      * Get a previously created [CameraBackend] instance, or create a new one. If the backend fails
      * to load or is not available, this method will return null.
      */
-    operator fun get(backendId: CameraBackendId): CameraBackend?
+    public operator fun get(backendId: CameraBackendId): CameraBackend?
 }

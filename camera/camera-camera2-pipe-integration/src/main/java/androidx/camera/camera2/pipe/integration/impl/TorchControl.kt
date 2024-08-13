@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 
 /** Implementation of Torch control exposed by [CameraControlInternal]. */
 @CameraScope
-class TorchControl
+public class TorchControl
 @Inject
 constructor(
     cameraProperties: CameraProperties,
@@ -68,7 +68,7 @@ constructor(
     private val hasFlashUnit: Boolean = cameraProperties.isFlashAvailable()
 
     private val _torchState = MutableLiveData(TorchState.OFF)
-    val torchStateLiveData: LiveData<Int>
+    public val torchStateLiveData: LiveData<Int>
         get() = _torchState
 
     private var _updateSignal: CompletableDeferred<Unit>? = null
@@ -81,7 +81,7 @@ constructor(
      * @param ignoreFlashUnitAvailability Whether to ignore the flash unit availability. When true,
      *   torch mode setting will be attempted even if a physical flash unit is not available.
      */
-    fun setTorchAsync(
+    public fun setTorchAsync(
         torch: Boolean,
         cancelPreviousTask: Boolean = true,
         ignoreFlashUnitAvailability: Boolean = false
@@ -152,9 +152,9 @@ constructor(
         }
 
     @Module
-    abstract class Bindings {
+    public abstract class Bindings {
         @Binds
         @IntoSet
-        abstract fun provideControls(torchControl: TorchControl): UseCaseCameraControl
+        public abstract fun provideControls(torchControl: TorchControl): UseCaseCameraControl
     }
 }

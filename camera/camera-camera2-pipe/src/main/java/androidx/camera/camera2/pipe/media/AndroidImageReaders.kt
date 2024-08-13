@@ -36,7 +36,7 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageReaderWrapper] using an [ImageReader]. */
-class AndroidImageReader
+public class AndroidImageReader
 private constructor(
     private val imageReader: ImageReader,
     override val capacity: Int,
@@ -63,7 +63,7 @@ private constructor(
         }
     }
 
-    override fun close() = imageReader.close()
+    override fun close(): Unit = imageReader.close()
 
     override fun flush() {
         // acquireLatestImage will acquire the most recent image and internally close any image that
@@ -92,7 +92,7 @@ private constructor(
             "-w${imageReader.width}h${imageReader.height}"
     }
 
-    companion object {
+    public companion object {
         // See: b/172464059
         //
         // The ImageReader has an internal limit of 64 images by design, but depending on the device
@@ -110,7 +110,7 @@ private constructor(
          *
          * See [ImageReader.newInstance] for details.
          */
-        fun create(
+        public fun create(
             width: Int,
             height: Int,
             format: Int,
@@ -198,7 +198,7 @@ private constructor(
 
 /** Implements an [ImageReaderWrapper] using a [MultiResolutionImageReader]. */
 @RequiresApi(Build.VERSION_CODES.S)
-class AndroidMultiResolutionImageReader(
+public class AndroidMultiResolutionImageReader(
     private val multiResolutionImageReader: MultiResolutionImageReader,
     private val streamFormat: StreamFormat,
     override val capacity: Int,
@@ -241,7 +241,7 @@ class AndroidMultiResolutionImageReader(
         }
     }
 
-    override fun close() = multiResolutionImageReader.close()
+    override fun close(): Unit = multiResolutionImageReader.close()
 
     override fun flush() {
         // ImageReaders are pools of shared memory that is not actively released until the
@@ -267,9 +267,9 @@ class AndroidMultiResolutionImageReader(
             "-$sizeString"
     }
 
-    companion object {
+    public companion object {
         @RequiresApi(Build.VERSION_CODES.S)
-        fun create(
+        public fun create(
             outputFormat: Int,
             streamId: StreamId,
             outputIdMap: Map<MultiResolutionStreamInfo, OutputId>,
@@ -306,7 +306,7 @@ class AndroidMultiResolutionImageReader(
         }
 
         @RequiresApi(Build.VERSION_CODES.S)
-        fun create(
+        public fun create(
             cameraStream: CameraStream,
             capacity: Int,
             executor: Executor

@@ -22,7 +22,7 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import kotlin.reflect.KClass
 
 /** Utility class for testing code that depends on [RequestFailure] with reasonable defaults. */
-class FakeRequestFailure(
+public class FakeRequestFailure(
     override val requestMetadata: RequestMetadata,
     override val frameNumber: FrameNumber,
     override val reason: Int = 0,
