@@ -55,7 +55,7 @@ value class BackNavigationBehavior private constructor(private val description: 
         /**
          * Pop destinations from the backstack until there is a content change.
          *
-         * A "content change" is defined as either a change in the content of the current
+         * A "content change" is defined as either a change in the `contentKey` of the current
          * [ThreePaneScaffoldDestinationItem], or a change in the scaffold value (similar to
          * [PopUntilScaffoldValueChange]).
          */

@@ -63,7 +63,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
@@ -92,7 +92,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(canNavigateBack).isFalse()
         }
     }
@@ -122,7 +122,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Extra)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
@@ -152,7 +152,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Extra)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
         }
     }
@@ -177,7 +177,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(canNavigateBack).isTrue()
             scaffoldNavigator.navigateBack()
         }
@@ -187,7 +187,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
             assertThat(canNavigateBack).isFalse()
         }
     }
@@ -211,7 +211,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
         }
     }
@@ -237,7 +237,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopLatest)).isTrue()
             scaffoldNavigator.navigateBack(BackNavigationBehavior.PopLatest)
         }
@@ -247,7 +247,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
         }
     }
 
@@ -271,7 +271,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(1)
             assertThat(
                     scaffoldNavigator.canNavigateBack(
                         BackNavigationBehavior.PopUntilCurrentDestinationChange
@@ -284,7 +284,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
         }
     }
 
@@ -307,7 +307,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(1)
             assertThat(
                     scaffoldNavigator.canNavigateBack(
                         BackNavigationBehavior.PopUntilCurrentDestinationChange
@@ -337,7 +337,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(1)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(1)
             assertThat(
                     scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
                 )
@@ -348,7 +348,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
         }
     }
 
@@ -372,7 +372,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Extra)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(
                     scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
                 )
@@ -383,7 +383,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
         }
     }
 
@@ -406,7 +406,7 @@ class ListDetailPaneScaffoldNavigatorTest {
         composeRule.runOnIdle {
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             assertThat(
                     scaffoldNavigator.canNavigateBack(BackNavigationBehavior.PopUntilContentChange)
                 )
@@ -439,7 +439,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
             scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
@@ -451,7 +451,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             scaffoldNavigator.navigateBack()
         }
 
@@ -463,7 +463,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
         }
     }
 
@@ -492,7 +492,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.List)
-            assertThat(scaffoldNavigator.currentDestination?.content).isNull()
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isNull()
             scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail, 0)
         }
 
@@ -504,7 +504,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             scaffoldNavigator.navigateBack()
         }
 
@@ -516,7 +516,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             )
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Extra)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
         }
     }
 
@@ -664,7 +664,7 @@ class ListDetailPaneScaffoldNavigatorTest {
                 .isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
             // Switches to dual pane
             mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
         }
@@ -673,7 +673,7 @@ class ListDetailPaneScaffoldNavigatorTest {
             assertThat(scaffoldNavigator.canNavigateBack()).isFalse()
             assertThat(scaffoldNavigator.currentDestination?.pane)
                 .isEqualTo(ListDetailPaneScaffoldRole.Detail)
-            assertThat(scaffoldNavigator.currentDestination?.content).isEqualTo(0)
+            assertThat(scaffoldNavigator.currentDestination?.contentKey).isEqualTo(0)
         }
     }
 }

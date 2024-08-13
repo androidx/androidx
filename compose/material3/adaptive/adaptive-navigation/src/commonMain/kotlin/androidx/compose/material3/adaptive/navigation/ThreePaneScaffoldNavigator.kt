@@ -59,9 +59,9 @@ import kotlin.collections.removeLast as removeLastKt
  * and the default implementation to get better understanding and address the intricacies of
  * navigation in an adaptive scenario.
  *
- * @param T the type representing the content, or id of the content, for a navigation destination.
- *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
- *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
+ * @param T the type representing the content key/id for a navigation destination. This type must be
+ *   storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Any].
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
@@ -116,10 +116,9 @@ interface ThreePaneScaffoldNavigator<T> {
      * pane currently being used.
      *
      * @param pane the new destination pane.
-     * @param content the optional content, or an id representing the content of the new
-     *   destination.
+     * @param contentKey the optional key or id representing the content of the new destination.
      */
-    fun navigateTo(pane: ThreePaneScaffoldRole, content: T? = null)
+    fun navigateTo(pane: ThreePaneScaffoldRole, contentKey: T? = null)
 
     /**
      * Returns `true` if there is a previous destination to navigate back to.
@@ -157,9 +156,9 @@ interface ThreePaneScaffoldNavigator<T> {
  * default navigator is supposed to be used independently from any navigation frameworks and handles
  * the navigation purely inside the [ListDetailPaneScaffold].
  *
- * @param T the type representing the content, or id of the content, for a navigation destination.
- *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
- *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
+ * @param T the type representing the content key/id for a navigation destination. This type must be
+ *   storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Any].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
  *   calculated with [calculatePaneScaffoldDirective] using
  *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from the
@@ -212,8 +211,8 @@ fun rememberListDetailPaneScaffoldNavigator(
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
-): ThreePaneScaffoldNavigator<Nothing> =
-    rememberListDetailPaneScaffoldNavigator<Nothing>(
+): ThreePaneScaffoldNavigator<Any> =
+    rememberListDetailPaneScaffoldNavigator<Any>(
         scaffoldDirective,
         adaptStrategies,
         isDestinationHistoryAware,
@@ -225,9 +224,9 @@ fun rememberListDetailPaneScaffoldNavigator(
  * default navigator is supposed to be used independently from any navigation frameworks and handles
  * the navigation purely inside the [SupportingPaneScaffold].
  *
- * @param T the type representing the content, or id of the content, for a navigation destination.
- *   This type must be storable in a Bundle. Used to customize navigation behavior (for example,
- *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Nothing].
+ * @param T the type representing the content key/id for a navigation destination. This type must be
+ *   storable in a Bundle. Used to customize navigation behavior (for example,
+ *   [BackNavigationBehavior]). If this customization is unneeded, you can pass [Any].
  * @param scaffoldDirective the current layout directives to follow. The default value will be
  *   calculated with [calculatePaneScaffoldDirective] using
  *   [WindowAdaptiveInfo][androidx.compose.material3.adaptive.WindowAdaptiveInfo] retrieved from the
@@ -280,8 +279,8 @@ fun rememberSupportingPaneScaffoldNavigator(
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
     isDestinationHistoryAware: Boolean = true,
-): ThreePaneScaffoldNavigator<Nothing> =
-    rememberSupportingPaneScaffoldNavigator<Nothing>(
+): ThreePaneScaffoldNavigator<Any> =
+    rememberSupportingPaneScaffoldNavigator<Any>(
         scaffoldDirective,
         adaptStrategies,
         isDestinationHistoryAware,
@@ -349,8 +348,8 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
         return if (index == -1) scaffoldValue else calculateScaffoldValue(index)
     }
 
-    override fun navigateTo(pane: ThreePaneScaffoldRole, content: T?) {
-        destinationHistory.add(ThreePaneScaffoldDestinationItem(pane, content))
+    override fun navigateTo(pane: ThreePaneScaffoldRole, contentKey: T?) {
+        destinationHistory.add(ThreePaneScaffoldDestinationItem(pane, contentKey))
     }
 
     override fun canNavigateBack(backNavigationBehavior: BackNavigationBehavior): Boolean =
@@ -392,8 +391,8 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
                 }
             BackNavigationBehavior.PopUntilContentChange ->
                 for (previousDestinationIndex in destinationHistory.lastIndex - 1 downTo 0) {
-                    val content = destinationHistory[previousDestinationIndex].content
-                    if (content != currentDestination?.content) {
+                    val contentKey = destinationHistory[previousDestinationIndex].contentKey
+                    if (contentKey != currentDestination?.contentKey) {
                         return previousDestinationIndex
                     }
                     // A scaffold value change also counts as a content change.
@@ -461,12 +460,12 @@ internal class DefaultThreePaneScaffoldNavigator<T>(
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 internal fun <T> destinationItemSaver(): Saver<ThreePaneScaffoldDestinationItem<T>, Any> =
     listSaver(
-        save = { listOf(it.pane, it.content) },
+        save = { listOf(it.pane, it.contentKey) },
         restore = {
             @Suppress("UNCHECKED_CAST")
             (ThreePaneScaffoldDestinationItem(
                 pane = it[0] as ThreePaneScaffoldRole,
-                content = it[1] as T?
+                contentKey = it[1] as T?
             ))
         }
     )
