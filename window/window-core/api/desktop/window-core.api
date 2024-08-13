@@ -1,0 +1,46 @@
+public abstract interface annotation class androidx/window/core/ExperimentalWindowCoreApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/window/core/layout/WindowHeightSizeClass {
+	public static final field COMPACT Landroidx/window/core/layout/WindowHeightSizeClass;
+	public static final field Companion Landroidx/window/core/layout/WindowHeightSizeClass$Companion;
+	public static final field EXPANDED Landroidx/window/core/layout/WindowHeightSizeClass;
+	public static final field MEDIUM Landroidx/window/core/layout/WindowHeightSizeClass;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/window/core/layout/WindowHeightSizeClass$Companion {
+}
+
+public final class androidx/window/core/layout/WindowSizeClass {
+	public static final field Companion Landroidx/window/core/layout/WindowSizeClass$Companion;
+	public synthetic fun <init> (Landroidx/window/core/layout/WindowWidthSizeClass;Landroidx/window/core/layout/WindowHeightSizeClass;Lkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public static final fun compute (FF)Landroidx/window/core/layout/WindowSizeClass;
+	public static final fun compute (IIF)Landroidx/window/core/layout/WindowSizeClass;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getWindowHeightSizeClass ()Landroidx/window/core/layout/WindowHeightSizeClass;
+	public final fun getWindowWidthSizeClass ()Landroidx/window/core/layout/WindowWidthSizeClass;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/window/core/layout/WindowSizeClass$Companion {
+	public final fun compute (FF)Landroidx/window/core/layout/WindowSizeClass;
+	public final fun compute (IIF)Landroidx/window/core/layout/WindowSizeClass;
+}
+
+public final class androidx/window/core/layout/WindowWidthSizeClass {
+	public static final field COMPACT Landroidx/window/core/layout/WindowWidthSizeClass;
+	public static final field Companion Landroidx/window/core/layout/WindowWidthSizeClass$Companion;
+	public static final field EXPANDED Landroidx/window/core/layout/WindowWidthSizeClass;
+	public static final field MEDIUM Landroidx/window/core/layout/WindowWidthSizeClass;
+	public fun equals (Ljava/lang/Object;)Z
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/window/core/layout/WindowWidthSizeClass$Companion {
+}
+

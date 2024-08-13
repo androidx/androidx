@@ -1,0 +1,51 @@
+public abstract interface annotation class androidx/compose/material3/adaptive/ExperimentalMaterial3AdaptiveApi : java/lang/annotation/Annotation {
+}
+
+public final class androidx/compose/material3/adaptive/HingeInfo {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/ui/geometry/Rect;ZZZZ)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getBounds ()Landroidx/compose/ui/geometry/Rect;
+	public fun hashCode ()I
+	public final fun isFlat ()Z
+	public final fun isOccluding ()Z
+	public final fun isSeparating ()Z
+	public final fun isVertical ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/adaptive/Posture {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (ZLjava/util/List;)V
+	public synthetic fun <init> (ZLjava/util/List;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getHingeList ()Ljava/util/List;
+	public fun hashCode ()I
+	public final fun isTabletop ()Z
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/adaptive/PostureKt {
+	public static final fun getAllHorizontalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+	public static final fun getAllVerticalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+	public static final fun getOccludingHorizontalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+	public static final fun getOccludingVerticalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+	public static final fun getSeparatingHorizontalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+	public static final fun getSeparatingVerticalHingeBounds (Landroidx/compose/material3/adaptive/Posture;)Ljava/util/List;
+}
+
+public final class androidx/compose/material3/adaptive/WindowAdaptiveInfo {
+	public static final field $stable I
+	public fun <init> (Landroidx/window/core/layout/WindowSizeClass;Landroidx/compose/material3/adaptive/Posture;)V
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getWindowPosture ()Landroidx/compose/material3/adaptive/Posture;
+	public final fun getWindowSizeClass ()Landroidx/window/core/layout/WindowSizeClass;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/adaptive/WindowAdaptiveInfo_skikoKt {
+	public static final fun currentWindowAdaptiveInfo (Landroidx/compose/runtime/Composer;I)Landroidx/compose/material3/adaptive/WindowAdaptiveInfo;
+}
+

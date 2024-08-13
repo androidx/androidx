@@ -54,6 +54,9 @@ val libraryToComponents = mapOf(
         ComposeComponent(":compose:material:material-icons-core"),
         ComposeComponent(":compose:material:material-ripple"),
         ComposeComponent(":compose:material3:material3-window-size-class"),
+        ComposeComponent(":compose:material3:adaptive:adaptive"),
+        ComposeComponent(":compose:material3:adaptive:adaptive-layout"),
+        ComposeComponent(":compose:material3:adaptive:adaptive-navigation"),
         ComposeComponent(":compose:runtime:runtime", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:runtime:runtime-saveable", supportedPlatforms = ComposePlatforms.ALL),
         ComposeComponent(":compose:ui:ui"),
@@ -106,6 +109,9 @@ val libraryToComponents = mapOf(
     ),
     "SAVEDSTATE" to listOf(
         ComposeComponent(":savedstate:savedstate", viewModelPlatforms),
+    ),
+    "WINDOW" to listOf(
+        ComposeComponent(":window:window-core", viewModelPlatforms),
     ),
 )
 

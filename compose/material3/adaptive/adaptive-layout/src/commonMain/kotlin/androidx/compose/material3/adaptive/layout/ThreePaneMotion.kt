@@ -33,6 +33,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import kotlin.jvm.JvmStatic
 
 /** Holds the transitions that can be applied to the different panes. */
 @ExperimentalMaterial3AdaptiveApi

@@ -71,7 +71,7 @@ Compose Multiplatform core libraries can be published to local Maven with the fo
 The default value for the version is `0.0.0-SNAPSHOT`
 
 And library groups:
-`-Pjetbrains.publication.libraries=CORE_BUNDLE,COMPOSE,LIFECYCLE,NAVIGATION,SAVEDSTATE`
+`-Pjetbrains.publication.libraries=CORE_BUNDLE,COMPOSE,LIFECYCLE,NAVIGATION,SAVEDSTATE,WINDOW`
 
 The default value includes all libraries.
 

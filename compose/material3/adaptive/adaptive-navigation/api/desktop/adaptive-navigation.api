@@ -1,0 +1,41 @@
+public final class androidx/compose/material3/adaptive/navigation/BackNavigationBehavior {
+	public static final field Companion Landroidx/compose/material3/adaptive/navigation/BackNavigationBehavior$Companion;
+	public static final synthetic fun box-impl (Ljava/lang/String;)Landroidx/compose/material3/adaptive/navigation/BackNavigationBehavior;
+	public fun equals (Ljava/lang/Object;)Z
+	public static fun equals-impl (Ljava/lang/String;Ljava/lang/Object;)Z
+	public static final fun equals-impl0 (Ljava/lang/String;Ljava/lang/String;)Z
+	public fun hashCode ()I
+	public static fun hashCode-impl (Ljava/lang/String;)I
+	public fun toString ()Ljava/lang/String;
+	public static fun toString-impl (Ljava/lang/String;)Ljava/lang/String;
+	public final synthetic fun unbox-impl ()Ljava/lang/String;
+}
+
+public final class androidx/compose/material3/adaptive/navigation/BackNavigationBehavior$Companion {
+	public final fun getPopLatest-pSECbL4 ()Ljava/lang/String;
+	public final fun getPopUntilContentChange-pSECbL4 ()Ljava/lang/String;
+	public final fun getPopUntilCurrentDestinationChange-pSECbL4 ()Ljava/lang/String;
+	public final fun getPopUntilScaffoldValueChange-pSECbL4 ()Ljava/lang/String;
+}
+
+public abstract interface class androidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator {
+	public abstract fun canNavigateBack--pgVGNs (Ljava/lang/String;)Z
+	public static synthetic fun canNavigateBack--pgVGNs$default (Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;Ljava/lang/String;ILjava/lang/Object;)Z
+	public abstract fun getCurrentDestination ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldDestinationItem;
+	public abstract fun getScaffoldDirective ()Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;
+	public abstract fun getScaffoldValue ()Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldValue;
+	public abstract fun isDestinationHistoryAware ()Z
+	public abstract fun navigateBack--pgVGNs (Ljava/lang/String;)Z
+	public static synthetic fun navigateBack--pgVGNs$default (Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;Ljava/lang/String;ILjava/lang/Object;)Z
+	public abstract fun navigateTo (Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldRole;Ljava/lang/Object;)V
+	public static synthetic fun navigateTo$default (Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldRole;Ljava/lang/Object;ILjava/lang/Object;)V
+	public abstract fun setDestinationHistoryAware (Z)V
+}
+
+public final class androidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigatorKt {
+	public static final fun rememberListDetailPaneScaffoldNavigator (Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;ZLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;
+	public static final fun rememberListDetailPaneScaffoldNavigator (Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;ZLjava/util/List;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;
+	public static final fun rememberSupportingPaneScaffoldNavigator (Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;ZLandroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;
+	public static final fun rememberSupportingPaneScaffoldNavigator (Landroidx/compose/material3/adaptive/layout/PaneScaffoldDirective;Landroidx/compose/material3/adaptive/layout/ThreePaneScaffoldAdaptStrategies;ZLjava/util/List;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material3/adaptive/navigation/ThreePaneScaffoldNavigator;
+}
+

@@ -20,6 +20,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole
+import kotlin.jvm.JvmInline
 
 /** A class to control how back navigation should behave in a [ThreePaneScaffoldNavigator]. */
 @ExperimentalMaterial3AdaptiveApi

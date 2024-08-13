@@ -22,14 +22,11 @@ import androidx.compose.material3.adaptive.Posture
 import androidx.compose.material3.adaptive.WindowAdaptiveInfo
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
+import androidx.kruth.assertThat
 import androidx.window.core.layout.WindowSizeClass
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@RunWith(JUnit4::class)
 class PaneScaffoldDirectiveTest {
     @Test
     fun test_calculateStandardPaneScaffoldDirective_compactWidth() {

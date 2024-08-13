@@ -197,7 +197,7 @@ COMPOSE_FOUNDATION = { group = "org.jetbrains.compose.foundation", atomicGroupVe
 COMPOSE_MATERIAL = { group = "org.jetbrains.compose.material", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_MATERIAL3 = { group = "org.jetbrains.compose.material3", atomicGroupVersion = "versions.COMPOSE_MATERIAL3" }
 COMPOSE_MATERIAL3_COMMON = { group = "org.jetbrains.compose.material3.common", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_COMMON", overrideInclude = [ ":compose:material3:material3-common" ] }
-COMPOSE_MATERIAL3_ADAPTIVE = { group = "androidx.compose.material3.material3-adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
+COMPOSE_MATERIAL3_ADAPTIVE = { group = "org.jetbrains.compose.material3.adaptive", atomicGroupVersion = "versions.COMPOSE_MATERIAL3_ADAPTIVE" }
 COMPOSE_RUNTIME = { group = "org.jetbrains.compose.runtime", atomicGroupVersion = "versions.COMPOSE" }
 COMPOSE_UI = { group = "org.jetbrains.compose.ui", atomicGroupVersion = "versions.COMPOSE" }
 CONCURRENT = { group = "androidx.concurrent", atomicGroupVersion = "versions.FUTURES" }
@@ -292,6 +292,7 @@ WEAR_TILES = { group = "androidx.wear.tiles", atomicGroupVersion = "versions.WEA
 WEAR_WATCHFACE = { group = "androidx.wear.watchface", atomicGroupVersion = "versions.WEAR_WATCHFACE" }
 WEBKIT = { group = "androidx.webkit", atomicGroupVersion = "versions.WEBKIT" }
 WINDOW = { group = "androidx.window", atomicGroupVersion = "versions.WINDOW" }
+WINDOW_CORE = { group = "org.jetbrains.window.core", atomicGroupVersion = "versions.WINDOW", overrideInclude = [ ":window:window-core" ]  }
 WINDOW_EXTENSIONS = { group = "androidx.window.extensions", atomicGroupVersion = "versions.WINDOW_EXTENSIONS" }
 WINDOW_EXTENSIONS_CORE = { group = "androidx.window.extensions.core", atomicGroupVersion = "versions.WINDOW_EXTENSIONS_CORE" }
 WINDOW_SIDECAR = { group = "androidx.window.sidecar", atomicGroupVersion = "versions.WINDOW_SIDECAR" }

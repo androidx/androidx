@@ -21,29 +21,38 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.AndroidXComposePlugin
+import androidx.build.JetbrainsAndroidXPlugin
 import androidx.build.LibraryType
-import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("JetbrainsAndroidXPlugin")
 }
 
-androidXMultiplatform {
+AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+JetbrainsAndroidXPlugin.applyAndConfigure(project)
+
+androidXComposeMultiplatform {
     android()
     desktop()
+    darwin()
+    wasm()
+    js()
+}
 
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
+kotlin {
     sourceSets {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                api("androidx.compose.foundation:foundation:1.6.5")
-                api("androidx.compose.ui:ui-geometry:1.6.5")
-                api("androidx.window:window-core:1.3.0-rc01")
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:ui:ui-geometry"))
+                api(project(":window:window-core"))
             }
         }
 
@@ -62,9 +71,10 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                api("androidx.annotation:annotation:1.1.0")
-                api("androidx.annotation:annotation-experimental:1.4.0")
-                api("androidx.window:window:1.3.0-rc01")
+                api(project(":annotation:annotation"))
+                //dependencies are not available in JB fork
+                //api(project(":annotation:annotation-experimental"))
+                //api(project(":window:window"))
             }
         }
 
@@ -89,7 +99,8 @@ androidXMultiplatform {
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:test-utils"))
-                implementation(project(":window:window-testing"))
+                //dependency is not available in JB fork
+                //implementation(project(":window:window-testing"))
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
@@ -104,6 +115,22 @@ androidXMultiplatform {
                 implementation(libs.truth)
             }
         }
+
+        skikoMain.dependsOn(commonMain)
+        desktopMain.dependsOn(skikoMain)
+        nonJvmMain.dependsOn(skikoMain)
+        webMain.dependsOn(nonJvmMain)
+        jsMain.dependsOn(webMain)
+        wasmJsMain.dependsOn(webMain)
+        nativeMain.dependsOn(nonJvmMain)
+
+        skikoTest.dependsOn(commonTest)
+        desktopTest.dependsOn(skikoTest)
+        nonJvmTest.dependsOn(skikoTest)
+        webTest.dependsOn(nonJvmTest)
+        jsTest.dependsOn(webTest)
+        wasmJsTest.dependsOn(webTest)
+        nativeTest.dependsOn(nonJvmTest)
     }
 }
 
@@ -113,7 +140,7 @@ android {
 
 androidx {
     name = "Material Adaptive"
-    type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Compose Material Design Adaptive Library"
     legacyDisableKotlinStrictApiMode = true

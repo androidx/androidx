@@ -60,4 +60,5 @@ val Components = Screen.Selection(
     Screen.Example("NestedScroll") { NestedScrollExample() },
     Screen.Example("Selection") { SelectionExample() },
     Screen.Example("Pager") { PagerExample() },
+    Screen.Example("WindowAdaptiveInfo") { AdaptiveExample() },
 )

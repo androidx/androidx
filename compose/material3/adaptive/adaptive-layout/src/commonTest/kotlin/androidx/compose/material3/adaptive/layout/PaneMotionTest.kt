@@ -47,13 +47,10 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.google.common.truth.Truth.assertWithMessage
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertWithMessage
+import kotlin.test.Test
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@RunWith(JUnit4::class)
 class PaneMotionTest {
     @Test
     fun test_allThreePaneMotions() {
