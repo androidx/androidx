@@ -168,11 +168,11 @@ value class ShortNavigationBarArrangement private constructor(private val value:
  * @param selected whether this item is selected
  * @param onClick called when this item is clicked
  * @param icon icon for this item, typically an [Icon]
+ * @param label text label for this item
  * @param modifier the [Modifier] to be applied to this item
  * @param enabled controls the enabled state of this item. When `false`, this component will not
  *   respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param label text label for this item
  * @param badge optional badge to show on this item, typically a [Badge]
  * @param iconPosition the [NavigationItemIconPosition] for the icon
  * @param colors [NavigationItemColors] that will be used to resolve the colors used for this item
@@ -188,9 +188,9 @@ fun ShortNavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
+    label: @Composable (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
     badge: (@Composable () -> Unit)? = null,
     iconPosition: NavigationItemIconPosition = NavigationItemIconPosition.Top,
     colors: NavigationItemColors = ShortNavigationBarItemDefaults.colors(),

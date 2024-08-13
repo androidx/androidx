@@ -480,6 +480,7 @@ class ShortNavigationBarTest {
             ShortNavigationBarItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
+                label = null,
                 selected = false,
                 onClick = {}
             )

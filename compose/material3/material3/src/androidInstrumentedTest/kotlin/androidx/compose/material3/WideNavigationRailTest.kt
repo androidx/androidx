@@ -336,6 +336,7 @@ class WideNavigationRailTest {
             WideNavigationRailItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, "Favorite") },
+                label = null,
                 selected = false,
                 onClick = {}
             )
@@ -414,6 +415,7 @@ class WideNavigationRailTest {
             WideNavigationRailItem(
                 modifier = Modifier.testTag("item"),
                 icon = { Icon(Icons.Filled.Favorite, null, Modifier.testTag("icon")) },
+                label = null,
                 selected = true,
                 onClick = {}
             )

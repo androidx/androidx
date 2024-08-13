@@ -496,11 +496,11 @@ fun ModalExpandedNavigationRail(
  * @param selected whether this item is selected
  * @param onClick called when this item is clicked
  * @param icon icon for this item, typically an [Icon]
+ * @param label text label for this item
  * @param modifier the [Modifier] to be applied to this item
  * @param enabled controls the enabled state of this item. When `false`, this component will not
  *   respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param label text label for this item
  * @param badge optional badge to show on this item, typically a [Badge]
  * @param railExpanded whether the associated [WideNavigationRail] is expanded or collapsed
  * @param iconPosition the [NavigationItemIconPosition] for the icon
@@ -517,9 +517,9 @@ fun WideNavigationRailItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: @Composable () -> Unit,
+    label: @Composable (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    label: @Composable (() -> Unit)? = null,
     badge: (@Composable () -> Unit)? = null,
     railExpanded: Boolean = false,
     iconPosition: NavigationItemIconPosition =
