@@ -244,7 +244,7 @@ public interface AdvancedExtenderImpl {
      * {@link CameraCharacteristics#CONTROL_VIDEO_STABILIZATION_MODE_OFF} for the key
      * {@link CameraCharacteristics#CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES}.
      *
-     * <p>Please note that on Android 15 or later, it is mandatory to include
+     * <p>Please note that it is mandatory to include
      * {@link CameraCharacteristics#CONTROL_ZOOM_RATIO_RANGE} and
      * {@link CameraCharacteristics#CONTROL_AF_AVAILABLE_MODES} in the list.
      *
