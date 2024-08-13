@@ -304,12 +304,14 @@ class BaselineProfileProducerPluginTestWithAgp82AndAbove(agpVersion: TestAgpVers
         arrayOf(
                 AssertData("benchmarkReleaseArguments", false) {
                     contains("androidx.benchmark.enabledRules=macrobenchmark")
+                    contains("androidx.benchmark.skipOnEmulator=true")
                 },
                 AssertData("nonMinifiedReleaseArguments", false) {
                     contains("androidx.benchmark.enabledRules=baselineprofile")
                 },
                 AssertData("benchmarkReleaseArguments", true) {
                     doesNotContain("androidx.benchmark.enabledRules=macrobenchmark")
+                    contains("androidx.benchmark.skipOnEmulator=true")
                 },
                 AssertData("nonMinifiedReleaseArguments", true) {
                     doesNotContain("androidx.benchmark.enabledRules=baselineprofile")

@@ -53,6 +53,7 @@ internal const val KOTLIN_MULTIPLATFORM_PLUGIN_ID = "org.jetbrains.kotlin.multip
 
 // Instrumentation runner arguments
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES = "androidx.benchmark.enabledRules"
+internal const val INSTRUMENTATION_ARG_SKIP_ON_EMULATOR = "androidx.benchmark.skipOnEmulator"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE = "baselineprofile"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK = "macrobenchmark"
 

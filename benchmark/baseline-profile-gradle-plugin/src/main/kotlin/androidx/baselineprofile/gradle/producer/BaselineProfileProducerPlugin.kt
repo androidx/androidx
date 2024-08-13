@@ -33,6 +33,7 @@ import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_SKIP_ON_EMULATOR
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
 import androidx.baselineprofile.gradle.utils.InstrumentationTestRunnerArgumentsAgp82
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_RECOMMENDED_EXCLUSIVE
@@ -253,17 +254,26 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
         // If this is a benchmark variant sets the instrumentation runner argument to run only
         // tests with MacroBenchmark rules.
         if (
-            addEnabledRulesInstrumentationArgument &&
-                enabledRulesNotSet &&
-                variant.buildType in benchmarkExtendedToOriginalTypeMap.keys
+            variant.buildType in benchmarkExtendedToOriginalTypeMap.keys &&
+                supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)
         ) {
-            if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
+
+            InstrumentationTestRunnerArgumentsAgp82.set(
+                variant = variant,
+                arguments =
+                    listOf(
+                        INSTRUMENTATION_ARG_SKIP_ON_EMULATOR to
+                            baselineProfileExtension.skipBenchmarksOnEmulator.toString()
+                    )
+            )
+
+            if (addEnabledRulesInstrumentationArgument && enabledRulesNotSet) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
                     variant = variant,
                     arguments =
                         listOf(
                             INSTRUMENTATION_ARG_ENABLED_RULES to
-                                INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
+                                INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK,
                         )
                 )
             }

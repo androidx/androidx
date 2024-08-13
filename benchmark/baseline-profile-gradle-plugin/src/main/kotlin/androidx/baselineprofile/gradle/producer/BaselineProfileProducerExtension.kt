@@ -61,6 +61,13 @@ open class BaselineProfileProducerExtension {
      */
     var useConnectedDevices = true
 
+    /**
+     * Whether tests with Macrobenchmark rule should be skipped when running on emulator. Note that
+     * when `automaticGenerationDuringBuild` is `true` and managed devices are used benchmark will
+     * always run on emulator, causing an exception if this flag is not enabled.
+     */
+    var skipBenchmarksOnEmulator = true
+
     /** Enables the emulator display for GMD devices. This is not a stable api. */
     @Incubating var enableEmulatorDisplay = false
 }
