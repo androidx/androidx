@@ -1,0 +1,46 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.AndroidXConfig
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.privacy-sandbox-sdk")
+}
+
+android {
+    namespace = "androidx.privacysandbox.tools.integration.testsdk-asb"
+
+    // TODO(b/357865033): AndroidXPlugin should eventually set compileSdkVersion and
+    //  buildToolsVersion for this plugin. We shouldn't be setting these manually.
+    compileSdk = 35
+    buildToolsVersion AndroidXConfig.getDefaultAndroidConfig(project).getBuildToolsVersion()
+
+    bundle {
+        packageName = "androidx.privacysandbox.tools.integration.sdk"
+        compatSdkProviderClassName = "androidx.privacysandbox.tools.integration.testsdk.MySdkSandboxProvider"
+        // This is the entry point class to our SDK in the SDK Runtime. It enables backward
+        // compatibility support.
+        sdkProviderClassName = "androidx.privacysandbox.sdkruntime.provider.SandboxedSdkProviderAdapter"
+        setVersion(1, 0, 0)
+
+    }
+
+}
+
+dependencies {
+    include project(":privacysandbox:tools:integration-tests:testsdk")
+}

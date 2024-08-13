@@ -1,0 +1,55 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
+
+android {
+    namespace "androidx.privacysandbox.tools.integration.testapp"
+
+    defaultConfig {
+        applicationId "androidx.privacysandbox.tools.integration.testapp"
+        minSdk 33
+        compileSdk 35
+    }
+    experimentalProperties["android.privacySandboxSdk.apiGenerator"] =
+            project.dependencies.create(project(":privacysandbox:tools:tools-apigenerator"))
+    experimentalProperties["android.privacySandboxSdk.apiGenerator.generatedRuntimeDependencies"] =
+            [libs.kotlinStdlib.get(),
+             libs.kotlinCoroutinesAndroid.get(),
+             libs.kotlinCoroutinesCore.get()]
+    privacySandbox {
+            enable = true
+    }
+}
+
+dependencies {
+    implementation(project(":privacysandbox:tools:integration-tests:testsdk-asb"))
+
+    implementation(project(":privacysandbox:sdkruntime:sdkruntime-client"))
+    implementation(project(":privacysandbox:sdkruntime:sdkruntime-core"))
+
+    implementation("androidx.core:core-ktx:1.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.5.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation(project(":activity:activity"))
+    implementation(libs.material)
+    implementation(libs.constraintLayout)
+    implementation(libs.kotlinCoroutinesAndroid)
+}

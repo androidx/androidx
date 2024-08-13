@@ -1,0 +1,98 @@
+/*
+ * Copyright 2024 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.KotlinTarget
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.library")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
+}
+
+abstract class AidlInput implements CommandLineArgumentProvider {
+    // Use the version of the build tools as the input to allow caching across platforms
+    @Internal
+    abstract RegularFileProperty getAidl()
+
+    @Input
+    abstract Property<String> getBuildToolsVersion()
+
+    @Override
+    Iterable<String> asArguments() {
+        return Collections.singleton("aidl_compiler_path=" + getAidl().get().asFile.absolutePath)
+    }
+}
+
+abstract class FrameworkAidlInput implements CommandLineArgumentProvider {
+
+    @Internal
+    abstract RegularFileProperty getFrameworkAidl()
+
+    @Input
+    abstract Property<String> getPlatformSdk()
+
+    @Override
+    Iterable<String> asArguments() {
+        return Collections.singleton(
+                "framework_aidl_path=" + getFrameworkAidl().get().asFile.absolutePath
+        )
+    }
+}
+
+AidlInput aidlInput = project.objects.newInstance(AidlInput)
+FrameworkAidlInput frameworkAidlInput = project.objects.newInstance(FrameworkAidlInput)
+
+androidComponents {
+    finalizeDsl { dsl ->
+        aidlInput.aidl.set(androidComponents.sdkComponents.aidl.flatMap { it.executable })
+        aidlInput.buildToolsVersion.set(androidComponents.sdkComponents.aidl.flatMap { it.version })
+
+        frameworkAidlInput.frameworkAidl.set(
+                androidComponents.sdkComponents.aidl.flatMap { it.framework })
+        frameworkAidlInput.platformSdk.set(
+                frameworkAidlInput.frameworkAidl.map {
+                    it.asFile.parentFile.absolutePath.toString()
+                }
+        )
+    }
+}
+
+android {
+    namespace = "androidx.privacysandbox.tools.integration.testsdk"
+
+    defaultConfig {
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        ksp {
+            arg(aidlInput)
+            arg(frameworkAidlInput)
+        }
+    }
+}
+
+dependencies {
+    ksp(project(":privacysandbox:tools:tools-apicompiler"))
+    implementation(project(":privacysandbox:tools:tools"))
+    implementation(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
+
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(libs.kotlinCoroutinesCore)
+}
+
+androidx {
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
+}
