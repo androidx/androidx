@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.sdkruntime.integration.testapp
 
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -35,15 +37,22 @@ class SimpleTest {
 
     @After
     fun tearDown() {
-        activityScenarioRule.withActivity { unloadAllSdks() }
+        activityScenarioRule.withActivity { api.unloadAllSdks() }
     }
 
     @Test
     fun simpleTest() {
         activityScenarioRule.withActivity {
-            val api = runBlocking { loadSdk() }
-            val apiResult = api.invert(false)
+            val testSdkApi = runBlocking { api.loadTestSdk() }
+            val apiResult = testSdkApi.invert(false)
             assertThat(apiResult).isTrue()
         }
+    }
+
+    private fun TestAppApi.unloadAllSdks() {
+        getSandboxedSdks()
+            .mapNotNull(SandboxedSdkCompat::getSdkInfo)
+            .map(SandboxedSdkInfo::name)
+            .forEach(::unloadSdk)
     }
 }

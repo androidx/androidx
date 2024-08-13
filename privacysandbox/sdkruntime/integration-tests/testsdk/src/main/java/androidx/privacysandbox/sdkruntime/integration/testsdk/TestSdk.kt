@@ -20,6 +20,12 @@ import android.util.Log
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
 
 class TestSdk : ISdkApi.Stub() {
+
+    override fun getMessage(): String {
+        Log.i(TAG, "TestSdk#getMessage()")
+        return MESSAGE
+    }
+
     override fun invert(value: Boolean): Boolean {
         Log.i(TAG, "TestSdk#invert($value)")
         return !value
@@ -27,5 +33,6 @@ class TestSdk : ISdkApi.Stub() {
 
     companion object {
         private const val TAG = "TestSdk"
+        private const val MESSAGE = "Message from TestSDK"
     }
 }

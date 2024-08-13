@@ -17,5 +17,6 @@
 package androidx.privacysandbox.sdkruntime.integration.testaidl;
 
 interface ISdkApi {
+    String getMessage();
     boolean invert(boolean value);
 }
