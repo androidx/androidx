@@ -27,6 +27,7 @@ import androidx.build.checkapi.getBcvFileDirectory
 import androidx.build.checkapi.getBuiltBcvFileDirectory
 import androidx.build.checkapi.getRequiredCompatibilityApiFileFromDir
 import androidx.build.checkapi.shouldWriteVersionedApiFile
+import androidx.build.metalava.UpdateApiTask
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
 import androidx.build.version
 import com.android.utils.appendCapitalized
@@ -87,6 +88,11 @@ class BinaryCompatibilityValidation(
             project.tasks.named("check").configure { it.dependsOn(checkAll) }
             project.addToCheckTask(checkAll)
             project.addToBuildOnServer(checkAll)
+            if (HostManager.hostIsMac) {
+                project.tasks.named("updateApi", UpdateApiTask::class.java) {
+                    it.dependsOn(updateAll)
+                }
+            }
         }
 
     private fun configureKlibTasks(
