@@ -836,10 +836,15 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
                 scaleYAnimator
                 // It's important for scaleYAnimator to be last, since it has the listener.
         );
-        animatorSet.setDuration(
-                MotionUtils.resolveThemeDuration(
-                        getContext(), com.google.android.material.R.attr.motionDurationMedium1,
-                        FALLBACK_ZOOM_ANIMATION_DURATION_MS));
+        int themeDuration = FALLBACK_ZOOM_ANIMATION_DURATION_MS;
+        try {
+            themeDuration = MotionUtils.resolveThemeDuration(
+                    getContext(), com.google.android.material.R.attr.motionDurationMedium1,
+                    FALLBACK_ZOOM_ANIMATION_DURATION_MS);
+        } catch (NoClassDefFoundError ignored) {
+            // Material resources not present in host app, fallback to default
+        }
+        animatorSet.setDuration(themeDuration);
         animatorSet.setInterpolator(interpolator);
         animatorSet.addListener(
                 new AnimatorListenerAdapter() {
