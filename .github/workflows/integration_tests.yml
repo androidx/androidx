@@ -16,7 +16,7 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
       - name: "set output directory"
-        run: echo "::set-output name=output-dir::$(readlink -f .)/outputs"
+        run: echo "output-dir=$(readlink -f .)/outputs" >> $GITHUB_OUTPUT
         id: dirs
       - id: run_tests
         uses: androidX/androidx-ci-action@dist-latest
@@ -48,9 +48,9 @@ jobs:
           if [ "${{ needs.run_integration_tests.result }}" == "success" ]                  && \
             [ "${{ github.event.workflow_run.conclusion }}" == "success" ]
           then
-            echo "::set-output name=result::true"
+            echo "result=true" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=result::false"
+            echo "result=false" >> GITHUB_OUTPUT
           fi
 
       - name: Result WebHook
