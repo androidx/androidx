@@ -93,6 +93,8 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     @InternalTextApi
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun stopInput() {
+        // This is a direct stop call, there's no need to compare the current input session.
+        _currentInputSession.set(null)
         platformTextInputService.stopInput()
     }
 

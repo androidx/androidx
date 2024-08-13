@@ -48,6 +48,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.testutils.assertPixelColor
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
@@ -58,6 +59,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.InterceptPlatformTextInput
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -109,6 +111,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.drop
 import org.junit.Rule
 import org.junit.Test
@@ -1527,6 +1530,34 @@ internal class BasicTextFieldTest {
             assertThat(state.text.toString()).isEqualTo("Hello")
             assertThat(state.composition).isEqualTo(TextRange(0, 5))
         }
+    }
+
+    // regression test for b/355900176#comment2
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun existingInputSession_doesNotSpillOver_toAnotherTextField() {
+        inputMethodInterceptor.setContent {
+            Column {
+                BasicTextField(rememberTextFieldState(), modifier = Modifier.testTag("btf1"))
+                InterceptPlatformTextInput({ _, _ -> awaitCancellation() }) {
+                    BasicTextField(rememberTextFieldState(), modifier = Modifier.testTag("btf2"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag("btf1").requestFocus()
+        inputMethodInterceptor.assertSessionActive()
+
+        rule.onNodeWithTag("btf2").requestFocus()
+        inputMethodInterceptor.assertNoSessionActive()
+
+        imm.resetCalls()
+
+        // successive touches should not start the input
+        rule.onNodeWithTag("btf2").performClick()
+        inputMethodInterceptor.assertNoSessionActive()
+        // InputMethodManager should not have received a showSoftInput() call
+        rule.runOnIdle { imm.expectNoMoreCalls() }
     }
 
     private fun requestFocus(tag: String) = rule.onNodeWithTag(tag).requestFocus()

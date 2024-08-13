@@ -132,6 +132,22 @@ class TextInputServiceTest {
         verify(platformService, never()).stopInput()
     }
 
+    @OptIn(InternalTextApi::class)
+    @Test
+    fun stopInput_removes_the_current_session() {
+        val platformService = mock<PlatformTextInputService>()
+
+        val textInputService = TextInputService(platformService)
+
+        textInputService.startInput()
+
+        assertThat(textInputService.currentInputSession).isNotNull()
+
+        textInputService.stopInput()
+
+        assertThat(textInputService.currentInputSession).isNull()
+    }
+
     @Test
     fun showSoftwareKeyboard_with_valid_session() {
         val platformService = mock<PlatformTextInputService>()
