@@ -16,6 +16,8 @@
 
 package androidx.work.impl.foreground;
 
+import static android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE;
+
 import android.Manifest;
 import android.app.ForegroundServiceStartNotAllowedException;
 import android.app.Notification;
@@ -100,7 +102,7 @@ public class SystemForegroundService extends LifecycleService implements
     @Override
     public void stop() {
         mIsShutdown = true;
-        Logger.get().debug(TAG, "All commands completed.");
+        Logger.get().debug(TAG, "Shutting down.");
         // No need to pass in startId; stopSelf() translates to stopSelf(-1) which is a hard stop
         // of all startCommands. This is the behavior we want.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -108,6 +110,22 @@ public class SystemForegroundService extends LifecycleService implements
         }
         sForegroundService = null;
         stopSelf();
+    }
+
+    @Override
+    public void onTimeout(int startId) {
+        // On API devices 35 both overloads of onTimeout() are invoked so we do nothing on the
+        // version introduced in API 34 since the newer version will be invoked. However, on API 34
+        // devices only this version is invoked, and thus why both versions are overridden.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
+            return;
+        }
+        mDispatcher.onTimeout(startId, FOREGROUND_SERVICE_TYPE_SHORT_SERVICE);
+    }
+
+    @Override
+    public void onTimeout(int startId, int fgsType) {
+        mDispatcher.onTimeout(startId, fgsType);
     }
 
     @MainThread

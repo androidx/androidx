@@ -20,6 +20,7 @@ import android.app.Notification
 import android.content.Context
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_CONNECTED_DEVICE
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_SHORT_SERVICE
 import android.util.Log
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -450,5 +451,11 @@ class SystemForegroundDispatcherTest {
             createStartForegroundIntent(context, WorkGenerationalId(request.stringId, 0), metadata)
         dispatcher.onStartCommand(intent)
         assertThat(fakeChargingTracker.isTracking, `is`(true))
+    }
+
+    @Test
+    fun testTimeoutForeground() {
+        dispatcher.onTimeout(0, FOREGROUND_SERVICE_TYPE_SHORT_SERVICE)
+        verify(dispatcherCallback, times(1)).stop()
     }
 }
