@@ -292,7 +292,6 @@ WEAR_TILES = { group = "androidx.wear.tiles", atomicGroupVersion = "versions.WEA
 WEAR_WATCHFACE = { group = "androidx.wear.watchface", atomicGroupVersion = "versions.WEAR_WATCHFACE" }
 WEBKIT = { group = "androidx.webkit", atomicGroupVersion = "versions.WEBKIT" }
 WINDOW = { group = "androidx.window", atomicGroupVersion = "versions.WINDOW" }
-WINDOW_CORE = { group = "org.jetbrains.window.core", atomicGroupVersion = "versions.WINDOW", overrideInclude = [ ":window:window-core" ]  }
 WINDOW_EXTENSIONS = { group = "androidx.window.extensions", atomicGroupVersion = "versions.WINDOW_EXTENSIONS" }
 WINDOW_EXTENSIONS_CORE = { group = "androidx.window.extensions.core", atomicGroupVersion = "versions.WINDOW_EXTENSIONS_CORE" }
 WINDOW_SIDECAR = { group = "androidx.window.sidecar", atomicGroupVersion = "versions.WINDOW_SIDECAR" }
@@ -304,6 +303,7 @@ COLLECTION_JETBRAINS = { group = "org.jetbrains.compose.collection-internal", at
 
 CORE_BUNDLE_JETBRAINS = { group = "org.jetbrains.androidx.core", atomicGroupVersion = "versions.CORE_BUNDLE", overrideInclude = [ ":core:core-bundle" ] }
 SAVEDSTATE_JETBRAINS = { group = "org.jetbrains.androidx.savedstate", atomicGroupVersion = "versions.SAVEDSTATE", overrideInclude = [ ":savedstate:savedstate" ] }
+WINDOW_CORE_JETBRAINS = { group = "org.jetbrains.androidx.window", atomicGroupVersion = "versions.WINDOW", overrideInclude = [ ":window:window-core" ]  }
 
 [groups.LIFECYCLE_JETBRAINS]
 group = "org.jetbrains.androidx.lifecycle"
