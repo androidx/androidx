@@ -17,6 +17,9 @@
 <resources>
     <string name="load_sdk">Load SDK</string>
     <string name="unload_sdk">Unload SDK</string>
+    <string name="register_app_sdk">Register AppOwned SDK</string>
+    <string name="unregister_app_sdk">Unregister AppOwned SDK</string>
     <string name="get_sandboxed_sdks">Get Sandboxed Sdks</string>
+    <string name="get_app_sdks">Get AppOwned Sdks</string>
     <string name="log">Log: </string>
 </resources>

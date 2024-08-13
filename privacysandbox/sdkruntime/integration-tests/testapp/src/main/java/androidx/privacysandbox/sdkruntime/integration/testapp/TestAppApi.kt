@@ -20,6 +20,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
 
@@ -50,7 +51,17 @@ class TestAppApi(appContext: Context) {
         sdkSandboxManager.unloadSdk(sdkName)
     }
 
+    fun registerAppOwnedSdk(appOwnedSdk: AppOwnedSdkSandboxInterfaceCompat) {
+        sdkSandboxManager.registerAppOwnedSdkSandboxInterface(appOwnedSdk)
+    }
+
+    fun unregisterAppOwnedSdk(appOwnedSdkName: String) {
+        sdkSandboxManager.unregisterAppOwnedSdkSandboxInterface(appOwnedSdkName)
+    }
+
     fun getSandboxedSdks() = sdkSandboxManager.getSandboxedSdks()
+
+    fun getAppOwnedSdks() = sdkSandboxManager.getAppOwnedSdkSandboxInterfaces()
 
     companion object {
         private const val TAG = "TestAppApi"

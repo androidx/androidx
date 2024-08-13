@@ -24,7 +24,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.integration.testaidl.IAppSdk
 import androidx.privacysandbox.sdkruntime.integration.testaidl.ISdkApi
 import kotlinx.coroutines.launch
 
@@ -32,6 +34,13 @@ class TestMainActivity : AppCompatActivity() {
 
     lateinit var api: TestAppApi
     private lateinit var logView: TextView
+
+    private val appOwnedSdk =
+        AppOwnedSdkSandboxInterfaceCompat(
+            name = "AppOwnedSdk",
+            version = 42,
+            binder = AppOwnedSdk()
+        )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +52,10 @@ class TestMainActivity : AppCompatActivity() {
 
         setupLoadSdkButton()
         setupUnloadSdkButton()
+        setupRegisterAppSdkButton()
+        setupUnregisterAppSdkButton()
         setupGetSandboxedSdksButton()
+        setupGetAppSdksButton()
     }
 
     private fun addLogMessage(message: String) {
@@ -75,6 +87,27 @@ class TestMainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupRegisterAppSdkButton() {
+        val registerAppSdkButton = findViewById<Button>(R.id.registerAppSdkButton)
+        registerAppSdkButton.setOnClickListener {
+            try {
+                addLogMessage("Registering AppOwnedSdk...")
+                api.registerAppOwnedSdk(appOwnedSdk)
+                addLogMessage("Successfully registered AppOwnedSdk")
+            } catch (ex: Throwable) {
+                addLogMessage("Failed to register AppOwnedSdk: " + ex.message)
+            }
+        }
+    }
+
+    private fun setupUnregisterAppSdkButton() {
+        val unregisterAppSdkButton = findViewById<Button>(R.id.unregisterAppSdkButton)
+        unregisterAppSdkButton.setOnClickListener {
+            api.unregisterAppOwnedSdk(appOwnedSdk.getName())
+            addLogMessage("Unregistered AppOwnedSdk")
+        }
+    }
+
     private fun setupGetSandboxedSdksButton() {
         val getSandboxedSdksButton = findViewById<Button>(R.id.getSandboxedSdksButton)
         getSandboxedSdksButton.setOnClickListener {
@@ -83,14 +116,41 @@ class TestMainActivity : AppCompatActivity() {
             sdks.forEach {
                 addLogMessage("   SDK Package: ${it.getSdkInfo()?.name}")
                 addLogMessage("   SDK Version: ${it.getSdkInfo()?.version}")
-                addLogMessage("   SDK Message: ${getTestSdkMessage(it.getInterface())}")
+                val testSdk = toTestSdk(it.getInterface())
+                if (testSdk != null) {
+                    addLogMessage("   SDK Message: ${testSdk.getMessage()}")
+                }
             }
         }
     }
 
-    private fun getTestSdkMessage(sdkInterface: IBinder?): String? {
+    private fun setupGetAppSdksButton() {
+        val getAppSdksButton = findViewById<Button>(R.id.getAppSdksButton)
+        getAppSdksButton.setOnClickListener {
+            val sdks = api.getAppOwnedSdks()
+            addLogMessage("GetAppSdks results (${sdks.size}):")
+            sdks.forEach {
+                addLogMessage("   AppOwned SDK Package: ${it.getName()}")
+                addLogMessage("   AppOwned SDK Version: ${it.getVersion()}")
+                val appOwnedSdk = toAppOwnedSdk(it.getInterface())
+                if (appOwnedSdk != null) {
+                    addLogMessage("   AppOwned SDK Message: ${appOwnedSdk.getMessage(42)}")
+                }
+            }
+        }
+    }
+
+    private fun toTestSdk(sdkInterface: IBinder?): ISdkApi? {
         return if (ISdkApi.DESCRIPTOR == sdkInterface?.interfaceDescriptor) {
-            ISdkApi.Stub.asInterface(sdkInterface).getMessage()
+            ISdkApi.Stub.asInterface(sdkInterface)
+        } else {
+            null
+        }
+    }
+
+    private fun toAppOwnedSdk(appInterface: IBinder?): IAppSdk? {
+        return if (IAppSdk.DESCRIPTOR == appInterface?.interfaceDescriptor) {
+            IAppSdk.Stub.asInterface(appInterface)
         } else {
             null
         }
