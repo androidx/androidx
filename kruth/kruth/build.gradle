@@ -41,6 +41,7 @@ androidXMultiplatform {
     watchos()
     tvos()
     androidNative()
+    mingwX64()
 
     defaultPlatform(PlatformIdentifier.JVM)
 
