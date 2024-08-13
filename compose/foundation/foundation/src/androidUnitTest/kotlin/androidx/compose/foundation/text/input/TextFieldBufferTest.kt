@@ -590,6 +590,30 @@ class TextFieldBufferTest {
         }
     }
 
+    @Test
+    fun createFromTextFieldState() {
+        val state = TextFieldState("Hello", TextRange(3))
+        val buffer = state.toTextFieldBuffer()
+
+        assertThat(buffer.asCharSequence().toString()).isEqualTo("Hello")
+        assertThat(buffer.selection).isEqualTo(TextRange(3))
+        assertThat(buffer.changes.changeCount).isEqualTo(0)
+
+        // guarding against future changes
+        assertThat(buffer.originalValue).isEqualTo(state.value)
+    }
+
+    @Test
+    fun changesToBuffer_doesNotPropagateToTextFieldState() {
+        val state = TextFieldState("Hello", TextRange(3))
+        val buffer = state.toTextFieldBuffer()
+
+        buffer.replace(0, 5, "World")
+
+        assertThat(buffer.asCharSequence().toString()).isEqualTo("World")
+        assertThat(state.text.toString()).isEqualTo("Hello")
+    }
+
     private fun testSelectionAdjustment(
         initial: String,
         transform: TextFieldBuffer.() -> Unit,

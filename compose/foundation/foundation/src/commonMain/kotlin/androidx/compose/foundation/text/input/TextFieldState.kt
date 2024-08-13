@@ -738,3 +738,23 @@ private fun finalizeComposingAnnotations(
         }
         else -> emptyList()
     }
+
+/**
+ * Creates a temporary, mutable [TextFieldBuffer] representing the current state of this
+ * [TextFieldState].
+ *
+ * Use a [TextFieldBuffer] to:
+ * * Apply transformations for testing purposes
+ * * Preview how the TextField would render with a specific [OutputTransformation]
+ *
+ * This is similar to calling [TextFieldState.edit], but without committing the changes back to the
+ * [TextFieldState].
+ *
+ * **Important:** A [TextFieldBuffer] is intended for short-term use. Let the garbage collecter
+ * dispose of it when you're finished to avoid unnecessary memory usage.
+ *
+ * @sample androidx.compose.foundation.samples.TextFieldStateApplyOutputTransformation
+ */
+fun TextFieldState.toTextFieldBuffer(): TextFieldBuffer {
+    return TextFieldBuffer(value)
+}
