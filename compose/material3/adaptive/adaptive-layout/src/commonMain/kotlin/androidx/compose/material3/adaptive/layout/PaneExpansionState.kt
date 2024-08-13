@@ -36,9 +36,13 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.coroutineScope
@@ -115,8 +119,7 @@ fun rememberPaneExpansionState(
     key: PaneExpansionStateKey = PaneExpansionStateKey.Default,
     anchors: List<PaneExpansionAnchor> = emptyList()
 ): PaneExpansionState {
-    // TODO(conradchen): Implement this as saveables
-    val dataMap = remember { mutableStateMapOf<PaneExpansionStateKey, PaneExpansionStateData>() }
+    val dataMap = rememberSaveable(saver = PaneExpansionStateSaver()) { mutableStateMapOf() }
     val expansionState = remember {
         val defaultData = PaneExpansionStateData()
         dataMap[PaneExpansionStateKey.Default] = defaultData
@@ -130,7 +133,7 @@ fun rememberPaneExpansionState(
 
 /**
  * This class manages the pane expansion state for pane scaffolds. By providing and modifying an
- * instance of this class, you can specify the expanded panes' expansion width or percentage when
+ * instance of this class, you can specify the expanded panes' expansion width or proportion when
  * pane scaffold is displaying a dual-pane layout.
  *
  * This class also serves as the [DraggableState] of pane expansion handle. When a handle
@@ -331,10 +334,31 @@ internal constructor(
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal class PaneExpansionStateData {
-    var firstPaneWidthState by mutableIntStateOf(Unspecified)
-    var firstPaneProportionState by mutableFloatStateOf(Float.NaN)
-    var currentDraggingOffsetState by mutableIntStateOf(Unspecified)
+@Stable
+internal class PaneExpansionStateData(
+    firstPaneWidth: Int = Unspecified,
+    firstPaneProportion: Float = Float.NaN,
+    currentDraggingOffset: Int = Unspecified
+) {
+    var firstPaneWidthState by mutableIntStateOf(firstPaneWidth)
+    var firstPaneProportionState by mutableFloatStateOf(firstPaneProportion)
+    var currentDraggingOffsetState by mutableIntStateOf(currentDraggingOffset)
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is PaneExpansionStateData) return false
+        if (firstPaneWidthState != other.firstPaneWidthState) return false
+        if (firstPaneProportionState != other.firstPaneProportionState) return false
+        if (currentDraggingOffsetState != other.currentDraggingOffsetState) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = firstPaneWidthState
+        result = 31 * result + firstPaneProportionState.hashCode()
+        result = 31 * result + currentDraggingOffsetState
+        return result
+    }
 }
 
 /**
@@ -391,6 +415,75 @@ sealed class PaneExpansionAnchor private constructor() {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@VisibleForTesting
+internal fun PaneExpansionStateSaver():
+    Saver<MutableMap<PaneExpansionStateKey, PaneExpansionStateData>, *> =
+    listSaver<MutableMap<PaneExpansionStateKey, PaneExpansionStateData>, Any>(
+        save = {
+            val dataSaver = PaneExpansionStateDataSaver()
+            buildList { it.forEach { entry -> add(with(dataSaver) { save(entry) }!!) } }
+        },
+        restore = {
+            val dataSaver = PaneExpansionStateDataSaver()
+            val map = mutableMapOf<PaneExpansionStateKey, PaneExpansionStateData>()
+            it.fastForEach { with(dataSaver) { restore(it) }!!.apply { map[key] = value } }
+            map
+        }
+    )
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun PaneExpansionStateDataSaver():
+    Saver<Map.Entry<PaneExpansionStateKey, PaneExpansionStateData>, Any> =
+    listSaver(
+        save = {
+            val keyType = it.key.type
+            listOf(
+                it.key.type,
+                if (keyType == DefaultPaneExpansionStateKey) {
+                    null
+                } else {
+                    with(TwoPaneExpansionStateKeyImpl.saver()) {
+                        save(it.key as TwoPaneExpansionStateKeyImpl)
+                    }
+                },
+                it.value.firstPaneWidthState,
+                it.value.firstPaneProportionState,
+                it.value.currentDraggingOffsetState
+            )
+        },
+        restore = {
+            val keyType = it[0] as Int
+            val key =
+                if (keyType == DefaultPaneExpansionStateKey || it[1] == null) {
+                    PaneExpansionStateKey.Default
+                } else {
+                    with(TwoPaneExpansionStateKeyImpl.saver()) { restore(it[1]!!) }
+                }
+            object : Map.Entry<PaneExpansionStateKey, PaneExpansionStateData> {
+                override val key: PaneExpansionStateKey = key!!
+                override val value: PaneExpansionStateData =
+                    PaneExpansionStateData(
+                        firstPaneWidth = it[2] as Int,
+                        firstPaneProportion = it[3] as Float,
+                        currentDraggingOffset = it[4] as Int
+                    )
+            }
+        }
+    )
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val PaneExpansionStateKey.type
+    get() =
+        if (this is TwoPaneExpansionStateKeyImpl) {
+            TwoPaneExpansionStateKey
+        } else {
+            DefaultPaneExpansionStateKey
+        }
+
+private const val DefaultPaneExpansionStateKey = 0
+private const val TwoPaneExpansionStateKey = 1
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private fun List<PaneExpansionAnchor>.toPositions(

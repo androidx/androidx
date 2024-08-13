@@ -18,6 +18,8 @@ package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.ui.util.fastForEachReversed
 
 @ExperimentalMaterial3AdaptiveApi
@@ -202,7 +204,7 @@ class ThreePaneScaffoldValue(
             if (tertiary == PaneAdaptedValue.Expanded) {
                 expandedPanes[count] = ThreePaneScaffoldRole.Tertiary
             }
-            PaneExpansionStateKeyImpl(expandedPanes[0]!!, expandedPanes[1]!!)
+            TwoPaneExpansionStateKeyImpl(expandedPanes[0]!!, expandedPanes[1]!!)
         }
     }
 
@@ -234,20 +236,34 @@ class ThreePaneScaffoldValue(
             ThreePaneScaffoldRole.Secondary -> secondary
             ThreePaneScaffoldRole.Tertiary -> tertiary
         }
+}
 
-    private class PaneExpansionStateKeyImpl(
-        val firstExpandedPane: ThreePaneScaffoldRole,
-        val secondExpandedPane: ThreePaneScaffoldRole
-    ) : PaneExpansionStateKey {
-        override fun hashCode(): Int {
-            return firstExpandedPane.hashCode() * 31 + secondExpandedPane.hashCode()
-        }
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal class TwoPaneExpansionStateKeyImpl(
+    val firstExpandedPane: ThreePaneScaffoldRole,
+    val secondExpandedPane: ThreePaneScaffoldRole
+) : PaneExpansionStateKey {
+    override fun hashCode(): Int {
+        return firstExpandedPane.hashCode() * 31 + secondExpandedPane.hashCode()
+    }
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            val otherKey = other as? PaneExpansionStateKeyImpl ?: return false
-            return firstExpandedPane == otherKey.firstExpandedPane &&
-                secondExpandedPane == otherKey.secondExpandedPane
-        }
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherKey = other as? TwoPaneExpansionStateKeyImpl ?: return false
+        return firstExpandedPane == otherKey.firstExpandedPane &&
+            secondExpandedPane == otherKey.secondExpandedPane
+    }
+
+    companion object {
+        fun saver(): Saver<TwoPaneExpansionStateKeyImpl, Any> =
+            listSaver(
+                save = { listOf(it.firstExpandedPane, it.secondExpandedPane) },
+                restore = {
+                    TwoPaneExpansionStateKeyImpl(
+                        firstExpandedPane = it[0],
+                        secondExpandedPane = it[1]
+                    )
+                }
+            )
     }
 }
