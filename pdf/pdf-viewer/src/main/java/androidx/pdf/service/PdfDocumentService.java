@@ -30,7 +30,6 @@ import android.os.Build;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.ext.SdkExtensions;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -107,9 +106,7 @@ public class PdfDocumentService extends Service {
                 boolean hideTextAnnots) {
             Bitmap output = Bitmap.createBitmap(pageWidth, pageHeight, Bitmap.Config.ARGB_8888);
             output.eraseColor(Color.WHITE);
-            PdfPageAdapter pageAdapter = mAdapter.openPage(pageNum, true);
-            pageAdapter.close();
-            pageAdapter.render(output);
+            mAdapter.openPage(pageNum, true).render(output);
             return output;
         }
 
@@ -190,12 +187,10 @@ public class PdfDocumentService extends Service {
         public LinkRects getPageLinks(int pageNum) {
             PdfPageAdapter pageAdapter = null;
             try {
-                Log.d("Here", "getPageLinks " + pageNum);
                 pageAdapter = mAdapter.openPage(pageNum, false);
                 List<PdfPageLinkContent> pageLinks = pageAdapter.getPageLinks();
                 return LinkRects.flattenList(pageLinks);
             } finally {
-                Log.d("Here", "getPageLinks release" + pageNum);
                 mAdapter.releasePage(pageAdapter, pageNum);
             }
         }
