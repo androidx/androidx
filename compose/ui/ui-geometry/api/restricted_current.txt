@@ -65,16 +65,16 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method @androidx.compose.runtime.Stable public float getDistance();
     method @androidx.compose.runtime.Stable public float getDistanceSquared();
-    method public float getX();
-    method public float getY();
+    method public inline float getX();
+    method public inline float getY();
     method @androidx.compose.runtime.Stable public boolean isValid();
     method @androidx.compose.runtime.Stable public operator long minus(long other);
     method @androidx.compose.runtime.Stable public operator long plus(long other);
     method @androidx.compose.runtime.Stable public operator long rem(float operand);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
     method @androidx.compose.runtime.Stable public operator long unaryMinus();
-    property @androidx.compose.runtime.Stable public final float x;
-    property @androidx.compose.runtime.Stable public final float y;
+    property @androidx.compose.runtime.Stable public final inline float x;
+    property @androidx.compose.runtime.Stable public final inline float y;
     field public static final androidx.compose.ui.geometry.Offset.Companion Companion;
   }
 
