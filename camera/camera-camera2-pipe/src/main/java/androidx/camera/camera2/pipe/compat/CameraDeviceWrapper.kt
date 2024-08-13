@@ -54,7 +54,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     fun createCaptureRequest(template: RequestTemplate): CaptureRequest.Builder?
 
     /** @see CameraDevice.createReprocessCaptureRequest */
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     fun createReprocessCaptureRequest(inputResult: TotalCaptureResult): CaptureRequest.Builder?
 
     /** @see CameraDevice.createCaptureSession */
@@ -64,7 +64,7 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     ): Boolean
 
     /** @see CameraDevice.createReprocessableCaptureSession */
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     fun createReprocessableCaptureSession(
         input: InputConfiguration,
         outputs: List<Surface>,
@@ -72,21 +72,21 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     ): Boolean
 
     /** @see CameraDevice.createConstrainedHighSpeedCaptureSession */
-    @RequiresApi(Build.VERSION_CODES.M)
+    @RequiresApi(23)
     fun createConstrainedHighSpeedCaptureSession(
         outputs: List<Surface>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean
 
     /** @see CameraDevice.createCaptureSessionByOutputConfigurations */
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(24)
     fun createCaptureSessionByOutputConfigurations(
         outputConfigurations: List<OutputConfigurationWrapper>,
         stateCallback: CameraCaptureSessionWrapper.StateCallback
     ): Boolean
 
     /** @see CameraDevice.createReprocessableCaptureSessionByConfigurations */
-    @RequiresApi(Build.VERSION_CODES.N)
+    @RequiresApi(24)
     fun createReprocessableCaptureSessionByConfigurations(
         inputConfig: InputConfigData,
         outputs: List<OutputConfigurationWrapper>,
@@ -94,17 +94,16 @@ internal interface CameraDeviceWrapper : UnsafeWrapper, AudioRestrictionControll
     ): Boolean
 
     /** @see CameraDevice.createCaptureSession */
-    @RequiresApi(Build.VERSION_CODES.P) fun createCaptureSession(config: SessionConfigData): Boolean
+    @RequiresApi(28) fun createCaptureSession(config: SessionConfigData): Boolean
 
     /** @see CameraDevice.createExtensionSession */
-    @RequiresApi(Build.VERSION_CODES.S)
-    fun createExtensionSession(config: ExtensionSessionConfigData): Boolean
+    @RequiresApi(31) fun createExtensionSession(config: ExtensionSessionConfigData): Boolean
 
     /** Invoked when the [CameraDevice] has been closed */
     fun onDeviceClosed()
 
     /** @see CameraDevice.getCameraAudioRestriction */
-    @RequiresApi(Build.VERSION_CODES.R) fun getCameraAudioRestriction(): AudioRestrictionMode
+    @RequiresApi(30) fun getCameraAudioRestriction(): AudioRestrictionMode
 }
 
 internal fun CameraDevice?.closeWithTrace() {
@@ -161,7 +160,7 @@ internal class AndroidCameraDevice(
         return result != null
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(31)
     override fun createExtensionSession(config: ExtensionSessionConfigData): Boolean {
         checkNotNull(config.extensionStateCallback) {
             "extensionStateCallback must be set to create Extension session"
@@ -461,13 +460,13 @@ internal class AndroidCameraDevice(
             Api23Compat.createReprocessCaptureRequest(cameraDevice, inputResult)
         }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(30)
     override fun getCameraAudioRestriction(): AudioRestrictionMode =
         Debug.trace("getCameraAudioRestriction") {
             AudioRestrictionMode(Api30Compat.getCameraAudioRestriction(cameraDevice))
         }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(30)
     override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
         Debug.trace("setCameraAudioRestriction") {
             catchAndReportCameraExceptions(cameraId, cameraErrorListener) {

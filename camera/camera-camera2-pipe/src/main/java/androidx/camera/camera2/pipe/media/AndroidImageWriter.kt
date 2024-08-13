@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
 
 /** Implements an [ImageWriterWrapper] using an [ImageWriter]. */
-@RequiresApi(Build.VERSION_CODES.M)
+@RequiresApi(23)
 public class AndroidImageWriter
 private constructor(
     private val imageWriter: ImageWriter,

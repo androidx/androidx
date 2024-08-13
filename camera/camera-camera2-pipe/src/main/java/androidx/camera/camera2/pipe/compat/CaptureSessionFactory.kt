@@ -110,7 +110,7 @@ internal class AndroidLSessionFactory @Inject constructor(private val threads: T
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.M)
+@RequiresApi(23)
 internal class AndroidMSessionFactory
 @Inject
 constructor(private val threads: Threads, private val graphConfig: CameraGraph.Config) :
@@ -153,7 +153,7 @@ constructor(private val threads: Threads, private val graphConfig: CameraGraph.C
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.M)
+@RequiresApi(23)
 internal class AndroidMHighSpeedSessionFactory @Inject constructor(private val threads: Threads) :
     CaptureSessionFactory {
     override fun create(
@@ -177,7 +177,7 @@ internal class AndroidMHighSpeedSessionFactory @Inject constructor(private val t
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(24)
 internal class AndroidNSessionFactory
 @Inject
 constructor(
@@ -233,7 +233,7 @@ constructor(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
+@RequiresApi(28)
 internal class AndroidPSessionFactory
 @Inject
 constructor(
@@ -310,7 +310,7 @@ constructor(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.N)
+@RequiresApi(24)
 internal fun buildOutputConfigurations(
     graphConfig: CameraGraph.Config,
     streamGraph: StreamGraphImpl,
@@ -427,7 +427,7 @@ internal fun buildOutputConfigurations(
     return OutputConfigurations(allOutputs, deferredOutputs, postviewOutput)
 }
 
-@RequiresApi(Build.VERSION_CODES.S)
+@RequiresApi(31)
 internal class AndroidExtensionSessionFactory
 @Inject
 constructor(

@@ -211,7 +211,7 @@ constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(31)
     private fun createCameraExtensionMetadata(
         cameraId: CameraId,
         redacted: Boolean,
@@ -255,7 +255,7 @@ constructor(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.S)
+    @RequiresApi(31)
     private fun getCameraExtensionCharacteristics(
         cameraId: CameraId
     ): CameraExtensionCharacteristics {

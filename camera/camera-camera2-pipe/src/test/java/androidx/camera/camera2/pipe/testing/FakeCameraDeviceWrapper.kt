@@ -113,12 +113,12 @@ internal class FakeCameraDeviceWrapper(val fakeCamera: RobolectricCameras.FakeCa
         return true
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(30)
     override fun getCameraAudioRestriction(): AudioRestrictionMode {
         return AudioRestrictionMode(fakeCamera.cameraDevice.cameraAudioRestriction)
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
+    @RequiresApi(30)
     override fun onCameraAudioRestrictionUpdated(mode: AudioRestrictionMode) {
         fakeCamera.cameraDevice.cameraAudioRestriction = mode.value
     }
