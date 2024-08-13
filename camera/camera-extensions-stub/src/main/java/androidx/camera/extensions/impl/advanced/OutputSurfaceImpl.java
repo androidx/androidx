@@ -37,6 +37,14 @@ public interface OutputSurfaceImpl {
      */
     long USAGE_UNSPECIFIED = -1;
 
+
+    /**
+     * This indicates the dataSpace is not specified which could happen in the apps that use older
+     * version of CameraX extensions where getDataspace() was not added yet.
+     *
+     */
+    int DATASPACE_UNSPECIFIED = -1;
+
     /**
      * Gets the surface. It returns null if output surface is not specified.
      */
@@ -54,6 +62,15 @@ public interface OutputSurfaceImpl {
      * Gets the image format.
      */
     int getImageFormat();
+
+    /**
+     * Gets the dataspace. It returns {#link #DATASPACE_UNSPECIFIED} if not specified.
+     *
+     * @since 1.5
+     */
+    default int getDataspace() {
+        return DATASPACE_UNSPECIFIED;
+    }
 
     /**
      * Gets the surface usage bits. It returns {@link #USAGE_UNSPECIFIED} if not specified.
