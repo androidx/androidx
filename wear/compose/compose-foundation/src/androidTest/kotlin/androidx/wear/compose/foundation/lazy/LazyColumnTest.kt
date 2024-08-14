@@ -230,6 +230,27 @@ class LazyColumnTest {
     }
 
     @Test
+    fun changeDataIndexed() {
+        val dataLists = listOf((1..3).toList(), (4..8).toList(), (3..4).toList())
+        var dataModel by mutableStateOf(emptyList<Int>())
+        val tag = "List"
+        rule.setContentWithTestViewConfiguration {
+            LazyColumn(Modifier.testTag(tag)) {
+                itemsIndexed(dataModel) { index, element -> BasicText("$index - $element") }
+            }
+        }
+
+        for (data in dataLists) {
+            rule.runOnIdle { dataModel = data }
+
+            // Confirm the children's content
+            for (index in data.indices) {
+                rule.onNodeWithText("$index - ${data[index]}").assertIsDisplayed()
+            }
+        }
+    }
+
+    @Test
     fun removalWithMutableStateListOf() {
         val items = mutableStateListOf("1", "2", "3")
 

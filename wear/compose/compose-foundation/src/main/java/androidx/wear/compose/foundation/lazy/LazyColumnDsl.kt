@@ -17,8 +17,6 @@
 package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutIntervalContent
 import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.runtime.Composable
@@ -141,11 +139,11 @@ inline fun <T> LazyColumnScope.items(
  *   will be considered compatible.
  * @param itemContent the content displayed by a single item
  */
-inline fun <T> LazyListScope.itemsIndexed(
+inline fun <T> LazyColumnScope.itemsIndexed(
     items: List<T>,
     noinline key: ((index: Int, item: T) -> Any)? = null,
     crossinline contentType: (index: Int, item: T) -> Any? = { _, _ -> null },
-    crossinline itemContent: @Composable LazyItemScope.(index: Int, item: T) -> Unit
+    crossinline itemContent: @Composable LazyColumnItemScope.(index: Int, item: T) -> Unit
 ) =
     items(
         count = items.size,
