@@ -251,6 +251,9 @@ class ColorScheme(
 
     // Progress Indicator
     internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null
+
+    // Picker
+    internal var defaultTimePickerColorsCached: TimePickerColors? = null
 }
 
 /**

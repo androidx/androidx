@@ -109,8 +109,8 @@ import kotlinx.coroutines.launch
  *   semantics, which facilitates implementation of multi-picker screens.
  * @param scalingParams The parameters to configure the scaling and transparency effects for the
  *   component. See [ScalingParams].
- * @param separation The amount of separation in [Dp] between items. Can be negative, which can be
- *   useful for Text if it has plenty of whitespace.
+ * @param spacing The amount of spacing in [Dp] between items. Can be negative, which can be useful
+ *   for Text if it has plenty of whitespace.
  * @param gradientRatio The size relative to the Picker height that the top and bottom gradients
  *   take. These gradients blur the picker content on the top and bottom. The default is 0.33, so
  *   the top 1/3 and the bottom 1/3 of the picker are taken by gradients. Should be between 0.0 and
@@ -142,7 +142,7 @@ fun Picker(
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     onSelected: () -> Unit = {},
     scalingParams: ScalingParams = PickerDefaults.scalingParams(),
-    separation: Dp = 0.dp,
+    spacing: Dp = 0.dp,
     @FloatRange(from = 0.0, to = 0.5) gradientRatio: Float = PickerDefaults.GradientRatio,
     gradientColor: Color = MaterialTheme.colorScheme.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
@@ -199,7 +199,7 @@ fun Picker(
                                         val shimHeight =
                                             (size.height -
                                                 centerItem.unadjustedSize.toFloat() -
-                                                separation.toPx()) / 2.0f
+                                                spacing.toPx()) / 2.0f
                                         drawShim(gradientColor, shimHeight)
                                     }
                                 }
@@ -229,7 +229,7 @@ fun Picker(
             contentPadding = PaddingValues(0.dp),
             scalingParams = scalingParams,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(space = separation),
+            verticalArrangement = Arrangement.spacedBy(space = spacing),
             flingBehavior = flingBehavior,
             autoCentering = AutoCenteringParams(itemIndex = 0),
             userScrollEnabled = userScrollEnabled
