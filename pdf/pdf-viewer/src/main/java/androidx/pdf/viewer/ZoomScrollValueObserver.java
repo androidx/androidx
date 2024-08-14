@@ -80,7 +80,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             mIsPageScrollingUp = false;
         }
 
-        if (mIsAnnotationIntentResolvable) {
+        if (mIsAnnotationIntentResolvable && !mPaginatedView.isConfigurationChanged()) {
 
             if (!isAnnotationButtonVisible() && position.scrollY == 0
                     && mFindInFileView.getVisibility() == View.GONE) {
@@ -108,6 +108,9 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                     }
                 });
             }
+        } else if (mPaginatedView.isConfigurationChanged()
+                && position.scrollY != oldPosition.scrollY) {
+            mPaginatedView.setConfigurationChanged(false);
         }
 
         if (position.scrollY > 0) {
