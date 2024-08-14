@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.tv.integration.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -37,7 +36,6 @@ import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.ModalNavigationDrawer
 
@@ -47,7 +45,7 @@ enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
     Home(
         "Home",
         {
-            TvLazyColumn(
+            LazyColumn(
                 modifier = Modifier.fillMaxSize().focusRequester(Home.fr).background(pageColor)
             ) {
                 item {
@@ -72,7 +70,7 @@ enum class Tabs(val displayName: String, val action: @Composable () -> Unit) {
     Shows(
         "Shows",
         {
-            TvLazyColumn(modifier = Modifier.fillMaxSize().background(pageColor)) {
+            LazyColumn(modifier = Modifier.fillMaxSize().background(pageColor)) {
                 item { ShowsGrid(Modifier.focusRequester(Shows.fr)) }
             }
         }
