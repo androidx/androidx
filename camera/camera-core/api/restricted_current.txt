@@ -65,7 +65,7 @@ package androidx.camera.core {
 
   public interface CameraProvider {
     method public java.util.List<androidx.camera.core.CameraInfo> getAvailableCameraInfos();
-    method @SuppressCompatibility @androidx.camera.core.ExperimentalCameraInfo public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector);
+    method public default androidx.camera.core.CameraInfo getCameraInfo(androidx.camera.core.CameraSelector cameraSelector);
     method @kotlin.jvm.Throws(exceptionClasses=CameraInfoUnavailableException::class) public boolean hasCamera(androidx.camera.core.CameraSelector cameraSelector) throws androidx.camera.core.CameraInfoUnavailableException;
     property public abstract java.util.List<androidx.camera.core.CameraInfo> availableCameraInfos;
   }
@@ -203,9 +203,6 @@ package androidx.camera.core {
     field public static final androidx.camera.core.DynamicRange HLG_10_BIT;
     field public static final androidx.camera.core.DynamicRange SDR;
     field public static final androidx.camera.core.DynamicRange UNSPECIFIED;
-  }
-
-  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalCameraInfo {
   }
 
   @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {

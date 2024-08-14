@@ -21,7 +21,6 @@ import android.content.Context
 import android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT
 import androidx.annotation.GuardedBy
 import androidx.annotation.MainThread
-import androidx.annotation.OptIn
 import androidx.annotation.VisibleForTesting
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraEffect
@@ -34,7 +33,6 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
-import androidx.camera.core.ExperimentalCameraInfo
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.InitializationException
@@ -207,7 +205,6 @@ public class ProcessCameraProvider private constructor() : LifecycleCameraProvid
             return@trace camera
         }
 
-    @OptIn(ExperimentalCameraInfo::class)
     @MainThread
     public override fun bindToLifecycle(
         singleCameraConfigs: List<SingleCameraConfig?>
@@ -431,7 +428,6 @@ public class ProcessCameraProvider private constructor() : LifecycleCameraProvid
      *   camera to be used for the given use cases.
      */
     @Suppress("unused")
-    @OptIn(ExperimentalCameraInfo::class)
     internal fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         primaryCameraSelector: CameraSelector,
@@ -594,7 +590,6 @@ public class ProcessCameraProvider private constructor() : LifecycleCameraProvid
             }
 
     final override val availableConcurrentCameraInfos: List<List<CameraInfo>>
-        @OptIn(ExperimentalCameraInfo::class)
         get() =
             trace("CX:getAvailableConcurrentCameraInfos") {
                 requireNonNull(mCameraX)
@@ -619,7 +614,6 @@ public class ProcessCameraProvider private constructor() : LifecycleCameraProvid
                 return@trace availableConcurrentCameraInfos
             }
 
-    @ExperimentalCameraInfo
     override fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo =
         trace("CX:getCameraInfo") {
             val cameraInfoInternal =
