@@ -247,6 +247,8 @@ class PlatformTextInputViewIntegrationTest {
     @Test
     fun connectionClosed_whenOuterSessionCanceled() {
         setupContent()
+        // keep a strong reference to created InputConnection so it's not collected by GC
+        var ic: InputConnection?
         val sessionJob =
             coroutineScope.launch {
                 try {
@@ -271,7 +273,10 @@ class PlatformTextInputViewIntegrationTest {
             }
         expect(0)
 
-        rule.runOnIdle { assertThat(hostView.onCreateInputConnection(EditorInfo())).isNotNull() }
+        rule.runOnIdle {
+            ic = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(ic).isNotNull()
+        }
 
         rule.runOnIdle {
             sessionJob.cancel()
@@ -374,6 +379,8 @@ class PlatformTextInputViewIntegrationTest {
     fun connectionClosed_whenInnerSessionCanceled() {
         setupContent()
         lateinit var sessionJob: Job
+        // keep a strong reference to created InputConnection so it's not collected by GC
+        var ic: InputConnection?
         coroutineScope.launch {
             node1.establishTextInputSession {
                 sessionJob = launch {
@@ -395,7 +402,10 @@ class PlatformTextInputViewIntegrationTest {
         }
         expect(0)
 
-        rule.runOnIdle { assertThat(hostView.onCreateInputConnection(EditorInfo())).isNotNull() }
+        rule.runOnIdle {
+            ic = hostView.onCreateInputConnection(EditorInfo())
+            assertThat(ic).isNotNull()
+        }
 
         rule.runOnIdle {
             sessionJob.cancel()
