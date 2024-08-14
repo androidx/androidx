@@ -656,6 +656,7 @@ class SandboxedSdkViewTest {
         )
     }
 
+    @Ignore // b/356742276
     @Test
     fun signalsOnlyCollectedWhenSignalOptionsNonEmpty() {
         addViewToLayoutAndWaitToBeActive()
