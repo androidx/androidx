@@ -72,13 +72,8 @@ public class FakeCameraBackend(private val fakeCameras: Map<CameraId, CameraMeta
         streamGraph: StreamGraph
     ): CameraController {
         val cameraController =
-            CameraControllerSimulator(
-                cameraContext,
-                graphId,
-                graphConfig,
-                graphListener,
-                streamGraph
-            )
+            CameraControllerSimulator(cameraContext, graphId, graphConfig, graphListener)
+        cameraController.streamGraph = streamGraph
         synchronized(lock) { _cameraControllers.add(cameraController) }
         return cameraController
     }

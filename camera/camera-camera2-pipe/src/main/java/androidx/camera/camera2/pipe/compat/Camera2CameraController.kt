@@ -27,6 +27,7 @@ import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor.CameraStatus
 import androidx.camera.camera2.pipe.CameraSurfaceManager
+import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.config.Camera2ControllerScope
 import androidx.camera.camera2.pipe.core.Log
@@ -225,6 +226,15 @@ constructor(
                 currentSession
             }
             ?.configureSurfaceMap(surfaceMap)
+    }
+
+    override fun getOutputLatency(streamId: StreamId?): StreamGraph.OutputLatency? {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            return currentSession?.getRealtimeCaptureLatency().let {
+                StreamGraph.OutputLatency(it?.captureLatency ?: 0, it?.processingLatency ?: 0)
+            }
+        }
+        return null
     }
 
     private suspend fun bindSessionToCamera() {

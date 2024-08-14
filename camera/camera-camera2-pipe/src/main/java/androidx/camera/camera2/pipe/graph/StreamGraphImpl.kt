@@ -16,10 +16,12 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
@@ -37,6 +39,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.compat.Api24Compat
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.atomicfu.atomic
 
 /**
@@ -48,8 +51,9 @@ import kotlinx.atomicfu.atomic
 internal class StreamGraphImpl
 @Inject
 constructor(
-    cameraMetadata: CameraMetadata,
-    graphConfig: CameraGraph.Config,
+    val cameraMetadata: CameraMetadata,
+    val graphConfig: CameraGraph.Config,
+    private val cameraControllerProvider: Provider<CameraController>,
 ) : StreamGraph {
     private val _streamMap: Map<CameraStream.Config, CameraStream>
 
@@ -62,6 +66,33 @@ constructor(
     override val outputs: List<OutputStream>
 
     override fun get(config: CameraStream.Config): CameraStream? = _streamMap[config]
+
+    override fun getOutputLatency(
+        streamId: StreamId,
+        outputId: OutputId?
+    ): StreamGraph.OutputLatency? {
+        val cameraController = cameraControllerProvider.get()
+        val outputLatency = cameraController.getOutputLatency(streamId)
+        if (outputLatency != null) {
+            return outputLatency
+        }
+        val stream = this[streamId]
+        var output = outputId?.let { get(it) }
+        checkNotNull(stream) { "No stream found for given streamId $streamId" }
+        if (stream.outputs.size == 1) {
+            output = stream.outputs.single()
+        } else {
+            checkNotNull(output) {
+                "Output must be specified for MultiResolution use case. " +
+                    "No output found for given outputId $outputId"
+            }
+        }
+        val streamConfigurationMap =
+            cameraMetadata[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
+        val stallDuration =
+            streamConfigurationMap?.getOutputStallDuration(output.format.value, output.size)
+        return stallDuration?.let { StreamGraph.OutputLatency(it, 0) }
+    }
 
     init {
         val outputConfigListBuilder = mutableListOf<OutputConfig>()

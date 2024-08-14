@@ -44,8 +44,7 @@ public class CameraControllerSimulator(
     cameraContext: CameraContext,
     private val graphId: CameraGraphId,
     private val graphConfig: CameraGraph.Config,
-    private val graphListener: GraphListener,
-    private val streamGraph: StreamGraph,
+    private val graphListener: GraphListener
 ) : CameraController {
     override val cameraId: CameraId
         get() = graphConfig.camera
@@ -75,6 +74,14 @@ public class CameraControllerSimulator(
 
     public var currentCaptureSequenceProcessor: FakeCaptureSequenceProcessor? = null
         private set
+
+    public var outputLatencySet: StreamGraph.OutputLatency? = null
+        private set
+
+    public var streamGraph: StreamGraph? = null
+
+    public val simulatedCaptureLatency: Long = 5L
+    public val simulatedProcessingLatency: Long = 10L
 
     init {
         check(cameraContext.cameraBackends.allIds.isNotEmpty()) {
@@ -146,6 +153,11 @@ public class CameraControllerSimulator(
         }
     }
 
+    public fun simulateOutputLatency() {
+        outputLatencySet =
+            StreamGraph.OutputLatency(simulatedCaptureLatency, simulatedProcessingLatency)
+    }
+
     override fun start() {
         synchronized(lock) {
             check(!closed) { "Attempted to invoke start after close." }
@@ -176,7 +188,7 @@ public class CameraControllerSimulator(
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
-        check(streamGraph.streamIds.containsAll(surfaceMap.keys))
+        streamGraph?.streamIds?.containsAll(surfaceMap.keys).let { check(it == true) }
 
         synchronized(lock) {
             currentSurfaceMap = surfaceMap
@@ -188,5 +200,9 @@ public class CameraControllerSimulator(
                 graphListener.onGraphModified(graphRequestProcessor)
             }
         }
+    }
+
+    override fun getOutputLatency(streamId: StreamId?): StreamGraph.OutputLatency? {
+        return outputLatencySet
     }
 }
