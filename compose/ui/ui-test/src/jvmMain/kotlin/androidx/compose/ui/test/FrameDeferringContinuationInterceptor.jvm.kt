@@ -31,7 +31,7 @@ import kotlinx.coroutines.CoroutineDispatcher
  * continuation needs to be dispatched.
  */
 @OptIn(InternalTestApi::class)
-internal class FrameDeferringContinuationInterceptor(parentInterceptor: ContinuationInterceptor?) :
+internal class FrameDeferringContinuationInterceptor(parentInterceptor: ContinuationInterceptor) :
     DelayPropagatingContinuationInterceptorWrapper(parentInterceptor) {
     private val parentDispatcher = parentInterceptor as? CoroutineDispatcher
     private val toRunTrampolined = ArrayDeque<TrampolinedTask<*>>()

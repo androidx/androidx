@@ -39,7 +39,7 @@ private const val DefaultFrameDelay = 16_000_000L
  * [coroutineScope] contain the test dispatcher controlled by [delayController].
  *
  * @param coroutineScope The [CoroutineScope] used to simulate the main thread and schedule frames
- *   on. It must contain a [TestCoroutineScheduler].
+ *   on. It must contain a [TestCoroutineScheduler] and a [ContinuationInterceptor].
  * @param frameDelayNanos The number of nanoseconds to [delay] between executing frames.
  * @param onPerformTraversals Called with the frame time of the frame that was just executed, after
  *   running all `withFrameNanos` callbacks, but before resuming their callers' continuations. Any
@@ -60,9 +60,13 @@ class TestMonotonicFrameClock(
 ) : MonotonicFrameClock {
     private val delayController =
         requireNotNull(coroutineScope.coroutineContext[TestCoroutineScheduler]) {
-            "coroutineScope should have TestCoroutineScheduler"
+            "TestMonotonicFrameClock's coroutineScope must have a TestCoroutineScheduler"
         }
-    private val parentInterceptor = coroutineScope.coroutineContext[ContinuationInterceptor]
+    // The parentInterceptor resolves to the TestDispatcher
+    private val parentInterceptor =
+        requireNotNull(coroutineScope.coroutineContext[ContinuationInterceptor]) {
+            "TestMonotonicFrameClock's coroutineScope must have a ContinuationInterceptor"
+        }
     private val lock = Any()
     private var awaiters = mutableListOf<(Long) -> Unit>()
     private var spareAwaiters = mutableListOf<(Long) -> Unit>()

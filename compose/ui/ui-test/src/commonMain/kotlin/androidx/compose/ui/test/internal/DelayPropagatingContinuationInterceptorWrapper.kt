@@ -20,16 +20,14 @@ import androidx.compose.ui.test.InternalTestApi
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.ContinuationInterceptor
 import kotlinx.coroutines.Delay
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.test.TestDispatcher
 
 /**
- * A [ContinuationInterceptor] that wraps another interceptor and implements [Delay]. If the wrapped
- * interceptor also implements [Delay], the delay implementation is delegated to it, otherwise it's
- * delegated to the default delay implementation (i.e. [Dispatchers.Default]). It is necessary that
- * interceptors used in tests, with one of the [TestDispatcher]s, propagate delay like this in order
- * to work with the delay skipping that those dispatchers perform.
+ * A [ContinuationInterceptor] that wraps another interceptor and implements [Delay] by delegating
+ * to the wrapped interceptor. It is necessary that interceptors used in tests, with one of the
+ * [TestDispatcher]s, propagate delay like this in order to work with the delay skipping that those
+ * dispatchers perform.
  */
 // TODO(b/263369561): avoid InternalCoroutinesApi - it is not expected that Delay gain a method but
 // if it ever did this would have potential runtime crashes for tests. Medium term we will leave
@@ -38,10 +36,13 @@ import kotlinx.coroutines.test.TestDispatcher
 @OptIn(InternalCoroutinesApi::class)
 @InternalTestApi
 abstract class DelayPropagatingContinuationInterceptorWrapper(
-    wrappedInterceptor: ContinuationInterceptor?
+    wrappedInterceptor: ContinuationInterceptor
 ) :
     AbstractCoroutineContextElement(ContinuationInterceptor),
     ContinuationInterceptor,
     // Coroutines will internally use the Default dispatcher as the delay if the
     // ContinuationInterceptor does not implement Delay.
-    Delay by ((wrappedInterceptor as? Delay) ?: (Dispatchers.Default as Delay))
+    Delay by ((wrappedInterceptor as? Delay)
+        ?: error(
+            "wrappedInterceptor of DelayPropagatingContinuationInterceptorWrapper must implement Delay"
+        ))
