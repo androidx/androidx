@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.ui.geometry
 
 import androidx.compose.runtime.Stable
@@ -44,7 +46,7 @@ class MutableRect(var left: Float, var top: Float, var right: Float, var bottom:
 
     /** Whether this rectangle encloses a non-zero area. Negative areas are considered empty. */
     val isEmpty: Boolean
-        get() = left >= right || top >= bottom
+        get() = (left >= right) or (top >= bottom)
 
     /**
      * Modifies `this` to be the intersection of this and the rect formed by [left], [top], [right],
@@ -65,7 +67,9 @@ class MutableRect(var left: Float, var top: Float, var right: Float, var bottom:
      * Rectangles include their top and left edges but exclude their bottom and right edges.
      */
     operator fun contains(offset: Offset): Boolean {
-        return offset.x >= left && offset.x < right && offset.y >= top && offset.y < bottom
+        val x = offset.x
+        val y = offset.y
+        return (x >= left) and (x < right) and (y >= top) and (y < bottom)
     }
 
     /** Sets new bounds to ([left], [top], [right], [bottom]) */

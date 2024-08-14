@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastIsFinite
 
 /** Measurable and Placeable type that has a position. */
 internal abstract class NodeCoordinator(
@@ -629,7 +630,7 @@ internal abstract class NodeCoordinator(
                 val distanceFromEdge =
                     distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize)
                 if (
-                    distanceFromEdge.isFinite() &&
+                    distanceFromEdge.fastIsFinite() &&
                         hitTestResult.isHitInMinimumTouchTargetBetter(distanceFromEdge, false)
                 ) {
                     head.hitNear(
@@ -655,7 +656,7 @@ internal abstract class NodeCoordinator(
                 }
 
             if (
-                distanceFromEdge.isFinite() &&
+                distanceFromEdge.fastIsFinite() &&
                     hitTestResult.isHitInMinimumTouchTargetBetter(distanceFromEdge, isInLayer)
             ) {
                 // Hit closer than existing handlers, so just record it

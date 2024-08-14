@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.center
 import androidx.compose.ui.geometry.isFinite
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.geometry.isUnspecified
+import androidx.compose.ui.util.fastIsFinite
 import kotlin.math.abs
 
 @Immutable
@@ -505,7 +506,12 @@ internal constructor(
 ) : ShaderBrush() {
 
     override val intrinsicSize: Size
-        get() = if (radius.isFinite()) Size(radius * 2, radius * 2) else Size.Unspecified
+        get() =
+            if (radius.fastIsFinite()) {
+                Size(radius * 2, radius * 2)
+            } else {
+                Size.Unspecified
+            }
 
     override fun createShader(size: Size): Shader {
         val centerX: Float
@@ -552,7 +558,7 @@ internal constructor(
 
     override fun toString(): String {
         val centerValue = if (center.isSpecified) "center=$center, " else ""
-        val radiusValue = if (radius.isFinite()) "radius=$radius, " else ""
+        val radiusValue = if (radius.fastIsFinite()) "radius=$radius, " else ""
         return "RadialGradient(" +
             "colors=$colors, " +
             "stops=$stops, " +

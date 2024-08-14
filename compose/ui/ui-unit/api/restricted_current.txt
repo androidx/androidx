@@ -305,14 +305,15 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntSize {
+    ctor @kotlin.PublishedApi internal IntSize(@kotlin.PublishedApi long packedValue);
     method @androidx.compose.runtime.Stable public inline operator int component1();
     method @androidx.compose.runtime.Stable public inline operator int component2();
     method @androidx.compose.runtime.Stable public operator long div(int other);
-    method public int getHeight();
-    method public int getWidth();
+    method public inline int getHeight();
+    method public inline int getWidth();
     method @androidx.compose.runtime.Stable public operator long times(int other);
-    property @androidx.compose.runtime.Stable public final int height;
-    property @androidx.compose.runtime.Stable public final int width;
+    property @androidx.compose.runtime.Stable public final inline int height;
+    property @androidx.compose.runtime.Stable public final inline int width;
     field public static final androidx.compose.ui.unit.IntSize.Companion Companion;
   }
 
@@ -322,7 +323,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntSizeKt {
-    method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
+    method @androidx.compose.runtime.Stable public static inline long IntSize(int width, int height);
     method public static long getCenter(long);
     method @androidx.compose.runtime.Stable public static long roundToIntSize(long);
     method @androidx.compose.runtime.Stable public static inline operator long times(int, long size);
@@ -374,7 +375,7 @@ package androidx.compose.ui.unit {
     method public static long getSp(float);
     method public static long getSp(int);
     method public static inline boolean isSpecified(long);
-    method public static boolean isUnspecified(long);
+    method public static inline boolean isUnspecified(long);
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
     method @kotlin.PublishedApi internal static long pack(long unitType, float v);
     method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.unit.TextUnit> block);

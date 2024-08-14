@@ -16,11 +16,9 @@
 
 package androidx.compose.ui.geometry
 
-import kotlin.test.assertFails
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -84,47 +82,6 @@ class SizeTest {
     }
 
     @Test
-    fun testUnspecifiedWidthQueryThrows() {
-        try {
-            Size.Unspecified.width
-            fail("Size.Unspecified.width is not allowed")
-        } catch (t: Throwable) {
-            // no-op
-        }
-    }
-
-    @Test
-    fun testUnspecifiedHeightQueryThrows() {
-        try {
-            Size.Unspecified.height
-            fail("Size.Unspecified.height is not allowed")
-        } catch (t: Throwable) {
-            // no-op
-        }
-    }
-
-    @Test
-    fun testUnspecifiedCopyThrows() {
-        try {
-            Size.Unspecified.copy(width = 100f)
-            Size.Unspecified.copy(height = 70f)
-            fail("Size.Unspecified.copy is not allowed")
-        } catch (t: Throwable) {
-            // no-op
-        }
-    }
-
-    @Test
-    fun testUnspecifiedComponentAssignmentThrows() {
-        try {
-            val (_, _) = Size.Unspecified
-            fail("Size.Unspecified component assignment is not allowed")
-        } catch (t: Throwable) {
-            // no-op
-        }
-    }
-
-    @Test
     fun testSizeLerp() {
         val size1 = Size(100f, 200f)
         val size2 = Size(300f, 500f)
@@ -181,6 +138,6 @@ class SizeTest {
         assertTrue(Size(Float.NEGATIVE_INFINITY, 20.0f).isEmpty())
         assertTrue(Size(10.0f, Float.NEGATIVE_INFINITY).isEmpty())
 
-        assertFails { Size.Unspecified.isEmpty() }
+        assertTrue(Size.Unspecified.isEmpty())
     }
 }
