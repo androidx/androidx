@@ -30,7 +30,10 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
@@ -59,6 +62,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.scrollToIndex
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -545,5 +549,32 @@ private class PickerScopeImpl(private val pickerState: PickerState) : PickerScop
     override val selectedOption: Int
         get() = pickerState.selectedOption
 }
+
+internal fun pickerTextOption(
+    textStyle: TextStyle,
+    indexToText: (Int) -> String,
+    optionHeight: Dp,
+    selectedContentColor: Color,
+    unselectedContentColor: Color,
+): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) =
+    { value: Int, pickerSelected: Boolean ->
+        Box(
+            modifier = Modifier.fillMaxSize().height(optionHeight),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = indexToText(value),
+                maxLines = 1,
+                style = textStyle,
+                color =
+                    if (pickerSelected) {
+                        selectedContentColor
+                    } else {
+                        unselectedContentColor
+                    },
+                modifier = Modifier.align(Alignment.Center).wrapContentSize(),
+            )
+        }
+    }
 
 private const val LARGE_NUMBER_OF_ITEMS = 100_000_000

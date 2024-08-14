@@ -314,6 +314,49 @@ package androidx.wear.compose.material3 {
     method public static void curvedText(androidx.wear.compose.foundation.CurvedScope, String text, optional androidx.wear.compose.foundation.CurvedModifier modifier, optional float maxSweepAngle, optional long background, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontSynthesis? fontSynthesis, optional androidx.wear.compose.foundation.CurvedTextStyle? style, optional androidx.wear.compose.foundation.CurvedDirection.Angular? angularDirection, optional int overflow);
   }
 
+  @androidx.compose.runtime.Immutable public final class DatePickerColors {
+    ctor public DatePickerColors(long selectedPickerContentColor, long unselectedPickerContentColor, long pickerLabelColor, long nextButtonContentColor, long nextButtonContainerColor, long confirmButtonContentColor, long confirmButtonContainerColor);
+    method public long getConfirmButtonContainerColor();
+    method public long getConfirmButtonContentColor();
+    method public long getNextButtonContainerColor();
+    method public long getNextButtonContentColor();
+    method public long getPickerLabelColor();
+    method public long getSelectedPickerContentColor();
+    method public long getUnselectedPickerContentColor();
+    property public final long confirmButtonContainerColor;
+    property public final long confirmButtonContentColor;
+    property public final long nextButtonContainerColor;
+    property public final long nextButtonContentColor;
+    property public final long pickerLabelColor;
+    property public final long selectedPickerContentColor;
+    property public final long unselectedPickerContentColor;
+  }
+
+  public final class DatePickerDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DatePickerColors datePickerColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.DatePickerColors datePickerColors(optional long selectedPickerContentColor, optional long unselectedPickerContentColor, optional long pickerLabelColor, optional long nextButtonContentColor, optional long nextButtonContainerColor, optional long confirmButtonContentColor, optional long confirmButtonContainerColor);
+    method @androidx.compose.runtime.Composable public int getDatePickerType();
+    property @androidx.compose.runtime.Composable public final int datePickerType;
+    field public static final androidx.wear.compose.material3.DatePickerDefaults INSTANCE;
+  }
+
+  public final class DatePickerKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) @androidx.compose.runtime.Composable public static void DatePicker(java.time.LocalDate initialDate, kotlin.jvm.functions.Function1<? super java.time.LocalDate,kotlin.Unit> onDatePicked, optional androidx.compose.ui.Modifier modifier, optional java.time.LocalDate? minDate, optional java.time.LocalDate? maxDate, optional int datePickerType, optional androidx.wear.compose.material3.DatePickerColors colors);
+  }
+
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DatePickerType {
+    field public static final androidx.wear.compose.material3.DatePickerType.Companion Companion;
+  }
+
+  public static final class DatePickerType.Companion {
+    method public int getDayMonthYear();
+    method public int getMonthDayYear();
+    method public int getYearMonthDay();
+    property public final int DayMonthYear;
+    property public final int MonthDayYear;
+    property public final int YearMonthDay;
+  }
+
   public final class EdgeButtonKt {
     method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional float buttonHeight, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }

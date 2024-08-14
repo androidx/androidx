@@ -65,8 +65,20 @@ internal value class Strings(@StringRes val value: Int) {
         inline val TimePickerPeriod
             get() = Strings(R.string.wear_m3c_time_picker_period)
 
+        inline val DatePickerYear
+            get() = Strings(R.string.wear_m3c_date_picker_year)
+
+        inline val DatePickerMonth
+            get() = Strings(R.string.wear_m3c_date_picker_month)
+
+        inline val DatePickerDay
+            get() = Strings(R.string.wear_m3c_date_picker_day)
+
         inline val PickerConfirmButtonContentDescription
             get() = Strings(R.string.wear_m3c_picker_confirm_button_content_description)
+
+        inline val PickerNextButtonContentDescription
+            get() = Strings(R.string.wear_m3c_picker_next_button_content_description)
     }
 }
 
