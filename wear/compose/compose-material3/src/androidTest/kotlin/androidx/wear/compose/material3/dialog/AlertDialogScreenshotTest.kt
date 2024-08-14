@@ -47,7 +47,7 @@ import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.ScreenSize
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.methodNameWithValidCharacters
+import androidx.wear.compose.material3.goldenIdentifier
 import androidx.wear.compose.material3.setContentWithTheme
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
@@ -278,7 +278,7 @@ class AlertDialogScreenshotTest {
         }
         onNodeWithTag(TEST_TAG)
             .captureToImage()
-            .assertAgainstGolden(screenshotRule, testName.methodNameWithValidCharacters())
+            .assertAgainstGolden(screenshotRule, testName.goldenIdentifier())
     }
 }
 

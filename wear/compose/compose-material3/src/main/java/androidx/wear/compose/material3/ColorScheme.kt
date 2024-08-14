@@ -207,7 +207,6 @@ class ColorScheme(
 
     // Button Colors
     internal var defaultButtonColorsCached: ButtonColors? = null
-    internal var defaultFilledButtonColorsCached: ButtonColors? = null
     internal var defaultFilledVariantButtonColorsCached: ButtonColors? = null
     internal var defaultFilledTonalButtonColorsCached: ButtonColors? = null
     internal var defaultOutlinedButtonColorsCached: ButtonColors? = null
@@ -251,6 +250,9 @@ class ColorScheme(
 
     // Progress Indicator
     internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null
+
+    // Level Indicator
+    internal var defaultLevelIndicatorColorsCached: LevelIndicatorColors? = null
 
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null

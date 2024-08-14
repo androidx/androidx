@@ -146,9 +146,9 @@ class ScrollIndicatorScreenshotTest {
                 LocalLayoutDirection provides actualLayoutDirection,
                 LocalConfiguration provides updatedConfig
             ) {
-                ScrollIndicatorImpl(
+                IndicatorImpl(
                     state =
-                        object : ScrollIndicatorState {
+                        object : IndicatorState {
                             override val positionFraction: Float
                                 get() = position
 
