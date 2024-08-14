@@ -24,6 +24,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.tokens.NavigationRailBaselineItemTokens
+import androidx.compose.material3.tokens.NavigationRailCollapsedTokens
+import androidx.compose.material3.tokens.NavigationRailExpandedTokens
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,9 +72,10 @@ import org.junit.runner.RunWith
 class WideNavigationRailTest {
     @get:Rule val rule = createComposeRule()
 
-    private val collapsedWidth = 96.dp // TODO: Replace with token.
-    private val expandedMinWidth = 220.dp // TODO: Replace with token.
-    private val expandedMaxWidth = 360.dp // TODO: Replace with token.
+    private val collapsedWidth = NavigationRailCollapsedTokens.ContainerWidth
+    private val expandedMinWidth = NavigationRailExpandedTokens.ContainerWidthMinimum
+    private val expandedMaxWidth = NavigationRailExpandedTokens.ContainerWidthMaximum
+    private val verticalPadding = NavigationRailCollapsedTokens.TopSpace
 
     @Test
     fun rail_defaultSemantics() {
@@ -209,7 +213,7 @@ class WideNavigationRailTest {
         }
         rule
             .onNodeWithTag("content")
-            .assertTopPositionInRootIsEqualTo(13.dp + WNRVerticalPadding)
+            .assertTopPositionInRootIsEqualTo(13.dp + verticalPadding)
             .assertLeftPositionInRootIsEqualTo(13.dp)
     }
 
@@ -369,7 +373,7 @@ class WideNavigationRailTest {
 
     @Test
     fun item_topIconPosition_withLongLabel_automaticallyResizesHeight() {
-        val defaultHeight = WNRTopIconItemMinHeight
+        val defaultHeight = NavigationRailBaselineItemTokens.ContainerHeight
 
         rule.setMaterialContent(lightColorScheme()) {
             WideNavigationRailItem(
@@ -458,14 +462,16 @@ class WideNavigationRailTest {
         // Header should always be at the top.
         rule
             .onNodeWithTag("header", useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(WNRVerticalPadding)
+            .assertTopPositionInRootIsEqualTo(verticalPadding)
             .assertLeftPositionInRootIsEqualTo(0.dp)
 
         // Item should be `HeaderPadding` below the header in top arrangement.
         rule
             .onNodeWithTag("item", useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(
-                WNRVerticalPadding + headerBounds.height + WNRHeaderPadding
+                verticalPadding +
+                    headerBounds.height +
+                    NavigationRailBaselineItemTokens.HeaderSpaceMinimum
             )
     }
 
@@ -493,7 +499,7 @@ class WideNavigationRailTest {
         // Header should always be at the top.
         rule
             .onNodeWithTag("header", useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(WNRVerticalPadding)
+            .assertTopPositionInRootIsEqualTo(verticalPadding)
             .assertLeftPositionInRootIsEqualTo(0.dp)
         // Assert item is centered.
         rule
@@ -525,13 +531,13 @@ class WideNavigationRailTest {
         // Header should always be at the top.
         rule
             .onNodeWithTag("header", useUnmergedTree = true)
-            .assertTopPositionInRootIsEqualTo(WNRVerticalPadding)
+            .assertTopPositionInRootIsEqualTo(verticalPadding)
             .assertLeftPositionInRootIsEqualTo(0.dp)
         // Assert item is at the bottom.
         rule
             .onNodeWithTag("item", useUnmergedTree = true)
             .assertTopPositionInRootIsEqualTo(
-                (railBounds.height - WNRVerticalPadding - itemBounds.height)
+                (railBounds.height - verticalPadding - itemBounds.height)
             )
     }
 }
