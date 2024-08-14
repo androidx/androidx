@@ -5338,6 +5338,28 @@ class ClickableTest {
             )
         }
     }
+
+    /** Regression test for b/358572550 */
+    @Test
+    fun disabledParentClickable_doesNotCrashOnFocusEvent() {
+        val tag = "testClickable"
+        val focusRequester = FocusRequester()
+        lateinit var inputModeManager: InputModeManager
+        rule.setContent {
+            inputModeManager = LocalInputModeManager.current
+            Box(Modifier.size(100.dp).clickable(enabled = false, onClick = {})) {
+                // Any focus target inside would work, but because clickable merges descendants it
+                // prevents itself from being merged into the parent node so it is easier to test
+                Box(Modifier.size(10.dp).focusRequester(focusRequester).testTag(tag).clickable {})
+            }
+        }
+        rule.runOnIdle { inputModeManager.requestInputMode(Keyboard) }
+
+        // Should not crash
+        rule.runOnIdle { focusRequester.requestFocus() }
+
+        rule.onNodeWithTag(tag).assertIsFocused()
+    }
 }
 
 /**
