@@ -74,6 +74,7 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     resourcePrefix "glance_template_"
     namespace "androidx.glance.template"
+    compileSdk 35
 }
 
 androidx {

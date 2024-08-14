@@ -30,6 +30,7 @@ dependencies {
 
 android {
     namespace "androidx.glance.appwidget.macrobenchmark.target"
+    compileSdk 35
     buildTypes {
         release {
             minifyEnabled true
