@@ -585,7 +585,7 @@ class PKeyPValueMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {    fun equalsTest() {
         val map = MutablePKeyPValueMap()
         map[1KeySuffix] = 1ValueSuffix
 

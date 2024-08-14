@@ -367,7 +367,7 @@ class IntSetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutableIntSet()
         set += 1
         set += 5

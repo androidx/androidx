@@ -700,7 +700,7 @@ class ScatterMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableScatterMap<String?, String?>()
         map["Hello"] = "World"
         map[null] = "Monde"

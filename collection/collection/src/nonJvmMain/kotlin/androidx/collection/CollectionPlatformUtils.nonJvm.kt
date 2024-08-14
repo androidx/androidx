@@ -15,7 +15,7 @@
  */
 package androidx.collection
 
-/** Native actual of internal utils for handling target differences in collection code. */
+/** Non-JVM actual of internal utils for handling target differences in collection code. */
 internal actual object CollectionPlatformUtils {
 
     internal actual inline fun createIndexOutOfBoundsException(): IndexOutOfBoundsException {

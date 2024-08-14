@@ -376,7 +376,7 @@ class PKeySetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutablePKeySet()
         set += 1KeySuffix
         set += 5KeySuffix

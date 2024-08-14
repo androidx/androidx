@@ -635,7 +635,7 @@ class ObjectLongTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableObjectLongMap<String?>()
         map["Hello"] = 1L
         map[null] = 2L

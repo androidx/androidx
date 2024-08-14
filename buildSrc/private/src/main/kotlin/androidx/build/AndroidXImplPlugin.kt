@@ -377,6 +377,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                     ) {
                         details.useVersion(useVersionStringProvider.get())
                     }
+
+                    // Our build attempts to pin every Kotlin dependency to the same version, but
+                    // org.jetbrains.kotlin:kotlin-dom-api-compat didn't exist until Kotlin 1.9.
+                    if (
+                        details.requested.group == "org.jetbrains.kotlin" &&
+                            details.requested.name == "kotlin-dom-api-compat" &&
+                            details.requested.version?.matches(Regex("""1\.[78]\..*""")) == true
+                    ) {
+                        details.useVersion("1.9.24")
+                    }
                 }
             }
         }

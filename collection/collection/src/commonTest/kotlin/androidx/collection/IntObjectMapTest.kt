@@ -656,7 +656,7 @@ class IntObjectMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableIntObjectMap<String?>()
         map[1] = "World"
         map[2] = null

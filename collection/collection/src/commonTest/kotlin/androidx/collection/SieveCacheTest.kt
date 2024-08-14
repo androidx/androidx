@@ -648,7 +648,7 @@ class SieveCacheTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val cache = createStandardCache()
         cache["Hello"] = "World"
         cache["Bonjour"] = "Monde"

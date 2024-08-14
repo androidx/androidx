@@ -622,7 +622,7 @@ class PKeyObjectMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutablePKeyObjectMap<String?>()
         map[1KeySuffix] = "World"
         map[2KeySuffix] = null

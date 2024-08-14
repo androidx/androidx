@@ -54,7 +54,7 @@ class CombinedGlanceModifierTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         assertThat(testModifier).isEqualTo(GlanceModifier.element(1).element(2).element(3))
         assertThat(testModifier).isNotEqualTo(GlanceModifier.element(1).element(2).element(4))
         assertThat(testModifier).isNotEqualTo(GlanceModifier.element(1).element(2))

@@ -367,7 +367,7 @@ class FloatSetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutableFloatSet()
         set += 1f
         set += 5f

@@ -35,6 +35,9 @@ androidXMultiplatform {
     jvm {
         withJava()
     }
+    js {
+        browser()
+    }
     mac()
     linux()
     ios()
@@ -66,7 +69,28 @@ androidXMultiplatform {
             }
         }
 
+        nonJsMain {
+            dependsOn(commonMain)
+        }
+
+        nonJsTest {
+            dependsOn(commonTest)
+        }
+
+        nonJvmMain {
+            dependsOn(commonMain)
+        }
+
+        nonJvmTest {
+            dependsOn(commonTest)
+        }
+
+        jvmMain {
+            dependsOn(nonJsMain)
+        }
+
         jvmTest {
+            dependsOn(nonJsTest)
             dependencies {
                 implementation(libs.kotlinTestJunit)
                 implementation(libs.truth)
@@ -74,12 +98,24 @@ androidXMultiplatform {
             }
         }
 
+        jsMain {
+            dependsOn(nonJvmMain)
+        }
+
+        jsTest {
+            dependsOn(nonJvmTest)
+        }
+
         nativeMain {
             dependsOn(commonMain)
+            dependsOn(nonJsMain)
+            dependsOn(nonJvmMain)
         }
 
         nativeTest {
             dependsOn(commonTest)
+            dependsOn(nonJsTest)
+            dependsOn(nonJvmTest)
         }
 
         unixMain {
