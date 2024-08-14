@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
+import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -288,6 +289,20 @@ class LazyStaggeredGridItemAppearanceAnimationTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun snapToPosition_noAnimation() {
+        val items = List(200) { Color.Black }
+        rule.setContent {
+            LazyGrid(containerSize = itemSizeDp) {
+                items(items, key = { it.toArgb() }) { Item(it) }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(200) } }
+
+        assertPixels(itemSize) { _, _ -> Color.Black }
     }
 
     private fun assertPixels(
