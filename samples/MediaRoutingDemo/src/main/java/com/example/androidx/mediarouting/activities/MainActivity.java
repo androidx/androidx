@@ -79,6 +79,7 @@ import com.example.androidx.mediarouting.providers.SampleMediaRouteProvider;
 import com.example.androidx.mediarouting.session.SessionManager;
 import com.example.androidx.mediarouting.ui.LibraryAdapter;
 import com.example.androidx.mediarouting.ui.PlaylistAdapter;
+import com.google.common.base.Function;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -614,6 +615,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onItemChanged(@NonNull PlaylistItem item) {
+            updateUi();
         }
     }
 
@@ -665,27 +667,28 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
                     + ", route=" + selectedRoute + ", reason=" + reason);
 
-            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
+            boolean needToRecreatePlayer =
+                    !selectedRoute.isSystemRoute() || mPlayer.isRemotePlayback();
+
+            if (needToRecreatePlayer) {
+                Player oldPlayer = mPlayer;
+                PlaylistItem currentItem = mSessionManager.getCurrentItem();
+                if (currentItem != null
+                        && currentItem.getState() != MediaItemStatus.PLAYBACK_STATE_PENDING) {
+                    // We haven't received a prepare transfer call for this. We set that up now.
+                    if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+                        mSessionManager.pause();
+                    }
+                    mSessionManager.suspend(currentItem.getPosition());
+                }
                 mPlayer =
                         Player.createPlayerForActivity(
                                 MainActivity.this, selectedRoute, mMediaSession);
                 mPlayer.updatePresentation();
                 mSessionManager.setPlayer(mPlayer);
-            }
-            updateUi();
-        }
-
-        @Override
-        public void onRouteUnselected(@NonNull MediaRouter router, @NonNull RouteInfo route,
-                int reason) {
-            Log.d(TAG, "onRouteUnselected: route=" + route);
-
-            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
-                mMediaSession.setActive(false);
-                mSessionManager.stop();
-
-                mPlayer.updatePresentation();
-                mPlayer.release();
+                mSessionManager.unsuspend();
+                updateUi();
+                oldPlayer.release();
             }
         }
 
@@ -800,36 +803,23 @@ public class MainActivity extends AppCompatActivity {
                     + ", to=" + toRoute.getId());
             final PlaylistItem currentItem = getCheckedPlaylistItem();
 
-            if (currentItem != null) {
-                if (mPlayer.isRemotePlayback()) {
-                    RemotePlayer remotePlayer = (RemotePlayer) mPlayer;
-                    ListenableFuture<PlaylistItem> cacheRemoteState =
-                            remotePlayer.cacheRemoteState(currentItem);
-                    return Futures.transform(
-                            cacheRemoteState,
-                            (playlistItem) -> handleTransfer(playlistItem.getPosition(), toRoute),
-                            Runnable::run);
-                } else {
-                    long cachedPosition = getCurrentEstimatedPosition(currentItem);
-                    handleTransfer(cachedPosition, toRoute);
-                }
+            if (currentItem == null) {
+                return null; // No ongoing playback. Nothing to prepare.
             }
-            return Futures.immediateVoidFuture();
-        }
-
-        public Void handleTransfer(long currentPosition, RouteInfo destinationRoute) {
-            mSessionManager.suspend(currentPosition);
-            mMediaSession.setActive(false);
-            mPlayer.release();
-
-            mPlayer =
-                    Player.createPlayerForActivity(
-                            MainActivity.this, destinationRoute, mMediaSession);
-            mPlayer.updatePresentation();
-            mSessionManager.setPlayer(mPlayer);
-            mSessionManager.unsuspend();
-
-            return null;
+            if (mPlayer.isRemotePlayback()) {
+                RemotePlayer remotePlayer = (RemotePlayer) mPlayer;
+                ListenableFuture<PlaylistItem> cacheRemoteState =
+                        remotePlayer.cacheRemoteState(currentItem);
+                Function<PlaylistItem, Void> function =
+                        (playlistItem) -> {
+                            mSessionManager.suspend(playlistItem.getPosition());
+                            return null;
+                        };
+                return Futures.transform(cacheRemoteState, function, Runnable::run);
+            } else {
+                mSessionManager.suspend(getCurrentEstimatedPosition(currentItem));
+                return Futures.immediateVoidFuture();
+            }
         }
     }
 }
