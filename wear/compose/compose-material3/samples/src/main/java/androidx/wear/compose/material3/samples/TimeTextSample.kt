@@ -17,14 +17,10 @@
 package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.TimeText
+import androidx.wear.compose.material3.TimeTextDefaults
 
 @Sampled
 @Composable
@@ -35,25 +31,11 @@ fun TimeTextClockOnly() {
 @Sampled
 @Composable
 fun TimeTextWithStatus() {
+    val primaryStyle =
+        TimeTextDefaults.timeTextStyle(color = MaterialTheme.colorScheme.primaryContainer)
     TimeText {
-        text("ETA 12:48")
+        text("ETA 12:48", style = primaryStyle)
         separator()
         time()
-    }
-}
-
-@Sampled
-@Composable
-fun TimeTextWithIcon() {
-    TimeText {
-        time()
-        separator()
-        composable {
-            Icon(
-                imageVector = Icons.Filled.Favorite,
-                contentDescription = "Favorite",
-                modifier = Modifier.size(13.dp)
-            )
-        }
     }
 }

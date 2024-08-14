@@ -61,9 +61,10 @@ import androidx.wear.compose.foundation.sizeIn
  * Additionally, for [color], if [color] is not set, and [style] does not have a color, then
  * [LocalContentColor] will be used.
  *
- * For samples explicitly specifying style see:
+ * For samples using curved text in a [CurvedLayout] see:
  *
- * For examples using CompositionLocal to specify the style, see:
+ * @sample androidx.wear.compose.material3.samples.CurvedTextTop
+ * @sample androidx.wear.compose.material3.samples.CurvedTextBottom
  *
  * For more information, see the
  * [Curved Text](https://developer.android.com/training/wearables/compose/curved-text) guide.
@@ -86,9 +87,6 @@ import androidx.wear.compose.foundation.sizeIn
  *   needs to be reversed in a Rtl layout. If not specified, it will be inherited from the enclosing
  *   [curvedRow] or [CurvedLayout] See [CurvedDirection.Angular].
  * @param overflow How visual overflow should be handled.
- *
- * TODO(b/283777480): Add CurvedText samples
- * TODO(b/283777480): Add CurvedText samples
  */
 fun CurvedScope.curvedText(
     text: String,

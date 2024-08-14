@@ -23,6 +23,7 @@ import android.content.IntentFilter
 import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -50,6 +51,7 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.wear.compose.foundation.ArcPaddingValues
+import androidx.wear.compose.foundation.CurvedAlignment
 import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
@@ -91,10 +93,6 @@ import java.util.Locale
  * A [TimeText] with a short app status message shown:
  *
  * @sample androidx.wear.compose.material3.samples.TimeTextWithStatus
- *
- * An example of a [TimeText] with an icon along with the clock:
- *
- * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
  * @param modifier The modifier to be applied to the component.
  * @param curvedModifier The [CurvedModifier] used to restrict the arc in which [TimeText] is drawn.
  * @param maxSweepAngle The default maximum sweep angle in degrees.
@@ -124,7 +122,8 @@ fun TimeText(
                 modifier =
                     curvedModifier
                         .sizeIn(maxSweepDegrees = maxSweepAngle)
-                        .padding(contentPadding.toArcPadding())
+                        .padding(contentPadding.toArcPadding()),
+                radialAlignment = CurvedAlignment.Radial.Center
             ) {
                 CurvedTimeTextScope(timeText, timeTextStyle, maxSweepAngle, contentColor).apply {
                     content()
@@ -133,14 +132,16 @@ fun TimeText(
             }
         }
     } else {
-        Row(
-            modifier = modifier.fillMaxSize().padding(contentPadding),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.Center
-        ) {
-            LinearTimeTextScope(timeText, timeTextStyle, contentColor).apply {
-                content()
-                Show()
+        Box(modifier.fillMaxSize()) {
+            Row(
+                modifier = Modifier.align(Alignment.TopCenter).padding(contentPadding),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                LinearTimeTextScope(timeText, timeTextStyle, contentColor).apply {
+                    content()
+                    Show()
+                }
             }
         }
     }
@@ -179,9 +180,6 @@ sealed class TimeTextScope {
      * Adds a composable in content of [TimeText]. This can be used to display non-text information
      * such as an icon.
      *
-     * An example of a [TimeText] with an icon along with the clock:
-     *
-     * @sample androidx.wear.compose.material3.samples.TimeTextWithIcon
      * @param content Slot for the [composable] to be displayed.
      */
     abstract fun composable(content: @Composable () -> Unit)
@@ -387,11 +385,11 @@ internal class LinearTimeTextScope(
                 overflow = TextOverflow.Ellipsis,
                 style = contentTextStyle.merge(style),
                 modifier =
-                    if (weight.isValidWeight()) Modifier.weight(weight)
+                    if (weight.isValidWeight()) Modifier.weight(weight, fill = false)
                     // Note that we are creating a lambda here, but textCount is actually read
                     // later, during the call to Show, when the pending list is fully constructed.
                     else if (weight == TimeTextDefaults.AutoTextWeight && textCount <= 1)
-                        Modifier.weight(1f)
+                        Modifier.weight(1f, fill = false)
                     else Modifier
             )
         }
