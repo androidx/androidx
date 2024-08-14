@@ -18,14 +18,13 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_ALLOWED_AUTHENTICATORS
 import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_CRYPTO_OP_ID
+import androidx.credentials.provider.utils.BiometricTestUtils
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import javax.crypto.NullCipher
 import org.junit.Assert.assertThrows
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -129,7 +128,6 @@ class BiometricPromptDataTest {
         }
     }
 
-    @SdkSuppress(maxSdkVersion = 34)
     @Test
     fun fromBundle_validAllowedAuthenticator_success() {
         val inputBundle = Bundle()
@@ -143,13 +141,12 @@ class BiometricPromptDataTest {
         assertThat(actualBiometricPromptData.cryptoObject).isNull()
     }
 
-    @SdkSuppress(minSdkVersion = 35)
     @Test
     fun fromBundle_validAllowedAuthenticatorAboveApi35_success() {
-        val expectedOpId = Integer.MIN_VALUE
+        val expectedOpId = TEST_CRYPTO_OBJECT.operationHandle
         val inputBundle = Bundle()
         inputBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, TEST_ALLOWED_AUTHENTICATOR)
-        inputBundle.putInt(BUNDLE_HINT_CRYPTO_OP_ID, expectedOpId)
+        inputBundle.putLong(BUNDLE_HINT_CRYPTO_OP_ID, expectedOpId)
 
         val actualBiometricPromptData = BiometricPromptData.fromBundle(inputBundle)
 
@@ -157,7 +154,8 @@ class BiometricPromptDataTest {
         assertThat(actualBiometricPromptData!!.allowedAuthenticators)
             .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
         assertThat(actualBiometricPromptData.cryptoObject).isNotNull()
-        assertThat(actualBiometricPromptData.cryptoObject!!.hashCode()).isEqualTo(expectedOpId)
+        assertThat(actualBiometricPromptData.cryptoObject!!.operationHandle)
+            .isEqualTo(TEST_CRYPTO_OBJECT.operationHandle)
     }
 
     @Test
@@ -186,7 +184,6 @@ class BiometricPromptDataTest {
         assertThat(actualBiometricPromptData).isNull()
     }
 
-    @SdkSuppress(maxSdkVersion = 34)
     @Test
     fun toBundle_success() {
         val testBiometricPromptData =
@@ -201,23 +198,22 @@ class BiometricPromptDataTest {
             .isEqualTo(DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID)
     }
 
-    @SdkSuppress(minSdkVersion = 35)
     @Test
     fun toBundle_api35AndAboveWithOpId_success() {
         val testBiometricPromptData =
             BiometricPromptData(TEST_CRYPTO_OBJECT, TEST_ALLOWED_AUTHENTICATOR)
-        val expectedOpId = TEST_CRYPTO_OBJECT.hashCode()
+        val expectedOpId = TEST_CRYPTO_OBJECT.operationHandle
 
         val actualBundle = BiometricPromptData.toBundle(testBiometricPromptData)
 
         assertThat(actualBundle).isNotNull()
         assertThat(actualBundle.getInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS))
             .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
-        assertThat(actualBundle.getInt(BUNDLE_HINT_CRYPTO_OP_ID)).isEqualTo(expectedOpId)
+        assertThat(actualBundle.getLong(BUNDLE_HINT_CRYPTO_OP_ID)).isEqualTo(expectedOpId)
     }
 
     private companion object {
-        private val TEST_CRYPTO_OBJECT = BiometricPrompt.CryptoObject(NullCipher())
+        private val TEST_CRYPTO_OBJECT = BiometricTestUtils.createCryptoObject()
 
         private const val DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID = 0L
 

@@ -22,27 +22,23 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
 import android.service.credentials.CredentialEntry
-import androidx.annotation.RequiresApi
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.core.os.BuildCompat
 import androidx.credentials.CredentialOption
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.R
 import androidx.credentials.equals
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption
-import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.PublicKeyCredentialEntry
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.fromCredentialEntry
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.fromSlice
 import androidx.credentials.provider.PublicKeyCredentialEntry.Companion.toSlice
+import androidx.credentials.provider.ui.UiUtils.Companion.testBiometricPromptData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
-import javax.crypto.NullCipher
 import junit.framework.TestCase.assertNotNull
 import org.junit.Assert
 import org.junit.Assert.assertThrows
@@ -327,13 +323,5 @@ class PublicKeyCredentialEntryTest {
         private const val IS_AUTO_SELECT_ALLOWED = true
         private const val DEFAULT_SINGLE_PROVIDER_ICON_BIT = false
         private const val SINGLE_PROVIDER_ICON_BIT = true
-
-        @RequiresApi(35)
-        private fun testBiometricPromptData(): BiometricPromptData {
-            return BiometricPromptData.Builder()
-                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build()
-        }
     }
 }

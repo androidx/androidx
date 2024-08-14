@@ -16,6 +16,7 @@
 package androidx.credentials.provider.ui;
 
 import static androidx.credentials.CredentialOption.BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED;
+import static androidx.credentials.provider.ui.UiUtils.testBiometricPromptData;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -31,15 +32,11 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.os.Bundle;
 
-import androidx.annotation.RequiresApi;
-import androidx.biometric.BiometricManager;
-import androidx.biometric.BiometricPrompt;
 import androidx.core.os.BuildCompat;
 import androidx.credentials.PublicKeyCredential;
 import androidx.credentials.R;
 import androidx.credentials.TestUtilsKt;
 import androidx.credentials.provider.BeginGetPublicKeyCredentialOption;
-import androidx.credentials.provider.BiometricPromptData;
 import androidx.credentials.provider.PublicKeyCredentialEntry;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -50,8 +47,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.time.Instant;
-
-import javax.crypto.NullCipher;
 
 @RunWith(AndroidJUnit4.class)
 @SdkSuppress(minSdkVersion = 26) // Instant usage
@@ -271,13 +266,5 @@ public class PublicKeyCredentialEntryJavaTest {
         } else {
             assertThat(entry.getBiometricPromptData()).isNull();
         }
-    }
-
-    @RequiresApi(35)
-    private static BiometricPromptData testBiometricPromptData() {
-        return new BiometricPromptData.Builder()
-                .setCryptoObject(new BiometricPrompt.CryptoObject(new NullCipher()))
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build();
     }
 }
