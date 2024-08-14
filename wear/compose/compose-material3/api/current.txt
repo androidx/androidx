@@ -1118,10 +1118,12 @@ package androidx.wear.compose.material3 {
   }
 
   public final class TimeTextDefaults {
+    method public float getAutoTextWeight();
     method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TimeSource rememberTimeSource(String timeFormat);
     method @androidx.compose.runtime.Composable public String timeFormat();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.text.TextStyle timeTextStyle(optional long background, optional long color, optional long fontSize);
+    property public final float AutoTextWeight;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
     field public static final androidx.wear.compose.material3.TimeTextDefaults INSTANCE;
     field public static final float MaxSweepAngle = 70.0f;
@@ -1136,7 +1138,7 @@ package androidx.wear.compose.material3 {
   public abstract sealed class TimeTextScope {
     method public abstract void composable(kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method public abstract void separator(optional androidx.compose.ui.text.TextStyle? style);
-    method public abstract void text(String text, optional androidx.compose.ui.text.TextStyle? style);
+    method public abstract void text(String text, optional androidx.compose.ui.text.TextStyle? style, optional float weight);
     method public abstract void time();
   }
 

@@ -25,6 +25,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -125,8 +126,10 @@ fun TimeText(
                         .sizeIn(maxSweepDegrees = maxSweepAngle)
                         .padding(contentPadding.toArcPadding())
             ) {
-                CurvedTimeTextScope(this, timeText, timeTextStyle, maxSweepAngle, contentColor)
-                    .content()
+                CurvedTimeTextScope(timeText, timeTextStyle, maxSweepAngle, contentColor).apply {
+                    content()
+                    Show()
+                }
             }
         }
     } else {
@@ -151,8 +154,16 @@ sealed class TimeTextScope {
      *
      * @param text The text to display.
      * @param style configuration for the [text] such as color, font etc.
+     * @param weight Size the text's width proportional to its weight relative to other weighted
+     *   sibling elements in the TimeText. Specify NaN to make this text not have a weight
+     *   specified. The default value, [TimeTextDefaults.AutoTextWeight], makes this text have
+     *   weight 1f if it's the only one, and not have weight if there are two or more.
      */
-    abstract fun text(text: String, style: TextStyle? = null)
+    abstract fun text(
+        text: String,
+        style: TextStyle? = null,
+        weight: Float = TimeTextDefaults.AutoTextWeight
+    )
 
     /** Adds a text displaying current time. */
     abstract fun time()
@@ -277,6 +288,13 @@ object TimeTextDefaults {
             modifier = CurvedModifier.padding(contentArcPadding)
         )
     }
+
+    /**
+     * Weight value used to specify that the value is automatic. It will be 1f when there is one
+     * text, and no weight will be used if there are 2 or more texts. For the 2+ texts case, usually
+     * one of them should have weight manually specified to ensure its properly cut and ellipsized.
+     */
+    val AutoTextWeight = -1f
 }
 
 interface TimeSource {
@@ -291,45 +309,62 @@ interface TimeSource {
 
 /** Implementation of [TimeTextScope] for round devices. */
 internal class CurvedTimeTextScope(
-    private val scope: CurvedScope,
     private val timeText: String,
     private val timeTextStyle: TextStyle,
     private val maxSweepAngle: Float,
     contentColor: Color,
 ) : TimeTextScope() {
-
+    private var textCount = 0
+    private val pending = mutableListOf<CurvedScope.() -> Unit>()
     private val contentTextStyle = timeTextStyle.merge(contentColor)
 
-    override fun text(text: String, style: TextStyle?) {
-        scope.curvedText(
-            text = text,
-            overflow = TextOverflow.Ellipsis,
-            maxSweepAngle = maxSweepAngle,
-            style = CurvedTextStyle(style = contentTextStyle.merge(style)),
-            modifier = CurvedModifier.weight(1f)
-        )
+    override fun text(text: String, style: TextStyle?, weight: Float) {
+        textCount++
+        pending.add {
+            curvedText(
+                text = text,
+                overflow = TextOverflow.Ellipsis,
+                maxSweepAngle = maxSweepAngle,
+                style = CurvedTextStyle(style = contentTextStyle.merge(style)),
+                modifier =
+                    if (weight.isValidWeight()) CurvedModifier.weight(weight)
+                    // Note that we are creating a lambda here, but textCount is actually read
+                    // later, during the call to Show, when the pending list is fully constructed.
+                    else if (weight == TimeTextDefaults.AutoTextWeight && textCount <= 1)
+                        CurvedModifier.weight(1f)
+                    else CurvedModifier
+            )
+        }
     }
 
     override fun time() {
-        scope.curvedText(
-            timeText,
-            maxSweepAngle = maxSweepAngle,
-            style = CurvedTextStyle(timeTextStyle)
-        )
+        pending.add {
+            curvedText(
+                timeText,
+                maxSweepAngle = maxSweepAngle,
+                style = CurvedTextStyle(timeTextStyle)
+            )
+        }
     }
 
     override fun separator(style: TextStyle?) {
-        scope.CurvedTextSeparator(CurvedTextStyle(style = timeTextStyle.merge(style)))
+        pending.add { CurvedTextSeparator(CurvedTextStyle(style = timeTextStyle.merge(style))) }
     }
 
     override fun composable(content: @Composable () -> Unit) {
-        scope.curvedComposable {
-            CompositionLocalProvider(
-                LocalContentColor provides contentTextStyle.color,
-                LocalTextStyle provides contentTextStyle,
-                content = content
-            )
+        pending.add {
+            curvedComposable {
+                CompositionLocalProvider(
+                    LocalContentColor provides contentTextStyle.color,
+                    LocalTextStyle provides contentTextStyle,
+                    content = content
+                )
+            }
         }
+    }
+
+    fun CurvedScope.Show() {
+        pending.fastForEach { it() }
     }
 }
 
@@ -339,11 +374,27 @@ internal class LinearTimeTextScope(
     private val timeTextStyle: TextStyle,
     contentColor: Color,
 ) : TimeTextScope() {
-    private val pending = mutableListOf<@Composable () -> Unit>()
+    private var textCount = 0
+    private val pending = mutableListOf<@Composable RowScope.() -> Unit>()
     private val contentTextStyle = timeTextStyle.merge(contentColor)
 
-    override fun text(text: String, style: TextStyle?) {
-        pending.add { Text(text = text, style = contentTextStyle.merge(style)) }
+    override fun text(text: String, style: TextStyle?, weight: Float) {
+        textCount++
+        pending.add {
+            Text(
+                text = text,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                style = contentTextStyle.merge(style),
+                modifier =
+                    if (weight.isValidWeight()) Modifier.weight(weight)
+                    // Note that we are creating a lambda here, but textCount is actually read
+                    // later, during the call to Show, when the pending list is fully constructed.
+                    else if (weight == TimeTextDefaults.AutoTextWeight && textCount <= 1)
+                        Modifier.weight(1f)
+                    else Modifier
+            )
+        }
     }
 
     override fun time() {
@@ -365,10 +416,12 @@ internal class LinearTimeTextScope(
     }
 
     @Composable
-    fun Show() {
+    fun RowScope.Show() {
         pending.fastForEach { it() }
     }
 }
+
+private fun Float.isValidWeight() = !isNaN() && this > 0f
 
 internal class DefaultTimeSource(timeFormat: String) : TimeSource {
     private val _timeFormat = timeFormat
