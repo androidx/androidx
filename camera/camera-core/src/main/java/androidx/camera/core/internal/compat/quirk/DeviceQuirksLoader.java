@@ -63,6 +63,10 @@ public class DeviceQuirksLoader {
                 IncorrectJpegMetadataQuirk.load())) {
             quirks.add(new IncorrectJpegMetadataQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(ImageCaptureFailedForSpecificCombinationQuirk.class,
+                ImageCaptureFailedForSpecificCombinationQuirk.load())) {
+            quirks.add(new ImageCaptureFailedForSpecificCombinationQuirk());
+        }
 
         return quirks;
     }
