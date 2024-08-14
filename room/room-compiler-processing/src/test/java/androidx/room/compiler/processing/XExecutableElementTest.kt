@@ -506,6 +506,7 @@ class XExecutableElementTest {
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1640
         runProcessorTest(sources = listOf(src), kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
@@ -1351,6 +1352,7 @@ class XExecutableElementTest {
         runProcessorTest(
             sources = sources,
             classpath = classpath,
+            // https://github.com/google/ksp/issues/1640
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             // we use this to remove the hash added by the compiler for function names that don't

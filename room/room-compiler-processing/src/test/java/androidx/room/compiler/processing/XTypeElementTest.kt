@@ -1358,6 +1358,7 @@ class XTypeElementTest(
                             .trimIndent()
                     )
                 ),
+            // https://github.com/google/ksp/issues/1890
             kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val appSubject = invocation.processingEnv.requireTypeElement("test.Subject")
@@ -1625,7 +1626,7 @@ class XTypeElementTest(
             """
                     .trimIndent()
             )
-        runTest(sources = listOf(src), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
+        runTest(sources = listOf(src)) { invocation ->
             val defaultArgsConstructors =
                 invocation.processingEnv
                     .requireTypeElement("DefaultArgs")

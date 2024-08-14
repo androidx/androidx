@@ -868,6 +868,7 @@ class XElementTest {
                         .trimIndent()
                 )
             ),
+            // https://github.com/google/ksp/issues/1898
             kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation, precompiled ->
             val enclosingElement =

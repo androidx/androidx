@@ -1087,6 +1087,7 @@ class XTypeTest {
             )
         runProcessorTest(
             sources = listOf(src, javaSource),
+            // https://github.com/google/ksp/issues/1918
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val styleApplier = invocation.processingEnv.requireType("StyleApplier")
@@ -1623,6 +1624,7 @@ class XTypeTest {
                     )
                 ),
             createProcessingSteps = { listOf(WildcardProcessingStep()) },
+            // TODO(b/314151707): reproduce in the KSP project
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { result ->
             result.hasError()
@@ -2332,6 +2334,7 @@ class XTypeTest {
                 } else {
                     emptyList()
                 },
+            // https://github.com/google/ksp/issues/1640
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val kotlinElm = invocation.processingEnv.requireTypeElement("KotlinClass")

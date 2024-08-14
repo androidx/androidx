@@ -107,6 +107,7 @@ class KspTypeNamesGoldenTest {
         runKspTest(
             sources = sources,
             classpath = classpath,
+            // TODO(b/314151707): find root cause
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             collectSignaturesInto(invocation, ksp)

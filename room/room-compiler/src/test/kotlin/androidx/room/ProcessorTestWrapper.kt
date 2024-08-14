@@ -19,6 +19,7 @@ package androidx.room
 import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XProcessingStep
 import androidx.room.compiler.processing.util.CompilationResultSubject
+import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.runKspTest
@@ -40,7 +41,7 @@ fun runProcessorTestWithK1(
         classpath = classpath,
         options = options,
         javacArguments = javacArguments,
-        kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9") + kotlincArguments,
+        kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS + kotlincArguments,
         handler = handler
     )
 }
@@ -59,7 +60,7 @@ fun runProcessorTestWithK1(
         classpath = classpath,
         options = options,
         javacArguments = javacArguments,
-        kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9") + kotlincArguments,
+        kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS + kotlincArguments,
         createProcessingSteps = createProcessingSteps,
         onCompilationResult = onCompilationResult
     )
@@ -80,7 +81,7 @@ fun runProcessorTestWithK1(
         classpath = classpath,
         options = options,
         javacArguments = javacArguments,
-        kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9") + kotlincArguments,
+        kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS + kotlincArguments,
         javacProcessors = javacProcessors,
         symbolProcessorProviders = symbolProcessorProviders,
         onCompilationResult = onCompilationResult
@@ -102,8 +103,7 @@ fun runKspTestWithK1(
             classpath = classpath,
             options = options,
             javacArguments = javacArguments,
-            kotlincArguments =
-                listOf("-language-version=1.9", "-api-version=1.9") + kotlincArguments,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS + kotlincArguments,
             config = config,
             handler = handler
         )
@@ -113,8 +113,7 @@ fun runKspTestWithK1(
             classpath = classpath,
             options = options,
             javacArguments = javacArguments,
-            kotlincArguments =
-                listOf("-language-version=1.9", "-api-version=1.9") + kotlincArguments,
+            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS + kotlincArguments,
             handler = handler
         )
     }

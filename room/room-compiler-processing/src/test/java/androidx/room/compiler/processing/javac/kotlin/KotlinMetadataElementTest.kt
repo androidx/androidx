@@ -20,7 +20,6 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertWithMessage
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
-import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.compileFiles
@@ -819,7 +818,7 @@ class KotlinMetadataElementTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        simpleRun(sources = listOf(src), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { env ->
+        simpleRun(sources = listOf(src)) { env ->
             val subject = env.requireTypeElement("Subject")
             subject.getDeclaredFields().forEach { assertThat(it.getter).isNotNull() }
             subject.getDeclaredMethods().forEach {
