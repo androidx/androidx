@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.demos.dialogs
+package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -38,6 +38,8 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.integration.demos.common.ComposableDemo
+import androidx.wear.compose.material3.AlertDialog
+import androidx.wear.compose.material3.AlertDialogDefaults
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
@@ -45,11 +47,9 @@ import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.dialog.AlertDialog
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults
-import androidx.wear.compose.material3.samples.dialog.AlertDialogWithBottomButtonSample
-import androidx.wear.compose.material3.samples.dialog.AlertDialogWithConfirmAndDismissSample
-import androidx.wear.compose.material3.samples.dialog.AlertDialogWithContentGroupsSample
+import androidx.wear.compose.material3.samples.AlertDialogWithBottomButtonSample
+import androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
+import androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
 
 val AlertDialogs =
     listOf(

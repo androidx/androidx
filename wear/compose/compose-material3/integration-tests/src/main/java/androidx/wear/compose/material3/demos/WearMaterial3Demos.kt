@@ -22,7 +22,6 @@ import android.widget.Toast
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.Material3DemoCategory
-import androidx.wear.compose.material3.demos.dialogs.AlertDialogs
 import androidx.wear.compose.material3.samples.AnimatedTextSample
 import androidx.wear.compose.material3.samples.AnimatedTextSampleButtonResponse
 import androidx.wear.compose.material3.samples.AnimatedTextSampleSharedFontRegistry
@@ -46,12 +45,8 @@ val WearMaterial3Demos =
         listOf(
             ComposableDemo("Color Scheme") { ColorSchemeDemos() },
             Material3DemoCategory("Curved Text", CurvedTextDemos),
-            Material3DemoCategory(
-                "Dialogs",
-                listOf(
-                    Material3DemoCategory("AlertDialog", AlertDialogs),
-                )
-            ),
+            Material3DemoCategory("AlertDialog", AlertDialogs),
+            Material3DemoCategory("Confirmation", Comfirmations),
             ComposableDemo("Scaffold") { ScaffoldSample() },
             Material3DemoCategory("ScrollAway", ScrollAwayDemos),
             ComposableDemo("Haptics") { Centralize { HapticsDemos() } },

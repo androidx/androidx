@@ -1,6 +1,28 @@
 // Signature format: 4.0
 package androidx.wear.compose.material3 {
 
+  public final class AlertDialogDefaults {
+    method @androidx.compose.runtime.Composable public void BottomButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void ConfirmButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void DismissButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public void GroupSeparator();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasBottomButton);
+    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getConfirmIcon();
+    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getDismissIcon();
+    method public float getEdgeButtonExtraTopPadding();
+    method public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
+    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> ConfirmIcon;
+    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> DismissIcon;
+    property public final androidx.compose.foundation.layout.Arrangement.Vertical VerticalArrangement;
+    property public final float edgeButtonExtraTopPadding;
+    field public static final androidx.wear.compose.material3.AlertDialogDefaults INSTANCE;
+  }
+
+  public final class AlertDialogKt {
+    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> bottomButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
+  }
+
   @RequiresApi(31) public final class AnimatedTextDefaults {
     field public static final int CacheSize = 5; // 0x5
     field public static final androidx.wear.compose.material3.AnimatedTextDefaults INSTANCE;
@@ -296,6 +318,45 @@ package androidx.wear.compose.material3 {
   public final class ColorSchemeKt {
     method public static long contentColorFor(androidx.wear.compose.material3.ColorScheme, long backgroundColor);
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long contentColorFor(long backgroundColor);
+  }
+
+  public final class ConfirmationColors {
+    ctor public ConfirmationColors(long iconColor, long iconContainerColor, long textColor);
+    method public long getIconColor();
+    method public long getIconContainerColor();
+    method public long getTextColor();
+    property public final long iconColor;
+    property public final long iconContainerColor;
+    property public final long textColor;
+  }
+
+  public final class ConfirmationDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors confirmationColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors confirmationColors(optional long iconColor, optional long iconContainerColor, optional long textColor);
+    method @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> curvedText(String text, optional androidx.wear.compose.foundation.CurvedTextStyle style);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors failureColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors failureColors(optional long iconColor, optional long iconContainerColor, optional long textColor);
+    method @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> failureText();
+    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> getFailureIcon();
+    method public float getIconSize();
+    method public float getSmallIconSize();
+    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> getSuccessIcon();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors successColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ConfirmationColors successColors(optional long iconColor, optional long iconContainerColor, optional long textColor);
+    method @androidx.compose.runtime.Composable public kotlin.jvm.functions.Function1<androidx.wear.compose.foundation.CurvedScope,kotlin.Unit> successText();
+    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> FailureIcon;
+    property public final float IconSize;
+    property public final float SmallIconSize;
+    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit> SuccessIcon;
+    field public static final long ConfirmationDurationMillis = 4000L; // 0xfa0L
+    field public static final androidx.wear.compose.material3.ConfirmationDefaults INSTANCE;
+  }
+
+  public final class ConfirmationKt {
+    method @androidx.compose.runtime.Composable public static void Confirmation(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? text, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ConfirmationColors colors, optional androidx.compose.ui.window.DialogProperties properties, optional long durationMillis, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Confirmation(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit>? curvedText, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ConfirmationColors colors, optional androidx.compose.ui.window.DialogProperties properties, optional long durationMillis, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void FailureConfirmation(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit>? curvedText, optional androidx.wear.compose.material3.ConfirmationColors colors, optional androidx.compose.ui.window.DialogProperties properties, optional long durationMillis, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void SuccessConfirmation(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.CurvedScope,kotlin.Unit>? curvedText, optional androidx.wear.compose.material3.ConfirmationColors colors, optional androidx.compose.ui.window.DialogProperties properties, optional long durationMillis, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
   public final class ContentColorKt {
@@ -1292,32 +1353,6 @@ package androidx.wear.compose.material3 {
     property public final androidx.compose.ui.text.TextStyle titleLarge;
     property public final androidx.compose.ui.text.TextStyle titleMedium;
     property public final androidx.compose.ui.text.TextStyle titleSmall;
-  }
-
-}
-
-package androidx.wear.compose.material3.dialog {
-
-  public final class AlertDialogDefaults {
-    method @androidx.compose.runtime.Composable public void BottomButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public void ConfirmButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public void DismissButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public void GroupSeparator();
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasBottomButton);
-    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getConfirmIcon();
-    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getDismissIcon();
-    method public float getEdgeButtonExtraTopPadding();
-    method public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
-    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> ConfirmIcon;
-    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> DismissIcon;
-    property public final androidx.compose.foundation.layout.Arrangement.Vertical VerticalArrangement;
-    property public final float edgeButtonExtraTopPadding;
-    field public static final androidx.wear.compose.material3.dialog.AlertDialogDefaults INSTANCE;
-  }
-
-  public final class AlertDialogKt {
-    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> bottomButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
-    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
   }
 
 }
