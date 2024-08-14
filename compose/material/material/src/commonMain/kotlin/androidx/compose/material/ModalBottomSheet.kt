@@ -507,7 +507,7 @@ private fun Scrim(color: Color, onDismiss: () -> Unit, visible: Boolean) {
             }
 
         Canvas(Modifier.fillMaxSize().then(dismissModifier)) {
-            drawRect(color = color, alpha = alpha)
+            drawRect(color = color, alpha = alpha.coerceIn(0f, 1f))
         }
     }
 }
