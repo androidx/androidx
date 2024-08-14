@@ -1172,6 +1172,31 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void SwipeToDismissBox(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissed, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.SwipeToDismissBoxState state, optional long backgroundScrimColor, optional long contentScrimColor, optional Object backgroundKey, optional Object contentKey, optional boolean userSwipeEnabled, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.layout.BoxScope,? super java.lang.Boolean,kotlin.Unit> content);
   }
 
+  public final class SwipeToRevealDefaults {
+    method public float getDoubleActionAnchorWidth();
+    method public float getLargeActionButtonHeight();
+    method public float getSingleActionAnchorWidth();
+    method public float getSmallActionButtonHeight();
+    property public final float DoubleActionAnchorWidth;
+    property public final float LargeActionButtonHeight;
+    property public final float SingleActionAnchorWidth;
+    property public final float SmallActionButtonHeight;
+    field public static final androidx.wear.compose.material3.SwipeToRevealDefaults INSTANCE;
+  }
+
+  public final class SwipeToRevealKt {
+    method @androidx.compose.runtime.Composable public static void SwipeToReveal(kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SwipeToRevealScope,kotlin.Unit> actions, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.RevealState revealState, optional float actionButtonHeight, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional int initialValue, optional float anchorWidth, optional boolean useAnchoredActions);
+  }
+
+  public final class SwipeToRevealScope {
+    ctor public SwipeToRevealScope();
+    method public void primaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, String label, optional long containerColor, optional long contentColor);
+    method public void secondaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, String label, optional long containerColor, optional long contentColor);
+    method public void undoPrimaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional long containerColor, optional long contentColor);
+    method public void undoSecondaryAction(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String label, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional long containerColor, optional long contentColor);
+  }
+
   @androidx.compose.runtime.Immutable public final class SwitchButtonColors {
     ctor public SwitchButtonColors(long checkedContainerColor, long checkedContentColor, long checkedSecondaryContentColor, long checkedIconColor, long checkedThumbColor, long checkedThumbIconColor, long checkedTrackBorderColor, long checkedTrackColor, long uncheckedContainerColor, long uncheckedContentColor, long uncheckedSecondaryContentColor, long uncheckedIconColor, long uncheckedThumbColor, long uncheckedTrackColor, long uncheckedTrackBorderColor, long disabledCheckedContainerColor, long disabledCheckedContentColor, long disabledCheckedSecondaryContentColor, long disabledCheckedIconColor, long disabledCheckedThumbColor, long disabledCheckedThumbIconColor, long disabledCheckedTrackColor, long disabledCheckedTrackBorderColor, long disabledUncheckedContainerColor, long disabledUncheckedContentColor, long disabledUncheckedSecondaryContentColor, long disabledUncheckedIconColor, long disabledUncheckedThumbColor, long disabledUncheckedTrackBorderColor);
     method public long getCheckedContainerColor();
