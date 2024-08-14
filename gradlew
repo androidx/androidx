@@ -16,6 +16,9 @@ if [ -n "$OUT_DIR" ] ; then
     OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export TMPDIR="$OUT_DIR/tmp"
+elif [[ $SCRIPT_PATH == /google/cog/* ]] ; then
+    export OUT_DIR="$HOME/androidxout"
+    export GRADLE_USER_HOME=~/.gradle
 else
     CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
