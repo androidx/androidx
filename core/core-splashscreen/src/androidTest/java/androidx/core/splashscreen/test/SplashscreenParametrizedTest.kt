@@ -19,6 +19,8 @@ package androidx.core.splashscreen.test
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Base64
+import android.util.Log
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.core.splashscreen.SplashScreenViewProvider
@@ -28,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.uiautomator.UiDevice
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -63,6 +66,8 @@ public class SplashscreenParametrizedTest(
                 arrayOf("AppCompat", SplashScreenAppCompatTestActivity::class)
             )
         }
+
+        const val TAG = "SplashscreenParameterizedTest"
     }
 
     @Before
@@ -310,6 +315,12 @@ public class SplashscreenParametrizedTest(
                 )
 
         if (!matcher.matches) {
+            // Serialize the screenshots and output them through Logcat so as to gather more details
+            // for debugging.
+            logLongMessage(Log::e, TAG, "before", beforeScreenshot.toBase64String())
+            logLongMessage(Log::e, TAG, "after", afterScreenshot.toBase64String())
+            matcher.diff?.let { logLongMessage(Log::e, TAG, "diff", it.toBase64String()) }
+
             val bundle = Bundle()
             val diff = matcher.diff?.writeToDevice("diff.png")
             bundle.putString("splashscreen_diff", diff?.absolutePath)
@@ -328,6 +339,50 @@ public class SplashscreenParametrizedTest(
                     "\nResult saved at $path"
             )
         }
+    }
+
+    /**
+     * A log message has a maximum of 4096 bytes, where date / time, tag, process, etc. included.
+     *
+     * Therefore, we should chunk a large message into some smaller ones.
+     */
+    private fun logLongMessage(
+        logger: (tag: String, msg: String) -> Int,
+        tag: String,
+        title: String,
+        msg: String
+    ) {
+        val chunks = msg.chunked(4000)
+        logger(tag, "$title ${chunks.size}")
+
+        for ((i, chunk) in chunks.withIndex()) {
+            logger(tag, title + " $i/${chunks.size} " + chunk)
+        }
+    }
+
+    /**
+     * Serialize a bitmap into a string in Base64 encoding so that we could output it through logs
+     * when comparisons fail.
+     */
+    private fun Bitmap.toBase64String(): String {
+        val scaledBitmap =
+            Bitmap.createScaledBitmap(
+                this,
+                // Reduce the size of the bitmap
+                width * 3 shr 2,
+                height * 3 shr 2,
+                false
+            )
+        val outputStream = ByteArrayOutputStream()
+        scaledBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outputStream)
+
+        val bytes = outputStream.toByteArray()
+        val str =
+            Base64.encodeToString(
+                bytes,
+                Base64.NO_WRAP // Not to wrap here as we are going to wrap on our own later
+            )
+        return str
     }
 
     private fun Bitmap.writeToDevice(name: String): File {
