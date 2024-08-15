@@ -21,22 +21,18 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
 import androidx.core.os.BuildCompat
-import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromCreateEntry
 import androidx.credentials.provider.CreateEntry.Companion.fromSlice
 import androidx.credentials.provider.CreateEntry.Companion.toSlice
+import androidx.credentials.provider.ui.UiUtils.Companion.testBiometricPromptData
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
-import javax.crypto.NullCipher
 import org.junit.Assert
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -208,13 +204,5 @@ class CreateEntryTest {
         private const val LAST_USED_TIME = 10L
         private val ICON =
             Icon.createWithBitmap(Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
-
-        @RequiresApi(35)
-        private fun testBiometricPromptData(): BiometricPromptData {
-            return BiometricPromptData.Builder()
-                .setCryptoObject(BiometricPrompt.CryptoObject(NullCipher()))
-                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-                .build()
-        }
     }
 }

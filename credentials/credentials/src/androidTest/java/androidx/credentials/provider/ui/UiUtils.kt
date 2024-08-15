@@ -22,13 +22,17 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Bundle
+import androidx.annotation.RequiresApi
+import androidx.biometric.BiometricManager
 import androidx.credentials.provider.Action
 import androidx.credentials.provider.AuthenticationAction
 import androidx.credentials.provider.BeginGetPasswordOption
+import androidx.credentials.provider.BiometricPromptData
 import androidx.credentials.provider.CreateEntry
 import androidx.credentials.provider.CredentialEntry
 import androidx.credentials.provider.PasswordCredentialEntry
 import androidx.credentials.provider.RemoteEntry
+import androidx.credentials.provider.utils.BiometricTestUtils
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 
@@ -105,5 +109,13 @@ class UiUtils {
         fun constructRemoteEntry(): RemoteEntry {
             return RemoteEntry(sPendingIntent)
         }
+
+        @JvmStatic
+        @RequiresApi(35)
+        fun testBiometricPromptData(): BiometricPromptData =
+            BiometricPromptData.Builder()
+                .setCryptoObject(BiometricTestUtils.createCryptoObject())
+                .setAllowedAuthenticators(BiometricManager.Authenticators.BIOMETRIC_STRONG)
+                .build()
     }
 }
