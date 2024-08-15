@@ -68,17 +68,17 @@ import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.viewinterop.LocalInteropContainer
 import androidx.compose.ui.viewinterop.TrackInteropPlacementContainer
 import androidx.compose.ui.viewinterop.UIKitInteropContainer
 import androidx.compose.ui.window.ComposeSceneKeyboardOffsetManager
 import androidx.compose.ui.window.ApplicationForegroundStateListener
 import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.GestureEvent
 import androidx.compose.ui.window.InteractionUIView
 import androidx.compose.ui.window.KeyboardVisibilityListener
 import androidx.compose.ui.window.RenderingUIView
-import androidx.compose.ui.window.CupertinoTouchesPhase
+import androidx.compose.ui.window.TouchesEventKind
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlinx.cinterop.CValue
@@ -102,7 +102,6 @@ import platform.UIKit.UIPress
 import platform.UIKit.UITouch
 import platform.UIKit.UITouchPhase
 import platform.UIKit.UIView
-import platform.UIKit.UIViewController
 import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.UIKit.UIWindow
 
@@ -266,14 +265,15 @@ internal class ComposeSceneMediator(
         renderingUIViewFactory(interopContainer, renderDelegate)
     }
 
-    private val applicationForegroundStateListener = ApplicationForegroundStateListener { isForeground ->
-        // Sometimes the application can trigger animation and go background before the animation is
-        // finished. The scheduled GPU work is performed, but no presentation can be done, causing
-        // mismatch between visual state and application state. This can be fixed by forcing
-        // a redraw when app returns to foreground, which will ensure that the visual state is in
-        // sync with the application state even if such sequence of events took a place.
-        renderingView.needRedraw()
-    }
+    private val applicationForegroundStateListener =
+        ApplicationForegroundStateListener { isForeground ->
+            // Sometimes the application can trigger animation and go background before the animation is
+            // finished. The scheduled GPU work is performed, but no presentation can be done, causing
+            // mismatch between visual state and application state. This can be fixed by forcing
+            // a redraw when app returns to foreground, which will ensure that the visual state is in
+            // sync with the application state even if such sequence of events took a place.
+            renderingView.needRedraw()
+        }
 
     /**
      * view, that contains [interopContainer] and [interactionView] and is added to [container]
@@ -284,7 +284,7 @@ internal class ComposeSceneMediator(
         InteractionUIView(
             hitTestInteropView = ::hitTestInteropView,
             onTouchesEvent = ::onTouchesEvent,
-            onTouchesCountChange = ::onTouchesCountChange,
+            onGestureEvent = ::onGestureEvent,
             inInteractionBounds = { point ->
                 val positionInContainer = point.useContents {
                     asDpOffset().toOffset(container.systemDensity).round()
@@ -302,10 +302,11 @@ internal class ComposeSceneMediator(
         requestRedraw = ::onComposeSceneInvalidate
     )
 
-    private val interactionBounds: IntRect get() {
-        val boundsLayout = _layout as? SceneLayout.Bounds
-        return boundsLayout?.interactionBounds ?: renderingViewBoundsInPx
-    }
+    private val interactionBounds: IntRect
+        get() {
+            val boundsLayout = _layout as? SceneLayout.Bounds
+            return boundsLayout?.interactionBounds ?: renderingViewBoundsInPx
+        }
 
     @OptIn(ExperimentalComposeApi::class)
     private val semanticsOwnerListener by lazy {
@@ -316,9 +317,9 @@ internal class ComposeSceneMediator(
                 configuration.accessibilitySyncOptions
             },
             convertToAppWindowCGRect = { rect, window ->
-               windowContext.convertWindowRect(rect, window)
-                   .toDpRect(Density(window.screen.scale.toFloat()))
-                   .asCGRect()
+                windowContext.convertWindowRect(rect, window)
+                    .toDpRect(Density(window.screen.scale.toFloat()))
+                    .asCGRect()
             },
             performEscape = {
                 val down = onKeyboardEvent(KeyEvent(Key.Escape, KeyEventType.KeyDown))
@@ -336,7 +337,9 @@ internal class ComposeSceneMediator(
             viewProvider = { viewForKeyboardOffsetTransform },
             composeSceneMediatorProvider = { this },
             onComposeSceneOffsetChanged = { offset ->
-                viewForKeyboardOffsetTransform.layer.setAffineTransform(CGAffineTransformMakeTranslation(0.0, -offset))
+                viewForKeyboardOffsetTransform.layer.setAffineTransform(
+                    CGAffineTransformMakeTranslation(0.0, -offset)
+                )
                 scene.invalidatePositionInWindow()
             }
         )
@@ -358,8 +361,19 @@ internal class ComposeSceneMediator(
         }
     }
 
-    private fun onTouchesCountChange(count: Int) {
-        val needHighFrequencyPolling: Boolean = count > 0
+    /**
+     * When there is an ongoing gesture, we need notify redrawer about it. It should unconditionally
+     * unpause CADisplayLink which affects frequency of polling UITouch events on high frequency
+     * display and force it to match display refresh rate.
+     *
+     * Otherwise [UIEvent]s will be dispatched with the 60hz frequency.
+     */
+    private fun onGestureEvent(gestureEvent: GestureEvent) {
+        val needHighFrequencyPolling =
+            when(gestureEvent) {
+                GestureEvent.BEGAN -> true
+                GestureEvent.ENDED -> false
+            }
         renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
     }
 
@@ -379,9 +393,14 @@ internal class ComposeSceneMediator(
      * @param view the [UIView] that received the touches
      * @param touches a [Set] of [UITouch] objects. Erasure happens due to K/N not supporting Obj-C lightweight generics.
      * @param event the [UIEvent] associated with the touches
-     * @param phase the [CupertinoTouchesPhase] of the touches
+     * @param phase the [TouchesEventKind] of the touches
      */
-    private fun onTouchesEvent(view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) {
+    private fun onTouchesEvent(
+        view: UIView,
+        touches: Set<*>,
+        event: UIEvent?,
+        phase: TouchesEventKind
+    ) {
         val pointers = touches.map {
             val touch = it as UITouch
             val id = touch.hashCode().toLong()
@@ -390,11 +409,11 @@ internal class ComposeSceneMediator(
                 id = PointerId(id),
                 position = position,
                 pressed = when (phase) {
-                    // When CMPGestureRecognizer is failed, all tracked touches are sent immediately
-                    // as CANCELLED. In this case, we should not consider the touch as pressed
-                    // despite them being on the screen. This is the last event for Compose in a
-                    // given gesture sequence and should be treated as such.
-                    CupertinoTouchesPhase.CANCELLED -> false
+                    // When CMPGestureRecognizer fails, it means that all touches are now redirected
+                    // to the interop view. They are still technically pressed, but Compose must
+                    // treat them as lifted because it's the last event that Compose receives
+                    // during this touch sequence.
+                    TouchesEventKind.REDIRECTED -> false
                     else -> touch.isPressed
                 },
                 type = PointerType.Touch,
@@ -603,9 +622,10 @@ internal class ComposeSceneMediator(
             )
         }
 
-    private val renderingViewBoundsInPx: IntRect get() = with(container.systemDensity) {
-        renderingView.frame.useContents { asDpRect().toRect().roundToIntRect() }
-    }
+    private val renderingViewBoundsInPx: IntRect
+        get() = with(container.systemDensity) {
+            renderingView.frame.useContents { asDpRect().toRect().roundToIntRect() }
+        }
 
     fun viewWillTransitionToSize(
         targetSize: CValue<CGSize>,
@@ -699,16 +719,28 @@ internal class ComposeSceneMediator(
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
 
         override fun convertLocalToWindowPosition(localPosition: Offset): Offset =
-            windowContext.convertLocalToWindowPosition(viewForKeyboardOffsetTransform, localPosition)
+            windowContext.convertLocalToWindowPosition(
+                viewForKeyboardOffsetTransform,
+                localPosition
+            )
 
         override fun convertWindowToLocalPosition(positionInWindow: Offset): Offset =
-            windowContext.convertWindowToLocalPosition(viewForKeyboardOffsetTransform, positionInWindow)
+            windowContext.convertWindowToLocalPosition(
+                viewForKeyboardOffsetTransform,
+                positionInWindow
+            )
 
         override fun convertLocalToScreenPosition(localPosition: Offset): Offset =
-            windowContext.convertLocalToScreenPosition(viewForKeyboardOffsetTransform, localPosition)
+            windowContext.convertLocalToScreenPosition(
+                viewForKeyboardOffsetTransform,
+                localPosition
+            )
 
         override fun convertScreenToLocalPosition(positionOnScreen: Offset): Offset =
-            windowContext.convertScreenToLocalPosition(viewForKeyboardOffsetTransform, positionOnScreen)
+            windowContext.convertScreenToLocalPosition(
+                viewForKeyboardOffsetTransform,
+                positionOnScreen
+            )
 
         override fun createDragAndDropManager(): PlatformDragAndDropManager {
             return object : PlatformDragAndDropManager {
@@ -763,12 +795,13 @@ private fun getConstraintsToCenterInParent(
     )
 }
 
-private fun CupertinoTouchesPhase.toPointerEventType(): PointerEventType =
+private fun TouchesEventKind.toPointerEventType(): PointerEventType =
     when (this) {
-        CupertinoTouchesPhase.BEGAN -> PointerEventType.Press
-        CupertinoTouchesPhase.MOVED -> PointerEventType.Move
-        CupertinoTouchesPhase.ENDED -> PointerEventType.Release
-        CupertinoTouchesPhase.CANCELLED -> PointerEventType.Release
+        TouchesEventKind.BEGAN -> PointerEventType.Press
+        TouchesEventKind.MOVED -> PointerEventType.Move
+
+        TouchesEventKind.ENDED, TouchesEventKind.CANCELLED, TouchesEventKind.REDIRECTED ->
+            PointerEventType.Release
     }
 
 private fun UIEvent.historicalChangesForTouch(

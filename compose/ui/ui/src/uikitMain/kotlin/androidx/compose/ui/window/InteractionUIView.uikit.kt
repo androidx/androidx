@@ -39,17 +39,53 @@ import platform.UIKit.UIGestureRecognizerStatePossible
 import platform.UIKit.UIPress
 import platform.UIKit.UIPressesEvent
 import platform.UIKit.UITouch
-import platform.UIKit.UITouchPhase
 import platform.UIKit.UIView
 import platform.UIKit.setState
 import platform.darwin.NSObject
 
 /**
- * Subset of [UITouchPhase] reflecting immediate phase when event is received by the [UIView] or
- * [UIGestureRecognizer].
+ * A reason for why touches are sent to Compose
  */
-internal enum class CupertinoTouchesPhase {
-    BEGAN, MOVED, ENDED, CANCELLED
+internal enum class TouchesEventKind {
+    /**
+     * [UIEvent] when `touchesBegan`
+     */
+    BEGAN,
+
+    /**
+     * [UIEvent] when `touchesMoved`
+     */
+    MOVED,
+
+    /**
+     * [UIEvent] when `touchesEnded`
+     */
+    ENDED,
+
+    /**
+     * [UIEvent] when `touchesCancelled`
+     */
+    CANCELLED,
+
+    /**
+     * Compose withdraws from processing touches. They are now processed by an interop view.
+     */
+    REDIRECTED
+}
+
+/**
+ * An event of gesture lifecycle change.
+ */
+internal enum class GestureEvent {
+    /**
+     * First touch in the sequence just happened.
+     */
+    BEGAN,
+
+    /**
+     * No more touches are present.
+     */
+    ENDED
 }
 
 private val UIGestureRecognizerState.isOngoing: Boolean
@@ -87,9 +123,9 @@ private enum class InteractionUIViewHitTestResult {
  * to control touches delivery to [UIView]s and their [UIGestureRecognizer]s in a fine-grain manner.
  */
 private class GestureRecognizerHandlerImpl(
-    private var onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) -> Unit,
+    private var onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: TouchesEventKind) -> Unit,
+    private var onGestureEvent: (GestureEvent) -> Unit,
     private var view: UIView?,
-    private val onTouchesCountChanged: (by: Int) -> Unit,
 ) : NSObject(), CMPGestureRecognizerHandlerProtocol {
     /**
      * The actual view that was hit-tested by the first touch in the sequence.
@@ -213,7 +249,7 @@ private class GestureRecognizerHandlerImpl(
 
         val areTouchesInitial = startTrackingTouches(touches)
 
-        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.BEGAN)
+        onTouchesEvent(trackedTouches, withEvent, TouchesEventKind.BEGAN)
 
         if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, immediately start/continue the gesture recognizer if possible and pass touches.
@@ -249,7 +285,7 @@ private class GestureRecognizerHandlerImpl(
      * 2. An interop view is hit-tested. In this case we should check if the pan intent is met.
      */
     override fun touchesMoved(touches: Set<*>, withEvent: UIEvent?) {
-        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.MOVED)
+        onTouchesEvent(trackedTouches, withEvent, TouchesEventKind.MOVED)
 
         if (gestureRecognizerState.isOngoing || hitTestResult == InteractionUIViewHitTestResult.SELF) {
             // Golden path, just update the gesture recognizer state and pass touches to
@@ -277,7 +313,7 @@ private class GestureRecognizerHandlerImpl(
      * we need to allow all the touches to be passed to the interop view by failing explicitly.
      */
     override fun touchesEnded(touches: Set<*>, withEvent: UIEvent?) {
-        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.ENDED)
+        onTouchesEvent(trackedTouches, withEvent, TouchesEventKind.ENDED)
 
         stopTrackingTouches(touches)
 
@@ -314,8 +350,8 @@ private class GestureRecognizerHandlerImpl(
      * we need to allow all the touches to be passed to the interop view by failing explicitly.
      */
     override fun touchesCancelled(touches: Set<*>, withEvent: UIEvent?) {
-        onTouchesEvent(trackedTouches, withEvent, CupertinoTouchesPhase.CANCELLED)
-        
+        onTouchesEvent(trackedTouches, withEvent, TouchesEventKind.CANCELLED)
+
         stopTrackingTouches(touches)
 
         if (hitTestResult == InteractionUIViewHitTestResult.SELF) {
@@ -334,6 +370,7 @@ private class GestureRecognizerHandlerImpl(
                 // Explicitly fail the gesture, cancelling a scheduled failure
                 gestureRecognizer?.cancelFailure()
 
+                // If touches were withheld, give it a chance to be passed to the interop view
                 gestureRecognizerState = UIGestureRecognizerStateFailed
             }
         }
@@ -350,13 +387,14 @@ private class GestureRecognizerHandlerImpl(
      * [UIGestureRecognizer.delaysTouchesBegan]
      */
     override fun onFailure() {
+        // Allow withheld touches to be passed to the interop view
         gestureRecognizerState = UIGestureRecognizerStateFailed
 
         // We won't receive other touches events until all fingers are lifted, so we can't rely
         // on touchesEnded/touchesCancelled to reset the state.  We need to immediately notify
-        // the runtime about the cancelled touches and reset the state manually
-        onTouchesEvent(trackedTouches, null, CupertinoTouchesPhase.CANCELLED)
-        stopTrackingTouches(trackedTouches)
+        // Compose about the redirected touches and reset the state manually.
+        onTouchesEvent(trackedTouches, null, TouchesEventKind.REDIRECTED)
+        stopTrackingAllTouches()
     }
 
     /**
@@ -365,6 +403,7 @@ private class GestureRecognizerHandlerImpl(
      */
     fun dispose() {
         onTouchesEvent = { _, _, _, _ -> }
+        onGestureEvent = {}
         gestureRecognizer = null
         trackedTouches.clear()
     }
@@ -381,9 +420,8 @@ private class GestureRecognizerHandlerImpl(
             trackedTouches.add(touch as UITouch)
         }
 
-        onTouchesCountChanged(touches.size)
-
         if (areTouchesInitial) {
+            onGestureEvent(GestureEvent.BEGAN)
             initialLocation = trackedTouchesCentroidLocation
         }
 
@@ -396,30 +434,46 @@ private class GestureRecognizerHandlerImpl(
     private fun checkPanIntent() {
         if (isLocationDeltaAboveSlop) {
             gestureRecognizer?.cancelFailure()
+
+            // When this gesture state transits to UIGestureRecognizerStateBegan, the gesture
+            // iOS stops withholding the intercepted touches and prevents them from being sent
+            // to the interop view.
             gestureRecognizerState = UIGestureRecognizerStateBegan
         }
     }
 
     /**
-     * Stops tracking the given touches. If there are no tracked touches left, reset the initial
-     * location to null.
+     * Stops tracking the given touches associated with [UIEvent]. If those are the last touches,
+     * end the gesture and reset internal state.
      */
     private fun stopTrackingTouches(touches: Set<*>) {
         for (touch in touches) {
             trackedTouches.remove(touch as UITouch)
         }
 
-        onTouchesCountChanged(-touches.size)
-
         if (trackedTouches.isEmpty()) {
-            initialLocation = null
+            onGestureEnded()
         }
+    }
+
+    /**
+     * Stops tracking all [trackedTouches]. End the gesture and reset internal state.
+     */
+    private fun stopTrackingAllTouches() {
+        trackedTouches.clear()
+
+        onGestureEnded()
+    }
+
+    private fun onGestureEnded() {
+        initialLocation = null
+        onGestureEvent(GestureEvent.ENDED)
     }
 
     private fun onTouchesEvent(
         touches: Set<*>,
         event: UIEvent?,
-        phase: CupertinoTouchesPhase
+        phase: TouchesEventKind
     ) {
         val view = view ?: return
 
@@ -433,8 +487,7 @@ private class GestureRecognizerHandlerImpl(
  *
  * @param hitTestInteropView A callback to find an [InteropView] at the given point.
  * @param onTouchesEvent A callback to notify the Compose runtime about touch events.
- * @param onTouchesCountChange A callback to notify the Compose runtime about the number of tracked
- * touches.
+ * @param onGestureEvent A callback to notify that touches sequence state has began or ended.
  * @param inInteractionBounds A callback to check if the given point is within the interaction
  * bounds as defined by the owning implementation.
  * @param onKeyboardPresses A callback to notify the Compose runtime about keyboard presses.
@@ -443,29 +496,19 @@ private class GestureRecognizerHandlerImpl(
  */
 internal class InteractionUIView(
     private var hitTestInteropView: (point: CValue<CGPoint>, event: UIEvent?) -> UIView?,
-    onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: CupertinoTouchesPhase) -> Unit,
-    private var onTouchesCountChange: (count: Int) -> Unit,
+    onTouchesEvent: (view: UIView, touches: Set<*>, event: UIEvent?, phase: TouchesEventKind) -> Unit,
+    onGestureEvent: (GestureEvent) -> Unit,
     private var inInteractionBounds: (CValue<CGPoint>) -> Boolean,
     private var onKeyboardPresses: (Set<*>) -> Unit,
 ) : UIView(CGRectZero.readValue()) {
     private val gestureRecognizerHandler = GestureRecognizerHandlerImpl(
         view = this,
         onTouchesEvent = onTouchesEvent,
-        onTouchesCountChanged = { touchesCount += it }
+        onGestureEvent = onGestureEvent
     )
 
     private val gestureRecognizer = CMPGestureRecognizer()
 
-    /**
-     * When there at least one tracked touch, we need notify redrawer about it. It should schedule
-     * CADisplayLink which affects frequency of polling UITouch events on high frequency display
-     * and forces it to match display refresh rate.
-     */
-    private var touchesCount = 0
-        set(value) {
-            field = value
-            onTouchesCountChange(value)
-        }
 
     init {
         multipleTouchEnabled = true
@@ -530,7 +573,6 @@ internal class InteractionUIView(
 
         hitTestInteropView = { _, _ -> null }
 
-        onTouchesCountChange = {}
         inInteractionBounds = { false }
         onKeyboardPresses = {}
     }

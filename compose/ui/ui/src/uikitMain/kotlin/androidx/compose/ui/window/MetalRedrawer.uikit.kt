@@ -177,7 +177,8 @@ internal class MetalRedrawer(
         }
 
     /**
-     * Set to `true` if need always running invalidation-independent displayLink for forcing UITouch events to come at the fastest possible cadence.
+     * Set to `true` if need always running invalidation-independent displayLink for forcing UITouch
+     * events to come at the fastest possible cadence.
      * Otherwise, touch events can come at rate lower than actual display refresh rate.
      */
     var needsProactiveDisplayLink: Boolean
