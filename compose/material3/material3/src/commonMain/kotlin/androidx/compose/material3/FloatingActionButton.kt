@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
@@ -56,18 +57,33 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.CacheDrawModifierNode
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.drawscope.inset
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.layer.drawLayer
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.lerp
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -176,6 +192,10 @@ private fun FloatingActionButton(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/small-fab.png)
  *
  * @sample androidx.compose.material3.samples.SmallFloatingActionButtonSample
+ *
+ * FABs can also be shown and hidden with an animation when the main content is scrolled:
+ *
+ * @sample androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -228,6 +248,10 @@ fun SmallFloatingActionButton(
  * The FAB represents the most important action on a screen. It puts key actions within reach.
  *
  * @sample androidx.compose.material3.samples.MediumFloatingActionButtonSample
+ *
+ * FABs can also be shown and hidden with an animation when the main content is scrolled:
+ *
+ * @sample androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -285,6 +309,10 @@ fun MediumFloatingActionButton(
  * image](https://developer.android.com/images/reference/androidx/compose/material3/large-fab.png)
  *
  * @sample androidx.compose.material3.samples.LargeFloatingActionButtonSample
+ *
+ * FABs can also be shown and hidden with an animation when the main content is scrolled:
+ *
+ * @sample androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
  * @param onClick called when this FAB is clicked
  * @param modifier the [Modifier] to be applied to this FAB
  * @param shape defines the shape of this FAB's container and shadow (when using [elevation])
@@ -944,6 +972,8 @@ private fun ExtendedFloatingActionButton(
 
 /** Contains the default values used by [FloatingActionButton] */
 object FloatingActionButtonDefaults {
+    internal val ShowHideTargetScale = 0.2f
+
     /** The recommended size of the icon inside a [MediumFloatingActionButton]. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
@@ -1072,6 +1102,148 @@ object FloatingActionButtonDefaults {
             focusedElevation,
             hoveredElevation
         )
+}
+
+/**
+ * Apply this modifier to a [FloatingActionButton] to show or hide it with an animation, typically
+ * based on the app's main content scrolling.
+ *
+ * @param visible whether the FAB should be shown or hidden with an animation
+ * @param alignment the direction towards which the FAB should be scaled to and from
+ * @param targetScale the initial scale value when showing the FAB and the final scale value when
+ *   hiding the FAB
+ * @param scaleAnimationSpec the [AnimationSpec] to use for the scale part of the animation, if null
+ *   the Fast Spatial spring spec from the [MotionScheme] will be used
+ * @param alphaAnimationSpec the [AnimationSpec] to use for the alpha part of the animation, if null
+ *   the Fast Effects spring spec from the [MotionScheme] will be used
+ * @sample androidx.compose.material3.samples.AnimatedFloatingActionButtonSample
+ */
+@ExperimentalMaterial3ExpressiveApi
+fun Modifier.animateFloatingActionButton(
+    visible: Boolean,
+    alignment: Alignment,
+    targetScale: Float = FloatingActionButtonDefaults.ShowHideTargetScale,
+    scaleAnimationSpec: AnimationSpec<Float>? = null,
+    alphaAnimationSpec: AnimationSpec<Float>? = null
+): Modifier {
+    return this.then(
+        FabVisibleModifier(
+            visible = visible,
+            alignment = alignment,
+            targetScale = targetScale,
+            scaleAnimationSpec = scaleAnimationSpec,
+            alphaAnimationSpec = alphaAnimationSpec
+        )
+    )
+}
+
+internal data class FabVisibleModifier(
+    private val visible: Boolean,
+    private val alignment: Alignment,
+    private val targetScale: Float,
+    private val scaleAnimationSpec: AnimationSpec<Float>? = null,
+    private val alphaAnimationSpec: AnimationSpec<Float>? = null
+) : ModifierNodeElement<FabVisibleNode>() {
+
+    override fun create(): FabVisibleNode =
+        FabVisibleNode(
+            visible = visible,
+            alignment = alignment,
+            targetScale = targetScale,
+            scaleAnimationSpec = scaleAnimationSpec,
+            alphaAnimationSpec = alphaAnimationSpec,
+        )
+
+    override fun update(node: FabVisibleNode) {
+        node.updateNode(
+            visible = visible,
+            alignment = alignment,
+            targetScale = targetScale,
+            scaleAnimationSpec = scaleAnimationSpec,
+            alphaAnimationSpec = alphaAnimationSpec,
+        )
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        // Show nothing in the inspector.
+    }
+}
+
+internal class FabVisibleNode(
+    visible: Boolean,
+    private var alignment: Alignment,
+    private var targetScale: Float,
+    private var scaleAnimationSpec: AnimationSpec<Float>? = null,
+    private var alphaAnimationSpec: AnimationSpec<Float>? = null,
+) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+
+    private val scaleAnimatable = Animatable(if (visible) 1f else 0f)
+    private val alphaAnimatable = Animatable(if (visible) 1f else 0f)
+
+    val delegate =
+        delegate(
+            CacheDrawModifierNode {
+                val layer = obtainGraphicsLayer()
+                // Use a larger layer size to make sure the elevation shadow doesn't get clipped
+                // and offset via layer.topLeft and DrawScope.inset to preserve the visual
+                // position of the FAB.
+                val layerInsetSize = 16.dp.toPx()
+                val layerSize =
+                    Size(size.width + layerInsetSize * 2f, size.height + layerInsetSize * 2f)
+                        .toIntSize()
+                val nodeSize = size.toIntSize()
+
+                layer.apply {
+                    topLeft = IntOffset(-layerInsetSize.roundToInt(), -layerInsetSize.roundToInt())
+
+                    alpha = alphaAnimatable.value
+
+                    // Scale towards the direction of the provided alignment
+                    val alignOffset = alignment.align(IntSize(1, 1), nodeSize, layoutDirection)
+                    pivotOffset = alignOffset.toOffset() + Offset(layerInsetSize, layerInsetSize)
+                    scaleX = lerp(targetScale, 1f, scaleAnimatable.value)
+                    scaleY = lerp(targetScale, 1f, scaleAnimatable.value)
+
+                    record(size = layerSize) {
+                        inset(layerInsetSize, layerInsetSize) { this@record.drawContent() }
+                    }
+                }
+
+                onDrawWithContent { drawLayer(layer) }
+            }
+        )
+
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+    fun updateNode(
+        visible: Boolean,
+        alignment: Alignment,
+        targetScale: Float,
+        scaleAnimationSpec: AnimationSpec<Float>?,
+        alphaAnimationSpec: AnimationSpec<Float>?
+    ) {
+        this.alignment = alignment
+        this.targetScale = targetScale
+        this.scaleAnimationSpec = scaleAnimationSpec
+        this.alphaAnimationSpec = alphaAnimationSpec
+
+        coroutineScope.launch {
+            // TODO Load the motionScheme tokens from the component tokens file
+            scaleAnimatable.animateTo(
+                targetValue = if (visible) 1f else 0f,
+                animationSpec =
+                    scaleAnimationSpec ?: currentValueOf(LocalMotionScheme).fastSpatialSpec()
+            )
+        }
+
+        coroutineScope.launch {
+            // TODO Load the motionScheme tokens from the component tokens file
+            alphaAnimatable.animateTo(
+                targetValue = if (visible) 1f else 0f,
+                animationSpec =
+                    alphaAnimationSpec ?: currentValueOf(LocalMotionScheme).fastEffectsSpec()
+            )
+        }
+    }
 }
 
 /**
