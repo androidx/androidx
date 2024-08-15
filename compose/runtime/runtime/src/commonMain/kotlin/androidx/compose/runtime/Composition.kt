@@ -666,6 +666,26 @@ internal class CompositionImpl(
         }
     }
 
+    // Drain the modification out of the normal recordModificationsOf(), composition() cycle.
+    // This avoids the checks to make sure the two calls are called in order.
+    @Suppress("UNCHECKED_CAST")
+    private fun drainPendingModificationsOutOfBandLocked() {
+        when (val toRecord = pendingModifications.getAndSet(emptySet<Any>())) {
+            PendingApplyNoModifications,
+            null -> {
+                // No work to do
+            }
+            is Set<*> -> {
+                addPendingInvalidationsLocked(toRecord as Set<Any>, forgetConditionalScopes = false)
+            }
+            is Array<*> ->
+                for (changed in toRecord as Array<Set<Any>>) {
+                    addPendingInvalidationsLocked(changed, forgetConditionalScopes = false)
+                }
+            else -> composeRuntimeError("corrupt pendingModifications drain: $pendingModifications")
+        }
+    }
+
     override fun composeContent(content: @Composable () -> Unit) {
         // TODO: This should raise a signal to any currently running recompose calls
         //   to halt and return
@@ -690,7 +710,7 @@ internal class CompositionImpl(
 
     internal fun updateMovingInvalidations() {
         synchronized(lock) {
-            drainPendingModificationsForCompositionLocked()
+            drainPendingModificationsOutOfBandLocked()
             guardInvalidationsLocked { invalidations ->
                 composer.updateComposerInvalidations(invalidations)
             }
