@@ -306,7 +306,7 @@ internal fun NavigationItem(
             icon = iconWithBadge,
             iconPosition = iconPosition,
             label = styledLabel,
-            indicatorAnimationProgress = { indicatorAnimationProgress.value },
+            indicatorAnimationProgress = { indicatorAnimationProgress.value.coerceAtLeast(0f) },
             indicatorHorizontalPadding = indicatorHorizontalPadding,
             indicatorVerticalPadding = indicatorVerticalPadding,
             indicatorToLabelVerticalPadding = indicatorToLabelVerticalPadding,
