@@ -63,6 +63,7 @@ class XExecutableTypeTest {
                             .trimIndent()
                     )
                 ),
+            // https://github.com/google/ksp/issues/1642
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             fun checkConstructor(className: String) {

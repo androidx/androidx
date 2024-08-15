@@ -172,6 +172,7 @@ class MethodSpecHelperTest(
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1640
         overridesCheck(source, kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS)
     }
 

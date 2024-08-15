@@ -168,6 +168,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1890
         runTest(sources = listOf(javaSrc, kotlinSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             val typeElement = invocation.processingEnv.requireTypeElement("Foo")
@@ -475,7 +476,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        runTest(listOf(mySource), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
+        runTest(listOf(mySource)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("Subject")
             val annotation = element.requireAnnotation<MainAnnotation>()
 
@@ -947,6 +948,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1883
         runTest(sources = listOf(javaSrc, kotlinSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             listOf("JavaSubject", "KotlinSubject")
@@ -1204,6 +1206,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
                             .trimIndent()
                     )
                 ),
+            // https://github.com/google/ksp/issues/1882
             kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
@@ -1337,6 +1340,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             )
 
         listOf(javaSource, kotlinSource).forEach { source ->
+            // https://github.com/google/ksp/issues/1882
             runTest(sources = listOf(source), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation
                 ->
                 fun XAnnotated.getAllAnnotationTypeElements(): List<XTypeElement> {

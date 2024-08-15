@@ -68,6 +68,7 @@ class FallbackLocationInformationTest {
         runProcessorTest(
             sources = listOf(placeholder),
             classpath = dependency,
+            // https://github.com/google/ksp/issues/1865
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val kotlinSubject = invocation.processingEnv.requireTypeElement("foo.bar.KotlinSubject")

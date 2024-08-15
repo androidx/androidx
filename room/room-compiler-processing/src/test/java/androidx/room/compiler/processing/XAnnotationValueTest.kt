@@ -1338,6 +1338,7 @@ class XAnnotationValueTest(
                 """
                         .trimIndent()
                 ) as Source.KotlinSource,
+            // https://github.com/google/ksp/issues/1933
             kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
         ) { invocation ->
             val classJTypeName =
@@ -1459,8 +1460,7 @@ class XAnnotationValueTest(
                         @MyAnnotation(stringParam = "2") MyInterface
                 """
                         .trimIndent()
-                ) as Source.KotlinSource,
-            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
+                ) as Source.KotlinSource
         ) { invocation ->
             val annotation = getAnnotation(invocation)
             // Compare the AnnotationSpec string ignoring whitespace
@@ -1583,8 +1583,7 @@ class XAnnotationValueTest(
                 MyInterface
                 """
                         .trimIndent()
-                ) as Source.KotlinSource,
-            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
+                ) as Source.KotlinSource
         ) { invocation ->
             val aJTypeName = JClassName.get("test", "A")
             val aKTypeName = KClassName("test", "A")

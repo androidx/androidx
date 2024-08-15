@@ -222,7 +222,7 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        runTest(listOf(mySource), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) { invocation ->
+        runTest(listOf(mySource)) { invocation ->
             val element = invocation.processingEnv.requireTypeElement("Subject")
             element.getAnnotation(MainAnnotation::class)!!.let { annotation ->
                 assertThat(annotation.getAsTypeList("typeList").map { it.asTypeName() })
@@ -430,6 +430,7 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1963
         runTest(sources = listOf(kotlinSrc, javaSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             listOf("KotlinClass", "JavaClass")
@@ -642,6 +643,7 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
+        // https://github.com/google/ksp/issues/1883
         runTest(sources = listOf(javaSrc, kotlinSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             listOf("JavaSubject", "KotlinSubject")
