@@ -17,13 +17,11 @@
 package androidx.camera.view;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalCameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -73,7 +71,6 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
         return mProcessCameraProvider.shutdownAsync();
     }
 
-    @OptIn(markerClass = ExperimentalCameraInfo.class)
     @NonNull
     @Override
     public CameraInfo getCameraInfo(CameraSelector cameraSelector) {

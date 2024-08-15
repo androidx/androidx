@@ -72,7 +72,6 @@ import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.ConcurrentCamera;
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig;
 import androidx.camera.core.DynamicRange;
-import androidx.camera.core.ExperimentalCameraInfo;
 import androidx.camera.core.ExperimentalMirrorMode;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
@@ -839,7 +838,7 @@ public class ConcurrentCameraActivity extends AppCompatActivity {
     }
 
     @SuppressLint({"MissingPermission", "NullAnnotationGroup"})
-    @OptIn(markerClass = { ExperimentalCameraInfo.class, ExperimentalPersistentRecording.class})
+    @OptIn(markerClass = ExperimentalPersistentRecording.class)
     private void setUpRecordButton() {
         mRecordUi.getButtonRecord().setOnClickListener((view) -> {
             RecordUi.State state = mRecordUi.getState();

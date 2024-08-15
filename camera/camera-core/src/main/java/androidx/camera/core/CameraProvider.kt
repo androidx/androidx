@@ -88,7 +88,6 @@ public interface CameraProvider {
      * @throws IllegalArgumentException if the given [CameraSelector] can't result in a valid camera
      *   to provide the [CameraInfo].
      */
-    @ExperimentalCameraInfo
     public fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         throw UnsupportedOperationException("The camera provider is not implemented properly.")
     }
