@@ -101,9 +101,7 @@ class CanvasFrontBufferedRendererTest {
             }
         ) { scenario, renderer, surfaceView ->
             renderLatch.set(CountDownLatch(1))
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
-                renderer.renderFrontBufferedLayer(Any())
-            }
+            scenario.onActivity { renderer.renderFrontBufferedLayer(Any()) }
             Assert.assertTrue(renderLatch.get()!!.await(3000, TimeUnit.MILLISECONDS))
 
             val coords = IntArray(2)
@@ -174,15 +172,13 @@ class CanvasFrontBufferedRendererTest {
                     // NO-OP
                 }
             }
-        ) { scenario, _, surfaceView ->
+        ) { _, _, surfaceView ->
             val paramLatch = CountDownLatch(1)
             surfaceView.post {
                 surfaceView.layoutParams = FrameLayout.LayoutParams(width, height)
                 paramLatch.countDown()
             }
             paramLatch.await()
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
         }
     }
 
@@ -232,7 +228,7 @@ class CanvasFrontBufferedRendererTest {
             }
         ) { scenario, renderer, surfaceView ->
             renderLatch.set(CountDownLatch(1))
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            scenario.onActivity {
                 renderer.renderFrontBufferedLayer(Any())
                 renderer.commit()
             }
@@ -516,7 +512,7 @@ class CanvasFrontBufferedRendererTest {
             }
         ) { scenario, renderer, surfaceView ->
             renderLatch.set(CountDownLatch(2))
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            scenario.onActivity {
                 with(renderer) {
                     renderFrontBufferedLayer(Color.BLUE)
                     commit()
@@ -605,14 +601,10 @@ class CanvasFrontBufferedRendererTest {
         var renderer: CanvasFrontBufferedRenderer<Float>? = null
         var surfaceView: SurfaceView? = null
         try {
-            val scenario =
-                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                    .moveToState(Lifecycle.State.CREATED)
-                    .onActivity {
-                        surfaceView = it.getSurfaceView().apply { setZOrderOnTop(true) }
-                        renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
-                    }
-            scenario.moveToState(Lifecycle.State.RESUMED)
+            ActivityScenario.launch(SurfaceViewTestActivity::class.java).onActivity {
+                surfaceView = it.getSurfaceView().apply { setZOrderOnTop(true) }
+                renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks)
+            }
 
             assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -1424,14 +1416,11 @@ class CanvasFrontBufferedRendererTest {
         var scenario: ActivityScenario<SurfaceViewTestActivity>? = null
         try {
             scenario =
-                ActivityScenario.launch(SurfaceViewTestActivity::class.java)
-                    .moveToState(Lifecycle.State.CREATED)
-                    .onActivity {
-                        surfaceView = it.getSurfaceView()
-                        renderer = CanvasFrontBufferedRenderer<T>(surfaceView!!, wrappedCallbacks)
-                        it.setOnDestroyCallback { destroyLatch.countDown() }
-                    }
-            scenario.moveToState(Lifecycle.State.RESUMED)
+                ActivityScenario.launch(SurfaceViewTestActivity::class.java).onActivity {
+                    surfaceView = it.getSurfaceView()
+                    renderer = CanvasFrontBufferedRenderer<T>(surfaceView!!, wrappedCallbacks)
+                    it.setOnDestroyCallback { destroyLatch.countDown() }
+                }
             assertTrue(firstRenderLatch.await(3000, TimeUnit.MILLISECONDS))
             block(scenario, renderer!!, surfaceView!!)
         } finally {
