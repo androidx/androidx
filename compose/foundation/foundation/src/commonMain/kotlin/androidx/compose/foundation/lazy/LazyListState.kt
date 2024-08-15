@@ -155,7 +155,9 @@ constructor(
         LazyListScrollPosition(firstVisibleItemIndex, firstVisibleItemScrollOffset)
 
     /**
-     * The index of the first item that is visible.
+     * The index of the first item that is visible within the scrollable viewport area not including
+     * items in the content padding region. For the first visible item that includes items in the
+     * content padding please use [LazyListLayoutInfo.visibleItemsInfo].
      *
      * Note that this property is observable and if you use it in the composable function it will be
      * recomposed on every change causing potential performance issues.

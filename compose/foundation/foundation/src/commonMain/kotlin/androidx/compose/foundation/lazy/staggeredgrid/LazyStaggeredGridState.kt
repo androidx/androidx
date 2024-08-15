@@ -104,7 +104,9 @@ internal constructor(
     )
 
     /**
-     * Index of the first visible item across all staggered grid lanes.
+     * Index of the first visible item across all staggered grid lanes. This does not include items
+     * in the content padding region. For the first visible item that includes items in the content
+     * padding please use [LazyStaggeredGridLayoutInfo.visibleItemsInfo].
      *
      * This property is observable and when use it in composable function it will be recomposed on
      * each scroll, potentially causing performance issues.
