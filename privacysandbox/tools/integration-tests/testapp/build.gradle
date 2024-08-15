@@ -27,6 +27,8 @@ android {
         applicationId "androidx.privacysandbox.tools.integration.testapp"
         minSdk 33
         compileSdk 35
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     experimentalProperties["android.privacySandboxSdk.apiGenerator"] =
             project.dependencies.create(project(":privacysandbox:tools:tools-apigenerator"))
@@ -52,4 +54,14 @@ dependencies {
     implementation(libs.material)
     implementation(libs.constraintLayout)
     implementation(libs.kotlinCoroutinesAndroid)
+
+    androidTestImplementation(project(":activity:activity"))
+    androidTestImplementation(project(":internal-testutils-runtime"))
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.junit)
 }
