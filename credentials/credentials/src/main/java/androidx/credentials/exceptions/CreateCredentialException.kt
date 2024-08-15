@@ -36,14 +36,18 @@ internal constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val type: String,
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) open val errorMessage: CharSequence? = null
 ) : Exception(errorMessage?.toString()) {
-    internal companion object {
+    companion object {
         private const val EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_EXCEPTION_TYPE"
         private const val EXTRA_CREATE_CREDENTIAL_EXCEPTION_MESSAGE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_EXCEPTION_MESSAGE"
 
+        /**
+         * Helper method to convert the given [ex] to a parcelable [Bundle], in case the instance
+         * needs to be sent across a process. Consumers of this method should use [fromBundle] to
+         * reconstruct the class instance back from the bundle returned here.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun asBundle(ex: CreateCredentialException): Bundle {
             val bundle = Bundle()
             bundle.putString(EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE, ex.type)
@@ -53,10 +57,20 @@ internal constructor(
             return bundle
         }
 
+        /**
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [CreateCredentialException].
+         *
+         * Throws [IllegalArgumentException] if the conversion fails. This means that the given
+         * [bundle] does not contain a `CreateCredentialException`. The bundle should be constructed
+         * and retrieved from [asBundle] itself and never be created from scratch to avoid the
+         * failure.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromBundle(bundle: Bundle): CreateCredentialException? {
-            val type = bundle.getString(EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE) ?: return null
+        fun fromBundle(bundle: Bundle): CreateCredentialException {
+            val type =
+                bundle.getString(EXTRA_CREATE_CREDENTIAL_EXCEPTION_TYPE)
+                    ?: throw IllegalArgumentException("Bundle was missing exception type.")
             val msg = bundle.getCharSequence(EXTRA_CREATE_CREDENTIAL_EXCEPTION_MESSAGE)
             return toJetpackCreateException(type, msg)
         }

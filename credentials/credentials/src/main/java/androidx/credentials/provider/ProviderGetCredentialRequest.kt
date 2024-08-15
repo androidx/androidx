@@ -18,7 +18,6 @@ package androidx.credentials.provider
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
 import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
@@ -54,7 +53,7 @@ constructor(
     val callingAppInfo: CallingAppInfo,
     val biometricPromptResult: BiometricPromptResult? = null,
 ) {
-    internal companion object {
+    companion object {
         @JvmStatic
         internal fun createFrom(
             options: List<CredentialOption>,
@@ -77,8 +76,12 @@ constructor(
         private const val EXTRA_CREDENTIAL_OPTION_ALLOWED_PROVIDERS_PREFIX =
             "androidx.credentials.provider.extra.CREDENTIAL_OPTION_ALLOWED_PROVIDERS_"
 
+        /**
+         * Helper method to convert the given [request] to a parcelable [Bundle], in case the
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun asBundle(request: ProviderGetCredentialRequest): Bundle {
             val bundle = Bundle()
             val optionSize = request.credentialOptions.size
@@ -107,23 +110,41 @@ constructor(
             return bundle
         }
 
+        /**
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [ProviderGetCredentialRequest].
+         *
+         * Throws [IllegalArgumentException] if the conversion fails. This means that the given
+         * [bundle] does not contain a `ProviderGetCredentialRequest`. The bundle should be
+         * constructed and retrieved from [asBundle] itself and never be created from scratch to
+         * avoid the failure.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromBundle(bundle: Bundle): ProviderGetCredentialRequest? {
-            val callingAppInfo = extractCallingAppInfo(bundle) ?: return null
+        fun fromBundle(bundle: Bundle): ProviderGetCredentialRequest {
+            val callingAppInfo =
+                extractCallingAppInfo(bundle)
+                    ?: throw IllegalArgumentException("Bundle was missing CallingAppInfo.")
             val optionSize = bundle.getInt(EXTRA_CREDENTIAL_OPTION_SIZE, -1)
             if (optionSize < 0) {
-                return null
+                throw IllegalArgumentException("Bundle had invalid option size as $optionSize.")
             }
             val options = mutableListOf<CredentialOption>()
             for (i in 0 until optionSize) {
-                val type = bundle.getString("$EXTRA_CREDENTIAL_OPTION_TYPE_PREFIX$i") ?: return null
+                val type =
+                    bundle.getString("$EXTRA_CREDENTIAL_OPTION_TYPE_PREFIX$i")
+                        ?: throw IllegalArgumentException(
+                            "Bundle was missing option type at index $optionSize."
+                        )
                 val candidateQueryData =
                     bundle.getBundle("$EXTRA_CREDENTIAL_OPTION_CANDIDATE_QUERY_DATA_PREFIX$i")
-                        ?: return null
+                        ?: throw IllegalArgumentException(
+                            "Bundle was missing candidate query data at index $optionSize."
+                        )
                 val requestData =
                     bundle.getBundle("$EXTRA_CREDENTIAL_OPTION_CREDENTIAL_RETRIEVAL_DATA_PREFIX$i")
-                        ?: return null
+                        ?: throw IllegalArgumentException(
+                            "Bundle was missing request data at index $optionSize."
+                        )
                 val isSystemProviderRequired =
                     bundle.getBoolean(
                         "$EXTRA_CREDENTIAL_OPTION_IS_SYSTEM_PROVIDER_REQUIRED_PREFIX$i",

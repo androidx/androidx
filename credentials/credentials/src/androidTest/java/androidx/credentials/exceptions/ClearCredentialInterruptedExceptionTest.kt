@@ -57,7 +57,7 @@ class ClearCredentialInterruptedExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -74,7 +74,7 @@ class ClearCredentialInterruptedExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

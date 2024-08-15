@@ -16,26 +16,47 @@
 
 package androidx.credentials.provider
 
-import android.content.pm.SigningInfo
+import android.os.Bundle
+import androidx.credentials.assertEquals
 import androidx.credentials.equals
+import androidx.credentials.getTestCallingAppInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ProviderClearCredentialStateRequestTest {
 
     @Test
     fun testConstructor_success() {
-        val callingAppInfo = CallingAppInfo("sample_package_name", SigningInfo())
+        val callingAppInfo = getTestCallingAppInfo("origin")
 
         val request = ProviderClearCredentialStateRequest(callingAppInfo)
 
         assertThat(equals(callingAppInfo, request.callingAppInfo)).isTrue()
+    }
+
+    @Test
+    fun bundleConversion_success() {
+        val callingAppInfo = getTestCallingAppInfo("origin")
+        val request = ProviderClearCredentialStateRequest(callingAppInfo)
+
+        val actualRequest =
+            ProviderClearCredentialStateRequest.fromBundle(
+                ProviderClearCredentialStateRequest.asBundle(request)
+            )
+
+        assertEquals(request, actualRequest)
+    }
+
+    @Test
+    fun bundleConversion_emptyBundle_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ProviderClearCredentialStateRequest.fromBundle(Bundle())
+        }
     }
 }

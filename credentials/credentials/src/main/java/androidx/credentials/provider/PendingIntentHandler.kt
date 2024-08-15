@@ -286,9 +286,13 @@ class PendingIntentHandler {
             fun retrieveProviderCreateCredentialRequest(
                 intent: Intent
             ): ProviderCreateCredentialRequest? {
-                return ProviderCreateCredentialRequest.fromBundle(
-                    intent.getBundleExtra(EXTRA_CREATE_CREDENTIAL_REQUEST) ?: return null
-                )
+                return try {
+                    ProviderCreateCredentialRequest.fromBundle(
+                        intent.getBundleExtra(EXTRA_CREATE_CREDENTIAL_REQUEST) ?: return null
+                    )
+                } catch (e: Exception) {
+                    null
+                }
             }
 
             private const val EXTRA_BEGIN_GET_CREDENTIAL_REQUEST =
@@ -342,9 +346,13 @@ class PendingIntentHandler {
             fun retrieveProviderGetCredentialRequest(
                 intent: Intent
             ): ProviderGetCredentialRequest? {
-                return ProviderGetCredentialRequest.fromBundle(
-                    intent.getBundleExtra(EXTRA_GET_CREDENTIAL_REQUEST) ?: return null
-                )
+                return try {
+                    ProviderGetCredentialRequest.fromBundle(
+                        intent.getBundleExtra(EXTRA_GET_CREDENTIAL_REQUEST) ?: return null
+                    )
+                } catch (e: Exception) {
+                    null
+                }
             }
 
             private const val EXTRA_GET_CREDENTIAL_RESPONSE =

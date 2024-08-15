@@ -55,7 +55,7 @@ class ClearCredentialUnsupportedExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialUnsupportedException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialUnsupportedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -70,7 +70,7 @@ class ClearCredentialUnsupportedExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialUnsupportedException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialUnsupportedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

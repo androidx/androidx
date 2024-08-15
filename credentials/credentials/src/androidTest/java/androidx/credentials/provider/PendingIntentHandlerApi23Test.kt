@@ -20,7 +20,6 @@ import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Icon
 import android.os.Binder
@@ -47,6 +46,7 @@ import androidx.credentials.exceptions.CreateCredentialInterruptedException
 import androidx.credentials.exceptions.GetCredentialException
 import androidx.credentials.exceptions.domerrors.NotAllowedError
 import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialDomException
+import androidx.credentials.getTestCallingAppInfo
 import androidx.credentials.internal.getFinalCreateCredentialData
 import androidx.credentials.provider.PendingIntentHandler.Api23Impl.Companion.extractBeginGetCredentialResponse
 import androidx.credentials.provider.PendingIntentHandler.Api23Impl.Companion.extractCreateCredentialException
@@ -74,7 +74,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
-import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -434,24 +433,6 @@ class PendingIntentHandlerApi23Test {
         val actual: CreateCredentialException = intent.extractCreateCredentialException()!!
         assertThat(actual.type).isEqualTo(expected.type)
         assertThat(actual.errorMessage).isEqualTo(expected.errorMessage)
-    }
-
-    @Throws(Exception::class)
-    private fun getTestCallingAppInfo(origin: String?): CallingAppInfo {
-        val packageName = mContext.packageName
-        if (Build.VERSION.SDK_INT >= 28) {
-            val packageInfo =
-                mContext.packageManager.getPackageInfo(
-                    packageName,
-                    PackageManager.GET_SIGNING_CERTIFICATES
-                )
-            Assert.assertNotNull(packageInfo.signingInfo)
-            return CallingAppInfo(packageName, packageInfo.signingInfo!!, origin)
-        } else {
-            val packageInfo =
-                mContext.packageManager.getPackageInfo(packageName, PackageManager.GET_SIGNATURES)
-            return CallingAppInfo(packageName, packageInfo.signatures!!.filterNotNull(), origin)
-        }
     }
 
     companion object {

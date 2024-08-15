@@ -17,7 +17,6 @@
 package androidx.credentials.provider
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
 import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
 
@@ -32,19 +31,33 @@ import androidx.credentials.provider.CallingAppInfo.Companion.setCallingAppInfo
  * production flow. This constructor must only be used for testing purposes.
  */
 class ProviderClearCredentialStateRequest constructor(val callingAppInfo: CallingAppInfo) {
-    internal companion object {
+    companion object {
+        /**
+         * Helper method to convert the given [request] to a parcelable [Bundle], in case the
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         fun asBundle(request: ProviderClearCredentialStateRequest): Bundle {
             val bundle = Bundle()
             bundle.setCallingAppInfo(request.callingAppInfo)
             return bundle
         }
 
+        /**
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [ProviderClearCredentialStateRequest].
+         *
+         * Throws [IllegalArgumentException] if the conversion fails. This means that the given
+         * [bundle] does not contain a `ProviderCreateCredentialRequest`. The bundle should be
+         * constructed and retrieved from [asBundle] itself and never be created from scratch to
+         * avoid the failure.
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromBundle(bundle: Bundle): ProviderClearCredentialStateRequest? {
-            val callingAppInfo = extractCallingAppInfo(bundle) ?: return null
+        fun fromBundle(bundle: Bundle): ProviderClearCredentialStateRequest {
+            val callingAppInfo =
+                extractCallingAppInfo(bundle)
+                    ?: throw IllegalArgumentException("Bundle was missing CallingAppInfo.")
             return ProviderClearCredentialStateRequest(callingAppInfo)
         }
     }

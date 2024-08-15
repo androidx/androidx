@@ -53,7 +53,7 @@ class ClearCredentialUnknownExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialUnknownException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialUnknownException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -67,7 +67,7 @@ class ClearCredentialUnknownExceptionTest {
         val actual =
             ClearCredentialException.fromBundle(ClearCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(ClearCredentialUnknownException::class.java)
+        assertThat(actual).isInstanceOf(ClearCredentialUnknownException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

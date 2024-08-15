@@ -20,14 +20,16 @@ import android.content.ComponentName
 import android.content.pm.SigningInfo
 import android.os.Bundle
 import androidx.credentials.CredentialOption.Companion.createFrom
+import androidx.credentials.assertEquals
+import androidx.credentials.getTestCallingAppInfo
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SdkSuppress(minSdkVersion = 28)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class ProviderGetCredentialRequestTest {
@@ -36,7 +38,7 @@ class ProviderGetCredentialRequestTest {
     fun constructor_success() {
         ProviderGetCredentialRequest(
             listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-            CallingAppInfo("name", SigningInfo())
+            getTestCallingAppInfo(null)
         )
     }
 
@@ -44,7 +46,7 @@ class ProviderGetCredentialRequestTest {
     fun constructor_createFrom_success() {
         ProviderGetCredentialRequest.createFrom(
             listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
-            CallingAppInfo("name", SigningInfo())
+            getTestCallingAppInfo("origin")
         )
     }
 
@@ -74,7 +76,7 @@ class ProviderGetCredentialRequestTest {
                         expectedAllowedProviders
                     )
                 ),
-                CallingAppInfo("name", SigningInfo())
+                getTestCallingAppInfo(null)
             )
         val actualCredentialOptionsList = providerGetCredentialRequest.credentialOptions
         assertThat(actualCredentialOptionsList.size).isEqualTo(1)
@@ -93,6 +95,7 @@ class ProviderGetCredentialRequestTest {
             .containsAtLeastElementsIn(expectedAllowedProviders)
     }
 
+    @SdkSuppress(minSdkVersion = 28)
     @Test
     fun getter_signingInfo() {
         val expectedPackageName = "cool.security.package"
@@ -105,5 +108,26 @@ class ProviderGetCredentialRequestTest {
         val actualPackageName = providerGetCredentialRequest.callingAppInfo.packageName
 
         assertThat(actualPackageName).isEqualTo(expectedPackageName)
+    }
+
+    @Test
+    fun bundleConversion_success() {
+        val request =
+            ProviderGetCredentialRequest(
+                listOf(createFrom("type", Bundle(), Bundle(), true, emptySet())),
+                getTestCallingAppInfo("test-origin")
+            )
+
+        val actualRequest =
+            ProviderGetCredentialRequest.fromBundle(ProviderGetCredentialRequest.asBundle(request))
+
+        assertEquals(request, actualRequest)
+    }
+
+    @Test
+    fun bundleConversion_emptyBundle_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            ProviderGetCredentialRequest.fromBundle(Bundle())
+        }
     }
 }

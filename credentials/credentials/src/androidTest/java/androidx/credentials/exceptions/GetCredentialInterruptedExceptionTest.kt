@@ -54,7 +54,7 @@ class GetCredentialInterruptedExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -68,7 +68,7 @@ class GetCredentialInterruptedExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
