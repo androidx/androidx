@@ -23,12 +23,14 @@ import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Path
 import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.provider.Settings
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebResourceRequest
@@ -157,6 +159,46 @@ class TestAdapters(private val sdkContext: Context) {
 
         private val viewColor = Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
 
+        // Map that attaches each pointer to its path
+        private val pointerIdToPathMap = mutableMapOf<Int, Path>()
+
+        private val paint = Paint()
+
+        override fun onTouchEvent(event: MotionEvent): Boolean {
+            super.onTouchEvent(event)
+            when (event.actionMasked) {
+                // A new pointer is down, keep track of it using its id, and create
+                // new line (path) to draw
+                MotionEvent.ACTION_DOWN,
+                MotionEvent.ACTION_POINTER_DOWN -> {
+                    val pointerIdToAdd = event.getPointerId(event.actionIndex)
+                    val pathToAdd =
+                        Path().apply {
+                            moveTo(event.getX(event.actionIndex), event.getY(event.actionIndex))
+                        }
+                    pointerIdToPathMap[pointerIdToAdd] = pathToAdd
+                }
+
+                // Update paths as the pointers are moving
+                MotionEvent.ACTION_MOVE -> {
+                    for (i in 0 until event.pointerCount) {
+                        val path = pointerIdToPathMap[event.getPointerId(i)]
+                        path?.lineTo(event.getX(i), event.getY(i))
+                    }
+                }
+
+                // Stop drawing path of pointer that is now up
+                MotionEvent.ACTION_UP,
+                MotionEvent.ACTION_POINTER_UP -> {
+                    val pointerToRemove = event.getPointerId(event.actionIndex)
+                    pointerIdToPathMap.remove(pointerToRemove)
+                }
+                else -> return false
+            }
+            invalidate()
+            return true
+        }
+
         @SuppressLint("BanThreadSleep")
         override fun onDraw(canvas: Canvas) {
             // We are adding sleep to test the synchronization of the app and the sandbox view's
@@ -165,12 +207,18 @@ class TestAdapters(private val sdkContext: Context) {
                 Thread.sleep(500)
             }
             super.onDraw(canvas)
-
-            val paint = Paint()
             paint.textSize = 50F
-
             canvas.drawColor(viewColor)
             canvas.drawText(text, 75F, 75F, paint)
+            pointerIdToPathMap.forEach { (_, path) -> canvas.drawPath(path, paint) }
+
+            setOnClickListener {
+                Log.i(TAG, "Click on ad detected")
+                val visitUrl = Intent(Intent.ACTION_VIEW)
+                visitUrl.data = Uri.parse(GOOGLE_URL)
+                visitUrl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                context.startActivity(visitUrl)
+            }
         }
     }
 
