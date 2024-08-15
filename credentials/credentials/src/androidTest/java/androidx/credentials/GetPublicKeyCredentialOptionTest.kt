@@ -21,6 +21,7 @@ import android.os.Bundle
 import androidx.credentials.CredentialOption.Companion.BUNDLE_KEY_TYPE_PRIORITY_VALUE
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
@@ -148,6 +149,46 @@ class GetPublicKeyCredentialOptionTest {
             .isEqualTo(customRequestDataValue)
         assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
             .isEqualTo(customCandidateQueryDataValue)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkConversion_frameworkClass_success() {
+        val clientDataHash = "hash".toByteArray()
+        val expectedAllowedProviders: Set<ComponentName> =
+            ImmutableSet.of(ComponentName("pkg", "cls"), ComponentName("pkg2", "cls2"))
+        val option =
+            GetPublicKeyCredentialOption(
+                TEST_REQUEST_JSON,
+                clientDataHash,
+                expectedAllowedProviders
+            )
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val requestData = option.requestData
+        val customRequestDataKey = "customRequestDataKey"
+        val customRequestDataValue = "customRequestDataValue"
+        requestData.putString(customRequestDataKey, customRequestDataValue)
+        val candidateQueryData = option.candidateQueryData
+        val customCandidateQueryDataKey = "customRequestDataKey"
+        val customCandidateQueryDataValue = true
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
+
+        val convertedOption =
+            createFrom(
+                android.credentials.CredentialOption.Builder(
+                        option.type,
+                        requestData,
+                        candidateQueryData
+                    )
+                    .setAllowedProviders(option.allowedProviders)
+                    .setIsSystemProviderRequired(option.isSystemProviderRequired)
+                    .build()
+            )
+
+        assertEquals(convertedOption, option)
     }
 
     companion object Constant {
