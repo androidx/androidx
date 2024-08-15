@@ -1415,7 +1415,7 @@ val PullToRefreshExamples =
             PullToRefreshViewModelSample()
         },
         Example(
-            name = "PullToRefreshViewModelSample",
+            name = "PullToRefreshCustomIndicatorWithDefaultTransform",
             description = PullToRefreshExampleDescription,
             sourceUrl = PullToRefreshExampleSourceUrl
         ) {

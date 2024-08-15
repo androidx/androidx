@@ -36,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -55,6 +56,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -443,13 +445,18 @@ fun PullToRefreshCustomIndicatorWithDefaultTransform() {
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
             indicator = {
-                PullToRefreshDefaults.IndicatorBox(state = state, isRefreshing = isRefreshing) {
+                PullToRefreshDefaults.IndicatorBox(
+                    state = state,
+                    isRefreshing = isRefreshing,
+                    modifier = Modifier.align(Alignment.TopCenter),
+                    elevation = 0.dp
+                ) {
                     if (isRefreshing) {
-                        CircularProgressIndicator(modifier = Modifier.fillMaxWidth())
+                        CircularProgressIndicator()
                     } else {
                         CircularProgressIndicator(
-                            modifier = Modifier.fillMaxWidth(),
-                            progress = { state.distanceFraction }
+                            progress = { state.distanceFraction },
+                            trackColor = ProgressIndicatorDefaults.circularIndeterminateTrackColor,
                         )
                     }
                 }

@@ -422,7 +422,7 @@ object FloatingAppBarDefaults {
     @Composable
     fun horizontalEnterTransition(expandFrom: Alignment.Horizontal) =
         expandHorizontally(
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             expandFrom = expandFrom,
         )
 
@@ -430,7 +430,7 @@ object FloatingAppBarDefaults {
     @Composable
     fun verticalEnterTransition(expandFrom: Alignment.Vertical) =
         expandVertically(
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             expandFrom = expandFrom,
         )
 
@@ -438,7 +438,7 @@ object FloatingAppBarDefaults {
     @Composable
     fun horizontalExitTransition(shrinkTowards: Alignment.Horizontal) =
         shrinkHorizontally(
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             shrinkTowards = shrinkTowards,
         )
 
@@ -446,7 +446,7 @@ object FloatingAppBarDefaults {
     @Composable
     fun verticalExitTransition(shrinkTowards: Alignment.Vertical) =
         shrinkVertically(
-            animationSpec = MotionSchemeKeyTokens.DefaultSpatial.value(),
+            animationSpec = MotionSchemeKeyTokens.FastSpatial.value(),
             shrinkTowards = shrinkTowards,
         )
 }
