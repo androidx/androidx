@@ -78,7 +78,8 @@ import kotlin.math.abs
 import kotlin.math.roundToInt
 
 /**
- * @sample androidx.compose.material3.samples.HorizontalFloatingAppBar
+ * @sample androidx.compose.material3.samples.ExpandableHorizontalFloatingAppBar
+ * @sample androidx.compose.material3.samples.ScrollableHorizontalFloatingAppBar
  * @param expanded whether the FloatingAppBar is in expanded mode, i.e. showing [leadingContent] and
  *   [trailingContent].
  * @param modifier the [Modifier] to be applied to this FloatingAppBar.
@@ -146,7 +147,8 @@ fun HorizontalFloatingAppBar(
 }
 
 /**
- * @sample androidx.compose.material3.samples.VerticalFloatingAppBar
+ * @sample androidx.compose.material3.samples.ExpandableVerticalFloatingAppBar
+ * @sample androidx.compose.material3.samples.ScrollableVerticalFloatingAppBar
  * @param expanded whether the FloatingAppBar is in expanded mode, i.e. showing [leadingContent] and
  *   [trailingContent].
  * @param modifier the [Modifier] to be applied to this FloatingAppBar.

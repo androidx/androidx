@@ -22,8 +22,10 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingAppBarDefaults
 import androidx.compose.material3.FloatingAppBarDefaults.ScreenOffset
 import androidx.compose.material3.FloatingAppBarPosition.Companion.Bottom
@@ -58,7 +61,7 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
-fun HorizontalFloatingAppBar() {
+fun ExpandableHorizontalFloatingAppBar() {
     val context = LocalContext.current
     val isTouchExplorationEnabled = remember {
         val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
@@ -70,9 +73,55 @@ fun HorizontalFloatingAppBar() {
         derivedStateOf {
             val temp = currentItem
             currentItem = listState.firstVisibleItemIndex
-            listState.firstVisibleItemIndex <= temp
+            listState.firstVisibleItemIndex <= temp // true if the list is scrolled up
         }
     }
+    Scaffold(
+        content = { innerPadding ->
+            Box {
+                LazyColumn(
+                    state = listState,
+                    contentPadding = innerPadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(count = list.size) {
+                        Text(
+                            text = list[it],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+                HorizontalFloatingAppBar(
+                    modifier = Modifier.align(BottomCenter).offset(y = -ScreenOffset),
+                    expanded = expanded || isTouchExplorationEnabled,
+                    leadingContent = { leadingContent() },
+                    trailingContent = { trailingContent() },
+                    content = {
+                        FilledIconButton(
+                            modifier = Modifier.width(64.dp),
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                        }
+                    },
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Sampled
+@Composable
+fun ScrollableHorizontalFloatingAppBar() {
+    val context = LocalContext.current
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
+    val listState = rememberLazyListState()
     val exitAlwaysScrollBehavior =
         FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = Bottom)
     Scaffold(
@@ -95,9 +144,17 @@ fun HorizontalFloatingAppBar() {
                 }
                 HorizontalFloatingAppBar(
                     modifier = Modifier.align(BottomCenter).offset(y = -ScreenOffset),
-                    expanded = expanded || isTouchExplorationEnabled,
+                    expanded = true,
+                    leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },
-                    content = { mainContent() },
+                    content = {
+                        FilledIconButton(
+                            modifier = Modifier.width(64.dp),
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                        }
+                    },
                     scrollBehavior =
                         if (!isTouchExplorationEnabled) exitAlwaysScrollBehavior else null,
                 )
@@ -109,7 +166,7 @@ fun HorizontalFloatingAppBar() {
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Sampled
 @Composable
-fun VerticalFloatingAppBar() {
+fun ExpandableVerticalFloatingAppBar() {
     val context = LocalContext.current
     val isTouchExplorationEnabled = remember {
         val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
@@ -121,9 +178,55 @@ fun VerticalFloatingAppBar() {
         derivedStateOf {
             val temp = currentItem
             currentItem = listState.firstVisibleItemIndex
-            listState.firstVisibleItemIndex <= temp
+            listState.firstVisibleItemIndex <= temp // true if the list is scrolled up
         }
     }
+    Scaffold(
+        content = { innerPadding ->
+            Box {
+                LazyColumn(
+                    state = listState,
+                    contentPadding = innerPadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    val list = (0..75).map { it.toString() }
+                    items(count = list.size) {
+                        Text(
+                            text = list[it],
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp)
+                        )
+                    }
+                }
+                VerticalFloatingAppBar(
+                    modifier = Modifier.align(CenterEnd).offset(x = -ScreenOffset),
+                    expanded = expanded || isTouchExplorationEnabled,
+                    leadingContent = { leadingContent() },
+                    trailingContent = { trailingContent() },
+                    content = {
+                        FilledIconButton(
+                            modifier = Modifier.height(64.dp),
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                        }
+                    },
+                )
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Sampled
+@Composable
+fun ScrollableVerticalFloatingAppBar() {
+    val context = LocalContext.current
+    val isTouchExplorationEnabled = remember {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+        am.isEnabled && am.isTouchExplorationEnabled
+    }
+    val listState = rememberLazyListState()
     val exitAlwaysScrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = End)
     Scaffold(
         modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
@@ -145,9 +248,17 @@ fun VerticalFloatingAppBar() {
                 }
                 VerticalFloatingAppBar(
                     modifier = Modifier.align(CenterEnd).offset(x = -ScreenOffset),
-                    expanded = expanded || isTouchExplorationEnabled,
+                    expanded = true,
+                    leadingContent = { leadingContent() },
                     trailingContent = { trailingContent() },
-                    content = { mainContent() },
+                    content = {
+                        FilledIconButton(
+                            modifier = Modifier.height(64.dp),
+                            onClick = { /* doSomething() */ }
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Localized description")
+                        }
+                    },
                     scrollBehavior =
                         if (!isTouchExplorationEnabled) exitAlwaysScrollBehavior else null,
                 )
@@ -157,22 +268,19 @@ fun VerticalFloatingAppBar() {
 }
 
 @Composable
-private fun mainContent() {
+private fun leadingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Filled.Check, contentDescription = "Localized description")
     }
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Filled.Edit, contentDescription = "Localized description")
     }
-    IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Download, contentDescription = "Localized description")
-    }
 }
 
 @Composable
 private fun trailingContent() {
     IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Filled.Add, contentDescription = "Localized description")
+        Icon(Icons.Filled.Download, contentDescription = "Localized description")
     }
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
