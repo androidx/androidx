@@ -18,7 +18,6 @@ package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +38,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,7 +81,6 @@ fun LazyRowSample() {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Sampled
 @Composable
 fun StickyHeaderSample() {
@@ -93,6 +92,40 @@ fun StickyHeaderSample() {
                 Text(
                     "Section $section",
                     Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                )
+            }
+            items(10) { Text("Item $it from the section $section") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun StickyHeaderHeaderIndexSample() {
+    /**
+     * Checks if [index] is in the sticking position, that is, it's the first visible item and its
+     * offset is equal to the content padding.
+     */
+    fun LazyListState.isSticking(index: Int): State<Boolean> {
+        return derivedStateOf {
+            val firstVisible = layoutInfo.visibleItemsInfo.firstOrNull()
+            firstVisible?.index == index && firstVisible.offset == -layoutInfo.beforeContentPadding
+        }
+    }
+
+    val sections = listOf("A", "B", "C", "D", "E", "F", "G")
+    val state = rememberLazyListState()
+
+    LazyColumn(state = state, reverseLayout = true, contentPadding = PaddingValues(6.dp)) {
+        sections.forEach { section ->
+            stickyHeader { headerIndex ->
+                // change color when header is sticking
+                val isSticking by remember(state) { state.isSticking(headerIndex) }
+                Text(
+                    "Section $section",
+                    Modifier.fillMaxWidth()
+                        .background(if (isSticking) Color.Red else Color.LightGray)
+                        .padding(8.dp)
                 )
             }
             items(10) { Text("Item $it from the section $section") }

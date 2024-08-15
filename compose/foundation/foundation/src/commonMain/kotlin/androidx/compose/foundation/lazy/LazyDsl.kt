@@ -125,6 +125,7 @@ interface LazyListScope {
      * will remain pinned until the next header will take its place.
      *
      * @sample androidx.compose.foundation.samples.StickyHeaderSample
+     * @sample androidx.compose.foundation.samples.StickyHeaderHeaderIndexSample
      * @param key a stable and unique key representing the item. Using the same key for multiple
      *   items in the list is not allowed. Type of the key should be saveable via Bundle on Android.
      *   If null is passed the position in the list will represent the key. When you specify the key
