@@ -19,8 +19,10 @@ package androidx.compose.ui.draw
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.IndicationNodeFactory
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +30,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,7 +62,9 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -1166,6 +1171,50 @@ class DrawModifierTest {
             // doesn't schedule additional draw
             assertEquals(1, drawCount)
         }
+    }
+
+    @Test
+    fun testInvalidationAfterIndicationWasCreated() {
+        var stateToSwitch: MutableState<Boolean>? = null
+        var drawCount = 0
+        val indication =
+            object : IndicationNodeFactory {
+                override fun create(interactionSource: InteractionSource): DelegatableNode =
+                    object : Modifier.Node(), DrawModifierNode {
+                        val state = mutableStateOf(false).also { stateToSwitch = it }
+
+                        override fun ContentDrawScope.draw() {
+                            state.value // read state
+                            drawCount++
+                            drawContent()
+                        }
+                    }
+
+                override fun hashCode(): Int = super.hashCode()
+
+                override fun equals(other: Any?): Boolean = super.equals(other)
+            }
+
+        rule.setContent {
+            Box(
+                Modifier.size(40.dp)
+                    .clickable(interactionSource = null, indication = indication) {}
+                    .testTag("clickable")
+            )
+        }
+
+        rule.runOnIdle {
+            assertThat(drawCount).isEqualTo(0)
+            assertThat(stateToSwitch).isNull()
+        }
+        rule.onNodeWithTag("clickable").performClick()
+        rule.runOnIdle {
+            assertThat(stateToSwitch).isNotNull()
+            assertThat(drawCount).isEqualTo(1)
+            stateToSwitch?.value = true
+        }
+
+        rule.runOnIdle { assertThat(drawCount).isEqualTo(2) }
     }
 
     // captureToImage() requires API level 26

@@ -1602,7 +1602,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             invalidateLayers(root)
         }
         measureAndLayout()
-        Snapshot.sendApplyNotifications()
+        Snapshot.notifyObjectsInitialized()
 
         isDrawingContent = true
         // we don't have to observe here because the root has a layer modifier
