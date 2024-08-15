@@ -40,6 +40,7 @@ import kotlinx.coroutines.Deferred
 
 private const val TAG_KEY = "Camera2CameraControl.tag"
 
+@JvmDefaultWithCompatibility
 @ExperimentalCamera2Interop
 public interface Camera2CameraControlCompat : Request.Listener {
     public fun addRequestOption(bundle: CaptureRequestOptions)

@@ -57,6 +57,7 @@ internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
  * The parameters can be stored for the different types of config respectively. Each type of the
  * config can be removed or overridden respectively without interfering with the other types.
  */
+@JvmDefaultWithCompatibility
 public interface UseCaseCameraRequestControl {
     /** The declaration order is the ordering to merge. */
     public enum class Type {

@@ -99,6 +99,7 @@ public data class MetadataTransform(
         check(future >= 0)
     }
 
+    @JvmDefaultWithCompatibility
     public interface TransformFn {
         public fun computeOverridesFor(
             result: FrameInfo,

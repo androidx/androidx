@@ -24,6 +24,7 @@ import androidx.annotation.RestrictTo
  *
  * [CameraStream]s can be used to build [Request]s that are sent to a [CameraGraph].
  */
+@JvmDefaultWithCompatibility
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface StreamGraph {
     public val streams: List<CameraStream>

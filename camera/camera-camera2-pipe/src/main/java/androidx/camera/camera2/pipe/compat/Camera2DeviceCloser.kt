@@ -31,6 +31,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.atomicfu.atomic
 
+@JvmDefaultWithCompatibility
 internal interface Camera2DeviceCloser {
     fun closeCamera(
         cameraDeviceWrapper: CameraDeviceWrapper? = null,
