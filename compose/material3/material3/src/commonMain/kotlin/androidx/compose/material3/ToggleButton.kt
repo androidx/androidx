@@ -41,6 +41,7 @@ import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import kotlin.jvm.JvmInline
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -128,37 +131,16 @@ fun ToggleButton(
 ) {
     @Suppress("NAME_SHADOWING")
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
-    val isCornerBasedShape =
-        shapes.shape is CornerBasedShape &&
-            shapes.checkedShape is CornerBasedShape &&
-            shapes.pressedShape is CornerBasedShape
     // TODO Load the motionScheme tokens from the component tokens file
     // MotionSchemeKeyTokens.DefaultEffects is intentional here to prevent
     // any bounce in this component.
     val defaultAnimationSpec = MotionSchemeKeyTokens.DefaultEffects.value<Float>()
     val pressed by interactionSource.collectIsPressedAsState()
-
-    val state: AnimatedShapeState? =
-        if (isCornerBasedShape) {
-            val defaultShape = shapes.shape as CornerBasedShape
-            val pressedShape = shapes.pressedShape as CornerBasedShape
-            val checkedShape = shapes.checkedShape as CornerBasedShape
-            remember {
-                AnimatedShapeState(
-                    startShape = if (checked) checkedShape else defaultShape,
-                    defaultShape = defaultShape,
-                    pressedShape = pressedShape,
-                    checkedShape = checkedShape,
-                    spec = defaultAnimationSpec,
-                )
-            }
-        } else null
-
     val containerColor = colors.containerColor(enabled, checked)
     val contentColor = colors.contentColor(enabled, checked)
     val shadowElevation = elevation?.shadowElevation(enabled, interactionSource)?.value ?: 0.dp
 
-    val buttonShape = shapeByInteraction(isCornerBasedShape, state, shapes, pressed, checked)
+    val buttonShape = shapeByInteraction(shapes, pressed, checked, defaultAnimationSpec)
 
     Surface(
         checked = checked,
@@ -881,36 +863,79 @@ class ToggleButtonColors(
  */
 data class ButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape)
 
+internal val ButtonShapes.isCornerBasedShape: Boolean
+    get() =
+        shape is RoundedCornerShape &&
+            pressedShape is CornerBasedShape &&
+            checkedShape is CornerBasedShape
+
 @Composable
 private fun shapeByInteraction(
-    isCornerBasedShape: Boolean,
-    state: AnimatedShapeState?,
     shapes: ButtonShapes,
     pressed: Boolean,
-    checked: Boolean
+    checked: Boolean,
+    animationSpec: FiniteAnimationSpec<Float>
 ): Shape {
-    return if (isCornerBasedShape) {
-        if (state != null) {
-            LaunchedEffect(pressed, checked) {
-                if (pressed) {
-                    state.animateToPressed()
-                } else if (checked) {
-                    state.animateToChecked()
-                } else {
-                    state.animateToDefault()
+    if (shapes.isCornerBasedShape) {
+        return rememberAnimatedShape(shapes, checked, animationSpec, pressed)
+    }
+
+    if (pressed) {
+        return shapes.pressedShape
+    }
+
+    if (checked) {
+        return shapes.checkedShape
+    }
+
+    return shapes.shape
+}
+
+@Composable
+private fun rememberAnimatedShape(
+    shapes: ButtonShapes,
+    checked: Boolean,
+    animationSpec: FiniteAnimationSpec<Float>,
+    pressed: Boolean
+): Shape {
+    val defaultShape = shapes.shape as CornerBasedShape
+    val pressedShape = shapes.pressedShape as CornerBasedShape
+    val checkedShape = shapes.checkedShape as CornerBasedShape
+    val state =
+        remember(shapes, animationSpec) {
+            AnimatedShapeState(
+                startShape = if (checked) checkedShape else defaultShape,
+                defaultShape = defaultShape,
+                pressedShape = pressedShape,
+                checkedShape = checkedShape,
+                spec = animationSpec,
+            )
+        }
+
+    val channel = remember { Channel<AnimatedShapeValue>(Channel.CONFLATED) }
+    val targetValue =
+        when {
+            pressed -> AnimatedShapeValue.Pressed
+            checked -> AnimatedShapeValue.Checked
+            else -> AnimatedShapeValue.Default
+        }
+    SideEffect { channel.trySend(targetValue) }
+    LaunchedEffect(state, channel) {
+        for (target in channel) {
+            val newTarget = channel.tryReceive().getOrNull() ?: target
+            launch {
+                with(state) {
+                    when (newTarget) {
+                        AnimatedShapeValue.Pressed -> animateToPressed()
+                        AnimatedShapeValue.Checked -> animateToChecked()
+                        else -> animateToDefault()
+                    }
                 }
             }
-            rememberAnimatedShape(state)
-        } else {
-            shapes.shape
         }
-    } else if (pressed) {
-        shapes.pressedShape
-    } else if (checked) {
-        shapes.checkedShape
-    } else {
-        shapes.shape
     }
+
+    return rememberAnimatedShape(state)
 }
 
 @Composable
@@ -918,7 +943,7 @@ private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
     val density = LocalDensity.current
     state.density = density
 
-    return remember(density) {
+    return remember(density, state) {
         object : ShapeWithOpticalCentering {
             var clampedRange by mutableStateOf(0f..1f)
 
@@ -998,5 +1023,16 @@ private class AnimatedShapeState(
         launch { topEnd?.animateTo(shape.topEnd.toPx(size, density), spec) }
         launch { bottomStart?.animateTo(shape.bottomStart.toPx(size, density), spec) }
         launch { bottomEnd?.animateTo(shape.bottomEnd.toPx(size, density), spec) }
+    }
+}
+
+@Immutable
+@JvmInline
+internal value class AnimatedShapeValue internal constructor(internal val type: Int) {
+
+    companion object {
+        val Default = AnimatedShapeValue(0)
+        val Pressed = AnimatedShapeValue(1)
+        val Checked = AnimatedShapeValue(2)
     }
 }
