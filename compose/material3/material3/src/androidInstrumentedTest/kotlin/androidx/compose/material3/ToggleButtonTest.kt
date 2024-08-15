@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.OutlinedButtonTokens
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -299,5 +301,31 @@ class ToggleButtonTest {
                     )
                 )
         }
+    }
+
+    @Test
+    fun buttonShapes_AllRounded_hasRoundedShapesIsTrue() {
+        assertThat(
+                ButtonShapes(
+                        shape = RoundedCornerShape(10.dp),
+                        pressedShape = RoundedCornerShape(10.dp),
+                        checkedShape = RoundedCornerShape(4.dp),
+                    )
+                    .hasRoundedCornerShapes
+            )
+            .isTrue()
+    }
+
+    @Test
+    fun buttonShapes_mixedShapes_hasRoundedShapesIsFalse() {
+        assertThat(
+                ButtonShapes(
+                        shape = RectangleShape,
+                        pressedShape = RoundedCornerShape(10.dp),
+                        checkedShape = RoundedCornerShape(4.dp),
+                    )
+                    .hasRoundedCornerShapes
+            )
+            .isFalse()
     }
 }
