@@ -875,7 +875,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public final class FloatingAppBarDefaults {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.FloatingAppBarScrollBehavior exitAlwaysScrollBehavior(int position, optional float screenOffset, optional androidx.compose.material3.FloatingAppBarState state, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public androidx.compose.material3.FloatingAppBarScrollBehavior exitAlwaysScrollBehavior(int exitDirection, optional androidx.compose.material3.FloatingAppBarState state, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec);
     method @androidx.compose.runtime.Composable public long getContainerColor();
     method public float getContainerElevation();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getContainerShape();
@@ -895,18 +895,11 @@ package androidx.compose.material3 {
     field public static final androidx.compose.material3.FloatingAppBarDefaults INSTANCE;
   }
 
-  public final class FloatingAppBarKt {
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.material3.FloatingAppBarState FloatingAppBarState(float initialOffsetLimit, float initialOffset, float initialContentOffset);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void HorizontalFloatingAppBar(boolean expanded, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.material3.FloatingAppBarScrollBehavior? scrollBehavior, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? trailingContent, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void VerticalFloatingAppBar(boolean expanded, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.material3.FloatingAppBarScrollBehavior? scrollBehavior, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? trailingContent, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.FloatingAppBarState rememberFloatingAppBarState(optional float initialOffsetLimit, optional float initialOffset, optional float initialContentOffset);
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @kotlin.jvm.JvmInline public final value class FloatingAppBarExitDirection {
+    field public static final androidx.compose.material3.FloatingAppBarExitDirection.Companion Companion;
   }
 
-  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @kotlin.jvm.JvmInline public final value class FloatingAppBarPosition {
-    field public static final androidx.compose.material3.FloatingAppBarPosition.Companion Companion;
-  }
-
-  public static final class FloatingAppBarPosition.Companion {
+  public static final class FloatingAppBarExitDirection.Companion {
     method public int getBottom();
     method public int getEnd();
     method public int getStart();
@@ -917,16 +910,21 @@ package androidx.compose.material3 {
     property public final int Top;
   }
 
+  public final class FloatingAppBarKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.material3.FloatingAppBarState FloatingAppBarState(float initialOffsetLimit, float initialOffset, float initialContentOffset);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void HorizontalFloatingAppBar(boolean expanded, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.material3.FloatingAppBarScrollBehavior? scrollBehavior, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit>? trailingContent, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static void VerticalFloatingAppBar(boolean expanded, optional androidx.compose.ui.Modifier modifier, optional long containerColor, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.material3.FloatingAppBarScrollBehavior? scrollBehavior, optional androidx.compose.ui.graphics.Shape shape, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? leadingContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? trailingContent, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.material3.FloatingAppBarState rememberFloatingAppBarState(optional float initialOffsetLimit, optional float initialOffset, optional float initialContentOffset);
+  }
+
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Stable public sealed interface FloatingAppBarScrollBehavior extends androidx.compose.ui.input.nestedscroll.NestedScrollConnection {
-    method @androidx.compose.runtime.Composable public androidx.compose.ui.Modifier floatingScrollBehavior(androidx.compose.ui.Modifier);
+    method public androidx.compose.ui.Modifier floatingScrollBehavior(androidx.compose.ui.Modifier);
+    method public int getExitDirection();
     method public androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> getFlingAnimationSpec();
-    method public int getPosition();
-    method public float getScreenOffset();
     method public androidx.compose.animation.core.AnimationSpec<java.lang.Float> getSnapAnimationSpec();
     method public androidx.compose.material3.FloatingAppBarState getState();
+    property public abstract int exitDirection;
     property public abstract androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> flingAnimationSpec;
-    property public abstract int position;
-    property public abstract float screenOffset;
     property public abstract androidx.compose.animation.core.AnimationSpec<java.lang.Float> snapAnimationSpec;
     property public abstract androidx.compose.material3.FloatingAppBarState state;
   }
