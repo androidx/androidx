@@ -63,7 +63,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         val versions = getTable("versions")
         val libsGroupsAndVersions = parameters.libsOverrideVersions.get()
         versions.keySet().associateWith { versionName ->
-            val tagName = libsGroupsAndVersions.keys.firstOrNull { versionName.startsWith(it) }
+            val tagName = libsGroupsAndVersions.keys.firstOrNull { versionName == it }
             val versionForTag = libsGroupsAndVersions[tagName]
             val versionValue =
                 if (versionName.startsWith("COMPOSE") &&
