@@ -142,7 +142,7 @@ class InternalModifierTest {
         runKspTest(
             sources = listOf(source),
             classpath = classpath,
-            // TODO(b/314151707): find root cause
+            // https://github.com/google/ksp/issues/1640
             kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS,
             config = config,
         ) { invocation ->
