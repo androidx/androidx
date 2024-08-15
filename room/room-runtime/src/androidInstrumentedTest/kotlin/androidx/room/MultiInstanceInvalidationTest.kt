@@ -27,6 +27,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
 import kotlin.test.Test
 import org.junit.Rule
 
@@ -41,6 +42,7 @@ class MultiInstanceInvalidationTest {
     @Test
     @OptIn(ExperimentalRoomApi::class)
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Ignore // Flaky Test b/359161892
     @Suppress("DEPRECATION") // For getRunningServices()
     fun invalidateInAnotherInstanceAutoCloser() {
         val context = ApplicationProvider.getApplicationContext<Context>()
