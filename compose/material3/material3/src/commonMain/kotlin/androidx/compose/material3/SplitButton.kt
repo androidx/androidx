@@ -227,6 +227,7 @@ fun TonalSplitButton(
         leadingButton = {
             TonalLeadingButton(
                 onClick = onLeadingButtonClick,
+                modifier = Modifier,
                 enabled = enabled,
                 endCornerSize = innerCornerSize,
                 content = leadingContent,
@@ -300,6 +301,7 @@ fun ElevatedSplitButton(
         leadingButton = {
             ElevatedLeadingButton(
                 onClick = onLeadingButtonClick,
+                modifier = Modifier,
                 enabled = enabled,
                 endCornerSize = innerCornerSize,
                 content = leadingContent,
@@ -373,6 +375,7 @@ fun OutlinedSplitButton(
         leadingButton = {
             OutlinedLeadingButton(
                 onClick = onLeadingButtonClick,
+                modifier = Modifier,
                 enabled = enabled,
                 endCornerSize = innerCornerSize,
                 content = leadingContent,
@@ -793,8 +796,8 @@ private fun rememberTrailingButtonShape(
 @Composable
 private fun TonalLeadingButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -815,8 +818,8 @@ private fun TonalLeadingButton(
 private fun TonalTrailingButton(
     onClick: () -> Unit,
     checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -837,8 +840,8 @@ private fun TonalTrailingButton(
 @Composable
 private fun OutlinedLeadingButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -859,8 +862,8 @@ private fun OutlinedLeadingButton(
 private fun OutlinedTrailingButton(
     onClick: () -> Unit,
     checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -881,8 +884,8 @@ private fun OutlinedTrailingButton(
 @Composable
 private fun ElevatedLeadingButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     endCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -903,8 +906,8 @@ private fun ElevatedLeadingButton(
 private fun ElevatedTrailingButton(
     onClick: () -> Unit,
     checked: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    modifier: Modifier,
+    enabled: Boolean,
     startCornerSize: CornerSize,
     content: @Composable RowScope.() -> Unit
 ) {
