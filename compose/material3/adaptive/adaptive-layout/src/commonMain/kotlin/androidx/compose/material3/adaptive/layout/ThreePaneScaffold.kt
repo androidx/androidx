@@ -314,9 +314,7 @@ private class ThreePaneContentMeasurePolicy(
 
             if (!paneExpansionState.isUnspecified() && visiblePanes.size == 2) {
                 // Pane expansion should override everything
-                if (
-                    paneExpansionState.currentDraggingOffset != PaneExpansionState.UnspecifiedWidth
-                ) {
+                if (paneExpansionState.currentDraggingOffset != PaneExpansionState.Unspecified) {
                     // Respect the user dragging result if there's any
                     val halfSpacerSize = verticalSpacerSize / 2
                     if (paneExpansionState.currentDraggingOffset <= halfSpacerSize) {
@@ -366,7 +364,7 @@ private class ThreePaneContentMeasurePolicy(
                     val availableWidth = constraints.maxWidth
                     if (
                         paneExpansionState.firstPaneWidth == 0 ||
-                            paneExpansionState.firstPanePercentage == 0f
+                            paneExpansionState.firstPaneProportion == 0f
                     ) {
                         measureAndPlacePaneWithLocalBounds(
                             outerBounds,
@@ -375,7 +373,7 @@ private class ThreePaneContentMeasurePolicy(
                         )
                     } else if (
                         paneExpansionState.firstPaneWidth >= availableWidth - verticalSpacerSize ||
-                            paneExpansionState.firstPanePercentage >= 1f
+                            paneExpansionState.firstPaneProportion >= 1f
                     ) {
                         measureAndPlacePaneWithLocalBounds(
                             outerBounds,
@@ -385,12 +383,11 @@ private class ThreePaneContentMeasurePolicy(
                     } else {
                         val firstPaneWidth =
                             if (
-                                paneExpansionState.firstPaneWidth !=
-                                    PaneExpansionState.UnspecifiedWidth
+                                paneExpansionState.firstPaneWidth != PaneExpansionState.Unspecified
                             ) {
                                 paneExpansionState.firstPaneWidth
                             } else {
-                                (paneExpansionState.firstPanePercentage *
+                                (paneExpansionState.firstPaneProportion *
                                         (availableWidth - verticalSpacerSize))
                                     .toInt()
                             }
@@ -505,7 +502,7 @@ private class ThreePaneContentMeasurePolicy(
                     if (
                         !paneExpansionState.isDraggingOrSettling ||
                             paneExpansionState.currentDraggingOffset ==
-                                PaneExpansionState.UnspecifiedWidth
+                                PaneExpansionState.Unspecified
                     ) {
                         val spacerMiddleOffset =
                             getSpacerMiddleOffsetX(visiblePanes[0], visiblePanes[1])
@@ -524,7 +521,7 @@ private class ThreePaneContentMeasurePolicy(
                     handleOffsetX
                 )
             } else if (!isLookingAhead) {
-                paneExpansionState.onExpansionOffsetMeasured(PaneExpansionState.UnspecifiedWidth)
+                paneExpansionState.onExpansionOffsetMeasured(PaneExpansionState.Unspecified)
             }
 
             // Place the hidden panes to ensure a proper motion at the AnimatedVisibility,
@@ -703,7 +700,7 @@ private class ThreePaneContentMeasurePolicy(
         maxHandleWidth: Int,
         offsetX: Int
     ) {
-        if (offsetX == PaneExpansionState.UnspecifiedWidth) {
+        if (offsetX == PaneExpansionState.Unspecified) {
             return
         }
         val placeables =
@@ -724,7 +721,7 @@ private class ThreePaneContentMeasurePolicy(
                 (paneLeft.placedPositionX + paneLeft.measuredWidth + paneRight.placedPositionX) / 2
             paneLeft.measuredAndPlaced -> paneLeft.placedPositionX + paneLeft.measuredWidth
             paneRight.measuredAndPlaced -> 0
-            else -> PaneExpansionState.UnspecifiedWidth
+            else -> PaneExpansionState.Unspecified
         }
     }
 }

@@ -54,6 +54,9 @@ import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue
+import androidx.compose.material3.adaptive.layout.PaneExpansionAnchor
+import androidx.compose.material3.adaptive.layout.PaneExpansionDragHandle
+import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.material3.adaptive.navigation.BackNavigationBehavior
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
@@ -174,6 +177,14 @@ fun ListDetailPaneScaffoldSampleWithExtraPane() {
                     Text("Extra")
                 }
             }
+        },
+        paneExpansionState =
+            rememberPaneExpansionState(
+                keyProvider = scaffoldNavigator.scaffoldValue,
+                anchors = PaneExpansionAnchors
+            ),
+        paneExpansionDragHandle = { state ->
+            PaneExpansionDragHandle(state = state, color = MaterialTheme.colorScheme.outline)
         }
     )
 }
@@ -362,3 +373,11 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
         }
     }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val PaneExpansionAnchors =
+    listOf(
+        PaneExpansionAnchor.Proportion(0f),
+        PaneExpansionAnchor.Proportion(0.5f),
+        PaneExpansionAnchor.Proportion(1f),
+    )

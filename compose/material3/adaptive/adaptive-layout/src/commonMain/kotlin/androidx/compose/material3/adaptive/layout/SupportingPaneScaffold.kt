@@ -41,6 +41,13 @@ import androidx.compose.ui.Modifier
  * @param extraPane the extra pane of the scaffold, which is supposed to hold any additional content
  *   besides the main and the supporting panes, for example, a styling panel in a doc app. See
  *   [SupportingPaneScaffoldRole.Extra].
+ * @param paneExpansionDragHandle the pane expansion drag handle to let users be able to drag to
+ *   change pane expansion state. Note that by default this argument will be `null`, and there won't
+ *   be a drag handle rendered and users won't be able to drag to change the pane split. You can
+ *   provide a [PaneExpansionDragHandle] here as our sample suggests. On the other hand, even if
+ *   there's no drag handle, you can still modify [paneExpansionState] directly to apply pane
+ *   expansion.
+ * @param paneExpansionState the state object of pane expansion.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -51,6 +58,8 @@ fun SupportingPaneScaffold(
     supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionState: PaneExpansionState = rememberPaneExpansionState(value),
 ) {
     ThreePaneScaffold(
         modifier = modifier.fillMaxSize(),
@@ -59,6 +68,8 @@ fun SupportingPaneScaffold(
         paneOrder = SupportingPaneScaffoldDefaults.PaneOrder,
         secondaryPane = supportingPane,
         tertiaryPane = extraPane,
+        paneExpansionDragHandle = paneExpansionDragHandle,
+        paneExpansionState = paneExpansionState,
         primaryPane = mainPane
     )
 }
