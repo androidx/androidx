@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 private interface MeasuredItemProvider {
@@ -68,6 +69,7 @@ private fun measureLazyColumn(
     containerConstraints: Constraints,
     anchorItemIndex: Int,
     anchorItemScrollOffset: Int,
+    lastMeasuredItemHeight: Int,
     scrollToBeConsumed: Float,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyColumnMeasureResult {
@@ -77,6 +79,7 @@ private fun measureLazyColumn(
             anchorItemScrollOffset = 0,
             visibleItems = emptyList(),
             totalItemsCount = 0,
+            lastMeasuredItemHeight = Int.MIN_VALUE,
             measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
         )
     }
@@ -85,17 +88,24 @@ private fun measureLazyColumn(
 
     // Place center item
     val centerItem =
-        measuredItemProvider.upwardMeasuredItem(
-            anchorItemIndex,
-            anchorItemScrollOffset + containerConstraints.maxHeight / 2
-        )
+        if (lastMeasuredItemHeight > 0) {
+            measuredItemProvider.downwardMeasuredItem(
+                anchorItemIndex,
+                anchorItemScrollOffset - lastMeasuredItemHeight + containerConstraints.maxHeight / 2
+            )
+        } else {
+            measuredItemProvider.upwardMeasuredItem(
+                anchorItemIndex,
+                anchorItemScrollOffset + containerConstraints.maxHeight / 2
+            )
+        }
     centerItem.offset += scrollToBeConsumed.roundToInt()
     visibleItems.add(centerItem)
 
     var bottomOffset = centerItem.offset + centerItem.height + itemSpacing
     var bottomPassIndex = anchorItemIndex + 1
 
-    while (bottomOffset < containerConstraints.maxHeight && bottomPassIndex < itemsCount) {
+    while (bottomOffset < containerConstraints.maxHeight + 50 && bottomPassIndex < itemsCount) {
         val item = measuredItemProvider.downwardMeasuredItem(bottomPassIndex, bottomOffset)
         bottomOffset += item.height + itemSpacing
         visibleItems.add(item)
@@ -118,13 +128,15 @@ private fun measureLazyColumn(
             anchorItemScrollOffset = 0,
             visibleItems = emptyList(),
             totalItemsCount = 0,
+            lastMeasuredItemHeight = Int.MIN_VALUE,
             measureResult = layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {}
         )
     }
 
     val anchorItem =
-        visibleItems.lastOrNull { it.offset + it.height <= containerConstraints.maxHeight / 2 }
-            ?: visibleItems[visibleItems.size / 2]
+        visibleItems.minByOrNull {
+            abs(it.offset + it.height / 2 - containerConstraints.maxHeight / 2)
+        } ?: centerItem
 
     return LazyColumnMeasureResult(
         anchorItemIndex = anchorItem.index,
@@ -140,6 +152,7 @@ private fun measureLazyColumn(
                 )
             },
         totalItemsCount = itemsCount,
+        lastMeasuredItemHeight = anchorItem.height,
         measureResult =
             layout(containerConstraints.maxWidth, containerConstraints.maxHeight) {
                 visibleItems.fastForEach { it.place(this) }
@@ -152,7 +165,7 @@ private class LazyColumnVisibleItemInfoImpl(
     override val offset: Int,
     override val height: Int,
     override val scrollProgress: LazyColumnItemScrollProgress
-) : LazyColumnVisibleItemInfo {}
+) : LazyColumnVisibleItemInfo
 
 private fun bottomItemScrollProgress(
     offset: Int,
@@ -195,7 +208,11 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
-                        val placeables = measure(index, containerConstraints)
+                        val placeables =
+                            measure(
+                                index,
+                                containerConstraints.copy(maxHeight = Constraints.Infinity)
+                            )
                         // TODO(artemiy): Add support for multiple items.
                         val content = placeables.last()
                         val scrollProgress =
@@ -219,7 +236,11 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
-                        val placeables = measure(index, containerConstraints)
+                        val placeables =
+                            measure(
+                                index,
+                                containerConstraints.copy(maxHeight = Constraints.Infinity)
+                            )
                         // TODO(artemiy): Add support for multiple items.
                         val content = placeables.last()
                         val scrollProgress =
@@ -252,6 +273,7 @@ internal fun rememberLazyColumnMeasurePolicy(
                         scrollToBeConsumed = state.scrollToBeConsumed,
                         anchorItemIndex = state.anchorItemIndex,
                         anchorItemScrollOffset = state.anchorItemScrollOffset,
+                        lastMeasuredItemHeight = state.lastMeasuredAnchorItemHeight,
                         layout = { width, height, placement ->
                             layout(
                                 containerConstraints.constrainWidth(width),

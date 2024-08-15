@@ -65,6 +65,9 @@ class LazyColumnState : ScrollableState {
     internal var anchorItemScrollOffset by mutableIntStateOf(0)
         private set
 
+    internal var lastMeasuredAnchorItemHeight: Int = Int.MIN_VALUE
+        private set
+
     internal var remeasurement: Remeasurement? = null
         private set
 
@@ -81,6 +84,7 @@ class LazyColumnState : ScrollableState {
         scrollToBeConsumed = 0f
         anchorItemIndex = measureResult.anchorItemIndex
         anchorItemScrollOffset = measureResult.anchorItemScrollOffset
+        lastMeasuredAnchorItemHeight = measureResult.lastMeasuredItemHeight
         layoutInfo =
             LazyColumnLayoutInfoImpl(
                 visibleItems = measureResult.visibleItems,

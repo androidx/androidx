@@ -26,6 +26,8 @@ internal class LazyColumnMeasureResult(
     val anchorItemIndex: Int,
     /** The offset of the anchor item from the top of screen. */
     val anchorItemScrollOffset: Int,
+    /** Last known height for the anchor item or negative number if it hasn't been measured. */
+    val lastMeasuredItemHeight: Int,
     /** Layout information for the visible items. */
     val visibleItems: List<LazyColumnVisibleItemInfo>,
     /** see [LazyColumnLayoutInfo.totalItemsCount] */
