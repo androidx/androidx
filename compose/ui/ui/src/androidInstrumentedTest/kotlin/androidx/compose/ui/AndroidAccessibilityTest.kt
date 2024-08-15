@@ -3090,6 +3090,7 @@ class AndroidAccessibilityTest {
         }
     }
 
+    @FlakyTest(bugId = 356384247)
     @Test
     fun selectionEventBeforeTraverseEvent_whenTraverseText() {
         // Arrange.
