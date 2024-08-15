@@ -749,7 +749,10 @@ class TapGestureDetectorTest {
 
         rule.mainClock.advanceTimeBy(LongPressTimeoutMillis + 10)
 
-        assertTrue(tapped)
+        // The first tap was part of a double tap, which then became a long press, so we don't
+        // retroactively treat it as a tap to avoid triggering both a tap and a long press at the
+        // same time
+        assertFalse(tapped)
         assertTrue(longPressed)
         assertFalse(released)
         assertFalse(canceled)

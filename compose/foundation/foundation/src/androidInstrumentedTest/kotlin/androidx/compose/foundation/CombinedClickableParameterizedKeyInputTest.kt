@@ -905,5 +905,5 @@ class CombinedClickableParameterizedKeyInputTest(keyCode: Long) {
 }
 
 /** Average of the min time and timeout for the delay between clicks for a double click */
-private val InjectionScope.doubleTapDelay
+internal val InjectionScope.doubleTapDelay
     get() = with(viewConfiguration) { (doubleTapMinTimeMillis + doubleTapTimeoutMillis) / 2 }

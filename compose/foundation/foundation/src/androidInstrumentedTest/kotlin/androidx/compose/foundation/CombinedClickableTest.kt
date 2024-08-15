@@ -666,29 +666,175 @@ class CombinedClickableTest {
     }
 
     @Test
-    fun doubleClick() {
-        var counter = 0
-        val onClick: () -> Unit = { ++counter }
-
+    fun doubleClick_withinTimeout_aboveMinimumDuration() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
         rule.setContent {
-            Box {
-                BasicText(
-                    "ClickableText",
-                    modifier =
-                        Modifier.testTag("myClickable").combinedClickable(
-                            onDoubleClick = onClick
-                        ) {}
-                )
-            }
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
         }
 
-        rule.onNodeWithTag("myClickable").performTouchInput { doubleClick() }
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(center)
+            up()
+            advanceEventTime(doubleTapDelay)
+            down(center)
+            up()
+        }
 
-        rule.mainClock.advanceTimeUntil { counter == 1 }
+        // Double click should not trigger click, and the double click should be immediately invoked
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(1)
+        }
+    }
 
-        rule.onNodeWithTag("myClickable").performTouchInput { doubleClick() }
+    @Test
+    fun doubleClick_withinTimeout_belowMinimumDuration() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        rule.setContent {
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
 
-        rule.mainClock.advanceTimeUntil { counter == 2 }
+        var doubleTapTimeoutDelay: Long = 0
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            doubleTapTimeoutDelay = viewConfiguration.doubleTapTimeoutMillis + 100
+            down(center)
+            up()
+            // Send a second press below the minimum time required for a double tap
+            val minimumDuration = viewConfiguration.doubleTapMinTimeMillis
+            advanceEventTime(minimumDuration / 2)
+            down(center)
+            up()
+        }
+
+        // Because the second tap was below the timeout, it is ignored, and so no click is invoked /
+        // we are still waiting for a second tap to trigger the double click
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the first click will be invoked, and no double click will
+        // be invoked
+        rule.mainClock.advanceTimeBy(doubleTapTimeoutDelay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun doubleClick_outsideTimeout() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        rule.setContent {
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter }
+                        )
+            )
+        }
+
+        var delay: Long = 0
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            // Delay slightly past the timeout
+            delay = viewConfiguration.doubleTapTimeoutMillis + 100
+            down(center)
+            up()
+        }
+
+        // The click should not be invoked until the timeout has run out
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the click will be invoked
+        rule.mainClock.advanceTimeBy(delay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // Perform a second click, after the timeout has elapsed - this should not trigger a double
+        // click
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(center)
+            up()
+        }
+
+        // The second click should not be invoked until the timeout has run out
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(1)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+
+        // After the timeout has run out, the second click will be invoked, and no double click will
+        // be invoked
+        rule.mainClock.advanceTimeBy(delay)
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(2)
+            assertThat(doubleClickCounter).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun doubleClick_secondClickIsALongClick() {
+        var clickCounter = 0
+        var doubleClickCounter = 0
+        var longClickCounter = 0
+        rule.setContent {
+            BasicText(
+                "ClickableText",
+                modifier =
+                    Modifier.testTag("myClickable")
+                        .combinedClickable(
+                            onDoubleClick = { ++doubleClickCounter },
+                            onClick = { ++clickCounter },
+                            onLongClick = { ++longClickCounter }
+                        )
+            )
+        }
+
+        rule.onNodeWithTag("myClickable").performTouchInput {
+            down(center)
+            up()
+            advanceEventTime(doubleTapDelay)
+            down(center)
+        }
+
+        // Wait for the long click
+        rule.mainClock.advanceTimeBy(1000)
+
+        // Long click should cancel double click and click
+        rule.runOnIdle {
+            assertThat(clickCounter).isEqualTo(0)
+            assertThat(doubleClickCounter).isEqualTo(0)
+            assertThat(longClickCounter).isEqualTo(1)
+        }
     }
 
     @Test

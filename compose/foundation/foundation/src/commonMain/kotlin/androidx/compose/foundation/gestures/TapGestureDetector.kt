@@ -184,9 +184,9 @@ suspend fun PointerInputScope.detectTapGestures(
                             }
                         }
                     } catch (e: PointerEventTimeoutCancellationException) {
-                        // The first tap was valid, but the second tap is a long press.
-                        // notify for the first tap
-                        onTap?.invoke(upOrCancel.position)
+                        // The first tap was valid, but the second tap is a long press - we
+                        // intentionally do not invoke onClick() for the first tap, since the 'main'
+                        // gesture here is a long press, which cancelled the double tap / tap.
 
                         // notify for the long press
                         onLongPress?.invoke(secondDown.position)
