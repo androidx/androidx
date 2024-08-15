@@ -91,8 +91,7 @@ import java.time.temporal.ChronoField
  * Example of a 12 hour clock [TimePicker]:
  *
  * @sample androidx.wear.compose.material3.samples.TimePickerWith12HourClockSample
- * @param initialTime The initial time to be displayed in the TimePicker. The default value is the
- *   current time.
+ * @param initialTime The initial time to be displayed in the TimePicker.
  * @param onTimePicked The callback that is called when the user confirms the time selection. It
  *   provides the selected time as [LocalTime].
  * @param modifier Modifier to be applied to the `Box` containing the UI elements.

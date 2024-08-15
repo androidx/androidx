@@ -54,7 +54,7 @@ class TimePickerTest {
     @get:Rule val rule = createComposeRule()
 
     @Test
-    fun timepicker_supports_testtag() {
+    fun timePicker_supports_testtag() {
         rule.setContentWithTheme {
             TimePicker(
                 onTimePicked = {},
@@ -67,21 +67,7 @@ class TimePickerTest {
     }
 
     @Test
-    fun timepicker12h_supports_testtag() {
-        rule.setContentWithTheme {
-            TimePicker(
-                onTimePicked = {},
-                modifier = Modifier.testTag(TEST_TAG),
-                timePickerType = TimePickerType.HoursMinutesAmPm12H,
-                initialTime = LocalTime.now()
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertExists()
-    }
-
-    @Test
-    fun timepicker_samples_build() {
+    fun timePicker_samples_build() {
         rule.setContentWithTheme {
             TimePickerSample()
             TimePickerWithSecondsSample()
@@ -90,7 +76,7 @@ class TimePickerTest {
     }
 
     @Test
-    fun timepicker_hhmmss_initial_state() {
+    fun timePicker_hhmmss_initial_state() {
         val initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23, /* second= */ 31)
         rule.setContentWithTheme {
             TimePicker(
@@ -122,7 +108,7 @@ class TimePickerTest {
     }
 
     @Test
-    fun timepicker_hhmm_initial_state() {
+    fun timePicker_hhmm_initial_state() {
         val initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
         rule.setContentWithTheme {
             TimePicker(
@@ -148,7 +134,7 @@ class TimePickerTest {
     }
 
     @Test
-    fun timepicker_hhmm12h_initial_state() {
+    fun timePicker_hhmm12h_initial_state() {
         val initialTime = LocalTime.of(/* hour= */ 14, /* minute= */ 23)
         rule.setContentWithTheme {
             TimePicker(
