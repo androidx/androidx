@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.text
 
-import androidx.collection.SieveCache
+import androidx.collection.LruCache
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.text.font.FontFamily
@@ -360,10 +360,10 @@ class TextMeasurer(
  */
 internal class TextLayoutCache(capacity: Int = DefaultCacheSize) {
     // Do not allocate an LRU cache if the size is just 1.
-    private val cache: SieveCache<CacheTextLayoutInput, TextLayoutResult>? =
+    private val cache: LruCache<CacheTextLayoutInput, TextLayoutResult>? =
         if (capacity != 1) {
-            // 0 or negative cache size is also handled by SieveCache.
-            SieveCache(capacity, capacity)
+            // 0 or negative cache size is also handled by LruCache.
+            LruCache(capacity)
         } else {
             null
         }
