@@ -3245,10 +3245,8 @@ package androidx.compose.ui.platform {
   }
 
   @androidx.compose.runtime.Stable public interface WindowInfo {
-    method public default long getContainerSize();
     method public default int getKeyboardModifiers();
     method public boolean isWindowFocused();
-    property public default long containerSize;
     property public abstract boolean isWindowFocused;
     property public default int keyboardModifiers;
   }
