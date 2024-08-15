@@ -39,7 +39,7 @@ public class IconWireSizeAndDimensionsTest {
     public fun resource() {
         val wireSizeAndDimensions = testIcon.getWireSizeAndDimensions(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Truth.assertThat(wireSizeAndDimensions.wireSizeBytes).isEqualTo(673)
+            Truth.assertThat(wireSizeAndDimensions.wireSizeBytes).isEqualTo(547)
         } else {
             Truth.assertThat(wireSizeAndDimensions.wireSizeBytes).isNull()
         }
@@ -71,7 +71,7 @@ public class IconWireSizeAndDimensionsTest {
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Truth.assertThat(estimate).isEqualTo(708)
+            Truth.assertThat(estimate).isEqualTo(582)
         } else {
             Truth.assertThat(estimate).isEqualTo(35)
         }
@@ -160,7 +160,7 @@ public class IconWireSizeAndDimensionsTest {
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Truth.assertThat(estimate).isEqualTo(2800)
+            Truth.assertThat(estimate).isEqualTo(2296)
         } else {
             Truth.assertThat(estimate).isEqualTo(108)
         }
@@ -182,7 +182,7 @@ public class IconWireSizeAndDimensionsTest {
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Truth.assertThat(estimate).isEqualTo(767)
+            Truth.assertThat(estimate).isEqualTo(641)
         } else {
             Truth.assertThat(estimate).isEqualTo(94)
         }
@@ -259,7 +259,7 @@ public class IconWireSizeAndDimensionsTest {
 
         val estimate = setting.estimateWireSizeInBytesAndValidateIconDimensions(context, 100, 100)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            Truth.assertThat(estimate).isEqualTo(3592)
+            Truth.assertThat(estimate).isEqualTo(2962)
         } else {
             Truth.assertThat(estimate).isEqualTo(227)
         }

@@ -15,6 +15,7 @@
  */
 package androidx.metrics.performance.test
 
+import android.os.Build.VERSION.SDK_INT
 import android.view.Choreographer
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.FrameDataApi24
@@ -36,6 +37,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -107,6 +109,7 @@ class JankStatsTest {
 
     @Test
     fun testEnable() {
+        assumeTrue("Skip running an API 26 as it is flaky b/361092826", SDK_INT != 26)
         assertTrue(jankStats.isTrackingEnabled)
         jankStats.isTrackingEnabled = false
         assertFalse(jankStats.isTrackingEnabled)

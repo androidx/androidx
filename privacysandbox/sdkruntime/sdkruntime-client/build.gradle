@@ -75,7 +75,7 @@ def bundleTestSdkDexTaskProvider = tasks.register("bundleTestSdkDexTask", Bundle
 }
 
 androidComponents {
-    onVariants(selector().withBuildType("debug")) {
+    onVariants(selector().withBuildType("release")) {
         androidTest.sources.assets.addGeneratedSourceDirectory(
                 bundleTestSdkDexTaskProvider,
                 BundleTestSdkDexTask::getOutputDir

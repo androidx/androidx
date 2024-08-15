@@ -87,7 +87,7 @@ dependencies {
 
 // It makes sure that the apks are generated before the assets are packed.
 afterEvaluate {
-    tasks.named("generateDebugAndroidTestAssets").configure { it.dependsOn(copyApkTaskProvider) }
+    tasks.named("generateReleaseAndroidTestAssets").configure { it.dependsOn(copyApkTaskProvider) }
 }
 
 android {

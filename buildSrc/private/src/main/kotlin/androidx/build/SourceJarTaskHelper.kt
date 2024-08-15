@@ -222,10 +222,10 @@ private fun Project.registerSourcesVariant(
 
 /**
  * Finds the main compilation for a source set, usually called 'main' but for android we need to
- * search for 'debug' instead.
+ * search for 'release' instead.
  */
 private fun KotlinTarget.mainCompilation() =
-    compilations.findByName(MAIN_COMPILATION_NAME) ?: compilations.getByName("debug")
+    compilations.findByName(MAIN_COMPILATION_NAME) ?: compilations.getByName("release")
 
 /**
  * Writes a metadata file to the given [metadataFile] location for all multiplatform Kotlin source
