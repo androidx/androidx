@@ -381,6 +381,7 @@ final class androidx.room/InvalidationTracker { // androidx.room/InvalidationTra
 
     final fun refreshAsync() // androidx.room/InvalidationTracker.refreshAsync|refreshAsync(){}[0]
     final fun stop() // androidx.room/InvalidationTracker.stop|stop(){}[0]
+    final suspend fun refreshInvalidation() // androidx.room/InvalidationTracker.refreshInvalidation|refreshInvalidation(){}[0]
     final suspend fun subscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.subscribe|subscribe(androidx.room.InvalidationTracker.Observer){}[0]
     final suspend fun unsubscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.unsubscribe|unsubscribe(androidx.room.InvalidationTracker.Observer){}[0]
 

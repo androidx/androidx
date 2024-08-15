@@ -22,11 +22,14 @@ import androidx.kruth.assertThat
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingState
 import androidx.paging.testing.TestPager
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.RoomSQLiteQuery
+import androidx.room.RoomRawQuery
+import androidx.room.paging.util.getClippedRefreshKey
 import androidx.room.util.getColumnIndexOrThrow
+import androidx.sqlite.SQLiteStatement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -125,7 +128,7 @@ class LimitOffsetPagingSourceTest {
         dao.addAllItems(ITEMS_LIST)
         // count query is executed on first load
         pager.refresh()
-        assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+        assertThat(pagingSource.itemCount).isEqualTo(100)
     }
 
     @Test
@@ -140,7 +143,7 @@ class LimitOffsetPagingSourceTest {
             // count query is executed on first load
             pager.refresh()
             // should be 60 instead of 100
-            assertThat(pagingSource.itemCount.get()).isEqualTo(60)
+            assertThat(pagingSource.itemCount).isEqualTo(60)
         }
 
     @Test
@@ -243,7 +246,7 @@ class LimitOffsetPagingSourceTest {
             // initial loadSize = 15, but limited by id < 50, should only load items 40 - 50
             assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(40, 50))
             // should have 50 items fulfilling condition of id < 50 (TestItem id 0 - 49)
-            assertThat(pagingSource.itemCount.get()).isEqualTo(50)
+            assertThat(pagingSource.itemCount).isEqualTo(50)
         }
 
     @Test
@@ -262,7 +265,7 @@ class LimitOffsetPagingSourceTest {
             val result = pager.refresh() as LoadResult.Page
 
             assertThat(result.data).containsExactly(ITEMS_LIST[90])
-            assertThat(pagingSource.itemCount.get()).isEqualTo(1)
+            assertThat(pagingSource.itemCount).isEqualTo(1)
         }
 
     @Test
@@ -281,7 +284,7 @@ class LimitOffsetPagingSourceTest {
             assertThat(result.data).isEmpty()
 
             // check that no append/prepend can be triggered
-            assertThat(pagingSource.itemCount.get()).isEqualTo(0)
+            assertThat(pagingSource.itemCount).isEqualTo(0)
             assertThat(result.nextKey).isNull()
             assertThat(result.prevKey).isNull()
             assertThat(result.itemsBefore).isEqualTo(0)
@@ -302,7 +305,7 @@ class LimitOffsetPagingSourceTest {
             // ensure that it respects SQLite's default behavior for negative LIMIT
             assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
             // should behave as if no LIMIT were set
-            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            assertThat(pagingSource.itemCount).isEqualTo(100)
             assertThat(result.nextKey).isEqualTo(15)
             assertThat(result.prevKey).isNull()
             assertThat(result.itemsBefore).isEqualTo(0)
@@ -554,7 +557,7 @@ class LimitOffsetPagingSourceTest {
 
         // database should only have 40 items left. Refresh key is invalid at this point
         // (greater than item count after deletion)
-        assertThat(pagingSource2.itemCount.get()).isEqualTo(40)
+        assertThat(pagingSource2.itemCount).isEqualTo(40)
         // ensure that paging source can handle invalid refresh key properly
         // should load last page with items 25 - 40
         assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(25, 40))
@@ -584,7 +587,7 @@ class LimitOffsetPagingSourceTest {
         runPagingSourceTest { pager, pagingSource ->
             dao.addAllItems(ITEMS_LIST)
             pager.refresh()
-            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            assertThat(pagingSource.itemCount).isEqualTo(100)
             // items id 0 - 29 deleted (30 items removed)
             dao.deleteTestItems(0, 29)
 
@@ -595,7 +598,7 @@ class LimitOffsetPagingSourceTest {
             val result = pager2.refresh(initialKey = 0) as LoadResult.Page
 
             // database should only have 70 items left
-            assertThat(pagingSource2.itemCount.get()).isEqualTo(70)
+            assertThat(pagingSource2.itemCount).isEqualTo(70)
             // first 30 items deleted, refresh should load starting from pos 31 (item id 30 - 45)
             assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(30, 45))
 
@@ -613,7 +616,7 @@ class LimitOffsetPagingSourceTest {
         runPagingSourceTest { pager, pagingSource ->
             dao.addAllItems(ITEMS_LIST)
             pager.refresh(initialKey = 30)
-            assertThat(pagingSource.itemCount.get()).isEqualTo(100)
+            assertThat(pagingSource.itemCount).isEqualTo(100)
             // items id 0 - 94 deleted (95 items removed)
             dao.deleteTestItems(0, 94)
 
@@ -624,7 +627,7 @@ class LimitOffsetPagingSourceTest {
             val result = pager2.refresh(initialKey = 0) as LoadResult.Page
 
             // database should only have 5 items left
-            assertThat(pagingSource2.itemCount.get()).isEqualTo(5)
+            assertThat(pagingSource2.itemCount).isEqualTo(5)
             // only 5 items should be loaded with offset = 0
             assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(95, 100))
 
@@ -653,7 +656,6 @@ class LimitOffsetPagingSourceTest {
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class LimitOffsetPagingSourceTestWithFilteringExecutor {
@@ -759,10 +761,20 @@ class LimitOffsetPagingSourceImpl(
     queryString: String = "SELECT * FROM $tableName ORDER BY id ASC",
 ) :
     LimitOffsetPagingSource<TestItem>(
-        sourceQuery = RoomSQLiteQuery.acquire(queryString, 0),
+        sourceQuery = RoomRawQuery(sql = queryString),
         db = db,
-        tables = arrayOf("$tableName")
+        tables = arrayOf(tableName)
     ) {
+
+    override fun convertRows(statement: SQLiteStatement, itemCount: Int): List<TestItem> {
+        val stmtIndexOfId = getColumnIndexOrThrow(statement, "id")
+        val data = mutableListOf<TestItem>()
+        while (statement.step()) {
+            val tmpId = statement.getInt(stmtIndexOfId)
+            data.add(TestItem(tmpId))
+        }
+        return data
+    }
 
     override fun convertRows(cursor: Cursor): List<TestItem> {
         val cursorIndexOfId = getColumnIndexOrThrow(cursor, "id")
@@ -772,6 +784,13 @@ class LimitOffsetPagingSourceImpl(
             data.add(TestItem(tmpId))
         }
         return data
+    }
+
+    override val jumpingSupported: Boolean
+        get() = true
+
+    override fun getRefreshKey(state: PagingState<Int, TestItem>): Int? {
+        return state.getClippedRefreshKey()
     }
 }
 

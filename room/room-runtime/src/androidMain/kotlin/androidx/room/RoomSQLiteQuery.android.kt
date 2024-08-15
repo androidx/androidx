@@ -19,6 +19,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.db.SupportSQLiteProgram
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.util.TreeMap
@@ -87,6 +88,18 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
                 LONG -> statement.bindLong(index, longBindings[index])
                 DOUBLE -> statement.bindDouble(index, doubleBindings[index])
                 STRING -> statement.bindString(index, requireNotNull(stringBindings[index]))
+                BLOB -> statement.bindBlob(index, requireNotNull(blobBindings[index]))
+            }
+        }
+    }
+
+    fun bindTo(statement: SQLiteStatement) {
+        for (index in 1..argCount) {
+            when (bindingTypes[index]) {
+                NULL -> statement.bindNull(index)
+                LONG -> statement.bindLong(index, longBindings[index])
+                DOUBLE -> statement.bindDouble(index, doubleBindings[index])
+                STRING -> statement.bindText(index, requireNotNull(stringBindings[index]))
                 BLOB -> statement.bindBlob(index, requireNotNull(blobBindings[index]))
             }
         }

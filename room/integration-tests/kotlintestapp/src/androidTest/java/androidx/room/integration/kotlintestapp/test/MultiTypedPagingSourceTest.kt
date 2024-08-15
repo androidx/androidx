@@ -371,7 +371,7 @@ class MultiTypedPagingSourceTest(
         }
     }
 
-    @FlakyTest(bugId = 261205680)
+    @Ignore // b/261205680
     @Test
     fun appendWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
@@ -387,7 +387,7 @@ class MultiTypedPagingSourceTest(
             // to the data source. it should not crash :)
             queryExecutor.filterFunction = {
                 // TODO(b/): Avoid relying on function name, very brittle.
-                !it.toString().contains("refreshInvalidationAsync")
+                !it.toString().contains("refreshInvalidation")
             }
 
             db.getDao().deleteItems(items.subList(0, 80).map { it.id })

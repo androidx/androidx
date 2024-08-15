@@ -92,6 +92,8 @@ constructor(
      */
     fun refreshAsync()
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) suspend fun refreshInvalidation()
+
     /** Stops invalidation tracker operations. */
     internal fun stop()
 
