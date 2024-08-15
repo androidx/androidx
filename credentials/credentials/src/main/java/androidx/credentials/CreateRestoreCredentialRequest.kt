@@ -33,7 +33,8 @@ import org.json.JSONObject
  * 2.2 and above. If the cloud backup is not enabled, catch the [E2eeUnavailableException] and retry
  * without cloud backup.
  *
- * @param requestJson the request in JSON format in the standard webauthn web json
+ * @param requestJson the request in JSON format in the
+ *   [standard webauthn web json](https://w3c.github.io/webauthn/#dictdef-publickeycredentialcreationoptionsjson).
  * @param isCloudBackupEnabled whether the credential should be backed up to cloud.
  * @throws E2eeUnavailableException if [isCloudBackupEnabled] was requested but the user device did
  *   not enable backup or e2ee (screen lock).
