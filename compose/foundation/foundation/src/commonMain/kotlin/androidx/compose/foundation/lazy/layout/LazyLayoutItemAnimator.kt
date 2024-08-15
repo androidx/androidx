@@ -88,8 +88,8 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
 
         val hasAnimations = positionedItems.fastAny { it.hasAnimations }
         if (!hasAnimations && keyToItemInfoMap.isEmpty()) {
-            // no animations specified - no work needed
-            reset()
+            // no animations specified - no work needed - clear animation info
+            releaseAnimations()
             return
         }
 
@@ -354,14 +354,18 @@ internal class LazyLayoutItemAnimator<T : LazyLayoutMeasuredItem> {
      * example when we snap to a new position.
      */
     fun reset() {
+        releaseAnimations()
+        keyIndexMap = null
+        firstVisibleIndex = -1
+    }
+
+    private fun releaseAnimations() {
         if (keyToItemInfoMap.isNotEmpty()) {
             keyToItemInfoMap.forEachValue {
                 it.animations.forEach { animation -> animation?.release() }
             }
             keyToItemInfoMap.clear()
         }
-        keyIndexMap = LazyLayoutKeyIndexMap.Empty
-        firstVisibleIndex = -1
     }
 
     private fun initializeAnimation(

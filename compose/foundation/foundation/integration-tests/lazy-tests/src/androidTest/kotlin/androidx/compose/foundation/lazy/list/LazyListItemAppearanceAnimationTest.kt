@@ -333,6 +333,20 @@ class LazyListItemAppearanceAnimationTest {
         }
     }
 
+    @Test
+    fun snapToPosition_noAnimation() {
+        val items = List(200) { Color.Black }
+        rule.setContent {
+            LazyList(containerSize = itemSizeDp) {
+                items(items, key = { it.toArgb() }) { Item(it) }
+            }
+        }
+
+        rule.runOnIdle { runBlocking { state.scrollToItem(200) } }
+
+        assertPixels(itemSize) { Color.Black }
+    }
+
     @Composable
     private fun LazyList(
         containerSize: Dp? = containerSizeDp,
