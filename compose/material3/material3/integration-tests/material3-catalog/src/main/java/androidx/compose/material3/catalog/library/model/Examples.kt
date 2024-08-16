@@ -110,6 +110,7 @@ import androidx.compose.material3.samples.IndeterminateLinearWavyProgressIndicat
 import androidx.compose.material3.samples.InputChipSample
 import androidx.compose.material3.samples.InputChipWithAvatarSample
 import androidx.compose.material3.samples.LargeAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.LargeButtonWithIconSample
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.LargeExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.LargeFloatingActionButtonSample
@@ -120,6 +121,7 @@ import androidx.compose.material3.samples.LinearWavyProgressIndicatorSample
 import androidx.compose.material3.samples.LoadingIndicatorPullToRefreshSample
 import androidx.compose.material3.samples.LoadingIndicatorSample
 import androidx.compose.material3.samples.MediumAnimatedExtendedFloatingActionButtonSample
+import androidx.compose.material3.samples.MediumButtonWithIconSample
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonSample
 import androidx.compose.material3.samples.MediumExtendedFloatingActionButtonTextSample
 import androidx.compose.material3.samples.MediumFloatingActionButtonSample
@@ -239,6 +241,8 @@ import androidx.compose.material3.samples.WideNavigationRailArrangementsSample
 import androidx.compose.material3.samples.WideNavigationRailCollapsedSample
 import androidx.compose.material3.samples.WideNavigationRailExpandedSample
 import androidx.compose.material3.samples.WideNavigationRailResponsiveSample
+import androidx.compose.material3.samples.XLargeButtonWithIconSample
+import androidx.compose.material3.samples.XSmallButtonWithIconSample
 import androidx.compose.material3.samples.XSmallNarrowSquareIconButtonsSample
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -377,7 +381,35 @@ val ButtonsExamples =
             sourceUrl = ButtonsExampleSourceUrl,
         ) {
             ButtonWithIconSample()
-        }
+        },
+        Example(
+            name = "XSmallButtonWithIconSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            XSmallButtonWithIconSample()
+        },
+        Example(
+            name = "MediumButtonWithIconSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            MediumButtonWithIconSample()
+        },
+        Example(
+            name = "LargeButtonWithIconSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            LargeButtonWithIconSample()
+        },
+        Example(
+            name = "XLargeButtonWithIconSample",
+            description = ButtonsExampleDescription,
+            sourceUrl = ButtonsExampleSourceUrl,
+        ) {
+            XLargeButtonWithIconSample()
+        },
     )
 
 private const val ButtonGroupsExampleDescription = "ButtonGroup examples"
@@ -1560,7 +1592,7 @@ val ToggleButtonsExamples =
             sourceUrl = ToggleButtonsExampleSourceUrl,
         ) {
             ToggleButtonWithIconSample()
-        }
+        },
     )
 
 private const val SlidersExampleDescription = "Sliders examples"

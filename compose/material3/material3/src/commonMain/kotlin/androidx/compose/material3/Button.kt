@@ -34,7 +34,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.BaselineButtonTokens
+import androidx.compose.material3.tokens.ButtonLargeTokens
+import androidx.compose.material3.tokens.ButtonMediumTokens
 import androidx.compose.material3.tokens.ButtonSmallTokens
+import androidx.compose.material3.tokens.ButtonXLargeTokens
+import androidx.compose.material3.tokens.ButtonXSmallTokens
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
@@ -84,6 +88,14 @@ import androidx.compose.ui.unit.dp
  * Button that utilizes the small design content padding:
  *
  * @sample androidx.compose.material3.samples.SmallButtonSample
+ *
+ * [Button] uses the small design spec as default. For a [Button] that uses the design for extra
+ * small, medium, large, or extra large buttons:
+ *
+ * @sample androidx.compose.material3.samples.XSmallButtonWithIconSample
+ * @sample androidx.compose.material3.samples.MediumButtonWithIconSample
+ * @sample androidx.compose.material3.samples.LargeButtonWithIconSample
+ * @sample androidx.compose.material3.samples.XLargeButtonWithIconSample
  *
  * Choose the best button for an action based on the amount of emphasis it needs. The more important
  * an action is, the higher emphasis its button should be.
@@ -520,6 +532,51 @@ object ButtonDefaults {
                 bottom = ButtonVerticalPadding
             )
 
+    /** Default content padding for an extra small button. */
+    @ExperimentalMaterial3ExpressiveApi
+    val XSmallContentPadding
+        get() =
+            PaddingValues(
+                // TODO update with the value from ButtonXSmallTokens.kt once it's been corrected
+                start = 12.dp,
+                end = 12.dp,
+                top = 6.dp,
+                bottom = 6.dp
+            )
+
+    /** Default content padding for a medium button. */
+    @ExperimentalMaterial3ExpressiveApi
+    val MediumContentPadding
+        get() =
+            PaddingValues(
+                start = ButtonMediumTokens.LeadingSpace,
+                end = ButtonMediumTokens.TrailingSpace,
+                top = 16.dp,
+                bottom = 16.dp
+            )
+
+    /** Default content padding for a large button. */
+    @ExperimentalMaterial3ExpressiveApi
+    val LargeContentPadding
+        get() =
+            PaddingValues(
+                start = ButtonLargeTokens.LeadingSpace,
+                end = ButtonLargeTokens.TrailingSpace,
+                top = 32.dp,
+                bottom = 32.dp
+            )
+
+    /** Default content padding for an extra large button. */
+    @ExperimentalMaterial3ExpressiveApi
+    val XLargeContentPadding
+        get() =
+            PaddingValues(
+                start = ButtonXLargeTokens.LeadingSpace,
+                end = ButtonXLargeTokens.TrailingSpace,
+                top = 48.dp,
+                bottom = 48.dp
+            )
+
     private val TextButtonHorizontalPadding = 12.dp
 
     /**
@@ -547,27 +604,107 @@ object ButtonDefaults {
         )
 
     /**
-     * The default min width applied for all buttons. Note that you can override it by applying
+     * The default min width applied for small buttons. Note that you can override it by applying
      * Modifier.widthIn directly on the button composable.
      */
     val MinWidth = 58.dp
 
     /**
-     * The default min height applied for all buttons. Note that you can override it by applying
+     * The default min height applied for small buttons. Note that you can override it by applying
      * Modifier.heightIn directly on the button composable.
      */
     val MinHeight = ButtonSmallTokens.ContainerHeight
 
-    /** The default size of the icon when used inside any button. */
+    /** The default height for a extra small button container. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XSmallContainerHeight = ButtonXSmallTokens.ContainerHeight
+
+    /** The default height for a medium button container. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val MediumContainerHeight = ButtonMediumTokens.ContainerHeight
+
+    /** The default height for a large button container. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val LargeContainerHeight = ButtonLargeTokens.ContainerHeight
+
+    /** The default height for a extra large button container. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XLargeContainerHeight = ButtonXLargeTokens.ContainerHeight
+
+    /** The default size of the icon when used inside a small button. */
     // TODO update with the correct value in BaselineButtonTokens when available
     val IconSize = 18.dp
 
+    /** The default size of the icon used inside of a extra small button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XSmallIconSize = ButtonXSmallTokens.IconSize
+
+    /** The default size of the icon used inside of a medium button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val MediumIconSize = ButtonMediumTokens.IconSize
+
+    /** The default size of the icon used inside of a large button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val LargeIconSize = ButtonLargeTokens.IconSize
+
+    /** The default size of the icon used inside of a extra large button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XLargeIconSize = ButtonXLargeTokens.IconSize
+
     /**
-     * The default size of the spacing between an icon and a text when they used inside any button.
+     * The default size of the spacing between an icon and a text when they used inside a small
+     * button.
      */
-    val IconSpacing = 8.dp
+    val IconSpacing = ButtonSmallTokens.IconLabelSpace
+
+    /**
+     * The default spacing between an icon and a text when they used inside any extra small button.
+     */
+    // TODO use the value from ButtonXSmallTokens.kt once it's been corrected
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XSmallIconSpacing = 4.dp
+
+    /** The default spacing between an icon and a text when they used inside any medium button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val MediumIconSpacing = ButtonMediumTokens.IconLabelSpace
+
+    /** The default spacing between an icon and a text when they used inside any large button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val LargeIconSpacing = ButtonLargeTokens.IconLabelSpace
+
+    /**
+     * The default spacing between an icon and a text when they used inside any extra large button.
+     */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
+    @ExperimentalMaterial3ExpressiveApi
+    val XLargeIconSpacing = ButtonXLargeTokens.IconLabelSpace
 
     /** Square shape for any button. */
+    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+    @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val squareShape: Shape
         @Composable get() = ButtonSmallTokens.ContainerShapeSquare.value
