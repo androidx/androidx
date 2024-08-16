@@ -268,6 +268,7 @@ class BaseDaoTest {
                 }
             """
             )
+        // https://github.com/google/ksp/issues/2051
         runProcessorTestWithK1(sources = listOf(baseClass, extension, COMMON.USER, fakeDb)) {
             invocation ->
             val daoElm = invocation.processingEnv.requireTypeElement("foo.bar.MyDao")

@@ -23,7 +23,6 @@ import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.javac.JavacType
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
-import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
@@ -34,6 +33,7 @@ import androidx.room.compiler.processing.util.getDeclaredField
 import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
+import androidx.room.compiler.processing.util.kspProcessingEnv
 import androidx.room.compiler.processing.util.runJavaProcessorTest
 import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
@@ -1357,9 +1357,7 @@ class XTypeElementTest(
             """
                             .trimIndent()
                     )
-                ),
-            // https://github.com/google/ksp/issues/1890
-            kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS
+                )
         ) { invocation ->
             val appSubject = invocation.processingEnv.requireTypeElement("test.Subject")
             val methodNames = appSubject.getAllMethods().map { it.name }.toList()
@@ -1367,7 +1365,11 @@ class XTypeElementTest(
             val objectMethodNames = invocation.objectMethodNames()
             if (invocation.isKsp) {
                 assertThat(methodNames - objectMethodNames).containsExactly("f1", "f2")
-                assertThat(methodJvmNames - objectMethodNames).containsExactly("notF1", "notF2")
+                if (invocation.kspProcessingEnv.isKsp2 && isPreCompiled) {
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly("f1", "f2")
+                } else {
+                    assertThat(methodJvmNames - objectMethodNames).containsExactly("notF1", "notF2")
+                }
             } else {
                 assertThat(methodNames - objectMethodNames).containsExactly("f1", "f1", "f2")
                 assertThat(methodJvmNames - objectMethodNames)

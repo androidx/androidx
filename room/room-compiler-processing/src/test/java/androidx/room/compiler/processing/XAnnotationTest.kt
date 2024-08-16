@@ -168,7 +168,7 @@ class XAnnotationTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        // https://github.com/google/ksp/issues/1890
+        // https://github.com/google/ksp/issues/2078
         runTest(sources = listOf(javaSrc, kotlinSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
             invocation ->
             val typeElement = invocation.processingEnv.requireTypeElement("Foo")
