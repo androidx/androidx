@@ -21,9 +21,15 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.imagecapture.ImageCaptureControl;
+import androidx.camera.core.imagecapture.TakePictureManager;
+import androidx.camera.core.imagecapture.TakePictureManagerImpl;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.TargetConfig;
+
+import java.util.Objects;
 
 /**
  * Configuration containing options for use cases.
@@ -107,6 +113,10 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
      */
     Option<Integer> OPTION_VIDEO_STABILIZATION_MODE =
             Option.create("camerax.core.useCase.videoStabilizationMode", int.class);
+
+    Option<TakePictureManager.Provider> OPTION_TAKE_PICTURE_MANAGER_PROVIDER =
+            Option.create("camerax.core.useCase.takePictureManagerProvider",
+                    TakePictureManager.Provider.class);
 
     // *********************************************************************************************
 
@@ -326,6 +336,22 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, Image
     @StabilizationMode.Mode
     default int getVideoStabilizationMode() {
         return retrieveOption(OPTION_VIDEO_STABILIZATION_MODE, StabilizationMode.UNSPECIFIED);
+    }
+
+    /**
+     * @return The {@link TakePictureManager} implementation for {@link ImageCapture} use case.
+     */
+    @NonNull
+    default TakePictureManager.Provider getTakePictureManagerProvider() {
+        return Objects.requireNonNull(retrieveOption(OPTION_TAKE_PICTURE_MANAGER_PROVIDER,
+                new TakePictureManager.Provider() {
+                    @NonNull
+                    @Override
+                    public TakePictureManager newInstance(
+                            @NonNull ImageCaptureControl imageCaptureControl) {
+                        return new TakePictureManagerImpl(imageCaptureControl);
+                    }
+                }));
     }
 
     /**
