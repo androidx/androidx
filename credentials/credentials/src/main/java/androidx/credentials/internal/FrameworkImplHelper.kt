@@ -45,7 +45,7 @@ class FrameworkImplHelper {
         ): android.credentials.GetCredentialRequest {
             val builder =
                 android.credentials.GetCredentialRequest.Builder(
-                    GetCredentialRequest.toRequestDataBundle(request)
+                    GetCredentialRequest.getRequestMetadataBundle(request)
                 )
             request.credentialOptions.forEach {
                 builder.addCredentialOption(

@@ -18,7 +18,8 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.RestrictTo
+import androidx.annotation.Discouraged
+import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -168,7 +169,7 @@ constructor(
         }
     }
 
-    internal companion object {
+    companion object {
         internal const val BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS =
             "androidx.credentials.BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS"
         private const val BUNDLE_KEY_PREFER_IDENTITY_DOC_UI =
@@ -176,9 +177,15 @@ constructor(
         private const val BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME =
             "androidx.credentials.BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME"
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        /**
+         * Returns the request metadata as a `Bundle`.
+         *
+         * Note: this is not the equivalent of the complete request itself. For example, it does not
+         * include the request's `credentialOptions` or `origin`.
+         */
         @JvmStatic
-        fun toRequestDataBundle(request: GetCredentialRequest): Bundle {
+        @Discouraged("It should only be used by OEM services and library groups")
+        fun getRequestMetadataBundle(request: GetCredentialRequest): Bundle {
             val bundle = Bundle()
             bundle.putBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI, request.preferIdentityDocUi)
             bundle.putBoolean(
@@ -192,20 +199,49 @@ constructor(
             return bundle
         }
 
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        /**
+         * Parses the [request] into an instance of [GetCredentialRequest].
+         *
+         * @param request the framework GetCredentialRequest object
+         */
+        @RequiresApi(34)
         @JvmStatic
+        @Discouraged(
+            "It is recommended to construct a GetCredentialRequest by directly instantiating a GetCredentialRequest"
+        )
+        fun createFrom(request: android.credentials.GetCredentialRequest): GetCredentialRequest {
+            return createFrom(
+                request.credentialOptions.map { CredentialOption.createFrom(it) },
+                request.origin,
+                request.data
+            )
+        }
+
+        /**
+         * Parses the raw data into an instance of [GetCredentialRequest].
+         *
+         * @param credentialOptions matches [GetCredentialRequest.credentialOptions]
+         * @param origin matches [GetCredentialRequest.origin]
+         * @param metadata request metadata serialized as a Bundle using [getRequestMetadataBundle]
+         */
+        @JvmStatic
+        @Discouraged(
+            "It is recommended to construct a GetCredentialRequest by directly instantiating a GetCredentialRequest"
+        )
         fun createFrom(
             credentialOptions: List<CredentialOption>,
             origin: String?,
-            data: Bundle
+            metadata: Bundle
         ): GetCredentialRequest {
             try {
-                val preferIdentityDocUi = data.getBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI)
+                val preferIdentityDocUi = metadata.getBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI)
                 val preferImmediatelyAvailableCredentials =
-                    data.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
+                    metadata.getBoolean(BUNDLE_KEY_PREFER_IMMEDIATELY_AVAILABLE_CREDENTIALS)
                 @Suppress("DEPRECATION")
                 val preferUiBrandingComponentName =
-                    data.getParcelable<ComponentName>(BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME)
+                    metadata.getParcelable<ComponentName>(
+                        BUNDLE_KEY_PREFER_UI_BRANDING_COMPONENT_NAME
+                    )
                 val getCredentialBuilder =
                     Builder()
                         .setCredentialOptions(credentialOptions)

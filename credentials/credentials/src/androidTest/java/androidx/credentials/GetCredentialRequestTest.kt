@@ -18,8 +18,9 @@ package androidx.credentials
 
 import android.content.ComponentName
 import androidx.credentials.GetCredentialRequest.Companion.createFrom
-import androidx.credentials.GetCredentialRequest.Companion.toRequestDataBundle
+import androidx.credentials.GetCredentialRequest.Companion.getRequestMetadataBundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -231,7 +232,52 @@ class GetCredentialRequestTest {
                 expectedPreferImmediatelyAvailableCredentials
             )
 
-        val convertedRequest = createFrom(options, request.origin, toRequestDataBundle(request))
+        val convertedRequest =
+            createFrom(options, request.origin, getRequestMetadataBundle(request))
+
+        assertThat(convertedRequest.origin).isEqualTo(expectedOrigin)
+        assertThat(convertedRequest.preferIdentityDocUi).isEqualTo(expectedPreferIdentityDocUi)
+        assertThat(convertedRequest.preferUiBrandingComponentName).isEqualTo(expectedComponentName)
+        assertThat(convertedRequest.preferImmediatelyAvailableCredentials)
+            .isEqualTo(expectedPreferImmediatelyAvailableCredentials)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkConversion_frameworkClass_success() {
+        val options = java.util.ArrayList<CredentialOption>()
+        options.add(GetPasswordOption())
+        val expectedPreferImmediatelyAvailableCredentials = true
+        val expectedComponentName = ComponentName("test pkg", "test cls")
+        val expectedPreferIdentityDocUi = true
+        val expectedOrigin = "origin"
+        val request =
+            GetCredentialRequest(
+                options,
+                expectedOrigin,
+                expectedPreferIdentityDocUi,
+                expectedComponentName,
+                expectedPreferImmediatelyAvailableCredentials
+            )
+
+        val convertedRequest =
+            createFrom(
+                android.credentials.GetCredentialRequest.Builder(getRequestMetadataBundle(request))
+                    .setOrigin(expectedOrigin)
+                    .setCredentialOptions(
+                        options.map {
+                            android.credentials.CredentialOption.Builder(
+                                    it.type,
+                                    it.requestData,
+                                    it.candidateQueryData
+                                )
+                                .setAllowedProviders(it.allowedProviders)
+                                .setIsSystemProviderRequired(it.isSystemProviderRequired)
+                                .build()
+                        }
+                    )
+                    .build()
+            )
 
         assertThat(convertedRequest.origin).isEqualTo(expectedOrigin)
         assertThat(convertedRequest.preferIdentityDocUi).isEqualTo(expectedPreferIdentityDocUi)

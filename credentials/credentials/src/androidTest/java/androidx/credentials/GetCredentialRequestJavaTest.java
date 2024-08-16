@@ -220,7 +220,7 @@ public class GetCredentialRequestJavaTest {
 
 
         GetCredentialRequest convertedRequest = GetCredentialRequest.createFrom(
-                options, request.getOrigin(), GetCredentialRequest.toRequestDataBundle(request)
+                options, request.getOrigin(), GetCredentialRequest.getRequestMetadataBundle(request)
         );
 
         assertThat(convertedRequest.getOrigin()).isEqualTo(expectedOrigin);

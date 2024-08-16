@@ -17,7 +17,8 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
+import androidx.annotation.Discouraged
+import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -35,8 +36,18 @@ internal constructor(
     val data: Bundle,
 ) {
     companion object {
+        /**
+         * Parses the raw data into an instance of [Credential].
+         *
+         * @param type matches [Credential.type], the credential type
+         * @param data matches [Credential.data], the credential data in the [Bundle] format; this
+         *   should be constructed and retrieved from the a given [Credential] itself and never be
+         *   created from scratch
+         */
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used from java tests
+        @Discouraged(
+            "It is recommended to construct a Credential by directly instantiating a Credential subclass"
+        )
         fun createFrom(type: String, data: Bundle): Credential {
             return try {
                 when (type) {
@@ -52,6 +63,20 @@ internal constructor(
                 // with the raw framework values.
                 CustomCredential(type, data)
             }
+        }
+
+        /**
+         * Parses the [credential] into an instance of [Credential].
+         *
+         * @param credential the framework Credential object
+         */
+        @JvmStatic
+        @RequiresApi(34)
+        @Discouraged(
+            "It is recommended to construct a Credential by directly instantiating a Credential subclass"
+        )
+        fun createFrom(credential: android.credentials.Credential): Credential {
+            return createFrom(credential.type, credential.data)
         }
     }
 }

@@ -18,7 +18,9 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
+import androidx.annotation.Discouraged
 import androidx.annotation.IntDef
+import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -53,8 +55,9 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   the only one available option
  * @property allowedProviders a set of provider service [ComponentName] allowed to receive this
  *   option (Note: a [SecurityException] will be thrown if it is set as non-empty but your app does
- *   not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; for API level < 34, this
- *   property will not take effect and you should control the allowed provider via
+ *   not have android.permission.CREDENTIAL_MANAGER_SET_ALLOWED_PROVIDERS; empty means every
+ *   provider is eligible; for API level < 34, this property will not take effect and you should
+ *   control the allowed provider via
  *   [library dependencies](https://developer.android.com/training/sign-in/passkeys#add-dependencies))
  * @property typePriorityHint sets the priority of this entry, which defines how it appears in the
  *   credential selector, with less precedence than account ordering but more precedence than last
@@ -113,8 +116,44 @@ internal constructor(
             return data.getBoolean(BUNDLE_KEY_IS_AUTO_SELECT_ALLOWED)
         }
 
+        /**
+         * Parses the [option] into an instance of [CredentialOption].
+         *
+         * @param option the framework CredentialOption object
+         */
+        @RequiresApi(34)
         @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // used from java tests
+        @Discouraged(
+            "It is recommended to construct a CredentialOption by directly instantiating a CredentialOption subclass"
+        )
+        fun createFrom(option: android.credentials.CredentialOption): CredentialOption {
+            return createFrom(
+                option.type,
+                option.credentialRetrievalData,
+                option.candidateQueryData,
+                option.isSystemProviderRequired,
+                option.allowedProviders
+            )
+        }
+
+        /**
+         * Parses the raw data into an instance of [CredentialOption].
+         *
+         * @param type matches [CredentialOption.type]
+         * @param requestData matches [CredentialOption.requestData], the request data in the
+         *   [Bundle] format; this should be constructed and retrieved from the a given
+         *   [CredentialOption] itself and never be created from scratch
+         * @param candidateQueryData matches [CredentialOption.candidateQueryData]; this should be
+         *   constructed and retrieved from the a given [CredentialOption] itself and never be
+         *   created from scratch
+         * @param requireSystemProvider matches [CredentialOption.isSystemProviderRequired]
+         * @param allowedProviders matches [CredentialOption.allowedProviders], empty means every
+         *   provider is eligible
+         */
+        @JvmStatic
+        @Discouraged(
+            "It is recommended to construct a CredentialOption by directly instantiating a CredentialOption subclass"
+        )
         fun createFrom(
             type: String,
             requestData: Bundle,

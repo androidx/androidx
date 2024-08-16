@@ -19,6 +19,7 @@ package androidx.credentials
 import android.os.Bundle
 import androidx.credentials.Credential.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -88,5 +89,23 @@ class PasswordCredentialTest {
         assertThat(convertedSubclassCredential.id).isEqualTo(credential.id)
         assertThat(convertedCredential.data.getCharSequence(customDataKey))
             .isEqualTo(customDataValue)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkConversion_frameworkClass_success() {
+        val credential = PasswordCredential("id", "password")
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = credential.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
+
+        val convertedCredential = createFrom(android.credentials.Credential(credential.type, data))
+
+        equals(convertedCredential, credential)
     }
 }

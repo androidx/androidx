@@ -20,6 +20,7 @@ import android.content.ComponentName
 import androidx.credentials.CredentialOption.Companion.createFrom
 import androidx.credentials.GetPasswordOption.Companion.BUNDLE_KEY_ALLOWED_USER_IDS
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.collect.ImmutableSet
 import com.google.common.truth.Truth.assertThat
@@ -152,6 +153,47 @@ class GetPasswordOptionTest {
         assertThat(convertedOption.candidateQueryData.getBoolean(customCandidateQueryDataKey))
             .isEqualTo(customCandidateQueryDataValue)
         assertThat(option.typePriorityHint).isEqualTo(EXPECTED_PASSWORD_PRIORITY)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkConversion_frameworkClass_success() {
+        val expectedIsAutoSelectAllowed = true
+        val expectedAllowedProviders: Set<ComponentName> =
+            ImmutableSet.of(ComponentName("pkg", "cls"), ComponentName("pkg2", "cls2"))
+        val expectedAllowedUserIds: Set<String> = ImmutableSet.of("id1", "id2", "id3")
+        val option =
+            GetPasswordOption(
+                expectedAllowedUserIds,
+                expectedIsAutoSelectAllowed,
+                expectedAllowedProviders
+            )
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val requestData = option.requestData
+        val customRequestDataKey = "customRequestDataKey"
+        val customRequestDataValue = "customRequestDataValue"
+        requestData.putString(customRequestDataKey, customRequestDataValue)
+        val candidateQueryData = option.candidateQueryData
+        val customCandidateQueryDataKey = "customRequestDataKey"
+        val customCandidateQueryDataValue = true
+        candidateQueryData.putBoolean(customCandidateQueryDataKey, customCandidateQueryDataValue)
+
+        val convertedOption =
+            createFrom(
+                android.credentials.CredentialOption.Builder(
+                        option.type,
+                        requestData,
+                        candidateQueryData
+                    )
+                    .setAllowedProviders(option.allowedProviders)
+                    .setIsSystemProviderRequired(option.isSystemProviderRequired)
+                    .build()
+            )
+
+        assertEquals(convertedOption, option)
     }
 
     private companion object {
