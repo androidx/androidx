@@ -19,7 +19,6 @@ package androidx.camera.core;
 import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.lifecycle.LifecycleOwner;
 
 import java.util.List;
@@ -103,7 +102,6 @@ public class ConcurrentCamera {
          * @param compositionSettings {@link CompositionSettings}.
          * @param lifecycleOwner {@link LifecycleOwner}.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public SingleCameraConfig(
                 @NonNull CameraSelector cameraSelector,
                 @NonNull UseCaseGroup useCaseGroup,
@@ -146,7 +144,6 @@ public class ConcurrentCamera {
          * Returns {@link CompositionSettings}.
          * @return {@link CompositionSettings} instance.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
         public CompositionSettings getCompositionSettings() {
             return mCompositionSettings;

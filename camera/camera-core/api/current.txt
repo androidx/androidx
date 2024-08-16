@@ -165,14 +165,31 @@ package androidx.camera.core {
     method public androidx.camera.core.CameraXConfig getCameraXConfig();
   }
 
+  public class CompositionSettings {
+    method public float getAlpha();
+    method public androidx.core.util.Pair<java.lang.Float!,java.lang.Float!> getOffset();
+    method public androidx.core.util.Pair<java.lang.Float!,java.lang.Float!> getScale();
+    field public static final androidx.camera.core.CompositionSettings DEFAULT;
+  }
+
+  public static final class CompositionSettings.Builder {
+    ctor public CompositionSettings.Builder();
+    method public androidx.camera.core.CompositionSettings build();
+    method public androidx.camera.core.CompositionSettings.Builder setAlpha(@FloatRange(from=0, to=1) float);
+    method public androidx.camera.core.CompositionSettings.Builder setOffset(@FloatRange(from=0xffffffff, to=1) float, @FloatRange(from=0xffffffff, to=1) float);
+    method public androidx.camera.core.CompositionSettings.Builder setScale(float, float);
+  }
+
   public class ConcurrentCamera {
     ctor public ConcurrentCamera(java.util.List<androidx.camera.core.Camera!>);
     method public java.util.List<androidx.camera.core.Camera!> getCameras();
   }
 
   public static final class ConcurrentCamera.SingleCameraConfig {
+    ctor public ConcurrentCamera.SingleCameraConfig(androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup, androidx.camera.core.CompositionSettings, androidx.lifecycle.LifecycleOwner);
     ctor public ConcurrentCamera.SingleCameraConfig(androidx.camera.core.CameraSelector, androidx.camera.core.UseCaseGroup, androidx.lifecycle.LifecycleOwner);
     method public androidx.camera.core.CameraSelector getCameraSelector();
+    method public androidx.camera.core.CompositionSettings getCompositionSettings();
     method public androidx.lifecycle.LifecycleOwner getLifecycleOwner();
     method public androidx.camera.core.UseCaseGroup getUseCaseGroup();
   }
