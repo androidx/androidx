@@ -107,4 +107,9 @@ public class CallEndpointCompat(
     ) : this(name, type) {
         mMackAddress = address
     }
+
+    /** Internal helper to determine if this [CallEndpointCompat] is EndpointType#TYPE_BLUETOOTH */
+    internal fun isBluetoothType(): Boolean {
+        return type == TYPE_BLUETOOTH
+    }
 }

@@ -35,14 +35,18 @@ import java.util.Objects
  * @param callType Information related to data being transmitted (voice, video, etc. )
  * @param callCapabilities Allows a package to opt into capabilities on the telecom side, on a
  *   per-call basis
+ * @param preferredStartingCallEndpoint allows clients to specify a [CallEndpointCompat] to start a
+ *   new call on. The [preferredStartingCallEndpoint] should be a value returned from
+ *   [CallsManager.getAvailableStartingCallEndpoints]. Once the call is started, Core-Telecom will
+ *   switch to the [preferredStartingCallEndpoint] before running the [CallControlScope].
  */
-public class CallAttributesCompat
-constructor(
+public class CallAttributesCompat(
     public val displayName: CharSequence,
     public val address: Uri,
     @Direction public val direction: Int,
     @CallType public val callType: Int = CALL_TYPE_AUDIO_CALL,
-    @CallCapability public val callCapabilities: Int = SUPPORTS_SET_INACTIVE
+    @CallCapability public val callCapabilities: Int = SUPPORTS_SET_INACTIVE,
+    public var preferredStartingCallEndpoint: CallEndpointCompat? = null
 ) {
     internal var mHandle: PhoneAccountHandle? = null
 

@@ -18,6 +18,9 @@ package androidx.core.telecom
 
 import android.content.ComponentName
 import android.content.Context
+import android.media.AudioDeviceCallback
+import android.media.AudioDeviceInfo
+import android.media.AudioManager
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.os.OutcomeReceiver
@@ -43,6 +46,9 @@ import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
+import androidx.core.telecom.internal.PreCallEndpoints
+import androidx.core.telecom.internal.utils.AudioManagerUtil.Companion.getAvailableAudioDevices
+import androidx.core.telecom.internal.utils.EndpointUtils.Companion.getEndpointsFromAudioDeviceInfo
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.internal.utils.Utils.Companion.remapJetpackCapsToPlatformCaps
 import androidx.core.telecom.util.ExperimentalAppActions
@@ -54,8 +60,11 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
@@ -73,7 +82,7 @@ import kotlinx.coroutines.withTimeout
  * descriptions.
  */
 @RequiresApi(VERSION_CODES.O)
-public class CallsManager public constructor(context: Context) {
+public class CallsManager(context: Context) {
     private val mContext: Context = context
     private var mPhoneAccount: PhoneAccount? = null
     private val mTelecomManager: TelecomManager =
@@ -83,6 +92,9 @@ public class CallsManager public constructor(context: Context) {
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
+    // This list is modified in [getAvailableStartingCallEndpoints] and used to store the
+    // mappings of jetpack call endpoint UUIDs
+    private var mPreCallEndpointsList: MutableList<PreCallEndpoints> = mutableListOf()
 
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -363,6 +375,61 @@ public class CallsManager public constructor(context: Context) {
     }
 
     /**
+     * Fetch the current available call audio endpoints that can be used for a new call session. The
+     * callback flow will be continuously updated until the call session is established via
+     * [addCall]. Once [addCall] is invoked with a
+     * [CallAttributesCompat.preferredStartingCallEndpoint], the callback containing the
+     * [CallEndpointCompat] will be forced closed on behalf of the client. If the flow is canceled
+     * before adding the call, the [CallAttributesCompat.preferredStartingCallEndpoint] will be
+     * voided. If a call session isn't started, the flow should be cleaned up client-side by calling
+     * cancel() from the same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting
+     * in.
+     *
+     * @return a flow of [CallEndpointCompat]s that can be used for a new call session
+     */
+    public fun getAvailableStartingCallEndpoints(): Flow<List<CallEndpointCompat>> = callbackFlow {
+        val audioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        // [AudioDeviceInfo] <-- AudioManager / platform
+        val initialAudioDevices = getAvailableAudioDevices(audioManager)
+        // [AudioDeviceInfo] --> [CallEndpoints]
+        val initialEndpoints = getEndpointsFromAudioDeviceInfo(mContext, initialAudioDevices)
+
+        val preCallEndpoints = PreCallEndpoints(initialEndpoints.toMutableList(), this.channel)
+        mPreCallEndpointsList.add(preCallEndpoints)
+
+        val audioDeviceCallback =
+            object : AudioDeviceCallback() {
+                override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
+                    if (addedDevices != null) {
+                        preCallEndpoints.endpointsAddedUpdate(
+                            getEndpointsFromAudioDeviceInfo(mContext, addedDevices.toList())
+                        )
+                    }
+                }
+
+                override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
+                    if (removedDevices != null) {
+                        preCallEndpoints.endpointsRemovedUpdate(
+                            getEndpointsFromAudioDeviceInfo(mContext, removedDevices.toList())
+                        )
+                    }
+                }
+            }
+        // The following callback is needed in the event the user connects or disconnects
+        // and audio device after this API is called.
+        audioManager.registerAudioDeviceCallback(audioDeviceCallback, null /*handler*/)
+        // Send the initial list of pre-call [CallEndpointCompat]s out to the client. They
+        // will be emitted and cached in the Flow & only consumed once the client has
+        // collected it.
+        trySend(initialEndpoints)
+        awaitClose {
+            Log.i(TAG, "getAvailableStartingCallEndpoints: awaitClose")
+            audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
+            mPreCallEndpointsList.remove(preCallEndpoints)
+        }
+    }
+
+    /**
      * Internal version of addCall, which also allows components in the library to consume generic
      * events generated from the remote InCallServices. This facilitates the creation of Jetpack
      * defined extensions.
@@ -392,6 +459,11 @@ public class CallsManager public constructor(context: Context) {
         // exception, addCall will unblock.
         val blockingSessionExecution = CompletableDeferred<Unit>(parent = coroutineContext.job)
 
+        val preCallEndpoints: PreCallEndpoints? =
+            mPreCallEndpointsList.find {
+                it.isCallEndpointBeingTracked(callAttributes.preferredStartingCallEndpoint)
+            }
+
         // create a call session based off the build version
         @RequiresApi(34)
         if (Utils.hasPlatformV2Apis()) {
@@ -408,6 +480,7 @@ public class CallsManager public constructor(context: Context) {
                     onDisconnect,
                     onSetActive,
                     onSetInactive,
+                    preCallEndpoints,
                     callChannels,
                     onEvent,
                     blockingSessionExecution
@@ -442,8 +515,6 @@ public class CallsManager public constructor(context: Context) {
 
             pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution)
 
-            callSession.maybeSwitchToSpeakerOnCallStart()
-
             /* at this point in time we have CallControl object */
             val scope =
                 CallSession.CallControlScopeImpl(
@@ -452,6 +523,8 @@ public class CallsManager public constructor(context: Context) {
                     blockingSessionExecution,
                     coroutineContext
                 )
+
+            callSession.maybeSwitchStartingEndpoint(callAttributes.preferredStartingCallEndpoint)
 
             // Run the clients code with the session active and exposed via the CallControlScope
             // interface implementation declared above.
@@ -473,6 +546,8 @@ public class CallsManager public constructor(context: Context) {
                     onSetActive,
                     onSetInactive,
                     onEvent,
+                    callAttributes.preferredStartingCallEndpoint,
+                    preCallEndpoints,
                     blockingSessionExecution
                 )
 
@@ -493,6 +568,7 @@ public class CallsManager public constructor(context: Context) {
             // CallControlScope interface implementation declared above.
             scope.block()
         }
+        preCallEndpoints?.mSendChannel?.close()
         blockingSessionExecution.await()
     }
 
