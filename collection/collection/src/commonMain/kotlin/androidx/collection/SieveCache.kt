@@ -37,6 +37,9 @@ internal const val NodeMetaAndPreviousMask = -0x00000000_80000000L // 0xffffffff
 internal const val EmptyNode = 0x3fffffff_ffffffffL
 internal val EmptyNodes = LongArray(0)
 
+private const val InvalidMappingLink: Int = -1
+private const val InvalidMapping: Long = -1L
+
 /**
  * [SieveCache] is an in-memory cache that holds strong references to a limited number of values
  * determined by the cache's [maxSize] and the size of each value. When a value is added to a full
@@ -787,12 +790,54 @@ public constructor(
         val values = values
         val nodes = nodes
 
-        val indexMapping = IntArray(capacity)
+        // In this function, we are swapping values in place in the keys/values/nodes arrays.
+        // This requires us to track where the values came from original in the array and
+        // where they moved. You can think of this as an allocation-free double-linked list.
+        //
+        // We need this mapping to fix the links encoded in the nodes array. The nodes array
+        // is itself an allocation-free double-linked list which uses indices to indicate where
+        // to find the next/previous node. Since this method will move the values inside the
+        // data structure, we need to patch the nodes array when we're done. We could skip the
+        // mapping array but that would require scanning the entire nodes array every time we move
+        // a value inside the data structure which would be more expensive. Instead we traverse
+        // the nodes array only once in [fixup].
+        //
+        // Each index mapping is a (src, dst) pair. The source index indicates which
+        // index the current value came, and the destination index indicates where the
+        // value previously held was moved. For instance we want to swap the values
+        // at index 4 and 21:
+        //
+        // indexMapping[4] = (21, 21)
+        // The value at index 4 came from index 21 (src) and the value previously at index 4
+        // is now at index 21.
+        //
+        // indexMapping[21] = (4, 4)
+        // The value at index 21 came from index 4 (src) and the value previously at index 21
+        // is now at index 4.
+        //
+        // Now let's imagine we want to swap the values at index 4 and 22 (following the previous
+        // swap):
+        //
+        // indexMapping[4] = (22, 21)
+        // The value at index 4 came from index 22 (src) and the value previously at index 4
+        // is now at index 21.
+        //
+        // indexMapping[21] = (4, 22)
+        // The value at index 21 came from index 4 (src) and the value previously at index 21
+        // is now at index 22.
+        //
+        // indexMapping[22] = (21, 4)
+        // The value at index 22 came from index 21 (src) and the value previously at index 22
+        // is now at index 4.
+        //
+        // If a src or dst mapping is set to -1 ([InvalidMappingLink]), the mapping does not
+        // exist. We initialize the array to (-1, -1).
+        val indexMapping = LongArray(capacity)
+        indexMapping.fill(InvalidMapping, 0, capacity)
 
         // Converts Sentinel and Deleted to Empty, and Full to Deleted
         convertMetadataForCleanup(metadata, capacity)
 
-        var swapIndex = -1
         var index = 0
 
         // Drop deleted items and re-hashes surviving entries
@@ -800,7 +845,6 @@ public constructor(
             var m = readRawMetadata(metadata, index)
             // Formerly Deleted entry, we can use it as a swap spot
             if (m == Empty) {
-                swapIndex = index
                 index++
                 continue
             }
@@ -816,7 +860,7 @@ public constructor(
             val hash1 = h1(hash)
             val targetIndex = findFirstAvailableSlot(hash1)
 
-            // Test if the current index (i) and the new index (targetIndex) fall
+            // Test if the current index (index) and the new index (targetIndex) fall
             // within the same group based on the hash. If the group doesn't change,
             // we don't move the entry
             val probeOffset = hash1 and capacity
@@ -827,7 +871,7 @@ public constructor(
                 val hash2 = h2(hash)
                 writeRawMetadata(metadata, index, hash2.toLong())
 
-                indexMapping[index] = index
+                indexMapping[index] = createMapping(index, index)
 
                 // Copies the metadata into the clone area
                 metadata[metadata.size - 1] = metadata[0]
@@ -852,33 +896,43 @@ public constructor(
                 nodes[targetIndex] = nodes[index]
                 nodes[index] = EmptyNode
 
-                indexMapping[index] = targetIndex
-
-                swapIndex = index
+                val mapping = indexMapping[index]
+                val src = mapping.src
+                if (src != -1) {
+                    indexMapping[src] = createDstMapping(indexMapping[src], targetIndex)
+                    indexMapping[index] = eraseSrcMapping(indexMapping[index])
+                } else {
+                    indexMapping[index] = createMapping(InvalidMappingLink, targetIndex)
+                }
+                indexMapping[targetIndex] = createMapping(index, InvalidMappingLink)
             } else /* m == Deleted */ {
-                // The target isn't empty so we use an empty slot denoted by
-                // swapIndex to perform the swap
+                // The target isn't empty
                 val hash2 = h2(hash)
                 writeRawMetadata(metadata, targetIndex, hash2.toLong())
 
-                if (swapIndex == -1) {
-                    swapIndex = findEmptySlot(metadata, index + 1, capacity)
+                val oldKey = keys[targetIndex]
+                keys[targetIndex] = keys[index]
+                keys[index] = oldKey
+
+                val oldValue = values[targetIndex]
+                values[targetIndex] = values[index]
+                values[index] = oldValue
+
+                val oldNode = nodes[targetIndex]
+                nodes[targetIndex] = nodes[index]
+                nodes[index] = oldNode
+
+                val mapping = indexMapping[index]
+                var src = mapping.src
+                if (src != -1) {
+                    indexMapping[src] = createDstMapping(indexMapping[src], targetIndex)
+                    indexMapping[index] = createSrcMapping(indexMapping[index], targetIndex)
+                } else {
+                    indexMapping[index] = createMapping(targetIndex, targetIndex)
+                    src = index
                 }
 
-                keys[swapIndex] = keys[targetIndex]
-                keys[targetIndex] = keys[index]
-                keys[index] = keys[swapIndex]
-
-                values[swapIndex] = values[targetIndex]
-                values[targetIndex] = values[index]
-                values[index] = values[swapIndex]
-
-                nodes[swapIndex] = nodes[targetIndex]
-                nodes[targetIndex] = nodes[index]
-                nodes[index] = nodes[swapIndex]
-
-                indexMapping[index] = targetIndex
-                indexMapping[targetIndex] = index
+                indexMapping[targetIndex] = createMapping(src, index)
 
                 // Since we exchanged two slots we must repeat the process with
                 // element we just moved in the current location
@@ -904,6 +958,9 @@ public constructor(
         val previousNodes = nodes
         val previousCapacity = _capacity
 
+        // src index -> dst index mapping
+        // We only need the mapping to go one way since we are copying from
+        // the existing array into a new one
         val indexMapping = IntArray(previousCapacity)
 
         initializeStorage(newCapacity)
@@ -930,6 +987,19 @@ public constructor(
         }
 
         fixupNodes(indexMapping)
+    }
+
+    private fun fixupNodes(mapping: LongArray) {
+        val nodes = nodes
+        for (i in nodes.indices) {
+            val node = nodes[i]
+            val previous = node.previousNode
+            val next = node.nextNode
+            nodes[i] = createLinks(node, previous, next, mapping)
+        }
+        if (head != NodeInvalidLink) head = mapping[head].dst
+        if (tail != NodeInvalidLink) tail = mapping[tail].dst
+        if (hand != NodeInvalidLink) hand = mapping[hand].dst
     }
 
     private fun fixupNodes(mapping: IntArray) {
@@ -1017,6 +1087,13 @@ public constructor(
     }
 }
 
+internal inline fun createLinks(node: Long, previous: Int, next: Int, mapping: LongArray): Long {
+    return (node and NodeMetaMask) or
+        (if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous].dst).toLong() shl
+        31 or
+        (if (next == NodeInvalidLink) NodeInvalidLink else mapping[next].dst).toLong()
+}
+
 internal inline fun createLinks(node: Long, previous: Int, next: Int, mapping: IntArray): Long {
     return (node and NodeMetaMask) or
         (if (previous == NodeInvalidLink) NodeInvalidLink else mapping[previous]).toLong() shl
@@ -1046,3 +1123,20 @@ internal inline val Long.nextNode: Int
 
 internal inline val Long.visited: Int
     get() = ((this shr 62) and 0x1).toInt()
+
+private inline fun createMapping(src: Int, dst: Int) = (src.toLong() shl 32) or dst.toLong()
+
+private inline fun createSrcMapping(mapping: Long, src: Int) =
+    (src.toLong() shl 32) or (mapping and 0xffff_ffffL)
+
+private inline fun createDstMapping(mapping: Long, dst: Int) =
+    (mapping and 0xffff_ffff_0000_0000UL.toLong()) or dst.toLong()
+
+private inline fun eraseSrcMapping(mapping: Long) =
+    0xffff_ffff_0000_0000UL.toLong() or (mapping and 0xffff_ffffL)
+
+private inline val Long.src: Int
+    get() = ((this shr 32) and 0xffff_ffffL).toInt()
+
+private inline val Long.dst: Int
+    get() = (this and 0xffff_ffffL).toInt()
