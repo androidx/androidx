@@ -41,7 +41,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class ModalExpandedNavigationRailScreenshotTest {
-    // TODO: Add screenshot tests for predictive back behavior.
 
     @get:Rule val composeTestRule = createComposeRule()
 

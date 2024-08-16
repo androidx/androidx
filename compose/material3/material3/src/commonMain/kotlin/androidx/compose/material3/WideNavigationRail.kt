@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -60,7 +61,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.takeOrElse
@@ -87,6 +90,7 @@ import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastSumBy
+import androidx.compose.ui.util.lerp
 import kotlin.jvm.JvmInline
 import kotlin.math.min
 import kotlinx.coroutines.launch
@@ -444,15 +448,16 @@ fun ModalExpandedNavigationRail(
     }
     val scope = rememberCoroutineScope()
     val predictiveBackProgress = remember { Animatable(initialValue = 0f) }
+    val predictiveBackState = remember { RailPredictiveBackState() }
 
     ModalWideNavigationRailDialog(
         properties = properties,
-        // TODO: Implement predictive back behavior.
         onDismissRequest = { scope.launch { animateToDismiss() } },
         onPredictiveBack = { backEvent ->
             scope.launch { predictiveBackProgress.snapTo(backEvent) }
         },
-        onPredictiveBackCancelled = { scope.launch { predictiveBackProgress.animateTo(0f) } }
+        onPredictiveBackCancelled = { scope.launch { predictiveBackProgress.animateTo(0f) } },
+        predictiveBackState = predictiveBackState
     ) {
         Box(modifier = Modifier.fillMaxSize().imePadding()) {
             Scrim(
@@ -461,6 +466,8 @@ fun ModalExpandedNavigationRail(
                 visible = railState.targetValue != ModalExpandedNavigationRailValue.Closed
             )
             ModalWideNavigationRailContent(
+                predictiveBackProgress = predictiveBackProgress,
+                predictiveBackState = predictiveBackState,
                 settleToDismiss = settleToDismiss,
                 modifier = modifier,
                 railState = railState,
@@ -779,14 +786,17 @@ internal expect fun ModalWideNavigationRailDialog(
     properties: ModalExpandedNavigationRailProperties,
     onPredictiveBack: (Float) -> Unit,
     onPredictiveBackCancelled: () -> Unit,
+    predictiveBackState: RailPredictiveBackState,
     content: @Composable () -> Unit
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ModalWideNavigationRailContent(
+    predictiveBackProgress: Animatable<Float, AnimationVector1D>,
+    predictiveBackState: RailPredictiveBackState,
     settleToDismiss: suspend (velocity: Float) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     railState: ModalExpandedNavigationRailState,
     colors: WideNavigationRailColors,
     shape: Shape,
@@ -800,14 +810,32 @@ private fun ModalWideNavigationRailContent(
     val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
     val railPaneTitle = getString(string = Strings.WideNavigationRailPaneTitle)
 
-    Box(
+    Surface(
+        shape = shape,
+        color = colors.expandedModalContainerColor,
         modifier =
             modifier
-                .fillMaxHeight()
                 .widthIn(max = openModalRailMaxWidth)
+                .fillMaxHeight()
                 .semantics { paneTitle = railPaneTitle }
                 .graphicsLayer {
-                    // TODO: Implement predictive back behavior.
+                    val progress = predictiveBackProgress.value
+                    if (progress <= 0f) {
+                        return@graphicsLayer
+                    }
+                    val offset = railState.currentOffset
+                    val width = size.width
+                    if (!offset.isNaN() && !width.isNaN() && width != 0f) {
+                        // Apply the predictive back animation.
+                        scaleX =
+                            calculatePredictiveBackScaleX(
+                                progress,
+                                predictiveBackState.swipeEdgeMatchesRail
+                            )
+                        scaleY = calculatePredictiveBackScaleY(progress)
+                        transformOrigin =
+                            TransformOrigin(if (isRtl) 1f else 0f, PredictiveBackPivotFractionY)
+                    }
                 }
                 .draggableAnchors(railState.anchoredDraggableState, Orientation.Horizontal) {
                     railSize,
@@ -829,7 +857,26 @@ private fun ModalWideNavigationRailContent(
                 )
     ) {
         WideNavigationRailLayout(
-            modifier = modifier,
+            modifier =
+                Modifier.graphicsLayer {
+                    val progress = predictiveBackProgress.value
+                    if (progress <= 0) {
+                        return@graphicsLayer
+                    }
+                    // Preserve the original aspect ratio and alignment due to the predictive back
+                    // animation.
+                    val predictiveBackScaleX =
+                        calculatePredictiveBackScaleX(
+                            progress,
+                            predictiveBackState.swipeEdgeMatchesRail
+                        )
+                    val predictiveBackScaleY = calculatePredictiveBackScaleY(progress)
+                    scaleX =
+                        if (predictiveBackScaleX != 0f) predictiveBackScaleY / predictiveBackScaleX
+                        else 1f
+                    transformOrigin =
+                        TransformOrigin(if (isRtl) 0f else 1f, PredictiveBackPivotFractionY)
+                },
             expanded = true,
             shape = shape,
             colors = colors,
@@ -839,6 +886,32 @@ private fun ModalWideNavigationRailContent(
             isModal = true,
             content = content
         )
+    }
+}
+
+private fun GraphicsLayerScope.calculatePredictiveBackScaleX(
+    progress: Float,
+    swipeEdgeMatchesRail: Boolean,
+): Float {
+    val width = size.width
+    return if (width.isNaN() || width == 0f) {
+        1f
+    } else {
+        val scaleXDirection = if (swipeEdgeMatchesRail) 1f else -1f
+        1f +
+            (scaleXDirection *
+                lerp(0f, min(PredictiveBackMaxScaleXDistance.toPx(), width), progress)) / width
+    }
+}
+
+private fun GraphicsLayerScope.calculatePredictiveBackScaleY(
+    progress: Float,
+): Float {
+    val height = size.height
+    return if (height.isNaN() || height == 0f) {
+        1f
+    } else {
+        1f - lerp(0f, min(PredictiveBackMaxScaleYDistance.toPx(), height), progress) / height
     }
 }
 
@@ -899,5 +972,9 @@ private val ItemTopIconIndicatorHorizontalPadding =
 private val ItemStartIconIndicatorVerticalPadding =
     (NavigationRailHorizontalItemTokens.ActiveIndicatorHeight -
         NavigationRailBaselineItemTokens.IconSize) / 2
+private val PredictiveBackMaxScaleXDistance = 24.dp
+private val PredictiveBackMaxScaleYDistance = 48.dp
 
+private const val PredictiveBackPivotFractionY = 0.5f
+private const val PredictiveBackPivotFractionYScaleDown = 0f
 private const val HeaderLayoutIdTag: String = "header"

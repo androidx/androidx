@@ -22,9 +22,13 @@ import androidx.compose.material3.internal.AnchoredDraggableState
 import androidx.compose.material3.internal.snapTo
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
@@ -195,5 +199,17 @@ fun rememberModalExpandedNavigationRailState(
             animationSpec = animationSpec,
             confirmValueChange = confirmValueChange
         )
+    }
+}
+
+@Stable
+internal class RailPredictiveBackState {
+    var swipeEdgeMatchesRail by mutableStateOf(true)
+
+    fun update(
+        isSwipeEdgeLeft: Boolean,
+        isRtl: Boolean,
+    ) {
+        swipeEdgeMatchesRail = (isSwipeEdgeLeft && !isRtl) || (!isSwipeEdgeLeft && isRtl)
     }
 }
