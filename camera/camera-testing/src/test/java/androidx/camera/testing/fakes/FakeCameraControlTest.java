@@ -173,6 +173,42 @@ public final class FakeCameraControlTest {
     }
 
     @Test
+    public void notifiesLastRequestOnCaptureCompleted() {
+        CameraCaptureResult captureResult = new FakeCameraCaptureResult();
+
+        CountDownLatch latch = new CountDownLatch(1);
+        List<CameraCaptureResult> resultList = new ArrayList<>();
+        CaptureConfig captureConfig1 = createCaptureConfig(new CameraCaptureCallback() {
+            @Override
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
+                resultList.add(cameraCaptureResult);
+            }
+        }, new CameraCaptureCallback() {
+            @Override
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
+                resultList.add(cameraCaptureResult);
+            }
+        });
+        CaptureConfig captureConfig2 = createCaptureConfig(new CameraCaptureCallback() {
+            @Override
+            public void onCaptureCompleted(int captureConfigId,
+                    @NonNull CameraCaptureResult cameraCaptureResult) {
+                resultList.add(cameraCaptureResult);
+                latch.countDown();
+            }
+        });
+
+        mCameraControl.submitStillCaptureRequests(Arrays.asList(captureConfig1, captureConfig2),
+                ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY, ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH);
+        mCameraControl.notifyLastRequestOnCaptureCompleted(captureResult);
+
+        awaitLatch(latch);
+        assertThat(resultList).containsExactlyElementsIn(Collections.singletonList(captureResult));
+    }
+
+    @Test
     public void canUpdateFlashModeToOff() {
         mCameraControl.setFlashMode(ImageCapture.FLASH_MODE_OFF);
         assertThat(mCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
@@ -319,7 +355,7 @@ public final class FakeCameraControlTest {
         List<CaptureConfig> notifiedCaptureConfigs = new ArrayList<>();
         CountDownLatch latch = new CountDownLatch(1);
 
-        mCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+        mCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
             notifiedCaptureConfigs.addAll(captureConfigs);
             latch.countDown();
         });
@@ -335,7 +371,7 @@ public final class FakeCameraControlTest {
         AtomicReference<Thread> listenerThread = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 
-        mCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+        mCameraControl.addOnNewCaptureRequestListener(captureConfigs -> {
             listenerThread.set(Thread.currentThread());
             latch.countDown();
         });
@@ -350,7 +386,7 @@ public final class FakeCameraControlTest {
         AtomicReference<Thread> listenerThread = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 
-        mCameraControl.setOnNewCaptureRequestListener(CameraXExecutors.mainThreadExecutor(),
+        mCameraControl.addOnNewCaptureRequestListener(CameraXExecutors.mainThreadExecutor(),
                 captureConfigs -> {
                     listenerThread.set(Thread.currentThread());
                     latch.countDown();

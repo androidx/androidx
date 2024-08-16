@@ -19,6 +19,7 @@ package androidx.camera.testing.impl.fakes;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TAKE_PICTURE_MANAGER_PROVIDER;
 
 import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraDevice;
@@ -30,20 +31,46 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.ExperimentalZeroShutterLag;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
+import androidx.camera.core.imagecapture.ImageCaptureControl;
+import androidx.camera.core.imagecapture.TakePictureManager;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.impl.wrappers.TakePictureManagerWrapper;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A fake implementation of {@link UseCaseConfigFactory}.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
-
     @Nullable
     private CaptureType mLastRequestedCaptureType;
+
+    @Nullable
+    private TakePictureManagerWrapper mTakePictureManager;
+
+    @NonNull
+    private final List<FakeCamera> mFakeCameras = new ArrayList<>();
+
+    /**
+     * Creates a {@link FakeUseCaseConfigFactory} instance.
+     */
+    public FakeUseCaseConfigFactory() {
+    }
+
+    /**
+     * Creates a {@link FakeUseCaseConfigFactory} instance with the available {@link FakeCamera}
+     * instances.
+     */
+    public FakeUseCaseConfigFactory(@NonNull List<FakeCamera> fakeCameras) {
+        mFakeCameras.addAll(fakeCameras);
+    }
 
     /**
      * Returns the configuration for the given capture type, or <code>null</code> if the
@@ -65,6 +92,20 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
         mutableConfig.insertOption(OPTION_CAPTURE_CONFIG_UNPACKER, (config, builder) -> {});
         mutableConfig.insertOption(OPTION_SESSION_CONFIG_UNPACKER,
                 new FakeSessionConfigOptionUnpacker());
+
+        if (captureType == CaptureType.IMAGE_CAPTURE) {
+            mutableConfig.insertOption(OPTION_TAKE_PICTURE_MANAGER_PROVIDER,
+                    new TakePictureManager.Provider() {
+                        @NonNull
+                        @Override
+                        public TakePictureManager newInstance(
+                                @NonNull ImageCaptureControl imageCaptureControl) {
+                            mTakePictureManager = new TakePictureManagerWrapper(
+                                    imageCaptureControl, mFakeCameras);
+                            return mTakePictureManager;
+                        }
+                    });
+        }
 
         return OptionsBundle.from(mutableConfig);
     }
@@ -96,5 +137,13 @@ public final class FakeUseCaseConfigFactory implements UseCaseConfigFactory {
             default:
                 return CameraDevice.TEMPLATE_PREVIEW;
         }
+    }
+
+    /**
+     * Returns the last provided {@link TakePictureManagerWrapper} instance.
+     */
+    @Nullable
+    public TakePictureManagerWrapper getTakePictureManager() {
+        return mTakePictureManager;
     }
 }
