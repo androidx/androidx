@@ -84,8 +84,8 @@ import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
-import androidx.camera.testing.impl.fakes.FakeImageCaptureCallback
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
 import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.camera.video.Recorder
@@ -103,6 +103,8 @@ import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -126,7 +128,7 @@ private val DEFAULT_RESOLUTION = Size(640, 480)
 private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
-private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
+private val CAPTURE_TIMEOUT = 15.seconds
 private const val TOLERANCE = 1e-3f
 private val EXIF_GAINMAP_PATTERNS =
     listOf(
@@ -231,14 +233,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         // Act.
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Assert.
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         var sizeEnvelope = imageProperties.size
 
         // Some devices may not be able to fit the requested resolution. In this case, the returned
@@ -311,13 +313,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         if (camera.cameraInfo.isZslSupported) {
             val numImages = 5
-            val callback = FakeImageCaptureCallback(captureCount = numImages)
+            val callback = FakeOnImageCapturedCallback(captureCount = numImages)
             for (i in 0 until numImages) {
                 useCase.takePicture(mainExecutor, callback)
             }
 
             callback.awaitCapturesAndAssert(
-                timeout = numImages * CAPTURE_TIMEOUT,
+                timeout = CAPTURE_TIMEOUT.times(numImages),
                 capturedImagesCount = numImages
             )
         }
@@ -401,12 +403,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         // Act.
-        val callback = FakeImageCaptureCallback(captureCount = numImages)
+        val callback = FakeOnImageCapturedCallback(captureCount = numImages)
         repeat(numImages) { useCase.takePicture(mainExecutor, callback) }
 
         // Assert.
         callback.awaitCapturesAndAssert(
-            timeout = numImages * CAPTURE_TIMEOUT,
+            timeout = CAPTURE_TIMEOUT.times(numImages),
             capturedImagesCount = numImages
         )
     }
@@ -463,7 +465,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         // Act.
-        val callback = FakeImageCaptureCallback()
+        val callback = FakeOnImageCapturedCallback()
         imageCapture.takePicture(mainExecutor, callback)
 
         // Assert.
@@ -823,7 +825,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // Wait for the signal that all the images have been saved.
         callback.awaitCapturesAndAssert(
-            timeout = numImages * CAPTURE_TIMEOUT,
+            timeout = CAPTURE_TIMEOUT.times(numImages),
             savedImagesCount = numImages
         )
     }
@@ -882,7 +884,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
 
         useCase.takePicture(mainExecutor, callback)
 
@@ -913,14 +915,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
 
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         assertThat(imageProperties.format).isEqualTo(ImageFormat.RAW10)
     }
 
@@ -1037,13 +1039,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // directly know  onStateAttached() callback has been received. Therefore, taking a
         // picture and waiting for the capture success callback to know the use case's
         // onStateAttached() callback has been received.
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         imageCapture.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val callback2 = FakeImageCaptureCallback(captureCount = 3)
+        val callback2 = FakeOnImageCapturedCallback(captureCount = 3)
         imageCapture.takePicture(mainExecutor, callback2)
         imageCapture.takePicture(mainExecutor, callback2)
         imageCapture.takePicture(mainExecutor, callback2)
@@ -1066,7 +1068,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 3)
+        val callback = FakeOnImageCapturedCallback(captureCount = 3)
         imageCapture.takePicture(mainExecutor, callback)
         imageCapture.takePicture(mainExecutor, callback)
         imageCapture.takePicture(mainExecutor, callback)
@@ -1094,7 +1096,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     fun takePictureReturnsErrorNO_CAMERA_whenNotBound() = runBlocking {
         val imageCapture = ImageCapture.Builder().build()
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
 
         imageCapture.takePicture(mainExecutor, callback)
 
@@ -1243,7 +1245,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
@@ -1253,7 +1255,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // same as original one.
         val expectedCroppingRatio = Rational(DEFAULT_RESOLUTION.width, DEFAULT_RESOLUTION.height)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         val cropRect = imageProperties.cropRect
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
@@ -1280,7 +1282,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
 
         // Checks camera device sensor degrees to set target cropping aspect ratio match the
         // sensor orientation.
@@ -1298,7 +1300,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // After target rotation is updated, the result cropping aspect ratio should still the
         // same as original one.
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         val cropRect = imageProperties.cropRect
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
@@ -1353,7 +1355,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCaseGroup)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
 
         useCase.takePicture(mainExecutor, callback)
 
@@ -1362,7 +1364,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         // After target rotation is updated, the result cropping aspect ratio should still the
         // same as original one.
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         val cropRect = imageProperties.cropRect
 
         // Rotate the captured ImageProxy's crop rect into the coordinate space of the final
@@ -1447,13 +1449,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         val cropRect = imageProperties.cropRect
         val cropRectAspectRatio = Rational(cropRect!!.height(), cropRect.width())
 
@@ -1610,13 +1612,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 )
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
 
         // Check the output image rotation degrees value is correct.
         assertThat(imageProperties.rotationDegrees)
@@ -1683,13 +1685,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 )
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         // Check the output image rotation degrees value is correct.
         assertThat(imageProperties.rotationDegrees)
             .isEqualTo(camera.cameraInfo.getSensorRotationDegrees(useCase.targetRotation))
@@ -1721,13 +1723,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 )
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         useCase.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
 
         // Check the output image rotation degrees value is correct.
         assertThat(imageProperties.rotationDegrees)
@@ -1771,13 +1773,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
                 )
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         imageCapture.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
 
         // Check the output image rotation degrees value is correct.
         assertThat(imageProperties.rotationDegrees)
@@ -1819,13 +1821,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             )
         }
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         imageCapture.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
 
         // Check the output image rotation degrees value is correct.
         if (isRotationOptionSupportedDevice()) {
@@ -1981,7 +1983,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             .isTrue()
 
         // Act.
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         withContext(Dispatchers.Main) {
             // Test the reproduce step in b/235119898
             cameraProvider.unbind(preview)
@@ -2008,7 +2010,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         // wait for camera to start by taking a picture
-        val callback1 = FakeImageCaptureCallback(captureCount = 1)
+        val callback1 = FakeOnImageCapturedCallback(captureCount = 1)
         imageCapture.takePicture(mainExecutor, callback1)
         try {
             callback1.awaitCapturesAndAssert(capturedImagesCount = 1)
@@ -2017,7 +2019,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         // Act.
-        val callback2 = FakeImageCaptureCallback(captureCount = 1)
+        val callback2 = FakeOnImageCapturedCallback(captureCount = 1)
         withContext(Dispatchers.Main) {
             cameraProvider.unbind(videoCapture)
             imageCapture.takePicture(mainExecutor, callback2)
@@ -2169,13 +2171,13 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
         assertThat(imageCapture.resolutionInfo!!.resolution).isEqualTo(maxHighResolutionOutputSize)
 
-        val callback = FakeImageCaptureCallback(captureCount = 1)
+        val callback = FakeOnImageCapturedCallback(captureCount = 1)
         imageCapture.takePicture(mainExecutor, callback)
 
         // Wait for the signal that the image has been captured.
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
 
-        val imageProperties = callback.results.first()
+        val imageProperties = callback.results.first().properties
         assertThat(imageProperties.size).isEqualTo(maxHighResolutionOutputSize)
     }
 
@@ -2313,7 +2315,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         }
 
         suspend fun awaitCapturesAndAssert(
-            timeout: Long = CAPTURE_TIMEOUT,
+            timeout: Duration = CAPTURE_TIMEOUT,
             savedImagesCount: Int = 0,
             errorsCount: Int = 0
         ) {
