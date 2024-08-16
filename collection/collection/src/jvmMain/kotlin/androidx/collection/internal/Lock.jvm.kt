@@ -22,6 +22,7 @@ import androidx.annotation.RestrictTo
 
 internal actual class Lock {
 
-    actual inline fun <T> synchronizedImpl(block: () -> T): T =
-        synchronized(lock = this, block = block)
+    actual inline fun <T> synchronizedImpl(block: () -> T): T {
+        return synchronized(lock = this, block = block)
+    }
 }

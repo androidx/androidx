@@ -20,9 +20,6 @@ import androidx.collection.internal.binarySearch
 import androidx.collection.internal.idealLongArraySize
 import androidx.collection.internal.requirePrecondition
 import kotlin.DeprecationLevel.HIDDEN
-import kotlin.jvm.JvmField
-import kotlin.jvm.JvmOverloads
-import kotlin.jvm.JvmSynthetic
 
 private val DELETED = Any()
 
@@ -54,23 +51,10 @@ private val DELETED = Any()
  *   initial capacity of 0, the sparse array will be initialized with a light-weight representation
  *   not requiring any additional array allocations.
  */
-public expect open class LongSparseArray<E>
-@JvmOverloads
-public constructor(initialCapacity: Int = 10) {
-    @JvmSynthetic // Hide from Java callers.
-    @JvmField
+public expect open class LongSparseArray<E> public constructor(initialCapacity: Int = 10) {
     internal var garbage: Boolean
-
-    @JvmSynthetic // Hide from Java callers.
-    @JvmField
     internal var keys: LongArray
-
-    @JvmSynthetic // Hide from Java callers.
-    @JvmField
     internal var values: Array<Any?>
-
-    @JvmSynthetic // Hide from Java callers.
-    @JvmField
     internal var size: Int
 
     /**

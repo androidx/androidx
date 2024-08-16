@@ -16,6 +16,8 @@
 
 package androidx.collection.internal
 
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.native.internal.createCleaner
 
 /**
@@ -32,16 +34,17 @@ internal expect class LockImpl() {
     internal fun destroy()
 }
 
-@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual class Lock actual constructor() {
 
     private val lockImpl = LockImpl()
 
     @Suppress("unused") // The returned Cleaner must be assigned to a property
-    @ExperimentalStdlibApi
+    @OptIn(ExperimentalStdlibApi::class)
     private val cleaner = createCleaner(lockImpl, LockImpl::destroy)
 
     actual inline fun <T> synchronizedImpl(block: () -> T): T {
+        contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
+
         lock()
         return try {
             block()
