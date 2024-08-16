@@ -41,7 +41,8 @@
             android:textSize="20sp"
             android:clickable="true"
             android:focusable="true"
-            android:background="@null">
+            android:background="@null"
+            style="@style/TextAppearance.Material3.TitleMedium">
         </androidx.pdf.widget.SearchEditText>
 
         <TextView android:id="@+id/match_status_textview"
