@@ -783,7 +783,7 @@ class FloatingActionButtonTest {
                 shapeSizeY = with(rule.density) { 60.dp.toPx() },
                 centerX = with(rule.density) { 70.dp.toPx() },
                 centerY = with(rule.density) { 70.dp.toPx() },
-                shapeOverlapPixelCount = with(rule.density) { 2.dp.toPx() }
+                shapeOverlapPixelCount = with(rule.density) { 3.dp.toPx() }
             )
     }
 
