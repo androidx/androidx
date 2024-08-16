@@ -35,6 +35,7 @@ import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.animateElevation
 import androidx.compose.material3.tokens.BaselineButtonTokens
 import androidx.compose.material3.tokens.ButtonSmallTokens
+import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
 import androidx.compose.material3.tokens.FilledTonalButtonTokens
@@ -805,7 +806,8 @@ object ButtonDefaults {
             return defaultTextButtonColorsCached
                 ?: ButtonColors(
                         containerColor = Color.Transparent,
-                        contentColor = fromToken(TextButtonTokens.LabelColor),
+                        // TODO replace with the token value once it's corrected
+                        contentColor = fromToken(ColorSchemeKeyTokens.Primary),
                         disabledContainerColor = Color.Transparent,
                         disabledContentColor =
                             fromToken(TextButtonTokens.DisabledLabelColor)
