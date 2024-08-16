@@ -607,7 +607,7 @@ internal constructor(
     private fun updatePathOutline(path: Path): AndroidOutline {
         val resultOutline = obtainAndroidOutline()
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P || path.isConvex) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.R) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                 OutlineVerificationHelper.setPath(resultOutline, path)
             } else {
                 resultOutline.setConvexPath(path.asAndroidPath())
