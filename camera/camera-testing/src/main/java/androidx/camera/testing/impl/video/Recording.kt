@@ -55,6 +55,7 @@ internal constructor(
     private val recorder: Recorder,
     private val outputOptions: OutputOptions,
     private val withAudio: Boolean,
+    private val initialAudioMuted: Boolean,
     private val asPersistentRecording: Boolean,
     private val recordingStopStrategy: (androidx.camera.video.Recording, Recorder) -> Unit,
     private val callbackExecutor: Executor,
@@ -73,7 +74,7 @@ internal constructor(
             else -> throw AssertionError()
         }.apply {
             if (withAudio) {
-                withAudioEnabled()
+                withAudioEnabled(initialAudioMuted)
             }
             if (asPersistentRecording) {
                 asPersistentRecording()
@@ -221,7 +222,7 @@ internal constructor(
         return this
     }
 
-    private fun verifyMute(muted: Boolean) {
+    public fun verifyMute(muted: Boolean) {
         // TODO(b/274862085): Change to verify the status events consecutively having MUTED state
         //  by adding the utility to MockConsumer.
         try {

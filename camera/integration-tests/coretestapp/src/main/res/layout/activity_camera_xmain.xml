@@ -145,6 +145,23 @@ limitations under the License.
         app:layout_constraintTop_toBottomOf="@id/video_quality"
         app:layout_constraintRight_toRightOf="parent" />
 
+    <ImageButton
+        android:id="@+id/video_mute"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="5dp"
+        android:padding="5dp"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:visibility="invisible"
+        android:src="@drawable/ic_mic_on"
+        android:background="@drawable/round_toggle_button"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintTop_toBottomOf="@id/video_persistent"
+        app:layout_constraintRight_toRightOf="parent" />
+
     <ToggleButton
         android:id="@+id/VideoToggle"
         android:layout_width="wrap_content"

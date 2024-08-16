@@ -178,7 +178,8 @@ public final class Recording implements AutoCloseable {
      *
      * <p>The output file will contain an audio track even the whole recording is muted. Create a
      * recording without calling {@link PendingRecording#withAudioEnabled()} to record a file
-     * with no audio track.
+     * with no audio track. To set the initial mute state of the recording, use
+     * {@link PendingRecording#withAudioEnabled(boolean)}.
      *
      * <p>Muting or unmuting a recording that isn't created
      * {@link PendingRecording#withAudioEnabled()} with audio enabled is no-op.

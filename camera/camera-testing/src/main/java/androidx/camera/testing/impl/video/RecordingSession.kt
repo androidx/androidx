@@ -50,6 +50,7 @@ public class RecordingSession(
         recorder: Recorder = defaults.recorder,
         outputOptions: OutputOptions = defaults.outputOptionsProvider.invoke(),
         withAudio: Boolean = defaults.withAudio,
+        initialAudioMuted: Boolean = false,
         asPersistentRecording: Boolean = false,
     ): Recording {
         return Recording(
@@ -57,6 +58,7 @@ public class RecordingSession(
                 recorder = recorder,
                 outputOptions = outputOptions,
                 withAudio = withAudio,
+                initialAudioMuted = initialAudioMuted,
                 asPersistentRecording = asPersistentRecording,
                 recordingStopStrategy = defaults.recordingStopStrategy,
                 callbackExecutor = defaults.callbackExecutor,
