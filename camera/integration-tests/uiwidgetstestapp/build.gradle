@@ -101,7 +101,6 @@ dependencies {
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
-    androidTestImplementation(project(":window:window"))
 
     // Testing framework
     androidTestImplementation(libs.testExtJunit)
