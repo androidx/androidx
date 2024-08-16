@@ -26,7 +26,7 @@
     <dimen name="viewer_frame_error_height">80dp</dimen>
 
     <!--Edit button FAB -->
-    <dimen name="viewer_edit_fab_margin_bottom">42dp</dimen>
-    <dimen name="viewer_edit_fab_margin_right">24dp</dimen>
+    <dimen name="viewer_edit_fab_margin_bottom">16dp</dimen>
+    <dimen name="viewer_edit_fab_margin_right">16dp</dimen>
 
 </resources>
