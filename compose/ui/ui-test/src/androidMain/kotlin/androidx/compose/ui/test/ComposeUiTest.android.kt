@@ -40,6 +40,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -60,7 +61,9 @@ actual fun runComposeUiTest(effectContext: CoroutineContext, block: ComposeUiTes
  * @param A The Activity type to be launched, which typically (but not necessarily) hosts the
  *   Compose content
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  * @param block The test function.
  */
 @ExperimentalTestApi
@@ -81,7 +84,9 @@ inline fun <reified A : ComponentActivity> runAndroidComposeUiTest(
  *   Compose content
  * @param activityClass The [Class] of the Activity type to be launched, corresponding to [A].
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  * @param block The test function.
  */
 @ExperimentalTestApi
@@ -196,7 +201,9 @@ sealed interface AndroidComposeUiTest<A : ComponentActivity> : ComposeUiTest {
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
  *   activity that was launched and hosts the Compose content.
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  */
 @ExperimentalTestApi
 inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
@@ -214,10 +221,17 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
  * some of the properties and methods on [test] will only work during the call to [runTest], as they
  * require that the environment has been set up.
  *
+ * If the [effectContext] contains a [TestDispatcher], that dispatcher will be used to run
+ * composition on and its [TestCoroutineScheduler] will be used to construct the [MainTestClock]. If
+ * the `effectContext` does not contain a `TestDispatcher`, an [UnconfinedTestDispatcher] will be
+ * created, using the `TestCoroutineScheduler` from the `effectContext` if present.
+ *
  * @param A The Activity type to be interacted with, which typically (but not necessarily) is the
  *   activity that was launched and hosts the Compose content.
  * @param effectContext The [CoroutineContext] used to run the composition. The context for
- *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
+ *   `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context. If this
+ *   context contains a [TestDispatcher] or [TestCoroutineScheduler] (in that order), it will be
+ *   used for composition and the [MainTestClock].
  */
 @ExperimentalTestApi
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -235,7 +249,11 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private lateinit var recomposer: Recomposer
     // We can only accept a TestDispatcher here because we need to access its scheduler.
     private val testCoroutineDispatcher =
-        effectContext[ContinuationInterceptor] as? TestDispatcher ?: UnconfinedTestDispatcher()
+        // Use the TestDispatcher if it is provided in the effectContext
+        effectContext[ContinuationInterceptor] as? TestDispatcher
+            ?:
+            // Otherwise, use the TestCoroutineScheduler if it is provided
+            UnconfinedTestDispatcher(effectContext[TestCoroutineScheduler])
     private val testCoroutineScope = TestScope(testCoroutineDispatcher)
     private lateinit var recomposerCoroutineScope: CoroutineScope
     private val coroutineExceptionHandler = UncaughtExceptionHandler()

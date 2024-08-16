@@ -24,10 +24,14 @@ import androidx.compose.ui.MotionDurationScale
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -134,6 +138,21 @@ class CustomEffectContextTest {
             mainClock.advanceTimeByFrame()
             expect(5)
         }
+    }
+
+    @Test
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun scheduler_usedWhenPresent() {
+        val scheduler = TestCoroutineScheduler()
+        val startTime = scheduler.currentTime
+
+        // We don't need any content, we only need to trigger the scheduler
+        runComposeUiTest(scheduler) {
+            setContent { rememberCoroutineScope().launch { withFrameNanos {} } }
+        }
+
+        // Only if it is used will the scheduler's time be changed
+        assertThat(scheduler.currentTime).isNotEqualTo(startTime)
     }
 
     private class TestCoroutineContextElement : CoroutineContext.Element {
