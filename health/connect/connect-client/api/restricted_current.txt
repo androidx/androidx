@@ -9,7 +9,7 @@ package androidx.health.connect.client {
     method public suspend Object? deleteRecords(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType, java.util.List<java.lang.String> recordIdsList, java.util.List<java.lang.String> clientRecordIdsList, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? getChanges(String changesToken, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ChangesResponse>);
     method public suspend Object? getChangesToken(androidx.health.connect.client.request.ChangesTokenRequest request, kotlin.coroutines.Continuation<? super java.lang.String>);
-    method public androidx.health.connect.client.HealthConnectFeatures getFeatures();
+    method public default androidx.health.connect.client.HealthConnectFeatures getFeatures();
     method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context);
     method public static android.content.Intent getHealthConnectManageDataIntent(android.content.Context context, optional String providerPackageName);
     method public static String getHealthConnectSettingsAction();
@@ -23,7 +23,7 @@ package androidx.health.connect.client {
     method public suspend <T extends androidx.health.connect.client.records.Record> Object? readRecords(androidx.health.connect.client.request.ReadRecordsRequest<T> request, kotlin.coroutines.Continuation<? super androidx.health.connect.client.response.ReadRecordsResponse<T>>);
     method public suspend Object? updateRecords(java.util.List<? extends androidx.health.connect.client.records.Record> records, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public static String ACTION_HEALTH_CONNECT_SETTINGS;
-    property public abstract androidx.health.connect.client.HealthConnectFeatures features;
+    property @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi public default androidx.health.connect.client.HealthConnectFeatures features;
     property public abstract androidx.health.connect.client.PermissionController permissionController;
     field public static final androidx.health.connect.client.HealthConnectClient.Companion Companion;
     field public static final int SDK_AVAILABLE = 3; // 0x3
