@@ -16,7 +16,7 @@
 
 package androidx.core.telecom.extensions;
 
-import androidx.core.telecom.extensions.Participant;
+import androidx.core.telecom.extensions.ParticipantParcelable;
 import androidx.core.telecom.extensions.IActionsResultCallback;
 
 // ICS Client -> VOIP App
@@ -25,5 +25,5 @@ import androidx.core.telecom.extensions.IActionsResultCallback;
 oneway interface IParticipantActions {
     // V1
     void setHandRaised(in boolean handRaisedState, in IActionsResultCallback cb) = 0;
-    void kickParticipant(in Participant participant, in IActionsResultCallback cb) = 1;
+    void kickParticipant(in String participantId, in IActionsResultCallback cb) = 1;
 }

@@ -24,7 +24,9 @@ import android.telecom.InCallService
 import android.util.Log
 import androidx.annotation.CallSuper
 import androidx.annotation.RequiresApi
-import androidx.core.telecom.extensions.CallExtensionsScope
+import androidx.core.telecom.extensions.CallExtensionScope
+import androidx.core.telecom.extensions.CallExtensionScopeImpl
+import androidx.core.telecom.extensions.CallExtensions
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -37,13 +39,14 @@ import kotlinx.coroutines.launch
  * [LifecycleOwner]
  */
 @RequiresApi(Build.VERSION_CODES.O)
-internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
+@Suppress("ContextNameSuffix")
+public open class InCallServiceCompat : InCallService(), LifecycleOwner, CallExtensions {
     // Since we define this service as a LifecycleOwner, we need to implement this dispatcher as
     // well. See [LifecycleService] for the example used to implement [LifecycleOwner].
     private val dispatcher = ServiceLifecycleDispatcher(this)
 
-    companion object {
-        private val TAG = InCallServiceCompat::class.simpleName
+    private companion object {
+        private val TAG = InCallService::class.simpleName
     }
 
     override val lifecycle: Lifecycle
@@ -56,7 +59,8 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
     }
 
     @CallSuper
-    override fun onBind(intent: Intent): IBinder? {
+    @Suppress("InvalidNullabilityOverride")
+    override fun onBind(intent: Intent?): IBinder? {
         dispatcher.onServicePreSuperOnBind()
         return super.onBind(intent)
     }
@@ -81,7 +85,6 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
     @CallSuper
     override fun onDestroy() {
         dispatcher.onServicePreSuperOnDestroy()
-        // Todo: invoke CapabilityExchangeListener#onRemoveExtensions to inform the VOIP app
         super.onDestroy()
     }
 
@@ -89,42 +92,16 @@ internal open class InCallServiceCompat : InCallService(), LifecycleOwner {
      * Connects extensions to the provided [Call], allowing the call to support additional optional
      * behaviors beyond the traditional call state management.
      *
-     * The following extension is supported on a call:
-     * - [CallExtensionsScope.addParticipantExtension] - Adds the ability to represent the
-     *   participants in the call.
-     *
-     * For example, an extension may allow the participants of a meeting to be surfaced to this
-     * application so that the user can view and manage the participants in the meeting on different
-     * surfaces:
-     * ```
-     * class InCallServiceImpl : InCallServiceCompat() {
-     * ...
-     *   override fun onCallAdded(call: Call) {
-     *     lifecycleScope.launch {
-     *       connectExtensions(context, call) {
-     *         // Initialize extensions
-     *         onConnected { call ->
-     *           // change call states & listen/update extensions
-     *         }
-     *       }
-     *       // Once the call is destroyed, control flow will resume again
-     *     }
-     *   }
-     *  ...
-     * }
-     * ```
-     *
      * @param call The Call to connect extensions on.
      * @param init The scope used to initialize and manage extensions in the scope of the Call.
+     * @see CallExtensions.connectExtensions
      */
-    // TODO: Refactor to Public API
     @ExperimentalAppActions
-    @RequiresApi(Build.VERSION_CODES.O)
-    suspend fun connectExtensions(call: Call, init: CallExtensionsScope.() -> Unit) {
+    override suspend fun connectExtensions(call: Call, init: CallExtensionScope.() -> Unit) {
         // Attach this to the scope of the InCallService so it does not outlive its lifecycle
         lifecycleScope
             .launch {
-                val scope = CallExtensionsScope(applicationContext, this, call)
+                val scope = CallExtensionScopeImpl(applicationContext, this, call)
                 Log.v(TAG, "connectExtensions: calling init")
                 scope.init()
                 Log.v(TAG, "connectExtensions: connecting extensions")

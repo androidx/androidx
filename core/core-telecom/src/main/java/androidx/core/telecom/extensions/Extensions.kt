@@ -16,44 +16,28 @@
 
 package androidx.core.telecom.extensions
 
-import androidx.annotation.IntDef
-import androidx.annotation.RestrictTo
+/** Internal constants related to Extensions that do not need to be exposed as a public API. */
+internal object Extensions {
+    internal const val LOG_TAG = "CallsManagerE"
 
-@RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)
-// TODO: move addCallWithExtensions
-public interface Extensions {
-    public companion object {
-        internal const val LOG_TAG = "CallsManagerE"
+    /**
+     * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that this
+     * InCallService supports jetpack extensions
+     */
+    internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
+        "android.telecom.event.CAPABILITY_EXCHANGE"
 
-        /**
-         * EVENT used by InCallService as part of sendCallEvent to notify the VOIP Application that
-         * this InCallService supports jetpack extensions
-         */
-        internal const val EVENT_JETPACK_CAPABILITY_EXCHANGE =
-            "android.telecom.event.CAPABILITY_EXCHANGE"
+    /** VERSION used for handling future compatibility in capability exchange. */
+    internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION =
+        "androidx.core.telecom.extensions.extra.CAPABILITY_EXCHANGE_VERSION"
 
-        /** VERSION used for handling future compatibility in capability exchange. */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_VERSION = "CAPABILITY_EXCHANGE_VERSION"
+    /**
+     * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent as part
+     * of sendCallEvent in the included extras.
+     */
+    internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER =
+        "androidx.core.telecom.extensions.extra.CAPABILITY_EXCHANGE_BINDER"
 
-        /**
-         * BINDER used for handling capability exchange between the ICS and VOIP app sides, sent as
-         * part of sendCallEvent in the included extras.
-         */
-        internal const val EXTRA_CAPABILITY_EXCHANGE_BINDER = "CAPABILITY_EXCHANGE_BINDER"
-
-        /**
-         * Constants used to denote the type of Extension supported by the [Capability] being
-         * registered.
-         */
-        @Target(AnnotationTarget.TYPE)
-        @Retention(AnnotationRetention.SOURCE)
-        @IntDef(PARTICIPANT)
-        public annotation class Extensions
-
-        /** Represents the [ParticipantExtension] extension */
-        internal const val PARTICIPANT = 1
-
-        // Represents a null Participant over Binder
-        internal const val NULL_PARTICIPANT_ID = -1
-    }
+    /** Represents the [ParticipantExtension] extension */
+    internal const val PARTICIPANT = 1
 }

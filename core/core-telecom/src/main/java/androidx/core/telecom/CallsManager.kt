@@ -40,7 +40,9 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.extensions.CallsManagerExtensions
 import androidx.core.telecom.extensions.ExtensionInitializationScope
+import androidx.core.telecom.extensions.ExtensionInitializationScopeImpl
 import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.CallChannels
 import androidx.core.telecom.internal.CallSession
@@ -82,7 +84,7 @@ import kotlinx.coroutines.withTimeout
  * descriptions.
  */
 @RequiresApi(VERSION_CODES.O)
-public class CallsManager(context: Context) {
+public class CallsManager(context: Context) : CallsManagerExtensions {
     private val mContext: Context = context
     private var mPhoneAccount: PhoneAccount? = null
     private val mTelecomManager: TelecomManager =
@@ -291,67 +293,40 @@ public class CallsManager(context: Context) {
      * actions that go beyond the scope of a call, such as information about meeting participants
      * and icons.
      *
-     * Supported Extensions:
-     * - The ability to show meeting participants and information about those participants using
-     *   [ExtensionInitializationScope.addParticipantExtension]
-     *
-     * For example, using Participants as an example of extensions:
-     * ```
-     * scope.launch {
-     *         mCallsManager.addCallWithExtensions(attributes,
-     *             onAnswerLambda,
-     *             onDisconnectLambda,
-     *             onSetActiveLambda,
-     *             onSetInactiveLambda) {
-     *                 // Initialize extensions ...
-     *                 // Example: add participants support & associated actions
-     *                 val participantExtension = addParticipantExtension(initialParticipants)
-     *                 val raiseHandState = participantExtension.addRaiseHandSupport(
-     *                         initialRaisedHands) { onHandRaisedStateChanged ->
-     *                     // handle raised hand state changed
-     *                 }
-     *                 participantExtension.addKickParticipantSupport {
-     *                         participant ->
-     *                     // handle kicking the requested participant
-     *                 }
-     *                 // Call has been set up, perform in-call actions
-     *                 onCall {
-     *                     // Example: collect call state updates
-     *                     callStateFlow.onEach { newState ->
-     *                         // handle call state updates
-     *                     }.launchIn(this)
-     *                     // update participant extensions
-     *                     participantsFlow.onEach { newParticipants ->
-     *                         participantExtension.updateParticipants(newParticipants)
-     *                     }.launchIn(this)
-     *                     raisedHandsFlow.onEach { newRaisedHands ->
-     *                         raiseHandState.updateRaisedHands(newRaisedHands)
-     *                     }.launchIn(this)
-     *                 }
-     *             }
-     *         }
-     * }
-     * ```
-     *
+     * @param callAttributes attributes of the new call (incoming or outgoing, address, etc. )
+     * @param onAnswer where callType is the audio/video state the call should be answered as.
+     *   Telecom is informing your VoIP application to answer an incoming call and set it to active.
+     *   Telecom is requesting this on behalf of an system service (e.g. Automotive service) or a
+     *   device (e.g. Wearable).
+     * @param onDisconnect where disconnectCause represents the cause for disconnecting the call.
+     *   Telecom is informing your VoIP application to disconnect the incoming call. Telecom is
+     *   requesting this on behalf of an system service (e.g. Automotive service) or a device (e.g.
+     *   Wearable).
+     * @param onSetActive Telecom is informing your VoIP application to set the call active. Telecom
+     *   is requesting this on behalf of an system service (e.g. Automotive service) or a device
+     *   (e.g. Wearable).
+     * @param onSetInactive Telecom is informing your VoIP application to set the call inactive.
+     *   This is the same as holding a call for two endpoints but can be extended to setting a
+     *   meeting inactive. Telecom is requesting this on behalf of an system service (e.g.
+     *   Automotive service) or a device (e.g.Wearable). Note: Your app must stop using the
+     *   microphone and playing incoming media when returning.
      * @param init The scope used to first initialize Extensions that will be used when the call is
      *   first notified to the platform and UX surfaces. Once the call is set up, the user's
      *   implementation of [ExtensionInitializationScope.onCall] will be called.
-     * @see CallsManager.addCall
+     * @see CallsManagerExtensions.addCallWithExtensions
      */
-    // TODO: Refactor to Public API
-    @RequiresApi(VERSION_CODES.O)
     @ExperimentalAppActions
-    internal suspend fun addCallWithExtensions(
+    override suspend fun addCallWithExtensions(
         callAttributes: CallAttributesCompat,
         onAnswer: suspend (callType: @CallAttributesCompat.Companion.CallType Int) -> Unit,
         onDisconnect: suspend (disconnectCause: DisconnectCause) -> Unit,
         onSetActive: suspend () -> Unit,
         onSetInactive: suspend () -> Unit,
         init: suspend ExtensionInitializationScope.() -> Unit
-    ) = coroutineScope {
+    ): Unit = coroutineScope {
         Log.v(TAG, "addCall: begin")
         val eventFlow = MutableSharedFlow<CallEvent>()
-        val scope = ExtensionInitializationScope()
+        val scope = ExtensionInitializationScopeImpl()
         scope.init()
         val extensionJob = launch {
             Log.d(TAG, "addCall: connecting extensions")
@@ -371,6 +346,7 @@ public class CallsManager(context: Context) {
         }
         // Ensure that when the call ends, we also cancel any ongoing coroutines/flows as part of
         // extension work
+        Log.d(TAG, "addCall: cancelling extension job")
         extensionJob.cancelAndJoin()
     }
 

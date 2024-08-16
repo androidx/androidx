@@ -57,7 +57,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  * [onExchangeComplete], which is called when capability exchange has completed and the extension
  * should be initialized.
  */
-@ExperimentalAppActions
+@OptIn(ExperimentalAppActions::class)
 internal data class CallExtensionCreator(
     val extensionCapability: Capability,
     val onExchangeComplete: suspend (Capability?, CapabilityExchangeListenerRemote?) -> Unit
@@ -68,7 +68,7 @@ internal data class CallExtensionCreator(
  * Contains the capabilities that the VOIP app supports and the remote binder implementation used to
  * communicate with the remote process.
  */
-@ExperimentalAppActions
+@OptIn(ExperimentalAppActions::class)
 private data class CapabilityExchangeResult(
     val voipCapabilities: Set<Capability>,
     val extensionInitializationBinder: CapabilityExchangeListenerRemote
@@ -89,15 +89,13 @@ private data class CapabilityExchangeResult(
  * }
  * ```
  */
-// TODO: Refactor to Public API
+@OptIn(ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
-@ExperimentalAppActions
-internal class CallExtensionsScope(
+internal class CallExtensionScopeImpl(
     private val applicationContext: Context,
     private val callScope: CoroutineScope,
     private val call: Call
-) {
-
+) : CallExtensionScope {
     companion object {
         internal const val TAG = "CallExtensions"
 
@@ -126,46 +124,26 @@ internal class CallExtensionsScope(
     // need to query the Capability after CallExtensionScope initialization has completed.
     private val callExtensionCreators = HashSet<() -> CallExtensionCreator>()
 
-    /**
-     * Called when the [Call] extensions have been successfully set up and are ready to be used.
-     *
-     * @param block Called when extensions are ready to be used
-     */
-    fun onConnected(block: suspend (Call) -> Unit) {
+    override fun onConnected(block: suspend (Call) -> Unit) {
         delegate = block
     }
 
-    /**
-     * Add support for representing Participants in this call.
-     *
-     * ```
-     * connectExtensions(call) {
-     *     val participantExtension = addParticipantExtension(
-     *         // consume participant changed events
-     *     )
-     *     onConnected {
-     *         // extensions have been negotiated and actions are ready to be used
-     *     }
-     * }
-     * ```
-     *
-     * @param onActiveParticipantChanged Called with the new active Participant any time it changes.
-     *   If this method is called with `null`, there is no active Participant.
-     * @param onParticipantsUpdated Called when the Participants in the call have changed.
-     * @return The extension connection that should be used to set up additional actions.
-     */
-    fun addParticipantExtension(
+    override fun addParticipantExtension(
         onActiveParticipantChanged: suspend (Participant?) -> Unit,
         onParticipantsUpdated: suspend (Set<Participant>) -> Unit
-    ): ParticipantExtensionRemote {
+    ): ParticipantExtensionRemoteImpl {
         val extension =
-            ParticipantExtensionRemote(callScope, onActiveParticipantChanged, onParticipantsUpdated)
+            ParticipantExtensionRemoteImpl(
+                callScope,
+                onActiveParticipantChanged,
+                onParticipantsUpdated
+            )
         registerExtension {
             CallExtensionCreator(
                 extensionCapability =
                     Capability().apply {
                         featureId = Extensions.PARTICIPANT
-                        featureVersion = ParticipantExtension.VERSION
+                        featureVersion = ParticipantExtensionImpl.VERSION
                         supportedActions = extension.actions
                     },
                 onExchangeComplete = extension::onExchangeComplete

@@ -17,7 +17,7 @@
 package androidx.core.telecom.extensions;
 
 import java.util.List;
-import androidx.core.telecom.extensions.Participant;
+import androidx.core.telecom.extensions.ParticipantParcelable;
 import androidx.core.telecom.extensions.IParticipantActions;
 import androidx.core.telecom.extensions.IActionsResultCallback;
 
@@ -26,10 +26,10 @@ import androidx.core.telecom.extensions.IActionsResultCallback;
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IParticipantStateListener {
     // V1 - Built-in states provided as part of handling basic participant support
-    void updateParticipants(in Participant[] participants) = 0;
-    void updateActiveParticipant(in int activeParticipant) = 1;
+    void updateParticipants(in ParticipantParcelable[] participants) = 0;
+    void updateActiveParticipant(in String activeParticipantId) = 1;
     // V1 - Updates for supported actions
-    void updateRaisedHandsAction(in int[] participants) = 2;
+    void updateRaisedHandsAction(in String[] participantIds) = 2;
     // Finish synchronization and start listening for actions updates
     void finishSync(in IParticipantActions cb) = 3;
 }

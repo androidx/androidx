@@ -19,11 +19,9 @@ package androidx.core.telecom.extensions;
 @JavaDerive(equals = true, toString = true)
 @JavaPassthrough(annotation="@androidx.core.telecom.util.ExperimentalAppActions")
 @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
-parcelable Participant {
-    // ID of the participant (must be unique for each)
-    int id;
-    // Participant name
-    String name;
-    // Call icon associated with the participant
-    Uri speakerIconUri;
+parcelable ParticipantParcelable {
+    // ID of the participant (must be unique for each call and NOT reused)
+    String id;
+    // User visible Participant name
+    CharSequence name;
 }

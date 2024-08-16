@@ -16,81 +16,23 @@
 
 package androidx.core.telecom.extensions
 
-import android.util.Log
-import androidx.core.telecom.internal.ParticipantActionCallbackRepository
-import androidx.core.telecom.internal.ParticipantStateListenerRemote
 import androidx.core.telecom.util.ExperimentalAppActions
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 
 /**
- * Tracks the current raised hand state of all of the Participants of this call and notifies the
- * listener if a remote requests to change the user's raised hand state.
- *
- * @param participants The StateFlow containing the current set of Participants in the call
- * @param onHandRaisedChanged The action to perform when the remote InCallService requests to change
- *   this user's raised hand state.
+ * Provides this application with the ability to notify remote surfaces (automotive, watch, etc..)
+ * when [Participant]s in the call have raised or lowered their hands.
  */
 @ExperimentalAppActions
-internal class RaiseHandState(
-    val participants: StateFlow<Set<Participant>>,
-    private val onHandRaisedChanged: suspend (Boolean) -> Unit
-) {
-    companion object {
-        const val LOG_TAG = Extensions.LOG_TAG + "(RHAR)"
-    }
-
-    private val raisedHandsState: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
-
+public interface RaiseHandState {
     /**
-     * Notify the remote InCallService of an update to the participants that have their hands raised
+     * Notify the remote surfaces of an update to the [Participant]s that have their hands raised at
+     * the current time. Any [Participant] that is in the call and is in [raisedHands] is considered
+     * to have their hand raised and any [Participant] that is in the call that is not in
+     * [raisedHands] is considered to have their hand lowered. The order of the [Participant]s in
+     * [raisedHands] MUST be in the order that the hands were raised, earliest raised hand first.
      *
-     * @param raisedHands The new set of Participants that have their hands raised.
+     * @param raisedHands The updated List of [Participant]s that have their hands raised, ordered
+     *   as earliest raised hand to newest raised hand.
      */
-    suspend fun updateRaisedHands(raisedHands: Set<Participant>) {
-        raisedHandsState.emit(raisedHands)
-    }
-
-    /**
-     * Connect this Action to a new remote that supports listening to this action's state updates.
-     *
-     * @param scope The CoroutineScope to use to update the remote
-     * @param repository The event repository used to listen to state updates from the remote.
-     * @param remote The interface used to communicate with the remote.
-     */
-    internal fun connect(
-        scope: CoroutineScope,
-        repository: ParticipantActionCallbackRepository,
-        remote: ParticipantStateListenerRemote
-    ) {
-        Log.i(LOG_TAG, "initialize: sync state")
-        repository.raiseHandStateCallback = ::raiseHandStateChanged
-        // Send current state
-        remote.updateRaisedHandsAction(raisedHandsState.value.map { it.id }.toIntArray())
-        // Set up updates to the remote when the state changes
-        participants
-            .combine(raisedHandsState) { p, rhs -> p.intersect(rhs) }
-            .distinctUntilChanged()
-            .onEach {
-                Log.i(LOG_TAG, "to remote: updateRaisedHands=$it")
-                remote.updateRaisedHandsAction(it.map { p -> p.id }.toIntArray())
-            }
-            .launchIn(scope)
-    }
-
-    /**
-     * Registered to be called when the remote InCallService has requested to change the raised hand
-     * state of the user.
-     *
-     * @param state The new raised hand state, true if hand is raised, false if it is not.
-     */
-    private suspend fun raiseHandStateChanged(state: Boolean) {
-        Log.d(LOG_TAG, "raisedHandStateChanged: updated state: $state")
-        onHandRaisedChanged(state)
-    }
+    public suspend fun updateRaisedHands(raisedHands: List<Participant>)
 }

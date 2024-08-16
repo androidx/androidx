@@ -30,6 +30,8 @@ import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_OUTGOING
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.Capability
 import androidx.core.telecom.extensions.Participant
+import androidx.core.telecom.extensions.ParticipantParcelable
+import androidx.core.telecom.extensions.toParticipant
 import androidx.core.telecom.test.ITestAppControl
 import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.test.utils.TestUtils
@@ -54,7 +56,7 @@ open class VoipAppWithExtensionsControl : Service() {
     private var mCallback: ITestAppControlCallback? = null
     private var participantsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
     private var activeParticipantFlow: MutableStateFlow<Participant?> = MutableStateFlow(null)
-    private var raisedHandsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
+    private var raisedHandsFlow: MutableStateFlow<List<Participant>> = MutableStateFlow(emptyList())
 
     companion object {
         val TAG = VoipAppWithExtensionsControl::class.java.simpleName
@@ -110,7 +112,7 @@ open class VoipAppWithExtensionsControl : Service() {
                                 raisedHandsFlow
                                     .onEach {
                                         TestUtils.printParticipants(it, "VoIP raised hands")
-                                        raiseHandStateUpdater!!.updateRaisedHands(it)
+                                        raiseHandStateUpdater?.updateRaisedHands(it)
                                     }
                                     .launchIn(this)
                                 activeParticipantFlow
@@ -129,16 +131,16 @@ open class VoipAppWithExtensionsControl : Service() {
                 return id
             }
 
-            override fun updateParticipants(setOfParticipants: List<Participant>) {
-                participantsFlow.value = setOfParticipants.toSet()
+            override fun updateParticipants(setOfParticipants: List<ParticipantParcelable>) {
+                participantsFlow.value = setOfParticipants.map { it.toParticipant() }.toSet()
             }
 
-            override fun updateActiveParticipant(participant: Participant?) {
-                activeParticipantFlow.value = participant
+            override fun updateActiveParticipant(participant: ParticipantParcelable?) {
+                activeParticipantFlow.value = participant?.toParticipant()
             }
 
-            override fun updateRaisedHands(raisedHandsParticipants: List<Participant>) {
-                raisedHandsFlow.value = raisedHandsParticipants.toSet()
+            override fun updateRaisedHands(raisedHandsParticipants: List<ParticipantParcelable>) {
+                raisedHandsFlow.value = raisedHandsParticipants.map { it.toParticipant() }
             }
         }
 
@@ -157,7 +159,7 @@ open class VoipAppWithExtensionsControl : Service() {
         mCallback = null
         participantsFlow.value = emptySet()
         activeParticipantFlow.value = null
-        raisedHandsFlow.value = emptySet()
+        raisedHandsFlow.value = emptyList()
         return false
     }
 

@@ -61,13 +61,13 @@ internal class TestInCallService : InCallServiceCompat() {
         mCalls.remove(call)
     }
 
-    override fun onBind(intent: Intent): IBinder? {
-        if (intent.action == SERVICE_INTERFACE) {
+    override fun onBind(intent: Intent?): IBinder? {
+        if (intent?.action == SERVICE_INTERFACE) {
             Log.i(LOG_TAG, "InCallService bound from telecom")
             mTelecomBoundFlow.tryEmit(true)
             return super.onBind(intent)
         }
-        Log.i(LOG_TAG, "InCallService bound by ${intent.component}")
+        Log.i(LOG_TAG, "InCallService bound by ${intent?.component}")
         return localBinder
     }
 
