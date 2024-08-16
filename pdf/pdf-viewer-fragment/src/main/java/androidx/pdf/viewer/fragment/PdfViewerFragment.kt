@@ -147,6 +147,7 @@ public open class PdfViewerFragment : Fragment() {
     private var shouldRedrawOnDocumentLoaded = false
     private var isAnnotationIntentResolvable = false
     private var documentLoaded = false
+    private var isSearchMenuAdjusted = false
 
     /**
      * The URI of the PDF document to display defaulting to `null`.
@@ -306,11 +307,21 @@ public open class PdfViewerFragment : Fragment() {
             paginatedView?.isConfigurationChanged = true
         }
 
-        // Need to adjust the view only after the layout phase is completed for the views to
-        // accurately calculate the height of the view
+        /**
+         * Need to adjust the view only after the layout phase is completed for the views to
+         * accurately calculate the height of the view. The condition for visibility and
+         * [isSearchMenuAdjusted] guarantees that the listener is only invoked once after layout
+         * change.
+         */
         findInFileView?.let { view ->
             view.viewTreeObserver?.addOnGlobalLayoutListener {
-                activity?.let { adjustInsetsForSearchMenu(view, requireActivity()) }
+                if (view.visibility == View.VISIBLE) {
+                    if (!isSearchMenuAdjusted) {
+                        activity?.let { adjustInsetsForSearchMenu(view, it) }
+                    } else {
+                        isSearchMenuAdjusted = false
+                    }
+                }
             }
         }
 
@@ -365,6 +376,8 @@ public open class PdfViewerFragment : Fragment() {
         findInFileView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             bottomMargin = menuMargin
         }
+
+        isSearchMenuAdjusted = true
     }
 
     /** Called after this viewer enters the screen and becomes visible. */

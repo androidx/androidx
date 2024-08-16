@@ -58,7 +58,8 @@ class PdfViewerFragmentTestSuite {
 
         val scenario =
             launchFragmentInContainer<MockPdfViewerFragment>(
-                themeResId = androidx.appcompat.R.style.Theme_AppCompat_DayNight_NoActionBar,
+                themeResId =
+                    com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar,
                 initialState = Lifecycle.State.INITIALIZED
             )
         scenario.moveToState(nextState)
@@ -109,6 +110,7 @@ class PdfViewerFragmentTestSuite {
         onView(withId(R.id.parent_pdf_container))
             .perform(selectionViewActions.longClickAndDragRight())
         onView(withId(R.id.parent_pdf_container)).check(selectionViewActions.stopHandleMoved())
+        scenario.close()
     }
 
     @Test
@@ -155,6 +157,7 @@ class PdfViewerFragmentTestSuite {
         onView(withId(R.id.close_btn)).perform(click())
         onView(withId(R.id.find_query_box))
             .check(matches(withEffectiveVisibility(ViewMatchers.Visibility.GONE)))
+        scenario.close()
     }
 
     @Test
@@ -188,6 +191,7 @@ class PdfViewerFragmentTestSuite {
         // Swipe actions
         onView(withId(R.id.parent_pdf_container)).perform(swipeUp())
         onView(withId(R.id.parent_pdf_container)).perform(swipeDown())
+        scenario.close()
     }
 
     @Test
@@ -214,6 +218,7 @@ class PdfViewerFragmentTestSuite {
                 "Incorrect exception returned ${fragment.documentError?.message}"
             )
         }
+        scenario.close()
     }
 
     companion object {
@@ -221,7 +226,7 @@ class PdfViewerFragmentTestSuite {
         private const val TEST_PROTECTED_DOCUMENT_FILE = "sample-protected.pdf"
         private const val TEST_CORRUPTED_DOCUMENT_FILE = "corrupted.pdf"
         private const val PROTECTED_DOCUMENT_PASSWORD = "abcd1234"
-        private const val DELAY_TIME_MS = 1000L
+        private const val DELAY_TIME_MS = 500L
         private const val SEARCH_QUERY = "ipsum"
     }
 }
