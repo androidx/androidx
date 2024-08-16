@@ -264,7 +264,6 @@ class MainActivity : AppCompatActivity() {
             if (drawerLayout.isOpen) {
                 drawerLayout.closeDrawers()
             } else {
-                currentFragment.handleDrawerStateChange(true)
                 drawerLayout.open()
             }
         }
@@ -273,14 +272,20 @@ class MainActivity : AppCompatActivity() {
     private fun initializeDrawer() {
         drawerLayout.addDrawerListener(
             object : DrawerListener {
-                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+                private var isDrawerOpen = false
 
-                override fun onDrawerOpened(drawerView: View) {
-                    // we handle this in the button onClick instead
+                override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                    if (!isDrawerOpen) {
+                        isDrawerOpen = true
+                        currentFragment.handleDrawerStateChange(isDrawerOpen = true)
+                    }
                 }
 
+                override fun onDrawerOpened(drawerView: View) {}
+
                 override fun onDrawerClosed(drawerView: View) {
-                    currentFragment.handleDrawerStateChange(false)
+                    isDrawerOpen = false
+                    currentFragment.handleDrawerStateChange(isDrawerOpen = false)
                 }
 
                 override fun onDrawerStateChanged(newState: Int) {}
