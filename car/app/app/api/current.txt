@@ -903,6 +903,16 @@ package androidx.car.app.mediaextensions {
     field public static final String KEY_ROOT_HINT_MEDIA_SESSION_API = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MEDIA_SESSION_API";
   }
 
+  public class MediaIntentExtras {
+    field public static final String ACTION_MEDIA_TEMPLATE_V2 = "androidx.car.app.mediaextensions.action.MEDIA_TEMPLATE_V2";
+    field public static final String EXTRA_KEY_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
+    field public static final String EXTRA_KEY_MEDIA_ID = "androidx.car.app.mediaextensions.extra.KEY_MEDIA_ID";
+    field public static final String EXTRA_KEY_SEARCH_ACTION = "androidx.car.app.mediaextensions.extra.KEY_SEARCH_ACTION";
+    field public static final String EXTRA_KEY_SEARCH_QUERY = "android.car.media.extra.SEARCH_QUERY";
+    field public static final int EXTRA_VALUE_NO_SEARCH_ACTION = 0; // 0x0
+    field public static final int EXTRA_VALUE_PLAY_FIRST_ITEM_FROM_SEARCH = 1; // 0x1
+  }
+
   public final class MetadataExtras {
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_LARGE_ICON_URI";
     field public static final String KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI = "androidx.car.app.mediaextensions.KEY_CONTENT_FORMAT_TINTABLE_SMALL_ICON_URI";
