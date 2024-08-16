@@ -23,6 +23,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.credentials.ClearCredentialStateRequest.Companion.TYPE_CLEAR_RESTORE_CREDENTIAL
 
 /** Factory that returns the credential provider to be used by Credential Manager. */
 internal class CredentialProviderFactory(val context: Context) {
@@ -62,18 +63,15 @@ internal class CredentialProviderFactory(val context: Context) {
      * the pre-U provider is used. If not, then the provider is determined by the API level.
      *
      * @param request is a credential request of either [CreateRestoreCredentialRequest],
-     *   [ClearCredentialRequestTypes.ClearRestoreCredential], or [GetCredentialRequest] that can
-     *   determine [CredentialProvider] type.
+     *   [TYPE_CLEAR_RESTORE_CREDENTIAL], or [GetCredentialRequest] that can determine
+     *   [CredentialProvider] type.
      * @return the best available provider, or null if no provider is available.
      */
     fun getBestAvailableProvider(
         request: Any,
         shouldFallbackToPreU: Boolean = true
     ): CredentialProvider? {
-        if (
-            request is CreateRestoreCredentialRequest ||
-                request == ClearCredentialRequestTypes.CLEAR_RESTORE_CREDENTIAL
-        ) {
+        if (request is CreateRestoreCredentialRequest || request == TYPE_CLEAR_RESTORE_CREDENTIAL) {
             return tryCreatePreUOemProvider()
         } else if (request is GetCredentialRequest) {
             for (option in request.credentialOptions) {
