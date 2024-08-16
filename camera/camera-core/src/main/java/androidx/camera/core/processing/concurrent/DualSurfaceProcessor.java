@@ -27,6 +27,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.CompositionSettings;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
@@ -92,7 +93,7 @@ public class DualSurfaceProcessor implements SurfaceProcessorInternal,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides,
             @NonNull CompositionSettings primaryCompositionSettings,
             @NonNull CompositionSettings secondaryCompositionSettings) {
-        mGlThread = new HandlerThread("GL Thread");
+        mGlThread = new HandlerThread(CameraXThreads.TAG + "GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);

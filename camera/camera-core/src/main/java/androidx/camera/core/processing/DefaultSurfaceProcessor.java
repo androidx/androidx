@@ -37,6 +37,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.arch.core.util.Function;
+import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
@@ -110,7 +111,7 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      */
     DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange,
             @NonNull Map<InputFormat, ShaderProvider> shaderProviderOverrides) {
-        mGlThread = new HandlerThread("GL Thread");
+        mGlThread = new HandlerThread(CameraXThreads.TAG + "GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
