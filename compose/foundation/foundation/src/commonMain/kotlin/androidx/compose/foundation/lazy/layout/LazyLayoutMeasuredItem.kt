@@ -43,16 +43,12 @@ internal interface LazyLayoutMeasuredItemProvider<T : LazyLayoutMeasuredItem> {
 }
 
 internal fun <T : LazyLayoutMeasuredItem> updatedVisibleItems(
-    noExtraItems: Boolean,
-    currentVisibleItems: List<T>,
+    firstVisibleIndex: Int,
+    lastVisibleIndex: Int,
     positionedItems: List<T>,
-    stickingItems: List<T>
+    stickingItems: List<T>,
 ): List<T> {
-    if (positionedItems.isEmpty() || currentVisibleItems.isEmpty()) return emptyList()
-    val firstVisibleIndex =
-        if (noExtraItems) positionedItems.first().index else currentVisibleItems.first().index
-    val lastVisibleIndex =
-        if (noExtraItems) positionedItems.last().index else currentVisibleItems.last().index
+    if (positionedItems.isEmpty()) return emptyList()
 
     val finalVisibleItems = stickingItems.toMutableList()
 

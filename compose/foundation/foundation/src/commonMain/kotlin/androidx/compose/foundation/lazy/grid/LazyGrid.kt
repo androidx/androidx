@@ -28,6 +28,7 @@ import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
@@ -42,6 +43,7 @@ import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalScrollCaptureInProgress
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
@@ -83,6 +85,8 @@ internal fun LazyGrid(
 
     val coroutineScope = rememberCoroutineScope()
     val graphicsContext = LocalGraphicsContext.current
+    val stickyHeadersEnabled = !LocalScrollCaptureInProgress.current
+
     val measurePolicy =
         rememberLazyGridMeasurePolicy(
             itemProviderLambda,
@@ -94,7 +98,8 @@ internal fun LazyGrid(
             horizontalArrangement,
             verticalArrangement,
             coroutineScope,
-            graphicsContext
+            graphicsContext,
+            if (stickyHeadersEnabled) StickyItemsPlacement.StickToTopPlacement else null
         )
 
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
@@ -166,7 +171,9 @@ private fun rememberLazyGridMeasurePolicy(
     /** Coroutine scope for item animations */
     coroutineScope: CoroutineScope,
     /** Used for creating graphics layers */
-    graphicsContext: GraphicsContext
+    graphicsContext: GraphicsContext,
+    /** Configures the placement of sticky items */
+    stickyItemsScrollBehavior: StickyItemsPlacement?
 ) =
     remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
         state,
@@ -384,6 +391,7 @@ private fun rememberLazyGridMeasurePolicy(
                     placementScopeInvalidator = state.placementScopeInvalidator,
                     prefetchInfoRetriever = prefetchInfoRetriever,
                     graphicsContext = graphicsContext,
+                    stickyItemsScrollBehavior = stickyItemsScrollBehavior,
                     layout = { width, height, placement ->
                         layout(
                             containerConstraints.constrainWidth(width + totalHorizontalPadding),

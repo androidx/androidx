@@ -23,6 +23,9 @@ import androidx.compose.foundation.internal.requirePreconditionNotNull
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemAnimator
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
+import androidx.compose.foundation.lazy.layout.StickyItemsPlacement
+import androidx.compose.foundation.lazy.layout.applyStickyItems
+import androidx.compose.foundation.lazy.layout.updatedVisibleItems
 import androidx.compose.ui.graphics.GraphicsContext
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -32,7 +35,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastRoundToInt
@@ -70,6 +72,7 @@ internal fun measureLazyGrid(
     placementScopeInvalidator: ObservableScopeInvalidator,
     graphicsContext: GraphicsContext,
     prefetchInfoRetriever: (line: Int) -> List<Pair<Int, Constraints>>,
+    stickyItemsScrollBehavior: StickyItemsPlacement?,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): LazyGridMeasureResult {
     requirePrecondition(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -360,6 +363,26 @@ internal fun measureLazyGrid(
             }
         }
 
+        // apply sticky items logic.
+        val stickingItems =
+            stickyItemsScrollBehavior.applyStickyItems(
+                positionedItems,
+                measuredItemProvider.headerIndices,
+                beforeContentPadding,
+                afterContentPadding,
+                layoutWidth,
+                layoutHeight
+            ) {
+                val span = measuredLineProvider.spanOf(it)
+                val childConstraints = measuredLineProvider.childConstraints(0, span)
+                measuredItemProvider.getAndMeasure(
+                    index = it,
+                    constraints = childConstraints,
+                    lane = 0,
+                    span = span
+                )
+            }
+
         return LazyGridMeasureResult(
             firstVisibleLine = firstLine,
             firstVisibleLineScrollOffset = currentFirstLineScrollOffset,
@@ -368,17 +391,14 @@ internal fun measureLazyGrid(
             measureResult =
                 layout(layoutWidth, layoutHeight) {
                     positionedItems.fastForEach { it.place(this) }
+                    stickingItems.fastForEach { it.place(this) }
                     // we attach it during the placement so LazyGridState can trigger re-placement
                     placementScopeInvalidator.attachToScope()
                 },
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = mainAxisAvailableSize + afterContentPadding,
             visibleItemsInfo =
-                if (extraItemsBefore.isEmpty() && extraItemsAfter.isEmpty()) {
-                    positionedItems
-                } else {
-                    positionedItems.fastFilter { it.index in firstItemIndex..lastItemIndex }
-                },
+                updatedVisibleItems(firstItemIndex, lastItemIndex, positionedItems, stickingItems),
             totalItemsCount = itemsCount,
             reverseLayout = reverseLayout,
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,

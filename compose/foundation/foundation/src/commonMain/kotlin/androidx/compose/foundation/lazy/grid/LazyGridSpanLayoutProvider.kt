@@ -26,6 +26,7 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
 
     /** Caches the bucket info on lines 0, [bucketSize], 2 * [bucketSize], etc. */
     private val buckets = ArrayList<Bucket>().apply { add(Bucket(0)) }
+
     /**
      * The interval at each we will store the starting element of lines. These will be then used to
      * calculate the layout of arbitrary lines, by starting from the closest known "bucket start".
@@ -37,20 +38,25 @@ internal class LazyGridSpanLayoutProvider(private val gridContent: LazyGridInter
 
     /** Caches the last calculated line index, useful when scrolling in main axis direction. */
     private var lastLineIndex = 0
+
     /** Caches the starting item index on [lastLineIndex]. */
     private var lastLineStartItemIndex = 0
+
     /** Caches the span of [lastLineStartItemIndex], if this was already calculated. */
     private var lastLineStartKnownSpan = 0
+
     /**
      * Caches a calculated bucket, this is useful when scrolling in reverse main axis direction. We
      * cannot only keep the last element, as we would not know previous max span.
      */
     private var cachedBucketIndex = -1
+
     /**
      * Caches layout of [cachedBucketIndex], this is useful when scrolling in reverse main axis
      * direction. We cannot only keep the last element, as we would not know previous max span.
      */
     private val cachedBucket = mutableListOf<Int>()
+
     /** List of 1x1 spans if we do not have custom spans. */
     private var previousDefaultSpans = emptyList<GridItemSpan>()
 

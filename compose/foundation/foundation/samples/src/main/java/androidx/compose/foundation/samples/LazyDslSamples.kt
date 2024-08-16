@@ -23,12 +23,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -48,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
@@ -83,7 +87,7 @@ fun LazyRowSample() {
 
 @Sampled
 @Composable
-fun StickyHeaderSample() {
+fun StickyHeaderListSample() {
     val sections = listOf("A", "B", "C", "D", "E", "F", "G")
 
     LazyColumn(reverseLayout = true, contentPadding = PaddingValues(6.dp)) {
@@ -95,6 +99,25 @@ fun StickyHeaderSample() {
                 )
             }
             items(10) { Text("Item $it from the section $section") }
+        }
+    }
+}
+
+@Sampled
+@Composable
+@Preview
+fun StickyHeaderGridSample() {
+    val sections = listOf("A", "B", "C", "D", "E", "F", "G")
+
+    LazyVerticalGrid(columns = GridCells.Fixed(3), contentPadding = PaddingValues(6.dp)) {
+        sections.forEach { section ->
+            stickyHeader {
+                Text(
+                    "Section $section",
+                    Modifier.fillMaxWidth().background(Color.LightGray).padding(8.dp)
+                )
+            }
+            items(10) { Text("Item= $it S=$section", modifier = Modifier.height(64.dp)) }
         }
     }
 }
