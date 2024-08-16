@@ -366,7 +366,7 @@ package androidx.wear.compose.foundation.lazy {
 
   public final class LazyColumnDslKt {
     method public static inline <T> void items(androidx.wear.compose.foundation.lazy.LazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, optional kotlin.jvm.functions.Function1<? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function2<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super T,kotlin.Unit> itemContent);
-    method public static inline <T> void itemsIndexed(androidx.compose.foundation.lazy.LazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.compose.foundation.lazy.LazyItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method public static inline <T> void itemsIndexed(androidx.wear.compose.foundation.lazy.LazyColumnScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,? extends java.lang.Object?> contentType, kotlin.jvm.functions.Function3<? super androidx.wear.compose.foundation.lazy.LazyColumnItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
   @androidx.wear.compose.foundation.lazy.LazyColumnScopeMarker public sealed interface LazyColumnItemScope {
