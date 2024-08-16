@@ -15,11 +15,11 @@
   -->
 
 <ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="52dp"
-    android:layout_height="52dp"
+    android:layout_width="40dp"
+    android:layout_height="40dp"
     android:background="@drawable/fastscroll_background"
     android:elevation="4dp"
     android:importantForAccessibility="no"
     android:scaleType="center"
     android:src="@drawable/drag_indicator"
-    android:translationX="18dp" />
+    android:translationX="8dp" />
