@@ -858,11 +858,11 @@ class ToggleButtonColors(
  */
 data class ButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape)
 
-internal val ButtonShapes.isCornerBasedShape: Boolean
+internal val ButtonShapes.hasRoundedCornerShapes: Boolean
     get() =
         shape is RoundedCornerShape &&
-            pressedShape is CornerBasedShape &&
-            checkedShape is CornerBasedShape
+            pressedShape is RoundedCornerShape &&
+            checkedShape is RoundedCornerShape
 
 @Composable
 private fun shapeByInteraction(
@@ -871,7 +871,7 @@ private fun shapeByInteraction(
     checked: Boolean,
     animationSpec: FiniteAnimationSpec<Float>
 ): Shape {
-    if (shapes.isCornerBasedShape) {
+    if (shapes.hasRoundedCornerShapes) {
         return rememberAnimatedShape(shapes, checked, animationSpec, pressed)
     }
 
