@@ -33,6 +33,12 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         sdkString.toInt()
     }
 
+    override val latestStableCompileSdk: Int by lazy {
+        val sdkString = project.extraPropertyOrNull(LATEST_STABLE_COMPILE_SDK)?.toString()
+        check(sdkString != null) { "$LATEST_STABLE_COMPILE_SDK is unset" }
+        sdkString.toInt()
+    }
+
     override val minSdk: Int = 21
 
     override val targetSdk: Int by lazy {
@@ -41,6 +47,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
 
     companion object {
         private const val COMPILE_SDK = "androidx.compileSdk"
+        private const val LATEST_STABLE_COMPILE_SDK = "androidx.latestStableCompileSdk"
         private const val TARGET_SDK_VERSION = "androidx.targetSdkVersion"
 
         /**
@@ -50,6 +57,7 @@ abstract class AndroidConfigImpl(private val project: Project) : AndroidConfig {
         val GRADLE_PROPERTIES =
             listOf(
                 COMPILE_SDK,
+                LATEST_STABLE_COMPILE_SDK,
                 TARGET_SDK_VERSION,
             )
     }
@@ -69,6 +77,13 @@ interface AndroidConfig {
      * This may be specified in `gradle.properties` using `androidx.compileSdk`.
      */
     val compileSdk: Int
+
+    /**
+     * The latest stable compile SDK version that is available to use for AndroidX projects.
+     *
+     * This may be specified in `gradle.properties` using `androidx.latestStableCompileSdk`.
+     */
+    val latestStableCompileSdk: Int
 
     /** Default minimum SDK version used for AndroidX projects. */
     val minSdk: Int
