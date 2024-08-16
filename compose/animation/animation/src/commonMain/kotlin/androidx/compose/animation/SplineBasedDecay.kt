@@ -87,7 +87,10 @@ internal object AndroidFlingSpline {
      * @param time progress through the fling animation from 0-1
      */
     fun flingPosition(time: Float): FlingResult {
-        val index = (NbSamples * time).toInt()
+        // We clamp the time to prevent crashes from a clock providing playTime values lower than
+        // the start time, which leads to an IOO here. See b/313685022.
+        val clampedTime = time.coerceIn(0f, 1f)
+        val index = (NbSamples * clampedTime).toInt()
         var distanceCoef = 1f
         var velocityCoef = 0f
         if (index < NbSamples) {
@@ -96,7 +99,7 @@ internal object AndroidFlingSpline {
             val dInf = SplinePositions[index]
             val dSup = SplinePositions[index + 1]
             velocityCoef = (dSup - dInf) / (tSup - tInf)
-            distanceCoef = dInf + (time - tInf) * velocityCoef
+            distanceCoef = dInf + (clampedTime - tInf) * velocityCoef
         }
         return FlingResult(distanceCoefficient = distanceCoef, velocityCoefficient = velocityCoef)
     }
