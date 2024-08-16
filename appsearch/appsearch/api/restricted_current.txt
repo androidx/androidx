@@ -847,6 +847,10 @@ package androidx.appsearch.app {
 
 package androidx.appsearch.ast {
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public interface FunctionNode extends androidx.appsearch.ast.Node {
+    method public String getFunctionName();
+  }
+
   @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class NegationNode implements androidx.appsearch.ast.Node {
     ctor public NegationNode(androidx.appsearch.ast.Node);
     method public androidx.appsearch.ast.Node getChild();
