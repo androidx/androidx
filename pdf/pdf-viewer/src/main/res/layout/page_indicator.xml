@@ -30,4 +30,5 @@
     android:textColor="@color/google_grey"
     android:textSize="12sp"
     tools:ignore="RtlHardcoded"
-    tools:text="3 of 20" />
+    tools:text="3 of 20"
+    style="@style/TextAppearance.Material3.LabelMedium"/>
