@@ -27,6 +27,7 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.impl.converters.datatype.RECORDS_CLASS_NAME_MAP
+import androidx.health.connect.client.impl.platform.aggregate.AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10
 import androidx.health.connect.client.permission.HealthPermission.Companion.PERMISSION_PREFIX
 import androidx.health.connect.client.readRecord
 import androidx.health.connect.client.records.BloodPressureRecord
@@ -59,8 +60,10 @@ import java.time.Period
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
+import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -420,6 +423,45 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    // TODO(b/361297592): Remove once the aggregation bug is fixed
+    @Test
+    fun aggregateRecords_unsupportedMetrics_throwsUOE() = runTest {
+        for (metric in AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10) {
+            assertThrows(UnsupportedOperationException::class.java) {
+                runBlocking {
+                    healthConnectClient.aggregate(
+                        AggregateRequest(setOf(metric), TimeRangeFilter.none())
+                    )
+                }
+            }
+
+            assertThrows(UnsupportedOperationException::class.java) {
+                runBlocking {
+                    healthConnectClient.aggregateGroupByDuration(
+                        AggregateGroupByDurationRequest(
+                            setOf(metric),
+                            TimeRangeFilter.none(),
+                            Duration.ofDays(1)
+                        )
+                    )
+                }
+            }
+
+            assertThrows(UnsupportedOperationException::class.java) {
+                runBlocking {
+                    healthConnectClient.aggregateGroupByPeriod(
+                        AggregateGroupByPeriodRequest(
+                            setOf(metric),
+                            TimeRangeFilter.none(),
+                            Period.ofDays(1)
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    @Ignore("b/326414908")
     @Test
     fun aggregateRecords_belowSdkExt10() = runTest {
         assumeFalse(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 10)
