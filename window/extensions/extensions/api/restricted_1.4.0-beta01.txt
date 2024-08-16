@@ -1,0 +1,382 @@
+// Signature format: 4.0
+package androidx.window.extensions {
+
+  public interface WindowExtensions {
+    method public default androidx.window.extensions.embedding.ActivityEmbeddingComponent? getActivityEmbeddingComponent();
+    method public default int getVendorApiLevel();
+    method public default androidx.window.extensions.area.WindowAreaComponent? getWindowAreaComponent();
+    method public androidx.window.extensions.layout.WindowLayoutComponent? getWindowLayoutComponent();
+  }
+
+  public class WindowExtensionsProvider {
+    method public static androidx.window.extensions.WindowExtensions getWindowExtensions();
+  }
+
+}
+
+package androidx.window.extensions.area {
+
+  public interface ExtensionWindowAreaPresentation {
+    method public android.content.Context getPresentationContext();
+    method public default android.view.Window getWindow();
+    method public void setPresentationView(android.view.View);
+  }
+
+  public interface ExtensionWindowAreaStatus {
+    method public android.util.DisplayMetrics getWindowAreaDisplayMetrics();
+    method public int getWindowAreaStatus();
+  }
+
+  public interface WindowAreaComponent {
+    method public default void addRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public void addRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public default void endRearDisplayPresentationSession();
+    method public void endRearDisplaySession();
+    method public default android.util.DisplayMetrics getRearDisplayMetrics();
+    method public default androidx.window.extensions.area.ExtensionWindowAreaPresentation? getRearDisplayPresentation();
+    method public default void removeRearDisplayPresentationStatusListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.area.ExtensionWindowAreaStatus!>);
+    method public void removeRearDisplayStatusListener(androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public default void startRearDisplayPresentationSession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    method public void startRearDisplaySession(android.app.Activity, androidx.window.extensions.core.util.function.Consumer<java.lang.Integer!>);
+    field public static final int SESSION_STATE_ACTIVE = 1; // 0x1
+    field public static final int SESSION_STATE_CONTENT_VISIBLE = 2; // 0x2
+    field public static final int SESSION_STATE_INACTIVE = 0; // 0x0
+    field public static final int STATUS_ACTIVE = 3; // 0x3
+    field public static final int STATUS_AVAILABLE = 2; // 0x2
+    field public static final int STATUS_UNAVAILABLE = 1; // 0x1
+    field public static final int STATUS_UNSUPPORTED = 0; // 0x0
+  }
+
+}
+
+package androidx.window.extensions.embedding {
+
+  public interface ActivityEmbeddingComponent {
+    method public default void clearActivityStackAttributesCalculator();
+    method public default void clearEmbeddedActivityWindowInfoCallback();
+    method public void clearSplitAttributesCalculator();
+    method public void clearSplitInfoCallback();
+    method @Deprecated public default void finishActivityStacks(java.util.Set<android.os.IBinder!>);
+    method public default void finishActivityStacksWithTokens(java.util.Set<androidx.window.extensions.embedding.ActivityStack.Token!>);
+    method public default androidx.window.extensions.embedding.ActivityStack.Token? getActivityStackToken(String);
+    method public default androidx.window.extensions.embedding.EmbeddedActivityWindowInfo? getEmbeddedActivityWindowInfo(android.app.Activity);
+    method public default androidx.window.extensions.embedding.ParentContainerInfo? getParentContainerInfo(androidx.window.extensions.embedding.ActivityStack.Token);
+    method public default void invalidateTopVisibleSplitAttributes();
+    method public boolean isActivityEmbedded(android.app.Activity);
+    method public default boolean pinTopActivityStack(int, androidx.window.extensions.embedding.SplitPinRule);
+    method public default void registerActivityStackCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.ActivityStack!>!>);
+    method public default void setActivityStackAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.ActivityStackAttributesCalculatorParams!,androidx.window.extensions.embedding.ActivityStackAttributes!>);
+    method public default void setEmbeddedActivityWindowInfoCallback(java.util.concurrent.Executor, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.embedding.EmbeddedActivityWindowInfo!>);
+    method public void setEmbeddingRules(java.util.Set<androidx.window.extensions.embedding.EmbeddingRule!>);
+    method @Deprecated public default android.app.ActivityOptions setLaunchingActivityStack(android.app.ActivityOptions, android.os.IBinder);
+    method public void setSplitAttributesCalculator(androidx.window.extensions.core.util.function.Function<androidx.window.extensions.embedding.SplitAttributesCalculatorParams!,androidx.window.extensions.embedding.SplitAttributes!>);
+    method public default void setSplitInfoCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
+    method @Deprecated public void setSplitInfoCallback(java.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.SplitInfo!>!>);
+    method public default void unpinTopActivityStack(int);
+    method public default void unregisterActivityStackCallback(androidx.window.extensions.core.util.function.Consumer<java.util.List<androidx.window.extensions.embedding.ActivityStack!>!>);
+    method public default void updateActivityStackAttributes(androidx.window.extensions.embedding.ActivityStack.Token, androidx.window.extensions.embedding.ActivityStackAttributes);
+    method @Deprecated public default void updateSplitAttributes(android.os.IBinder, androidx.window.extensions.embedding.SplitAttributes);
+    method public default void updateSplitAttributes(androidx.window.extensions.embedding.SplitInfo.Token, androidx.window.extensions.embedding.SplitAttributes);
+  }
+
+  public class ActivityEmbeddingOptionsProperties {
+    field public static final String KEY_ACTIVITY_STACK_TOKEN = "androidx.window.extensions.embedding.ActivityStackToken";
+    field public static final String KEY_OVERLAY_TAG = "androidx.window.extensions.embedding.OverlayTag";
+  }
+
+  public class ActivityRule extends androidx.window.extensions.embedding.EmbeddingRule {
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesIntent(android.content.Intent);
+    method public boolean shouldAlwaysExpand();
+  }
+
+  public static final class ActivityRule.Builder {
+    ctor public ActivityRule.Builder(androidx.window.extensions.core.util.function.Predicate<android.app.Activity!>, androidx.window.extensions.core.util.function.Predicate<android.content.Intent!>);
+    ctor @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.N) public ActivityRule.Builder(java.util.function.Predicate<android.app.Activity!>, java.util.function.Predicate<android.content.Intent!>);
+    method public androidx.window.extensions.embedding.ActivityRule build();
+    method public androidx.window.extensions.embedding.ActivityRule.Builder setShouldAlwaysExpand(boolean);
+    method public androidx.window.extensions.embedding.ActivityRule.Builder setTag(String);
+  }
+
+  public class ActivityStack {
+    method public java.util.List<android.app.Activity!> getActivities();
+    method public androidx.window.extensions.embedding.ActivityStack.Token getActivityStackToken();
+    method public String? getTag();
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.os.IBinder getToken();
+    method public boolean isEmpty();
+  }
+
+  public static final class ActivityStack.Token {
+    method public static androidx.window.extensions.embedding.ActivityStack.Token createFromBinder(android.os.IBinder);
+    method public static androidx.window.extensions.embedding.ActivityStack.Token readFromBundle(android.os.Bundle);
+    method public android.os.Bundle toBundle();
+    field public static final androidx.window.extensions.embedding.ActivityStack.Token INVALID_ACTIVITY_STACK_TOKEN;
+  }
+
+  public final class ActivityStackAttributes {
+    method public android.graphics.Rect getRelativeBounds();
+    method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
+  }
+
+  public static final class ActivityStackAttributes.Builder {
+    ctor public ActivityStackAttributes.Builder();
+    method public androidx.window.extensions.embedding.ActivityStackAttributes build();
+    method public androidx.window.extensions.embedding.ActivityStackAttributes.Builder setRelativeBounds(android.graphics.Rect);
+    method public androidx.window.extensions.embedding.ActivityStackAttributes.Builder setWindowAttributes(androidx.window.extensions.embedding.WindowAttributes);
+  }
+
+  public class ActivityStackAttributesCalculatorParams {
+    method public String getActivityStackTag();
+    method public android.os.Bundle getLaunchOptions();
+    method public androidx.window.extensions.embedding.ParentContainerInfo getParentContainerInfo();
+  }
+
+  public abstract class AnimationBackground {
+    method public static androidx.window.extensions.embedding.AnimationBackground.ColorBackground createColorBackground(@ColorInt int);
+    field public static final androidx.window.extensions.embedding.AnimationBackground ANIMATION_BACKGROUND_DEFAULT;
+  }
+
+  public static class AnimationBackground.ColorBackground extends androidx.window.extensions.embedding.AnimationBackground {
+    method @ColorInt public int getColor();
+  }
+
+  public final class DividerAttributes {
+    method @ColorInt public int getDividerColor();
+    method public int getDividerType();
+    method public float getPrimaryMaxRatio();
+    method public float getPrimaryMinRatio();
+    method @Dimension public int getWidthDp();
+    field public static final int DIVIDER_TYPE_DRAGGABLE = 2; // 0x2
+    field public static final int DIVIDER_TYPE_FIXED = 1; // 0x1
+    field public static final float RATIO_SYSTEM_DEFAULT = -1.0f;
+    field public static final int WIDTH_SYSTEM_DEFAULT = -1; // 0xffffffff
+  }
+
+  public static final class DividerAttributes.Builder {
+    ctor public DividerAttributes.Builder(androidx.window.extensions.embedding.DividerAttributes);
+    ctor public DividerAttributes.Builder(int);
+    method public androidx.window.extensions.embedding.DividerAttributes build();
+    method public androidx.window.extensions.embedding.DividerAttributes.Builder setDividerColor(@ColorInt int);
+    method public androidx.window.extensions.embedding.DividerAttributes.Builder setPrimaryMaxRatio(float);
+    method public androidx.window.extensions.embedding.DividerAttributes.Builder setPrimaryMinRatio(float);
+    method public androidx.window.extensions.embedding.DividerAttributes.Builder setWidthDp(@Dimension int);
+  }
+
+  public class EmbeddedActivityWindowInfo {
+    method public android.app.Activity getActivity();
+    method public android.graphics.Rect getActivityStackBounds();
+    method public android.graphics.Rect getTaskBounds();
+    method public boolean isEmbedded();
+  }
+
+  public abstract class EmbeddingRule {
+    method public String? getTag();
+  }
+
+  public class ParentContainerInfo {
+    method public android.content.res.Configuration getConfiguration();
+    method public androidx.window.extensions.layout.WindowLayoutInfo getWindowLayoutInfo();
+    method public android.view.WindowMetrics getWindowMetrics();
+  }
+
+  public class SplitAttributes {
+    method public androidx.window.extensions.embedding.AnimationBackground getAnimationBackground();
+    method public androidx.window.extensions.embedding.DividerAttributes? getDividerAttributes();
+    method public int getLayoutDirection();
+    method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
+    method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
+  }
+
+  public static final class SplitAttributes.Builder {
+    ctor public SplitAttributes.Builder();
+    ctor public SplitAttributes.Builder(androidx.window.extensions.embedding.SplitAttributes);
+    method public androidx.window.extensions.embedding.SplitAttributes build();
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.AnimationBackground);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setDividerAttributes(androidx.window.extensions.embedding.DividerAttributes?);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setWindowAttributes(androidx.window.extensions.embedding.WindowAttributes);
+  }
+
+  public static final class SplitAttributes.LayoutDirection {
+    field public static final int BOTTOM_TO_TOP = 5; // 0x5
+    field public static final int LEFT_TO_RIGHT = 0; // 0x0
+    field public static final int LOCALE = 3; // 0x3
+    field public static final int RIGHT_TO_LEFT = 1; // 0x1
+    field public static final int TOP_TO_BOTTOM = 4; // 0x4
+  }
+
+  public static class SplitAttributes.SplitType {
+  }
+
+  public static final class SplitAttributes.SplitType.ExpandContainersSplitType extends androidx.window.extensions.embedding.SplitAttributes.SplitType {
+    ctor public SplitAttributes.SplitType.ExpandContainersSplitType();
+  }
+
+  public static final class SplitAttributes.SplitType.HingeSplitType extends androidx.window.extensions.embedding.SplitAttributes.SplitType {
+    ctor public SplitAttributes.SplitType.HingeSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
+    method public androidx.window.extensions.embedding.SplitAttributes.SplitType getFallbackSplitType();
+  }
+
+  public static final class SplitAttributes.SplitType.RatioSplitType extends androidx.window.extensions.embedding.SplitAttributes.SplitType {
+    ctor public SplitAttributes.SplitType.RatioSplitType(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float);
+    method @FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) public float getRatio();
+    method public static androidx.window.extensions.embedding.SplitAttributes.SplitType.RatioSplitType splitEqually();
+  }
+
+  public class SplitAttributesCalculatorParams {
+    method public boolean areDefaultConstraintsSatisfied();
+    method public androidx.window.extensions.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.extensions.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public android.view.WindowMetrics getParentWindowMetrics();
+    method public String? getSplitRuleTag();
+  }
+
+  public class SplitInfo {
+    method public androidx.window.extensions.embedding.ActivityStack getPrimaryActivityStack();
+    method public androidx.window.extensions.embedding.ActivityStack getSecondaryActivityStack();
+    method public androidx.window.extensions.embedding.SplitAttributes getSplitAttributes();
+    method public androidx.window.extensions.embedding.SplitInfo.Token getSplitInfoToken();
+    method @Deprecated public float getSplitRatio();
+    method @Deprecated public android.os.IBinder getToken();
+  }
+
+  public static final class SplitInfo.Token {
+    method public static androidx.window.extensions.embedding.SplitInfo.Token createFromBinder(android.os.IBinder);
+  }
+
+  public class SplitPairRule extends androidx.window.extensions.embedding.SplitRule {
+    method public int getFinishPrimaryWithSecondary();
+    method public int getFinishSecondaryWithPrimary();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivityIntentPair(android.app.Activity, android.content.Intent);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivityPair(android.app.Activity, android.app.Activity);
+    method public boolean shouldClearTop();
+  }
+
+  public static final class SplitPairRule.Builder {
+    ctor public SplitPairRule.Builder(androidx.window.extensions.core.util.function.Predicate<android.util.Pair<android.app.Activity!,android.app.Activity!>!>, androidx.window.extensions.core.util.function.Predicate<android.util.Pair<android.app.Activity!,android.content.Intent!>!>, androidx.window.extensions.core.util.function.Predicate<android.view.WindowMetrics!>);
+    ctor @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.N) public SplitPairRule.Builder(java.util.function.Predicate<android.util.Pair<android.app.Activity!,android.app.Activity!>!>, java.util.function.Predicate<android.util.Pair<android.app.Activity!,android.content.Intent!>!>, java.util.function.Predicate<android.view.WindowMetrics!>);
+    method public androidx.window.extensions.embedding.SplitPairRule build();
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setDefaultSplitAttributes(androidx.window.extensions.embedding.SplitAttributes);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setFinishPrimaryWithSecondary(int);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setFinishSecondaryWithPrimary(int);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setLayoutDirection(int);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldClearTop(boolean);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishPrimaryWithSecondary(boolean);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setShouldFinishSecondaryWithPrimary(boolean);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPairRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float);
+    method public androidx.window.extensions.embedding.SplitPairRule.Builder setTag(String);
+  }
+
+  public class SplitPinRule extends androidx.window.extensions.embedding.SplitRule {
+    method public boolean isSticky();
+  }
+
+  public static final class SplitPinRule.Builder {
+    ctor public SplitPinRule.Builder(androidx.window.extensions.embedding.SplitAttributes, androidx.window.extensions.core.util.function.Predicate<android.view.WindowMetrics!>);
+    method public androidx.window.extensions.embedding.SplitPinRule build();
+    method public androidx.window.extensions.embedding.SplitPinRule.Builder setSticky(boolean);
+    method public androidx.window.extensions.embedding.SplitPinRule.Builder setTag(String);
+  }
+
+  public class SplitPlaceholderRule extends androidx.window.extensions.embedding.SplitRule {
+    method public int getFinishPrimaryWithPlaceholder();
+    method @Deprecated public int getFinishPrimaryWithSecondary();
+    method public android.content.Intent getPlaceholderIntent();
+    method public boolean isSticky();
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesActivity(android.app.Activity);
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean matchesIntent(android.content.Intent);
+  }
+
+  public static final class SplitPlaceholderRule.Builder {
+    ctor public SplitPlaceholderRule.Builder(android.content.Intent, androidx.window.extensions.core.util.function.Predicate<android.app.Activity!>, androidx.window.extensions.core.util.function.Predicate<android.content.Intent!>, androidx.window.extensions.core.util.function.Predicate<android.view.WindowMetrics!>);
+    ctor @Deprecated @RequiresApi(android.os.Build.VERSION_CODES.N) public SplitPlaceholderRule.Builder(android.content.Intent, java.util.function.Predicate<android.app.Activity!>, java.util.function.Predicate<android.content.Intent!>, java.util.function.Predicate<android.view.WindowMetrics!>);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule build();
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setDefaultSplitAttributes(androidx.window.extensions.embedding.SplitAttributes);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithPlaceholder(int);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setFinishPrimaryWithSecondary(int);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setLayoutDirection(int);
+    method @Deprecated public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSplitRatio(@FloatRange(from=0.0, to=1.0) float);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setSticky(boolean);
+    method public androidx.window.extensions.embedding.SplitPlaceholderRule.Builder setTag(String);
+  }
+
+  public abstract class SplitRule extends androidx.window.extensions.embedding.EmbeddingRule {
+    method @RequiresApi(api=android.os.Build.VERSION_CODES.N) public boolean checkParentMetrics(android.view.WindowMetrics);
+    method public androidx.window.extensions.embedding.SplitAttributes getDefaultSplitAttributes();
+    method @Deprecated public int getLayoutDirection();
+    method @Deprecated public float getSplitRatio();
+    field public static final int FINISH_ADJACENT = 2; // 0x2
+    field public static final int FINISH_ALWAYS = 1; // 0x1
+    field public static final int FINISH_NEVER = 0; // 0x0
+  }
+
+  public final class WindowAttributes {
+    ctor public WindowAttributes(int);
+    method public int getDimAreaBehavior();
+    field public static final int DIM_AREA_ON_ACTIVITY_STACK = 1; // 0x1
+    field public static final int DIM_AREA_ON_TASK = 2; // 0x2
+  }
+
+}
+
+package androidx.window.extensions.layout {
+
+  public interface DisplayFeature {
+    method public android.graphics.Rect getBounds();
+  }
+
+  public final class DisplayFoldFeature {
+    method public int getType();
+    method public boolean hasProperties(int...);
+    method public boolean hasProperty(int);
+    field public static final int FOLD_PROPERTY_SUPPORTS_HALF_OPENED = 1; // 0x1
+    field public static final int TYPE_HINGE = 1; // 0x1
+    field public static final int TYPE_SCREEN_FOLD_IN = 2; // 0x2
+    field public static final int TYPE_UNKNOWN = 0; // 0x0
+  }
+
+  public static final class DisplayFoldFeature.Builder {
+    ctor public DisplayFoldFeature.Builder(int);
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder addProperties(int...);
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder addProperty(int);
+    method public androidx.window.extensions.layout.DisplayFoldFeature build();
+    method public androidx.window.extensions.layout.DisplayFoldFeature.Builder clearProperties();
+  }
+
+  public class FoldingFeature implements androidx.window.extensions.layout.DisplayFeature {
+    ctor public FoldingFeature(android.graphics.Rect, int, int);
+    method public android.graphics.Rect getBounds();
+    method public int getState();
+    method public int getType();
+    field public static final int STATE_FLAT = 1; // 0x1
+    field public static final int STATE_HALF_OPENED = 2; // 0x2
+    field public static final int TYPE_FOLD = 1; // 0x1
+    field public static final int TYPE_HINGE = 2; // 0x2
+  }
+
+  public final class SupportedWindowFeatures {
+    method public java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!> getDisplayFoldFeatures();
+  }
+
+  public static final class SupportedWindowFeatures.Builder {
+    ctor public SupportedWindowFeatures.Builder(java.util.List<androidx.window.extensions.layout.DisplayFoldFeature!>);
+    method public androidx.window.extensions.layout.SupportedWindowFeatures build();
+  }
+
+  public interface WindowLayoutComponent {
+    method @Deprecated public void addWindowLayoutInfoListener(android.app.Activity, java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public default void addWindowLayoutInfoListener(@UiContext android.content.Context, androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method public default androidx.window.extensions.layout.SupportedWindowFeatures getSupportedWindowFeatures();
+    method public default void removeWindowLayoutInfoListener(androidx.window.extensions.core.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+    method @Deprecated public void removeWindowLayoutInfoListener(java.util.function.Consumer<androidx.window.extensions.layout.WindowLayoutInfo!>);
+  }
+
+  public class WindowLayoutInfo {
+    ctor public WindowLayoutInfo(java.util.List<androidx.window.extensions.layout.DisplayFeature!>);
+    method public java.util.List<androidx.window.extensions.layout.DisplayFeature!> getDisplayFeatures();
+  }
+
+}
+
