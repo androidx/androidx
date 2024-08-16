@@ -25,6 +25,11 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class MutableRectTest {
+
+    companion object {
+        private const val DELTA = 0.01f
+    }
+
     @Test
     fun accessors() {
         val r = MutableRect(1f, 3f, 5f, 9f)
@@ -38,6 +43,46 @@ class MutableRectTest {
     }
 
     @Test
+    fun `rect created by width and height`() {
+        val r = MutableRect(Offset(1.0f, 3.0f), Size(5.0f, 7.0f))
+        assertEquals(1.0f, r.left, DELTA)
+        assertEquals(3.0f, r.top, DELTA)
+        assertEquals(6.0f, r.right, DELTA)
+        assertEquals(10.0f, r.bottom, DELTA)
+    }
+
+    @Test
+    fun `rect width`() {
+        assertEquals(210f, MutableRect(70f, 10f, 280f, 300f).width)
+    }
+
+    @Test
+    fun `rect height`() {
+        assertEquals(290f, MutableRect(70f, 10f, 280f, 300f).height)
+    }
+
+    @Test
+    fun `rect size`() {
+        assertEquals(Size(210f, 290f), MutableRect(70f, 10f, 280f, 300f).size)
+    }
+
+    @Test
+    fun `rect infinite`() {
+        assertTrue(MutableRect(Float.POSITIVE_INFINITY, 10f, 200f, 500f).isInfinite)
+        assertTrue(MutableRect(10f, Float.POSITIVE_INFINITY, 200f, 500f).isInfinite)
+        assertTrue(MutableRect(10f, 200f, Float.POSITIVE_INFINITY, 500f).isInfinite)
+        assertTrue(MutableRect(10f, 200f, 500f, Float.POSITIVE_INFINITY).isInfinite)
+
+        assertFalse(MutableRect(0f, 1f, 2f, 3f).isInfinite)
+    }
+
+    @Test
+    fun `rect finite`() {
+        assertTrue(MutableRect(0f, 1f, 2f, 3f).isFinite)
+        assertFalse(MutableRect(0f, 1f, 2f, Float.POSITIVE_INFINITY).isFinite)
+    }
+
+    @Test
     fun empty() {
         val r = MutableRect(1f, 3f, 5f, 9f)
         assertFalse(r.isEmpty)
@@ -46,6 +91,123 @@ class MutableRectTest {
         r.left = 1f
         r.bottom = 3f
         assertTrue(r.isEmpty)
+    }
+
+    @Test
+    fun `rect translate offset`() {
+        val shifted = MutableRect(0f, 5f, 10f, 15f)
+        shifted.translate(Offset(10f, 15f))
+        assertEquals(MutableRect(10f, 20f, 20f, 30f).toRect(), shifted.toRect())
+    }
+
+    @Test
+    fun `rect translate`() {
+        val translated = MutableRect(0f, 5f, 10f, 15f)
+        translated.translate(10f, 15f)
+        assertEquals(MutableRect(10f, 20f, 20f, 30f).toRect(), translated.toRect())
+    }
+
+    @Test
+    fun `rect inflate`() {
+        val inflated = MutableRect(5f, 10f, 10f, 20f)
+        inflated.inflate(5f)
+        assertEquals(MutableRect(0f, 5f, 15f, 25f).toRect(), inflated.toRect())
+    }
+
+    @Test
+    fun `rect deflate`() {
+        val deflated = MutableRect(0f, 5f, 15f, 25f)
+        deflated.deflate(5f)
+        assertEquals(MutableRect(5f, 10f, 10f, 20f).toRect(), deflated.toRect())
+    }
+
+    @Test
+    fun `rect intersect`() {
+        val intersected = MutableRect(0f, 0f, 20f, 20f)
+        intersected.intersect(10f, 10f, 30f, 30f)
+        assertEquals(MutableRect(10f, 10f, 20f, 20f).toRect(), intersected.toRect())
+    }
+
+    @Test
+    fun `rect overlap`() {
+        val rect1 = MutableRect(0f, 5f, 10f, 15f)
+        val rect2 = MutableRect(5f, 10f, 15f, 20f)
+        kotlin.test.assertTrue(rect1.overlaps(rect2))
+        kotlin.test.assertTrue(rect2.overlaps(rect1))
+    }
+
+    @Test
+    fun `rect does not overlap`() {
+        val rect1 = MutableRect(0f, 5f, 10f, 15f)
+        val rect2 = MutableRect(10f, 5f, 20f, 15f)
+        assertFalse(rect1.overlaps(rect2))
+        assertFalse(rect2.overlaps(rect1))
+    }
+
+    @Test
+    fun `rect minDimension`() {
+        val rect = MutableRect(0f, 5f, 100f, 25f)
+        assertEquals(20f, rect.minDimension)
+    }
+
+    @Test
+    fun `rect maxDimension`() {
+        val rect = MutableRect(0f, 5f, 100f, 25f)
+        assertEquals(100f, rect.maxDimension)
+    }
+
+    @Test
+    fun `rect topLeft`() {
+        val rect = MutableRect(27f, 38f, 100f, 200f)
+        assertEquals(Offset(27f, 38f), rect.topLeft)
+    }
+
+    @Test
+    fun `rect topCenter`() {
+        val rect = MutableRect(100f, 15f, 200f, 300f)
+        assertEquals(Offset(150f, 15f), rect.topCenter)
+    }
+
+    @Test
+    fun `rect topRight`() {
+        val rect = MutableRect(100f, 15f, 200f, 300f)
+        assertEquals(Offset(200f, 15f), rect.topRight)
+    }
+
+    @Test
+    fun `rect centerLeft`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(100f, 155f), rect.centerLeft)
+    }
+
+    @Test
+    fun `rect center`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(150f, 155f), rect.center)
+    }
+
+    @Test
+    fun `rect centerRight`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(200f, 155f), rect.centerRight)
+    }
+
+    @Test
+    fun `rect bottomLeft`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(100f, 300f), rect.bottomLeft)
+    }
+
+    @Test
+    fun `rect bottomCenter`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(150f, 300f), rect.bottomCenter)
+    }
+
+    @Test
+    fun `rect bottomRight`() {
+        val rect = MutableRect(100f, 10f, 200f, 300f)
+        assertEquals(Offset(200f, 300f), rect.bottomRight)
     }
 
     @Test
