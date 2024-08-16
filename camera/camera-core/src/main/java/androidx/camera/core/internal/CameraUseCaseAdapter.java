@@ -86,6 +86,7 @@ import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.internal.compat.workaround.StreamSharingForceEnabler;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
 
@@ -176,6 +177,8 @@ public final class CameraUseCaseAdapter implements Camera {
     private final CompositionSettings mCompositionSettings;
     @NonNull
     private final CompositionSettings mSecondaryCompositionSettings;
+    private final StreamSharingForceEnabler mStreamSharingForceEnabler =
+            new StreamSharingForceEnabler();
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
@@ -359,7 +362,7 @@ public final class CameraUseCaseAdapter implements Camera {
             // Force enable StreamSharing for Extensions to support VideoCapture. This means that
             // applyStreamSharing is set to true when the use case combination contains
             // VideoCapture and Extensions is enabled.
-            if (!applyStreamSharing && hasExtension() && hasVideoCapture(appUseCases)) {
+            if (!applyStreamSharing && shouldForceEnableStreamSharing(appUseCases)) {
                 updateUseCases(appUseCases, /*applyStreamSharing*/true, isDualCamera);
                 return;
             }
@@ -506,6 +509,15 @@ public final class CameraUseCaseAdapter implements Camera {
             mPlaceholderForExtensions = placeholderForExtensions;
             mStreamSharing = streamSharing;
         }
+    }
+
+    private boolean shouldForceEnableStreamSharing(@NonNull Collection<UseCase> appUseCases) {
+        if (hasExtension() && hasVideoCapture(appUseCases)) {
+            return true;
+        }
+
+        return mStreamSharingForceEnabler.shouldForceEnableStreamSharing(
+                mCameraInternal.getCameraInfoInternal().getCameraId(), appUseCases);
     }
 
     /**
