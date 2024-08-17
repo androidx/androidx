@@ -21,6 +21,7 @@ package androidx.collection
 import androidx.annotation.IntRange
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.requirePrecondition
+import kotlin.js.JsName
 import kotlin.jvm.JvmField
 import kotlin.math.max
 
@@ -583,6 +584,7 @@ public constructor(
     }
 
     /** Returns the number of entries in this cache. */
+    @JsName("count_") // Avoid a collision with count var.
     public fun count(): Int = size
 
     /** Returns the number of entries matching the given [predicate]. */

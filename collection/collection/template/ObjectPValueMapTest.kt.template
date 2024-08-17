@@ -601,7 +601,7 @@ class ObjectPValueTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableObjectPValueMap<String?>()
         map["Hello"] = 1ValueSuffix
         map[null] = 2ValueSuffix

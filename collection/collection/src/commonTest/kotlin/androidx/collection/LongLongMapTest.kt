@@ -619,7 +619,7 @@ class LongLongMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableLongLongMap()
         map[1L] = 1L
 

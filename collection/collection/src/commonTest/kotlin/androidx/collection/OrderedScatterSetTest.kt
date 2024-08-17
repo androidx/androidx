@@ -768,7 +768,7 @@ class OrderedScatterSetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutableOrderedScatterSet<String?>()
         set += "Hello"
         set += null

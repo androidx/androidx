@@ -560,7 +560,7 @@ class ScatterSetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutableScatterSet<String?>()
         set += "Hello"
         set += null

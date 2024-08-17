@@ -320,7 +320,7 @@ class ValueClassSetTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val set = MutableTestValueClassSet()
         set += TestValueClass(1UL)
         set += TestValueClass(5UL)

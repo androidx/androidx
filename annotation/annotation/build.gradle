@@ -18,6 +18,9 @@ plugins {
 androidXMultiplatform {
     androidNative()
     jvm()
+    js {
+        browser()
+    }
     mac()
     mingwX64()
     linux()

@@ -619,7 +619,7 @@ class FloatFloatMapTest {
     }
 
     @Test
-    fun equals() {
+    fun equalsTest() {
         val map = MutableFloatFloatMap()
         map[1f] = 1f
 
