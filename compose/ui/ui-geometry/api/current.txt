@@ -30,31 +30,66 @@ package androidx.compose.ui.geometry {
   public final class MutableRect {
     ctor public MutableRect(float left, float top, float right, float bottom);
     method public operator boolean contains(long offset);
+    method public void deflate(float delta);
     method public float getBottom();
+    method public long getBottomCenter();
+    method public long getBottomLeft();
+    method public long getBottomRight();
+    method public long getCenter();
+    method public long getCenterLeft();
+    method public long getCenterRight();
     method public inline float getHeight();
     method public float getLeft();
+    method public float getMaxDimension();
+    method public float getMinDimension();
     method public float getRight();
     method public long getSize();
     method public float getTop();
+    method public long getTopCenter();
+    method public long getTopLeft();
+    method public long getTopRight();
     method public inline float getWidth();
-    method @androidx.compose.runtime.Stable public void intersect(float left, float top, float right, float bottom);
+    method public void inflate(float delta);
+    method public void intersect(float left, float top, float right, float bottom);
     method public boolean isEmpty();
+    method public boolean isFinite();
+    method public boolean isInfinite();
+    method public boolean overlaps(androidx.compose.ui.geometry.MutableRect other);
+    method public boolean overlaps(androidx.compose.ui.geometry.Rect other);
     method public void set(float left, float top, float right, float bottom);
     method public void setBottom(float);
     method public void setLeft(float);
     method public void setRight(float);
     method public void setTop(float);
+    method public void translate(float translateX, float translateY);
+    method public void translate(long offset);
     property public final float bottom;
+    property public final long bottomCenter;
+    property public final long bottomLeft;
+    property public final long bottomRight;
+    property public final long center;
+    property public final long centerLeft;
+    property public final long centerRight;
     property public final inline float height;
     property public final boolean isEmpty;
+    property public final boolean isFinite;
+    property public final boolean isInfinite;
     property public final float left;
+    property public final float maxDimension;
+    property public final float minDimension;
     property public final float right;
     property public final long size;
     property public final float top;
+    property public final long topCenter;
+    property public final long topLeft;
+    property public final long topRight;
     property public final inline float width;
   }
 
   public final class MutableRectKt {
+    method public static androidx.compose.ui.geometry.MutableRect MutableRect(long center, float radius);
+    method public static androidx.compose.ui.geometry.MutableRect MutableRect(long offset, long size);
+    method public static androidx.compose.ui.geometry.MutableRect MutableRect(long topLeft, long bottomRight);
     method public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.geometry.MutableRect);
   }
 
