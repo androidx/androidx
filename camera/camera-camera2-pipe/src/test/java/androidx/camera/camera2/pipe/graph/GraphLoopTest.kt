@@ -18,10 +18,12 @@ package androidx.camera.camera2.pipe.graph
 
 import android.os.Build
 import android.view.Surface
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CaptureSequence
 import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
@@ -52,6 +54,7 @@ class GraphLoopTest {
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
 
     private val graphState3A = GraphState3A()
+    private val listener3A = Listener3A()
     private val defaultParameters = emptyMap<Any, Any?>()
     private val requiredParameters = emptyMap<Any, Any?>()
     private val mockListener: Request.Listener = mock<Request.Listener>()
@@ -76,13 +79,16 @@ class GraphLoopTest {
     private val request1 = Request(streams = listOf(stream1))
     private val request2 = Request(streams = listOf(stream2))
     private val request3 = Request(streams = listOf(stream1, stream2))
+    private val cameraGraphId = CameraGraphId.nextId()
 
     private val graphLoop =
         GraphLoop(
+            cameraGraphId = cameraGraphId,
             defaultParameters = defaultParameters,
             requiredParameters = requiredParameters,
-            listeners = listOf(mockListener),
+            graphListeners = listOf(mockListener),
             graphState3A = graphState3A,
+            listeners = listOf(listener3A),
             dispatcher = testDispatcher,
         )
 
@@ -238,7 +244,7 @@ class GraphLoopTest {
     fun changingRequestProcessorsReIssuesCaptureRequests() =
         testScope.runTest {
             graphLoop.requestProcessor = grp1
-            csp1.close() // Reject requests
+            csp1.shutdown() // reject incoming requests
             graphLoop.submit(listOf(request1))
             graphLoop.submit(listOf(request2))
             advanceUntilIdle()
@@ -257,7 +263,7 @@ class GraphLoopTest {
     fun capturesThatFailCanBeRetried() =
         testScope.runTest {
             graphLoop.requestProcessor = grp1
-            csp1.close() // reject incoming requests
+            csp1.shutdown() // reject incoming requests
             graphLoop.repeatingRequest = request1
             advanceUntilIdle()
 
@@ -456,10 +462,12 @@ class GraphLoopTest {
         testScope.runTest {
             val gl =
                 GraphLoop(
+                    cameraGraphId = cameraGraphId,
                     defaultParameters = mapOf<Any, Any?>(TEST_KEY to 10),
                     requiredParameters = requiredParameters,
-                    listeners = listOf(mockListener),
+                    graphListeners = listOf(mockListener),
                     graphState3A = graphState3A,
+                    listeners = listOf(listener3A),
                     dispatcher = testDispatcher,
                 )
 
@@ -491,10 +499,12 @@ class GraphLoopTest {
         testScope.runTest {
             val gl =
                 GraphLoop(
-                    defaultParameters = emptyMap(),
+                    cameraGraphId = cameraGraphId,
+                    defaultParameters = emptyMap<Any, Any?>(),
                     requiredParameters = mapOf<Any, Any?>(TEST_KEY to 10),
-                    listeners = listOf(mockListener),
+                    graphListeners = listOf(mockListener),
                     graphState3A = graphState3A,
+                    listeners = listOf(listener3A),
                     dispatcher = testDispatcher,
                 )
 
@@ -525,7 +535,7 @@ class GraphLoopTest {
     fun requestsSubmittedToClosedRequestProcessorAreEnqueuedToTheNextOne() =
         testScope.runTest {
             graphLoop.requestProcessor = grp1
-            grp1.close()
+            grp1.shutdown()
             graphLoop.repeatingRequest = request1
             graphLoop.submit(mapOf<Any, Any?>(TEST_KEY to 42))
             graphLoop.submit(listOf(request2))
@@ -623,6 +633,153 @@ class GraphLoopTest {
             .contains("Test Exception")
     }
 
+    @Test
+    fun stopRepeatingCancelsTriggers() =
+        testScope.runTest {
+            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+            listener3A.addListener(listener)
+            assertThat(listener.result.isCompleted).isFalse()
+
+            graphLoop.repeatingRequest = null
+
+            assertThat(listener.result.isCompleted).isTrue()
+            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        }
+
+    @Test
+    fun clearingRequestProcessorCancelsTriggers() =
+        testScope.runTest {
+            // Setup the graph loop so that the repeating request and trigger are enqueued before
+            // the graphRequestProcessor is configured. Assert that the listener is not invoked
+            // until after the requestProcessor is stopped.
+            graphLoop.repeatingRequest = request1
+            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+            listener3A.addListener(listener)
+            graphLoop.submit(mapOf<Any, Any?>(TEST_KEY to 42))
+            graphLoop.requestProcessor = grp1
+            advanceUntilIdle()
+
+            assertThat(listener.result.isCompleted).isFalse()
+
+            graphLoop.requestProcessor = null
+            advanceUntilIdle()
+
+            assertThat(listener.result.isCompleted).isTrue()
+            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        }
+
+    @Test
+    fun shutdownRequestProcessorCancelsTriggers() =
+        testScope.runTest {
+            // Arrange
+            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+            listener3A.addListener(listener)
+
+            // Act
+            graphLoop.requestProcessor = null
+
+            // Assert
+            assertThat(listener.result.isCompleted).isTrue()
+            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        }
+
+    @Test
+    fun swappingRequestProcessorsDoesNotCancelTriggers() {
+        testScope.runTest {
+            // Arrange
+
+            // Setup the graph loop so that the repeating request and trigger are enqueued before
+            // the graphRequestProcessor is configured. Assert that the listener is not invoked
+            // until after the requestProcessor is stopped.
+            graphLoop.requestProcessor = grp1
+            val listener = Result3AStateListenerImpl({ _ -> true }, 10, 1_000_000_000)
+            listener3A.addListener(listener)
+            graphLoop.requestProcessor = grp2 // Does not cancel trigger
+            advanceUntilIdle()
+            assertThat(listener.result.isCompleted).isFalse()
+
+            // Act
+            graphLoop.requestProcessor = null // Cancel triggers
+
+            // Assert
+            assertThat(listener.result.isCompleted).isTrue()
+            assertThat(listener.result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        }
+    }
+
+    @Test
+    fun pausingCaptureProcessingPreventsCaptureRequests() =
+        testScope.runTest {
+            // Arrange
+            graphLoop.requestProcessor = grp1
+            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
+
+            // Act
+            graphLoop.submit(listOf(request1))
+            graphLoop.submit(listOf(request2))
+            advanceUntilIdle()
+
+            // Assert: Events are not processed
+            assertThat(csp1.events.size).isEqualTo(0)
+        }
+
+    @Test
+    fun resumingCaptureProcessingResumesCaptureRequests() =
+        testScope.runTest {
+            // Arrange
+            graphLoop.requestProcessor = grp1
+            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
+
+            // Act
+            graphLoop.submit(listOf(request1))
+            graphLoop.submit(listOf(request2))
+            advanceUntilIdle()
+            graphLoop.captureProcessingEnabled = true // Enable processing
+            advanceUntilIdle()
+
+            // Assert: Events are not processed
+            assertThat(csp1.events.size).isEqualTo(2)
+
+            assertThat(csp1.events[0].isCapture).isTrue()
+            assertThat(csp1.events[0].requests).containsExactly(request1)
+
+            assertThat(csp1.events[1].isCapture).isTrue()
+            assertThat(csp1.events[1].requests).containsExactly(request2)
+        }
+
+    @Test
+    fun disablingCaptureProcessingAllowsRepeatingRequests() =
+        testScope.runTest {
+            // Arrange
+            graphLoop.requestProcessor = grp1
+
+            // Act
+            graphLoop.captureProcessingEnabled = false // Disable captureProcessing
+            graphLoop.repeatingRequest = request1
+            advanceUntilIdle()
+
+            // Assert
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isRepeating).isTrue()
+            assertThat(csp1.events[0].requests).containsExactly(request1)
+        }
+
+    @Test
+    fun settingNullForRequestProcessorAfterCloseDoesNotCrash() =
+        testScope.runTest {
+            // Arrange
+            graphLoop.requestProcessor = grp1
+            graphLoop.close()
+
+            // Act
+            graphLoop.requestProcessor = null
+            advanceUntilIdle()
+
+            // Assert: does not crash, and only Close is invoked.
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isClose).isTrue()
+        }
+
     private val SimpleCSP.SimpleCSPEvent.requests: List<Request>
         get() = (this as SimpleCSP.Submit).captureSequence.captureRequestList
 
@@ -686,7 +843,7 @@ class GraphLoopTest {
             events.add(StopRepeating)
         }
 
-        override fun close() {
+        override suspend fun shutdown() {
             closed = true
             events.add(Close)
         }

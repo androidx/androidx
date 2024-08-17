@@ -37,5 +37,9 @@ internal class UpdateCounting3AStateListener(private val listener: Result3AState
         return listener.update(requestNumber, frameMetadata)
     }
 
-    override fun onRequestSequenceStopped() {}
+    override fun onStopRepeating() {}
+
+    override fun onGraphStopped() {}
+
+    override fun onGraphShutdown() {}
 }

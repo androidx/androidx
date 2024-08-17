@@ -57,7 +57,11 @@ internal class CameraGraphSessionImplTest {
     private val graphState3A = GraphState3A()
     private val listener3A = Listener3A()
     private val graphProcessor =
-        FakeGraphProcessor(graphState3A = graphState3A, defaultListeners = listOf(listener3A))
+        FakeGraphProcessor(
+            graphState3A = graphState3A,
+            graphListener3A = listener3A,
+            defaultListeners = listOf(listener3A)
+        )
     private val fakeCaptureSequenceProcessor = FakeCaptureSequenceProcessor()
     private val fakeGraphRequestProcessor = GraphRequestProcessor.from(fakeCaptureSequenceProcessor)
     private val controller3A =
@@ -102,12 +106,16 @@ internal class CameraGraphSessionImplTest {
         session.startRepeating(Request(streams = listOf(StreamId(1))))
         graphProcessor.invalidate()
 
-        val result = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+        val deferred = session.lock3A(aeLockBehavior = Lock3ABehavior.IMMEDIATE)
+
+        assertThat(deferred.isCompleted).isFalse()
 
         // Don't return any results to simulate that the 3A conditions haven't been met, but the
         // app calls stopRepeating(). In which case, we should fail here with SUBMIT_CANCELLED.
         session.stopRepeating()
-        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
+        assertThat(deferred.isCompleted).isTrue()
+        val result = deferred.await()
+        assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_CANCELLED)
     }
 
     @Test

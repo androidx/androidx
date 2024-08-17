@@ -40,6 +40,7 @@ import androidx.camera.camera2.pipe.graph.GraphListener
 import androidx.camera.camera2.pipe.graph.GraphRequestProcessor
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.runBlocking
 
 public class ExternalCameraController(
     private val graphId: CameraGraphId,
@@ -78,7 +79,9 @@ public class ExternalCameraController(
     }
 
     override fun close() {
-        graphProcessor.close()
+        // TODO: ExternalRequestProcessor will be deprecated. This is a temporary patch to allow
+        //   graphProcessor to have a suspending shutdown function.
+        runBlocking { graphProcessor.shutdown() }
     }
 
     override fun updateSurfaceMap(surfaceMap: Map<StreamId, Surface>) {
@@ -189,7 +192,7 @@ internal class ExternalCaptureSequenceProcessor(
         processor.stopRepeating()
     }
 
-    override fun close() {
+    override suspend fun shutdown() {
         if (closed.compareAndSet(expect = false, update = true)) {
             processor.close()
         }

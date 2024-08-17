@@ -138,7 +138,7 @@ public class FakeCaptureSequenceProcessor(
         requestSequence?.invokeOnSequenceAborted()
     }
 
-    override fun close() {
+    override suspend fun shutdown() {
         synchronized(lock) {
             rejectRequests = true
             check(eventChannel.trySend(Event(close = true)).isSuccess)

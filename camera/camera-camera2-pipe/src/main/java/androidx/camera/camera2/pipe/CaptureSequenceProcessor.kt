@@ -71,5 +71,5 @@ public interface CaptureSequenceProcessor<
      * Signal that this [CaptureSequenceProcessor] is no longer in use. Active requests may continue
      * to be processed, and [abortCaptures] and [stopRepeating] may still be invoked.
      */
-    public fun close()
+    public suspend fun shutdown()
 }

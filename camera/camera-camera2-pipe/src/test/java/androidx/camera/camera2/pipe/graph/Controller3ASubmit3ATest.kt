@@ -34,6 +34,7 @@ import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
@@ -231,9 +232,12 @@ internal class Controller3ASubmit3ATest {
         // There are different conditions that can lead to the request processor not being able
         // to successfully submit the desired request. For this test we are closing the processor.
         graphProcessor.close()
+        advanceUntilIdle()
 
         // Since the request processor is closed the submit3A method call will fail.
-        val result = controller3A.submit3A(aeMode = AeMode.ON_ALWAYS_FLASH).await()
+        val deferred = controller3A.submit3A(aeMode = AeMode.ON_ALWAYS_FLASH)
+        assertThat(deferred.isCompleted)
+        val result = deferred.await()
         assertThat(result.frameMetadata).isNull()
         assertThat(result.status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
     }

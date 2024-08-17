@@ -33,9 +33,9 @@ import androidx.camera.camera2.pipe.testing.FakeGraphConfigs
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -54,6 +54,7 @@ import org.robolectric.annotation.Config
 internal class GraphProcessorTest {
     private val globalListener = FakeRequestListener()
     private val graphState3A = GraphState3A()
+    private val graphListener3A = Listener3A()
     private val streamId = StreamId(0)
     private val surfaceMap = mapOf(streamId to Surface(SurfaceTexture(1)))
 
@@ -82,7 +83,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
         graphProcessor.onGraphStarted(graphRequestProcessor1)
@@ -104,7 +105,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
@@ -128,7 +129,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
@@ -156,7 +157,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
@@ -176,7 +177,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
@@ -208,7 +209,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
@@ -246,13 +247,13 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
-        graphProcessor.startRepeating(request1)
-        graphProcessor.startRepeating(request2)
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.repeatingRequest = request2
         advanceUntilIdle()
 
         val event =
@@ -271,19 +272,19 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         fakeProcessor1.rejectRequests = true
         graphProcessor.onGraphStarted(graphRequestProcessor1)
 
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         val event1 = fakeProcessor1.nextEvent()
         assertThat(event1.rejected).isTrue()
         assertThat(event1.requestSequence!!.captureRequestList[0]).isSameInstanceAs(request1)
 
-        graphProcessor.startRepeating(request2)
+        graphProcessor.repeatingRequest = request2
         val event2 = fakeProcessor1.nextEvent()
         assertThat(event2.rejected).isTrue()
         fakeProcessor1.awaitEvent(request = request2) {
@@ -291,7 +292,7 @@ internal class GraphProcessorTest {
         }
 
         fakeProcessor1.rejectRequests = false
-        graphProcessor.onGraphStarted(graphRequestProcessor1)
+        graphProcessor.invalidate()
 
         fakeProcessor1.awaitEvent(request = request2) {
             it.submit && it.requestSequence?.repeating == true
@@ -306,12 +307,12 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         advanceUntilIdle()
 
         fakeProcessor1.awaitEvent(request = request1) {
@@ -334,13 +335,13 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         fakeProcessor1.rejectRequests = true
         graphProcessor.onGraphStarted(graphRequestProcessor1)
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         fakeProcessor1.awaitEvent(request = request1) { it.rejected }
 
         graphProcessor.onGraphStarted(graphRequestProcessor2)
@@ -357,11 +358,11 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         graphProcessor.submit(request2)
         delay(50)
 
@@ -393,11 +394,11 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         graphProcessor.submit(request2)
 
         // Abort queued and in-flight requests.
@@ -426,14 +427,15 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
         graphProcessor.close()
+        advanceUntilIdle()
 
         // Abort queued and in-flight requests.
-        graphProcessor.onGraphStarted(graphRequestProcessor1)
-        graphProcessor.startRepeating(request1)
+        // graphProcessor.onGraphStarted(graphRequestProcessor1)
+        graphProcessor.repeatingRequest = request1
         graphProcessor.submit(request2)
 
         val abortEvent1 =
@@ -441,8 +443,6 @@ internal class GraphProcessorTest {
         val abortEvent2 = requestListener2.onAbortedFlow.first()
         assertThat(abortEvent1).isNull()
         assertThat(abortEvent2.request).isSameInstanceAs(request2)
-
-        assertThat(fakeProcessor1.nextEvent().close).isTrue()
     }
 
     @Test
@@ -453,23 +453,25 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         // Submit a repeating request first to make sure we have one in progress.
-        graphProcessor.startRepeating(request1)
+        graphProcessor.repeatingRequest = request1
         advanceUntilIdle()
 
-        val result = async {
-            graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
-        }
+        graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
         advanceUntilIdle()
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         advanceUntilIdle()
-
-        assertThat(result.await()).isTrue()
+        val event1 = fakeProcessor1.nextEvent()
+        assertThat(event1.requestSequence?.repeating).isTrue()
+        val event2 = fakeProcessor1.nextEvent()
+        assertThat(event2.requestSequence?.repeating).isFalse()
+        assertThat(event2.requestSequence?.requestMetadata?.get(request1)?.get(CONTROL_AE_LOCK))
+            .isFalse()
     }
 
     @Test
@@ -480,21 +482,14 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         // Submit a repeating request first to make sure we have one in progress.
-        graphProcessor.startRepeating(request1)
-        advanceUntilIdle()
-
-        val result1 = async {
-            graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
-        }
-        advanceUntilIdle()
-        val result2 = async {
-            graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
-        }
+        graphProcessor.repeatingRequest = request1
+        graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to false))
+        graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
         advanceUntilIdle()
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
@@ -505,10 +500,11 @@ internal class GraphProcessorTest {
         val event2 = fakeProcessor1.nextEvent()
         assertThat(event2.requestSequence?.repeating).isFalse()
         assertThat(event2.requestSequence?.requestMetadata?.get(request1)?.get(CONTROL_AE_LOCK))
+            .isFalse()
+        val event3 = fakeProcessor1.nextEvent()
+        assertThat(event3.requestSequence?.repeating).isFalse()
+        assertThat(event3.requestSequence?.requestMetadata?.get(request1)?.get(CONTROL_AE_LOCK))
             .isTrue()
-
-        assertThat(result1.await()).isFalse()
-        assertThat(result2.await()).isTrue()
     }
 
     @Test
@@ -519,16 +515,16 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
 
         graphProcessor.onGraphStarted(graphRequestProcessor1)
         advanceUntilIdle()
 
-        val result =
-            graphProcessor.trySubmit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
-        assertThat(result).isFalse()
+        assertThrows<IllegalStateException> {
+            graphProcessor.submit(mapOf<CaptureRequest.Key<*>, Any>(CONTROL_AE_LOCK to true))
+        }
     }
 
     @Test
@@ -539,7 +535,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)
@@ -559,7 +555,7 @@ internal class GraphProcessorTest {
                 CameraGraphId.nextId(),
                 FakeGraphConfigs.graphConfig,
                 graphState3A,
-                this,
+                graphListener3A,
                 arrayListOf(globalListener)
             )
         assertThat(graphProcessor.graphState.value).isEqualTo(GraphStateStopped)

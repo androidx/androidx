@@ -33,7 +33,7 @@ import javax.inject.Inject
  * for desired 3A state changes.
  */
 @CameraGraphScope
-internal class Listener3A @Inject constructor() : Request.Listener {
+internal class Listener3A @Inject constructor() : Request.Listener, GraphLoop.Listener {
     private val listeners: CopyOnWriteArrayList<Result3AStateListener> = CopyOnWriteArrayList()
 
     override fun onRequestSequenceCreated(requestMetadata: RequestMetadata) {
@@ -66,17 +66,29 @@ internal class Listener3A @Inject constructor() : Request.Listener {
         listeners.remove(listener)
     }
 
-    internal fun onStopRepeating() {
-        for (listener in listeners) {
-            listener.onRequestSequenceStopped()
-        }
-    }
-
     private fun updateListeners(requestNumber: RequestNumber, metadata: FrameMetadata) {
         for (listener in listeners) {
             if (listener.update(requestNumber, metadata)) {
                 listeners.remove(listener)
             }
+        }
+    }
+
+    override fun onStopRepeating() {
+        for (listener in listeners) {
+            listener.onStopRepeating()
+        }
+    }
+
+    override fun onGraphStopped() {
+        for (listener in listeners) {
+            listener.onStopRepeating()
+        }
+    }
+
+    override fun onGraphShutdown() {
+        for (listener in listeners) {
+            listener.onStopRepeating()
         }
     }
 }

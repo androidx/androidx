@@ -37,8 +37,6 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.core.Log.MonitoredLogMessages.REPEATING_REQUEST_STARTED_TIMEOUT
-import androidx.camera.camera2.pipe.core.Log.rethrowExceptionAfterLogging
-import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.media.AndroidImageWriter
@@ -47,6 +45,8 @@ import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
@@ -181,14 +181,13 @@ internal class Camera2CaptureSequenceProcessor(
                 // Finally, write required parameters to the request builder. This will override any
                 // value that has ben previously set.
                 //
-                // TODO(sushilnath@): Implement one of the two options. (1) Apply the 3A parameters
-                // from internal 3A state machine at last and provide a flag in the Request object
-                // to
-                // specify when the clients want to explicitly override some of the 3A parameters
-                // directly. Add code to handle the flag. (2) Let clients override the 3A parameters
-                // freely and when that happens intercept those parameters from the request and keep
-                // the
-                // internal 3A state machine in sync.
+                // TODO(sushilnath@): Implement one of the two options
+                //  (1) Apply the 3A parameters from internal 3A state machine at last and provide
+                //      a flag in the Request object to specify when the clients want to explicitly
+                //      override some of the 3A parameters directly. Add code to handle the flag.
+                //  (2) Let clients override the 3A parameters freely and when that happens
+                //      intercept those parameters from the request and keep the internal 3A state
+                //      machine in sync.
                 requestBuilder.writeParameters(requiredParameters)
             }
             val requestNumber = nextRequestNumber()
@@ -284,9 +283,7 @@ internal class Camera2CaptureSequenceProcessor(
     override fun submit(captureSequence: Camera2CaptureSequence): Int? =
         synchronized(lock) {
             if (closed) {
-                Log.warn {
-                    "Capture sequence processor closed. $captureSequence won't be submitted"
-                }
+                Log.warn { "$this closed. $captureSequence won't be submitted" }
                 return null
             }
             val captureCallback = captureSequence as CameraCaptureSession.CaptureCallback
@@ -327,46 +324,50 @@ internal class Camera2CaptureSequenceProcessor(
             session.stopRepeating()
         }
 
-    override fun close() =
+    override suspend fun shutdown() {
+        val captureSequence: Camera2CaptureSequence?
         synchronized(lock) {
             if (closed) {
-                return@synchronized
+                return
             }
-            // Close should not shut down
-            Debug.trace("$this#close") {
-                if (shouldWaitForRepeatingRequest) {
-                    lastSingleRepeatingRequestSequence?.let {
-                        Log.debug { "Waiting for the last repeating request sequence $it" }
-                        // On certain devices, the submitted repeating request sequence may not give
-                        // us
-                        // onCaptureStarted() or onCaptureSequenceAborted() [1]. Hence we wrap the
-                        // wait
-                        // under a timeout to prevent us from waiting forever.
-                        //
-                        // [1] b/307588161 - [ANR] at
-                        //
-                        // androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
-                        rethrowExceptionAfterLogging(
-                            "$this#close: $REPEATING_REQUEST_STARTED_TIMEOUT" +
-                                ", lastSingleRepeatingRequestSequence = $it"
-                        ) {
-                            runBlockingWithTimeout(
-                                threads.backgroundDispatcher,
-                                WAIT_FOR_REPEATING_TIMEOUT_MS
-                            ) {
-                                it.awaitStarted()
-                            }
-                        }
-                    }
-                }
+            closed = true
+            captureSequence = lastSingleRepeatingRequestSequence
+        }
+
+        if (shouldWaitForRepeatingRequest && captureSequence != null) {
+            awaitRepeatingRequestStarted(captureSequence)
+        }
+
+        // Shutdown is responsible for releasing resources that are no longer in use.
+        Debug.trace("$this#close") {
+            synchronized(lock) {
                 imageWriter?.close()
                 session.inputSurface?.release()
-                closed = true
             }
         }
+    }
 
     override fun toString(): String {
         return "Camera2CaptureSequenceProcessor-$debugId"
+    }
+
+    private suspend fun awaitRepeatingRequestStarted(captureSequence: Camera2CaptureSequence) {
+        Log.debug { "Waiting for the last repeating request sequence: $captureSequence" }
+        // On certain devices, the submitted repeating request sequence may not give
+        // us onCaptureStarted() or onCaptureSequenceAborted() [1]. Hence we wrap
+        // the wait under a timeout to prevent us from waiting forever.
+        //
+        // [1] b/307588161 - [ANR] at
+        // androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
+        try {
+            withTimeout(WAIT_FOR_REPEATING_TIMEOUT_MS) { captureSequence.awaitStarted() }
+        } catch (e: TimeoutCancellationException) {
+            Log.error {
+                "$this#close: $REPEATING_REQUEST_STARTED_TIMEOUT" +
+                    ", lastSingleRepeatingRequestSequence = $captureSequence"
+            }
+            throw e
+        }
     }
 
     /**
