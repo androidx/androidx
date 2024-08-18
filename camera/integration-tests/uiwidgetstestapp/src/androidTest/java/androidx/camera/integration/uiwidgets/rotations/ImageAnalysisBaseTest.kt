@@ -25,6 +25,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -110,7 +111,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
         rotate: ActivityScenario<A>.() -> Unit,
     ) {
         val activityScenario: ActivityScenario<A> = launchActivity(lensFacing, cameraXConfig)
-        activityScenario.use { scenario ->
+        activityScenario.useInCameraTest { scenario ->
 
             // Wait until the camera is set up and analysis starts receiving frames
             scenario.waitOnCameraFrames()

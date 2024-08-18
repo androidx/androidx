@@ -347,7 +347,7 @@ open class CameraActivity : AppCompatActivity() {
         const val IMAGE_CAPTURE_MODE_OUTPUT_STREAM = 2
         const val IMAGE_CAPTURE_MODE_MEDIA_STORE = 3
 
-        private const val TAG = "MainActivity"
+        private const val TAG = "CameraActivity"
         private const val REQUEST_CODE_PERMISSIONS = 20
         val PERMISSIONS =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
