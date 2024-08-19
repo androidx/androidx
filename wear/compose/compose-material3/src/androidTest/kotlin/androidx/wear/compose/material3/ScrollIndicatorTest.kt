@@ -52,7 +52,7 @@ import org.junit.runner.RunWith
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-public class ScrollIndicatorTest {
+class ScrollIndicatorTest {
     @get:Rule val rule = createComposeRule()
 
     private var itemSizePx: Int = 50
@@ -296,10 +296,10 @@ public class ScrollIndicatorTest {
         itemsCount: Int = 0,
     ) {
         lateinit var state: ScalingLazyListState
-        lateinit var scrollIndicatorState: ScrollIndicatorState
+        lateinit var indicatorState: IndicatorState
         rule.setContent {
             state = rememberScalingLazyListState()
-            scrollIndicatorState = ScalingLazyColumnStateAdapter(state)
+            indicatorState = ScalingLazyColumnStateAdapter(state)
             ScalingLazyColumn(
                 state = state,
                 verticalArrangement = verticalArrangement,
@@ -322,12 +322,10 @@ public class ScrollIndicatorTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(scrollIndicatorState.positionFraction)
+            Truth.assertThat(indicatorState.positionFraction)
                 .isWithin(0.05f)
                 .of(expectedIndicatorPosition)
-            Truth.assertThat(scrollIndicatorState.sizeFraction)
-                .isWithin(0.05f)
-                .of(expectedIndicatorSize)
+            Truth.assertThat(indicatorState.sizeFraction).isWithin(0.05f).of(expectedIndicatorSize)
         }
     }
 
@@ -352,10 +350,10 @@ public class ScrollIndicatorTest {
         itemsCount: Int = 0,
     ) {
         lateinit var state: LazyListState
-        lateinit var scrollIndicatorState: ScrollIndicatorState
+        lateinit var indicatorState: IndicatorState
         rule.setContent {
             state = rememberLazyListState()
-            scrollIndicatorState = LazyColumnStateAdapter(state)
+            indicatorState = LazyColumnStateAdapter(state)
             LazyColumn(
                 state = state,
                 verticalArrangement = verticalArrangement,
@@ -377,12 +375,10 @@ public class ScrollIndicatorTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(scrollIndicatorState.positionFraction)
+            Truth.assertThat(indicatorState.positionFraction)
                 .isWithin(0.05f)
                 .of(expectedIndicatorPosition)
-            Truth.assertThat(scrollIndicatorState.sizeFraction)
-                .isWithin(0.05f)
-                .of(expectedIndicatorSize)
+            Truth.assertThat(indicatorState.sizeFraction).isWithin(0.05f).of(expectedIndicatorSize)
         }
     }
 
@@ -407,11 +403,11 @@ public class ScrollIndicatorTest {
         itemsCount: Int = 0,
     ) {
         lateinit var state: ScrollState
-        lateinit var scrollIndicatorState: ScrollIndicatorState
+        lateinit var indicatorState: IndicatorState
         var viewPortSize = IntSize.Zero
         rule.setContent {
             state = rememberScrollState()
-            scrollIndicatorState = ScrollStateAdapter(state) { viewPortSize }
+            indicatorState = ScrollStateAdapter(state) { viewPortSize }
             Box(
                 modifier =
                     Modifier.onSizeChanged { viewPortSize = it }
@@ -437,12 +433,10 @@ public class ScrollIndicatorTest {
             }
         }
         rule.runOnIdle {
-            Truth.assertThat(scrollIndicatorState.positionFraction)
+            Truth.assertThat(indicatorState.positionFraction)
                 .isWithin(0.05f)
                 .of(expectedIndicatorPosition)
-            Truth.assertThat(scrollIndicatorState.sizeFraction)
-                .isWithin(0.05f)
-                .of(expectedIndicatorSize)
+            Truth.assertThat(indicatorState.sizeFraction).isWithin(0.05f).of(expectedIndicatorSize)
         }
     }
 }

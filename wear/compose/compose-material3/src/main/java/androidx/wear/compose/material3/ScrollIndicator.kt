@@ -98,9 +98,8 @@ import kotlinx.coroutines.launch
  *   `Modifier.align(Alignment.CenterEnd)`.
  * @param reverseDirection Reverses direction of ScrollIndicator if true
  * @param positionAnimationSpec [AnimationSpec] for position animation. The Position animation is
- *   used for animating changes between state.positionFraction and state.sizeFraction of
- *   [ScrollIndicatorState]. To disable this animation [snap] AnimationSpec should be passed
- *   instead.
+ *   used for animating changes to the scroll size and position. To disable this animation [snap]
+ *   AnimationSpec should be passed instead.
  */
 @Composable
 fun ScrollIndicator(
@@ -111,7 +110,7 @@ fun ScrollIndicator(
 ) {
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
-    ScrollIndicatorImpl(
+    IndicatorImpl(
         remember { ScrollStateAdapter(state) { containerSize } },
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
@@ -147,9 +146,8 @@ fun ScrollIndicator(
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of ScrollIndicator if true
  * @param positionAnimationSpec [AnimationSpec] for position animation. The Position animation is
- *   used for animating changes between state.positionFraction and state.sizeFraction of
- *   [ScrollIndicatorState]. To disable this animation [snap] AnimationSpec should be passed
- *   instead.
+ *   used for animating changes to the scroll size and position. To disable this animation [snap]
+ *   AnimationSpec should be passed instead.
  */
 @Composable
 fun ScrollIndicator(
@@ -158,7 +156,7 @@ fun ScrollIndicator(
     reverseDirection: Boolean = false,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec
 ) =
-    ScrollIndicatorImpl(
+    IndicatorImpl(
         state = ScalingLazyColumnStateAdapter(state = state),
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
@@ -191,9 +189,8 @@ fun ScrollIndicator(
  * @param modifier The modifier to be applied to the component
  * @param reverseDirection Reverses direction of ScrollIndicator if true
  * @param positionAnimationSpec [AnimationSpec] for position animation. The Position animation is
- *   used for animating changes between state.positionFraction and state.sizeFraction of
- *   [ScrollIndicatorState]. To disable this animation [snap] AnimationSpec should be passed
- *   instead.
+ *   used for animating changes to the scroll size and position. To disable this animation [snap]
+ *   AnimationSpec should be passed instead.
  */
 @Composable
 fun ScrollIndicator(
@@ -202,7 +199,7 @@ fun ScrollIndicator(
     reverseDirection: Boolean = false,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec
 ) =
-    ScrollIndicatorImpl(
+    IndicatorImpl(
         state = LazyColumnStateAdapter(state = state),
         indicatorHeight = ScrollIndicatorDefaults.indicatorHeight,
         indicatorWidth = ScrollIndicatorDefaults.indicatorWidth,
@@ -241,7 +238,7 @@ object ScrollIndicatorDefaults {
  * of 5 / 50 = 0.1f to indicate that 10% of the visible items are currently visible.
  */
 @Stable
-internal interface ScrollIndicatorState {
+internal interface IndicatorState {
     /**
      * Position of the indicator in the range [0f,1f]. 0f means it is at the top|start, 1f means it
      * is positioned at the bottom|end.
@@ -253,7 +250,7 @@ internal interface ScrollIndicatorState {
 }
 
 /**
- * An indicator on one side of the screen to show the current [ScrollIndicatorState].
+ * An indicator on one side of the screen to show the current [IndicatorState].
  *
  * Typically used with the [ScreenScaffold] but can be used to decorate any full screen situation.
  *
@@ -270,7 +267,7 @@ internal interface ScrollIndicatorState {
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll) guide.
  *
- * @param state the [ScrollIndicatorState] of the state we are displaying.
+ * @param state the [IndicatorState] of the state we are displaying.
  * @param indicatorHeight the height of the position indicator in Dp.
  * @param indicatorWidth the width of the position indicator in Dp.
  * @param paddingHorizontal the padding to apply between the indicator and the border of the screen.
@@ -279,12 +276,12 @@ internal interface ScrollIndicatorState {
  * @param color the color to draw the active part of the indicator in.
  * @param reverseDirection Reverses direction of ScrollIndicator if true.
  * @param positionAnimationSpec [AnimationSpec] for position animation. The Position animation is
- *   used for animating changes between state.positionFraction and state.sizeFraction of
- *   [ScrollIndicatorState]. To disable animation [snap] should be passed.
+ *   used for animating changes to the scroll size and position. To disable this animation [snap]
+ *   AnimationSpec should be passed instead.
  */
 @Composable
-internal fun ScrollIndicatorImpl(
-    state: ScrollIndicatorState,
+internal fun IndicatorImpl(
+    state: IndicatorState,
     indicatorHeight: Dp,
     indicatorWidth: Dp,
     paddingHorizontal: Dp,
@@ -292,6 +289,7 @@ internal fun ScrollIndicatorImpl(
     background: Color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.3f),
     color: Color = MaterialTheme.colorScheme.onBackground,
     reverseDirection: Boolean = false,
+    rsbSide: Boolean = true,
     positionAnimationSpec: AnimationSpec<Float> = ScrollIndicatorDefaults.PositionAnimationSpec
 ) {
     val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
@@ -302,7 +300,10 @@ internal fun ScrollIndicatorImpl(
     val positionFractionAnimatable = remember { Animatable(0f) }
     val sizeFractionAnimatable = remember { Animatable(0f) }
 
-    val indicatorOnTheRight = layoutDirection == LayoutDirection.Ltr
+    // TODO(b/360358568) - consider taking lefty-mode into account for orientation.
+    val indicatorOnTheRight =
+        if (rsbSide) layoutDirection == LayoutDirection.Ltr
+        else layoutDirection == LayoutDirection.Rtl
 
     val size: () -> DpSize = {
         // radius is the distance from the center of the container to the arc we draw the
@@ -452,7 +453,7 @@ internal class DisplayState(
 }
 
 /**
- * An implementation of [ScrollIndicatorState] to display the amount and position of a component
+ * An implementation of [IndicatorState] to display the amount and position of a component
  * implementing the [ScrollState] class such as a [Column] implementing [Modifier.verticalScroll].
  *
  * @param scrollState the [ScrollState] to adapt
@@ -461,7 +462,7 @@ internal class DisplayState(
 internal class ScrollStateAdapter(
     private val scrollState: ScrollState,
     private val scrollableContainerSize: () -> IntSize
-) : ScrollIndicatorState {
+) : IndicatorState {
 
     override val positionFraction: Float
         get() {
@@ -493,8 +494,8 @@ internal class ScrollStateAdapter(
 }
 
 /**
- * An implementation of [ScrollIndicatorState] to display the amount and position of a
- * [ScalingLazyColumn] component via its [ScalingLazyListState].
+ * An implementation of [IndicatorState] to display the amount and position of a [ScalingLazyColumn]
+ * component via its [ScalingLazyListState].
  *
  * Note that size and position calculations ignore spacing between list items both for determining
  * the number and the number of visible items.
@@ -503,7 +504,7 @@ internal class ScrollStateAdapter(
  * @VisibleForTesting
  */
 internal class ScalingLazyColumnStateAdapter(private val state: ScalingLazyListState) :
-    ScrollIndicatorState {
+    IndicatorState {
     private var currentSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
     override val positionFraction: Float
@@ -612,13 +613,13 @@ internal class ScalingLazyColumnStateAdapter(private val state: ScalingLazyListS
 }
 
 /**
- * An implementation of [ScrollIndicatorState] to display the amount and position of a [LazyColumn]
+ * An implementation of [IndicatorState] to display the amount and position of a [LazyColumn]
  * component via its [LazyListState].
  *
  * @param state the [LazyListState] to adapt.
  * @VisibleForTesting
  */
-internal class LazyColumnStateAdapter(private val state: LazyListState) : ScrollIndicatorState {
+internal class LazyColumnStateAdapter(private val state: LazyListState) : IndicatorState {
     private var latestSizeFraction: Float = 0f
     private var previousItemsCount: Int = 0
 

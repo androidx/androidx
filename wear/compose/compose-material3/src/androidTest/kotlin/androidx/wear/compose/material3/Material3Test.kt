@@ -79,6 +79,22 @@ val BigTestMaxHeight = 5000.dp
 val SCREEN_SIZE_SMALL = 192
 val SCREEN_SIZE_LARGE = 228
 
+enum class ScreenSize(val size: Int) {
+    SMALL(SCREEN_SIZE_SMALL),
+    LARGE(SCREEN_SIZE_LARGE)
+}
+
+enum class ScreenShape(val isRound: Boolean) {
+    ROUND_DEVICE(true),
+    SQUARE_DEVICE(false)
+}
+
+/**
+ * Valid characters for golden identifiers are [A-Za-z0-9_-] TestParameterInjector adds '[' +
+ * parameter_values + ']' to the test name.
+ */
+fun TestName.goldenIdentifier(): String = methodName.replace("[", "_").replace("]", "")
+
 internal const val TEST_TAG = "test-item"
 
 @Composable
@@ -222,17 +238,6 @@ fun ImageBitmap.assertColorInPercentageRange(
         }
     }
 }
-
-enum class ScreenSize(val size: Int) {
-    SMALL(SCREEN_SIZE_SMALL),
-    LARGE(SCREEN_SIZE_LARGE)
-}
-
-/**
- * Valid characters for golden identifiers are [A-Za-z0-9_-] TestParameterInjector adds '[' +
- * parameter_values + ']' to the test name.
- */
-fun TestName.methodNameWithValidCharacters(): String = methodName.replace("[", "_").replace("]", "")
 
 /**
  * Asserts that the layout of this node has height equal to [expectedHeight].

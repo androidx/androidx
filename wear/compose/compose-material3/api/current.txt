@@ -427,6 +427,32 @@ package androidx.wear.compose.material3 {
     property @SuppressCompatibility @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalMinimumInteractiveComponentEnforcement;
   }
 
+  public final class LevelIndicatorColors {
+    ctor public LevelIndicatorColors(long indicatorColor, long trackColor, long disabledIndicatorColor, long disabledTrackColor);
+    method public long getDisabledIndicatorColor();
+    method public long getDisabledTrackColor();
+    method public long getIndicatorColor();
+    method public long getTrackColor();
+    property public final long disabledIndicatorColor;
+    property public final long disabledTrackColor;
+    property public final long indicatorColor;
+    property public final long trackColor;
+  }
+
+  public final class LevelIndicatorDefaults {
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.LevelIndicatorColors colors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.LevelIndicatorColors colors(optional long indicatorColor, optional long trackColor, optional long disabledIndicatorColor, optional long disabledTrackColor);
+    method public float getStrokeWidth();
+    property public final float StrokeWidth;
+    field public static final androidx.wear.compose.material3.LevelIndicatorDefaults INSTANCE;
+    field public static final float SweepAngle = 72.0f;
+  }
+
+  public final class LevelIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void LevelIndicator(kotlin.jvm.functions.Function0<java.lang.Float> value, optional androidx.compose.ui.Modifier modifier, optional kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange, optional boolean enabled, optional androidx.wear.compose.material3.LevelIndicatorColors colors, optional float strokeWidth, optional float sweepAngle, optional boolean reverseDirection);
+    method @androidx.compose.runtime.Composable public static void LevelIndicator(kotlin.jvm.functions.Function0<java.lang.Integer> value, kotlin.ranges.IntProgression valueProgression, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.wear.compose.material3.LevelIndicatorColors colors, optional float strokeWidth, optional float sweepAngle, optional boolean reverseDirection);
+  }
+
   public final class ListHeaderDefaults {
     method public androidx.compose.foundation.layout.PaddingValues getHeaderContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getSubheaderContentPadding();
