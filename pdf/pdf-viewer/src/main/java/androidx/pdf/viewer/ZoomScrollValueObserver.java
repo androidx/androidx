@@ -184,4 +184,5 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             }
         }
     }
+
 }

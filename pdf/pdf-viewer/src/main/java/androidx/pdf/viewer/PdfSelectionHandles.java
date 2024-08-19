@@ -94,4 +94,14 @@ public class PdfSelectionHandles extends ZoomableSelectionHandles<PageSelection>
     protected void onDragHandleUp() {
         mSelectionActionMode.resume();
     }
+
+    @NonNull
+    public ImageView getStartHandle() {
+        return mStartHandle;
+    }
+
+    @NonNull
+    public ImageView getStopHandle() {
+        return mStopHandle;
+    }
 }
