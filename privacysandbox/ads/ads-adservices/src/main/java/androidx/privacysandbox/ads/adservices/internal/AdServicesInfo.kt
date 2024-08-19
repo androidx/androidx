@@ -38,14 +38,6 @@ internal object AdServicesInfo {
         }
     }
 
-    fun extServicesVersionR(): Int {
-        return if (Build.VERSION.SDK_INT == 30) {
-            Extensions30ExtImpl.getAdExtServicesVersionR()
-        } else {
-            0
-        }
-    }
-
     @RequiresApi(30)
     private object Extensions30Impl {
         @DoNotInline
@@ -55,12 +47,8 @@ internal object AdServicesInfo {
     @RequiresApi(30)
     private object Extensions30ExtImpl {
         // For ExtServices, there is no AD_SERVICES extension version, so we need to check
-        // for the build version. Use S for now, but this can be changed to R when we add
-        // support for R later.
+        // for the build version for S.
         @DoNotInline
         fun getAdExtServicesVersionS() = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S)
-
-        @DoNotInline
-        fun getAdExtServicesVersionR() = SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R)
     }
 }

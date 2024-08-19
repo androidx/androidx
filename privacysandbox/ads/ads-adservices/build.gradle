@@ -51,10 +51,6 @@ dependencies {
 }
 
 android {
-    buildTypes.all {
-        consumerProguardFiles "proguard-rules.pro"
-    }
-
     compileSdk = 34
     compileSdkExtension = 12
     namespace "androidx.privacysandbox.ads.adservices"

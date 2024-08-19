@@ -80,8 +80,7 @@ public class AdIdManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 4,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         AdIdManagerFutures adIdManager =
                 AdIdManagerFutures.from(ApplicationProvider.getApplicationContext());

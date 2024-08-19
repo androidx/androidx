@@ -32,25 +32,9 @@ object VersionCompatUtil {
             SdkExtensions.getExtensionVersion(Build.VERSION_CODES.S) >= minVersion
     }
 
-    fun isRWithMinExtServicesVersion(minVersion: Int): Boolean {
-        return Build.VERSION.SDK_INT == 30 &&
-            SdkExtensions.getExtensionVersion(Build.VERSION_CODES.R) >= minVersion
-    }
-
     // Helper method to determine if version is testable, for APIs that are S+ only
     fun isTestableVersion(minAdServicesVersion: Int, minExtServicesVersion: Int): Boolean {
         return isTPlusWithMinAdServicesVersion(minAdServicesVersion) ||
             isSWithMinExtServicesVersion(minExtServicesVersion)
-    }
-
-    // Helper method to determine if version is testable, for APIs that are available on R
-    fun isTestableVersion(
-        minAdServicesVersion: Int,
-        minExtServicesVersionS: Int,
-        minExtServicesVersionR: Int
-    ): Boolean {
-        return isTPlusWithMinAdServicesVersion(minAdServicesVersion) ||
-            isSWithMinExtServicesVersion(minExtServicesVersionS) ||
-            isRWithMinExtServicesVersion(minExtServicesVersionR)
     }
 }

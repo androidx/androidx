@@ -52,7 +52,6 @@ public constructor(val webTriggerParams: List<WebTriggerParams>, val destination
     @SuppressLint("ClassVerificationFailure", "NewApi")
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
     @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
-    @RequiresExtension(extension = Build.VERSION_CODES.R, version = 11)
     internal fun convertToAdServices():
         android.adservices.measurement.WebTriggerRegistrationRequest {
         return android.adservices.measurement.WebTriggerRegistrationRequest.Builder(
