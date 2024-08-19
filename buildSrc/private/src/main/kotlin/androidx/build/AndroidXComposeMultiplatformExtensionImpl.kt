@@ -16,7 +16,6 @@
 
 package androidx.build
 
-import com.android.build.gradle.internal.crash.afterEvaluate
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import org.gradle.api.Action
@@ -348,24 +347,5 @@ open class AndroidXComposeMultiplatformExtensionImpl @Inject constructor(
             uikitInstrumentedTest.dependsOn(commonTest)
             uikitInstrumentedX64Test.dependsOn(uikitInstrumentedTest)
             uikitInstrumentedSimArm64Test.dependsOn(uikitInstrumentedTest)
-
-            afterEvaluate {
-                println(">>> After ${it} - ${it.tasks.count()}")
-                it.tasks.forEach {
-                    println(">> NNN ${it.name}")
-                }
-                it.tasks.configureEach {
-                    println(">>> ${it.name}")
-                    if (
-                        it.name.startsWith("transform")
-                        && it.name.endsWith("DependenciesMetadataForIde")
-                    ) {
-                        // transformUikitInstrumentedTestCInteropDependenciesMetadataForIde
-                        // println("disabling ${this@subprojects}:$name")
-                        it.enabled = false
-                    }
-                }
-            }
-
         }
 }
