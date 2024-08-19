@@ -481,6 +481,14 @@ class GraphicsLayerTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
+    fun testZeroRadiusBlurDoesNotCrash() {
+        val tag = "blurTag"
+        val size = 100f
+        rule.setContent { BoxBlur(tag, size, 0f) }
+    }
+
+    @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O, maxSdkVersion = Build.VERSION_CODES.R)
     fun testBlurNoopOnUnsupportedPlatforms() {
         val tag = "blurTag"
