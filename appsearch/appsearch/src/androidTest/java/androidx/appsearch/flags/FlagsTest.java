@@ -133,4 +133,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_BLOB_STORE)
                 .isEqualTo("com.android.appsearch.flags.enable_blob_store");
     }
+
+    @Test
+    public void testFlagValue_enableEnterpriseEmptyBatchResultFix() {
+        assertThat(Flags.FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX)
+                .isEqualTo("com.android.appsearch.flags.enable_enterprise_empty_batch_result_fix");
+    }
 }
