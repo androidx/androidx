@@ -163,7 +163,8 @@ class CurvedTextStyle(
 
     @Deprecated(
         "This overload is provided for backwards compatibility with Compose for " +
-            "Wear OS 1.0. A newer overload is available with additional font parameters."
+            "Wear OS 1.0. A newer overload is available with additional font parameters.",
+        level = DeprecationLevel.HIDDEN
     )
     fun copy(
         background: Color = this.background,
@@ -184,7 +185,8 @@ class CurvedTextStyle(
 
     @Deprecated(
         "This overload is provided for backwards compatibility with Compose for " +
-            "Wear OS 1.4. A newer overload is available with additional letter spacing parameter."
+            "Wear OS 1.4. A newer overload is available with additional letter spacing parameter.",
+        level = DeprecationLevel.HIDDEN
     )
     fun copy(
         background: Color = this.background,
