@@ -493,8 +493,9 @@ class AnchoredDraggableGestureTest(testNewBehavior: Boolean) :
         assertThat(state.targetValue).isEqualTo(B)
     }
 
+    // TODO(b/360835763): Remove when removing the old overload
     @Test
-    fun anchoredDraggable_animationNotCancelledByDrag_startDragImmediatelyIsFalse() {
+    fun anchoredDraggable_startDragImmediately_false_animationNotCancelledByDrag() {
         rule.mainClock.autoAdvance = false
         val anchors = DraggableAnchors {
             A at 0f
@@ -537,6 +538,52 @@ class AnchoredDraggableGestureTest(testNewBehavior: Boolean) :
         rule.waitForIdle()
 
         assertThat(state.targetValue).isEqualTo(C) // Animation will continue to C
+    }
+
+    @Test
+    fun anchoredDraggable_startDragImmediately_default_processesWithoutSlopWhileAnimating() {
+        rule.mainClock.autoAdvance = false
+        val anchors = DraggableAnchors {
+            A at 0f
+            B at 250f
+            C at 500f
+        }
+        val (state, modifier) =
+            createStateAndModifier(
+                initialValue = A,
+                anchors = anchors,
+                orientation = Orientation.Horizontal,
+            )
+        lateinit var scope: CoroutineScope
+        rule.setContent {
+            WithTouchSlop(touchSlop = 5000f) {
+                scope = rememberCoroutineScope()
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier.requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .then(modifier)
+                            .offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+        assertThat(state.currentValue).isEqualTo(A)
+        assertThat(state.targetValue).isEqualTo(A)
+
+        scope.launch { state.animateTo(C) }
+
+        rule.mainClock.advanceTimeUntil { state.requireOffset() > 10 }
+        val offsetBeforeTouch = state.requireOffset()
+
+        rule.onNodeWithTag(AnchoredDraggableTestTag).performTouchInput {
+            down(Offset.Zero)
+            moveBy(Offset(x = 15f, y = 0f))
+        }
+        // rule.mainClock.advanceTimeByFrame()
+        assertThat(state.requireOffset()).isEqualTo(offsetBeforeTouch + 15f)
+        rule.waitForIdle()
     }
 
     @Test

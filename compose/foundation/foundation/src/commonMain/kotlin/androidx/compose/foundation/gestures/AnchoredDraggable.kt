@@ -95,9 +95,10 @@ import kotlinx.coroutines.launch
  * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
  * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
  *   [Modifier.draggable].
- * @param startDragImmediately when set to false, [draggable] will start dragging only when the
- *   gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
- *   widget when pressing on it. See [draggable] to learn more about startDragImmediately.
+ * @param overscrollEffect optional effect to dispatch any excess delta or velocity to. The excess
+ *   delta or velocity are a result of dragging/flinging and reaching the bounds. If you provide an
+ *   [overscrollEffect], make sure to apply [androidx.compose.foundation.overscroll] to render the
+ *   effect as well.
  * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
@@ -108,7 +109,7 @@ fun <T> Modifier.anchoredDraggable(
     orientation: Orientation,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource? = null,
-    startDragImmediately: Boolean = state.isAnimationRunning,
+    overscrollEffect: OverscrollEffect? = null,
     flingBehavior: FlingBehavior? = null
 ): Modifier =
     this then
@@ -118,52 +119,7 @@ fun <T> Modifier.anchoredDraggable(
             enabled = enabled,
             reverseDirection = reverseDirection,
             interactionSource = interactionSource,
-            overscrollEffect = null,
-            startDragImmediately = startDragImmediately,
-            flingBehavior = flingBehavior
-        )
-
-/**
- * Enable drag gestures between a set of predefined values.
- *
- * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
- * delta. If the [orientation] is set to [Orientation.Horizontal] and [LocalLayoutDirection]'s value
- * is [LayoutDirection.Rtl], the drag deltas will be reversed. You should use this offset to move
- * your content accordingly (see [Modifier.offset]). When the drag ends, the offset will be animated
- * to one of the anchors and when that anchor is reached, the value of the [AnchoredDraggableState]
- * will also be updated to the value corresponding to the new anchor.
- *
- * Dragging is constrained between the minimum and maximum anchors.
- *
- * @param state The associated [AnchoredDraggableState].
- * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
- * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
- * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
- *   [Modifier.draggable].
- * @param startDragImmediately when set to false, [draggable] will start dragging only when the
- *   gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
- *   widget when pressing on it. See [draggable] to learn more about startDragImmediately.
- * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
- *   default (if passing in null), this will snap to the closest anchor considering the velocity
- *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
- */
-fun <T> Modifier.anchoredDraggable(
-    state: AnchoredDraggableState<T>,
-    orientation: Orientation,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource? = null,
-    startDragImmediately: Boolean = state.isAnimationRunning,
-    flingBehavior: FlingBehavior? = null
-): Modifier =
-    this then
-        AnchoredDraggableElement(
-            state = state,
-            orientation = orientation,
-            enabled = enabled,
-            reverseDirection = null,
-            interactionSource = interactionSource,
-            overscrollEffect = null,
-            startDragImmediately = startDragImmediately,
+            overscrollEffect = overscrollEffect,
             flingBehavior = flingBehavior
         )
 
@@ -198,6 +154,7 @@ fun <T> Modifier.anchoredDraggable(
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
  */
+@Deprecated(StartDragImmediatelyDeprecated)
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     reverseDirection: Boolean,
@@ -241,6 +198,50 @@ fun <T> Modifier.anchoredDraggable(
  *   delta or velocity are a result of dragging/flinging and reaching the bounds. If you provide an
  *   [overscrollEffect], make sure to apply [androidx.compose.foundation.overscroll] to render the
  *   effect as well.
+ * @param flingBehavior Optionally configure how the anchored draggable performs the fling. By
+ *   default (if passing in null), this will snap to the closest anchor considering the velocity
+ *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
+ */
+fun <T> Modifier.anchoredDraggable(
+    state: AnchoredDraggableState<T>,
+    orientation: Orientation,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    overscrollEffect: OverscrollEffect? = null,
+    flingBehavior: FlingBehavior? = null
+): Modifier =
+    this then
+        AnchoredDraggableElement(
+            state = state,
+            orientation = orientation,
+            enabled = enabled,
+            reverseDirection = null,
+            interactionSource = interactionSource,
+            overscrollEffect = overscrollEffect,
+            flingBehavior = flingBehavior
+        )
+
+/**
+ * Enable drag gestures between a set of predefined values.
+ *
+ * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
+ * delta. If the [orientation] is set to [Orientation.Horizontal] and [LocalLayoutDirection]'s value
+ * is [LayoutDirection.Rtl], the drag deltas will be reversed. You should use this offset to move
+ * your content accordingly (see [Modifier.offset]). When the drag ends, the offset will be animated
+ * to one of the anchors and when that anchor is reached, the value of the [AnchoredDraggableState]
+ * will also be updated to the value corresponding to the new anchor.
+ *
+ * Dragging is constrained between the minimum and maximum anchors.
+ *
+ * @param state The associated [AnchoredDraggableState].
+ * @param orientation The orientation in which the [anchoredDraggable] can be dragged.
+ * @param enabled Whether this [anchoredDraggable] is enabled and should react to the user's input.
+ * @param interactionSource Optional [MutableInteractionSource] that will passed on to the internal
+ *   [Modifier.draggable].
+ * @param overscrollEffect optional effect to dispatch any excess delta or velocity to. The excess
+ *   delta or velocity are a result of dragging/flinging and reaching the bounds. If you provide an
+ *   [overscrollEffect], make sure to apply [androidx.compose.foundation.overscroll] to render the
+ *   effect as well.
  * @param startDragImmediately when set to false, [draggable] will start dragging only when the
  *   gesture crosses the touchSlop. This is useful to prevent users from "catching" an animating
  *   widget when pressing on it. See [draggable] to learn more about startDragImmediately.
@@ -248,6 +249,7 @@ fun <T> Modifier.anchoredDraggable(
  *   default (if passing in null), this will snap to the closest anchor considering the velocity
  *   thresholds and positional thresholds. See [AnchoredDraggableDefaults.flingBehavior].
  */
+@Deprecated(StartDragImmediatelyDeprecated)
 fun <T> Modifier.anchoredDraggable(
     state: AnchoredDraggableState<T>,
     orientation: Orientation,
@@ -275,7 +277,7 @@ private class AnchoredDraggableElement<T>(
     private val enabled: Boolean,
     private val reverseDirection: Boolean?,
     private val interactionSource: MutableInteractionSource?,
-    private val startDragImmediately: Boolean,
+    private val startDragImmediately: Boolean? = null,
     private val overscrollEffect: OverscrollEffect?,
     private val flingBehavior: FlingBehavior? = null,
 ) : ModifierNodeElement<AnchoredDraggableNode<T>>() {
@@ -353,7 +355,7 @@ private class AnchoredDraggableNode<T>(
     private var reverseDirection: Boolean?,
     interactionSource: MutableInteractionSource?,
     private var overscrollEffect: OverscrollEffect?,
-    private var startDragImmediately: Boolean,
+    private var startDragImmediately: Boolean?,
     private var flingBehavior: FlingBehavior?
 ) :
     DragGestureNode(
@@ -470,7 +472,7 @@ private class AnchoredDraggableNode<T>(
             leftoverVelocity
         }
 
-    override fun startDragImmediately(): Boolean = startDragImmediately
+    override fun startDragImmediately(): Boolean = startDragImmediately ?: state.isAnimationRunning
 
     fun update(
         state: AnchoredDraggableState<T>,
@@ -479,7 +481,7 @@ private class AnchoredDraggableNode<T>(
         reverseDirection: Boolean?,
         interactionSource: MutableInteractionSource?,
         overscrollEffect: OverscrollEffect?,
-        startDragImmediately: Boolean,
+        startDragImmediately: Boolean?,
         flingBehavior: FlingBehavior?,
     ) {
         this.flingBehavior = flingBehavior
@@ -1617,6 +1619,10 @@ private const val SettleWithVelocityDeprecated =
     "settle does not accept a velocity anymore. " +
         "Please use FlingBehavior#performFling instead. See AnchoredDraggableSamples.kt for example " +
         "usages."
+private const val StartDragImmediatelyDeprecated =
+    "startDragImmediately has been removed " +
+        "without replacement. Modifier.anchoredDraggable sets startDragImmediately to true by " +
+        "default when animations are running."
 
 /**
  * Construct a [FlingBehavior] for use with [Modifier.anchoredDraggable].
