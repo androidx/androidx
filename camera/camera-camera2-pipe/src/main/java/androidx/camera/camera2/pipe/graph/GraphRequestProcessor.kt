@@ -61,10 +61,8 @@ private constructor(
         object : CaptureSequence.CaptureSequenceListener {
             override fun onCaptureSequenceComplete(captureSequence: CaptureSequence<*>) {
                 // Listen to the completion of active capture sequences and remove them from the
-                // list
-                // of currently active capture sequences. Since repeating requests are not required
-                // to
-                // execute, only non-repeating capture sequences are tracked.
+                // list of currently active capture sequences. Since repeating requests are not
+                // required to execute, only non-repeating capture sequences are tracked.
                 if (!captureSequence.repeating) {
                     synchronized(activeCaptureSequences) {
                         activeCaptureSequences.remove(captureSequence)
@@ -122,7 +120,7 @@ private constructor(
     ): Boolean {
         // Reject incoming requests if this instance has been stopped or closed.
         if (closed.value) {
-            Log.warn { "Rejecting requests $requests: Request processor is closed." }
+            Log.warn { "Failed to submit $requests: $this is closed." }
             return false
         }
 
@@ -156,7 +154,7 @@ private constructor(
                 // case, it was handled by aborting the requests and closing the images.
                 return true
             }
-            Log.warn { "Rejecting requests $requests: Could not create the capture sequence." }
+            Log.warn { "Failed to submit $requests: $this failed to build CaptureSequence." }
 
             // We do not need to invoke the sequenceCompleteListener since it has not been added to
             // the list of activeCaptureSequences yet.
@@ -166,7 +164,7 @@ private constructor(
         // Re-check again and reject requests if this instance has been closed or stopped.
         // This is an optimization since building the captureSequence can take non-zero time.
         if (closed.value) {
-            Log.warn { "Rejecting requests $requests: Request processor is closed." }
+            Log.warn { "Failed to submit $requests: $this is closed." }
             return false
         }
 
@@ -177,7 +175,7 @@ private constructor(
 
         var captured = false
         return try {
-            Log.debug { "Submitting $captureSequence" }
+            Log.debug { "$this submitting $captureSequence" }
             captureSequence.invokeOnRequestSequenceCreated()
 
             // NOTE: This is an unusual synchronization call. The purpose is to avoid a rare but
@@ -189,11 +187,11 @@ private constructor(
                 synchronized(lock = captureSequence) {
                     // Check closed state right before submitting.
                     if (closed.value) {
-                        Log.warn { "Did not submit $captureSequence, $this was closed!" }
+                        Log.warn { "Failed to submit $captureSequence: $this is closed." }
                         return false
                     }
 
-                    Debug.trace("CXCP#submitCaptureSequence") {
+                    Debug.trace("CXCP#submit(CaptureSequence)") {
                         val sequenceNumber = captureSequenceProcessor.submit(captureSequence) ?: -1
                         captureSequence.sequenceNumber = sequenceNumber
                         sequenceNumber
@@ -203,10 +201,10 @@ private constructor(
             if (result != -1) {
                 captureSequence.invokeOnRequestSequenceSubmitted()
                 captured = true
-                Log.debug { "Submitted $captureSequence" }
+                Log.debug { "$this submitted $captureSequence" }
                 true
             } else {
-                Log.warn { "Did not submit $captureSequence, SequenceNumber was -1" }
+                Log.warn { "Failed to submit $captureSequence: $this received -1 from submit." }
                 false
             }
         } catch (closedException: ObjectUnavailableException) {
