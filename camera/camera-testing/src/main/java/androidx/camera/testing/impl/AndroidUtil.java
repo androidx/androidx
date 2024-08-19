@@ -52,6 +52,13 @@ public final class AndroidUtil {
     }
 
     /**
+     * Checks if the current device is emulator with API 21.
+     */
+    public static boolean isEmulator(int apiLevel) {
+        return Build.VERSION.SDK_INT == apiLevel && isEmulator();
+    }
+
+    /**
      * Skips the test if the current device is emulator that doesn't support video recording.
      */
     public static void skipVideoRecordingTestIfNotSupportedByEmulator() {

@@ -33,6 +33,7 @@ import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.InternalTestConvenience.useInCameraTest
 import androidx.camera.view.PreviewView
 import androidx.lifecycle.Lifecycle.State
 import androidx.test.core.app.ActivityScenario
@@ -149,7 +150,7 @@ class ViewPager2ActivityTest(
     // The test makes sure the camera PreviewView is in the streaming state.
     @Test
     fun testPreviewViewUpdateAfterStopResume() {
-        launchActivity(lensFacing, cameraXConfig).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).useInCameraTest { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -168,7 +169,7 @@ class ViewPager2ActivityTest(
     fun testPreviewViewUpdateAfterSwitch() {
         assumeFalse(shouldSkipTest()) // b/331933633
 
-        launchActivity(lensFacing, cameraXConfig).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).useInCameraTest { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
@@ -198,7 +199,7 @@ class ViewPager2ActivityTest(
 
     @Test
     fun testPreviewViewUpdateAfterSwitchAndStop_ResumeAndSwitchBack() {
-        launchActivity(lensFacing, cameraXConfig).use { scenario ->
+        launchActivity(lensFacing, cameraXConfig).useInCameraTest { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
