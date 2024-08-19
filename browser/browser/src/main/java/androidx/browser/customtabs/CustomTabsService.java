@@ -68,6 +68,13 @@ public abstract class CustomTabsService extends Service {
             "androidx.browser.customtabs.category.ColorSchemeCustomization";
 
     /**
+     * An Intent filter category to signify that the Custom Tabs provider supports multi-network,
+     * bind a custom tab to a particular network via {@link CustomTabsIntent.Builder#setNetwork}.
+     */
+    public static final String CATEGORY_SET_NETWORK =
+            "androidx.browser.customtabs.category.SetNetwork";
+
+    /**
      * An Intent filter category to signify that the Custom Tabs provider supports Trusted Web
      * Activities (see {@link TrustedWebUtils} for more details).
      */
