@@ -35,6 +35,7 @@ import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.testing.impl.CoreAppTestUtil.ForegroundOccupiedError
 import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.testrule.PreTestRule
 import androidx.camera.video.FallbackStrategy
 import androidx.camera.video.FileDescriptorOutputOptions
 import androidx.camera.video.FileOutputOptions
@@ -145,22 +146,28 @@ class VideoCaptureDeviceTest(
             }
     }
 
-    @get:Rule
+    @get:Rule(order = 0)
+    val skipRule: TestRule = PreTestRule {
+        skipVideoRecordingTestIfNotSupportedByEmulator()
+        skipTestWithSurfaceProcessingOnCuttlefishApi30()
+    }
+
+    @get:Rule(order = 1)
     val cameraRule: TestRule =
         CameraUtil.grantCameraPermissionAndPreTestAndPostTest(
             CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
         )
 
-    @get:Rule
-    val activityRule: ActivityScenarioRule<FakeActivity> =
-        ActivityScenarioRule(FakeActivity::class.java)
-
-    @get:Rule
+    @get:Rule(order = 2)
     val permissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
+
+    @get:Rule(order = 3)
+    val activityRule: ActivityScenarioRule<FakeActivity> =
+        ActivityScenarioRule(FakeActivity::class.java)
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context: Context = ApplicationProvider.getApplicationContext()
@@ -210,9 +217,6 @@ class VideoCaptureDeviceTest(
 
     @Before
     fun setUp() {
-        skipVideoRecordingTestIfNotSupportedByEmulator()
-        skipTestWithSurfaceProcessingOnCuttlefishApi30()
-
         initialLifecycleOwner()
         initialPreviewView()
         initialController()
