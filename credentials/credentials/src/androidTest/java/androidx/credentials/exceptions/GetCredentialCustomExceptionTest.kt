@@ -19,6 +19,7 @@ package androidx.credentials.exceptions
 import android.os.Bundle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -58,7 +59,7 @@ class GetCredentialCustomExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialCustomException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialCustomException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -71,15 +72,15 @@ class GetCredentialCustomExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialCustomException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialCustomException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
 
     @Test
-    fun bundleConversion_emptyBundle_returnsNull() {
-        val actual = GetCredentialException.fromBundle(Bundle())
-
-        assertThat(actual).isNull()
+    fun bundleConversion_emptyBundle_throws() {
+        assertThrows(IllegalArgumentException::class.java) {
+            GetCredentialException.fromBundle(Bundle())
+        }
     }
 }

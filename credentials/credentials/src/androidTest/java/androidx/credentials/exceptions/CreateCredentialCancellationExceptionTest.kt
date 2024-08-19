@@ -55,7 +55,7 @@ class CreateCredentialCancellationExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(CreateCredentialCancellationException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialCancellationException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -70,7 +70,7 @@ class CreateCredentialCancellationExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(CreateCredentialCancellationException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialCancellationException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

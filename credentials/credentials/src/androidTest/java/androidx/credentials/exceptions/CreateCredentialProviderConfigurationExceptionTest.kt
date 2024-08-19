@@ -57,8 +57,7 @@ class CreateCredentialProviderConfigurationExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!)
-            .isInstanceOf(CreateCredentialProviderConfigurationException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialProviderConfigurationException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -74,8 +73,7 @@ class CreateCredentialProviderConfigurationExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!)
-            .isInstanceOf(CreateCredentialProviderConfigurationException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialProviderConfigurationException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

@@ -59,7 +59,7 @@ class CreateCredentialNoCreateOptionExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual).isInstanceOf(expectedClass)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
 
@@ -72,7 +72,7 @@ class CreateCredentialNoCreateOptionExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual).isInstanceOf(expectedClass)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
 }

@@ -54,7 +54,7 @@ class GetCredentialUnsupportedExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialUnsupportedException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialUnsupportedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -68,7 +68,7 @@ class GetCredentialUnsupportedExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(GetCredentialUnsupportedException::class.java)
+        assertThat(actual).isInstanceOf(GetCredentialUnsupportedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

@@ -52,7 +52,7 @@ class NoCredentialExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual).isInstanceOf(expectedClass)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
 
@@ -64,7 +64,7 @@ class NoCredentialExceptionTest {
 
         val actual = GetCredentialException.fromBundle(GetCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(expectedClass)
+        assertThat(actual).isInstanceOf(expectedClass)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
 }

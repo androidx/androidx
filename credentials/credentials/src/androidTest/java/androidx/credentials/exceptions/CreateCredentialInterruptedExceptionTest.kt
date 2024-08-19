@@ -55,7 +55,7 @@ class CreateCredentialInterruptedExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(CreateCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }
@@ -70,7 +70,7 @@ class CreateCredentialInterruptedExceptionTest {
         val actual =
             CreateCredentialException.fromBundle(CreateCredentialException.asBundle(exception))
 
-        assertThat(actual!!).isInstanceOf(CreateCredentialInterruptedException::class.java)
+        assertThat(actual).isInstanceOf(CreateCredentialInterruptedException::class.java)
         assertThat(actual.type).isEqualTo(expectedType)
         assertThat(actual.errorMessage).isEqualTo(expectedMessage)
     }

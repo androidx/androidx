@@ -17,7 +17,6 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.provider.CallingAppInfo.Companion.EXTRA_CREDENTIAL_REQUEST_ORIGIN
 import androidx.credentials.provider.CallingAppInfo.Companion.extractCallingAppInfo
@@ -49,7 +48,7 @@ constructor(
     val callingAppInfo: CallingAppInfo,
     val biometricPromptResult: BiometricPromptResult? = null
 ) {
-    internal companion object {
+    companion object {
         private const val EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE =
             "androidx.credentials.provider.extra.CREATE_CREDENTIAL_REQUEST_TYPE"
         private const val EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA =
@@ -58,9 +57,13 @@ constructor(
         private const val EXTRA_CREATE_REQUEST_CREDENTIAL_DATA =
             "androidx.credentials.provider.extra.CREATE_REQUEST_CREDENTIAL_DATA"
 
+        /**
+         * Helper method to convert the given [request] to a parcelable [Bundle], in case the
+         * instance needs to be sent across a process. Consumers of this method should use
+         * [fromBundle] to reconstruct the class instance back from the bundle returned here.
+         */
         @JvmStatic
-        @RequiresApi(23)
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
+        @RequiresApi(23) // Icon dependency
         fun asBundle(request: ProviderCreateCredentialRequest): Bundle {
             val bundle = Bundle()
             bundle.putString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE, request.callingRequest.type)
@@ -76,18 +79,29 @@ constructor(
             return bundle
         }
 
+        /**
+         * Helper method to convert a [Bundle] retrieved through [asBundle], back to an instance of
+         * [ProviderCreateCredentialRequest].
+         *
+         * Throws [IllegalArgumentException] if the conversion fails. This means that the given
+         * [bundle] does not contain a `ProviderCreateCredentialRequest`. The bundle should be
+         * constructed and retrieved from [asBundle] itself and never be created from scratch to
+         * avoid the failure.
+         */
+        @RequiresApi(23) // Icon dependency
         @JvmStatic
-        @RequiresApi(23)
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun fromBundle(bundle: Bundle): ProviderCreateCredentialRequest? {
+        fun fromBundle(bundle: Bundle): ProviderCreateCredentialRequest {
             val requestType: String =
-                bundle.getString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE) ?: return null
+                bundle.getString(EXTRA_CREATE_CREDENTIAL_REQUEST_TYPE)
+                    ?: throw IllegalArgumentException("Bundle was missing request type.")
             val requestData: Bundle =
                 bundle.getBundle(EXTRA_CREATE_REQUEST_CREDENTIAL_DATA) ?: Bundle()
             val candidateQueryData: Bundle =
                 bundle.getBundle(EXTRA_CREATE_REQUEST_CANDIDATE_QUERY_DATA) ?: Bundle()
             val origin = bundle.getString(EXTRA_CREDENTIAL_REQUEST_ORIGIN)
-            val callingAppInfo = extractCallingAppInfo(bundle) ?: return null
+            val callingAppInfo =
+                extractCallingAppInfo(bundle)
+                    ?: throw IllegalArgumentException("Bundle was missing CallingAppInfo.")
 
             return try {
                 ProviderCreateCredentialRequest(
@@ -102,7 +116,7 @@ constructor(
                     callingAppInfo = callingAppInfo,
                 )
             } catch (e: Exception) {
-                return null
+                throw IllegalArgumentException("Conversion failed with $e")
             }
         }
     }
