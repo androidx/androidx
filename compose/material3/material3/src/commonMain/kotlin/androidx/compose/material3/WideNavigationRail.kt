@@ -710,7 +710,7 @@ object WideNavigationRailDefaults {
     private val ColorScheme.defaultWideWideNavigationRailColors: WideNavigationRailColors
         @Composable
         get() {
-            return mDefaultWideWideNavigationRailColorsCached
+            return defaultWideWideNavigationRailColorsCached
                 ?: WideNavigationRailColors(
                         containerColor = containerColor,
                         contentColor = contentColorFor(containerColor),
@@ -719,7 +719,7 @@ object WideNavigationRailDefaults {
                         expandedModalScrimColor =
                             ScrimTokens.ContainerColor.value.copy(ScrimTokens.ContainerOpacity)
                     )
-                    .also { mDefaultWideWideNavigationRailColorsCached = it }
+                    .also { defaultWideWideNavigationRailColorsCached = it }
         }
 }
 
