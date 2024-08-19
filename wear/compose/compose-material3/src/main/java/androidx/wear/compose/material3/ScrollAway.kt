@@ -20,6 +20,7 @@ import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.tween
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.layout.Measurable
@@ -62,25 +63,38 @@ fun Modifier.scrollAway(
  * [ScreenStage] represents the different stages for a screen, which affect visibility of scaffold
  * components such as [TimeText] and [ScrollIndicator] with [scrollAway] and other animations.
  */
-enum class ScreenStage {
-    /**
-     * Initial stage for a screen when first displayed. It is expected that the [TimeText] and
-     * [ScrollIndicator] are displayed when initially showing a screen.
-     */
-    New,
+@Immutable
+@JvmInline
+value class ScreenStage internal constructor(internal val value: Int) {
+    companion object {
+        /**
+         * Initial stage for a screen when first displayed. It is expected that the [TimeText] and
+         * [ScrollIndicator] are displayed when initially showing a screen.
+         */
+        val New = ScreenStage(0)
 
-    /**
-     * Stage when both the screen is not scrolling and some time has passed after the screen was
-     * initially shown. At this stage, the [TimeText] is expected to be displayed and the
-     * [ScrollIndicator] will be hidden.
-     */
-    Idle,
+        /**
+         * Stage when both the screen is not scrolling and some time has passed after the screen was
+         * initially shown. At this stage, the [TimeText] is expected to be displayed and the
+         * [ScrollIndicator] will be hidden.
+         */
+        val Idle = ScreenStage(1)
 
-    /**
-     * Stage when the screen is being scrolled. At this stage, it is expected that the
-     * [ScrollIndicator] will be shown and [TimeText] will be scrolled away by the scroll operation.
-     */
-    Scrolling
+        /**
+         * Stage when the screen is being scrolled. At this stage, it is expected that the
+         * [ScrollIndicator] will be shown and [TimeText] will be scrolled away by the scroll
+         * operation.
+         */
+        val Scrolling = ScreenStage(2)
+    }
+
+    override fun toString() =
+        when (this) {
+            New -> "New"
+            Idle -> "Idle"
+            Scrolling -> "Scrolling"
+            else -> "Unknown"
+        }
 }
 
 private data class ScrollAwayModifierElement(

@@ -693,14 +693,21 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void ScreenScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> bottomButton, androidx.wear.compose.foundation.ScrollInfoProvider scrollInfoProvider, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? timeText, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? scrollIndicator, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
-  public enum ScreenStage {
-    enum_constant public static final androidx.wear.compose.material3.ScreenStage Idle;
-    enum_constant public static final androidx.wear.compose.material3.ScreenStage New;
-    enum_constant public static final androidx.wear.compose.material3.ScreenStage Scrolling;
+  @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScreenStage {
+    field public static final androidx.wear.compose.material3.ScreenStage.Companion Companion;
+  }
+
+  public static final class ScreenStage.Companion {
+    method public int getIdle();
+    method public int getNew();
+    method public int getScrolling();
+    property public final int Idle;
+    property public final int New;
+    property public final int Scrolling;
   }
 
   public final class ScrollAwayKt {
-    method public static androidx.compose.ui.Modifier scrollAway(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.ScrollInfoProvider scrollInfoProvider, kotlin.jvm.functions.Function0<? extends androidx.wear.compose.material3.ScreenStage> screenStage);
+    method public static androidx.compose.ui.Modifier scrollAway(androidx.compose.ui.Modifier, androidx.wear.compose.foundation.ScrollInfoProvider scrollInfoProvider, kotlin.jvm.functions.Function0<androidx.wear.compose.material3.ScreenStage> screenStage);
   }
 
   public final class ScrollIndicatorDefaults {
