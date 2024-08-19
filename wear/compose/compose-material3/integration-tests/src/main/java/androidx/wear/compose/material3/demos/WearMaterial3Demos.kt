@@ -44,6 +44,7 @@ val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
         listOf(
+            ComposableDemo("Color Scheme") { ColorSchemeDemos() },
             Material3DemoCategory("Curved Text", CurvedTextDemos),
             Material3DemoCategory(
                 "Dialogs",
