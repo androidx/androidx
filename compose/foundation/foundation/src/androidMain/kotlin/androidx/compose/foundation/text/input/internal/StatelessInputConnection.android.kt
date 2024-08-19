@@ -49,6 +49,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.PlatformTransferableContent
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.foundation.text.input.PlacedAnnotation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.getSelectedText
 import androidx.compose.foundation.text.input.getTextAfterSelection
@@ -109,7 +110,7 @@ internal class StatelessInputConnection(
         get() = session.text
 
     /** Recording of editing operations for batch editing */
-    private val editCommands = mutableVectorOf<EditingBuffer.() -> Unit>()
+    private val editCommands = mutableVectorOf<TextFieldBuffer.() -> Unit>()
 
     /**
      * Wraps this StatelessInputConnection to halt a possible infinite loop in [commitContent]
@@ -211,7 +212,7 @@ internal class StatelessInputConnection(
      * mini batches for every edit op. These batches are only applied when batch depth reaches 0,
      * meaning that artificial batches won't be applied until the real batches are completed.
      */
-    private fun addEditCommandWithBatch(editCommand: EditingBuffer.() -> Unit) {
+    private fun addEditCommandWithBatch(editCommand: TextFieldBuffer.() -> Unit) {
         beginBatchEditInternal()
         try {
             editCommands.add(editCommand)
@@ -296,7 +297,7 @@ internal class StatelessInputConnection(
 
     override fun setSelection(start: Int, end: Int): Boolean {
         logDebug("setSelection($start, $end)")
-        addEditCommandWithBatch { setSelection(start, end) }
+        addEditCommandWithBatch { this@addEditCommandWithBatch.setSelection(start, end) }
         return true
     }
 
@@ -407,7 +408,9 @@ internal class StatelessInputConnection(
         logDebug("performContextMenuAction($id)")
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch { setSelection(0, text.length) }
+                addEditCommandWithBatch {
+                    this@addEditCommandWithBatch.setSelection(0, text.length)
+                }
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)

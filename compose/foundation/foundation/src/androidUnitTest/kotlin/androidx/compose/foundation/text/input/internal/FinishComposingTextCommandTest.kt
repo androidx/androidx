@@ -27,26 +27,27 @@ class FinishComposingTextCommandTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 4)
         eb.finishComposingText()
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_preserve_selection() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 4))
+        val eb = TextFieldBuffer("ABCDE", TextRange(1, 4))
 
         eb.setComposition(2, 5)
         eb.finishComposingText()
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(1)
-        assertThat(eb.selectionEnd).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(1)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isFalse()
     }
 }

@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.TextHighlightType
+import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Deletion
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Insertion
 import androidx.compose.foundation.text.input.internal.IndexTransformationType.Replacement
@@ -302,7 +303,7 @@ internal class TransformedTextFieldState(
      */
     inline fun editUntransformedTextAsUser(
         restartImeIfContentChanges: Boolean = true,
-        block: EditingBuffer.() -> Unit
+        block: TextFieldBuffer.() -> Unit
     ) {
         textFieldState.editAsUser(
             inputTransformation = inputTransformation,

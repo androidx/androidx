@@ -38,6 +38,7 @@ import android.view.inputmethod.InputContentInfo
 import android.view.inputmethod.PreviewableHandwritingGesture
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldCharSequence
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -83,7 +84,7 @@ class StatelessInputConnectionTest {
                 this@StatelessInputConnectionTest.onImeAction?.invoke(imeAction)
             }
 
-            override fun requestEdit(block: EditingBuffer.() -> Unit) {
+            override fun requestEdit(block: TextFieldBuffer.() -> Unit) {
                 onRequestEdit?.invoke(block)
             }
 
@@ -118,7 +119,7 @@ class StatelessInputConnectionTest {
             state = TextFieldState(value.toString(), value.selection)
         }
 
-    private var onRequestEdit: ((EditingBuffer.() -> Unit) -> Unit)? = null
+    private var onRequestEdit: ((TextFieldBuffer.() -> Unit) -> Unit)? = null
     private var onSendKeyEvent: ((KeyEvent) -> Unit)? = null
     private var onImeAction: ((ImeAction) -> Unit)? = null
     private var onCommitContent: ((TransferableContent) -> Boolean)? = null

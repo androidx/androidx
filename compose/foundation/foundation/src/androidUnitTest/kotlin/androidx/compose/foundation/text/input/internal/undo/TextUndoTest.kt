@@ -20,7 +20,9 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.allCaps
+import androidx.compose.foundation.text.input.delete
 import androidx.compose.foundation.text.input.internal.commitText
+import androidx.compose.foundation.text.input.internal.setSelection
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.intl.Locale
 import com.google.common.truth.Truth.assertThat

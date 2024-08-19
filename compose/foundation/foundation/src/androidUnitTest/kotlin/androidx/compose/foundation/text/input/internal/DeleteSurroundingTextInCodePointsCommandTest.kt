@@ -33,201 +33,216 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
     @Test
     fun test_delete_after() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
 
         eb.deleteSurroundingTextInCodePoints(0, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH3$CH4$CH5")
-        assertThat(eb.cursor).isEqualTo(2)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(2)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_before() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(2))
 
         eb.deleteSurroundingTextInCodePoints(1, 0)
 
         assertThat(eb.toString()).isEqualTo("$CH2$CH3$CH4$CH5")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_both() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_after_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4))
 
         eb.deleteSurroundingTextInCodePoints(0, 2)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_before_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(2, 0)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH4$CH5")
-        assertThat(eb.cursor).isEqualTo(2)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(2)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_both_multiple() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(2, 2)
 
         assertThat(eb.toString()).isEqualTo(CH1)
-        assertThat(eb.cursor).isEqualTo(2)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(2)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_selection_preserve() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4, 8))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(4, 8))
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH3$CH4")
-        assertThat(eb.selectionStart).isEqualTo(2)
-        assertThat(eb.selectionEnd).isEqualTo(6)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(6)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_before_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(1000, 0)
 
         assertThat(eb.toString()).isEqualTo("$CH4$CH5")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_after_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(0, 1000)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH3")
-        assertThat(eb.cursor).isEqualTo(6)
+        assertThat(eb.selection.start).isEqualTo(6)
+        assertThat(eb.selection.end).isEqualTo(6)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_both_too_many() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.deleteSurroundingTextInCodePoints(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_composition_no_intersection_preceding_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 2)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
-        assertThat(eb.compositionStart).isEqualTo(0)
-        assertThat(eb.compositionEnd).isEqualTo(2)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(0)
+        assertThat(eb.composition?.end).isEqualTo(2)
     }
 
     @Test
     fun test_delete_composition_no_intersection_trailing_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(8, 10)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
-        assertThat(eb.compositionStart).isEqualTo(4)
-        assertThat(eb.compositionEnd).isEqualTo(6)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(4)
+        assertThat(eb.composition?.end).isEqualTo(6)
     }
 
     @Test
     fun test_delete_composition_intersection_preceding_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 6)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
-        assertThat(eb.compositionStart).isEqualTo(0)
-        assertThat(eb.compositionEnd).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(0)
+        assertThat(eb.composition?.end).isEqualTo(4)
     }
 
     @Test
     fun test_delete_composition_intersection_trailing_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(6, 10)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
-        assertThat(eb.compositionStart).isEqualTo(4)
-        assertThat(eb.compositionEnd).isEqualTo(6)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(4)
+        assertThat(eb.composition?.end).isEqualTo(6)
     }
 
     @Test
     fun test_delete_covered_composition() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(4, 6)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_delete_composition_covered() {
-        val eb = EditingBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
+        val eb = TextFieldBuffer("$CH1$CH2$CH3$CH4$CH5", TextRange(6))
 
         eb.setComposition(0, 10)
 
         eb.deleteSurroundingTextInCodePoints(1, 1)
 
         assertThat(eb.toString()).isEqualTo("$CH1$CH2$CH5")
-        assertThat(eb.cursor).isEqualTo(4)
-        assertThat(eb.compositionStart).isEqualTo(0)
-        assertThat(eb.compositionEnd).isEqualTo(6)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(4)
+        assertThat(eb.composition?.start).isEqualTo(0)
+        assertThat(eb.composition?.end).isEqualTo(6)
     }
 
     @Test
     fun throws_whenLengthBeforeInvalid() {
-        val eb = EditingBuffer("", TextRange(0))
+        val eb = TextFieldBuffer("", TextRange(0))
         val error =
             assertFailsWith<IllegalArgumentException> {
                 eb.deleteSurroundingTextInCodePoints(
@@ -240,7 +255,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
 
     @Test
     fun throws_whenLengthAfterInvalid() {
-        val eb = EditingBuffer("", TextRange(0))
+        val eb = TextFieldBuffer("", TextRange(0))
         val error =
             assertFailsWith<IllegalArgumentException> {
                 eb.deleteSurroundingTextInCodePoints(
@@ -256,7 +271,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val text = "abcde"
         val textAfterDelete = "abcd"
         val selection = TextRange(textAfterDelete.length)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = 0,
@@ -264,14 +279,15 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo(textAfterDelete)
-        assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
+        assertThat(eb.selection.start).isEqualTo(textAfterDelete.length)
+        assertThat(eb.selection.end).isEqualTo(textAfterDelete.length)
     }
 
     @Test
     fun deletes_whenLengthBeforeCursorOverflows_withMaxValue() {
         val text = "abcde"
         val selection = TextRange(1)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
@@ -279,14 +295,15 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo("bcde")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
     }
 
     @Test
     fun deletes_whenBothOverflow_withMaxValue_cursorAtStart() {
         val text = "abcde"
         val selection = TextRange(0)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
@@ -294,14 +311,15 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo("")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
     }
 
     @Test
     fun deletes_whenBothOverflow_withMaxValue_cursorAtEnd() {
         val text = "abcde"
         val selection = TextRange(5)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE,
@@ -309,7 +327,8 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo("")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
     }
 
     @Test
@@ -317,7 +336,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         val text = "abcde"
         val textAfterDelete = "abcd"
         val selection = TextRange(textAfterDelete.length)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = 0,
@@ -325,14 +344,15 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo(textAfterDelete)
-        assertThat(eb.cursor).isEqualTo(textAfterDelete.length)
+        assertThat(eb.selection.start).isEqualTo(textAfterDelete.length)
+        assertThat(eb.selection.end).isEqualTo(textAfterDelete.length)
     }
 
     @Test
     fun deletes_whenLengthBeforeCursorOverflows() {
         val text = "abcde"
         val selection = TextRange(1)
-        val eb = EditingBuffer(text, selection)
+        val eb = TextFieldBuffer(text, selection)
 
         eb.deleteSurroundingTextInCodePoints(
             lengthBeforeCursor = Int.MAX_VALUE - 1,
@@ -340,6 +360,7 @@ class DeleteSurroundingTextInCodePointsCommandTest {
         )
 
         assertThat(eb.toString()).isEqualTo("bcde")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
     }
 }

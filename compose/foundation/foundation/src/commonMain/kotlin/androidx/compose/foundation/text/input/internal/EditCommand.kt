@@ -16,10 +16,14 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.internal.requirePrecondition
-import androidx.compose.foundation.text.findFollowingBreak
 import androidx.compose.foundation.text.findPrecedingBreak
 import androidx.compose.foundation.text.input.PlacedAnnotation
+import androidx.compose.foundation.text.input.TextFieldBuffer
+import androidx.compose.foundation.text.input.adjustTextRange
+import androidx.compose.foundation.text.input.delete
+import androidx.compose.ui.text.TextRange
 
 /**
  * Commit final [text] to the text box and set the new cursor position.
@@ -30,19 +34,20 @@ import androidx.compose.foundation.text.input.PlacedAnnotation
  * @param text The text to commit.
  * @param newCursorPosition The cursor position after inserted text.
  */
-internal fun EditingBuffer.commitText(text: String, newCursorPosition: Int) {
+internal fun TextFieldBuffer.commitText(text: String, newCursorPosition: Int) {
     // API description says replace ongoing composition text if there. Then, if there is no
     // composition text, insert text into cursor position or replace selection.
-    if (hasComposition()) {
-        replace(compositionStart, compositionEnd, text)
+    val compositionRange = composition
+    if (compositionRange != null) {
+        imeReplace(compositionRange.start, compositionRange.end, text)
     } else {
         // In this editing buffer, insert into cursor or replace selection are equivalent.
-        replace(selectionStart, selectionEnd, text)
+        imeReplace(selection.start, selection.end, text)
     }
 
     // After replace function is called, the editing buffer places the cursor at the end of the
     // modified range.
-    val newCursor = cursor
+    val newCursor = selection.start
 
     // See above API description for the meaning of newCursorPosition.
     val newCursorInBuffer =
@@ -52,7 +57,7 @@ internal fun EditingBuffer.commitText(text: String, newCursorPosition: Int) {
             newCursor + newCursorPosition - text.length
         }
 
-    cursor = newCursorInBuffer.coerceIn(0, length)
+    selection = TextRange(newCursorInBuffer.coerceIn(0, length))
 }
 
 /**
@@ -64,7 +69,7 @@ internal fun EditingBuffer.commitText(text: String, newCursorPosition: Int) {
  * @param start The inclusive start offset of the composing region.
  * @param end The exclusive end offset of the composing region
  */
-internal fun EditingBuffer.setComposingRegion(start: Int, end: Int) {
+internal fun TextFieldBuffer.setComposingRegion(start: Int, end: Int) {
     // The API description says, different from SetComposingText, SetComposingRegion must
     // preserve the ongoing composition text and set new composition.
     if (hasComposition()) {
@@ -95,31 +100,35 @@ internal fun EditingBuffer.setComposingRegion(start: Int, end: Int) {
  * @param annotations Text annotations that IME attaches to the composing region. e.g. background
  *   color or underline styling.
  */
-internal fun EditingBuffer.setComposingText(
+internal fun TextFieldBuffer.setComposingText(
     text: String,
     newCursorPosition: Int,
     annotations: List<PlacedAnnotation>? = null
 ) {
-    if (hasComposition()) {
+    val compositionRange = composition
+    if (compositionRange != null) {
         // API doc says, if there is ongoing composing text, replace it with new text.
-        val compositionStart = compositionStart
-        replace(compositionStart, compositionEnd, text)
+        imeReplace(compositionRange.start, compositionRange.end, text)
         if (text.isNotEmpty()) {
-            setComposition(compositionStart, compositionStart + text.length, annotations)
+            setComposition(
+                compositionRange.start,
+                compositionRange.start + text.length,
+                annotations
+            )
         }
     } else {
         // If there is no composing text, insert composing text into cursor position with
         // removing selected text if any.
-        val selectionStart = selectionStart
-        replace(selectionStart, selectionEnd, text)
+        val initialSelectionStart = selection.start
+        imeReplace(initialSelectionStart, selection.end, text)
         if (text.isNotEmpty()) {
-            setComposition(selectionStart, selectionStart + text.length, annotations)
+            setComposition(initialSelectionStart, initialSelectionStart + text.length, annotations)
         }
     }
 
     // After replace function is called, the editing buffer places the cursor at the end of the
     // modified range.
-    val newCursor = cursor
+    val newCursor = selection.start
 
     // See above API description for the meaning of newCursorPosition.
     val newCursorInBuffer =
@@ -129,7 +138,7 @@ internal fun EditingBuffer.setComposingText(
             newCursor + newCursorPosition - text.length
         }
 
-    cursor = newCursorInBuffer.coerceIn(0, length)
+    selection = TextRange(newCursorInBuffer.coerceIn(0, length))
 }
 
 /**
@@ -148,7 +157,10 @@ internal fun EditingBuffer.setComposingText(
  * @param lengthAfterCursor The number of characters in UTF-16 after the cursor to be deleted. Must
  *   be non-negative.
  */
-internal fun EditingBuffer.deleteSurroundingText(lengthBeforeCursor: Int, lengthAfterCursor: Int) {
+internal fun TextFieldBuffer.deleteSurroundingText(
+    lengthBeforeCursor: Int,
+    lengthAfterCursor: Int
+) {
     requirePrecondition(lengthBeforeCursor >= 0 && lengthAfterCursor >= 0) {
         "Expected lengthBeforeCursor and lengthAfterCursor to be non-negative, were " +
             "$lengthBeforeCursor and $lengthAfterCursor respectively."
@@ -156,13 +168,13 @@ internal fun EditingBuffer.deleteSurroundingText(lengthBeforeCursor: Int, length
 
     // calculate the end with safe addition since lengthAfterCursor can be set to e.g. Int.MAX
     // by the input
-    val end = selectionEnd.addExactOrElse(lengthAfterCursor) { length }
-    delete(selectionEnd, minOf(end, length))
+    val end = selection.end.addExactOrElse(lengthAfterCursor) { length }
+    imeDelete(selection.end, minOf(end, length))
 
     // calculate the start with safe subtraction since lengthBeforeCursor can be set to e.g.
     // Int.MAX by the input
-    val start = selectionStart.subtractExactOrElse(lengthBeforeCursor) { 0 }
-    delete(maxOf(0, start), selectionStart)
+    val start = selection.start.subtractExactOrElse(lengthBeforeCursor) { 0 }
+    imeDelete(maxOf(0, start), selection.start)
 }
 
 /**
@@ -179,7 +191,7 @@ internal fun EditingBuffer.deleteSurroundingText(lengthBeforeCursor: Int, length
  * @param lengthAfterCursor The number of characters in Unicode code points after the cursor to be
  *   deleted. Must be non-negative.
  */
-internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
+internal fun TextFieldBuffer.deleteSurroundingTextInCodePoints(
     lengthBeforeCursor: Int,
     lengthAfterCursor: Int
 ) {
@@ -193,16 +205,16 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
     var beforeLenInChars = 0
     for (i in 0 until lengthBeforeCursor) {
         beforeLenInChars++
-        if (selectionStart > beforeLenInChars) {
-            val lead = this[selectionStart - beforeLenInChars - 1]
-            val trail = this[selectionStart - beforeLenInChars]
+        if (selection.start > beforeLenInChars) {
+            val lead = asCharSequence()[selection.start - beforeLenInChars - 1]
+            val trail = asCharSequence()[selection.start - beforeLenInChars]
 
             if (isSurrogatePair(lead, trail)) {
                 beforeLenInChars++
             }
         } else {
             // overflowing
-            beforeLenInChars = selectionStart
+            beforeLenInChars = selection.start
             break
         }
     }
@@ -210,22 +222,22 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
     var afterLenInChars = 0
     for (i in 0 until lengthAfterCursor) {
         afterLenInChars++
-        if (selectionEnd + afterLenInChars < length) {
-            val lead = this[selectionEnd + afterLenInChars - 1]
-            val trail = this[selectionEnd + afterLenInChars]
+        if (selection.end + afterLenInChars < length) {
+            val lead = asCharSequence()[selection.end + afterLenInChars - 1]
+            val trail = asCharSequence()[selection.end + afterLenInChars]
 
             if (isSurrogatePair(lead, trail)) {
                 afterLenInChars++
             }
         } else {
             // overflowing
-            afterLenInChars = length - selectionEnd
+            afterLenInChars = length - selection.end
             break
         }
     }
 
-    delete(selectionEnd, selectionEnd + afterLenInChars)
-    delete(selectionStart - beforeLenInChars, selectionStart)
+    imeDelete(selection.end, selection.end + afterLenInChars)
+    imeDelete(selection.start - beforeLenInChars, selection.start)
 }
 
 /**
@@ -236,7 +248,7 @@ internal fun EditingBuffer.deleteSurroundingTextInCodePoints(
  * See
  * [`finishComposingText`](https://developer.android.com/reference/android/view/inputmethod/InputConnection.html#finishComposingText()).
  */
-internal fun EditingBuffer.finishComposingText() {
+internal fun TextFieldBuffer.finishComposingText() {
     commitComposition()
 }
 
@@ -247,55 +259,32 @@ internal fun EditingBuffer.finishComposingText() {
  * there is selection, delete whole selected range. If there is no composition and selection,
  * perform backspace key event at the cursor position.
  */
-internal fun EditingBuffer.backspace() {
-    if (hasComposition()) {
-        delete(compositionStart, compositionEnd)
-    } else if (cursor == -1) {
-        val delStart = selectionStart
-        val delEnd = selectionEnd
-        cursor = selectionStart
-        delete(delStart, delEnd)
-    } else if (cursor != 0) {
-        val prevCursorPos = toString().findPrecedingBreak(cursor)
-        delete(prevCursorPos, cursor)
+internal fun TextFieldBuffer.backspace() {
+    val compositionRange = composition
+    if (compositionRange != null) {
+        imeDelete(compositionRange.start, compositionRange.end)
+    } else if (hasSelection) {
+        val delStart = selection.start
+        val delEnd = selection.end
+        selection = TextRange(selection.start)
+        imeDelete(delStart, delEnd)
+    } else if (selection.collapsed && selection.start > 0) {
+        val prevCursorPos = toString().findPrecedingBreak(selection.start)
+        imeDelete(prevCursorPos, selection.start)
     }
-}
-
-/**
- * Moves the cursor with [amount] characters.
- *
- * If there is selection, cancel the selection first and move the cursor to the selection start
- * position. Then perform the cursor movement.
- *
- * @param amount The amount of cursor movement. If you want to move backward, pass negative value.
- */
-internal fun EditingBuffer.moveCursor(amount: Int) {
-    if (cursor == -1) {
-        cursor = selectionStart
-    }
-
-    var newCursor = selectionStart
-    val bufferText = toString()
-    if (amount > 0) {
-        for (i in 0 until amount) {
-            val next = bufferText.findFollowingBreak(newCursor)
-            if (next == -1) break
-            newCursor = next
-        }
-    } else {
-        for (i in 0 until -amount) {
-            val prev = bufferText.findPrecedingBreak(newCursor)
-            if (prev == -1) break
-            newCursor = prev
-        }
-    }
-
-    cursor = newCursor
 }
 
 /** Deletes all the text in the buffer. */
-internal fun EditingBuffer.deleteAll() {
-    replace(0, length, "")
+internal fun TextFieldBuffer.deleteAll() {
+    imeReplace(0, length, "")
+}
+
+/** Sets selection while coercing the given parameters to the buffer range. */
+internal fun TextFieldBuffer.setSelection(start: Int, end: Int) {
+    val clampedStart = start.coerceIn(0, length)
+    val clampedEnd = end.coerceIn(0, length)
+
+    selection = TextRange(clampedStart, clampedEnd)
 }
 
 /**
@@ -304,3 +293,87 @@ internal fun EditingBuffer.deleteAll() {
  */
 private fun isSurrogatePair(high: Char, low: Char): Boolean =
     high.isHighSurrogate() && low.isLowSurrogate()
+
+/**
+ * Replace function wrapper to be called by edit commands that are originated from IME.
+ *
+ * IME editing is usually done in batches to maintain a composing range that helps with auto-correct
+ * and auto-suggest. For example when typing a word through software keyboard, the IME doesn't send
+ * a character typed event, instead it sends a replace command that swaps the currently composing
+ * word with a character added version, i.e. replace("worl" -> "world").
+ *
+ * This unfortunately confuses the change trackers. Therefore, we coerce the changes from both sides
+ * to find the absolute minimum version of the replace call so that a change tracker only reports
+ * the actual intended edit, instead of what the IME sends as a command. For example when IME tells
+ * us to replace "worl" with "world", this function converts this into "insert d".
+ *
+ * [imeReplace] also uses a different selection adjustment than regular [replace]. The selection is
+ * always placed as a cursor at the end of the change.
+ */
+@VisibleForTesting
+internal fun TextFieldBuffer.imeReplace(start: Int, end: Int, text: CharSequence) {
+    val min = minOf(start, end)
+    val max = maxOf(start, end)
+
+    // coerce the replacement bounds before tracking change. This is mostly necessary for
+    // composition based typing when each keystroke may trigger a replace function that looks
+    // like "abcd" => "abcde".
+
+    // b(351165334)
+    // Since we are starting from the left hand side to compare the strings, when "abc" is
+    // replaced with "aabc", it will be reported as an `a` is inserted at `TextRange(1)` instead
+    // of the more logical possibility; `TextRange(0)`. This replace call cannot differentiate
+    // between the two possible cases because we have no way of really knowing what was the
+    // intention of the user beyond this replace call. We prefer to choose the more logical
+    // explanation for right hand side since it's the more common direction of typing. This is
+    // guaranteed by the fact that we start our coercion from left hand side, and finally apply
+    // the right hand side.
+
+    // coerce min
+    var i = 0
+    var cMin = min
+    while (cMin < max && i < text.length && text[i] == asCharSequence()[cMin]) {
+        i++
+        cMin++
+    }
+    // coerce max
+    var j = text.length
+    var cMax = max
+    while (cMax > cMin && j > i && text[j - 1] == asCharSequence()[cMax - 1]) {
+        j--
+        cMax--
+    }
+
+    if (cMin != cMax || i != j) {
+        replace(start = cMin, end = cMax, text = text.subSequence(i, j))
+    }
+
+    // IME replace calls should always place the selection at the end of replaced region.
+    // Also default replace behavior for composition is to cancel it. This is again true for
+    // imeReplace. So we don't readjust the composition here.
+    selection = TextRange(min + text.length)
+}
+
+/**
+ * Similar to regular [TextFieldBuffer.delete] function but also maintains the composing region
+ * instead of fully wiping it.
+ */
+@VisibleForTesting
+internal fun TextFieldBuffer.imeDelete(start: Int, end: Int) {
+    val initialComposition = composition
+
+    val min = minOf(start, end)
+    val max = maxOf(start, end)
+    delete(min, max)
+
+    // composition is lost by calling delete but we should restore it for delete calls that
+    // originate from the IME
+    initialComposition?.let {
+        val adjustedComposition = adjustTextRange(initialComposition, min, max, 0)
+        if (adjustedComposition.collapsed) {
+            commitComposition()
+        } else {
+            setComposition(adjustedComposition.min, adjustedComposition.max)
+        }
+    }
+}

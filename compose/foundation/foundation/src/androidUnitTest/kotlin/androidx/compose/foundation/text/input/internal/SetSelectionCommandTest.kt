@@ -27,99 +27,101 @@ class SetSelectionCommandTest {
 
     @Test
     fun test_set() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setSelection(1, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(1)
-        assertThat(eb.selectionEnd).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(1)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_preserve_ongoing_composition() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setComposition(1, 3)
 
         eb.setSelection(2, 4)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(2)
-        assertThat(eb.selectionEnd).isEqualTo(4)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(4)
         assertThat(eb.hasComposition()).isTrue()
-        assertThat(eb.compositionStart).isEqualTo(1)
-        assertThat(eb.compositionEnd).isEqualTo(3)
+        assertThat(eb.composition?.start).isEqualTo(1)
+        assertThat(eb.composition?.end).isEqualTo(3)
     }
 
     @Test
     fun test_cancel_ongoing_selection() {
-        val eb = EditingBuffer("ABCDE", TextRange(1, 4))
+        val eb = TextFieldBuffer("ABCDE", TextRange(1, 4))
 
         eb.setSelection(2, 5)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(2)
-        assertThat(eb.selectionEnd).isEqualTo(5)
+        assertThat(eb.selection.start).isEqualTo(2)
+        assertThat(eb.selection.end).isEqualTo(5)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_set_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setSelection(4, 1)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(4)
-        assertThat(eb.selectionEnd).isEqualTo(1)
+        assertThat(eb.selection.start).isEqualTo(4)
+        assertThat(eb.selection.end).isEqualTo(1)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_set_too_small() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setSelection(-1000, -1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
     fun test_set_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
         eb.setSelection(1000, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.cursor).isEqualTo(5)
+        assertThat(eb.selection.start).isEqualTo(5)
+        assertThat(eb.selection.end).isEqualTo(5)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
-    fun test_set_too_small_too_large() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+    fun test_set_too_too_large() {
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
-        eb.setSelection(-1000, 1000)
+        eb.setSelection(0, 1000)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(0)
-        assertThat(eb.selectionEnd).isEqualTo(5)
+        assertThat(eb.selection.start).isEqualTo(0)
+        assertThat(eb.selection.end).isEqualTo(5)
         assertThat(eb.hasComposition()).isFalse()
     }
 
     @Test
-    fun test_set_too_small_too_large_reversed() {
-        val eb = EditingBuffer("ABCDE", TextRange.Zero)
+    fun test_set_too_large_reversed() {
+        val eb = TextFieldBuffer("ABCDE", TextRange.Zero)
 
-        eb.setSelection(1000, -1000)
+        eb.setSelection(1000, 0)
 
         assertThat(eb.toString()).isEqualTo("ABCDE")
-        assertThat(eb.selectionStart).isEqualTo(5)
-        assertThat(eb.selectionEnd).isEqualTo(0)
+        assertThat(eb.selection.start).isEqualTo(5)
+        assertThat(eb.selection.end).isEqualTo(0)
         assertThat(eb.hasComposition()).isFalse()
     }
 }

@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-@file:OptIn(InternalFoundationTextApi::class)
-
 package androidx.compose.foundation.text.input.internal.matchers
 
 import androidx.compose.foundation.text.InternalFoundationTextApi
-import androidx.compose.foundation.text.input.internal.EditingBuffer
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.internal.PartialGapBuffer
 import com.google.common.truth.FailureMetadata
 import com.google.common.truth.Subject
@@ -27,13 +25,13 @@ import com.google.common.truth.Subject.Factory
 import com.google.common.truth.Truth.assertAbout
 import com.google.common.truth.Truth.assertThat
 
-@OptIn(InternalFoundationTextApi::class)
-internal fun assertThat(buffer: PartialGapBuffer): EditBufferSubject {
-    return assertAbout(EditBufferSubject.SUBJECT_FACTORY).that(GapBufferWrapper(buffer))!!
+internal fun assertThat(buffer: PartialGapBuffer): TextFieldBufferSubject {
+    return assertAbout(TextFieldBufferSubject.SUBJECT_FACTORY).that(GapBufferWrapper(buffer))!!
 }
 
-internal fun assertThat(buffer: EditingBuffer): EditBufferSubject {
-    return assertAbout(EditBufferSubject.SUBJECT_FACTORY).that(EditingBufferWrapper(buffer))!!
+internal fun assertThat(buffer: TextFieldBuffer): TextFieldBufferSubject {
+    return assertAbout(TextFieldBufferSubject.SUBJECT_FACTORY)
+        .that(TextFieldBufferWrapper(buffer))!!
 }
 
 internal abstract class GetOperatorWrapper(val buffer: Any) {
@@ -42,8 +40,8 @@ internal abstract class GetOperatorWrapper(val buffer: Any) {
     override fun toString(): String = buffer.toString()
 }
 
-private class EditingBufferWrapper(buffer: EditingBuffer) : GetOperatorWrapper(buffer) {
-    override fun get(index: Int): Char = (buffer as EditingBuffer)[index]
+private class TextFieldBufferWrapper(buffer: TextFieldBuffer) : GetOperatorWrapper(buffer) {
+    override fun get(index: Int): Char = (buffer as TextFieldBuffer).asCharSequence()[index]
 }
 
 @OptIn(InternalFoundationTextApi::class)
@@ -51,15 +49,15 @@ private class GapBufferWrapper(buffer: PartialGapBuffer) : GetOperatorWrapper(bu
     override fun get(index: Int): Char = (buffer as PartialGapBuffer)[index]
 }
 
-/** Truth extension for Editing Buffers. */
-internal class EditBufferSubject
+/** Truth extension for TextField Buffers. */
+internal class TextFieldBufferSubject
 private constructor(failureMetadata: FailureMetadata?, private val subject: GetOperatorWrapper) :
     Subject(failureMetadata, subject) {
 
     companion object {
-        internal val SUBJECT_FACTORY: Factory<EditBufferSubject, GetOperatorWrapper> =
+        internal val SUBJECT_FACTORY: Factory<TextFieldBufferSubject, GetOperatorWrapper> =
             Factory { failureMetadata, subject ->
-                EditBufferSubject(failureMetadata, subject)
+                TextFieldBufferSubject(failureMetadata, subject)
             }
     }
 

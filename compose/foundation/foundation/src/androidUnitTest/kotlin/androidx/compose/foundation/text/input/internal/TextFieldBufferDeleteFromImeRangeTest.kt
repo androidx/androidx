@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.input.internal
 
+import androidx.compose.foundation.text.input.adjustTextRange
 import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -23,13 +24,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class EditingBufferDeleteRangeTest {
+class TextFieldBufferDeleteFromImeRangeTest {
 
     @Test
     fun test_does_not_intersect_deleted_is_after_the_target() {
         val target = TextRange(0, 1)
         val deleted = TextRange(2, 3)
-        assertThat(updateRangeAfterDelete(target, deleted))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
             .isEqualTo(TextRange(target.start, target.end))
     }
 
@@ -37,48 +38,55 @@ class EditingBufferDeleteRangeTest {
     fun test_does_not_intersect_deleted_is_before_the_target() {
         val target = TextRange(4, 5)
         val deleted = TextRange(0, 2)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(2, 3))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(2, 3))
     }
 
     @Test
     fun test_deleted_covers_target() {
         val target = TextRange(1, 2)
         val deleted = TextRange(0, 3)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(0, 0))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(0, 0))
     }
 
     @Test
     fun test_target_covers_deleted() {
         val target = TextRange(0, 3)
         val deleted = TextRange(1, 2)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(0, 2))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(0, 2))
     }
 
     @Test
     fun test_deleted_same_as_target() {
         val target = TextRange(1, 2)
         val deleted = TextRange(1, 2)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(1, 1))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(1, 1))
     }
 
     @Test
     fun test_deleted_covers_first_half_of_target() {
         val target = TextRange(1, 4)
         val deleted = TextRange(0, 2)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(0, 2))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(0, 2))
     }
 
     @Test
     fun test_deleted_covers_second_half_of_target() {
         val target = TextRange(1, 4)
         val deleted = TextRange(3, 5)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(1, 3))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(1, 3))
     }
 
     @Test
     fun test_delete_trailing_cursor() {
         val target = TextRange(3, 3)
         val deleted = TextRange(1, 2)
-        assertThat(updateRangeAfterDelete(target, deleted)).isEqualTo(TextRange(2, 2))
+        assertThat(adjustTextRange(target, deleted.start, deleted.end, 0))
+            .isEqualTo(TextRange(2, 2))
     }
 }

@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.input.internal.undo
 
 import androidx.compose.foundation.text.input.TextFieldState
+import androidx.compose.foundation.text.input.internal.setSelection
 import androidx.compose.foundation.text.timeNowMillis
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.SaverScope
