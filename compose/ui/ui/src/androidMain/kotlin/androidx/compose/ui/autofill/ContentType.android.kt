@@ -57,10 +57,10 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_USERNAME
  * Gets the Android specific [AutofillHint][android.view.ViewStructure.setAutofillHints]
  * corresponding to the [ContentType].
  */
-internal actual class ContentType private constructor(internal val contentHints: Set<String>) {
+actual class ContentType private constructor(internal val contentHints: Set<String>) {
     actual constructor(contentHint: String) : this(setOf(contentHint))
 
-    internal actual companion object {
+    actual companion object {
         // Define constants for predefined autofill hints
         actual val Username = ContentType(AUTOFILL_HINT_USERNAME)
         actual val Password = ContentType(AUTOFILL_HINT_PASSWORD)
@@ -101,51 +101,9 @@ internal actual class ContentType private constructor(internal val contentHints:
         actual val BirthDateMonth = ContentType(AUTOFILL_HINT_BIRTH_DATE_MONTH)
         actual val BirthDateYear = ContentType(AUTOFILL_HINT_BIRTH_DATE_YEAR)
         actual val SmsOtpCode = ContentType(AUTOFILL_HINT_SMS_OTP)
-
-        internal actual fun from(value: String): ContentType {
-            return when (value) {
-                AUTOFILL_HINT_EMAIL_ADDRESS -> EmailAddress
-                AUTOFILL_HINT_USERNAME -> Username
-                AUTOFILL_HINT_PASSWORD -> Password
-                AUTOFILL_HINT_NEW_USERNAME -> NewUsername
-                AUTOFILL_HINT_NEW_PASSWORD -> NewPassword
-                AUTOFILL_HINT_POSTAL_ADDRESS -> PostalAddress
-                AUTOFILL_HINT_POSTAL_CODE -> PostalCode
-                AUTOFILL_HINT_CREDIT_CARD_NUMBER -> CreditCardNumber
-                AUTOFILL_HINT_CREDIT_CARD_SECURITY_CODE -> CreditCardSecurityCode
-                AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DATE -> CreditCardExpirationDate
-                AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_MONTH -> CreditCardExpirationMonth
-                AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_YEAR -> CreditCardExpirationYear
-                AUTOFILL_HINT_CREDIT_CARD_EXPIRATION_DAY -> CreditCardExpirationDay
-                AUTOFILL_HINT_POSTAL_ADDRESS_COUNTRY -> AddressCountry
-                AUTOFILL_HINT_POSTAL_ADDRESS_REGION -> AddressRegion
-                AUTOFILL_HINT_POSTAL_ADDRESS_LOCALITY -> AddressLocality
-                AUTOFILL_HINT_POSTAL_ADDRESS_STREET_ADDRESS -> AddressStreet
-                AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_ADDRESS -> AddressAuxiliaryDetails
-                AUTOFILL_HINT_POSTAL_ADDRESS_EXTENDED_POSTAL_CODE -> PostalCodeExtended
-                AUTOFILL_HINT_PERSON_NAME -> PersonFullName
-                AUTOFILL_HINT_PERSON_NAME_GIVEN -> PersonFirstName
-                AUTOFILL_HINT_PERSON_NAME_FAMILY -> PersonLastName
-                AUTOFILL_HINT_PERSON_NAME_MIDDLE -> PersonMiddleName
-                AUTOFILL_HINT_PERSON_NAME_MIDDLE_INITIAL -> PersonMiddleInitial
-                AUTOFILL_HINT_PERSON_NAME_PREFIX -> PersonNamePrefix
-                AUTOFILL_HINT_PERSON_NAME_SUFFIX -> PersonNameSuffix
-                AUTOFILL_HINT_PHONE_NUMBER -> PhoneNumber
-                AUTOFILL_HINT_PHONE_NUMBER_DEVICE -> PhoneNumberDevice
-                AUTOFILL_HINT_PHONE_COUNTRY_CODE -> PhoneCountryCode
-                AUTOFILL_HINT_PHONE_NATIONAL -> PhoneNumberNational
-                AUTOFILL_HINT_GENDER -> Gender
-                AUTOFILL_HINT_BIRTH_DATE_FULL -> BirthDateFull
-                AUTOFILL_HINT_BIRTH_DATE_DAY -> BirthDateDay
-                AUTOFILL_HINT_BIRTH_DATE_MONTH -> BirthDateMonth
-                AUTOFILL_HINT_BIRTH_DATE_YEAR -> BirthDateYear
-                AUTOFILL_HINT_SMS_OTP -> SmsOtpCode
-                else -> ContentType(value)
-            }
-        }
     }
 
-    internal operator fun plus(other: ContentType): ContentType {
+    operator fun plus(other: ContentType): ContentType {
         val combinedValues = contentHints + other.contentHints
         return ContentType(combinedValues)
     }

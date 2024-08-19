@@ -22,27 +22,15 @@ import android.view.View.AUTOFILL_TYPE_NONE
 import android.view.View.AUTOFILL_TYPE_TEXT
 import android.view.View.AUTOFILL_TYPE_TOGGLE
 
-// TODO(b/333102566): use following typealias once these types are to be public:
-// actual typealias NativeContentDataType = Int
+actual typealias NativeContentDataType = Int
 
 @JvmInline
-internal actual value class ContentDataType actual constructor(val dataType: Int) {
-    internal actual companion object {
+actual value class ContentDataType actual constructor(val dataType: Int) {
+    actual companion object {
         actual val Text = ContentDataType(AUTOFILL_TYPE_TEXT)
         actual val List = ContentDataType(AUTOFILL_TYPE_LIST)
         actual val Date = ContentDataType(AUTOFILL_TYPE_DATE)
         actual val Toggle = ContentDataType(AUTOFILL_TYPE_TOGGLE)
         actual val None = ContentDataType(AUTOFILL_TYPE_NONE)
-
-        internal fun from(value: Int): ContentDataType {
-            return when (value) {
-                AUTOFILL_TYPE_TEXT -> Text
-                AUTOFILL_TYPE_LIST -> List
-                AUTOFILL_TYPE_DATE -> Date
-                AUTOFILL_TYPE_TOGGLE -> Toggle
-                AUTOFILL_TYPE_NONE -> None
-                else -> throw IllegalArgumentException("Invalid autofill type value: $value")
-            }
-        }
     }
 }
