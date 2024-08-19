@@ -201,7 +201,7 @@ class Recomposer(
         PendingWork
     }
 
-    private val stateLock = createSynchronizedObject()
+    private val stateLock = SynchronizedObject()
 
     // Begin properties guarded by stateLock
     private var runnerJob: Job? = null

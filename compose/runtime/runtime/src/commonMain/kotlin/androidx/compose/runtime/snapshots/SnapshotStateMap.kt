@@ -17,10 +17,10 @@
 package androidx.compose.runtime.snapshots
 
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.SynchronizedObject
 import androidx.compose.runtime.external.kotlinx.collections.immutable.PersistentMap
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import androidx.compose.runtime.synchronized
-import androidx.compose.runtime.createSynchronizedObject
 import kotlin.jvm.JvmName
 
 /**
@@ -284,7 +284,7 @@ private class SnapshotMapValueSet<K, V>(
  * In code the requires this lock and calls `writable` (or other operation that acquires the
  * snapshot global lock), this lock *MUST* be acquired first to avoid deadlocks.
  */
-private val sync = createSynchronizedObject()
+private val sync = SynchronizedObject()
 
 private abstract class StateMapMutableIterator<K, V>(
     val map: SnapshotStateMap<K, V>,

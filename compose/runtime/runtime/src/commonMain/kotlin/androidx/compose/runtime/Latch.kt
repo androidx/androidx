@@ -31,7 +31,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  */
 internal class Latch {
 
-    private val lock = createSynchronizedObject()
+    private val lock = SynchronizedObject()
     private var awaiters = mutableListOf<Continuation<Unit>>()
     private var spareList = mutableListOf<Continuation<Unit>>()
 

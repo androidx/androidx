@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-/*
-ATTENTION! Please note that this file has duplicates.
-This is to avoid publishing to a separate library.
-If you need to make changes to the content, then find duplicates on this comment.
- */
-
 package androidx.compose.runtime
 
-internal class SynchronizedObject : kotlinx.atomicfu.locks.SynchronizedObject()
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+internal actual typealias SynchronizedObject = Any
 
-@Suppress("CONFLICTING_OVERLOADS")
-internal fun createSynchronizedObject() = SynchronizedObject()
-
-@Suppress("CONFLICTING_OVERLOADS")
 @PublishedApi
-internal inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R =
-    kotlinx.atomicfu.locks.synchronized(lock, block)
+internal actual inline fun <R> synchronized(lock: SynchronizedObject, block: () -> R): R = block()

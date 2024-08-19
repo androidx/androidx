@@ -180,6 +180,8 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            posixMain.dependsOn(nativeMain)
+
             jbMain {
                 dependsOn(commonMain)
                 dependencies {
@@ -189,8 +191,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopMain.dependsOn(jbMain)
             jsNativeMain.dependsOn(jbMain)
 
+            darwinMain {
+                dependsOn(posixMain)
+            }
+
             linuxMain {
-                dependsOn(nativeMain)
+                dependsOn(posixMain)
             }
 
             linuxTest {

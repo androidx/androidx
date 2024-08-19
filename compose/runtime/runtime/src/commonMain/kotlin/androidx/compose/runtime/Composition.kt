@@ -460,7 +460,7 @@ internal class CompositionImpl(
     private val pendingModifications = AtomicReference<Any?>(null)
 
     // Held when making changes to self or composer
-    private val lock = createSynchronizedObject()
+    private val lock = SynchronizedObject()
 
     /**
      * A set of remember observers that were potentially abandoned between [composeContent] or

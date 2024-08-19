@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("ActualJvm_jvmKt")
+@file:JvmMultifileClass
+
 package androidx.compose.runtime
 
 import androidx.compose.runtime.snapshots.Snapshot
