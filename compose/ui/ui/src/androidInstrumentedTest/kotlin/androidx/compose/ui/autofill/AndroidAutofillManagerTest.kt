@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.AndroidComposeView
@@ -54,7 +56,7 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 @SdkSuppress(minSdkVersion = 26)
 @RequiresApi(Build.VERSION_CODES.O)
 @RunWith(AndroidJUnit4::class)
-class SemanticAutofillManagerTest {
+class AndroidAutofillManagerTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
 
     private lateinit var androidComposeView: AndroidComposeView
@@ -245,6 +247,7 @@ class SemanticAutofillManagerTest {
             .testTag(testTag)
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @RequiresApi(Build.VERSION_CODES.O)
     private fun ComposeContentTestRule.setContentWithAutofillEnabled(
         content: @Composable () -> Unit
@@ -253,9 +256,9 @@ class SemanticAutofillManagerTest {
 
         setContent {
             androidComposeView = LocalView.current as AndroidComposeView
-            androidComposeView.semanticAutofill?._TEMP_AUTOFILL_FLAG = true
-            androidComposeView.semanticAutofill?.currentSemanticsNodesInvalidated = true
-            androidComposeView.semanticAutofill?.autofillManager = autofillManagerMock
+            androidComposeView._autofillManager?.currentSemanticsNodesInvalidated = true
+            androidComposeView._autofillManager?.autofillManager = autofillManagerMock
+            isSemanticAutofillEnabled = true
 
             composeView = LocalView.current
 

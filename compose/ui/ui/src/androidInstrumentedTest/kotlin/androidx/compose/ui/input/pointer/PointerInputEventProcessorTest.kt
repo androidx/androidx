@@ -21,11 +21,12 @@ package androidx.compose.ui.input.pointer
 import android.view.InputDevice
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.MotionEvent
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -2873,7 +2874,8 @@ private class TestOwner : Owner {
     override val autofill: Autofill?
         get() = null
 
-    override val semanticAutofill: SemanticAutofill?
+    @ExperimentalComposeUiApi
+    override val autofillManager: AutofillManager?
         get() = null
 
     override val density: Density

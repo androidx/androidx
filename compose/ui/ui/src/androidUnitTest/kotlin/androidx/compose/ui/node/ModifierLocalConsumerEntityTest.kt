@@ -23,11 +23,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
@@ -405,7 +406,8 @@ class ModifierLocalConsumerEntityTest {
         override val autofill: Autofill
             get() = TODO("Not yet implemented")
 
-        override val semanticAutofill: SemanticAutofill
+        @ExperimentalComposeUiApi
+        override val autofillManager: AutofillManager
             get() = TODO("Not yet implemented")
 
         override fun createLayer(

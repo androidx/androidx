@@ -20,11 +20,12 @@ package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
-import androidx.compose.ui.autofill.SemanticAutofill
 import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusOwner
@@ -3383,7 +3384,8 @@ private class MockOwner(
     override val autofill: Autofill?
         get() = TODO("Not yet implemented")
 
-    override val semanticAutofill: SemanticAutofill?
+    @OptIn(ExperimentalComposeUiApi::class)
+    override val autofillManager: AutofillManager?
         get() = TODO("Not yet implemented")
 
     override val density: Density

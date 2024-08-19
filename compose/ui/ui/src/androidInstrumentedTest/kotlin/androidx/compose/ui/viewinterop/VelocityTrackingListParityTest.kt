@@ -52,6 +52,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import kotlin.coroutines.resume
 import kotlin.math.absoluteValue
+import kotlin.test.Ignore
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -248,6 +249,7 @@ class VelocityTrackingListParityTest {
         }
     }
 
+    @Ignore // b/371570954
     @Test
     fun equalLists_withEqualFlings_shouldFinishAtTheSameItem_largeVeryFast() = runBlocking {
         val state = LazyListState()

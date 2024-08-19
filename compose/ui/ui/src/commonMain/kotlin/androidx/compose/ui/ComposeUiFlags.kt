@@ -73,4 +73,11 @@ object ComposeUiFlags {
     @Suppress("MutableBareField")
     @JvmField
     var NewNestedScrollFlingDispatchingEnabled: Boolean = true
+
+    /**
+     * With this flag on, the new semantic version of Autofill will be enabled. Prior to the
+     * semantics refactoring, this will introduce significant overhead, but can be used to test out
+     * the new Autofill APIs and features introduced.
+     */
+    @Suppress("MutableBareField") @JvmField var isSemanticAutofillEnabled: Boolean = false
 }

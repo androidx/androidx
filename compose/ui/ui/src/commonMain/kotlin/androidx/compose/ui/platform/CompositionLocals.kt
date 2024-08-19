@@ -27,6 +27,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillManager
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.draw.DrawModifier
 import androidx.compose.ui.focus.FocusManager
@@ -64,6 +65,16 @@ val LocalAutofill = staticCompositionLocalOf<Autofill?> { null }
 @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
 val LocalAutofillTree =
     staticCompositionLocalOf<AutofillTree> { noLocalProvidedFor("LocalAutofillTree") }
+
+/**
+ * The CompositionLocal that can be used to trigger autofill actions. Eg.
+ * [LocalAutofillManager.commit].
+ */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+val LocalAutofillManager =
+    staticCompositionLocalOf<AutofillManager?> { noLocalProvidedFor("LocalAutofillManager") }
 
 /** The CompositionLocal to provide communication with platform clipboard service. */
 val LocalClipboardManager =
@@ -193,6 +204,7 @@ internal fun ProvideCommonCompositionLocals(
     CompositionLocalProvider(
         LocalAccessibilityManager provides owner.accessibilityManager,
         LocalAutofill provides owner.autofill,
+        LocalAutofillManager provides owner.autofillManager,
         LocalAutofillTree provides owner.autofillTree,
         LocalClipboardManager provides owner.clipboardManager,
         LocalDensity provides owner.density,
