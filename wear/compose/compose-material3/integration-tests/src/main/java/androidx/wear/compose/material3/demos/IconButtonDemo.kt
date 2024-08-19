@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,7 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ButtonDefaults
@@ -159,6 +165,14 @@ fun IconButtonDemo() {
                 }
             }
         }
+        item { ListHeader { Text("Image Button") } }
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                ImageRoundButton(painterResource(R.drawable.card_background), {})
+                Spacer(modifier = Modifier.width(5.dp))
+                ImageRoundButton(painterResource(R.drawable.card_background), {}, enabled = false)
+            }
+        }
         item { ListHeader { Text("Sizes") } }
         item {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -198,5 +212,34 @@ private fun IconButtonWithSize(size: Dp) {
         onClick = { /* Do something */ }
     ) {
         StandardIcon(IconButtonDefaults.iconSizeFor(size))
+    }
+}
+
+@Composable
+fun ImageRoundButton(
+    painter: Painter,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
+    onLongClickLabel: String? = null,
+    enabled: Boolean = true,
+    shape: Shape = IconButtonDefaults.shape,
+    interactionSource: MutableInteractionSource? = null,
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier,
+        onLongClick = onLongClick,
+        onLongClickLabel = onLongClickLabel,
+        enabled = enabled,
+        shape = shape,
+        interactionSource = interactionSource
+    ) {
+        Image(
+            painter = painter,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = if (enabled) Modifier else Modifier.alpha(0.38f)
+        )
     }
 }
