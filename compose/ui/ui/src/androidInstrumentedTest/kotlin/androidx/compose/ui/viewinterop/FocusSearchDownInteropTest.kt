@@ -181,6 +181,12 @@ class FocusSearchDownInteropTest(private val moveFocusProgrammatically: Boolean)
 
     @Test
     fun focusedComposableWithFocusableView_view_inLinearLayout() {
+
+        // TODO(b/354025981) This test is flaky when moving focus programmatically.
+        //  Note: Moving focus programmatically among views is a stretch goal,
+        //  as the view system does not have a moveFocus() API.
+        if (!moveFocusProgrammatically) return
+
         // Arrange.
         var isComposableFocused = false
         setContent {
