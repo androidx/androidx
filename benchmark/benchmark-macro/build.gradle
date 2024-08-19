@@ -75,6 +75,7 @@ dependencies {
     implementation("androidx.test:core:1.5.0")
     implementation(libs.testUiautomator)
     implementation(libs.wireRuntime)
+    implementation(libs.testExtJunit)
 
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":internal-testutils-ktx"))

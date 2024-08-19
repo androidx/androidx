@@ -41,6 +41,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
 import org.junit.rules.TestRule
@@ -200,7 +201,18 @@ private constructor(
 
     private fun applyInternal(base: Statement, description: Description) = Statement {
         applied = true
+
         assumeTrue(Arguments.RuleType.Microbenchmark in Arguments.enabledRules)
+
+        // When running on emulator and argument `skipOnEmulator` is passed,
+        // the test is skipped.
+        if (Arguments.skipBenchmarksOnEmulator) {
+            assumeFalse(
+                "Skipping test because it's running on emulator and `skipOnEmulator` is enabled",
+                DeviceInfo.isEmulator
+            )
+        }
+
         var invokeMethodName = description.methodName
         Log.d(TAG, "-- Running ${description.className}#$invokeMethodName --")
 

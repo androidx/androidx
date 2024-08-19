@@ -40,6 +40,7 @@ import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProc
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assume.assumeFalse
 
 /** Get package ApplicationInfo, throw if not found. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -215,6 +216,14 @@ private fun macrobenchmark(
     require(iterations > 0) { "Require iterations > 0 (iterations = $iterations)" }
     require(metrics.isNotEmpty()) {
         "Empty list of metrics passed to metrics param, must pass at least one Metric"
+    }
+
+    // When running on emulator and argument `skipOnEmulator` is passed, the test is skipped.
+    if (Arguments.skipBenchmarksOnEmulator) {
+        assumeFalse(
+            "Skipping test because it's running on emulator and `skipOnEmulator` is enabled",
+            DeviceInfo.isEmulator
+        )
     }
 
     val suppressionState = checkErrors(packageName)

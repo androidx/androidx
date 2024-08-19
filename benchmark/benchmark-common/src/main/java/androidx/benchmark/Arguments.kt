@@ -62,6 +62,7 @@ object Arguments {
     val dryRunMode: Boolean
     val dropShadersEnable: Boolean
     val dropShadersThrowOnFailure: Boolean
+    val skipBenchmarksOnEmulator: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -169,6 +170,9 @@ object Arguments {
                 .map { it.trim() }
                 .filter { it.isNotEmpty() }
                 .toSet()
+
+        skipBenchmarksOnEmulator =
+            arguments.getBenchmarkArgument("skipBenchmarksOnEmulator")?.toBoolean() ?: false
 
         enabledRules =
             arguments
