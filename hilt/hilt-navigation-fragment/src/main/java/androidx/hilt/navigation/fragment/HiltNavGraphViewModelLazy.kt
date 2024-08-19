@@ -42,7 +42,6 @@ import dagger.hilt.android.lifecycle.withCreationCallback
  * @param navGraphId ID of a NavGraph that exists on the [NavController] back stack
  */
 @MainThread
-@Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
 public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int
 ): Lazy<VM> {
@@ -79,7 +78,6 @@ public inline fun <reified VM : ViewModel> Fragment.hiltNavGraphViewModels(
  *   HiltViewModel using @AssistedInject-annotated constructor.
  */
 @MainThread
-@Suppress("MissingNullability") // Due to https://youtrack.jetbrains.com/issue/KT-39209
 public inline fun <reified VM : ViewModel, reified VMF : Any> Fragment.hiltNavGraphViewModels(
     @IdRes navGraphId: Int,
     noinline creationCallback: (VMF) -> VM
