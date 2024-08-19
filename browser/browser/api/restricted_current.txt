@@ -134,6 +134,7 @@ package androidx.browser.customtabs {
     method public android.os.Bundle? extraCommand(String, android.os.Bundle?);
     method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?);
     method public static String? getPackageName(android.content.Context, java.util.List<java.lang.String!>?, boolean);
+    method public static boolean isSetNetworkSupported(android.content.Context, String);
     method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalPendingSession public static androidx.browser.customtabs.CustomTabsSession.PendingSession newPendingSession(android.content.Context, androidx.browser.customtabs.CustomTabsCallback?, int);
     method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?);
     method public androidx.browser.customtabs.CustomTabsSession? newSession(androidx.browser.customtabs.CustomTabsCallback?, int);

@@ -1452,6 +1452,10 @@ public final class CustomTabsIntent {
          * default network is a cellular connection. All URLRequests created in the future via this
          * tab will be bound to {@link Network}.
          *
+         * If the browser does not support this feature it will be ignored and a Custom Tab will
+         * be opened using the default network. Check the support by calling {@link
+         * CustomTabsClient#isSetNetworkSupported}.
+         *
          * @param network {@link Network} the target network to be bound.
          * @see CustomTabsIntent#EXTRA_NETWORK
          */
