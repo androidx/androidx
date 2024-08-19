@@ -262,7 +262,7 @@ public final class SectionedItemTemplate implements Template {
 
         /**
          * Sets whether or not this template is in a loading state. If passed {@code true}, sections
-         * cannot be added to the template.
+         * cannot be added to the template. By default, this is {@code false}.
          */
         @NonNull
         @CanIgnoreReturnValue
@@ -272,15 +272,22 @@ public final class SectionedItemTemplate implements Template {
         }
 
         /**
-         * Sets whether this list can be indexed alphabetically, by item title.
+         * Sets whether this list can be indexed alphabetically, by item title. By default, this
+         * is {@code false}.
          *
          * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to
-         * sort,
-         * partition, or filter a list. Indexing is generally used for features called
-         * "Accelerators",
-         * which allow a user to quickly find a particular {@link Item} in a long list.
+         * sort, partition, or filter a list. Indexing is generally used for features called
+         * "Accelerators", which allow a user to quickly find a particular {@link Item} in a long
+         * list.
          *
-         * <p>To exclude a single item from indexing, see the relevant item's API.
+         * <p>For example, a media app may, by default, show a user's playlists sorted by date
+         * created. If the app provides these playlists via the {@code SectionedItemTemplate} and
+         * enables {@link #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
+         * playlists that start with the letter "H". When this happens, the list is reconstructed
+         * and sorted alphabetically, then shown to the user, jumping down to the letter "H".
+         *
+         * <p>Individual items may be excluded from the list by setting their {@code #isIndexable}
+         * field to {@code false}.
          */
         @NonNull
         @CanIgnoreReturnValue
