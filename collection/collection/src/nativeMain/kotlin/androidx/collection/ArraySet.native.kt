@@ -43,7 +43,7 @@ import androidx.collection.internal.EMPTY_OBJECTS
  *   grow once items are added to it.
  */
 // JvmOverloads is required on constructor to match expect declaration
-public actual class ArraySet<E> @kotlin.jvm.JvmOverloads actual constructor(capacity: Int) :
+public actual class ArraySet<E> actual constructor(capacity: Int) :
     MutableCollection<E>, MutableSet<E> {
 
     internal actual var hashes: IntArray = EMPTY_INTS

@@ -52,10 +52,7 @@ import androidx.collection.internal.idealIntArraySize
  *   initial capacity of 0, the sparse array will be initialized with a light-weight representation
  *   not requiring any additional array allocations.
  */
-public actual open class SparseArrayCompat<E>
-// JvmOverloads is required on constructor to match expect declaration
-@kotlin.jvm.JvmOverloads
-public actual constructor(initialCapacity: Int) {
+public actual open class SparseArrayCompat<E> public actual constructor(initialCapacity: Int) {
     internal actual var garbage = false
     internal actual var keys: IntArray
     internal actual var values: Array<Any?>

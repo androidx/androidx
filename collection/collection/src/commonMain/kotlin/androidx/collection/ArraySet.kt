@@ -19,7 +19,6 @@ package androidx.collection
 import androidx.collection.internal.EMPTY_INTS
 import androidx.collection.internal.EMPTY_OBJECTS
 import androidx.collection.internal.binarySearch
-import kotlin.jvm.JvmOverloads
 
 /** Returns an empty new [ArraySet]. */
 @Suppress("NOTHING_TO_INLINE") // Alias to public API.
@@ -58,7 +57,7 @@ public fun <T> arraySetOf(vararg values: T): ArraySet<T> {
  * @constructor Creates a new empty ArraySet. The default capacity of an array map is 0, and will
  *   grow once items are added to it.
  */
-public expect class ArraySet<E> @JvmOverloads constructor(capacity: Int = 0) :
+public expect class ArraySet<E> constructor(capacity: Int = 0) :
     MutableCollection<E>, MutableSet<E> {
 
     internal var hashes: IntArray
