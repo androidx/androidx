@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import org.junit.Assert
 
@@ -76,12 +77,11 @@ fun PixelMap.assertPixelColor(
     y: Int,
     error: (Color) -> String = { color -> "Pixel($x, $y) expected to be $expected, but was $color" }
 ) {
-    val color = this[x, y]
-    val errorString = error(color)
-    Assert.assertEquals(errorString, expected.red, color.red, 0.02f)
-    Assert.assertEquals(errorString, expected.green, color.green, 0.02f)
-    Assert.assertEquals(errorString, expected.blue, color.blue, 0.02f)
-    Assert.assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
+    val actual = this[x, y]
+    assert(abs(expected.red - actual.red) < 0.02f) { error(actual) }
+    assert(abs(expected.green - actual.green) < 0.02f) { error(actual) }
+    assert(abs(expected.blue - actual.blue) < 0.02f) { error(actual) }
+    assert(abs(expected.alpha - actual.alpha) < 0.02f) { error(actual) }
 }
 
 /**
