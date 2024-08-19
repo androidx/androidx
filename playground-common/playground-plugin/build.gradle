@@ -21,7 +21,7 @@ plugins {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("com.gradle:develocity-gradle-plugin:3.17.2")
+    implementation("com.gradle:develocity-gradle-plugin:3.18")
     implementation("com.gradle:common-custom-user-data-gradle-plugin:2.0.1")
     implementation("supportBuildSrc:private")
     implementation("supportBuildSrc:public")
