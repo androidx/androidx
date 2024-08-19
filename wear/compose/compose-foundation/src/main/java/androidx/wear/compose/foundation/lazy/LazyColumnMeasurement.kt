@@ -105,7 +105,7 @@ private fun measureLazyColumn(
     var bottomOffset = centerItem.offset + centerItem.height + itemSpacing
     var bottomPassIndex = anchorItemIndex + 1
 
-    while (bottomOffset < containerConstraints.maxHeight + 50 && bottomPassIndex < itemsCount) {
+    while (bottomOffset < containerConstraints.maxHeight && bottomPassIndex < itemsCount) {
         val item = measuredItemProvider.downwardMeasuredItem(bottomPassIndex, bottomOffset)
         bottomOffset += item.height + itemSpacing
         visibleItems.add(item)
@@ -208,11 +208,12 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
-                        val placeables =
-                            measure(
-                                index,
-                                containerConstraints.copy(maxHeight = Constraints.Infinity)
+                        val childConstraints =
+                            Constraints(
+                                maxHeight = Constraints.Infinity,
+                                maxWidth = containerConstraints.maxWidth
                             )
+                        val placeables = measure(index, childConstraints)
                         // TODO(artemiy): Add support for multiple items.
                         val content = placeables.last()
                         val scrollProgress =
@@ -236,11 +237,12 @@ internal fun rememberLazyColumnMeasurePolicy(
                         index: Int,
                         offset: Int
                     ): LazyColumnMeasuredItem {
-                        val placeables =
-                            measure(
-                                index,
-                                containerConstraints.copy(maxHeight = Constraints.Infinity)
+                        val childConstraints =
+                            Constraints(
+                                maxHeight = Constraints.Infinity,
+                                maxWidth = containerConstraints.maxWidth
                             )
+                        val placeables = measure(index, childConstraints)
                         // TODO(artemiy): Add support for multiple items.
                         val content = placeables.last()
                         val scrollProgress =
