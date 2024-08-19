@@ -58,7 +58,8 @@ fun SupportingPaneScaffold(
     supportingPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
-    paneExpansionDragHandle: (@Composable (PaneExpansionState) -> Unit)? = null,
+    paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
+        null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(value),
 ) {
     ThreePaneScaffold(
