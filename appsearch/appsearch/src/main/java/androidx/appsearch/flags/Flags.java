@@ -142,6 +142,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_BLOB_STORE =
             FLAG_PREFIX + "enable_blob_store";
 
+    /** Enable empty batch result fix for enterprise GetDocuments. */
+    public static final String FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX =
+            FLAG_PREFIX + "enable_enterprise_empty_batch_result_fix";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -261,6 +265,11 @@ public final class Flags {
 
     /**  Whether {@link androidx.appsearch.app.AppSearchBlobHandle} should be enabled. */
     public static boolean enableBlobStore() {
+        return true;
+    }
+
+    /** Whether empty batch result fix for enterprise GetDocuments should be enabled. */
+    public static boolean enableEnterpriseEmptyBatchResultFix() {
         return true;
     }
 }
