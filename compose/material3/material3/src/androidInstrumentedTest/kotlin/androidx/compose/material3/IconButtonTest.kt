@@ -968,6 +968,50 @@ class IconButtonTest {
         }
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun filledIconToggleButton_checked_medium_squareShape() {
+        var shape: Shape = CircleShape
+        val background = Color.Yellow
+        val iconButtonColor = Color.Blue
+        rule.setMaterialContent(lightColorScheme()) {
+            shape = IconButtonDefaults.mediumSquareShape
+            Surface(color = background) {
+                Box {
+                    FilledIconToggleButton(
+                        checked = true,
+                        onCheckedChange = { /* doSomething() */ },
+                        shapes =
+                            IconButtonShapes(
+                                shape = IconButtonDefaults.mediumSquareShape,
+                                pressedShape = IconButtonDefaults.mediumPressedShape,
+                                checkedShape = IconButtonDefaults.mediumSquareShape
+                            ),
+                        modifier =
+                            Modifier.semantics(mergeDescendants = true) {}
+                                .testTag(IconTestTag)
+                                .size(IconButtonDefaults.mediumContainerSize()),
+                        colors =
+                            IconButtonDefaults.iconToggleButtonColors(
+                                checkedContainerColor = iconButtonColor
+                            )
+                    ) {}
+                }
+            }
+        }
+
+        rule
+            .onNodeWithTag(IconTestTag)
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = shape,
+                shapeColor = iconButtonColor,
+                backgroundColor = background,
+                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+            )
+    }
+
     @Test
     fun filledTonalIconToggleButton_defaultColors() {
         rule.setMaterialContent(lightColorScheme()) {

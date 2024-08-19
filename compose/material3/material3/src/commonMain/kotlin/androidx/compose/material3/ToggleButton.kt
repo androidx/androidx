@@ -16,8 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
@@ -32,6 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.ButtonSmallTokens
 import androidx.compose.material3.tokens.ElevatedButtonTokens
 import androidx.compose.material3.tokens.FilledButtonTokens
@@ -40,31 +39,19 @@ import androidx.compose.material3.tokens.OutlinedButtonTokens
 import androidx.compose.material3.tokens.TonalButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import kotlin.jvm.JvmInline
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * TODO link to mio page when available.
@@ -459,8 +446,11 @@ object ToggleButtonDefaults {
      * @param pressedShape the unchecked shape for [ButtonShapes]
      * @param checkedShape the unchecked shape for [ButtonShapes]
      */
+    @Composable
     fun shapes(shape: Shape, pressedShape: Shape, checkedShape: Shape): ButtonShapes =
-        ButtonShapes(shape, pressedShape, checkedShape)
+        remember(shape, pressedShape, checkedShape) {
+            ButtonShapes(shape, pressedShape, checkedShape)
+        }
 
     /** A round shape that can be used for all [ToggleButton]s and its variants */
     val roundShape: Shape
@@ -856,7 +846,26 @@ class ToggleButtonColors(
  * @property pressedShape is the pressed shape.
  * @property checkedShape is the checked shape.
  */
-data class ButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape)
+class ButtonShapes(val shape: Shape, val pressedShape: Shape, val checkedShape: Shape) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is ButtonShapes) return false
+
+        if (shape != other.shape) return false
+        if (pressedShape != other.pressedShape) return false
+        if (checkedShape != other.checkedShape) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = shape.hashCode()
+        result = 31 * result + pressedShape.hashCode()
+        result = 31 * result + checkedShape.hashCode()
+
+        return result
+    }
+}
 
 internal val ButtonShapes.hasRoundedCornerShapes: Boolean
     get() =
@@ -871,163 +880,20 @@ private fun shapeByInteraction(
     checked: Boolean,
     animationSpec: FiniteAnimationSpec<Float>
 ): Shape {
-    if (shapes.hasRoundedCornerShapes) {
-        return rememberAnimatedShape(shapes, checked, animationSpec, pressed)
-    }
+    val shape =
+        if (pressed) {
+            shapes.pressedShape
+        } else if (checked) {
+            shapes.checkedShape
+        } else shapes.shape
 
-    if (pressed) {
-        return shapes.pressedShape
-    }
-
-    if (checked) {
-        return shapes.checkedShape
-    }
-
-    return shapes.shape
-}
-
-@Composable
-private fun rememberAnimatedShape(
-    shapes: ButtonShapes,
-    checked: Boolean,
-    animationSpec: FiniteAnimationSpec<Float>,
-    pressed: Boolean
-): Shape {
-    val defaultShape = shapes.shape as CornerBasedShape
-    val pressedShape = shapes.pressedShape as CornerBasedShape
-    val checkedShape = shapes.checkedShape as CornerBasedShape
-    val state =
-        remember(shapes, animationSpec) {
-            AnimatedShapeState(
-                startShape = if (checked) checkedShape else defaultShape,
-                defaultShape = defaultShape,
-                pressedShape = pressedShape,
-                checkedShape = checkedShape,
-                spec = animationSpec,
+    if (shapes.hasRoundedCornerShapes)
+        return key(shapes) {
+            rememberAnimatedShape(
+                shape as RoundedCornerShape,
+                animationSpec,
             )
         }
 
-    val channel = remember { Channel<AnimatedShapeValue>(Channel.CONFLATED) }
-    val targetValue =
-        when {
-            pressed -> AnimatedShapeValue.Pressed
-            checked -> AnimatedShapeValue.Checked
-            else -> AnimatedShapeValue.Default
-        }
-    SideEffect { channel.trySend(targetValue) }
-    LaunchedEffect(state, channel) {
-        for (target in channel) {
-            val newTarget = channel.tryReceive().getOrNull() ?: target
-            launch {
-                with(state) {
-                    when (newTarget) {
-                        AnimatedShapeValue.Pressed -> animateToPressed()
-                        AnimatedShapeValue.Checked -> animateToChecked()
-                        else -> animateToDefault()
-                    }
-                }
-            }
-        }
-    }
-
-    return rememberAnimatedShape(state)
-}
-
-@Composable
-private fun rememberAnimatedShape(state: AnimatedShapeState): Shape {
-    val density = LocalDensity.current
-    state.density = density
-
-    return remember(density, state) {
-        object : ShapeWithOpticalCentering {
-            var clampedRange by mutableStateOf(0f..1f)
-
-            override fun offset(): Float {
-                val topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f
-                val topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f
-                val bottomStart = state.bottomStart?.value?.coerceIn(clampedRange) ?: 0f
-                val bottomEnd = state.bottomEnd?.value?.coerceIn(clampedRange) ?: 0f
-                val avgStart = (topStart + bottomStart) / 2
-                val avgEnd = (topEnd + bottomEnd) / 2
-                return OpticalCenteringCoefficient * (avgStart - avgEnd)
-            }
-
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                state.size = size
-                if (!state.didInit) {
-                    state.init()
-                }
-
-                clampedRange = 0f..size.height / 2
-                return RoundedCornerShape(
-                        topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f,
-                        topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f,
-                        bottomStart = state.bottomStart?.value?.coerceIn(clampedRange) ?: 0f,
-                        bottomEnd = state.bottomEnd?.value?.coerceIn(clampedRange) ?: 0f,
-                    )
-                    .createOutline(size, layoutDirection, density)
-            }
-        }
-    }
-}
-
-@Stable
-private class AnimatedShapeState(
-    val startShape: CornerBasedShape,
-    val defaultShape: CornerBasedShape,
-    val pressedShape: CornerBasedShape,
-    val checkedShape: CornerBasedShape,
-    val spec: FiniteAnimationSpec<Float>,
-) {
-    var size: Size = Size.Zero
-    var density: Density = Density(0f, 0f)
-    var didInit = false
-
-    var topStart: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var topEnd: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var bottomStart: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var bottomEnd: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    fun init() {
-        topStart = Animatable(startShape.topStart.toPx(size, density))
-        topEnd = Animatable(startShape.topEnd.toPx(size, density))
-        bottomStart = Animatable(startShape.bottomStart.toPx(size, density))
-        bottomEnd = Animatable(startShape.bottomEnd.toPx(size, density))
-        didInit = true
-    }
-
-    suspend fun animateToPressed() = animateToShape(pressedShape)
-
-    suspend fun animateToChecked() = animateToShape(checkedShape)
-
-    suspend fun animateToDefault() = animateToShape(defaultShape)
-
-    private suspend fun animateToShape(shape: CornerBasedShape) = coroutineScope {
-        launch { topStart?.animateTo(shape.topStart.toPx(size, density), spec) }
-        launch { topEnd?.animateTo(shape.topEnd.toPx(size, density), spec) }
-        launch { bottomStart?.animateTo(shape.bottomStart.toPx(size, density), spec) }
-        launch { bottomEnd?.animateTo(shape.bottomEnd.toPx(size, density), spec) }
-    }
-}
-
-@Immutable
-@JvmInline
-internal value class AnimatedShapeValue internal constructor(internal val type: Int) {
-
-    companion object {
-        val Default = AnimatedShapeValue(0)
-        val Pressed = AnimatedShapeValue(1)
-        val Checked = AnimatedShapeValue(2)
-    }
+    return shape
 }
