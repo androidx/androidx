@@ -26,4 +26,9 @@
     <string name="io_settings_tos" translation_description="Open link to terms of service.">Terms of service</string>
     <string name="io_settings_privacy_policy" translation_description="Open link to privacy policy.">Privacy policy</string>
     <string name="io_settings_oss_licenses" translation_description="Open link to open source licenses.">Open sources licenses</string>
+    <string name="carousel_image_1_description">A racecar</string>
+    <string name="carousel_image_2_description">Dotonburi, Osaka</string>
+    <string name="carousel_image_3_description">The Grand Canyon</string>
+    <string name="carousel_image_4_description">A rock structure with its reflection mirrored over the sea</string>
+    <string name="carousel_image_5_description">A car on a long stretch of desert road</string>
 </resources>
