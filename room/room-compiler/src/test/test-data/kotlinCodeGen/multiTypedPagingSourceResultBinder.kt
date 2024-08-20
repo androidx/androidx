@@ -2,12 +2,16 @@ import android.database.Cursor
 import androidx.paging.ListenableFuturePagingSource
 import androidx.paging.PagingSource
 import androidx.room.RoomDatabase
+import androidx.room.RoomRawQuery
 import androidx.room.RoomSQLiteQuery
 import androidx.room.RoomSQLiteQuery.Companion.acquire
 import androidx.room.paging.LimitOffsetPagingSource
 import androidx.room.paging.guava.LimitOffsetListenableFuturePagingSource
+import androidx.room.util.getColumnIndexOrThrow
+import androidx.sqlite.SQLiteStatement
 import javax.`annotation`.processing.Generated
 import kotlin.Int
+import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
 import kotlin.collections.List
@@ -31,15 +35,41 @@ public class MyDao_Impl(
 
   public override fun getAllIds(): PagingSource<Int, MyEntity> {
     val _sql: String = "SELECT pk FROM MyEntity"
-    val _statement: RoomSQLiteQuery = acquire(_sql, 0)
-    return object : LimitOffsetPagingSource<MyEntity>(_statement, __db, "MyEntity") {
-      protected override fun convertRows(cursor: Cursor): List<MyEntity> {
+    val _rawQuery: RoomRawQuery = RoomRawQuery(_sql)
+    return object : LimitOffsetPagingSource<MyEntity>(_rawQuery, __db, "MyEntity") {
+      protected override fun convertRows(statement: SQLiteStatement, itemCount: Int):
+          List<MyEntity> {
+        _rawQuery.getBindingFunction().invoke(statement)
         val _cursorIndexOfPk: Int = 0
         val _result: MutableList<MyEntity> = mutableListOf()
-        while (cursor.moveToNext()) {
+        while (statement.step()) {
           val _item: MyEntity
           val _tmpPk: Int
-          _tmpPk = cursor.getInt(_cursorIndexOfPk)
+          _tmpPk = statement.getLong(_cursorIndexOfPk).toInt()
+          _item = MyEntity(_tmpPk)
+          _result.add(_item)
+        }
+        return _result
+      }
+    }
+  }
+
+  public override fun getAllIdsWithArgs(gt: Long): PagingSource<Int, MyEntity> {
+    val _sql: String = "SELECT * FROM MyEntity WHERE pk > ? ORDER BY pk ASC"
+    val _rawQuery: RoomRawQuery = RoomRawQuery(_sql) { _stmt ->
+      var _argIndex: Int = 1
+      _stmt.bindLong(_argIndex, gt)
+    }
+    return object : LimitOffsetPagingSource<MyEntity>(_rawQuery, __db, "MyEntity") {
+      protected override fun convertRows(statement: SQLiteStatement, itemCount: Int):
+          List<MyEntity> {
+        _rawQuery.getBindingFunction().invoke(statement)
+        val _cursorIndexOfPk: Int = getColumnIndexOrThrow(statement, "pk")
+        val _result: MutableList<MyEntity> = mutableListOf()
+        while (statement.step()) {
+          val _item: MyEntity
+          val _tmpPk: Int
+          _tmpPk = statement.getLong(_cursorIndexOfPk).toInt()
           _item = MyEntity(_tmpPk)
           _result.add(_item)
         }

@@ -337,7 +337,8 @@ val DEFERRED_TYPES =
         RxJava3TypeNames.COMPLETABLE,
         GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE,
         KotlinTypeNames.FLOW,
-        ReactiveStreamsTypeNames.PUBLISHER
+        ReactiveStreamsTypeNames.PUBLISHER,
+        PagingTypeNames.PAGING_SOURCE
     )
 
 fun XTypeName.defaultValue(): String {

@@ -39,8 +39,10 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 implementation(project(":room:room-runtime"))
                 implementation(project(":room:room-testing"))
+                implementation(project(":room:room-paging"))
                 implementation(project(":sqlite:sqlite-bundled"))
                 implementation(project(":kruth:kruth"))
+                implementation(project(":paging:paging-common"))
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinCoroutinesTest)
             }

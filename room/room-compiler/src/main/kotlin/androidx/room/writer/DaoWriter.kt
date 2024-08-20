@@ -685,7 +685,12 @@ class DaoWriter(
         method.queryResultBinder.convertAndReturn(
             sqlQueryVar = sqlVar,
             dbProperty = dbProperty,
-            bindStatement = { stmtVar -> queryWriter.bindArgs(stmtVar, listSizeArgs, this) },
+            bindStatement =
+                if (queryWriter.parameters.isNotEmpty()) {
+                    { stmtVar -> queryWriter.bindArgs(stmtVar, listSizeArgs, this) }
+                } else {
+                    null
+                },
             returnTypeName = method.returnType.asTypeName(),
             inTransaction = method.inTransaction,
             scope = scope
