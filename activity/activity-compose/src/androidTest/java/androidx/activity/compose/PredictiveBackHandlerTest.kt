@@ -172,6 +172,71 @@ class PredictiveBackHandlerTestApi {
         }
     }
 
+    @Test
+    fun testPredictiveBackHandlerDisabledBeforeStart() {
+        val result = mutableListOf<String>()
+        var count by mutableStateOf(2)
+        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
+        lateinit var dispatcher: OnBackPressedDispatcher
+        var started = false
+
+        rule.setContent {
+            dispatcherOwner =
+                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                PredictiveBackHandler(count > 1) { progress ->
+                    if (count <= 1) {
+                        started = true
+                    }
+                    progress.collect()
+                    result += "onBack"
+                }
+                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            }
+        }
+
+        // Changing the count right before starting the gesture is received in the
+        // onBackStackStarted callback
+        count = 1
+        dispatcher.startGestureBack()
+
+        rule.runOnIdle { assertThat(started).isTrue() }
+        dispatcher.api34Complete()
+        rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
+    }
+
+    fun testPredictiveBackHandlerDisabledAfterStart() {
+        val result = mutableListOf<String>()
+        var count by mutableStateOf(2)
+        lateinit var dispatcherOwner: TestOnBackPressedDispatcherOwner
+        lateinit var dispatcher: OnBackPressedDispatcher
+        var started = false
+
+        rule.setContent {
+            dispatcherOwner =
+                TestOnBackPressedDispatcherOwner(LocalLifecycleOwner.current.lifecycle)
+            CompositionLocalProvider(LocalOnBackPressedDispatcherOwner provides dispatcherOwner) {
+                PredictiveBackHandler(count > 1) { progress ->
+                    if (count <= 1) {
+                        started = true
+                    }
+                    progress.collect()
+                    result += "onBack"
+                }
+                dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
+            }
+        }
+
+        dispatcher.startGestureBack()
+        // Changing the count right after starting the gesture is not received in the
+        // onBackStackStarted callback
+        count = 1
+
+        rule.runOnIdle { assertThat(started).isFalse() }
+        dispatcher.api34Complete()
+        rule.runOnIdle { assertThat(result).isEqualTo(listOf("onBack")) }
+    }
+
     @Test(expected = IllegalStateException::class)
     fun testNoCollection() {
         val result = mutableListOf<String>()
