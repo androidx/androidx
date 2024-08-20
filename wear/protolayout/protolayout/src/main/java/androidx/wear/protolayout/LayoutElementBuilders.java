@@ -743,13 +743,16 @@ public final class LayoutElementBuilders {
                 open = true)
         public @interface FontFamilyName {}
 
-        /** Font family name that uses Roboto font. Supported in renderers supporting 1.4. */
+        /**
+         * Font family name that uses Roboto font. Supported in renderers supporting 1.4, but the
+         * actual availability of this font is dependent on the devices.
+         */
         @RequiresSchemaVersion(major = 1, minor = 400)
         public static final String ROBOTO_FONT = "roboto";
 
         /**
-         * Font family name that uses Roboto Flex variable font. Supported in renderers
-         * supporting 1.4.
+         * Font family name that uses Roboto Flex variable font. Supported in renderers supporting
+         * 1.4, but the actual availability of this font is dependent on the devices.
          */
         @RequiresSchemaVersion(major = 1, minor = 400)
         public static final String ROBOTO_FLEX_FONT = "roboto-flex";
