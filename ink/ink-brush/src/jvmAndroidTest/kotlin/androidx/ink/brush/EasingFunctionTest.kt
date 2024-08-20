@@ -77,6 +77,7 @@ class EasingFunctionTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun cubicBezierConstructor_requiresValuesInRange() {
         // arg x1 outside range [0,1]
         assertFailsWith<IllegalArgumentException> {
@@ -95,6 +96,7 @@ class EasingFunctionTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun cubicBezierConstructor_requiresFiniteValues() {
         assertFailsWith<IllegalArgumentException> {
             EasingFunction.CubicBezier(x1 = Float.POSITIVE_INFINITY, 1F, 1F, 1F)

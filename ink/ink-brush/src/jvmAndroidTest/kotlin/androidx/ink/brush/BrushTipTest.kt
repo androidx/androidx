@@ -58,6 +58,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidScaleX_throws() {
         val infinityError =
             assertFailsWith<IllegalArgumentException> { BrushTip(scaleX = Float.POSITIVE_INFINITY) }
@@ -74,6 +75,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidScaleY_throws() {
         val infinityError =
             assertFailsWith<IllegalArgumentException> { BrushTip(scaleY = Float.POSITIVE_INFINITY) }
@@ -97,6 +99,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidCornerRounding_throws() {
         val nanError =
             assertFailsWith<IllegalArgumentException> { BrushTip(cornerRounding = Float.NaN) }
@@ -115,6 +118,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidSlant_throws() {
         val nanError = assertFailsWith<IllegalArgumentException> { BrushTip(slant = Float.NaN) }
         assertThat(nanError).hasMessageThat().contains("slant")
@@ -132,6 +136,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidPinch_throws() {
         val nanError = assertFailsWith<IllegalArgumentException> { BrushTip(pinch = Float.NaN) }
         assertThat(nanError).hasMessageThat().contains("pinch")
@@ -147,6 +152,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidOpacitiyMultiplier_throws() {
         val nanError =
             assertFailsWith<IllegalArgumentException> { BrushTip(opacityMultiplier = Float.NaN) }
@@ -165,6 +171,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidParticleGapDistanceScale_throws() {
         val infinityError =
             assertFailsWith<IllegalArgumentException> {
@@ -187,6 +194,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidParticleGapDurationMillis_throws() {
         val negativeError =
             assertFailsWith<IllegalArgumentException> { BrushTip(particleGapDurationMillis = -1L) }
@@ -195,6 +203,7 @@ class BrushTipTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withInvalidRotation_throws() {
         val nanError = assertFailsWith<IllegalArgumentException> { BrushTip(rotation = Float.NaN) }
         assertThat(nanError).hasMessageThat().contains("rotation")
