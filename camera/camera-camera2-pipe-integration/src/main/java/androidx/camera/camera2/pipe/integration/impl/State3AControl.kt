@@ -46,12 +46,12 @@ constructor(
     public val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
     private val aeFpsRange: AeFpsRange,
-) : UseCaseCameraControl, UseCaseCamera.RunningUseCasesChangeListener {
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             value?.let {
                 val previousSignals =
                     synchronized(lock) {
@@ -61,15 +61,21 @@ constructor(
 
                 invalidate() // Always apply the settings to the camera.
 
-                synchronized(lock) { updateSignal }
-                    ?.let { newUpdateSignal ->
-                        previousSignals.forEach { newUpdateSignal.propagateTo(it) }
-                    } ?: run { previousSignals.forEach { it.complete(Unit) } }
+                synchronized(lock) { updateSignal }?.propagateToAll(previousSignals)
+                    ?: run { for (signals in previousSignals) signals.complete(Unit) }
             }
         }
 
-    override fun onRunningUseCasesChanged() {
-        _useCaseCamera?.runningUseCases?.run { updateTemplate() }
+    override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
+        if (runningUseCases.isNotEmpty()) {
+            runningUseCases.updateTemplate()
+        }
+    }
+
+    private fun Deferred<Unit>.propagateToAll(previousSignals: List<CompletableDeferred<Unit>>) {
+        for (previousSignal in previousSignals) {
+            propagateTo(previousSignal)
+        }
     }
 
     private val lock = Any()
@@ -165,7 +171,7 @@ constructor(
                     parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
                 }
 
-                useCaseCamera?.requestControl?.addParametersAsync(values = parameters)
+                requestControl?.setParametersAsync(values = parameters)
             }
             ?.apply {
                 toCompletableDeferred().also { signal ->

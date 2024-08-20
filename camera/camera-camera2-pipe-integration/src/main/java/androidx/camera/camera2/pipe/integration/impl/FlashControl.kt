@@ -53,11 +53,11 @@ constructor(
     private val torchControl: TorchControl,
     private val useFlashModeTorchFor3aUpdate: UseFlashModeTorchFor3aUpdate,
 ) : UseCaseCameraControl {
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             setFlashAsync(_flashMode, false)
         }
 
@@ -98,7 +98,7 @@ constructor(
     ): Deferred<Unit> {
         val signal = CompletableDeferred<Unit>()
 
-        useCaseCamera?.let {
+        requestControl?.let {
 
             // Update _flashMode immediately so that CameraControlInternal#getFlashMode()
             // returns correct value.

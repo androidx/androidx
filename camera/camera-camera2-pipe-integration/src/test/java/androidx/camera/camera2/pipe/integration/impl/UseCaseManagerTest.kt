@@ -50,7 +50,6 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCor
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.TemplateParamsQuirkOverride
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera.RunningUseCasesChangeListener
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControlCompat
@@ -124,7 +123,7 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(useCase))
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
         assertThat(enabledUseCases).isEmpty()
     }
 
@@ -140,7 +139,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(useCase)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
         assertThat(enabledUseCases).containsExactly(useCase)
     }
 
@@ -163,7 +162,7 @@ class UseCaseManagerTest {
 
         // Assert
         assertNotNull(useCaseManager.camera)
-        assertThat(useCaseManager.camera!!.runningUseCases)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
             .containsExactly(previewUseCase, imageCaptureUseCase)
     }
 
@@ -206,7 +205,7 @@ class UseCaseManagerTest {
         // Assert
         assertNotNull(useCaseManager.camera)
         // Check that the new set of running use cases is Preview, ImageCapture and ImageAnalysis.
-        assertThat(useCaseManager.camera!!.runningUseCases)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
             .containsExactly(previewUseCase, imageCaptureUseCase, imageAnalysisUseCase)
     }
 
@@ -224,7 +223,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
         assertThat(enabledUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -240,7 +239,8 @@ class UseCaseManagerTest {
         useCaseManager.activate(imageCapture)
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
+        val enabledUseCaseClasses =
+            useCaseManager.getRunningUseCasesForTest().map { it::class.java }
         assertThat(enabledUseCaseClasses)
             .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
     }
@@ -260,7 +260,7 @@ class UseCaseManagerTest {
         useCaseManager.activate(preview)
 
         // Assert
-        val activeUseCases = useCaseManager.camera?.runningUseCases
+        val activeUseCases = useCaseManager.getRunningUseCasesForTest()
         assertThat(activeUseCases).containsExactly(preview, imageCapture)
     }
 
@@ -279,7 +279,8 @@ class UseCaseManagerTest {
         useCaseManager.detach(listOf(preview))
 
         // Assert
-        val enabledUseCaseClasses = useCaseManager.camera?.runningUseCases?.map { it::class.java }
+        val enabledUseCaseClasses =
+            useCaseManager.getRunningUseCasesForTest().map { it::class.java }
         assertThat(enabledUseCaseClasses)
             .containsExactly(ImageCapture::class.java, MeteringRepeating::class.java)
     }
@@ -319,7 +320,7 @@ class UseCaseManagerTest {
         useCaseManager.deactivate(imageCapture)
 
         // Assert
-        val enabledUseCases = useCaseManager.camera?.runningUseCases
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
         assertThat(enabledUseCases).isEmpty()
     }
 
@@ -383,19 +384,18 @@ class UseCaseManagerTest {
         // Arrange
         initializeUseCaseThreads(this)
         val fakeControl =
-            object : UseCaseCameraControl, RunningUseCasesChangeListener {
-                var runningUseCases: Set<UseCase> = emptySet()
+            object : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
+                var runningUseCaseSet: Set<UseCase> = emptySet()
 
-                @Suppress("UNUSED_PARAMETER")
-                override var useCaseCamera: UseCaseCamera?
+                override var requestControl: UseCaseCameraRequestControl?
                     get() = TODO("Not yet implemented")
-                    set(value) {
-                        runningUseCases = value?.runningUseCases ?: emptySet()
-                    }
+                    set(_) {}
 
                 override fun reset() {}
 
-                override fun onRunningUseCasesChanged() {}
+                override fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>) {
+                    runningUseCaseSet = runningUseCases
+                }
             }
 
         val useCaseManager = createUseCaseManager(controls = setOf(fakeControl))
@@ -408,7 +408,7 @@ class UseCaseManagerTest {
         useCaseManager.attach(listOf(preview, useCase))
 
         // Assert
-        assertThat(fakeControl.runningUseCases).isEqualTo(setOf(preview, useCase))
+        assertThat(fakeControl.runningUseCaseSet).isEqualTo(setOf(preview, useCase))
     }
 
     @Test
@@ -428,7 +428,7 @@ class UseCaseManagerTest {
         advanceUntilIdle()
 
         assertNotNull(useCaseManager.camera)
-        assertThat(useCaseManager.camera!!.runningUseCases)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
             .containsExactly(previewUseCase, imageCaptureUseCase)
         assertTrue(previewUseCase.cameraControlReady)
         assertTrue(imageCaptureUseCase.cameraControlReady)
@@ -477,7 +477,7 @@ class UseCaseManagerTest {
         // Assert
         assertNotNull(useCaseManager.camera)
         // Check that the new set of running use cases is Preview, ImageCapture and ImageAnalysis.
-        assertThat(useCaseManager.camera!!.runningUseCases)
+        assertThat(useCaseManager.getRunningUseCasesForTest())
             .containsExactly(previewUseCase, imageCaptureUseCase, imageAnalysisUseCase)
         // Despite only attaching the ImageAnalysis use case in the prior step. All not-yet-notified
         // use cases should be notified that their camera controls are ready.

@@ -34,7 +34,6 @@ import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.core.ImageCapture
-import androidx.camera.core.UseCase
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.DeferrableSurface
@@ -72,12 +71,12 @@ class FakeUseCaseCameraComponentBuilder : UseCaseCameraComponent.Builder {
 
     override fun build(): UseCaseCameraComponent {
         buildInvocationCount++
-        return FakeUseCaseCameraComponent(config.provideUseCaseList())
+        return FakeUseCaseCameraComponent()
     }
 }
 
-class FakeUseCaseCameraComponent(useCases: List<UseCase>) : UseCaseCameraComponent {
-    private val fakeUseCaseCamera = FakeUseCaseCamera(useCases.toSet())
+class FakeUseCaseCameraComponent() : UseCaseCameraComponent {
+    private val fakeUseCaseCamera = FakeUseCaseCamera()
     private val cameraGraph = FakeCameraGraph()
     private val cameraStateAdapter = CameraStateAdapter()
 
@@ -102,12 +101,10 @@ open class FakeUseCaseCameraRequestControl(
     var setConfigResult = CompletableDeferred(Unit)
     var setTorchResult = CompletableDeferred(Result3A(status = Result3A.Status.OK))
 
-    override fun addParametersAsync(
+    override fun setParametersAsync(
         type: UseCaseCameraRequestControl.Type,
         values: Map<CaptureRequest.Key<*>, Any>,
         optionPriority: Config.OptionPriority,
-        tags: Map<String, Any>,
-        listeners: Set<Request.Listener>
     ): Deferred<Unit> {
         addParameterCalls.add(values)
         return addParameterResult
@@ -233,29 +230,8 @@ open class FakeUseCaseCameraRequestControl(
 
 // TODO: Further implement the methods in this class as needed
 class FakeUseCaseCamera(
-    override var runningUseCases: Set<UseCase> = emptySet(),
     override var requestControl: UseCaseCameraRequestControl = FakeUseCaseCameraRequestControl(),
 ) : UseCaseCamera {
-
-    override var isPrimary: Boolean = true
-        set(value) {
-            field = value
-        }
-
-    override fun <T> setParameterAsync(
-        key: CaptureRequest.Key<T>,
-        value: T,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
-    }
-
-    override fun setParametersAsync(
-        values: Map<CaptureRequest.Key<*>, Any>,
-        priority: Config.OptionPriority
-    ): Deferred<Unit> {
-        return CompletableDeferred(Unit)
-    }
 
     override fun close(): Job {
         return CompletableDeferred(Unit)

@@ -44,11 +44,11 @@ constructor(
     private val threads: UseCaseThreads,
 ) : UseCaseCameraControl {
 
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             setTorchAsync(
                 torch =
                     when (torchStateLiveData.value) {
@@ -92,7 +92,7 @@ constructor(
             return signal.createFailureResult(IllegalStateException("No flash unit"))
         }
 
-        useCaseCamera?.let { useCaseCamera ->
+        requestControl?.let { requestControl ->
             _torchState.setLiveDataValue(torch)
 
             threads.sequentialScope.launch {
@@ -108,7 +108,7 @@ constructor(
                 _updateSignal = signal
 
                 // TODO(b/209757083), handle the failed result of the setTorchAsync().
-                useCaseCamera.requestControl.setTorchAsync(torch).join()
+                requestControl.setTorchAsync(torch).join()
 
                 // Hold the internal AE mode to ON while the torch is turned ON.
                 state3AControl.preferredAeMode =

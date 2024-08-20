@@ -24,7 +24,6 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.impl.Camera2ImplConfig
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
 import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.impl.containsTag
 import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
@@ -52,7 +51,7 @@ public interface Camera2CameraControlCompat : Request.Listener {
     public fun cancelCurrentTask()
 
     public fun applyAsync(
-        camera: UseCaseCamera?,
+        requestControl: UseCaseCameraRequestControl?,
         cancelPreviousTask: Boolean = true
     ): Deferred<Void?>
 
@@ -106,11 +105,14 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                 ?.cancelSignal("The camera control has became inactive.")
         }
 
-    override fun applyAsync(camera: UseCaseCamera?, cancelPreviousTask: Boolean): Deferred<Void?> {
+    override fun applyAsync(
+        requestControl: UseCaseCameraRequestControl?,
+        cancelPreviousTask: Boolean
+    ): Deferred<Void?> {
         val signal: CompletableDeferred<Void?> = CompletableDeferred()
         val config = synchronized(lock) { configBuilder.build() }
         synchronized(updateSignalLock) {
-            if (camera != null) {
+            if (requestControl != null) {
                 if (cancelPreviousTask) {
                     // Cancel the previous request signal if exist.
                     updateSignal?.cancelSignal()
@@ -122,7 +124,7 @@ public class Camera2CameraControlCompatImpl @Inject constructor() : Camera2Camer
                 }
 
                 updateSignal = signal
-                camera.requestControl.setConfigAsync(
+                requestControl.setConfigAsync(
                     type = UseCaseCameraRequestControl.Type.CAMERA2_CAMERA_CONTROL,
                     config = config,
                     tags = mapOf(TAG_KEY to signal.hashCode())

@@ -18,7 +18,7 @@ package androidx.camera.camera2.pipe.integration.testing
 
 import android.graphics.Rect
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
-import androidx.camera.camera2.pipe.integration.impl.UseCaseCamera
+import androidx.camera.camera2.pipe.integration.impl.UseCaseCameraRequestControl
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 
@@ -31,7 +31,10 @@ constructor(
     var zoomRatio = 0f
     var applyAsyncResult = CompletableDeferred(Unit) // already completed deferred
 
-    override fun applyAsync(zoomRatio: Float, camera: UseCaseCamera): Deferred<Unit> {
+    override fun applyAsync(
+        zoomRatio: Float,
+        requestControl: UseCaseCameraRequestControl
+    ): Deferred<Unit> {
         return applyAsyncResult.also { result ->
             result.invokeOnCompletion { this.zoomRatio = zoomRatio }
         }

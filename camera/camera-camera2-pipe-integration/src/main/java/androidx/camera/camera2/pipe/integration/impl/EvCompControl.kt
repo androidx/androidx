@@ -57,11 +57,11 @@ constructor(
             compat.step,
         )
 
-    private var _useCaseCamera: UseCaseCamera? = null
-    override var useCaseCamera: UseCaseCamera?
-        get() = _useCaseCamera
+    private var _requestControl: UseCaseCameraRequestControl? = null
+    override var requestControl: UseCaseCameraRequestControl?
+        get() = _requestControl
         set(value) {
-            _useCaseCamera = value
+            _requestControl = value
             updateAsync(evCompIndex, cancelPreviousTask = false)
         }
 
@@ -86,9 +86,9 @@ constructor(
             )
         }
 
-        return useCaseCamera?.let { camera ->
+        return requestControl?.let { requestControl ->
             evCompIndex = exposureIndex
-            compat.applyAsync(exposureIndex, camera, cancelPreviousTask)
+            compat.applyAsync(exposureIndex, requestControl, cancelPreviousTask)
         }
             ?: run {
                 CameraControl.OperationCanceledException("Camera is not active.").let { cancelResult

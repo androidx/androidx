@@ -37,7 +37,7 @@ import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Inter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
-import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
+import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraRequestControl
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
@@ -167,7 +167,7 @@ class CameraInfoAdapterTest {
         cameraInfoAdapter.zoomState.observeForever { currentZoomState = it }
 
         // if useCaseCamera is null, zoom setting operation will be cancelled
-        zoomControl.useCaseCamera = FakeUseCaseCamera()
+        zoomControl.requestControl = FakeUseCaseCameraRequestControl()
 
         val expectedZoomState = ZoomValue(3.0f, 1.0f, 10.0f)
         zoomControl.applyZoomState(expectedZoomState)[3, TimeUnit.SECONDS]
@@ -183,7 +183,7 @@ class CameraInfoAdapterTest {
         cameraInfoAdapter.zoomState.observeForever { currentZoomState = it }
 
         // if useCaseCamera is null, zoom setting operation will be cancelled
-        zoomControl.useCaseCamera = FakeUseCaseCamera()
+        zoomControl.requestControl = FakeUseCaseCameraRequestControl()
 
         zoomControl.reset()
 

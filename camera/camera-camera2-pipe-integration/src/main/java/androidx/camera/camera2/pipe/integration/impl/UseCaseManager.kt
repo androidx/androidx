@@ -74,10 +74,11 @@ import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.stabilization.StabilizationMode
 import javax.inject.Inject
 import javax.inject.Provider
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.runBlocking
+import org.jetbrains.annotations.TestOnly
 
 /**
  * This class keeps track of the currently attached and active [UseCase]'s for a specific camera. A
@@ -354,13 +355,57 @@ constructor(
             shouldAddRepeatingUseCase(runningUseCases) -> addRepeatingUseCase()
             shouldRemoveRepeatingUseCase(runningUseCases) -> removeRepeatingUseCase()
             else -> {
-                camera?.isPrimary = isPrimary
-                camera?.runningUseCases = runningUseCases
+                camera?.let {
+                    it.updateRepeatingRequests(isPrimary, runningUseCases)
+                    for (control in allControls) {
+                        if (control is RunningUseCasesChangeListener) {
+                            control.onRunningUseCasesChanged(runningUseCases)
+                        }
+                    }
+                }
             }
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun UseCaseCamera.updateRepeatingRequests(
+        isPrimary: Boolean,
+        runningUseCases: Set<UseCase>
+    ) {
+        // Note: This may be called with the same set of values that was previously set. This
+        // is used as a signal to indicate the properties of the UseCase may have changed.
+        SessionConfigAdapter(runningUseCases, isPrimary = isPrimary)
+            .getValidSessionConfigOrNull()
+            ?.let { requestControl.setSessionConfigAsync(it) }
+            ?: run {
+                Log.debug { "Unable to reset the session due to invalid config" }
+                requestControl.setSessionConfigAsync(
+                    SessionConfig.Builder().apply { setTemplateType(defaultTemplate) }.build()
+                )
+            }
+    }
+
+    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
+        sessionConfig: SessionConfig
+    ): Deferred<Unit> =
+        setConfigAsync(
+            type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+            config = sessionConfig.implementationOptions,
+            tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+            listeners =
+                setOf(
+                    CameraCallbackMap.createFor(
+                        sessionConfig.repeatingCameraCaptureCallbacks,
+                        useCaseThreads.get().backgroundExecutor
+                    )
+                ),
+            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+            streams =
+                useCaseGraphConfig?.getStreamIdsFromSurfaces(
+                    sessionConfig.repeatingCaptureConfig.surfaces
+                ),
+            sessionConfig = sessionConfig,
+        )
+
     @GuardedBy("lock")
     private fun refreshAttachedUseCases(newUseCases: Set<UseCase>) {
         val useCases = newUseCases.toList()
@@ -392,7 +437,7 @@ constructor(
         // Update list of active useCases
         if (useCases.isEmpty()) {
             for (control in allControls) {
-                control.useCaseCamera = null
+                control.requestControl = null
                 control.reset()
             }
             return
@@ -406,7 +451,7 @@ constructor(
             //    resume UseCaseManager successfully
             // - And/or, the UseCaseManager is ready to be resumed under concurrent camera settings.
             for (control in allControls) {
-                control.useCaseCamera = null
+                control.requestControl = null
             }
         }
 
@@ -503,7 +548,7 @@ constructor(
                     .build()
 
             for (control in allControls) {
-                control.useCaseCamera = camera
+                control.requestControl = camera?.requestControl
             }
 
             camera?.setActiveResumeMode(activeResumeEnabled)
@@ -522,6 +567,13 @@ constructor(
     private fun getRunningUseCases(): Set<UseCase> {
         return attachedUseCases.intersect(activeUseCases)
     }
+
+    @TestOnly
+    @VisibleForTesting
+    public fun getRunningUseCasesForTest(): Set<UseCase> =
+        synchronized(lock) {
+            return getRunningUseCases()
+        }
 
     /**
      * Adds or removes repeating use case if needed.
@@ -687,6 +739,25 @@ constructor(
     private fun updateZslDisabledByUseCaseConfigStatus() {
         val disableZsl = attachedUseCases.any { it.currentConfig.isZslDisabled(false) }
         cameraControl.setZslDisabledByUserCaseConfig(disableZsl)
+    }
+
+    /**
+     * This interface defines a listener that is notified when the set of running UseCases changes.
+     *
+     * A "running" UseCase is one that is both attached and active, meaning it's bound to the
+     * lifecycle and ready to receive camera frames.
+     *
+     * Classes implementing this interface can take action when the active UseCase configuration
+     * changes.
+     */
+    public interface RunningUseCasesChangeListener {
+
+        /**
+         * Invoked when the set of running UseCases has been modified (added, removed, or updated).
+         *
+         * @param runningUseCases The updated set of UseCases that are currently running.
+         */
+        public fun onRunningUseCasesChanged(runningUseCases: Set<UseCase>)
     }
 
     public companion object {

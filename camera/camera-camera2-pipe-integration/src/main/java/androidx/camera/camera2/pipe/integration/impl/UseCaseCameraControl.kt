@@ -17,7 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 public interface UseCaseCameraControl {
-    public var useCaseCamera: UseCaseCamera?
+    public var requestControl: UseCaseCameraRequestControl?
 
     public fun reset()
 }
