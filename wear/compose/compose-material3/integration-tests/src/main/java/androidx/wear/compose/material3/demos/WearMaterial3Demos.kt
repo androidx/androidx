@@ -45,8 +45,9 @@ val WearMaterial3Demos =
         listOf(
             ComposableDemo("Color Scheme") { ColorSchemeDemos() },
             Material3DemoCategory("Curved Text", CurvedTextDemos),
-            Material3DemoCategory("AlertDialog", AlertDialogs),
+            Material3DemoCategory("Alert Dialog", AlertDialogs),
             Material3DemoCategory("Confirmation", Comfirmations),
+            Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
             ComposableDemo("Scaffold") { ScaffoldSample() },
             Material3DemoCategory("ScrollAway", ScrollAwayDemos),
             ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
