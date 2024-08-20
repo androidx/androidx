@@ -1044,7 +1044,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 "MyDao.kt",
                 """
             import androidx.room.*
-            import androidx.sqlite.db.SupportSQLiteQuery
 
             @Dao
             interface MyDao {
@@ -1078,7 +1077,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 "MyDao.kt",
                 """
             import androidx.room.*
-            import androidx.sqlite.db.SupportSQLiteQuery
 
             interface BaseDao<T> {
                 fun getEntity(id: T): MyEntity
@@ -1120,7 +1118,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 "MyDao.kt",
                 """
             import androidx.room.*
-            import androidx.sqlite.db.SupportSQLiteQuery
 
             interface BaseDao {
                 @Transaction
@@ -1189,7 +1186,6 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 "MyDao.kt",
                 """
             import androidx.room.*
-            import androidx.sqlite.db.SupportSQLiteQuery
 
             interface BaseDao {
                 @Transaction
