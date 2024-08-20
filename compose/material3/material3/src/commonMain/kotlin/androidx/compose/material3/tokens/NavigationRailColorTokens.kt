@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// VERSION: v0_11_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// TO MODIFY THIS FILE UPDATE:
-//   ux/material/dsdb/contrib/generators/tokens/src/compose/templates/component.jinja2
-//
-// Design System: sandbox
-// Version: v0_9_0
-// Audience: 1p
 
 package androidx.compose.material3.tokens
 
