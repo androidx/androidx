@@ -186,6 +186,8 @@ public class MainActivity extends AppCompatActivity {
             mFragmentType = FragmentType.EFFECTS;
         } else if (itemId == R.id.overlay_effect) {
             mFragmentType = FragmentType.OVERLAY_EFFECTS;
+        } else if (itemId == R.id.media3effect) {
+            mFragmentType = FragmentType.MEDIA3_EFFECT;
         }
         startFragment();
         return true;
@@ -233,6 +235,9 @@ public class MainActivity extends AppCompatActivity {
             case OVERLAY_EFFECTS:
                 startFragment(R.string.overlay_effect, new OverlayEffectFragment());
                 break;
+            case MEDIA3_EFFECT:
+                startFragment(R.string.media3_effect, new Media3EffectsFragment());
+                break;
         }
     }
 
@@ -254,6 +259,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS, OVERLAY_EFFECTS
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS, OVERLAY_EFFECTS,
+        MEDIA3_EFFECT
     }
 }
