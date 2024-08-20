@@ -17,7 +17,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="glance_error_layout_title" msgid="3631961919234443531">"‏"<b>"خطا در ابزارک برنامه Glance"</b></string>
+    <string name="glance_error_layout_title" msgid="3631961919234443531">"‏"<b>"خطا در ابزاره برنامه Glance"</b></string>
     <string name="glance_error_layout_text" msgid="2863935784364843033">"‏بااستفاده از "<b><tt>"adb logcat"</tt></b>" و جستجوی "<b><tt>"GlanceAppWidget"</tt></b>"، خطا را به‌طور دقیق بررسی کنید"</string>
     <string name="glance_error_layout_text_v2" msgid="5191168365305634625">"محتوا نشان داده نشد"</string>
 </resources>
