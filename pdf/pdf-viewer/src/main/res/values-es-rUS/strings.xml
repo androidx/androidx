@@ -47,6 +47,12 @@
     <string name="desc_page_range" msgid="5286496438609641577">"páginas <xliff:g id="FIRST">%1$d</xliff:g> a <xliff:g id="LAST">%2$d</xliff:g> de <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Imagen: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
     <string name="hint_find" msgid="5385388836603550565">"Buscar en el archivo"</string>
+    <!-- no translation found for previous_button_description (1169511027880317546) -->
+    <skip />
+    <!-- no translation found for next_button_description (4702699322249103693) -->
+    <skip />
+    <!-- no translation found for close_button_description (7379823906921067675) -->
+    <skip />
     <string name="message_no_matches_found" msgid="6965828658999779258">"No hay coincidencias."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"Editar el archivo"</string>

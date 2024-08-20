@@ -47,6 +47,9 @@
     <string name="desc_page_range" msgid="5286496438609641577">"странице <xliff:g id="FIRST">%1$d</xliff:g>. до <xliff:g id="LAST">%2$d</xliff:g>. од <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Слика: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
     <string name="hint_find" msgid="5385388836603550565">"Пронађите у фајлу"</string>
+    <string name="previous_button_description" msgid="1169511027880317546">"Претходно"</string>
+    <string name="next_button_description" msgid="4702699322249103693">"Даље"</string>
+    <string name="close_button_description" msgid="7379823906921067675">"Затвори"</string>
     <string name="message_no_matches_found" msgid="6965828658999779258">"Није пронађено ниједно подударање."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"Измени фајл"</string>
