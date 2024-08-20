@@ -618,7 +618,7 @@ class IconToggleButtonTest {
     private fun ComposeContentTestRule.verifyIconToggleButtonColors(
         status: Status,
         checked: Boolean,
-        colors: @Composable () -> ToggleButtonColors,
+        colors: @Composable () -> IconToggleButtonColors,
         containerColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
     ) {
