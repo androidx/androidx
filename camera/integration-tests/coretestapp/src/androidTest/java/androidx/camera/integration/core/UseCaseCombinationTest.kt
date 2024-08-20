@@ -17,9 +17,11 @@ package androidx.camera.integration.core
 
 import android.Manifest
 import android.content.Context
-import android.hardware.camera2.CameraCaptureSession
-import android.hardware.camera2.CaptureRequest
-import android.hardware.camera2.TotalCaptureResult
+import android.graphics.SurfaceTexture
+import android.os.Handler
+import android.os.HandlerThread
+import android.util.Log
+import android.view.Surface
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.Camera
@@ -33,12 +35,12 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
-import androidx.camera.integration.core.util.CameraPipeUtil
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
-import androidx.camera.testing.impl.SurfaceTextureProvider.createSurfaceTextureProvider
+import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.video.AudioChecker
@@ -98,6 +100,8 @@ class UseCaseCombinationTest(
     @get:Rule val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
+        private const val TAG = "UseCaseCombinationTest"
+
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() =
@@ -448,22 +452,12 @@ class UseCaseCombinationTest(
         imageAnalysisMonitor.waitForImageAnalysis()
     }
 
-    private fun initPreview(monitor: PreviewMonitor?, setSurfaceProvider: Boolean = true): Preview {
-        return Preview.Builder()
-            .setTargetName("Preview")
-            .also {
-                monitor?.let { monitor ->
-                    CameraPipeUtil.setCameraCaptureSessionCallback(implName, it, monitor)
-                }
+    private fun initPreview(monitor: PreviewMonitor, setSurfaceProvider: Boolean = true): Preview {
+        return Preview.Builder().setTargetName("Preview").build().apply {
+            if (setSurfaceProvider) {
+                instrumentation.runOnMainSync { surfaceProvider = monitor.getSurfaceProvider() }
             }
-            .build()
-            .apply {
-                if (setSurfaceProvider) {
-                    instrumentation.runOnMainSync {
-                        surfaceProvider = createSurfaceTextureProvider()
-                    }
-                }
-            }
+        }
     }
 
     private fun initImageAnalysis(analyzer: ImageAnalysis.Analyzer?): ImageAnalysis {
@@ -501,8 +495,51 @@ class UseCaseCombinationTest(
             .isTrue()
     }
 
-    class PreviewMonitor : CameraCaptureSession.CaptureCallback() {
+    class PreviewMonitor {
         private var countDown: CountDownLatch? = null
+        private val surfaceProvider =
+            Preview.SurfaceProvider { request ->
+                val lock = Any()
+                var surfaceTextureReleased = false
+                val surfaceTexture = SurfaceTexture(0)
+                surfaceTexture.setDefaultBufferSize(
+                    request.resolution.width,
+                    request.resolution.height
+                )
+                surfaceTexture.detachFromGLContext()
+                surfaceTexture.attachToGLContext(GLUtil.getTexIdFromGLContext())
+                val frameUpdateThread = HandlerThread("frameUpdateThread").apply { start() }
+
+                surfaceTexture.setOnFrameAvailableListener(
+                    {
+                        InstrumentationRegistry.getInstrumentation().runOnMainSync {
+                            synchronized(lock) {
+                                if (!surfaceTextureReleased) {
+                                    try {
+                                        surfaceTexture.updateTexImage()
+                                    } catch (e: IllegalStateException) {
+                                        Log.e(TAG, "updateTexImage failed!")
+                                    }
+                                }
+                            }
+                        }
+                        countDown?.countDown()
+                    },
+                    Handler(frameUpdateThread.getLooper())
+                )
+
+                val surface = Surface(surfaceTexture)
+                request.provideSurface(surface, CameraXExecutors.directExecutor()) {
+                    synchronized(lock) {
+                        surfaceTextureReleased = true
+                        surface.release()
+                        surfaceTexture.release()
+                        frameUpdateThread.quitSafely()
+                    }
+                }
+            }
+
+        fun getSurfaceProvider(): Preview.SurfaceProvider = surfaceProvider
 
         fun waitForStream(count: Int = 10, timeMillis: Long = TimeUnit.SECONDS.toMillis(5)) {
             Truth.assertWithMessage("Preview doesn't start")
@@ -540,14 +577,6 @@ class UseCaseCombinationTest(
                     countDown
                 }!!
                 .await(timeSeconds, TimeUnit.SECONDS)
-
-        override fun onCaptureCompleted(
-            session: CameraCaptureSession,
-            request: CaptureRequest,
-            result: TotalCaptureResult
-        ) {
-            synchronized(this) { countDown?.countDown() }
-        }
     }
 
     class AnalysisMonitor : ImageAnalysis.Analyzer {
