@@ -1274,6 +1274,7 @@ package androidx.compose.material3 {
   }
 
   public final class MaterialShapesKt {
+    method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.Morph, float progress, optional androidx.compose.ui.graphics.Path path, optional int startAngle);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Path toPath(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3ExpressiveApi @androidx.compose.runtime.Composable public static androidx.compose.ui.graphics.Shape toShape(androidx.graphics.shapes.RoundedPolygon, optional int startAngle);
   }
