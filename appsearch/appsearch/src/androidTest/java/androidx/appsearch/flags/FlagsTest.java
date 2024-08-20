@@ -113,7 +113,7 @@ public class FlagsTest {
     public void testFlagValue_enableSearchSpecSearchStringParameters() {
         assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS)
                 .isEqualTo(
-                        "com.android.appsearch.flags.enable_search_spec_search_spec_strings");
+                        "com.android.appsearch.flags.enable_search_spec_search_string_parameters");
     }
 
     @Test
