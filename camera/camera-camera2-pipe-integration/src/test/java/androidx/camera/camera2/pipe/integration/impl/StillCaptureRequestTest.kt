@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.ZslControlNoOpImpl
+import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage.Companion.noCustomizedLock3ABehavior
 import androidx.camera.camera2.pipe.integration.compat.workaround.NoOpTemplateParamsOverride
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseFlashModeTorchFor3aUpdate
 import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsFlash
@@ -435,6 +436,7 @@ class StillCaptureRequestTest {
                         useCaseGraphConfig = fakeUseCaseGraphConfig,
                         useCaseCameraState = fakeUseCaseCameraState,
                         useTorchAsFlash = NotUseTorchAsFlash,
+                        lock3ABehaviorWhenCaptureImage = noCustomizedLock3ABehavior,
                         sessionProcessorManager = null,
                         flashControl =
                             FlashControl(
