@@ -25,7 +25,7 @@
     <string name="mr_chooser_title" msgid="1419936397646839840">"Transmisikan ke"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Mencari perangkat"</string>
     <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"Mencari perangkat..."</string>
-    <string name="mr_controller_disconnect" msgid="7812275474138309497">"Putuskan koneksi"</string>
+    <string name="mr_controller_disconnect" msgid="7812275474138309497">"Berhenti hubungkan"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"Hentikan transmisi"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Tutup"</string>
     <string name="mr_controller_play" msgid="1253345086594430054">"Putar"</string>
