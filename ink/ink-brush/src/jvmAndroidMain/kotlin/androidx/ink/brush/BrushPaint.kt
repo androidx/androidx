@@ -401,8 +401,20 @@ public class BrushPaint(
     @Suppress("NotCloseable") // Finalize is only used to free the native peer.
     public class TextureLayer(
         public val colorTextureUri: String,
-        @FloatRange(from = 0.0, fromInclusive = false) public val sizeX: Float,
-        @FloatRange(from = 0.0, fromInclusive = false) public val sizeY: Float,
+        @FloatRange(
+            from = 0.0,
+            fromInclusive = false,
+            to = Double.POSITIVE_INFINITY,
+            toInclusive = false
+        )
+        public val sizeX: Float,
+        @FloatRange(
+            from = 0.0,
+            fromInclusive = false,
+            to = Double.POSITIVE_INFINITY,
+            toInclusive = false
+        )
+        public val sizeY: Float,
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
         public val offsetX: Float = 0f,
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
@@ -549,8 +561,20 @@ public class BrushPaint(
         public class Builder
         internal constructor(
             private var colorTextureUri: String,
-            @FloatRange(from = 0.0, fromInclusive = false) private var sizeX: Float,
-            @FloatRange(from = 0.0, fromInclusive = false) private var sizeY: Float,
+            @FloatRange(
+                from = 0.0,
+                fromInclusive = false,
+                to = Double.POSITIVE_INFINITY,
+                toInclusive = false
+            )
+            private var sizeX: Float,
+            @FloatRange(
+                from = 0.0,
+                fromInclusive = false,
+                to = Double.POSITIVE_INFINITY,
+                toInclusive = false
+            )
+            private var sizeY: Float,
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
             private var offsetX: Float = 0f,
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)

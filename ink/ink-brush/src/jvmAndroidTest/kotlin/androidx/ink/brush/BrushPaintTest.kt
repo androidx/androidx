@@ -98,6 +98,7 @@ class BrushPaintTest {
 
     // region TextureLayer class tests
     @Test
+    @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidSizes_throwsIllegalArgumentException() {
         val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
@@ -136,6 +137,7 @@ class BrushPaintTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidOffsetX_throwsIllegalArgumentException() {
         val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
@@ -150,6 +152,7 @@ class BrushPaintTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidOffsetY_throwsIllegalArgumentException() {
         val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {
@@ -188,6 +191,7 @@ class BrushPaintTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun textureLayerConstructor_withInvalidOpacity_throwsIllegalArgumentException() {
         val fakeValidUri = makeTestTextureUri()
         assertFailsWith<IllegalArgumentException> {

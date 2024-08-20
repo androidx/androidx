@@ -45,7 +45,13 @@ internal constructor(
      * The overall thickness of strokes created with a given brush, in the same units as the stroke
      * coordinate system. This must be at least as big as [epsilon].
      */
-    @FloatRange(from = 0.0, fromInclusive = false) public val size: Float,
+    @FloatRange(
+        from = 0.0,
+        fromInclusive = false,
+        to = Double.POSITIVE_INFINITY,
+        toInclusive = false
+    )
+    public val size: Float,
     /**
      * The smallest distance for which two points should be considered visually distinct for stroke
      * generation geometry purposes. Effectively, it is the visual fidelity of strokes created with
@@ -56,7 +62,13 @@ internal constructor(
      * starting point that can tolerate a reasonable amount of zooming in with high quality visual
      * results.
      */
-    @FloatRange(from = 0.0, fromInclusive = false) public val epsilon: Float,
+    @FloatRange(
+        from = 0.0,
+        fromInclusive = false,
+        to = Double.POSITIVE_INFINITY,
+        toInclusive = false
+    )
+    public val epsilon: Float,
 ) {
 
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -176,7 +188,21 @@ internal constructor(
     public class Builder {
         private var family: BrushFamily? = null
         private var composeColor: ComposeColor = DEFAULT_COMPOSE_COLOR
+
+        @FloatRange(
+            from = 0.0,
+            fromInclusive = false,
+            to = Double.POSITIVE_INFINITY,
+            toInclusive = false
+        )
         private var size: Float? = null
+
+        @FloatRange(
+            from = 0.0,
+            fromInclusive = false,
+            to = Double.POSITIVE_INFINITY,
+            toInclusive = false
+        )
         private var epsilon: Float? = null
 
         /**
@@ -219,12 +245,28 @@ internal constructor(
             return this
         }
 
-        public fun setSize(size: Float): Builder {
+        public fun setSize(
+            @FloatRange(
+                from = 0.0,
+                fromInclusive = false,
+                to = Double.POSITIVE_INFINITY,
+                toInclusive = false
+            )
+            size: Float
+        ): Builder {
             this.size = size
             return this
         }
 
-        public fun setEpsilon(epsilon: Float): Builder {
+        public fun setEpsilon(
+            @FloatRange(
+                from = 0.0,
+                fromInclusive = false,
+                to = Double.POSITIVE_INFINITY,
+                toInclusive = false
+            )
+            epsilon: Float
+        ): Builder {
             this.epsilon = epsilon
             return this
         }

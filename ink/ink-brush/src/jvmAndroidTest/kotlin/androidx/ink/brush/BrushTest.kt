@@ -46,6 +46,7 @@ class BrushTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withBadSize_willThrow() {
         assertFailsWith<IllegalArgumentException> {
             Brush(family, color, -2F, epsilon) // non-positive size.
@@ -61,6 +62,7 @@ class BrushTest {
     }
 
     @Test
+    @Suppress("Range") // Testing error cases.
     fun constructor_withBadEpsilon_willThrow() {
         assertFailsWith<IllegalArgumentException> {
             Brush(family, color, size, -2F) // non-positive epsilon.
