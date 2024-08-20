@@ -26,7 +26,6 @@ val Material3Demos =
             ComposableDemo("Color Scheme") { ColorSchemeDemo() },
             ComposableDemo("FAB Menu") { FloatingActionButtonMenuDemo() },
             ComposableDemo("Pull To Refresh") { PullToRefreshDemo() },
-            ComposableDemo("Shape") { ShapeDemo() },
             ComposableDemo("Swipe To Dismiss") { SwipeToDismissDemo() },
             ComposableDemo("Tooltip") { TooltipDemo() },
             ComposableDemo("Text fields") { MaterialTextFieldDemo() },
@@ -38,5 +37,12 @@ val Material3Demos =
                     ComposableDemo("Icon toggle buttons") { IconToggleButtonsDemo() },
                 )
             ),
+            DemoCategory(
+                "Shapes",
+                listOf(
+                    ComposableDemo("Shape") { ShapeDemo() },
+                    ComposableDemo("Material Shapes") { MaterialShapeDemo() },
+                )
+            )
         ),
     )

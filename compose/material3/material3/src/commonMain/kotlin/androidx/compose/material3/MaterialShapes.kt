@@ -72,19 +72,25 @@ fun RoundedPolygon.toPath(startAngle: Int = 0): Path {
 fun RoundedPolygon.toShape(startAngle: Int = 0): Shape {
     return remember(this, startAngle) {
         object : Shape {
-            private val path: Path = toPath(startAngle = startAngle)
+            // Store the Path we convert from the RoundedPolygon here. The path we will be
+            // manipulating and using on the createOutline would be a copy of this to ensure we
+            // don't mutate the original.
+            private val shapePath: Path = toPath(startAngle = startAngle)
+            private val workPath: Path = Path()
 
             override fun createOutline(
                 size: Size,
                 layoutDirection: LayoutDirection,
                 density: Density
             ): Outline {
+                workPath.rewind()
+                workPath.addPath(shapePath)
                 val scaleMatrix = Matrix().apply { scale(x = size.width, y = size.height) }
                 // Scale and translate the path to align its center with the available size
                 // center.
-                path.transform(scaleMatrix)
-                path.translate(size.center - path.getBounds().center)
-                return Outline.Generic(path)
+                workPath.transform(scaleMatrix)
+                workPath.translate(size.center - workPath.getBounds().center)
+                return Outline.Generic(workPath)
             }
         }
     }

@@ -16,20 +16,39 @@
 
 package androidx.compose.material3.demos
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialShapes
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.toPath
+import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -59,5 +78,60 @@ fun ShapeDemo() {
         Button(onClick = {}, shape = shapes.extraExtraLarge) { Text("Extra Extra Large") }
         Spacer(modifier = Modifier.height(16.dp))
         Button(onClick = {}, shape = CircleShape) { Text("Full") }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun MaterialShapeDemo() {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val shape = MaterialShapes.Clover4Leaf.toShape()
+
+        // A Material Button with a shape that is provided from the MaterialShapes
+        Button(
+            onClick = { /* on-click*/ },
+            modifier = Modifier.requiredSize(48.dp),
+            shape = shape,
+            border = BorderStroke(width = 2.dp, MaterialTheme.colorScheme.error)
+        ) {
+            Icon(
+                Icons.Outlined.AccessibilityNew,
+                modifier = Modifier.requiredSize(24.dp),
+                contentDescription = "Localized description",
+            )
+        }
+
+        // A basic Box with a shape that is provided from the MaterialShapes
+        Box(
+            modifier =
+                Modifier.requiredSize(64.dp)
+                    .border(BorderStroke(width = 2.dp, Color.Red), shape)
+                    .clip(shape)
+                    .background(MaterialTheme.colorScheme.primary),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Outlined.AccessibilityNew,
+                contentDescription = "Localized description",
+                modifier = Modifier.requiredSize(36.dp),
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+
+        // Path drawing on Canvas with a shape that is provided from the MaterialShapes
+        val shapePath = MaterialShapes.Clover4Leaf.toPath()
+        val workPath = Path()
+        val color = MaterialTheme.colorScheme.outline
+        val borderWidth = with(LocalDensity.current) { 2.dp.toPx() }
+        Canvas(Modifier.requiredSize(64.dp)) {
+            // The path is normalized, so we need to scale it to the size of the canvas.
+            workPath.rewind()
+            workPath.addPath(shapePath)
+            workPath.transform(matrix = Matrix().apply { scale(size.width, size.height) })
+            drawPath(workPath, color = color, style = Stroke(width = borderWidth))
+        }
     }
 }
