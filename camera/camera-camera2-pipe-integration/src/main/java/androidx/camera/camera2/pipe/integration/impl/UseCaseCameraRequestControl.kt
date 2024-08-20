@@ -209,6 +209,7 @@ constructor(
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val threads: UseCaseThreads,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
 
