@@ -469,6 +469,8 @@ internal fun CoreTextField(
             // semantics. And since we're in a TextField, set the `contentDataType` to be "Text".
             this.contentDataType = ContentDataType.Text
             onAutofillText { text ->
+                state.justAutofilled = true
+                state.autofillHighlightOn = true
                 handleTextUpdateFromSemantics(state, text.text, readOnly, enabled)
                 true
             }
@@ -662,10 +664,19 @@ internal fun CoreTextField(
             true
         }
 
+    val autofillHighlight = LocalAutofillHighlight.current
+    val drawDecorationModifier =
+        Modifier.drawBehind {
+            if (state.autofillHighlightOn || state.justAutofilled) {
+                drawRect(color = autofillHighlight.autofillHighlightColor)
+            }
+        }
+
     // Modifiers that should be applied to the outer text field container. Usually those include
     // gesture and semantics modifiers.
     val decorationBoxModifier =
         modifier
+            .then(drawDecorationModifier)
             .legacyTextInputAdapter(legacyTextInputServiceAdapter, state, manager)
             .then(stylusHandwritingModifier)
             .then(focusModifier)
@@ -1006,6 +1017,10 @@ internal class LegacyTextFieldState(
     private val keyboardActionRunner: KeyboardActionRunner =
         KeyboardActionRunner(keyboardController)
 
+    /** Autofill related values we need to save between */
+    var autofillHighlightOn by mutableStateOf(false)
+    var justAutofilled by mutableStateOf(false)
+
     /**
      * DO NOT USE, use [onValueChange] instead. This is original callback provided to the TextField.
      * In order the CoreTextField to work, the recompose.invalidate() has to be called when we call
@@ -1017,6 +1032,13 @@ internal class LegacyTextFieldState(
         if (it.text != untransformedText?.text) {
             // Text has been changed, enter the HandleState.None and hide the cursor handle.
             handleState = HandleState.None
+
+            // Autofill logic
+            if (justAutofilled) {
+                justAutofilled = false
+            } else {
+                autofillHighlightOn = false
+            }
         }
         selectionPreviewHighlightRange = TextRange.Zero
         deletionPreviewHighlightRange = TextRange.Zero

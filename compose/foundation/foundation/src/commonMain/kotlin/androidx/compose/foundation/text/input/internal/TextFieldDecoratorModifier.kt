@@ -29,12 +29,17 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.LocalAutofillHighlight
 import androidx.compose.foundation.text.handwriting.StylusHandwritingNode
 import androidx.compose.foundation.text.handwriting.isStylusHandwritingSupported
 import androidx.compose.foundation.text.input.InputTransformation
 import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text.input.internal.selection.TextToolbarState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.autofill.ContentDataType
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -42,6 +47,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequesterModifierNode
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.pointer.PointerEvent
@@ -51,6 +57,7 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.GlobalPositionAwareModifierNode
 import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
@@ -101,6 +108,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class) private val MediaTypesText = setOf(MediaType.Text)
@@ -179,6 +188,7 @@ internal class TextFieldDecoratorModifierNode(
     var isPassword: Boolean
 ) :
     DelegatingNode(),
+    DrawModifierNode,
     PlatformTextInputModifierNode,
     SemanticsModifierNode,
     FocusRequesterModifierNode,
@@ -413,6 +423,26 @@ internal class TextFieldDecoratorModifierNode(
         getReceiveContentConfiguration()
     }
 
+    // Mutable state to hold the autofillHighlightOn value
+    private var autofillHighlightOn by mutableStateOf(false)
+
+    override fun ContentDrawScope.draw() {
+        drawContent()
+
+        // Autofill highlight is drawn on top of the content — this way the coloring appears over
+        // any Material background applied.
+        if (autofillHighlightOn) {
+            drawRect(color = currentValueOf(LocalAutofillHighlight).autofillHighlightColor)
+        }
+    }
+
+    private suspend fun observeUntransformedTextChanges() {
+        snapshotFlow { textFieldState.untransformedText.toString() }
+            .drop(1)
+            .take(1)
+            .collect { autofillHighlightOn = false }
+    }
+
     /** Updates all the related properties and invalidates internal state based on the changes. */
     fun updateNode(
         textFieldState: TransformedTextFieldState,
@@ -513,6 +543,8 @@ internal class TextFieldDecoratorModifierNode(
         onAutofillText { newText ->
             if (!editable) return@onAutofillText false
             textFieldState.replaceAll(newText)
+            autofillHighlightOn = true
+            coroutineScope.launch { observeUntransformedTextChanges() }
             true
         }
 

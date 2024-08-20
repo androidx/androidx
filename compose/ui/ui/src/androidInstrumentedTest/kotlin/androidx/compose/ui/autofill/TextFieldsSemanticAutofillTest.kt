@@ -22,18 +22,24 @@ import android.view.View
 import android.view.autofill.AutofillValue
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.text.AutofillHighlight
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.LocalAutofillHighlight
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
+import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.ComposeUiFlags.isSemanticAutofillEnabled
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
@@ -42,6 +48,7 @@ import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
@@ -60,6 +67,7 @@ class TextFieldsSemanticAutofillTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
     private lateinit var androidComposeView: AndroidComposeView
     private lateinit var composeView: View
+    private var autofillHighlight: AutofillHighlight? = null
 
     // ============================================================================================
     // Tests to verify legacy TextField populating and filling.
@@ -176,6 +184,51 @@ class TextFieldsSemanticAutofillTest {
         assertEquals(usernameInput, expectedUsername)
     }
 
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun performAutofill_customHighlight_legacyTF() {
+        val expectedUsername = "test_username"
+        val usernameTag = "username_tag"
+        var usernameInput by mutableStateOf("")
+        val customHighlightColor = Color.Red
+
+        rule.setContentWithAutofillEnabled {
+            CompositionLocalProvider(
+                LocalAutofillHighlight provides AutofillHighlight(customHighlightColor)
+            ) {
+                Column {
+                    TextField(
+                        value = usernameInput,
+                        onValueChange = { usernameInput = it },
+                        label = { Text("Enter username here") },
+                        modifier =
+                            Modifier.testTag(usernameTag).semantics {
+                                contentType = ContentType.Username
+                            }
+                    )
+                }
+            }
+        }
+
+        val autofillValues =
+            SparseArray<AutofillValue>().apply {
+                append(usernameTag.semanticsId(), AutofillValue.forText(expectedUsername))
+            }
+
+        // Custom autofill highlight color should not appear prior to autofill being performed
+        rule
+            .onNodeWithTag(usernameTag)
+            .captureToImage()
+            .assertDoesNotContainColor(customHighlightColor)
+
+        rule.runOnIdle { androidComposeView.autofill(autofillValues) }
+        rule.waitForIdle()
+
+        // Custom autofill highlight color should now appear
+        rule.onNodeWithTag(usernameTag).captureToImage().assertContainsColor(customHighlightColor)
+    }
+
     // ============================================================================================
     // Helper functions
     // ============================================================================================
@@ -192,6 +245,7 @@ class TextFieldsSemanticAutofillTest {
             isSemanticAutofillEnabled = true
 
             composeView = LocalView.current
+            autofillHighlight = LocalAutofillHighlight.current
             LaunchedEffect(Unit) {
                 // Make sure the delay between batches of events is set to zero.
                 (composeView as RootForTest).setAccessibilityEventBatchIntervalMillis(0L)

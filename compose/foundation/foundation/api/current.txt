@@ -1677,6 +1677,23 @@ package androidx.compose.foundation.text {
     field public static final androidx.compose.foundation.text.AutoSizeDefaults INSTANCE;
   }
 
+  @kotlin.jvm.JvmInline public final value class AutofillHighlight {
+    ctor public AutofillHighlight(long autofillHighlightColor);
+    method public long getAutofillHighlightColor();
+    property public final long autofillHighlightColor;
+    field public static final androidx.compose.foundation.text.AutofillHighlight.Companion Companion;
+  }
+
+  public static final class AutofillHighlight.Companion {
+    method public long getDefault();
+    property public final long Default;
+  }
+
+  public final class AutofillHighlightKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.AutofillHighlight> getLocalAutofillHighlight();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.foundation.text.AutofillHighlight> LocalAutofillHighlight;
+  }
+
   public final class BasicSecureTextFieldKt {
     method @Deprecated @androidx.compose.runtime.Composable public static void BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.input.KeyboardActionHandler? onKeyboardAction, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional int textObfuscationMode, optional char textObfuscationCharacter);
     method @androidx.compose.runtime.Composable public static void BasicSecureTextField(androidx.compose.foundation.text.input.TextFieldState state, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional boolean readOnly, optional androidx.compose.foundation.text.input.InputTransformation? inputTransformation, optional androidx.compose.ui.text.TextStyle textStyle, optional androidx.compose.foundation.text.KeyboardOptions keyboardOptions, optional androidx.compose.foundation.text.input.KeyboardActionHandler? onKeyboardAction, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super kotlin.jvm.functions.Function0<androidx.compose.ui.text.TextLayoutResult?>,kotlin.Unit>? onTextLayout, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Brush cursorBrush, optional androidx.compose.foundation.text.input.TextFieldDecorator? decorator, optional int textObfuscationMode, optional char textObfuscationCharacter);
