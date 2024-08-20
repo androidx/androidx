@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"గంట"</string>
+    <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"నిమిషం"</string>
+    <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"సెకను"</string>
+    <plurals name="wear_m3c_time_picker_hours_content_description" formatted="false" msgid="7688673698789346225">
+      <item quantity="other">%d గంటలు</item>
+      <item quantity="one">%d గంట</item>
+    </plurals>
+    <plurals name="wear_m3c_time_picker_minutes_content_description" formatted="false" msgid="8268405448590438607">
+      <item quantity="other">%d నిమిషాలు</item>
+      <item quantity="one">%d నిమిషం</item>
+    </plurals>
+    <plurals name="wear_m3c_time_picker_seconds_content_description" formatted="false" msgid="1073969431850983434">
+      <item quantity="other">%d సెకన్లు</item>
+      <item quantity="one">%d సెకను</item>
+    </plurals>
+    <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"వ్యవధి"</string>
+    <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"నిర్ధారించండి"</string>
+</resources>

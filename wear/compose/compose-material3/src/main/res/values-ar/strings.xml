@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  Copyright 2024 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+   -->
+
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"ساعة"</string>
+    <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"دقيقة"</string>
+    <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"ثانية"</string>
+    <plurals name="wear_m3c_time_picker_hours_content_description" formatted="false" msgid="7688673698789346225">
+      <item quantity="zero">‏‫%d ساعة</item>
+      <item quantity="two">ساعتان</item>
+      <item quantity="few">‏‫%d ساعات</item>
+      <item quantity="many">‏‫%d ساعة</item>
+      <item quantity="other">‏‫%d ساعة</item>
+      <item quantity="one">ساعة واحدة</item>
+    </plurals>
+    <plurals name="wear_m3c_time_picker_minutes_content_description" formatted="false" msgid="8268405448590438607">
+      <item quantity="zero">‏‫%d دقيقة</item>
+      <item quantity="two">دقيقتان</item>
+      <item quantity="few">‏‫%d دقائق</item>
+      <item quantity="many">‏‫%d دقيقة</item>
+      <item quantity="other">‏‫%d دقيقة</item>
+      <item quantity="one">دقيقة واحدة</item>
+    </plurals>
+    <plurals name="wear_m3c_time_picker_seconds_content_description" formatted="false" msgid="1073969431850983434">
+      <item quantity="zero">‏‫%d ثانية</item>
+      <item quantity="two">ثانيتان</item>
+      <item quantity="few">‏‫%d ثوانٍ</item>
+      <item quantity="many">‏‫%d ثانية</item>
+      <item quantity="other">‏‫%d ثانية</item>
+      <item quantity="one">ثانية واحدة</item>
+    </plurals>
+    <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"فترة"</string>
+    <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"تأكيد"</string>
+</resources>
