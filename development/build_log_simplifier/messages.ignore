@@ -333,3 +333,5 @@ e: The daemon has terminated unexpectedly on startup attempt #1 with error code:
 WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
 warning: unable to find kotlin\-stdlib\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
 warning: unable to find kotlin\-script\-runtime\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
+# develocity plugin begign warning, reported back to Gradle
+Failed sysctl call: hw\.nperflevels, Error code: 2
