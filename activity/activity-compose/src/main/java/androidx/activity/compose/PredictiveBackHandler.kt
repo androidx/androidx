@@ -76,10 +76,10 @@ public fun PredictiveBackHandler(
     // ensure we don't re-register callbacks when onBack changes
     val currentOnBack by rememberUpdatedState(onBack)
     val onBackScope = rememberCoroutineScope()
+    var onBackInstance: OnBackInstance? = null
 
     val backCallBack = remember {
         object : OnBackPressedCallback(enabled) {
-            var onBackInstance: OnBackInstance? = null
 
             override fun handleOnBackStarted(backEvent: BackEventCompat) {
                 super.handleOnBackStarted(backEvent)
@@ -125,7 +125,13 @@ public fun PredictiveBackHandler(
         }
     }
 
-    LaunchedEffect(enabled) { backCallBack.isEnabled = enabled }
+    LaunchedEffect(enabled) {
+        backCallBack.isEnabled = enabled
+        if (!enabled) {
+            onBackInstance?.close()
+            onBackInstance = null
+        }
+    }
 
     val backDispatcher =
         checkNotNull(LocalOnBackPressedDispatcherOwner.current) {
