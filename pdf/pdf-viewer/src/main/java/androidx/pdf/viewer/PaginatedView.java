@@ -32,6 +32,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.core.os.ParcelCompat;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
+import androidx.pdf.metrics.EventCallback;
 import androidx.pdf.util.PaginationUtils;
 import androidx.pdf.util.Preconditions;
 import androidx.pdf.util.ThreadUtils;
@@ -72,6 +73,8 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     /** The current viewport in content coordinates */
     private final Rect mViewArea = new Rect();
+
+    private EventCallback mEventCallback;
 
     public PaginatedView(@NonNull Context context) {
         this(context, null);
@@ -248,6 +251,10 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     public void setPageViewFactory(@NonNull PageViewFactory pageViewFactory) {
         mPageViewFactory = pageViewFactory;
+    }
+
+    public void setMetricEventCallback(@Nullable EventCallback eventCallback) {
+        mEventCallback = eventCallback;
     }
 
     /** Instantiate a page of this pageView into a child pageView. */
@@ -475,6 +482,9 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
             // be executed against the document, even if the user has scrolled away from the page.
             mPdfLoader.cancelExceptSearchAndFormFilling(page);
             mPdfLoader.releasePage(page);
+            if (mEventCallback != null) {
+                mEventCallback.onPageCleared(page);
+            }
             if (clearViews) {
                 removeViewAt(page);
             }

@@ -26,6 +26,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
+import androidx.annotation.RestrictTo
 import androidx.core.os.BundleCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -41,6 +42,7 @@ import androidx.pdf.data.FutureValue
 import androidx.pdf.data.Openable
 import androidx.pdf.fetcher.Fetcher
 import androidx.pdf.find.FindInFileView
+import androidx.pdf.metrics.EventCallback
 import androidx.pdf.models.PageSelection
 import androidx.pdf.select.SelectionActionMode
 import androidx.pdf.util.AnnotationUtils
@@ -152,6 +154,8 @@ public open class PdfViewerFragment : Fragment() {
     private var isAnnotationIntentResolvable = false
     private var documentLoaded = false
 
+    private var mEventCallback: EventCallback? = null
+
     /**
      * The URI of the PDF document to display defaulting to `null`.
      *
@@ -201,6 +205,11 @@ public open class PdfViewerFragment : Fragment() {
             arguments?.putBoolean(KEY_TEXT_SEARCH_ACTIVE, value)
             findInFileView?.setFindInFileView(value)
         }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public fun setEventCallback(eventCallback: EventCallback) {
+        this.mEventCallback = eventCallback
+    }
 
     /**
      * Invoked when the document has been fully loaded, processed, and the initial pages are
@@ -255,6 +264,8 @@ public open class PdfViewerFragment : Fragment() {
         findInFileView!!.setOnClosedButtonCallback { isTextSearchActive = false }
         annotationButton = pdfViewer?.findViewById(R.id.edit_fab)
 
+        zoomView?.setMetricEventCallback(mEventCallback)
+
         // All views are inflated, update the view state.
         if (viewState.get() == ViewState.NO_VIEW || viewState.get() == ViewState.ERROR) {
             viewState.set(ViewState.VIEW_CREATED)
@@ -300,7 +311,8 @@ public open class PdfViewerFragment : Fragment() {
                         }
                     }
                 },
-                onDocumentLoadFailure = { thrown -> showLoadingErrorView(thrown) }
+                onDocumentLoadFailure = { thrown -> showLoadingErrorView(thrown) },
+                mEventCallback
             )
 
         setUpEditFab()
@@ -391,6 +403,9 @@ public open class PdfViewerFragment : Fragment() {
         if (!documentLoaded) {
             pdfLoader?.reconnect()
         }
+
+        // Start Recording First Page Load Latency.
+        mEventCallback?.onViewerVisible()
 
         if (paginatedView != null && paginatedView?.childCount!! > 0) {
             zoomView?.let { layoutHandler?.let { it1 -> it.loadPageAssets(it1, viewState) } }
@@ -532,6 +547,7 @@ public open class PdfViewerFragment : Fragment() {
         pageViewFactory = updatedPageViewFactory
         pdfLoaderCallbacks?.pageViewFactory = updatedPageViewFactory
         paginatedView?.pageViewFactory = updatedPageViewFactory
+        paginatedView?.setMetricEventCallback(mEventCallback)
 
         selectionObserver =
             PageSelectionValueObserver(paginatedView!!, pageViewFactory!!, requireContext())
@@ -568,7 +584,8 @@ public open class PdfViewerFragment : Fragment() {
                 paginatedView!!,
                 zoomView!!,
                 singleTapHandler!!,
-                findInFileView!!
+                findInFileView!!,
+                mEventCallback
             )
         updatePageViewFactory(pageViewFactory!!)
     }
@@ -719,6 +736,7 @@ public open class PdfViewerFragment : Fragment() {
         if (pdfLoader != null) {
             destroyContentModel()
         }
+        mEventCallback?.onViewerReset()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

@@ -50,6 +50,7 @@ import androidx.pdf.data.PdfStatus;
 import androidx.pdf.data.Range;
 import androidx.pdf.fetcher.Fetcher;
 import androidx.pdf.find.FindInFileView;
+import androidx.pdf.metrics.EventCallback;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
@@ -179,6 +180,8 @@ public class PdfViewer extends LoadingViewer {
 
     private SelectionActionMode mSelectionActionMode;
 
+    private EventCallback mEventCallback;
+
     public PdfViewer() {
         super(SELF_MANAGED_CONTENTS);
     }
@@ -274,6 +277,7 @@ public class PdfViewer extends LoadingViewer {
         mPaginatedView.setSelectionModel(mSelectionModel);
         mPaginatedView.setSearchModel(mSearchModel);
         mPaginatedView.setPdfLoader(mPdfLoader);
+        mPaginatedView.setMetricEventCallback(mEventCallback);
 
         mSearchQueryObserver =
                 new SearchQueryObserver(mPaginatedView);
@@ -282,7 +286,8 @@ public class PdfViewer extends LoadingViewer {
         mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton, mPaginatedView,
                 mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
         mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
-                mPaginatedView, mZoomView, mSingleTapHandler, mFindInFileView);
+                mPaginatedView, mZoomView, mSingleTapHandler, mFindInFileView,
+                mEventCallback);
         mPaginatedView.setPageViewFactory(mPageViewFactory);
 
         mSelectionObserver =

@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.pdf.find.FindInFileView;
+import androidx.pdf.metrics.EventCallback;
 import androidx.pdf.models.Dimensions;
 import androidx.pdf.models.GotoLink;
 import androidx.pdf.models.LinkRects;
@@ -56,19 +57,22 @@ public class PageViewFactory {
     private final ZoomView mZoomView;
     private final SingleTapHandler mSingleTapHandler;
     private final FindInFileView mFindInFileView;
+    private final EventCallback mEventCallback;
 
     public PageViewFactory(@NonNull Context context,
             @NonNull PdfLoader pdfLoader,
             @NonNull PaginatedView paginatedView,
             @NonNull ZoomView zoomView,
             @NonNull SingleTapHandler singleTapHandler,
-            @NonNull FindInFileView findInFileView) {
+            @NonNull FindInFileView findInFileView,
+            @Nullable EventCallback eventCallback) {
         this.mContext = context;
         this.mPdfLoader = pdfLoader;
         this.mPaginatedView = paginatedView;
         this.mZoomView = zoomView;
         this.mSingleTapHandler = singleTapHandler;
         this.mFindInFileView = findInFileView;
+        this.mEventCallback = eventCallback;
     }
 
     /**
@@ -157,17 +161,28 @@ public class PageViewFactory {
             @Override
             public void requestPageBitmap(@NonNull Dimensions pageSize,
                     boolean alsoRequestingTiles) {
+                if (!alsoRequestingTiles) {
+                    if (mEventCallback != null) {
+                        mEventCallback.onPageBitmapOnlyRequested(pageNum);
+                    }
+                }
                 mPdfLoader.loadPageBitmap(pageNum, pageSize);
             }
 
             @Override
             public void requestNewTiles(@NonNull Dimensions pageSize,
                     @NonNull Iterable<TileBoard.TileInfo> tiles) {
+                if (mEventCallback != null) {
+                    mEventCallback.onPageTilesRequested(pageNum, tiles);
+                }
                 mPdfLoader.loadTileBitmaps(pageNum, pageSize, tiles);
             }
 
             @Override
             public void cancelTiles(@NonNull Iterable<Integer> tileIds) {
+                if (mEventCallback != null) {
+                    mEventCallback.onPageTilesCleared(pageNum);
+                }
                 mPdfLoader.cancelTileBitmaps(pageNum, tileIds);
             }
         };
