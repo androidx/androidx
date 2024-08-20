@@ -147,10 +147,14 @@ private fun SerialDescriptor.getClass(): Class<*> {
             return Class.forName(className)
         } catch (_: ClassNotFoundException) {}
     }
-    throw IllegalArgumentException(
+    var errorMsg =
         "Cannot find class with name \"$serialName\". Ensure that the " +
             "serialName for this argument is the default fully qualified name"
-    )
+    if (kind is SerialKind.ENUM) {
+        errorMsg =
+            "$errorMsg.\nIf the build is minified, try annotating the Enum class with \"androidx.annotation.Keep\" to ensure the Enum is not removed."
+    }
+    throw IllegalArgumentException(errorMsg)
 }
 
 /**
