@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE")
+
 package androidx.compose.animation.core
 
+import androidx.compose.ui.util.fastCoerceIn
+import kotlin.jvm.JvmField
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.cos
 import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
 
 /**
@@ -41,33 +47,39 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
         arcs =
             Array(timePoints.size - 1) { i ->
                 when (arcModes[i]) {
-                    ArcStartVertical -> {
+                    ArcSplineArcStartVertical -> {
                         mode = StartVertical
                         last = mode
                     }
-                    ArcStartHorizontal -> {
+                    ArcSplineArcStartHorizontal -> {
                         mode = StartHorizontal
                         last = mode
                     }
-                    ArcStartFlip -> {
+                    ArcSplineArcStartFlip -> {
                         mode = if (last == StartVertical) StartHorizontal else StartVertical
                         last = mode
                     }
-                    ArcStartLinear -> mode = StartLinear
-                    ArcAbove -> mode = UpArc
-                    ArcBelow -> mode = DownArc
+                    ArcSplineArcStartLinear -> mode = StartLinear
+                    ArcSplineArcAbove -> mode = UpArc
+                    ArcSplineArcBelow -> mode = DownArc
                 }
-                val dim = y[i].size / 2 + y[i].size % 2
+
+                val yArray = y[i]
+                val yArray1 = y[i + 1]
+                val timeArray = timePoints[i]
+                val timeArray1 = timePoints[i + 1]
+
+                val dim = yArray.size / 2 + yArray.size % 2
                 Array(dim) { j ->
                     val k = j * 2
                     Arc(
                         mode = mode,
-                        time1 = timePoints[i],
-                        time2 = timePoints[i + 1],
-                        x1 = y[i][k],
-                        y1 = y[i][k + 1],
-                        x2 = y[i + 1][k],
-                        y2 = y[i + 1][k + 1]
+                        time1 = timeArray,
+                        time2 = timeArray1,
+                        x1 = yArray[k],
+                        y1 = yArray[k + 1],
+                        x2 = yArray1[k],
+                        y2 = yArray1[k + 1]
                     )
                 }
             }
@@ -76,29 +88,36 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
     /** get the values of the at t point in time. */
     fun getPos(time: Float, v: FloatArray) {
         var t = time
+        val arcs = arcs
+        val lastIndex = arcs.size - 1
+        val start = arcs[0][0].time1
+        val end = arcs[lastIndex][0].time2
+        val size = v.size
+
         if (isExtrapolate) {
-            if (t < arcs[0][0].time1 || t > arcs[arcs.size - 1][0].time2) {
+            if (t < start || t > end) {
                 val p: Int
                 val t0: Float
-                if (t > arcs[arcs.size - 1][0].time2) {
-                    p = arcs.size - 1
-                    t0 = arcs[arcs.size - 1][0].time2
+                if (t > end) {
+                    p = lastIndex
+                    t0 = end
                 } else {
                     p = 0
-                    t0 = arcs[0][0].time1
+                    t0 = start
                 }
                 val dt = t - t0
 
                 var i = 0
                 var j = 0
-                while (i < v.size) {
-                    if (arcs[p][j].isLinear) {
-                        v[i] = arcs[p][j].getLinearX(t0) + dt * arcs[p][j].getLinearDX()
-                        v[i + 1] = arcs[p][j].getLinearY(t0) + dt * arcs[p][j].getLinearDY()
+                while (i < size - 1) {
+                    val arc = arcs[p][j]
+                    if (arc.isLinear) {
+                        v[i] = arc.getLinearX(t0) + dt * arc.linearDX
+                        v[i + 1] = arc.getLinearY(t0) + dt * arc.linearDY
                     } else {
-                        arcs[p][j].setPoint(t0)
-                        v[i] = arcs[p][j].calcX() + dt * arcs[p][j].calcDX()
-                        v[i + 1] = arcs[p][j].calcY() + dt * arcs[p][j].calcDY()
+                        arc.setPoint(t0)
+                        v[i] = arc.calcX() + dt * arc.calcDX()
+                        v[i + 1] = arc.calcY() + dt * arc.calcDY()
                     }
                     i += 2
                     j++
@@ -106,12 +125,8 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
                 return
             }
         } else {
-            if (t < arcs[0][0].time1) {
-                t = arcs[0][0].time1
-            }
-            if (t > arcs[arcs.size - 1][0].time2) {
-                t = arcs[arcs.size - 1][0].time2
-            }
+            t = max(t, start)
+            t = min(t, end)
         }
 
         // TODO: Consider passing the index from the caller to improve performance
@@ -119,18 +134,18 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
         for (i in arcs.indices) {
             var k = 0
             var j = 0
-            while (j < v.size) {
-                if (t <= arcs[i][k].time2) {
-                    if (arcs[i][k].isLinear) {
-                        v[j] = arcs[i][k].getLinearX(t)
-                        v[j + 1] = arcs[i][k].getLinearY(t)
-                        populated = true
+            while (j < size - 1) {
+                val arc = arcs[i][k]
+                if (t <= arc.time2) {
+                    if (arc.isLinear) {
+                        v[j] = arc.getLinearX(t)
+                        v[j + 1] = arc.getLinearY(t)
                     } else {
-                        arcs[i][k].setPoint(t)
-                        v[j] = arcs[i][k].calcX()
-                        v[j + 1] = arcs[i][k].calcY()
-                        populated = true
+                        arc.setPoint(t)
+                        v[j] = arc.calcX()
+                        v[j + 1] = arc.calcY()
                     }
+                    populated = true
                 }
                 j += 2
                 k++
@@ -143,29 +158,27 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
 
     /** Get the differential which of the curves at point t */
     fun getSlope(time: Float, v: FloatArray) {
-        var t = time
-        if (t < arcs[0][0].time1) {
-            t = arcs[0][0].time1
-        } else if (t > arcs[arcs.size - 1][0].time2) {
-            t = arcs[arcs.size - 1][0].time2
-        }
+        val arcs = arcs
+        val t = time.fastCoerceIn(arcs[0][0].time1, arcs[arcs.size - 1][0].time2)
+        val size = v.size
+
         var populated = false
         // TODO: Consider passing the index from the caller to improve performance
         for (i in arcs.indices) {
             var j = 0
             var k = 0
-            while (j < v.size) {
-                if (t <= arcs[i][k].time2) {
-                    if (arcs[i][k].isLinear) {
-                        v[j] = arcs[i][k].getLinearDX()
-                        v[j + 1] = arcs[i][k].getLinearDY()
-                        populated = true
+            while (j < size - 1) {
+                val arc = arcs[i][k]
+                if (t <= arc.time2) {
+                    if (arc.isLinear) {
+                        v[j] = arc.linearDX
+                        v[j + 1] = arc.linearDY
                     } else {
-                        arcs[i][k].setPoint(t)
-                        v[j] = arcs[i][k].calcDX()
-                        v[j + 1] = arcs[i][k].calcDY()
-                        populated = true
+                        arc.setPoint(t)
+                        v[j] = arc.calcDX()
+                        v[j + 1] = arc.calcDY()
                     }
+                    populated = true
                 }
                 j += 2
                 k++
@@ -192,46 +205,51 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
 
         private val lut: FloatArray
         private val oneOverDeltaTime: Float
-        private val ellipseA: Float
-        private val ellipseB: Float
-        private val ellipseCenterX: Float // also used to cache the slope in the unused center
-        private val ellipseCenterY: Float // also used to cache the slope in the unused center
         private val arcVelocity: Float
-        private val isVertical: Boolean
+        private val vertical: Float
 
-        val isLinear: Boolean
+        @JvmField internal val ellipseA: Float
+        @JvmField internal val ellipseB: Float
+
+        @JvmField internal val isLinear: Boolean
+
+        // also used to cache the slope in the unused center
+        @JvmField internal val ellipseCenterX: Float
+        // also used to cache the slope in the unused center
+        @JvmField internal val ellipseCenterY: Float
+
+        internal inline val linearDX: Float
+            get() = ellipseCenterX
+
+        internal inline val linearDY: Float
+            get() = ellipseCenterY
 
         init {
             val dx = x2 - x1
             val dy = y2 - y1
-            isVertical =
+            val isVertical =
                 when (mode) {
                     StartVertical -> true
                     UpArc -> dy < 0
                     DownArc -> dy > 0
                     else -> false
                 }
+            vertical = if (isVertical) -1.0f else 1.0f
             oneOverDeltaTime = 1 / (this.time2 - this.time1)
+            lut = FloatArray(LutSize)
 
-            var isLinear = false
-            if (StartLinear == mode) {
-                isLinear = true
-            }
+            var isLinear = mode == StartLinear
             if (isLinear || abs(dx) < Epsilon || abs(dy) < Epsilon) {
                 isLinear = true
                 arcDistance = hypot(dy, dx)
                 arcVelocity = arcDistance * oneOverDeltaTime
-                ellipseCenterX =
-                    dx / (this.time2 - this.time1) // cache the slope in the unused center
-                ellipseCenterY =
-                    dy / (this.time2 - this.time1) // cache the slope in the unused center
-                lut = FloatArray(101)
+                ellipseCenterX = dx * oneOverDeltaTime // cache the slope in the unused center
+                ellipseCenterY = dy * oneOverDeltaTime // cache the slope in the unused center
                 ellipseA = Float.NaN
                 ellipseB = Float.NaN
             } else {
-                lut = FloatArray(101)
-                ellipseA = dx * if (isVertical) -1 else 1
-                ellipseB = dy * if (isVertical) 1 else -1
+                ellipseA = dx * vertical
+                ellipseB = dy * -vertical
                 ellipseCenterX = if (isVertical) x2 else x1
                 ellipseCenterY = if (isVertical) y1 else y2
                 buildTable(x1, y1, x2, y2)
@@ -241,17 +259,21 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
         }
 
         fun setPoint(time: Float) {
-            val percent = (if (isVertical) time2 - time else time - time1) * oneOverDeltaTime
-            val angle = PI.toFloat() * 0.5f * lookup(percent)
+            val angle = calcAngle(time)
             tmpSinAngle = sin(angle)
             tmpCosAngle = cos(angle)
         }
 
-        fun calcX(): Float {
+        private inline fun calcAngle(time: Float): Float {
+            val percent = (if (vertical == -1.0f) time2 - time else time - time1) * oneOverDeltaTime
+            return HalfPi * lookup(percent)
+        }
+
+        inline fun calcX(): Float {
             return ellipseCenterX + ellipseA * tmpSinAngle
         }
 
-        fun calcY(): Float {
+        inline fun calcY(): Float {
             return ellipseCenterY + ellipseB * tmpCosAngle
         }
 
@@ -259,14 +281,14 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             val vx = ellipseA * tmpCosAngle
             val vy = -ellipseB * tmpSinAngle
             val norm = arcVelocity / hypot(vx, vy)
-            return if (isVertical) -vx * norm else vx * norm
+            return vx * vertical * norm
         }
 
         fun calcDY(): Float {
             val vx = ellipseA * tmpCosAngle
             val vy = -ellipseB * tmpSinAngle
             val norm = arcVelocity / hypot(vx, vy)
-            return if (isVertical) -vy * norm else vy * norm
+            return vy * vertical * norm
         }
 
         fun getLinearX(time: Float): Float {
@@ -281,14 +303,6 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             return y1 + t * (y2 - y1)
         }
 
-        fun getLinearDX(): Float {
-            return ellipseCenterX
-        }
-
-        fun getLinearDY(): Float {
-            return ellipseCenterY
-        }
-
         private fun lookup(v: Float): Float {
             if (v <= 0) {
                 return 0.0f
@@ -296,40 +310,48 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
             if (v >= 1) {
                 return 1.0f
             }
-            val pos = v * (lut.size - 1)
+            val pos = v * (LutSize - 1)
             val iv = pos.toInt()
             val off = pos - pos.toInt()
             return lut[iv] + off * (lut[iv + 1] - lut[iv])
         }
 
-        private fun buildTable(x1: Float, y1: Float, x2: Float, y2: Float) {
+        // Internal to prevent inlining from R8
+        @Suppress("MemberVisibilityCanBePrivate")
+        internal fun buildTable(x1: Float, y1: Float, x2: Float, y2: Float) {
             val a = x2 - x1
             val b = y1 - y2
             var lx = 0f
-            var ly = 0f
+            var ly = b // == b * cos(0), because we skip index 0 in the loops below
             var dist = 0f
-            for (i in ourPercent.indices) {
-                val angle = toRadians(90.0 * i / (ourPercent.size - 1)).toFloat()
+
+            val ourPercent = OurPercentCache
+            val lastIndex = ourPercent.size - 1
+            val lut = lut
+
+            for (i in 1..lastIndex) {
+                val angle = toRadians(90.0 * i / lastIndex).toFloat()
                 val s = sin(angle)
                 val c = cos(angle)
                 val px = a * s
                 val py = b * c
-                if (i > 0) {
-                    dist += hypot((px - lx), (py - ly))
-                    ourPercent[i] = dist
-                }
+                dist += hypot((px - lx), (py - ly)) // we don't want to compute and store dist
+                ourPercent[i] = dist // for i == 0
                 lx = px
                 ly = py
             }
+
             arcDistance = dist
-            for (i in ourPercent.indices) {
+            for (i in 1..lastIndex) {
                 ourPercent[i] /= dist
             }
+
+            val lutLastIndex = (LutSize - 1).toFloat()
             for (i in lut.indices) {
-                val pos = i / (lut.size - 1).toFloat()
+                val pos = i / lutLastIndex
                 val index = binarySearch(ourPercent, pos)
                 if (index >= 0) {
-                    lut[i] = index / (ourPercent.size - 1).toFloat()
+                    lut[i] = index / lutLastIndex
                 } else if (index == -1) {
                     lut[i] = 0f
                 } else {
@@ -337,41 +359,32 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
                     val p2 = -index - 1
                     val ans =
                         (p1 + (pos - ourPercent[p1]) / (ourPercent[p2] - ourPercent[p1])) /
-                            (ourPercent.size - 1)
+                            lastIndex
                     lut[i] = ans
                 }
             }
         }
-
-        companion object {
-            private var _ourPercent: FloatArray? = null
-            private val ourPercent: FloatArray
-                get() {
-                    if (_ourPercent != null) {
-                        return _ourPercent!!
-                    }
-                    _ourPercent = FloatArray(91)
-                    return _ourPercent!!
-                }
-
-            private const val Epsilon = 0.001f
-        }
-    }
-
-    companion object {
-        const val ArcStartVertical = 1
-        const val ArcStartHorizontal = 2
-        const val ArcStartFlip = 3
-        const val ArcBelow = 4
-        const val ArcAbove = 5
-        const val ArcStartLinear = 0
-        private const val StartVertical = 1
-        private const val StartHorizontal = 2
-        private const val StartLinear = 3
-        private const val DownArc = 4
-        private const val UpArc = 5
     }
 }
+
+internal const val ArcSplineArcStartLinear = 0
+internal const val ArcSplineArcStartVertical = 1
+internal const val ArcSplineArcStartHorizontal = 2
+internal const val ArcSplineArcStartFlip = 3
+internal const val ArcSplineArcBelow = 4
+internal const val ArcSplineArcAbove = 5
+
+private const val StartVertical = 1
+private const val StartHorizontal = 2
+private const val StartLinear = 3
+private const val DownArc = 4
+private const val UpArc = 5
+private const val LutSize = 101
+
+private const val Epsilon = 0.001f
+private const val HalfPi = (PI * 0.5).toFloat()
+
+private val OurPercentCache: FloatArray = FloatArray(91)
 
 internal expect inline fun toRadians(value: Double): Double
 

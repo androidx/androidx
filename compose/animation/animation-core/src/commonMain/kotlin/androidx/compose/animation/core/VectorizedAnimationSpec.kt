@@ -22,6 +22,7 @@ import androidx.collection.MutableIntList
 import androidx.collection.MutableIntObjectMap
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.jvm.JvmInline
 import kotlin.math.min
 
@@ -183,7 +184,7 @@ public interface VectorizedDurationBasedAnimationSpec<V : AnimationVector> :
  * [VectorizedDurationBasedAnimationSpec].
  */
 internal fun VectorizedDurationBasedAnimationSpec<*>.clampPlayTime(playTime: Long): Long {
-    return (playTime - delayMillis).coerceIn(0, durationMillis.toLong())
+    return (playTime - delayMillis).fastCoerceIn(0, durationMillis.toLong())
 }
 
 /**
@@ -260,7 +261,7 @@ internal constructor(
                         VectorizedKeyframeSpecElementInfo(
                             vectorValue = valueEasing.first,
                             easing = valueEasing.second,
-                            arcMode = ArcMode.Companion.ArcLinear
+                            arcMode = ArcMode.ArcLinear
                         )
                 }
 
@@ -269,7 +270,7 @@ internal constructor(
         durationMillis = durationMillis,
         delayMillis = delayMillis,
         defaultEasing = LinearEasing,
-        initialArcMode = ArcMode.Companion.ArcLinear
+        initialArcMode = ArcMode.ArcLinear
     )
 
     /**
@@ -302,7 +303,7 @@ internal constructor(
             modes =
                 IntArray(timestamps.size) {
                     val mode = (keyframes[timestamps[it]]?.arcMode ?: initialArcMode)
-                    if (mode != ArcMode.Companion.ArcLinear) {
+                    if (mode != ArcMode.ArcLinear) {
                         requiresArcSpline = true
                     }
 
@@ -505,7 +506,6 @@ internal constructor(
     }
 }
 
-@OptIn(ExperimentalAnimationSpecApi::class)
 internal data class VectorizedKeyframeSpecElementInfo<V : AnimationVector>(
     val vectorValue: V,
     val easing: Easing,
@@ -528,20 +528,20 @@ public value class ArcMode internal constructor(internal val value: Int) {
          * Interpolates using a quarter of an Ellipse where the curve is "above" the center of the
          * Ellipse.
          */
-        public val ArcAbove: ArcMode = ArcMode(ArcSpline.ArcAbove)
+        public val ArcAbove: ArcMode = ArcMode(ArcSplineArcAbove)
 
         /**
          * Interpolates using a quarter of an Ellipse where the curve is "below" the center of the
          * Ellipse.
          */
-        public val ArcBelow: ArcMode = ArcMode(ArcSpline.ArcBelow)
+        public val ArcBelow: ArcMode = ArcMode(ArcSplineArcBelow)
 
         /**
          * An [ArcMode] that forces linear interpolation.
          *
          * You'll likely only use this mode within a keyframe.
          */
-        public val ArcLinear: ArcMode = ArcMode(ArcSpline.ArcStartLinear)
+        public val ArcLinear: ArcMode = ArcMode(ArcSplineArcStartLinear)
     }
 }
 
@@ -560,10 +560,10 @@ public class VectorizedSnapSpec<V : AnimationVector>(override val delayMillis: I
         targetValue: V,
         initialVelocity: V
     ): V {
-        if (playTimeNanos < delayMillis * MillisToNanos) {
-            return initialValue
+        return if (playTimeNanos < delayMillis * MillisToNanos) {
+            initialValue
         } else {
-            return targetValue
+            targetValue
         }
     }
 
@@ -579,8 +579,6 @@ public class VectorizedSnapSpec<V : AnimationVector>(override val delayMillis: I
     override val durationMillis: Int
         get() = 0
 }
-
-private const val InfiniteIterations: Int = Int.MAX_VALUE
 
 /**
  * This animation takes another [VectorizedDurationBasedAnimationSpec] and plays it __infinite__
@@ -742,10 +740,10 @@ public class VectorizedRepeatableSpec<V : AnimationVector>(
         } else {
             val postOffsetPlayTimeNanos = playTimeNanos + initialOffsetNanos
             val repeatsCount = min(postOffsetPlayTimeNanos / durationNanos, iterations - 1L)
-            if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
-                return postOffsetPlayTimeNanos - repeatsCount * durationNanos
+            return if (repeatMode == RepeatMode.Restart || repeatsCount % 2 == 0L) {
+                postOffsetPlayTimeNanos - repeatsCount * durationNanos
             } else {
-                return (repeatsCount + 1) * durationNanos - postOffsetPlayTimeNanos
+                (repeatsCount + 1) * durationNanos - postOffsetPlayTimeNanos
             }
         }
     }

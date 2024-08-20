@@ -713,4 +713,16 @@ class DoubleListTest {
         assertEquals(-1.0, l[2])
         assertEquals(10.0, l[3])
     }
+
+    @Test
+    fun binarySearchDoubleList() {
+        val l = mutableDoubleListOf(-2.0, -1.0, 2.0, 10.0, 10.0)
+        assertEquals(0, l.binarySearch(-2))
+        assertEquals(2, l.binarySearch(2))
+        assertEquals(3, l.binarySearch(10))
+
+        assertEquals(-1, l.binarySearch(-20))
+        assertEquals(-4, l.binarySearch(3))
+        assertEquals(-6, l.binarySearch(20))
+    }
 }
