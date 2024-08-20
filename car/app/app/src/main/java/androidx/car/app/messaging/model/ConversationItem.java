@@ -32,8 +32,6 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.CarText;
 import androidx.car.app.model.Item;
-import androidx.car.app.model.Row;
-import androidx.car.app.model.Template;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.utils.CollectionUtils;
 import androidx.core.app.Person;
@@ -199,17 +197,9 @@ public class ConversationItem implements Item {
     }
 
     /**
-     * Returns whether this item should be included in an indexed list.
+     * Returns whether this item can be included in indexed lists.
      *
-     * <p>"Indexing" refers to the process of examining list contents (e.g. item titles) to sort,
-     * partition, or filter a list. Indexing is generally used for features called "Accelerators",
-     * which allow a user to quickly find a particular {@link Item} in a long list.
-     *
-     * <p>To exclude a single item from indexed lists and accelerator features, use
-     * {@link Row.Builder#setIndexable(boolean)}.
-     *
-     * <p>To enable/disable accelerators for the entire list, see the API for the particular
-     * list-like {@link Template} that you are using.
+     * @see Builder#setIndexable(boolean)
      */
     @ExperimentalCarApi
     public boolean isIndexable() {
@@ -343,7 +333,26 @@ public class ConversationItem implements Item {
             return this;
         }
 
-        /** @see #isIndexable */
+        /**
+         * Sets whether this item can be included in indexed lists. By default, this is set to
+         * {@code true}.
+         *
+         * <p>The host creates indexed lists to help users navigate through long lists more easily
+         * by sorting, filtering, or some other means.
+         *
+         * <p>For example, a media app may, by default, show a user's playlists sorted by date
+         * created. If the app provides these playlists via the {@code SectionedItemTemplate} and
+         * enables {@code #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
+         * playlists that start with the letter "H". When this happens, the list is reconstructed
+         * and sorted alphabetically, then shown to the user, jumping down to the letter "H". If
+         * the item is set to {@code #setIndexable(false)}, the item will not show up in this newly
+         * sorted list.
+         *
+         * <p>Individual items can be set to be included or excluded from filtered lists, but it's
+         * also possible to enable/disable the creation of filtered lists as a whole via the
+         * template's API (eg. {@code SectionedItemTemplate
+         * .Builder#setAlphabeticalIndexingAllowed(Boolean)}).
+         */
         @ExperimentalCarApi
         @NonNull
         public Builder setIndexable(boolean indexable) {
