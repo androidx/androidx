@@ -38,6 +38,7 @@ object DeviceInfo {
             Build.FINGERPRINT.startsWith("unknown") ||
             Build.FINGERPRINT.contains("emulator") ||
             Build.MODEL.contains("google_sdk") ||
+            Build.MODEL.startsWith("sdk_") ||
             Build.MODEL.contains("sdk_gphone64") ||
             Build.MODEL.contains("Emulator") ||
             Build.MODEL.contains("Android SDK built for") ||
