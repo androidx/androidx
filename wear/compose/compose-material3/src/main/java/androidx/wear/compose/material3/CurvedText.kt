@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.text.TextStyle
@@ -141,4 +142,10 @@ object CurvedTextDefaults {
      * scrollable content.
      */
     const val StaticContentMaxSweepAngle: Float = 120f
+
+    /**
+     * The recommended background color to use when displaying curved text so it is visible on top
+     * of other content.
+     */
+    @Composable fun backgroundColor() = MaterialTheme.colorScheme.background.copy(alpha = 0.85f)
 }

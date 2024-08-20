@@ -17,6 +17,7 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -61,7 +62,7 @@ class TimeTextScreenshotTest {
     @Test
     fun time_text_with_clock_only_on_round_device() = verifyScreenshot {
         TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) {
             time()
@@ -72,7 +73,7 @@ class TimeTextScreenshotTest {
     fun time_text_with_clock_only_on_non_round_device() =
         verifyScreenshot(false) {
             TimeText(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 time()
@@ -82,7 +83,7 @@ class TimeTextScreenshotTest {
     @Test
     fun time_text_with_status_on_round_device() = verifyScreenshot {
         TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) {
             text("ETA 12:48")
@@ -95,7 +96,7 @@ class TimeTextScreenshotTest {
     fun time_text_with_status_on_non_round_device() =
         verifyScreenshot(false) {
             TimeText(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 text("ETA 12:48")
@@ -107,7 +108,7 @@ class TimeTextScreenshotTest {
     @Test
     fun time_text_with_icon_on_round_device() = verifyScreenshot {
         TimeText(
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) {
             time()
@@ -126,7 +127,7 @@ class TimeTextScreenshotTest {
     fun time_text_with_icon_on_non_round_device() =
         verifyScreenshot(false) {
             TimeText(
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 time()
@@ -149,7 +150,7 @@ class TimeTextScreenshotTest {
         TimeText(
             contentColor = Color.Green,
             timeTextStyle = timeTextStyle,
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) {
             text("ETA", customStyle)
@@ -166,7 +167,7 @@ class TimeTextScreenshotTest {
         TimeText(
             contentColor = Color.Green,
             timeTextStyle = timeTextStyle,
-            modifier = Modifier.testTag(TEST_TAG),
+            modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
             timeSource = MockTimeSource,
         ) {
             text("Long status that should be ellipsized.")
@@ -184,7 +185,7 @@ class TimeTextScreenshotTest {
             TimeText(
                 contentColor = Color.Green,
                 timeTextStyle = timeTextStyle,
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 text("ETA", customStyle)
@@ -205,7 +206,7 @@ class TimeTextScreenshotTest {
                 contentColor = Color.Green,
                 timeTextStyle = timeTextStyle,
                 maxSweepAngle = 180f,
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 text(
@@ -226,7 +227,7 @@ class TimeTextScreenshotTest {
             TimeText(
                 contentColor = Color.Green,
                 timeTextStyle = timeTextStyle,
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 text(
@@ -249,7 +250,7 @@ class TimeTextScreenshotTest {
                 contentColor = Color.Green,
                 timeTextStyle = timeTextStyle,
                 maxSweepAngle = 90f,
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
             ) {
                 text(
@@ -292,7 +293,7 @@ class TimeTextScreenshotTest {
             TimeText(
                 contentColor = Color.Green,
                 maxSweepAngle = 180f,
-                modifier = Modifier.testTag(TEST_TAG),
+                modifier = Modifier.testTag(TEST_TAG).background(Color.DarkGray),
                 timeSource = MockTimeSource,
                 content = content
             )

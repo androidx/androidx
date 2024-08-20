@@ -16,8 +16,12 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -26,7 +30,9 @@ import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.angularSizeDp
+import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.curvedBox
+import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.material3.CurvedTextDefaults
 import androidx.wear.compose.material3.curvedText
@@ -45,37 +51,53 @@ val CurvedTextDemos =
 
 @Composable
 fun LargerFont() {
-    CurvedLayout(radialAlignment = CurvedAlignment.Radial.Center) {
-        curvedText("Larger", fontSize = 24.sp)
-        curvedBox(CurvedModifier.angularSizeDp(5.dp)) {}
-        curvedText("Normal")
+    val backgroundColor = CurvedTextDefaults.backgroundColor()
+    CurvedLayout(modifier = Modifier.background(Color.DarkGray)) {
+        curvedRow(
+            CurvedModifier.background(backgroundColor, StrokeCap.Round),
+            radialAlignment = CurvedAlignment.Radial.Center
+        ) {
+            curvedText("Larger", fontSize = 24.sp)
+            curvedBox(CurvedModifier.angularSizeDp(5.dp)) {}
+            curvedText("Normal")
+        }
     }
 }
 
 @Composable
 fun KerningDemo() {
-    Box {
-        CurvedLayout { curvedText("MMMMMMMM") }
+    val backgroundColor = CurvedTextDefaults.backgroundColor()
+    Box(Modifier.background(Color.DarkGray)) {
+        CurvedLayout {
+            curvedText("MMMMMMMM", CurvedModifier.background(backgroundColor, StrokeCap.Round))
+        }
         CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
-            curvedText("MMMMMMMM")
+            curvedText("MMMMMMMM", CurvedModifier.background(backgroundColor, StrokeCap.Round))
         }
     }
 }
 
 @Composable
 fun SmallArcDemo() {
-    CurvedLayout {
+    val backgroundColor = CurvedTextDefaults.backgroundColor()
+    CurvedLayout(Modifier.background(Color.DarkGray)) {
         // Default sweep is 70 degrees
-        curvedText("Long text that will be cut for sure.", overflow = TextOverflow.Ellipsis)
+        curvedText(
+            "Long text that will be cut for sure.",
+            CurvedModifier.background(backgroundColor, StrokeCap.Round),
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
 @Composable
 fun LargeArcDemo() {
-    CurvedLayout {
+    val backgroundColor = CurvedTextDefaults.backgroundColor()
+    CurvedLayout(Modifier.background(Color.DarkGray)) {
         // Static content can use 120 degrees
         curvedText(
             "Long text that will be cut for sure.",
+            CurvedModifier.background(backgroundColor, StrokeCap.Round),
             maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
             overflow = TextOverflow.Ellipsis
         )

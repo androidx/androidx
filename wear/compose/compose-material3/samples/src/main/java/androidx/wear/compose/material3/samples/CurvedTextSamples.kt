@@ -54,14 +54,17 @@ fun CurvedTextTop() {
 @Sampled
 @Composable
 fun CurvedTextBottom() {
+    val backgroundColor = MaterialTheme.colorScheme.onPrimary
     CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
-        curvedComposable {
-            Icon(
-                Icons.Filled.Warning,
-                contentDescription = "Warning",
-                modifier = Modifier.size(ButtonDefaults.IconSize)
-            )
+        curvedRow(CurvedModifier.background(backgroundColor, Round)) {
+            curvedComposable {
+                Icon(
+                    Icons.Filled.Warning,
+                    contentDescription = "Warning",
+                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                )
+            }
+            curvedText("Error - network lost")
         }
-        curvedText("Error - network lost")
     }
 }
