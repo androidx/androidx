@@ -114,4 +114,30 @@ class PredictiveBackTest {
             assertThat(fm.backStackEntryCount).isEqualTo(0)
         }
     }
+
+    @Test
+    fun backOnNoRecordTest() {
+        withUse(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = StrictViewFragment()
+
+            fm.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .commit()
+            executePendingTransactions()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+
+            // We need a pending commit that doesn't include a fragment to mimic calling
+            // system back while commit is pending.
+            fm.beginTransaction().commit()
+
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+            withActivity { dispatcher.onBackPressed() }
+
+            assertThat(fm.backStackEntryCount).isEqualTo(0)
+        }
+    }
 }
