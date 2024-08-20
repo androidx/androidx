@@ -43,35 +43,6 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
     /** The upper bound in the `Y` direction. */
     override val yMax: Float = max(y1, y2)
 
-    public fun fillMutable(output: MutableBox) {
-        output.setXBounds(xMin, xMax).setYBounds(yMin, yMax)
-    }
-
-    public fun newMutable(): MutableBox {
-        return MutableBox().setXBounds(xMin, xMax).setYBounds(yMin, yMax)
-    }
-
-    /** Populates [out] with the center of the [ImmutableBox]. */
-    override fun center(out: MutablePoint): Unit =
-        BoxHelper.nativeCenter(xMin, yMin, xMax, yMax, out)
-
-    /**
-     * Return a copy of this object with modified values as provided, where [x1] and [y1] default to
-     * minimum values and [x2] and [y2] default to the maximum values, respectively.
-     */
-    @JvmSynthetic
-    public fun copy(
-        x1: Float = this.xMin,
-        y1: Float = this.yMin,
-        x2: Float = this.xMax,
-        y2: Float = this.yMax,
-    ): ImmutableBox =
-        if (this.xMin == x1 && this.yMin == y1 && this.xMax == x2 && this.yMax == y2) {
-            this
-        } else {
-            ImmutableBox(x1, y1, x2, y2)
-        }
-
     override fun equals(other: Any?): Boolean =
         other === this || (other is Box && Box.areEquivalent(this, other))
 
@@ -84,7 +55,7 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
         /** Constructs an [ImmutableBox] with a given [center], [width], and [height]. */
         @JvmStatic
         public fun fromCenterAndDimensions(
-            center: Point,
+            center: Vec,
             @FloatRange(from = 0.0) width: Float,
             @FloatRange(from = 0.0) height: Float,
         ): ImmutableBox {
@@ -99,7 +70,7 @@ public class ImmutableBox private constructor(x1: Float, y1: Float, x2: Float, y
 
         /** Constructs the smallest [ImmutableBox] containing the two given points. */
         @JvmStatic
-        public fun fromTwoPoints(point1: Point, point2: Point): ImmutableBox {
+        public fun fromTwoPoints(point1: Vec, point2: Vec): ImmutableBox {
             return ImmutableBox(point1.x, point1.y, point2.x, point2.y)
         }
     }

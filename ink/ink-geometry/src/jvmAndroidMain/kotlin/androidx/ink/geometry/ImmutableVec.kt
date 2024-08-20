@@ -23,9 +23,13 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
- * An immutable 2-dimensional vector, representing an offset in space. See [MutableVec] for a
- * mutable alternative, and see [Point] (and its concrete implementations [ImmutablePoint] and
- * [MutablePoint]) for a location in space.
+ * An immutable two-dimensional vector, i.e. an (x, y) coordinate pair. It can be used to represent
+ * either:
+ * 1) A two-dimensional offset, i.e. the difference between two points
+ * 2) A point in space, i.e. treating the vector as an offset from the origin
+ *
+ * This object is immutable, so it is inherently thread-safe. See [MutableVec] for a mutable
+ * alternative.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableVec(override val x: Float, override val y: Float) : Vec {

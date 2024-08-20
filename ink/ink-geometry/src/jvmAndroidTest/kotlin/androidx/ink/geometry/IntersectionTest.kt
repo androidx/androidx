@@ -159,7 +159,7 @@ class IntersectionTest {
         val shearFactor = 1f // = cotangent(PI/4), represents a 45-degree shear
         val parallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(center.x, center.y),
+                center = ImmutableVec(center.x, center.y),
                 width = width,
                 height = height,
                 rotation = Angle.ZERO,
@@ -210,7 +210,7 @@ class IntersectionTest {
     fun intersects_whenPointParallelogramDoesNotIntersect_returnsFalse() {
         val parallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(10f, 0f),
+                center = ImmutableVec(10f, 0f),
                 width = 1f,
                 height = 1f,
                 rotation = Angle.HALF_TURN_RADIANS / 4f,
@@ -236,8 +236,7 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenPointBoxIntersects_returnsTrue() {
-        val rect =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(3.5f, 10.9f), ImmutablePoint(2.5f, 1.1f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(3.5f, 10.9f), ImmutableVec(2.5f, 1.1f))
         val vertex0 = ImmutableVec(3.5f, 10.9f)
         val vertex1 = MutableVec(3.5f, 1.1f)
         val vertex2 = ImmutableVec(2.5f, 10.9f)
@@ -270,7 +269,7 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenPointBoxDoesNotIntersect_returnsFalse() {
-        val rect = ImmutableBox.fromTwoPoints(ImmutablePoint(-1f, 3.2f), ImmutablePoint(7f, 11.8f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(-1f, 3.2f), ImmutableVec(7f, 11.8f))
         val closeExteriorPoint = ImmutableVec(7.1f, 3.2f)
         val farExteriorPoint = ImmutableVec(-10f, -100f)
 
@@ -377,11 +376,11 @@ class IntersectionTest {
     fun intersects_whenSegmentBoxIntersects_returnsTrue() {
         val segment = ImmutableSegment(start = ImmutableVec(-1f, 3.2f), end = ImmutableVec(9f, 5f))
         val rectWithCommonMinPoint =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(-1f, 3.2f), ImmutablePoint(-10f, 0f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(-1f, 3.2f), ImmutableVec(-10f, 0f))
         val rectWithCommonMaxPoint =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(9f, 5f), ImmutablePoint(20f, 11.4f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(9f, 5f), ImmutableVec(20f, 11.4f))
         val intersectingBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(0f, 1f), ImmutablePoint(8f, 21f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(0f, 1f), ImmutableVec(8f, 21f))
 
         assertThat(segment.intersects(rectWithCommonMinPoint)).isTrue()
         assertThat(segment.intersects(rectWithCommonMaxPoint)).isTrue()
@@ -394,9 +393,8 @@ class IntersectionTest {
     @Test
     fun intersects_whenSegmentBoxDoesNotIntersect_returnsFalse() {
         val segment = ImmutableSegment(start = ImmutableVec(-1f, 3.2f), end = ImmutableVec(9f, 5f))
-        val closeBox = ImmutableBox.fromTwoPoints(ImmutablePoint(9.1f, 5f), ImmutablePoint(10f, 6f))
-        val farBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(-10f, -2f), ImmutablePoint(-21f, -8f))
+        val closeBox = ImmutableBox.fromTwoPoints(ImmutableVec(9.1f, 5f), ImmutableVec(10f, 6f))
+        val farBox = ImmutableBox.fromTwoPoints(ImmutableVec(-10f, -2f), ImmutableVec(-21f, -8f))
 
         assertThat(segment.intersects(closeBox)).isFalse()
         assertThat(segment.intersects(farBox)).isFalse()
@@ -409,7 +407,7 @@ class IntersectionTest {
         val segment = ImmutableSegment(start = ImmutableVec(-1f, 3.2f), end = ImmutableVec(9f, 5f))
         val parallelogramWithCommonVertex =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(1f, 6.2f),
+                center = ImmutableVec(1f, 6.2f),
                 width = 4f,
                 height = 6f,
                 rotation = Angle.ZERO,
@@ -417,7 +415,7 @@ class IntersectionTest {
             )
         val intersectingParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(4f, 4.1f),
+                center = ImmutableVec(4f, 4.1f),
                 width = 4f,
                 height = 6f,
                 rotation = Angle.ZERO,
@@ -435,7 +433,7 @@ class IntersectionTest {
         val segment = ImmutableSegment(start = ImmutableVec(-1f, 3.2f), end = ImmutableVec(9f, 5f))
         val closeParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(10.1f, 7f),
+                center = ImmutableVec(10.1f, 7f),
                 width = 2f,
                 height = 4f,
                 rotation = Angle.ZERO,
@@ -443,7 +441,7 @@ class IntersectionTest {
             )
         val farParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(-100f, -103.1f),
+                center = ImmutableVec(-100f, -103.1f),
                 width = 4f,
                 height = 7.2f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
@@ -547,11 +545,11 @@ class IntersectionTest {
                 p2 = ImmutableVec(4.2f, 10f),
             )
         val rectWithCommonP2 =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(4.2f, 10f), ImmutablePoint(7.9f, 19.2f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(4.2f, 10f), ImmutableVec(7.9f, 19.2f))
         val rectWithCommonEdge =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(-10f, 1f), ImmutablePoint(0f, 31.6f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(-10f, 1f), ImmutableVec(0f, 31.6f))
         val intersectingBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 20f), ImmutablePoint(6.5f, 31.9f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 20f), ImmutableVec(6.5f, 31.9f))
 
         assertThat(triangle.intersects(rectWithCommonP2)).isTrue()
         assertThat(triangle.intersects(rectWithCommonEdge)).isTrue()
@@ -569,10 +567,8 @@ class IntersectionTest {
                 p1 = ImmutableVec(0f, 31.6f),
                 p2 = ImmutableVec(4.2f, 10f),
             )
-        val closeBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(0f, 0.9f), ImmutablePoint(-51.1f, -2f))
-        val farBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(100f, 200f), ImmutablePoint(300f, 400f))
+        val closeBox = ImmutableBox.fromTwoPoints(ImmutableVec(0f, 0.9f), ImmutableVec(-51.1f, -2f))
+        val farBox = ImmutableBox.fromTwoPoints(ImmutableVec(100f, 200f), ImmutableVec(300f, 400f))
 
         assertThat(triangle.intersects(closeBox)).isFalse()
         assertThat(triangle.intersects(farBox)).isFalse()
@@ -590,7 +586,7 @@ class IntersectionTest {
             )
         val parallelogramWithCommonP1 =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(1.5f, 32.6f),
+                center = ImmutableVec(1.5f, 32.6f),
                 width = 3f,
                 height = 2f,
                 rotation = Angle.ZERO,
@@ -598,7 +594,7 @@ class IntersectionTest {
             )
         val parallelogramWithCommonEdge =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(-1f, 16.3f),
+                center = ImmutableVec(-1f, 16.3f),
                 width = 2f,
                 height = 15.3f,
                 rotation = Angle.ZERO,
@@ -606,7 +602,7 @@ class IntersectionTest {
             )
         val intersectingParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(2.1f, 17.4f),
+                center = ImmutableVec(2.1f, 17.4f),
                 width = 10f,
                 height = 19.4f,
                 rotation = Angle.ZERO,
@@ -631,7 +627,7 @@ class IntersectionTest {
             )
         val closeParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(-5.1f, 2f),
+                center = ImmutableVec(-5.1f, 2f),
                 width = 10f,
                 height = 13.2f,
                 rotation = Angle.ZERO,
@@ -639,7 +635,7 @@ class IntersectionTest {
             )
         val farParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(100f, 200f),
+                center = ImmutableVec(100f, 200f),
                 width = 0.6f,
                 height = 2.3f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
@@ -654,8 +650,8 @@ class IntersectionTest {
 
     @Test
     fun intersects_forEqualBoxs_returnsTrue() {
-        val rect1 = ImmutableBox.fromTwoPoints(ImmutablePoint(0f, 1f), ImmutablePoint(31.6f, 10f))
-        val rect2 = ImmutableBox.fromTwoPoints(ImmutablePoint(0f, 1f), ImmutablePoint(31.6f, 10f))
+        val rect1 = ImmutableBox.fromTwoPoints(ImmutableVec(0f, 1f), ImmutableVec(31.6f, 10f))
+        val rect2 = ImmutableBox.fromTwoPoints(ImmutableVec(0f, 1f), ImmutableVec(31.6f, 10f))
 
         assertThat(rect1.intersects(rect1)).isTrue()
         assertThat(rect1.intersects(rect2)).isTrue()
@@ -664,13 +660,13 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenBoxBoxIntersects_returnsTrue() {
-        val rect = ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 1f), ImmutablePoint(31.6f, 10f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 1f), ImmutableVec(31.6f, 10f))
         val rectWithCommonVertex =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 1f), ImmutablePoint(-3f, -6.5f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 1f), ImmutableVec(-3f, -6.5f))
         val rectWithCommonEdge =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(31.6f, 5f), ImmutablePoint(67.9f, 2f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(31.6f, 5f), ImmutableVec(67.9f, 2f))
         val intersectingBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(6.7f, 3f), ImmutablePoint(20f, 100.2f))
+            ImmutableBox.fromTwoPoints(ImmutableVec(6.7f, 3f), ImmutableVec(20f, 100.2f))
 
         assertThat(rect.intersects(rectWithCommonVertex)).isTrue()
         assertThat(rect.intersects(rectWithCommonEdge)).isTrue()
@@ -682,11 +678,9 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenBoxBoxDoesNotIntersect_returnsFalse() {
-        val rect = ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 1f), ImmutablePoint(31.6f, 10f))
-        val closeBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(2f, 1f), ImmutablePoint(-10f, -11f))
-        val farBox =
-            ImmutableBox.fromTwoPoints(ImmutablePoint(100f, 200f), ImmutablePoint(300f, 400f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 1f), ImmutableVec(31.6f, 10f))
+        val closeBox = ImmutableBox.fromTwoPoints(ImmutableVec(2f, 1f), ImmutableVec(-10f, -11f))
+        val farBox = ImmutableBox.fromTwoPoints(ImmutableVec(100f, 200f), ImmutableVec(300f, 400f))
 
         assertThat(rect.intersects(closeBox)).isFalse()
         assertThat(rect.intersects(farBox)).isFalse()
@@ -696,10 +690,10 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenBoxParallelogramIntersects_returnsTrue() {
-        val rect = ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 1f), ImmutablePoint(31.6f, 10f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 1f), ImmutableVec(31.6f, 10f))
         val parallelogramWithCommonVertex =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(26.6f, 8f),
+                center = ImmutableVec(26.6f, 8f),
                 width = 10f,
                 height = 4f,
                 rotation = Angle.ZERO,
@@ -707,7 +701,7 @@ class IntersectionTest {
             )
         val parallelogramWithCommonEdge =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(10f, 0f),
+                center = ImmutableVec(10f, 0f),
                 width = 10f,
                 height = 2f,
                 rotation = Angle.ZERO,
@@ -715,7 +709,7 @@ class IntersectionTest {
             )
         val intersectingParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(10f, 5f),
+                center = ImmutableVec(10f, 5f),
                 width = 6f,
                 height = 4f,
                 rotation = Angle.ZERO,
@@ -732,10 +726,10 @@ class IntersectionTest {
 
     @Test
     fun intersects_whenBoxParallelogramDoesNotIntersect_returnsFalse() {
-        val rect = ImmutableBox.fromTwoPoints(ImmutablePoint(2.1f, 1f), ImmutablePoint(31.6f, 10f))
+        val rect = ImmutableBox.fromTwoPoints(ImmutableVec(2.1f, 1f), ImmutableVec(31.6f, 10f))
         val closeParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(0f, 1f),
+                center = ImmutableVec(0f, 1f),
                 width = 4f,
                 height = 10f,
                 rotation = Angle.ZERO,
@@ -743,7 +737,7 @@ class IntersectionTest {
             )
         val farParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                center = ImmutablePoint(100f, 200f),
+                center = ImmutableVec(100f, 200f),
                 width = 0.6f,
                 height = 2.3f,
                 rotation = Angle.QUARTER_TURN_RADIANS,

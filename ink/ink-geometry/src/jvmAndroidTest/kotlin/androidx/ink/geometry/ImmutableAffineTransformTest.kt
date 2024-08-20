@@ -370,26 +370,26 @@ class ImmutableAffineTransformTest {
 
     @Test
     fun applyTransform_whenAppliedToABox_correctlyModifiesParallelogram() {
-        val testBox = ImmutableBox.fromCenterAndDimensions(ImmutablePoint(4f, 1f), 6f, 8f)
+        val testBox = ImmutableBox.fromCenterAndDimensions(ImmutableVec(4f, 1f), 6f, 8f)
 
         val identityTransform = AffineTransform.IDENTITY
         val identityParallelogram = MutableParallelogram()
         identityTransform.applyTransform(testBox, identityParallelogram)
         assertThat(identityParallelogram)
-            .isEqualTo(MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(4f, 1f), 6f, 8f))
+            .isEqualTo(MutableParallelogram.fromCenterAndDimensions(ImmutableVec(4f, 1f), 6f, 8f))
 
         val translateTransform = ImmutableAffineTransform.translate(ImmutableVec(1F, 3F))
         val translateParallelogram = MutableParallelogram()
         translateTransform.applyTransform(testBox, translateParallelogram)
         assertThat(translateParallelogram)
-            .isEqualTo(MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(5f, 4f), 6f, 8f))
+            .isEqualTo(MutableParallelogram.fromCenterAndDimensions(ImmutableVec(5f, 4f), 6f, 8f))
 
         val scaleBy2ValuesTransform = ImmutableAffineTransform.scale(2.5F, -.5F)
         val scaleBy2ValuesParallelogram = MutableParallelogram()
         scaleBy2ValuesTransform.applyTransform(testBox, scaleBy2ValuesParallelogram)
         assertThat(scaleBy2ValuesParallelogram)
             .isEqualTo(
-                MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(10f, -0.5f), 15f, -4f)
+                MutableParallelogram.fromCenterAndDimensions(ImmutableVec(10f, -0.5f), 15f, -4f)
             )
 
         val scaleBy1ValueTransform = ImmutableAffineTransform.scale(2.5F)
@@ -397,23 +397,21 @@ class ImmutableAffineTransformTest {
         scaleBy1ValueTransform.applyTransform(testBox, scaleBy1ValueParallelogram)
         assertThat(scaleBy1ValueParallelogram)
             .isEqualTo(
-                MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(10f, 2.5f), 15f, 20f)
+                MutableParallelogram.fromCenterAndDimensions(ImmutableVec(10f, 2.5f), 15f, 20f)
             )
 
         val scaleXTransform = ImmutableAffineTransform.scaleX(2.5F)
         val scaleXParallelogram = MutableParallelogram()
         scaleXTransform.applyTransform(testBox, scaleXParallelogram)
         assertThat(scaleXParallelogram)
-            .isEqualTo(
-                MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(10f, 1f), 15f, 8f)
-            )
+            .isEqualTo(MutableParallelogram.fromCenterAndDimensions(ImmutableVec(10f, 1f), 15f, 8f))
 
         val scaleYTransform = ImmutableAffineTransform.scaleY(2.5F)
         val scaleYParallelogram = MutableParallelogram()
         scaleYTransform.applyTransform(testBox, scaleYParallelogram)
         assertThat(scaleYParallelogram)
             .isEqualTo(
-                MutableParallelogram.fromCenterAndDimensions(ImmutablePoint(4f, 2.5f), 6f, 20f)
+                MutableParallelogram.fromCenterAndDimensions(ImmutableVec(4f, 2.5f), 6f, 20f)
             )
 
         val shearXTransform = ImmutableAffineTransform(1f, 2.5F, 0f, 0f, 1f, 0f)
@@ -422,7 +420,7 @@ class ImmutableAffineTransformTest {
         assertThat(shearXParallelogram)
             .isEqualTo(
                 MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutablePoint(6.5f, 1f),
+                    ImmutableVec(6.5f, 1f),
                     6f,
                     8f,
                     0.0f,
@@ -439,7 +437,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     rotateParallelogram,
                     MutableParallelogram.fromCenterDimensionsAndRotation(
-                        ImmutablePoint(-4f, -1f),
+                        ImmutableVec(-4f, -1f),
                         6f,
                         8f,
                         Angle.HALF_TURN_RADIANS,
@@ -453,7 +451,7 @@ class ImmutableAffineTransformTest {
     fun applyTransform_whenAppliedToAParallelogram_correctlyModifiesParallelogram() {
         val testParallelogram =
             ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
-                ImmutablePoint(4f, 1f),
+                ImmutableVec(4f, 1f),
                 6f,
                 8f,
                 Angle.QUARTER_TURN_RADIANS,
@@ -466,7 +464,7 @@ class ImmutableAffineTransformTest {
         assertThat(identityParallelogram)
             .isEqualTo(
                 MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutablePoint(4f, 1f),
+                    ImmutableVec(4f, 1f),
                     6f,
                     8f,
                     Angle.QUARTER_TURN_RADIANS,
@@ -480,7 +478,7 @@ class ImmutableAffineTransformTest {
         assertThat(translateParallelogram)
             .isEqualTo(
                 MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutablePoint(5f, 4f),
+                    ImmutableVec(5f, 4f),
                     6f,
                     8f,
                     Angle.QUARTER_TURN_RADIANS,
@@ -495,7 +493,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     scaleBy2ValuesParallelogram,
                     MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutablePoint(10f, -0.5f),
+                        ImmutableVec(10f, -0.5f),
                         3f,
                         -20f,
                         Angle.QUARTER_TURN_RADIANS + Angle.HALF_TURN_RADIANS,
@@ -513,7 +511,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     scaleBy1ValueParallelogram,
                     MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutablePoint(10f, 2.5f),
+                        ImmutableVec(10f, 2.5f),
                         15f,
                         20f,
                         Angle.QUARTER_TURN_RADIANS,
@@ -531,7 +529,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     scaleXParallelogram,
                     MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutablePoint(10f, 1f),
+                        ImmutableVec(10f, 1f),
                         6f,
                         20f,
                         Angle.QUARTER_TURN_RADIANS,
@@ -549,7 +547,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     scaleYParallelogram,
                     MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutablePoint(4f, 2.5f),
+                        ImmutableVec(4f, 2.5f),
                         15f,
                         8f,
                         Angle.QUARTER_TURN_RADIANS,
@@ -569,7 +567,7 @@ class ImmutableAffineTransformTest {
                 Parallelogram.areNear(
                     rotateParallelogram,
                     MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                        ImmutablePoint(-4f, -1f),
+                        ImmutableVec(-4f, -1f),
                         6f,
                         8f,
                         Angle.HALF_TURN_RADIANS + Angle.QUARTER_TURN_RADIANS,
@@ -584,7 +582,7 @@ class ImmutableAffineTransformTest {
     fun applyTransform_whenAppliedToAMutableParallelogram_canModifyInputAsOutput() {
         val testMutableParallelogram =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                ImmutablePoint(4f, 1f),
+                ImmutableVec(4f, 1f),
                 6f,
                 8f,
                 Angle.QUARTER_TURN_RADIANS,
@@ -596,7 +594,7 @@ class ImmutableAffineTransformTest {
         assertThat(testMutableParallelogram)
             .isEqualTo(
                 MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutablePoint(5f, 4f),
+                    ImmutableVec(5f, 4f),
                     6f,
                     8f,
                     Angle.QUARTER_TURN_RADIANS,

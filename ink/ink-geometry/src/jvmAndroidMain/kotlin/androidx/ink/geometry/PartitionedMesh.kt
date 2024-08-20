@@ -16,6 +16,7 @@
 
 package androidx.ink.geometry
 
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
@@ -24,54 +25,57 @@ import androidx.ink.geometry.internal.threadLocal
 import androidx.ink.nativeloader.NativeLoader
 
 /**
- * A triangulated shape, consisting of zero or more non-empty [Mesh]es, which may be indexed for
- * faster geometric queries. These meshes are divided among zero or more "render groups"; all the
- * meshes in a render group must have the same [MeshFormat], and can thus be rendered together. A
- * [ModeledShape] also optionally carries one or more "outlines", which are (potentially incomplete)
- * traversals of the vertices in the meshes, which could be used e.g. for path-based rendering. Note
- * that these render groups and outlines are ignored for the purposes of geometric queries; they
- * exist only for rendering purposes.
+ * An immutable† complex shape expressed as a set of triangles. This is used to represent the shape
+ * of a stroke or other complex objects see [MeshCreation]. The mesh may be divided into multiple
+ * partitions, which enables certain brush effects (e.g. "multi-coat"), and allows ink to create
+ * strokes requiring greater than 216 triangles (which must be rendered in multiple passes).
  *
- * This is not meant to be constructed directly by developers. The primary constructor is to have a
- * new instance of this class manage a native `ink::ModeledShape` instance created by another
- * Strokes API utility.
+ * A PartitionedMesh may optionally have one or more "outlines", which are polylines that traverse
+ * some or all of the vertices in the mesh; these are used for path-based rendering of strokes. This
+ * supports disjoint meshes such as dashed lines.
+ *
+ * PartitionedMesh provides fast intersection and coverage testing by use of an internal spatial
+ * index.
+ *
+ * † PartitionedMesh is technically not immutable, as the spatial index is lazily instantiated;
+ * however, from the perspective of a caller, its properties do not change over the course of its
+ * lifetime. The entire object is thread-safe.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
-public class ModeledShape
-/** Only for use within the ink library. Constructs a [ModeledShape] from native pointer. */
+public class PartitionedMesh
+/** Only for use within the ink library. Constructs a [PartitionedMesh] from native pointer. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public constructor(
     /**
      * This is the raw pointer address of an `ink::ModeledShape` that has been heap allocated to be
-     * owned solely by this JVM [ModeledShape] object. Although the `ink::ModeledShape` is owned
-     * exclusively by this [ModeledShape] object, it may be a copy of another `ink::ModeledShape`,
-     * where it has a copy of fairly lightweight metadata but shares ownership of the more
-     * heavyweight `ink::Mesh` objects. This class is responsible for freeing the
+     * owned solely by this JVM [PartitionedMesh] object. Although the `ink::ModeledShape` is owned
+     * exclusively by this [PartitionedMesh] object, it may be a copy of another
+     * `ink::ModeledShape`, where it has a copy of fairly lightweight metadata but shares ownership
+     * of the more heavyweight `ink::Mesh` objects. This class is responsible for freeing the
      * `ink::ModeledShape` through its [finalize] method.
      */
     private var nativeAddress: Long
 ) {
 
     /**
-     * Only for use within the ink library. Returns the native pointer held by this [ModeledShape].
+     * Only for use within the ink library. Returns the native pointer held by this
+     * [PartitionedMesh].
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public fun getNativeAddress(): Long = nativeAddress
 
     private val scratchIntArray by threadLocal { IntArray(2) }
 
     /**
-     * Only for tests - creates a new empty [ModeledShape]. Since a [ModeledShape] is immutable,
-     * this serves no practical purpose outside of tests.
+     * Only for tests - creates a new empty [PartitionedMesh]. Since a [PartitionedMesh] is
+     * immutable, this serves no practical purpose outside of tests.
      */
     @VisibleForTesting internal constructor() : this(ModeledShapeNative.alloc())
 
     /**
-     * Returns the number of render groups in this shape. Each mesh in the [ModeledShape] belongs to
-     * exactly one render group, and all meshes in the same render group will have the same
-     * [MeshFormat] (and can thus be rendered together). The render groups are numbered in z-order
-     * (the group with index zero should be rendered on bottom; the group with the highest index
-     * should be rendered on top).
+     * The number of render groups in this mesh. Each outline in the [PartitionedMesh] belongs to
+     * exactly one render group, which are numbered in z-order: the group with index zero should be
+     * rendered on bottom; the group with the highest index should be rendered on top.
      */
     @IntRange(from = 0)
     public val renderGroupCount: Int =
@@ -86,7 +90,10 @@ public constructor(
         }
     }
 
-    /** The axis-aligned, rectangular region occupied by the [meshes] of this shape. */
+    /**
+     * The minimum bounding box of the [PartitionedMesh]. This will be null if the [PartitionedMesh]
+     * is empty.
+     */
     public val bounds: Box? = run {
         val envelope = BoxAccumulator()
         for (meshes in meshesByGroup) {
@@ -128,8 +135,8 @@ public constructor(
     }
 
     /**
-     * The number of vertices in the outline at index [outlineIndex], which can be up to (but not
-     * including) [outlineCount].
+     * The number of vertices that are in the outline at index [outlineIndex], and within the render
+     * group at [groupIndex].
      */
     @IntRange(from = 0)
     public fun outlineVertexCount(
@@ -150,11 +157,11 @@ public constructor(
      * [outlineVertexCount] with [outlineIndex]). The resulting x/y position of that outline vertex
      * will be put into [outPosition], which can be pre-allocated and reused to avoid allocations.
      */
-    public fun fillOutlinePosition(
+    public fun populateOutlinePosition(
         @IntRange(from = 0) groupIndex: Int,
         @IntRange(from = 0) outlineIndex: Int,
         @IntRange(from = 0) outlineVertexIndex: Int,
-        outPosition: MutablePoint,
+        outPosition: MutableVec,
     ) {
         val outlineVertexCount = outlineVertexCount(groupIndex, outlineIndex)
         require(outlineVertexIndex >= 0 && outlineVertexIndex < outlineVertexCount) {
@@ -173,27 +180,24 @@ public constructor(
         mesh.fillPosition(meshVertexIndex, outPosition)
     }
 
-    override fun toString(): String {
-        val address = java.lang.Long.toHexString(nativeAddress)
-        return "ModeledShape(bounds=$bounds, meshesByGroup=$meshesByGroup, nativeAddress=$address)"
-    }
-
     /**
-     * Computes an approximate measure of what portion of this [ModeledShape] is covered by or
+     * Computes an approximate measure of what portion of this [PartitionedMesh] is covered by or
      * overlaps with [triangle]. This is calculated by finding the sum of areas of the triangles
      * that intersect the given [triangle], and dividing that by the sum of the areas of all
-     * triangles in the [ModeledShape], all in the [ModeledShape]'s coordinate space. Triangles in
-     * the [ModeledShape] that overlap each other (e.g. in the case of a stroke that loops back over
-     * itself) are counted individually. Note that, if any triangles have negative area (due to
-     * winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute value of their
-     * area will be used instead.
+     * triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
+     * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
+     * loops back over itself) are counted individually. Note that, if any triangles have negative
+     * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
+     * value of their area will be used instead.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [triangleToThis] contains the transform that maps from [triangle]'s
-     * coordinate space to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
+     * [IDENTITY].
      */
     @JvmOverloads
+    @FloatRange(from = 0.0, to = 1.0)
     public fun coverage(
         triangle: Triangle,
         triangleToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -215,21 +219,22 @@ public constructor(
         )
 
     /**
-     * Computes an approximate measure of what portion of this [ModeledShape] is covered by or
+     * Computes an approximate measure of what portion of this [PartitionedMesh] is covered by or
      * overlaps with [box]. This is calculated by finding the sum of areas of the triangles that
      * intersect the given [box], and dividing that by the sum of the areas of all triangles in the
-     * [ModeledShape], all in the [ModeledShape]'s coordinate space. Triangles in the [ModeledShape]
-     * that overlap each other (e.g. in the case of a stroke that loops back over itself) are
-     * counted individually. Note that, if any triangles have negative area (due to winding, see
-     * [com.google.inputmethod.ink.Triangle.signedArea]), the absolute value of their area will be
-     * used instead.
+     * [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space. Triangles in the
+     * [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that loops back over
+     * itself) are counted individually. Note that, if any triangles have negative area (due to
+     * winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute value of their
+     * area will be used instead.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [boxToThis] contains the transform that maps from [box]'s coordinate space
-     * to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * to this [PartitionedMesh]'s coordinate space, which defaults to the [IDENTITY].
      */
     @JvmOverloads
+    @FloatRange(from = 0.0, to = 1.0)
     public fun coverage(box: Box, boxToThis: AffineTransform = AffineTransform.IDENTITY): Float =
         ModeledShapeNative.modeledShapeBoxCoverage(
             nativeAddress = nativeAddress,
@@ -246,22 +251,23 @@ public constructor(
         )
 
     /**
-     * Computes an approximate measure of what portion of this [ModeledShape] is covered by or
+     * Computes an approximate measure of what portion of this [PartitionedMesh] is covered by or
      * overlaps with [parallelogram]. This is calculated by finding the sum of areas of the
      * triangles that intersect the given [parallelogram], and dividing that by the sum of the areas
-     * of all triangles in the [ModeledShape], all in the [ModeledShape]'s coordinate space.
-     * Triangles in the [ModeledShape] that overlap each other (e.g. in the case of a stroke that
+     * of all triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
+     * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
      * loops back over itself) are counted individually. Note that, if any triangles have negative
      * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
      * value of their area will be used instead.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [parallelogramToThis] contains the transform that maps from
-     * [parallelogram]'s coordinate space to this [ModeledShape]'s coordinate space, which defaults
-     * to the [IDENTITY].
+     * [parallelogram]'s coordinate space to this [PartitionedMesh]'s coordinate space, which
+     * defaults to the [IDENTITY].
      */
     @JvmOverloads
+    @FloatRange(from = 0.0, to = 1.0)
     public fun coverage(
         parallelogram: Parallelogram,
         parallelogramToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -283,23 +289,25 @@ public constructor(
         )
 
     /**
-     * Computes an approximate measure of what portion of this [ModeledShape] is covered by or
-     * overlaps with the [other] [ModeledShape]. This is calculated by finding the sum of areas of
-     * the triangles that intersect [other], and dividing that by the sum of the areas of all
-     * triangles in the [ModeledShape], all in the [ModeledShape]'s coordinate space. Triangles in
-     * the [ModeledShape] that overlap each other (e.g. in the case of a stroke that loops back over
-     * itself) are counted individually. Note that, if any triangles have negative area (due to
-     * winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute value of their
-     * area will be used instead.
+     * Computes an approximate measure of what portion of this [PartitionedMesh] is covered by or
+     * overlaps with the [other] [PartitionedMesh]. This is calculated by finding the sum of areas
+     * of the triangles that intersect [other], and dividing that by the sum of the areas of all
+     * triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
+     * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
+     * loops back over itself) are counted individually. Note that, if any triangles have negative
+     * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
+     * value of their area will be used instead.t
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [otherShapeToThis] contains the transform that maps from [other]'s
-     * coordinate space to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
+     * [IDENTITY].
      */
     @JvmOverloads
+    @FloatRange(from = 0.0, to = 1.0)
     public fun coverage(
-        other: ModeledShape,
+        other: PartitionedMesh,
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
         ModeledShapeNative.modeledShapeModeledShapeCoverage(
@@ -314,7 +322,7 @@ public constructor(
         )
 
     /**
-     * Returns true if the approximate portion of the [ModeledShape] covered by [triangle] is
+     * Returns true if the approximate portion of the [PartitionedMesh] covered by [triangle] is
      * greater than [coverageThreshold].
      *
      * This is equivalent to:
@@ -324,10 +332,11 @@ public constructor(
      *
      * but may be faster.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [triangleToThis] contains the transform that maps from [triangle]'s
-     * coordinate space to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
+     * [IDENTITY].
      */
     @JvmOverloads
     public fun coverageIsGreaterThan(
@@ -353,7 +362,7 @@ public constructor(
         )
 
     /**
-     * Returns true if the approximate portion of the [ModeledShape] covered by [box] is greater
+     * Returns true if the approximate portion of the [PartitionedMesh] covered by [box] is greater
      * than [coverageThreshold].
      *
      * This is equivalent to:
@@ -363,10 +372,10 @@ public constructor(
      *
      * but may be faster.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [boxToThis] contains the transform that maps from [box]'s coordinate space
-     * to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * to this [PartitionedMesh]'s coordinate space, which defaults to the [IDENTITY].
      */
     @JvmOverloads
     public fun coverageIsGreaterThan(
@@ -390,8 +399,8 @@ public constructor(
         )
 
     /**
-     * Returns true if the approximate portion of the [ModeledShape] covered by [parallelogram] is
-     * greater than [coverageThreshold].
+     * Returns true if the approximate portion of the [PartitionedMesh] covered by [parallelogram]
+     * is greater than [coverageThreshold].
      *
      * This is equivalent to:
      * ```
@@ -400,11 +409,11 @@ public constructor(
      *
      * but may be faster.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [parallelogramToThis] contains the transform that maps from
-     * [parallelogram]'s coordinate space to this [ModeledShape]'s coordinate space, which defaults
-     * to the [IDENTITY].
+     * [parallelogram]'s coordinate space to this [PartitionedMesh]'s coordinate space, which
+     * defaults to the [IDENTITY].
      */
     @JvmOverloads
     public fun coverageIsGreaterThan(
@@ -430,8 +439,8 @@ public constructor(
         )
 
     /**
-     * Returns true if the approximate portion of this [ModeledShape] covered by the [other]
-     * [ModeledShape] is greater than [coverageThreshold].
+     * Returns true if the approximate portion of this [PartitionedMesh] covered by the [other]
+     * [PartitionedMesh] is greater than [coverageThreshold].
      *
      * This is equivalent to:
      * ```
@@ -440,14 +449,15 @@ public constructor(
      *
      * but may be faster.
      *
-     * On an empty [ModeledShape], this will always return 0.
+     * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [otherShapeToThis] contains the transform that maps from [other]'s
-     * coordinate space to this [ModeledShape]'s coordinate space, which defaults to the [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
+     * [IDENTITY].
      */
     @JvmOverloads
     public fun coverageIsGreaterThan(
-        other: ModeledShape,
+        other: PartitionedMesh,
         coverageThreshold: Float,
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Boolean =
@@ -472,8 +482,14 @@ public constructor(
         ModeledShapeNative.initializeSpatialIndex(nativeAddress)
 
     /** Returns true if this MutableEnvelope's spatial index has been initialized. */
-    public fun isSpatialIndexInitialized(): Boolean =
+    @VisibleForTesting
+    internal fun isSpatialIndexInitialized(): Boolean =
         ModeledShapeNative.isSpatialIndexInitialized(nativeAddress)
+
+    override fun toString(): String {
+        val address = java.lang.Long.toHexString(nativeAddress)
+        return "PartitionedMesh(bounds=$bounds, meshesByGroup=$meshesByGroup, nativeAddress=$address)"
+    }
 
     protected fun finalize() {
         // NOMUTANTS--Not tested post garbage collection.
@@ -488,8 +504,8 @@ public constructor(
 
 /**
  * Helper object to contain native JNI calls. The alternative to this is putting the methods in
- * [ModeledShape] itself (passes down an unused `jobject`, and doesn't work for native calls used by
- * constructors), or in [ModeledShape.Companion] (makes the `JNI_METHOD` naming less clear).
+ * [PartitionedMesh] itself (passes down an unused `jobject`, and doesn't work for native calls used
+ * by constructors), or in [PartitionedMesh.Companion] (makes the `JNI_METHOD` naming less clear).
  */
 private object ModeledShapeNative {
 

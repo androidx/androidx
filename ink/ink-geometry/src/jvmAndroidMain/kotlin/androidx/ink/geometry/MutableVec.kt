@@ -23,18 +23,23 @@ import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
- * A mutable 2-dimensional vector, representing an offset in space. See [ImmutableVec] for an
- * immutable alternative, and see [Point] (and its concrete implementations [ImmutablePoint] and
- * [MutablePoint]) for a location in space.
+ * A mutable two-dimensional vector, i.e. an (x, y) coordinate pair. It can be used to represent
+ * either:
+ * 1) A two-dimensional offset, i.e. the difference between two points
+ * 2) A point in space, i.e. treating the vector as an offset from the origin
+ *
+ * This object is mutable and is not inherently thread-safe, so callers should apply their own
+ * synchronization logic or use this object from a single thread. See [ImmutableVec] for an
+ * immutable alternative.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableVec(
     override var x:
-        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni.cc") must go in Proguard config
-    // file instead.
+        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard
+    // config file instead.
     override var y:
-        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni.cc") must go in Proguard config
-    // file instead.
+        Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard
+    // config file instead.
 ) : Vec {
 
     /**

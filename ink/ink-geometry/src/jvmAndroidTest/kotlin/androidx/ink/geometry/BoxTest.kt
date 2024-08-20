@@ -26,12 +26,12 @@ class BoxTest {
 
     @Test
     fun isAlmostEqual_withToleranceGiven_returnsCorrectValue() {
-        val box = ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 2f), ImmutablePoint(3f, 4f))
+        val box = ImmutableBox.fromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
 
         assertThat(box.isAlmostEqual(box, tolerance = 0.00000001f)).isTrue()
         assertThat(
                 box.isAlmostEqual(
-                    ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 2f), ImmutablePoint(3f, 4f)),
+                    ImmutableBox.fromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f)),
                     tolerance = 0.00000001f,
                 )
             )
@@ -39,8 +39,8 @@ class BoxTest {
         assertThat(
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
-                        ImmutablePoint(1.00001f, 1.99999f),
-                        ImmutablePoint(3f, 4f)
+                        ImmutableVec(1.00001f, 1.99999f),
+                        ImmutableVec(3f, 4f)
                     ),
                     tolerance = 0.000001f,
                 )
@@ -49,8 +49,8 @@ class BoxTest {
         assertThat(
                 box.isAlmostEqual(
                     ImmutableBox.fromTwoPoints(
-                        ImmutablePoint(1f, 2f),
-                        ImmutablePoint(3.00001f, 3.99999f)
+                        ImmutableVec(1f, 2f),
+                        ImmutableVec(3.00001f, 3.99999f)
                     ),
                     tolerance = 0.000001f,
                 )
@@ -58,14 +58,14 @@ class BoxTest {
             .isFalse()
         assertThat(
                 box.isAlmostEqual(
-                    ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 1.99f), ImmutablePoint(3f, 4f)),
+                    ImmutableBox.fromTwoPoints(ImmutableVec(1f, 1.99f), ImmutableVec(3f, 4f)),
                     tolerance = 0.02f,
                 )
             )
             .isTrue()
         assertThat(
                 box.isAlmostEqual(
-                    ImmutableBox.fromTwoPoints(ImmutablePoint(1f, 2f), ImmutablePoint(3.01f, 4f)),
+                    ImmutableBox.fromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3.01f, 4f)),
                     tolerance = 0.02f,
                 )
             )
@@ -74,11 +74,11 @@ class BoxTest {
 
     @Test
     fun isAlmostEqual_whenSameInterface_returnsTrue() {
-        val box = MutableBox().fillFromTwoPoints(ImmutablePoint(1f, 2f), ImmutablePoint(3f, 4f))
+        val box = MutableBox().populateFromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
         val other =
             ImmutableBox.fromTwoPoints(
-                ImmutablePoint(0.99999f, 2.00001f),
-                ImmutablePoint(3.00001f, 3.99999f),
+                ImmutableVec(0.99999f, 2.00001f),
+                ImmutableVec(3.00001f, 3.99999f)
             )
         assertThat(box.isAlmostEqual(other, tolerance = 0.0001f)).isTrue()
     }

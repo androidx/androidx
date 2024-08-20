@@ -47,10 +47,6 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
     override var yMax: Float = max(y1, y2)
         private set
 
-    /** Populates [out] with the center of the [MutableBox]. */
-    override fun center(out: MutablePoint): Unit =
-        BoxHelper.nativeCenter(xMin, yMin, xMax, yMax, out)
-
     /**
      * Sets the lower and upper bounds in the `X` direction to new values. The minimum value becomes
      * `xMin`, and the maximum value becomes `xMax`. Returns the same instance to chain function
@@ -80,7 +76,7 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
     public constructor() : this(0f, 0f, 0f, 0f)
 
     /** Constructs the smallest [MutableBox] containing the two given points. */
-    public fun fillFromTwoPoints(point1: Point, point2: Point): MutableBox {
+    public fun populateFromTwoPoints(point1: Vec, point2: Vec): MutableBox {
         setXBounds(point1.x, point2.x)
         setYBounds(point1.y, point2.y)
         return this
@@ -90,8 +86,8 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
      * Constructs a [MutableBox] with a given [center], [width], and [height]. [width] and [height]
      * must be non-negative numbers.
      */
-    public fun fillFromCenterAndDimensions(
-        center: Point,
+    public fun populateFromCenterAndDimensions(
+        center: Vec,
         @FloatRange(from = 0.0) width: Float,
         @FloatRange(from = 0.0) height: Float,
     ): MutableBox {
@@ -108,16 +104,6 @@ public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2:
         xMax = input.xMax
         yMax = input.yMax
         return this
-    }
-
-    /** Convert this object to a new immutable [Box]. */
-    public fun buildBox(): ImmutableBox {
-        return ImmutableBox.fromTwoPoints(ImmutablePoint(xMin, yMin), ImmutablePoint(xMax, yMax))
-    }
-
-    /** Return a copy of this object that can be modified independently. */
-    public fun copy(): MutableBox {
-        return MutableBox(xMin, yMin, xMax, yMax)
     }
 
     override fun equals(other: Any?): Boolean =

@@ -117,7 +117,7 @@ public object Intersection {
      * intersection of the point in [mesh]’s object coordinates.
      */
     @JvmStatic
-    public fun Vec.intersects(mesh: ModeledShape, meshToPoint: AffineTransform): Boolean {
+    public fun Vec.intersects(mesh: PartitionedMesh, meshToPoint: AffineTransform): Boolean {
         return nativeMeshVecIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
             vecX = this.x,
@@ -218,7 +218,7 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun Segment.intersects(mesh: ModeledShape, meshToSegment: AffineTransform): Boolean {
+    public fun Segment.intersects(mesh: PartitionedMesh, meshToSegment: AffineTransform): Boolean {
         return nativeMeshSegmentIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
             segmentStartX = this.start.x,
@@ -310,7 +310,10 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun Triangle.intersects(mesh: ModeledShape, meshToTriangle: AffineTransform): Boolean {
+    public fun Triangle.intersects(
+        mesh: PartitionedMesh,
+        meshToTriangle: AffineTransform
+    ): Boolean {
         return nativeMeshTriangleIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
             triangleP0X = this.p0.x,
@@ -377,7 +380,7 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun Box.intersects(mesh: ModeledShape, meshToBox: AffineTransform): Boolean {
+    public fun Box.intersects(mesh: PartitionedMesh, meshToBox: AffineTransform): Boolean {
         return nativeMeshBoxIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
             boxXMin = this.xMin,
@@ -431,7 +434,7 @@ public object Intersection {
      */
     @JvmStatic
     public fun Parallelogram.intersects(
-        mesh: ModeledShape,
+        mesh: PartitionedMesh,
         meshToParallelogram: AffineTransform,
     ): Boolean {
         return nativeMeshParallelogramIntersects(
@@ -460,8 +463,8 @@ public object Intersection {
      * coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(
-        other: ModeledShape,
+    public fun PartitionedMesh.intersects(
+        other: PartitionedMesh,
         thisToCommonTransForm: AffineTransform,
         otherToCommonTransform: AffineTransform,
     ): Boolean {
@@ -558,7 +561,7 @@ public object Intersection {
      * intersection of the point in [mesh]’s object coordinates.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(point: Vec, meshToPoint: AffineTransform): Boolean =
+    public fun PartitionedMesh.intersects(point: Vec, meshToPoint: AffineTransform): Boolean =
         point.intersects(this, meshToPoint)
 
     /**
@@ -569,8 +572,10 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(segment: Segment, meshToSegment: AffineTransform): Boolean =
-        segment.intersects(this, meshToSegment)
+    public fun PartitionedMesh.intersects(
+        segment: Segment,
+        meshToSegment: AffineTransform
+    ): Boolean = segment.intersects(this, meshToSegment)
 
     /**
      * Returns true when a [PartitionedMesh] intersects with a [Triangle].
@@ -580,9 +585,9 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(
+    public fun PartitionedMesh.intersects(
         triangle: Triangle,
-        meshToTriangle: AffineTransform
+        meshToTriangle: AffineTransform,
     ): Boolean = triangle.intersects(this, meshToTriangle)
 
     /**
@@ -593,7 +598,7 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(box: Box, meshToBox: AffineTransform): Boolean =
+    public fun PartitionedMesh.intersects(box: Box, meshToBox: AffineTransform): Boolean =
         box.intersects(this, meshToBox)
 
     /**
@@ -605,7 +610,7 @@ public object Intersection {
      * checked in.
      */
     @JvmStatic
-    public fun ModeledShape.intersects(
+    public fun PartitionedMesh.intersects(
         parallelogram: Parallelogram,
         meshToParallelogram: AffineTransform,
     ): Boolean = parallelogram.intersects(this, meshToParallelogram)

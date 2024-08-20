@@ -54,7 +54,7 @@ public interface Triangle {
         get() = run {
             // TODO(b/354236964): Optimize unnecessary allocations
             val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
-            ImmutableBox.fromTwoPoints(ImmutablePoint(minX, minY), ImmutablePoint(maxX, maxY))
+            ImmutableBox.fromTwoPoints(ImmutableVec(minX, minY), ImmutableVec(maxX, maxY))
         }
 
     /** Populates [output] with the minimum bounding box containing the [Triangle]. */

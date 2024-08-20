@@ -26,7 +26,7 @@ import androidx.annotation.RestrictTo
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableParallelogram
 private constructor(
-    override val center: ImmutablePoint,
+    override val center: ImmutableVec,
     override val width: Float,
     override val height: Float,
     @AngleRadiansFloat override val rotation: Float,
@@ -50,7 +50,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterAndDimensions(
-            center: ImmutablePoint,
+            center: ImmutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
         ): ImmutableParallelogram =
@@ -69,7 +69,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsAndRotation(
-            center: ImmutablePoint,
+            center: ImmutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,
@@ -85,7 +85,7 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsRotationAndShear(
-            center: ImmutablePoint,
+            center: ImmutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,

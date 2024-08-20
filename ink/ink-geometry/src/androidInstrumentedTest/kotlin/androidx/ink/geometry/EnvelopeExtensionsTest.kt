@@ -40,7 +40,7 @@ class EnvelopeExtensionsTest {
     fun getBoundsRectF_whenHasBounds_returnsTrueAndOverwritesOutParameter() {
         val envelope =
             BoxAccumulator()
-                .add(MutableBox().fillFromTwoPoints(ImmutablePoint(1f, 2f), ImmutablePoint(3f, 4f)))
+                .add(MutableBox().populateFromTwoPoints(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f)))
 
         val outRect = RectF(5F, 6F, 7F, 8F)
         assertThat(envelope.getBounds(outRect)).isTrue()

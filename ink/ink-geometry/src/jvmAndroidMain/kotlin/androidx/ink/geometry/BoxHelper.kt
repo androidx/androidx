@@ -31,7 +31,7 @@ internal object BoxHelper {
         rectYMin: Float,
         rectXMax: Float,
         rectYMax: Float,
-        out: MutablePoint,
+        out: MutableVec,
     )
 
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.

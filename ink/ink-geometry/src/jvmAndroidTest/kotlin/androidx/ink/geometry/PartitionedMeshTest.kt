@@ -23,61 +23,61 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ModeledShapeTest {
+class PartitionedMeshTest {
 
     @Test
     fun bounds_shouldBeEmpty() {
-        val modeledShape = ModeledShape()
+        val partitionedMesh = PartitionedMesh()
 
-        assertThat(modeledShape.bounds).isNull()
+        assertThat(partitionedMesh.bounds).isNull()
     }
 
     @Test
     fun renderGroupCount_whenEmptyShape_shouldBeZero() {
-        val modeledShape = ModeledShape()
+        val partitionedMesh = PartitionedMesh()
 
-        assertThat(modeledShape.renderGroupCount).isEqualTo(0)
+        assertThat(partitionedMesh.renderGroupCount).isEqualTo(0)
     }
 
     @Test
     fun outlineCount_whenEmptyShape_shouldThrow() {
-        val modeledShape = ModeledShape()
+        val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineCount(-1) }
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineCount(0) }
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineCount(1) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(-1) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(1) }
     }
 
     @Test
     fun outlineVertexCount_whenEmptyShape_shouldThrow() {
-        val modeledShape = ModeledShape()
+        val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineVertexCount(-1, 0) }
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineVertexCount(0, 0) }
-        assertFailsWith<IllegalArgumentException> { modeledShape.outlineVertexCount(1, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(-1, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(0, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(1, 0) }
     }
 
     @Test
-    fun fillOutlinePosition_whenEmptyShape_shouldThrow() {
-        val modeledShape = ModeledShape()
+    fun populateOutlinePosition_whenEmptyShape_shouldThrow() {
+        val partitionedMesh = PartitionedMesh()
 
         assertFailsWith<IllegalArgumentException> {
-            modeledShape.fillOutlinePosition(-1, 0, 0, MutablePoint())
+            partitionedMesh.populateOutlinePosition(-1, 0, 0, MutableVec())
         }
         assertFailsWith<IllegalArgumentException> {
-            modeledShape.fillOutlinePosition(0, 0, 0, MutablePoint())
+            partitionedMesh.populateOutlinePosition(0, 0, 0, MutableVec())
         }
         assertFailsWith<IllegalArgumentException> {
-            modeledShape.fillOutlinePosition(1, 0, 0, MutablePoint())
+            partitionedMesh.populateOutlinePosition(1, 0, 0, MutableVec())
         }
     }
 
     @Test
     fun toString_returnsAString() {
-        val string = ModeledShape().toString()
+        val string = PartitionedMesh().toString()
 
         // Not elaborate checks - this test mainly exists to ensure that toString doesn't crash.
-        assertThat(string).contains("ModeledShape")
+        assertThat(string).contains("PartitionedMesh")
         assertThat(string).contains("bounds")
         assertThat(string).contains("meshes")
         assertThat(string).contains("nativeAddress")

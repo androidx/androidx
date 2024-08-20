@@ -135,7 +135,7 @@ public constructor(
      * [vertexCount]). The resulting x/y position of that vertex will be put into [outPosition],
      * which can be pre-allocated and reused to avoid allocations where appropriate.
      */
-    public fun fillPosition(@IntRange(from = 0) vertexIndex: Int, outPosition: MutablePoint) {
+    public fun fillPosition(@IntRange(from = 0) vertexIndex: Int, outPosition: MutableVec) {
         require(vertexIndex >= 0 && vertexIndex < vertexCount) {
             "vertexIndex=$vertexIndex must be between 0 and vertexCount=$vertexCount."
         }
@@ -239,7 +239,7 @@ private object MeshNative {
     external fun fillPosition(
         nativeAddress: Long,
         vertexIndex: Int,
-        outPosition: MutablePoint
+        outPosition: MutableVec
     ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
 
     @VisibleForTesting

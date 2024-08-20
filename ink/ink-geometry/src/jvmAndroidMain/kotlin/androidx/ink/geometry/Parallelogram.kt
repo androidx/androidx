@@ -83,7 +83,7 @@ import kotlin.math.abs
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public interface Parallelogram {
 
-    public val center: Point
+    public val center: Vec
 
     /**
      * A [Parallelogram] may *not* have a negative width. If an operation on a parallelogram would
@@ -140,7 +140,7 @@ public interface Parallelogram {
          * [Parallelogram].
          */
         internal fun areEquivalent(first: Parallelogram, second: Parallelogram): Boolean =
-            Point.areEquivalent(first.center, second.center) &&
+            Vec.areEquivalent(first.center, second.center) &&
                 first.width == second.width &&
                 first.height == second.height &&
                 first.rotation == second.rotation &&
