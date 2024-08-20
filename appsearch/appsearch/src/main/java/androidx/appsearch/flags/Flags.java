@@ -80,7 +80,7 @@ public final class Flags {
      * methods.
      */
     public static final String FLAG_ENABLE_SEARCH_SPEC_SEARCH_STRING_PARAMETERS =
-            FLAG_PREFIX + "enable_search_spec_search_spec_strings";
+            FLAG_PREFIX + "enable_search_spec_search_string_parameters";
 
     /** Enable addTakenActions API in PutDocumentsRequest. */
     public static final String FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS =
@@ -141,6 +141,10 @@ public final class Flags {
     /**  Enable {@link androidx.appsearch.app.AppSearchBlobHandle}.  */
     public static final String FLAG_ENABLE_BLOB_STORE =
             FLAG_PREFIX + "enable_blob_store";
+
+    /**  Enable {@link androidx.appsearch.app.GenericDocument#writeToParcel}.  */
+    public static final String FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC =
+            FLAG_PREFIX + "enable_generic_document_over_ipc";
 
     /** Enable empty batch result fix for enterprise GetDocuments. */
     public static final String FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX =

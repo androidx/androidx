@@ -24,6 +24,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.AppSearchSession;
 import androidx.appsearch.app.EmbeddingVector;
@@ -193,7 +194,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
     }
 
     /** Returns the creation timestamp of the {@link GenericDocument}, in milliseconds. */
-    /*@exportToFramework:CurrentTimeMillisLong*/
+    @CurrentTimeMillisLong
     public long getCreationTimestampMillis() {
         return mCreationTimestampMillis;
     }
@@ -393,7 +394,7 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
         @CanIgnoreReturnValue
         @NonNull
         public Builder setCreationTimestampMillis(
-                /*@exportToFramework:CurrentTimeMillisLong*/ long creationTimestampMillis) {
+                @CurrentTimeMillisLong long creationTimestampMillis) {
             mCreationTimestampMillis = creationTimestampMillis;
             return this;
         }

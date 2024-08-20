@@ -71,7 +71,7 @@ public class AppSearchBlobHandle extends AbstractSafeParcelable {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Constructor
-    private AppSearchBlobHandle(
+    AppSearchBlobHandle(
             @Param(id = 1) @NonNull byte[] sha256Digest,
             @Param(id = 2) @NonNull String label) {
         mSha256Digest = Preconditions.checkNotNull(sha256Digest);

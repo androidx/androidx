@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+// @exportToFramework:skipFile()
 package androidx.appsearch.cts.app;
 
 import android.content.Context;

@@ -32,9 +32,6 @@
 # Replaced with @hide:
 #   <!--@exportToFramework:hide-->
 #
-# Replaced with @CurrentTimeMillisLong:
-#   /*@exportToFramework:CurrentTimeMillisLong*/
-#
 # Removes the text appearing between ifJetpack() and else(), and causes the text appearing between
 # else() and --> to become uncommented, to support framework-only Javadocs:
 #   <!--@exportToFramework:ifJetpack()-->
@@ -143,10 +140,6 @@ class ExportToFramework:
 
         # Add additional imports if required
         imports_to_add = []
-        if '@exportToFramework:CurrentTimeMillisLong' in contents:
-            imports_to_add.append('android.annotation.CurrentTimeMillisLong')
-        if '@exportToFramework:UnsupportedAppUsage' in contents:
-            imports_to_add.append('android.compat.annotation.UnsupportedAppUsage')
         for import_to_add in imports_to_add:
             contents = re.sub(
                     r'^(\s*package [^;]+;\s*)$', r'\1\nimport %s;\n' % import_to_add, contents,
@@ -167,6 +160,12 @@ class ExportToFramework:
                     'com.android.server.appsearch.external.localstorage.')
             .replace('androidx.appsearch.flags.FlaggedApi', 'android.annotation.FlaggedApi')
             .replace('androidx.appsearch.flags.Flags', 'com.android.appsearch.flags.Flags')
+            .replace(
+                    'androidx.appsearch.annotation.CurrentTimeMillis',
+                    'android.annotation.CurrentTimeMillis')
+            .replace(
+                    'androidx.appsearch.annotation.SystemApi',
+                    'android.annotation.SystemApi')
             .replace('androidx.appsearch', 'android.app.appsearch')
             .replace(
                     'androidx.annotation.GuardedBy',
@@ -190,9 +189,6 @@ class ExportToFramework:
             .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
             .replace('Preconditions.checkNotNull(', 'Objects.requireNonNull(')
             .replace('ObjectsCompat.', 'Objects.')
-
-            .replace('/*@exportToFramework:CurrentTimeMillisLong*/', '@CurrentTimeMillisLong')
-            .replace('/*@exportToFramework:UnsupportedAppUsage*/', '@UnsupportedAppUsage')
             .replace('<!--@exportToFramework:hide-->', '@hide')
             .replace('@exportToFramework:hide', '@hide')
             .replace('// @exportToFramework:skipFile()', '')

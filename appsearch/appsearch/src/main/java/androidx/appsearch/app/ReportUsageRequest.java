@@ -22,6 +22,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.appsearch.flags.FlaggedApi;
 import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.AbstractSafeParcelable;
@@ -84,7 +85,7 @@ public final class ReportUsageRequest extends AbstractSafeParcelable {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
-    /*@exportToFramework:CurrentTimeMillisLong*/
+    @CurrentTimeMillisLong
     public long getUsageTimestampMillis() {
         return mUsageTimestampMillis;
     }
@@ -127,7 +128,7 @@ public final class ReportUsageRequest extends AbstractSafeParcelable {
         @CanIgnoreReturnValue
         @NonNull
         public ReportUsageRequest.Builder setUsageTimestampMillis(
-                /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {
+                @CurrentTimeMillisLong long usageTimestampMillis) {
             mUsageTimestampMillis = usageTimestampMillis;
             return this;
         }

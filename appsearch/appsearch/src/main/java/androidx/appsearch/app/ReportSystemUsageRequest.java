@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.CurrentTimeMillisLong;
 import androidx.core.util.Preconditions;
 
 /**
@@ -79,7 +80,7 @@ public final class ReportSystemUsageRequest {
      *
      * <p>The value is in the {@link System#currentTimeMillis} time base.
      */
-    /*@exportToFramework:CurrentTimeMillisLong*/
+    @CurrentTimeMillisLong
     public long getUsageTimestampMillis() {
         return mUsageTimestampMillis;
     }
@@ -127,7 +128,7 @@ public final class ReportSystemUsageRequest {
         @CanIgnoreReturnValue
         @NonNull
         public ReportSystemUsageRequest.Builder setUsageTimestampMillis(
-                /*@exportToFramework:CurrentTimeMillisLong*/ long usageTimestampMillis) {
+                @CurrentTimeMillisLong long usageTimestampMillis) {
             mUsageTimestampMillis = usageTimestampMillis;
             return this;
         }
