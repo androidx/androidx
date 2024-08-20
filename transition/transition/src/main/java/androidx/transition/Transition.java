@@ -1883,6 +1883,7 @@ public abstract class Transition implements Cloneable {
         ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
         int numOldAnims = runningAnimators.size();
         WindowId windowId = sceneRoot.getWindowId();
+        ArrayList<Transition> endedTransitions = new ArrayList<>();
         for (int i = numOldAnims - 1; i >= 0; i--) {
             Animator anim = runningAnimators.keyAt(i);
             if (anim != null) {
@@ -1905,14 +1906,9 @@ public abstract class Transition implements Cloneable {
                             // a listener
                             anim.cancel();
                             transition.mCurrentAnimators.remove(anim);
-                            runningAnimators.remove(anim);
+                            runningAnimators.removeAt(i);
                             if (transition.mCurrentAnimators.size() == 0) {
-                                transition.notifyListeners(TransitionNotification.ON_CANCEL, false);
-                                if (!transition.mEnded) {
-                                    transition.mEnded = true;
-                                    transition.notifyListeners(TransitionNotification.ON_END,
-                                            false);
-                                }
+                                endedTransitions.add(transition);
                             }
                         } else if (anim.isRunning() || anim.isStarted()) {
                             if (DBG) {
@@ -1923,10 +1919,21 @@ public abstract class Transition implements Cloneable {
                             if (DBG) {
                                 Log.d(LOG_TAG, "removing anim from info list: " + anim);
                             }
-                            runningAnimators.remove(anim);
+                            runningAnimators.removeAt(i);
                         }
                     }
                 }
+            }
+        }
+
+        // Don't change the collection we're iterating over while iterating over it.
+        for (int i = 0; i < endedTransitions.size(); i++) {
+            Transition transition = endedTransitions.get(i);
+            transition.notifyListeners(TransitionNotification.ON_CANCEL, false);
+            if (!transition.mEnded) {
+                transition.mEnded = true;
+                transition.notifyListeners(TransitionNotification.ON_END,
+                        false);
             }
         }
 
