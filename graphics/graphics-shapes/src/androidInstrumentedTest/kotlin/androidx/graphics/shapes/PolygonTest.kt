@@ -16,6 +16,7 @@
 
 package androidx.graphics.shapes
 
+import android.graphics.Matrix
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
@@ -198,6 +199,34 @@ class PolygonTest {
         }
         assertNotEquals(preTransformVertices, postTransformVertices)
         assertNotEquals(preTransformCenters, postTransformCenters)
+    }
+
+    @Test
+    fun transformKeepsContiguousAnchorsEqual() {
+        val poly =
+            RoundedPolygon(radius = 1f, numVertices = 4, rounding = CornerRounding(7 / 15f))
+                .transformed(
+                    Matrix().apply {
+                        postRotate(45f)
+                        postScale(648f, 648f)
+                        postTranslate(540f, 1212f)
+                    }
+                )
+        poly.cubics.indices.forEach { i ->
+            // It has to be the same point
+            assertEquals(
+                "Failed at X, index $i",
+                poly.cubics[i].anchor1X,
+                poly.cubics[(i + 1) % poly.cubics.size].anchor0X,
+                0f
+            )
+            assertEquals(
+                "Failed at Y, index $i",
+                poly.cubics[i].anchor1Y,
+                poly.cubics[(i + 1) % poly.cubics.size].anchor0Y,
+                0f
+            )
+        }
     }
 
     private fun nonzeroCubics(original: List<Cubic>): List<Cubic> {
