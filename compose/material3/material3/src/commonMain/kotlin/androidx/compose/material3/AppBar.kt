@@ -45,7 +45,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.systemBarsForVisualComponents
 import androidx.compose.material3.tokens.BottomAppBarTokens
-import androidx.compose.material3.tokens.FabSecondaryTokens
+import androidx.compose.material3.tokens.FabSecondaryContainerTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.TopAppBarLargeTokens
 import androidx.compose.material3.tokens.TopAppBarMediumTokens
@@ -1971,7 +1971,7 @@ object BottomAppBarDefaults {
 
     /** The color of a [BottomAppBar]'s [FloatingActionButton] */
     val bottomAppBarFabColor: Color
-        @Composable get() = FabSecondaryTokens.ContainerColor.value
+        @Composable get() = FabSecondaryContainerTokens.ContainerColor.value
 
     val HorizontalArrangement =
         Arrangement.spacedBy(32.dp, Alignment.CenterHorizontally) // TODO tokens

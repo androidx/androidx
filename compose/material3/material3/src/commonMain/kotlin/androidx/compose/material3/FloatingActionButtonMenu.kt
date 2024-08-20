@@ -31,9 +31,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.tokens.FabBaselineTokens
+import androidx.compose.material3.tokens.FabLargeTokens
+import androidx.compose.material3.tokens.FabMediumTokens
+import androidx.compose.material3.tokens.FabMenuBaselineTokens
+import androidx.compose.material3.tokens.FabPrimaryContainerTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -309,7 +313,7 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
                         placeable.placeWithLayer(0, 0) { alpha = tempAlphaAnim.value }
                     }
                 },
-            shape = CircleShape,
+            shape = FabMenuBaselineTokens.ListItemContainerShape.value,
             color = containerColor,
             contentColor = contentColor,
             onClick = onClick
@@ -326,7 +330,10 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
                         }
                     }
                     .sizeIn(minWidth = FabMenuItemMinWidth, minHeight = FabMenuItemHeight)
-                    .padding(horizontal = FabMenuItemContentPaddingHorizontal),
+                    .padding(
+                        start = FabMenuItemContentPaddingStart,
+                        end = FabMenuItemContentPaddingEnd
+                    ),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement =
                     Arrangement.spacedBy(
@@ -335,7 +342,10 @@ fun FloatingActionButtonMenuScope.FloatingActionButtonMenuItem(
                     )
             ) {
                 icon()
-                text()
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.titleMedium,
+                    content = text
+                )
             }
         }
     }
@@ -586,26 +596,27 @@ interface ToggleFloatingActionButtonScope {
     val checkedProgress: Float
 }
 
-private val FabInitialSize = 56.dp
+private val FabInitialSize = FabBaselineTokens.ContainerHeight
 private val FabInitialCornerRadius = 16.dp
-private val FabInitialIconSize = 24.dp
-private val FabMediumInitialSize = 80.dp
-private val FabMediumInitialCornerRadius = 24.dp
-private val FabMediumInitialIconSize = 28.dp
-private val FabLargeInitialSize = 96.dp
+private val FabInitialIconSize = FabBaselineTokens.IconSize
+private val FabMediumInitialSize = FabMediumTokens.ContainerHeight
+private val FabMediumInitialCornerRadius = 20.dp
+private val FabMediumInitialIconSize = FabMediumTokens.IconSize
+private val FabLargeInitialSize = FabLargeTokens.ContainerHeight
 private val FabLargeInitialCornerRadius = 28.dp
-private val FabLargeInitialIconSize = 36.dp
-private val FabFinalSize = 56.dp
+private val FabLargeInitialIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
+private val FabFinalSize = FabMenuBaselineTokens.CloseButtonContainerHeight
 private val FabFinalCornerRadius = FabFinalSize.div(2)
-private val FabFinalIconSize = 20.dp
-private val FabShadowElevation = 6.dp
+private val FabFinalIconSize = FabMenuBaselineTokens.CloseButtonIconSize
+private val FabShadowElevation = FabPrimaryContainerTokens.ContainerElevation
 private val FabMenuPaddingHorizontal = 16.dp
-private val FabMenuPaddingBottom = 8.dp
+private val FabMenuPaddingBottom = FabMenuBaselineTokens.CloseButtonBetweenSpace
 private val FabMenuButtonPaddingBottom = 16.dp
-private val FabMenuItemMinWidth = 56.dp
-private val FabMenuItemHeight = 56.dp
-private val FabMenuItemSpacingVertical = 4.dp
-private val FabMenuItemContentPaddingHorizontal = 16.dp
-private val FabMenuItemContentSpacingHorizontal = 8.dp
+private val FabMenuItemMinWidth = FabMenuBaselineTokens.ListItemContainerHeight
+private val FabMenuItemHeight = FabMenuBaselineTokens.ListItemContainerHeight
+private val FabMenuItemSpacingVertical = FabMenuBaselineTokens.ListItemBetweenSpace
+private val FabMenuItemContentPaddingStart = FabMenuBaselineTokens.ListItemLeadingSpace
+private val FabMenuItemContentPaddingEnd = FabMenuBaselineTokens.ListItemTrailingSpace
+private val FabMenuItemContentSpacingHorizontal = FabMenuBaselineTokens.ListItemIconLabelSpace
 private const val StaggerEnterDelayMillis = 35
 private const val StaggerExitDelayMillis = 25
