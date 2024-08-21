@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -34,8 +35,10 @@ import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FilledIconToggleButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Narrow
 import androidx.compose.material3.IconButtonDefaults.IconButtonWidthOption.Companion.Wide
@@ -321,10 +324,7 @@ fun IconButtonCornerRadiusDemo() {
             // xsmall round icon button
             OutlinedIconButton(
                 onClick = { /* doSomething() */ },
-                modifier =
-                    Modifier
-                        // .minimumInteractiveComponentSize()
-                        .size(IconButtonDefaults.xSmallContainerSize()),
+                modifier = Modifier.size(IconButtonDefaults.xSmallContainerSize()),
                 shape = IconButtonDefaults.xSmallRoundShape
             ) {
                 Icon(
@@ -337,10 +337,7 @@ fun IconButtonCornerRadiusDemo() {
             // Small round icon button
             OutlinedIconButton(
                 onClick = { /* doSomething() */ },
-                modifier =
-                    Modifier
-                        // .minimumInteractiveComponentSize()
-                        .size(IconButtonDefaults.smallContainerSize()),
+                modifier = Modifier.size(IconButtonDefaults.smallContainerSize()),
                 shape = IconButtonDefaults.smallRoundShape
             ) {
                 Icon(
@@ -487,11 +484,11 @@ fun IconButtonCornerRadiusDemo() {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun IconToggleButtonsDemo() {
+fun IconButtonAndToggleButtonsDemo() {
     Column {
         val rowScrollState = rememberScrollState()
         val padding = 16.dp
-        // unselected round row
+
         Row(
             modifier =
                 Modifier.height(150.dp)
@@ -506,7 +503,35 @@ fun IconToggleButtonsDemo() {
             Text("Outline")
             Text("Standard")
         }
-        // unselected round row
+        // icon buttons
+        Row(
+            modifier =
+                Modifier.height(150.dp)
+                    .horizontalScroll(rowScrollState)
+                    .padding(horizontal = padding),
+            horizontalArrangement = Arrangement.spacedBy(padding),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(Modifier.width(76.dp))
+
+            FilledIconButton(onClick = {}) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            FilledTonalIconButton(onClick = {}) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            OutlinedIconButton(onClick = {}) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+
+            IconButton(onClick = {}) {
+                Icon(Icons.Outlined.Edit, contentDescription = "Localized description")
+            }
+        }
+
+        // unselected icon toggle buttons
         Row(
             modifier =
                 Modifier.height(150.dp)
@@ -517,7 +542,15 @@ fun IconToggleButtonsDemo() {
         ) {
             var checked by remember { mutableStateOf(false) }
 
-            Text("Unselected")
+            Text(
+                text =
+                    if (!checked) {
+                        "Unselected"
+                    } else {
+                        "Selected"
+                    },
+                modifier = Modifier.defaultMinSize(minWidth = 76.dp),
+            )
 
             FilledIconToggleButton(
                 checked = checked,
@@ -572,7 +605,7 @@ fun IconToggleButtonsDemo() {
             }
         }
 
-        // unselected round row
+        // selected icon toggle buttons
         Row(
             modifier =
                 Modifier.height(150.dp)
@@ -582,7 +615,17 @@ fun IconToggleButtonsDemo() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             var checked by remember { mutableStateOf(true) }
-            Text("Selected")
+
+            Text(
+                text =
+                    if (!checked) {
+                        "Unselected"
+                    } else {
+                        "Selected"
+                    },
+                modifier = Modifier.defaultMinSize(minWidth = 76.dp)
+            )
+
             FilledIconToggleButton(
                 checked = checked,
                 onCheckedChange = { checked = it },
