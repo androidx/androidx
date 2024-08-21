@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.internal.RequestValidationHelper
 
@@ -27,7 +26,6 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property credentialJson the digital credential in the JSON format; the latest format is defined
  *   at https://wicg.github.io/digital-credentials/#the-digitalcredential-interface
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class DigitalCredential
 private constructor(
     val credentialJson: String,
@@ -59,7 +57,7 @@ private constructor(
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 
         @JvmStatic
-        fun createFrom(data: Bundle): DigitalCredential {
+        internal fun createFrom(data: Bundle): DigitalCredential {
             try {
                 val credentialJson = data.getString(BUNDLE_KEY_REQUEST_JSON)
                 return DigitalCredential(credentialJson!!, data)
@@ -69,7 +67,7 @@ private constructor(
         }
 
         @JvmStatic
-        fun toBundle(responseJson: String): Bundle {
+        internal fun toBundle(responseJson: String): Bundle {
             val bundle = Bundle()
             bundle.putString(BUNDLE_KEY_REQUEST_JSON, responseJson)
             return bundle

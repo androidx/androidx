@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.credentials.internal.FrameworkClassParsingException
 import androidx.credentials.internal.RequestValidationHelper
 
@@ -32,7 +31,6 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property requestJson the request in the JSON format; the latest format is defined at
  *   https://wicg.github.io/digital-credentials/#the-digitalcredentialrequestoptions-dictionary
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class GetDigitalCredentialOption
 internal constructor(
     val requestJson: String,
@@ -81,6 +79,7 @@ internal constructor(
         typePriorityHint = PRIORITY_PASSKEY_OR_SIMILAR,
     )
 
+    /** Companion constants / helpers for [GetDigitalCredentialOption]. */
     internal companion object {
         internal const val BUNDLE_KEY_REQUEST_JSON = "androidx.credentials.BUNDLE_KEY_REQUEST_JSON"
 
