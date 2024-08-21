@@ -23,26 +23,30 @@ import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
 
 /**
- * A [BrushFamily] combines one or more [BrushCoat]s and an optional URI to describe a family of
- * brushes.
+ * A [BrushFamily] describes a family of brushes (e.g. “highlighter” or “pressure pen”),
+ * irrespective of their size or color.
  *
- * The [uri] exists for the convenience of higher level serialization and asset management APIs.
- * Aside from being checked for valid formatting and being forwarded on copy or move, the [uri] will
- * not*** be used by Ink APIs that consume a [BrushFamily].
+ * For now, [BrushFamily] is an opaque type that can only be instantiated via [StockBrushes]. A
+ * future version of this module will allow creating fully custom [BrushFamily] objects.
+ *
+ * [BrushFamily] objects are immutable.
  */
 @OptIn(ExperimentalInkCustomBrushApi::class)
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class BrushFamily
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @ExperimentalInkCustomBrushApi
 @JvmOverloads
 constructor(
     // The [coats] val below is a defensive copy of this parameter.
     coats: List<BrushCoat>,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public val uri: String? = null,
 ) {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public val coats: List<BrushCoat> = unmodifiableList(coats.toList())
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     @JvmOverloads
     public constructor(
@@ -59,6 +63,7 @@ constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(coats: List<BrushCoat> = this.coats, uri: String? = this.uri): BrushFamily {
@@ -73,6 +78,7 @@ constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(coat: BrushCoat, uri: String? = this.uri): BrushFamily {
@@ -83,6 +89,7 @@ constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     @JvmSynthetic
     public fun copy(tip: BrushTip, paint: BrushPaint, uri: String? = this.uri): BrushFamily {
@@ -93,6 +100,7 @@ constructor(
      * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
      * builder to build a copy of a BrushFamily.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     public fun toBuilder(): Builder = Builder().setCoats(coats).setUri(uri)
 
@@ -103,6 +111,7 @@ constructor(
      * overriding only as needed. For example: `BrushFamily family = new
      * BrushFamily.Builder().coat(presetBrushCoat).build();`
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     @ExperimentalInkCustomBrushApi
     public class Builder {
         private var coats: List<BrushCoat> = listOf(BrushCoat(BrushTip(), BrushPaint()))
@@ -161,6 +170,9 @@ constructor(
         }
 
         /** Returns a new [BrushFamily.Builder]. */
-        @ExperimentalInkCustomBrushApi @JvmStatic public fun builder(): Builder = Builder()
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+        @ExperimentalInkCustomBrushApi
+        @JvmStatic
+        public fun builder(): Builder = Builder()
     }
 }

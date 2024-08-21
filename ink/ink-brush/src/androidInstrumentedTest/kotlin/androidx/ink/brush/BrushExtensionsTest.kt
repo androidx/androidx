@@ -42,7 +42,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushGetAndroidColor_getsCorrectColor() {
-        val brush = Brush.withColorLong(testFamily, testColorLong, 1f, 1f)
+        val brush = Brush.createWithColorLong(testFamily, testColorLong, 1f, 1f)
 
         // Note that expectedColor is not necessarily the same as testColor, because of precision
         // loss
@@ -55,7 +55,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushCopyWithAndroidColor_setsColor() {
-        val brush = Brush.withColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
+        val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
 
         val newBrush = brush.copyWithAndroidColor(color = testColor)
 
@@ -68,7 +68,7 @@ class BrushExtensionsTest {
     @OptIn(ExperimentalInkCustomBrushApi::class)
     @Test
     fun brushCopyWithAndroidColor_andOtherChangedValues_createsBrushWithColor() {
-        val brush = Brush.withColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
+        val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
 
         val newBrush =
             brush.copyWithAndroidColor(
@@ -86,7 +86,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushCopyWithAndroidColor_withUnsupportedColorSpace_setsConvertedColor() {
-        val brush = Brush.withColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
+        val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 1f, 1f)
 
         val newColor = AndroidColor.valueOf(0.6f, 0.7f, 0.4f, 0.3f, adobeRgb)
         val newBrush = brush.copyWithAndroidColor(color = newColor)
@@ -143,7 +143,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushUtilGetAndroidColor_getsCorrectColor() {
-        val brush = Brush.withColorLong(testFamily, testColorLong, 1f, 1f)
+        val brush = Brush.createWithColorLong(testFamily, testColorLong, 1f, 1f)
 
         // Note that expectedColor is not necessarily the same as testColor, because of precision
         // loss
@@ -154,7 +154,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushUtilToBuilderWithAndroidColor_setsColor() {
-        val brush = Brush.withColorIntArgb(testFamily, 0x4499bb66, 2f, 0.2f)
+        val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 2f, 0.2f)
 
         val newBrush = BrushUtil.toBuilderWithAndroidColor(brush, testColor).build()
 
@@ -166,7 +166,7 @@ class BrushExtensionsTest {
 
     @Test
     fun brushUtilToBuilderWithAndroidColor_withUnsupportedColorSpace_setsConvertedColor() {
-        val brush = Brush.withColorIntArgb(testFamily, 0x4499bb66, 2f, 0.2f)
+        val brush = Brush.createWithColorIntArgb(testFamily, 0x4499bb66, 2f, 0.2f)
 
         val unsupportedColor = AndroidColor.valueOf(0.6f, 0.7f, 0.4f, 0.3f, adobeRgb)
         val newBrush = BrushUtil.toBuilderWithAndroidColor(brush, unsupportedColor).build()

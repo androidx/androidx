@@ -23,16 +23,24 @@ import kotlin.jvm.JvmStatic
 /**
  * Provides a fixed set of stock [BrushFamily] objects that any app can use.
  *
- * The list of available stock brushes includes:
- * - Marker: A simple, circular fixed-width brush.
- * - Pressure Pen: A pressure- and speed-sensitive brush that is optimized for handwriting with a
- *   stylus.
- * - Highlighter: A chisel-tip brush that is intended for highlighting text in a document (when used
- *   with a translucent brush color).
+ * All brush designs are versioned, so apps can safely store input points and brush specs instead of
+ * the pixel result, but be able to regenerate strokes from stored input points that look like the
+ * strokes originally drawn by the user. Brush designs are intended to evolve over time, and are
+ * released as update packs to the stock library.
+ *
+ * Each successive brush version will keep to the spirit of the brush, but the actual effect can
+ * change between versions. For example, a new version of the highlighter may introduce a variation
+ * on how round the tip is, or what sort of curve maps color to pressure.
+ *
+ * We generally recommend that applications use the latest brush version available; but some use
+ * cases, such as art, should be careful to track which version of a brush was used if the document
+ * is regenerated, so that the user gets the same visual result.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
+    // like it on the getter so suppress its complaint.
     @ExperimentalInkCustomBrushApi
     @get:ExperimentalInkCustomBrushApi
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -74,21 +82,31 @@ public object StockBrushes {
         )
 
     /**
-     * Version 1 of the stock marker. This brush spec will not meaningfully change in future
-     * releases, even as this property is marked [@Deprecated] and a new version is added.
+     * Version 1 of a simple, circular fixed-width brush.
+     *
+     * The behavior of this [BrushFamily] will not meaningfully change in future releases. More
+     * significant updates would be contained in a [BrushFamily] with a different name specifying a
+     * later version number.
      */
     @JvmStatic
     public val markerV1: BrushFamily =
         BrushFamily(tip = BrushTip(behaviors = listOf(predictionFadeOutBehavior)))
 
     /**
-     * The latest version of the stock marker brush. This brush spec may change in future releases.
+     * The latest version of a simple, circular fixed-width brush.
+     *
+     * The behavior of this [BrushFamily] may change in future releases, as it always points to the
+     * latest version of the marker.
      */
-    @JvmStatic public val marker: BrushFamily = markerV1
+    @JvmStatic public val markerLatest: BrushFamily = markerV1
 
     /**
-     * Version 1 of the stock pressure pen. This brush spec will not meaningfully change in future
-     * releases, even as this property is marked [@Deprecated] and a new version is added.
+     * Version 1 of a pressure- and speed-sensitive brush that is optimized for handwriting with a
+     * stylus.
+     *
+     * The behavior of this [BrushFamily] will not meaningfully change in future releases. More
+     * significant updates would be contained in a [BrushFamily] with a different name specifying a
+     * later version number.
      */
     @JvmStatic
     public val pressurePenV1: BrushFamily =
@@ -115,13 +133,21 @@ public object StockBrushes {
         )
 
     /**
-     * The latest version of the stock pressure pen. This brush spec may change in future releases.
+     * The latest version of a pressure- and speed-sensitive brush that is optimized for handwriting
+     * with a stylus.
+     *
+     * The behavior of this [BrushFamily] may change in future releases, as it always points to the
+     * latest version of the pressure pen.
      */
-    @JvmStatic public val pressurePen: BrushFamily = pressurePenV1
+    @JvmStatic public val pressurePenLatest: BrushFamily = pressurePenV1
 
     /**
-     * Version 1 of the stock highlighter. This brush spec will not meaningfully change in future
-     * releases, even as this property is marked [@Deprecated] and a new version is added.
+     * Version 1 of a chisel-tip brush that is intended for highlighting text in a document (when
+     * used with a translucent brush color).
+     *
+     * The behavior of this [BrushFamily] will not meaningfully change in future releases. More
+     * significant updates would be contained in a [BrushFamily] with a different name specifying a
+     * later version number.
      */
     @JvmStatic
     public val highlighterV1: BrushFamily =
@@ -137,7 +163,11 @@ public object StockBrushes {
         )
 
     /**
-     * The latest version of the stock highlighter. This brush spec may change in future releases.
+     * Version 1 of a chisel-tip brush that is intended for highlighting text in a document (when
+     * used with a translucent brush color).
+     *
+     * The behavior of this [BrushFamily] may change in future releases, as it always points to the
+     * latest version of the pressure pen.
      */
-    @JvmStatic public val highlighter: BrushFamily = highlighterV1
+    @JvmStatic public val highlighterLatest: BrushFamily = highlighterV1
 }

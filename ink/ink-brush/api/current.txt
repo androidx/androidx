@@ -1,7 +1,79 @@
 // Signature format: 4.0
 package androidx.ink.brush {
 
+  public final class Brush {
+    ctor public Brush(androidx.ink.brush.BrushFamily family, float size, float epsilon);
+    method public static androidx.ink.brush.Brush.Builder builder();
+    method public androidx.ink.brush.Brush copy();
+    method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family);
+    method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family, optional float size);
+    method public androidx.ink.brush.Brush copy(optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
+    method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb);
+    method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family);
+    method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family, optional float size);
+    method public androidx.ink.brush.Brush copyWithColorIntArgb(@ColorInt int colorIntArgb, optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
+    method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong);
+    method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family);
+    method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family, optional float size);
+    method public androidx.ink.brush.Brush copyWithColorLong(@ColorLong long colorLong, optional androidx.ink.brush.BrushFamily family, optional float size, optional float epsilon);
+    method public static androidx.ink.brush.Brush createWithColorIntArgb(androidx.ink.brush.BrushFamily family, @ColorInt int colorIntArgb, float size, float epsilon);
+    method public static androidx.ink.brush.Brush createWithColorLong(androidx.ink.brush.BrushFamily family, @ColorLong long colorLong, float size, float epsilon);
+    method protected void finalize();
+    method @ColorInt public int getColorIntArgb();
+    method @ColorLong public long getColorLong();
+    method public float getEpsilon();
+    method public androidx.ink.brush.BrushFamily getFamily();
+    method public float getSize();
+    method public androidx.ink.brush.Brush.Builder toBuilder();
+    property @ColorInt public final int colorIntArgb;
+    property @ColorLong public final long colorLong;
+    property public final float epsilon;
+    property public final androidx.ink.brush.BrushFamily family;
+    property public final float size;
+    field public static final androidx.ink.brush.Brush.Companion Companion;
+  }
+
+  public static final class Brush.Builder {
+    ctor public Brush.Builder();
+    method public androidx.ink.brush.Brush build();
+    method public androidx.ink.brush.Brush.Builder setColorIntArgb(@ColorInt int colorIntArgb);
+    method public androidx.ink.brush.Brush.Builder setColorLong(@ColorLong long colorLong);
+    method public androidx.ink.brush.Brush.Builder setEpsilon(@FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float epsilon);
+    method public androidx.ink.brush.Brush.Builder setFamily(androidx.ink.brush.BrushFamily family);
+    method public androidx.ink.brush.Brush.Builder setSize(@FloatRange(from=0.0, fromInclusive=false, to=kotlin.jvm.internal.DoubleCompanionObject.POSITIVE_INFINITY, toInclusive=false) float size);
+  }
+
+  public static final class Brush.Companion {
+    method public androidx.ink.brush.Brush.Builder builder();
+    method public androidx.ink.brush.Brush createWithColorIntArgb(androidx.ink.brush.BrushFamily family, @ColorInt int colorIntArgb, float size, float epsilon);
+    method public androidx.ink.brush.Brush createWithColorLong(androidx.ink.brush.BrushFamily family, @ColorLong long colorLong, float size, float epsilon);
+  }
+
+  public final class BrushFamily {
+    method protected void finalize();
+    field public static final androidx.ink.brush.BrushFamily.Companion Companion;
+  }
+
+  public static final class BrushFamily.Companion {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.ERROR) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.ANNOTATION_CLASS, kotlin.annotation.AnnotationTarget.PROPERTY, kotlin.annotation.AnnotationTarget.FIELD, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.CONSTRUCTOR, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.TYPEALIAS}) public @interface ExperimentalInkCustomBrushApi {
+  }
+
+  public final class StockBrushes {
+    method public static androidx.ink.brush.BrushFamily getHighlighterLatest();
+    method public static androidx.ink.brush.BrushFamily getHighlighterV1();
+    method public static androidx.ink.brush.BrushFamily getMarkerLatest();
+    method public static androidx.ink.brush.BrushFamily getMarkerV1();
+    method public static androidx.ink.brush.BrushFamily getPressurePenLatest();
+    method public static androidx.ink.brush.BrushFamily getPressurePenV1();
+    property public static final androidx.ink.brush.BrushFamily highlighterLatest;
+    property public static final androidx.ink.brush.BrushFamily highlighterV1;
+    property public static final androidx.ink.brush.BrushFamily markerLatest;
+    property public static final androidx.ink.brush.BrushFamily markerV1;
+    property public static final androidx.ink.brush.BrushFamily pressurePenLatest;
+    property public static final androidx.ink.brush.BrushFamily pressurePenV1;
+    field public static final androidx.ink.brush.StockBrushes INSTANCE;
   }
 
 }
