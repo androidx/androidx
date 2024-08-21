@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
@@ -74,7 +72,7 @@ fun ButtonDemo() {
                         modifier = Modifier.fillMaxWidth()
                     )
                 },
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
         item {
@@ -88,11 +86,11 @@ fun ButtonDemo() {
                     )
                 },
                 enabled = false,
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             )
         }
         item { ListHeader { Text("3 slot button") } }
-        item { ButtonSample() }
+        item { ButtonSample(modifier = Modifier.fillMaxWidth()) }
         item {
             Button(
                 onClick = { /* Do something */ },
@@ -105,14 +103,17 @@ fun ButtonDemo() {
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            ButtonWithOnLongClickSample({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
+            ButtonWithOnLongClickSample(
+                modifier = Modifier.fillMaxWidth(),
+                onClickHandler = { showOnClickToast(context) },
+                onLongClickHandler = { showOnLongClickToast(context) },
+            )
         }
     }
 }
@@ -124,15 +125,17 @@ fun FilledTonalButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleFilledTonalButtonSample() }
         item {
-            FilledTonalButtonWithOnLongClickSample({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
+            FilledTonalButtonWithOnLongClickSample(
+                onClickHandler = { showOnClickToast(context) },
+                onLongClickHandler = { showOnLongClickToast(context) }
+            )
         }
         item {
             FilledTonalButton(
                 onClick = { /* Do something */ },
                 label = { Text("Filled Tonal Button") },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         item { ListHeader { Text("3 slot button") } }
@@ -149,7 +152,8 @@ fun FilledTonalButtonDemo() {
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -165,7 +169,8 @@ fun FilledVariantButtonDemo() {
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.filledVariantButtonColors(),
                 label = { Text("Filled Variant Button") },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
             )
         }
         item { ListHeader { Text("3 slot button") } }
@@ -183,7 +188,8 @@ fun FilledVariantButtonDemo() {
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -196,15 +202,17 @@ fun OutlinedButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleOutlinedButtonSample() }
         item {
-            OutlinedButtonWithOnLongClickSample({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
+            OutlinedButtonWithOnLongClickSample(
+                onClickHandler = { showOnClickToast(context) },
+                onLongClickHandler = { showOnLongClickToast(context) }
+            )
         }
         item {
             OutlinedButton(
                 onClick = { /* Do something */ },
                 label = { Text("Outlined Button") },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         item { ListHeader { Text("3 slot button") } }
@@ -221,7 +229,8 @@ fun OutlinedButtonDemo() {
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -234,15 +243,17 @@ fun ChildButtonDemo() {
         item { ListHeader { Text("1 slot button") } }
         item { SimpleChildButtonSample() }
         item {
-            ChildButtonWithOnLongClickSample({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
+            ChildButtonWithOnLongClickSample(
+                onClickHandler = { showOnClickToast(context) },
+                onLongClickHandler = { showOnLongClickToast(context) },
+            )
         }
         item {
             ChildButton(
                 onClick = { /* Do something */ },
                 label = { Text("Child Button") },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
         item { ListHeader { Text("3 slot button") } }
@@ -259,7 +270,8 @@ fun ChildButtonDemo() {
                         modifier = Modifier.size(ButtonDefaults.IconSize)
                     )
                 },
-                enabled = false
+                enabled = false,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
@@ -274,7 +286,7 @@ fun CompactButtonDemo() {
             CompactButton(
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.buttonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Compact Button", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -283,7 +295,7 @@ fun CompactButtonDemo() {
             CompactButton(
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.filledVariantButtonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Filled Variant", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -292,7 +304,7 @@ fun CompactButtonDemo() {
             CompactButton(
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.filledTonalButtonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Filled Tonal", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -302,7 +314,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.outlinedButtonColors(),
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Outlined", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -314,7 +326,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.filledVariantButtonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Filled Variant", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -324,7 +336,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.filledTonalButtonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Filled Tonal", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -335,7 +347,7 @@ fun CompactButtonDemo() {
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.outlinedButtonColors(),
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Outlined", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -345,7 +357,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.childButtonColors(),
-                modifier = Modifier.width(150.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Child", maxLines = 1, overflow = TextOverflow.Ellipsis)
             }
@@ -354,14 +366,14 @@ fun CompactButtonDemo() {
         item {
             CompactButton(
                 onClick = { /* Do something */ },
-                icon = { StandardIcon(ButtonDefaults.SmallIconSize) }
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
             )
         }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
-                colors = ButtonDefaults.filledTonalButtonColors()
+                colors = ButtonDefaults.filledTonalButtonColors(),
             )
         }
         item {
@@ -369,21 +381,22 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.outlinedButtonColors(),
-                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true),
             )
         }
         item {
             CompactButton(
                 onClick = { /* Do something */ },
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
-                colors = ButtonDefaults.childButtonColors()
+                colors = ButtonDefaults.childButtonColors(),
             )
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            CompactButtonWithOnLongClickSample({ showOnClickToast(context) }) {
-                showOnLongClickToast(context)
-            }
+            CompactButtonWithOnLongClickSample(
+                onClickHandler = { showOnClickToast(context) },
+                onLongClickHandler = { showOnLongClickToast(context) }
+            )
         }
         item { ListHeader { Text("Expandable") } }
         item { OutlinedCompactButtonSample() }
@@ -469,6 +482,7 @@ private fun MultilineButton(
         label = label,
         enabled = enabled,
         colors = colors,
+        modifier = Modifier.fillMaxWidth(),
     )
 }
 
@@ -501,6 +515,7 @@ private fun Multiline3SlotButton(
         secondaryLabel = secondaryLabel,
         enabled = enabled,
         colors = colors,
+        modifier = Modifier.fillMaxWidth()
     )
 }
 

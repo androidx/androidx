@@ -18,14 +18,13 @@ package androidx.wear.compose.material3.demos
 
 import android.view.HapticFeedbackConstants
 import android.view.View
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
+import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.Text
 
 @Composable
@@ -64,7 +63,8 @@ fun HapticsDemos() {
             Pair(HapticFeedbackConstants.VIRTUAL_KEY_RELEASE, "Virtual Key Release"),
         )
 
-    ScalingLazyDemo(contentPadding = PaddingValues(horizontal = 20.dp)) {
+    ScalingLazyDemo {
+        item { ListHeader { Text("Haptic Constants") } }
         items(hapticConstants.size) { index ->
             val (constant, name) = hapticConstants[index]
             HapticsDemo(haptics, constant, name)
@@ -89,6 +89,6 @@ private fun HapticsDemo(
 
 private class HapticFeedbackProvider(private val view: View) {
     fun performHapticFeedback(feedbackConstant: Int) {
-        view.let { view -> view.performHapticFeedback(feedbackConstant) }
+        view.performHapticFeedback(feedbackConstant)
     }
 }
