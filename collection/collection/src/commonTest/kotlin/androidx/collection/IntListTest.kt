@@ -713,4 +713,16 @@ class IntListTest {
         assertEquals(-1, l[2])
         assertEquals(10, l[3])
     }
+
+    @Test
+    fun binarySearchIntList() {
+        val l = mutableIntListOf(-2, -1, 2, 10, 10)
+        assertEquals(0, l.binarySearch(-2))
+        assertEquals(2, l.binarySearch(2))
+        assertEquals(3, l.binarySearch(10))
+
+        assertEquals(-1, l.binarySearch(-20))
+        assertEquals(-4, l.binarySearch(3))
+        assertEquals(-6, l.binarySearch(20))
+    }
 }

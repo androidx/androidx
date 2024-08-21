@@ -93,6 +93,42 @@ inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
 }
 
 /**
+ * Returns this integer value clamped in the inclusive range defined by [minimumValue] and
+ * [maximumValue]. Unlike [Int.coerceIn], the range is not validated: the caller must ensure that
+ * [minimumValue] is less than [maximumValue].
+ */
+inline fun Int.fastCoerceIn(minimumValue: Int, maximumValue: Int) =
+    this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
+
+/** Ensures that this value is not less than the specified [minimumValue]. */
+inline fun Int.fastCoerceAtLeast(minimumValue: Int): Int {
+    return if (this < minimumValue) minimumValue else this
+}
+
+/** Ensures that this value is not greater than the specified [maximumValue]. */
+inline fun Int.fastCoerceAtMost(maximumValue: Int): Int {
+    return if (this > maximumValue) maximumValue else this
+}
+
+/**
+ * Returns this long value clamped in the inclusive range defined by [minimumValue] and
+ * [maximumValue]. Unlike [Long.coerceIn], the range is not validated: the caller must ensure that
+ * [minimumValue] is less than [maximumValue].
+ */
+inline fun Long.fastCoerceIn(minimumValue: Long, maximumValue: Long) =
+    this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
+
+/** Ensures that this value is not less than the specified [minimumValue]. */
+inline fun Long.fastCoerceAtLeast(minimumValue: Long): Long {
+    return if (this < minimumValue) minimumValue else this
+}
+
+/** Ensures that this value is not greater than the specified [maximumValue]. */
+inline fun Long.fastCoerceAtMost(maximumValue: Long): Long {
+    return if (this > maximumValue) maximumValue else this
+}
+
+/**
  * Returns `true` if this float is a finite floating-point value; returns `false` otherwise (for
  * `NaN` and infinity).
  */

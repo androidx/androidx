@@ -95,11 +95,14 @@ package androidx.collection {
   }
 
   public abstract sealed class DoubleList {
-    method public final boolean any();
+    method public final inline boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
+    method public final int binarySearch(int element);
+    method public final int binarySearch(int element, optional int fromIndex);
+    method public final int binarySearch(int element, optional int fromIndex, optional int toIndex);
     method public final operator boolean contains(double element);
     method public final boolean containsAll(androidx.collection.DoubleList elements);
-    method public final int count();
+    method public final inline int count();
     method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
     method public final double elementAt(@IntRange(from=0L) int index);
     method public final inline double elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Double> defaultValue);
@@ -116,12 +119,12 @@ package androidx.collection {
     method public final operator double get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
     method @IntRange(from=-1L) public final inline int getLastIndex();
-    method @IntRange(from=0L) public final int getSize();
+    method @IntRange(from=0L) public final inline int getSize();
     method public final int indexOf(double element);
     method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
     method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
-    method public final boolean isEmpty();
-    method public final boolean isNotEmpty();
+    method public final inline boolean isEmpty();
+    method public final inline boolean isNotEmpty();
     method public final String joinToString();
     method public final String joinToString(optional CharSequence separator);
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
@@ -137,11 +140,11 @@ package androidx.collection {
     method public final double last();
     method public final inline double last(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
     method public final int lastIndexOf(double element);
-    method public final boolean none();
+    method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
-    property @IntRange(from=0L) public final int size;
+    property @IntRange(from=0L) public final inline int size;
     field @kotlin.PublishedApi internal int _size;
     field @kotlin.PublishedApi internal double[] content;
   }
@@ -286,11 +289,14 @@ package androidx.collection {
   }
 
   public abstract sealed class FloatList {
-    method public final boolean any();
+    method public final inline boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
+    method public final int binarySearch(int element);
+    method public final int binarySearch(int element, optional int fromIndex);
+    method public final int binarySearch(int element, optional int fromIndex, optional int toIndex);
     method public final operator boolean contains(float element);
     method public final boolean containsAll(androidx.collection.FloatList elements);
-    method public final int count();
+    method public final inline int count();
     method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     method public final float elementAt(@IntRange(from=0L) int index);
     method public final inline float elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Float> defaultValue);
@@ -307,12 +313,12 @@ package androidx.collection {
     method public final operator float get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
     method @IntRange(from=-1L) public final inline int getLastIndex();
-    method @IntRange(from=0L) public final int getSize();
+    method @IntRange(from=0L) public final inline int getSize();
     method public final int indexOf(float element);
     method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
-    method public final boolean isEmpty();
-    method public final boolean isNotEmpty();
+    method public final inline boolean isEmpty();
+    method public final inline boolean isNotEmpty();
     method public final String joinToString();
     method public final String joinToString(optional CharSequence separator);
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
@@ -328,11 +334,11 @@ package androidx.collection {
     method public final float last();
     method public final inline float last(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     method public final int lastIndexOf(float element);
-    method public final boolean none();
+    method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
-    property @IntRange(from=0L) public final int size;
+    property @IntRange(from=0L) public final inline int size;
     field @kotlin.PublishedApi internal int _size;
     field @kotlin.PublishedApi internal float[] content;
   }
@@ -638,11 +644,14 @@ package androidx.collection {
   }
 
   public abstract sealed class IntList {
-    method public final boolean any();
+    method public final inline boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
+    method public final int binarySearch(int element);
+    method public final int binarySearch(int element, optional int fromIndex);
+    method public final int binarySearch(int element, optional int fromIndex, optional int toIndex);
     method public final operator boolean contains(int element);
     method public final boolean containsAll(androidx.collection.IntList elements);
-    method public final int count();
+    method public final inline int count();
     method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final int elementAt(@IntRange(from=0L) int index);
     method public final inline int elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Integer> defaultValue);
@@ -659,12 +668,12 @@ package androidx.collection {
     method public final operator int get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
     method @IntRange(from=-1L) public final inline int getLastIndex();
-    method @IntRange(from=0L) public final int getSize();
+    method @IntRange(from=0L) public final inline int getSize();
     method public final int indexOf(int element);
     method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
-    method public final boolean isEmpty();
-    method public final boolean isNotEmpty();
+    method public final inline boolean isEmpty();
+    method public final inline boolean isNotEmpty();
     method public final String joinToString();
     method public final String joinToString(optional CharSequence separator);
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
@@ -680,11 +689,11 @@ package androidx.collection {
     method public final int last();
     method public final inline int last(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     method public final int lastIndexOf(int element);
-    method public final boolean none();
+    method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
-    property @IntRange(from=0L) public final int size;
+    property @IntRange(from=0L) public final inline int size;
     field @kotlin.PublishedApi internal int _size;
     field @kotlin.PublishedApi internal int[] content;
   }
@@ -979,11 +988,14 @@ package androidx.collection {
   }
 
   public abstract sealed class LongList {
-    method public final boolean any();
+    method public final inline boolean any();
     method public final inline boolean any(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
+    method public final int binarySearch(int element);
+    method public final int binarySearch(int element, optional int fromIndex);
+    method public final int binarySearch(int element, optional int fromIndex, optional int toIndex);
     method public final operator boolean contains(long element);
     method public final boolean containsAll(androidx.collection.LongList elements);
-    method public final int count();
+    method public final inline int count();
     method public final inline int count(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     method public final long elementAt(@IntRange(from=0L) int index);
     method public final inline long elementAtOrElse(@IntRange(from=0L) int index, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Long> defaultValue);
@@ -1000,12 +1012,12 @@ package androidx.collection {
     method public final operator long get(@IntRange(from=0L) int index);
     method public final inline kotlin.ranges.IntRange getIndices();
     method @IntRange(from=-1L) public final inline int getLastIndex();
-    method @IntRange(from=0L) public final int getSize();
+    method @IntRange(from=0L) public final inline int getSize();
     method public final int indexOf(long element);
     method public final inline int indexOfFirst(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     method public final inline int indexOfLast(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
-    method public final boolean isEmpty();
-    method public final boolean isNotEmpty();
+    method public final inline boolean isEmpty();
+    method public final inline boolean isNotEmpty();
     method public final String joinToString();
     method public final String joinToString(optional CharSequence separator);
     method public final String joinToString(optional CharSequence separator, optional CharSequence prefix);
@@ -1021,11 +1033,11 @@ package androidx.collection {
     method public final long last();
     method public final inline long last(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     method public final int lastIndexOf(long element);
-    method public final boolean none();
+    method public final inline boolean none();
     method public final inline boolean reversedAny(kotlin.jvm.functions.Function1<? super java.lang.Long,java.lang.Boolean> predicate);
     property public final inline kotlin.ranges.IntRange indices;
     property @IntRange(from=-1L) public final inline int lastIndex;
-    property @IntRange(from=0L) public final int size;
+    property @IntRange(from=0L) public final inline int size;
     field @kotlin.PublishedApi internal int _size;
     field @kotlin.PublishedApi internal long[] content;
   }
@@ -1287,8 +1299,8 @@ package androidx.collection {
     ctor public MutableDoubleList(optional int initialCapacity);
     method public boolean add(double element);
     method public void add(@IntRange(from=0L) int index, double element);
-    method public boolean addAll(androidx.collection.DoubleList elements);
-    method public boolean addAll(double[] elements);
+    method public inline boolean addAll(androidx.collection.DoubleList elements);
+    method public inline boolean addAll(double[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.DoubleList elements);
     method public boolean addAll(@IntRange(from=0L) int index, double[] elements);
     method public void clear();
@@ -1297,9 +1309,9 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.DoubleList elements);
     method public inline operator void minusAssign(double element);
     method public operator void minusAssign(double[] elements);
-    method public operator void plusAssign(androidx.collection.DoubleList elements);
+    method public inline operator void plusAssign(androidx.collection.DoubleList elements);
     method public inline operator void plusAssign(double element);
-    method public operator void plusAssign(double[] elements);
+    method public inline operator void plusAssign(double[] elements);
     method public boolean remove(double element);
     method public boolean removeAll(androidx.collection.DoubleList elements);
     method public boolean removeAll(double[] elements);
@@ -1361,8 +1373,8 @@ package androidx.collection {
     ctor public MutableFloatList(optional int initialCapacity);
     method public boolean add(float element);
     method public void add(@IntRange(from=0L) int index, float element);
-    method public boolean addAll(androidx.collection.FloatList elements);
-    method public boolean addAll(float[] elements);
+    method public inline boolean addAll(androidx.collection.FloatList elements);
+    method public inline boolean addAll(float[] elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.FloatList elements);
     method public boolean addAll(@IntRange(from=0L) int index, float[] elements);
     method public void clear();
@@ -1371,9 +1383,9 @@ package androidx.collection {
     method public operator void minusAssign(androidx.collection.FloatList elements);
     method public inline operator void minusAssign(float element);
     method public operator void minusAssign(float[] elements);
-    method public operator void plusAssign(androidx.collection.FloatList elements);
+    method public inline operator void plusAssign(androidx.collection.FloatList elements);
     method public inline operator void plusAssign(float element);
-    method public operator void plusAssign(float[] elements);
+    method public inline operator void plusAssign(float[] elements);
     method public boolean remove(float element);
     method public boolean removeAll(androidx.collection.FloatList elements);
     method public boolean removeAll(float[] elements);
@@ -1495,19 +1507,19 @@ package androidx.collection {
     ctor public MutableIntList(optional int initialCapacity);
     method public boolean add(int element);
     method public void add(@IntRange(from=0L) int index, int element);
-    method public boolean addAll(androidx.collection.IntList elements);
+    method public inline boolean addAll(androidx.collection.IntList elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.IntList elements);
     method public boolean addAll(@IntRange(from=0L) int index, int[] elements);
-    method public boolean addAll(int[] elements);
+    method public inline boolean addAll(int[] elements);
     method public void clear();
     method public void ensureCapacity(int capacity);
     method public inline int getCapacity();
     method public operator void minusAssign(androidx.collection.IntList elements);
     method public inline operator void minusAssign(int element);
     method public operator void minusAssign(int[] elements);
-    method public operator void plusAssign(androidx.collection.IntList elements);
+    method public inline operator void plusAssign(androidx.collection.IntList elements);
     method public inline operator void plusAssign(int element);
-    method public operator void plusAssign(int[] elements);
+    method public inline operator void plusAssign(int[] elements);
     method public boolean remove(int element);
     method public boolean removeAll(androidx.collection.IntList elements);
     method public boolean removeAll(int[] elements);
@@ -1629,19 +1641,19 @@ package androidx.collection {
     ctor public MutableLongList(optional int initialCapacity);
     method public void add(@IntRange(from=0L) int index, long element);
     method public boolean add(long element);
-    method public boolean addAll(androidx.collection.LongList elements);
+    method public inline boolean addAll(androidx.collection.LongList elements);
     method public boolean addAll(@IntRange(from=0L) int index, androidx.collection.LongList elements);
     method public boolean addAll(@IntRange(from=0L) int index, long[] elements);
-    method public boolean addAll(long[] elements);
+    method public inline boolean addAll(long[] elements);
     method public void clear();
     method public void ensureCapacity(int capacity);
     method public inline int getCapacity();
     method public operator void minusAssign(androidx.collection.LongList elements);
     method public inline operator void minusAssign(long element);
     method public operator void minusAssign(long[] elements);
-    method public operator void plusAssign(androidx.collection.LongList elements);
+    method public inline operator void plusAssign(androidx.collection.LongList elements);
     method public inline operator void plusAssign(long element);
-    method public operator void plusAssign(long[] elements);
+    method public inline operator void plusAssign(long[] elements);
     method public boolean remove(long element);
     method public boolean removeAll(androidx.collection.LongList elements);
     method public boolean removeAll(long[] elements);
