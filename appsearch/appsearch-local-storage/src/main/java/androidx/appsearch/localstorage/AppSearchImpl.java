@@ -195,9 +195,9 @@ public final class AppSearchImpl implements Closeable {
     @GuardedBy("mReadWriteLock")
     private final Map<String, Set<String>> mNamespaceMapLocked = new HashMap<>();
 
-    /** Maps package name to active document count. */
+    // Marked as volatile because a new instance may be assigned during resetLocked.
     @GuardedBy("mReadWriteLock")
-    private final Map<String, Integer> mDocumentCountMapLocked = new ArrayMap<>();
+    private volatile DocumentLimiter mDocumentLimiterLocked;
 
     // Maps packages to the set of valid nextPageTokens that the package can manipulate. A token
     // is unique and constant per query (i.e. the same token '123' is used to iterate through
@@ -388,7 +388,12 @@ public final class AppSearchImpl implements Closeable {
                 }
 
                 // Populate document count map
-                rebuildDocumentCountMapLocked(storageInfoProto);
+                mDocumentLimiterLocked =
+                        new DocumentLimiter(
+                                mConfig.getDocumentCountLimitStartThreshold(),
+                                mConfig.getPerPackageDocumentCountLimit(),
+                                storageInfoProto.getDocumentStorageInfo()
+                                        .getNamespaceStorageInfoList());
 
                 // logging prepare_schema_and_namespaces latency
                 if (initStatsBuilder != null) {
@@ -1041,7 +1046,7 @@ public final class AppSearchImpl implements Closeable {
             DocumentProto finalDocument = documentBuilder.build();
 
             // Check limits
-            int newDocumentCount = enforceLimitConfigLocked(
+            enforceLimitConfigLocked(
                     packageName, finalDocument.getUri(), finalDocument.getSerializedSize());
 
             // Insert document
@@ -1068,7 +1073,15 @@ public final class AppSearchImpl implements Closeable {
 
             // Only update caches if the document is successfully put to Icing.
             addToMap(mNamespaceMapLocked, prefix, finalDocument.getNamespace());
-            mDocumentCountMapLocked.put(packageName, newDocumentCount);
+            if (!putResultProto.getWasReplacement()) {
+                // If the document was a replacement, then there is no need to report it because the
+                // number of documents has not changed. We only need to report "true" additions to
+                // the DocumentLimiter.
+                // Even replacement document will consume a document id, but the limit is only
+                // intended to apply to "living" documents. It is the responsibility of AppSearch
+                // it's optimization task to reclaim space when needed.
+                mDocumentLimiterLocked.reportDocumentAdded(packageName);
+            }
 
             // Prepare notifications
             if (sendChangeNotifications) {
@@ -1097,12 +1110,11 @@ public final class AppSearchImpl implements Closeable {
      * Checks that a new document can be added to the given packageName with the given serialized
      * size without violating our {@link LimitConfig}.
      *
-     * @return the new count of documents for the given package, including the new document.
      * @throws AppSearchException with a code of {@link AppSearchResult#RESULT_OUT_OF_SPACE} if the
      *                            limits are violated by the new document.
      */
     @GuardedBy("mReadWriteLock")
-    private int enforceLimitConfigLocked(String packageName, String newDocUri, int newDocSize)
+    private void enforceLimitConfigLocked(String packageName, String newDocUri, int newDocSize)
             throws AppSearchException {
         // Limits check: size of document
         if (newDocSize > mConfig.getMaxDocumentSizeBytes()) {
@@ -1113,39 +1125,7 @@ public final class AppSearchImpl implements Closeable {
                             + "limit of " + mConfig.getMaxDocumentSizeBytes() + " bytes");
         }
 
-        // Limits check: number of documents
-        Integer oldDocumentCount = mDocumentCountMapLocked.get(packageName);
-        int newDocumentCount;
-        if (oldDocumentCount == null) {
-            newDocumentCount = 1;
-        } else {
-            newDocumentCount = oldDocumentCount + 1;
-        }
-        if (newDocumentCount > mConfig.getMaxDocumentCount()) {
-            // Our management of mDocumentCountMapLocked doesn't account for document
-            // replacements, so our counter might have overcounted if the app has replaced docs.
-            // Rebuild the counter from StorageInfo in case this is so.
-            // TODO(b/170371356):  If Icing lib exposes something in the result which says
-            //  whether the document was a replacement, we could subtract 1 again after the put
-            //  to keep the count accurate. That would allow us to remove this code.
-            rebuildDocumentCountMapLocked(getRawStorageInfoProto());
-            oldDocumentCount = mDocumentCountMapLocked.get(packageName);
-            if (oldDocumentCount == null) {
-                newDocumentCount = 1;
-            } else {
-                newDocumentCount = oldDocumentCount + 1;
-            }
-        }
-        if (newDocumentCount > mConfig.getMaxDocumentCount()) {
-            // Now we really can't fit it in, even accounting for replacements.
-            throw new AppSearchException(
-                    AppSearchResult.RESULT_OUT_OF_SPACE,
-                    "Package \"" + packageName + "\" exceeded limit of "
-                            + mConfig.getMaxDocumentCount() + " documents. Some documents "
-                            + "must be removed to index additional ones.");
-        }
-
-        return newDocumentCount;
+        mDocumentLimiterLocked.enforceDocumentCountLimit(packageName);
     }
 
     /**
@@ -1861,7 +1841,7 @@ public final class AppSearchImpl implements Closeable {
             checkSuccess(deleteResultProto.getStatus());
 
             // Update derived maps
-            updateDocumentCountAfterRemovalLocked(packageName, /*numDocumentsDeleted=*/ 1);
+            mDocumentLimiterLocked.reportDocumentsRemoved(packageName, /*numDocumentsDeleted=*/1);
 
             // Prepare notifications
             if (schemaType != null) {
@@ -2008,27 +1988,11 @@ public final class AppSearchImpl implements Closeable {
         // Update derived maps
         int numDocumentsDeleted =
                 deleteResultProto.getDeleteByQueryStats().getNumDocumentsDeleted();
-        updateDocumentCountAfterRemovalLocked(packageName, numDocumentsDeleted);
+        mDocumentLimiterLocked.reportDocumentsRemoved(packageName, numDocumentsDeleted);
 
         if (prefixedObservedSchemas != null && !prefixedObservedSchemas.isEmpty()) {
             dispatchChangeNotificationsAfterRemoveByQueryLocked(packageName,
                     deleteResultProto, prefixedObservedSchemas);
-        }
-    }
-
-    @GuardedBy("mReadWriteLock")
-    private void updateDocumentCountAfterRemovalLocked(
-            @NonNull String packageName, int numDocumentsDeleted) {
-        if (numDocumentsDeleted > 0) {
-            Integer oldDocumentCount = mDocumentCountMapLocked.get(packageName);
-            // This should always be true: how can we delete documents for a package without
-            // having seen that package during init? This is just a safeguard.
-            if (oldDocumentCount != null) {
-                // This should always be >0; how can we remove more documents than we've indexed?
-                // This is just a safeguard.
-                int newDocumentCount = Math.max(oldDocumentCount - numDocumentsDeleted, 0);
-                mDocumentCountMapLocked.put(packageName, newDocumentCount);
-            }
         }
     }
 
@@ -2351,7 +2315,7 @@ public final class AppSearchImpl implements Closeable {
                 String packageName = entry.getKey();
                 Set<String> databaseNames = entry.getValue();
                 if (!installedPackages.contains(packageName) && databaseNames != null) {
-                    mDocumentCountMapLocked.remove(packageName);
+                    mDocumentLimiterLocked.reportPackageRemoved(packageName);
                     synchronized (mNextPageTokensLocked) {
                         mNextPageTokensLocked.remove(packageName);
                     }
@@ -2391,7 +2355,14 @@ public final class AppSearchImpl implements Closeable {
         mOptimizeIntervalCountLocked = 0;
         mSchemaCacheLocked.clear();
         mNamespaceMapLocked.clear();
-        mDocumentCountMapLocked.clear();
+
+        // We just reset the index. So there is no need to retrieve the actual storage info. We know
+        // that there are no actual namespaces.
+        List<NamespaceStorageInfoProto> emptyNamespaceInfos = Collections.emptyList();
+        mDocumentLimiterLocked =
+                new DocumentLimiter(
+                        mConfig.getDocumentCountLimitStartThreshold(),
+                        mConfig.getPerPackageDocumentCountLimit(), emptyNamespaceInfos);
         synchronized (mNextPageTokensLocked) {
             mNextPageTokensLocked.clear();
         }
@@ -2402,26 +2373,6 @@ public final class AppSearchImpl implements Closeable {
         }
 
         checkSuccess(resetResultProto.getStatus());
-    }
-
-    @GuardedBy("mReadWriteLock")
-    private void rebuildDocumentCountMapLocked(@NonNull StorageInfoProto storageInfoProto) {
-        mDocumentCountMapLocked.clear();
-        List<NamespaceStorageInfoProto> namespaceStorageInfoProtoList =
-                storageInfoProto.getDocumentStorageInfo().getNamespaceStorageInfoList();
-        for (int i = 0; i < namespaceStorageInfoProtoList.size(); i++) {
-            NamespaceStorageInfoProto namespaceStorageInfoProto =
-                    namespaceStorageInfoProtoList.get(i);
-            String packageName = getPackageName(namespaceStorageInfoProto.getNamespace());
-            Integer oldCount = mDocumentCountMapLocked.get(packageName);
-            int newCount;
-            if (oldCount == null) {
-                newCount = namespaceStorageInfoProto.getNumAliveDocuments();
-            } else {
-                newCount = oldCount + namespaceStorageInfoProto.getNumAliveDocuments();
-            }
-            mDocumentCountMapLocked.put(packageName, newCount);
-        }
     }
 
     /** Wrapper around schema changes */

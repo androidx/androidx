@@ -129,8 +129,13 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
-    public int getMaxDocumentCount() {
-        return mLimitConfig.getMaxDocumentCount();
+    public int getPerPackageDocumentCountLimit() {
+        return mLimitConfig.getPerPackageDocumentCountLimit();
+    }
+
+    @Override
+    public int getDocumentCountLimitStartThreshold() {
+        return mLimitConfig.getDocumentCountLimitStartThreshold();
     }
 
     @Override
