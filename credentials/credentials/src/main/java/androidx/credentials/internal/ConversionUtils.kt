@@ -74,10 +74,8 @@ fun getFinalCreateCredentialData(
     return createCredentialData
 }
 
-internal fun toJetpackGetException(
-    errorType: String,
-    errorMsg: CharSequence?
-): GetCredentialException {
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+fun toJetpackGetException(errorType: String, errorMsg: CharSequence?): GetCredentialException {
 
     return when (errorType) {
         android.credentials.GetCredentialException.TYPE_NO_CREDENTIAL ->
