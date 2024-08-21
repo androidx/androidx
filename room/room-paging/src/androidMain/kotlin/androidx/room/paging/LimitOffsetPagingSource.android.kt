@@ -46,19 +46,14 @@ actual constructor(
         sourceQuery: RoomSQLiteQuery,
         db: RoomDatabase,
         vararg tables: String,
-    ) : this(
-        sourceQuery =
-            RoomRawQuery(sql = sourceQuery.sql, onBindStatement = { sourceQuery.bindTo(it) }),
-        db = db,
-        tables = tables
-    )
+    ) : this(sourceQuery = sourceQuery.toRoomRawQuery(), db = db, tables = tables)
 
     constructor(
         supportSQLiteQuery: SupportSQLiteQuery,
         db: RoomDatabase,
         vararg tables: String,
     ) : this(
-        sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery),
+        sourceQuery = RoomSQLiteQuery.copyFrom(supportSQLiteQuery).toRoomRawQuery(),
         db = db,
         tables = tables,
     )

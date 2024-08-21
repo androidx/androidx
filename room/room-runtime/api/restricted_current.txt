@@ -359,6 +359,7 @@ package androidx.room {
     method public String getSql();
     method public void init(String query, int initArgCount);
     method public void release();
+    method public androidx.room.RoomRawQuery toRoomRawQuery();
     property public int argCount;
     property public final int capacity;
     property public String sql;
