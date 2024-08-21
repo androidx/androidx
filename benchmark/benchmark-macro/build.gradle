@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -176,4 +178,5 @@ androidx {
         targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
         targetAppVariant = "release"
     }
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

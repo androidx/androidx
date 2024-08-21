@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -44,6 +46,7 @@ androidx {
     mavenVersion = LibraryVersions.HILT_NAVIGATION_COMPOSE
     inceptionYear = "2021"
     description = "Samples for the Navigation Compose Hilt Integration"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

@@ -417,6 +417,16 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             evaluatedProject.kotlinExtensionOrNull?.let { kotlinExtension ->
                 kotlinExtension.coreLibrariesVersion = kotlinVersionStringProvider.get()
             }
+            if (evaluatedProject.androidXExtension.shouldPublish()) {
+                tasks.register(
+                    CheckKotlinApiTargetTask.TASK_NAME,
+                    CheckKotlinApiTargetTask::class.java
+                ) {
+                    it.kotlinTarget.set(kotlinVersionProvider)
+                    it.outputFile.set(layout.buildDirectory.file("kotlinApiTargetCheckReport.txt"))
+                }
+                addToBuildOnServer(CheckKotlinApiTargetTask.TASK_NAME)
+            }
         }
 
         // Resolve classpath conflicts caused by kotlin-stdlib-jdk7 and -jdk8 artifacts by amending

@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -118,4 +120,5 @@ androidx {
     description = "Android Preferences DataStore without the Android Dependencies"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
