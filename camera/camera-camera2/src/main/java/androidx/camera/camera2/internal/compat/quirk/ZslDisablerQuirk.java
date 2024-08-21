@@ -27,9 +27,9 @@ import java.util.Locale;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 252818931, 261744070, 319913852
- *     Description: On certain devices, the captured image has color issue for reprocessing. We
- *                  need to disable zero-shutter lag and return false for
+ *     Bug Id: 252818931, 261744070, 319913852, 361328838
+ *     Description: On certain devices, the captured image has color or zoom freezing issue for
+ *                  reprocessing. We need to disable zero-shutter lag and return false for
  *                  {@link CameraInfo#isZslSupported()}.
  *     Device(s): Samsung Fold4, Samsung s22, Xiaomi Mi 8
  */
@@ -39,7 +39,9 @@ public class ZslDisablerQuirk implements Quirk {
             "SM-F936",
             "SM-S901U",
             "SM-S908U",
-            "SM-S908U1"
+            "SM-S908U1",
+            "SM-F721U1",
+            "SM-S928U1"
     );
 
     private static final List<String> AFFECTED_XIAOMI_MODEL = Arrays.asList(
