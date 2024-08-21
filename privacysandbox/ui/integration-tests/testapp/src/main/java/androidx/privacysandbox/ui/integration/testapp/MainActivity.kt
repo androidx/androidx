@@ -49,12 +49,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navigationView: NavigationView
     private lateinit var currentFragment: BaseFragment
     private lateinit var triggerSandboxDeathButton: Button
-    private lateinit var webViewToggleButton: SwitchMaterial
     private lateinit var zOrderToggleButton: SwitchMaterial
-    private lateinit var contentFromAssetsToggleButton: SwitchMaterial
     private lateinit var viewabilityToggleButton: SwitchMaterial
     private lateinit var mediationDropDownMenu: Spinner
+    private lateinit var adTypeDropDownMenu: Spinner
+
     @AdType private var adType = AdType.NON_WEBVIEW
+
     @MediationOption private var mediationOption = MediationOption.NON_MEDIATED
     private var drawViewabilityLayer = false
 
@@ -65,12 +66,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         drawerLayout = findViewById(R.id.drawer)
         navigationView = findViewById(R.id.navigation_view)
-        contentFromAssetsToggleButton = findViewById(R.id.content_from_assets_switch)
         zOrderToggleButton = findViewById(R.id.zorder_below_switch)
-        webViewToggleButton = findViewById(R.id.load_webview)
         viewabilityToggleButton = findViewById(R.id.display_viewability_switch)
         triggerSandboxDeathButton = findViewById(R.id.trigger_sandbox_death)
         mediationDropDownMenu = findViewById(R.id.mediation_dropdown_menu)
+        adTypeDropDownMenu = findViewById(R.id.ad_type_dropdown_menu)
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             // there is no sandbox to kill on T-
@@ -139,57 +139,24 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initializeToggles() {
-        initializeWebViewToggleSwitch()
-        initializeContentFromAssetsToggleButton()
         initializeViewabilityToggleButton()
         initializeMediationDropDown()
+        initializeAdTypeDropDown()
         initializeZOrderToggleButton()
     }
 
     private fun disableAllControls() {
-        webViewToggleButton.isEnabled = false
-        contentFromAssetsToggleButton.isEnabled = false
         mediationDropDownMenu.isEnabled = false
+        adTypeDropDownMenu.isEnabled = false
         viewabilityToggleButton.isEnabled = false
         zOrderToggleButton.isEnabled = false
     }
 
     private fun enableAllControls() {
-        webViewToggleButton.isEnabled = true
-        contentFromAssetsToggleButton.isEnabled = webViewToggleButton.isChecked
         mediationDropDownMenu.isEnabled = true
+        adTypeDropDownMenu.isEnabled = true
         viewabilityToggleButton.isEnabled = true
         zOrderToggleButton.isEnabled = true
-    }
-
-    private fun initializeWebViewToggleSwitch() {
-        contentFromAssetsToggleButton.isEnabled = false
-        webViewToggleButton.setOnCheckedChangeListener { _, isChecked ->
-            contentFromAssetsToggleButton.isEnabled = isChecked
-            adType =
-                if (isChecked) {
-                    if (contentFromAssetsToggleButton.isChecked) {
-                        AdType.WEBVIEW_FROM_LOCAL_ASSETS
-                    } else {
-                        AdType.WEBVIEW
-                    }
-                } else {
-                    AdType.NON_WEBVIEW
-                }
-            loadAllAds()
-        }
-    }
-
-    private fun initializeContentFromAssetsToggleButton() {
-        contentFromAssetsToggleButton.setOnCheckedChangeListener { _, isChecked ->
-            adType =
-                if (isChecked) {
-                    AdType.WEBVIEW_FROM_LOCAL_ASSETS
-                } else {
-                    AdType.WEBVIEW
-                }
-            loadAllAds()
-        }
     }
 
     private fun initializeViewabilityToggleButton() {
@@ -244,6 +211,46 @@ class MainActivity : AppCompatActivity() {
                             }
                         } else {
                             MediationOption.NON_MEDIATED
+                        }
+                    loadAllAds()
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+    }
+
+    private fun initializeAdTypeDropDown() {
+        ArrayAdapter.createFromResource(
+                applicationContext,
+                R.array.ad_type_dropdown_menu_array,
+                android.R.layout.simple_spinner_item
+            )
+            .also { adapter ->
+                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                adTypeDropDownMenu.adapter = adapter
+            }
+
+        adTypeDropDownMenu.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                var isCalledOnStartingApp = true
+
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    selectedAdOptionId: Long
+                ) {
+                    if (isCalledOnStartingApp) {
+                        isCalledOnStartingApp = false
+                        return
+                    }
+                    adType =
+                        when (position) {
+                            0 -> AdType.NON_WEBVIEW
+                            1 -> AdType.WEBVIEW
+                            2 -> AdType.WEBVIEW_FROM_LOCAL_ASSETS
+                            3 -> AdType.NON_WEBVIEW_VIDEO
+                            else -> AdType.NON_WEBVIEW
                         }
                     loadAllAds()
                 }

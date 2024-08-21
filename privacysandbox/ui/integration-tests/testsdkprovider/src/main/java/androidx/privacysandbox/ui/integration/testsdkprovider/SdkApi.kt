@@ -21,6 +21,8 @@ import android.os.Bundle
 import android.os.Process
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 import androidx.privacysandbox.ui.core.SandboxedUiAdapter
+import androidx.privacysandbox.ui.integration.sdkproviderutils.PlayerViewProvider
+import androidx.privacysandbox.ui.integration.sdkproviderutils.PlayerViewabilityHandler
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.AdType
 import androidx.privacysandbox.ui.integration.sdkproviderutils.SdkApiConstants.Companion.MediationOption
 import androidx.privacysandbox.ui.integration.sdkproviderutils.TestAdapters
@@ -61,6 +63,7 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
                 AdType.WEBVIEW_FROM_LOCAL_ASSETS -> {
                     loadWebViewBannerAdFromLocalAssets()
                 }
+                AdType.NON_WEBVIEW_VIDEO -> loadVideoAd()
                 else -> {
                     loadNonWebViewBannerAd("Ad type not present", waitInsideOnDraw)
                 }
@@ -86,6 +89,13 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         waitInsideOnDraw: Boolean
     ): SandboxedUiAdapter {
         return testAdapters.TestBannerAd(text, waitInsideOnDraw)
+    }
+
+    private fun loadVideoAd(): SandboxedUiAdapter {
+        val playerViewProvider = PlayerViewProvider()
+        val adapter = testAdapters.VideoBannerAd(playerViewProvider)
+        PlayerViewabilityHandler.addObserverFactoryToAdapter(adapter, playerViewProvider)
+        return adapter
     }
 
     override fun requestResize(width: Int, height: Int) {}

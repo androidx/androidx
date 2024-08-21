@@ -29,4 +29,7 @@ dependencies {
     implementation project(':privacysandbox:ui:ui-provider')
     implementation project(':privacysandbox:ui:integration-tests:testaidl')
     implementation project(':webkit:webkit')
+    implementation(libs.media3Ui)
+    implementation(libs.media3Common)
+    implementation(libs.media3Exoplayer)
 }
