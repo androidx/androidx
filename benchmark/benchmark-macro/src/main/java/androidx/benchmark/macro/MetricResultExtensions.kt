@@ -64,8 +64,8 @@ fun assertEqualMeasurements(
             expectedSamples.zip(observedSamples).forEachIndexed { index, pair ->
                 if (abs(pair.first - pair.second) > threshold) {
                     errorString +=
-                        "$name sample $index observed ${pair.first}" +
-                            " more than $threshold from expected ${pair.second}\n"
+                        "$name sample $index observed ${pair.second}, which is" +
+                            " more than $threshold from expected ${pair.first}\n"
                 }
             }
         }

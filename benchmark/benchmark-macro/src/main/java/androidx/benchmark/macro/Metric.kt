@@ -457,6 +457,9 @@ abstract class TraceMetric : Metric() {
  * )
  * ```
  *
+ * Note that non-terminating slices in the trace (where duration = -1) are always ignored by this
+ * metric.
+ *
  * @see androidx.tracing.Trace.beginSection
  * @see androidx.tracing.Trace.endSection
  * @see androidx.tracing.trace
@@ -553,10 +556,12 @@ constructor(
         traceSession: PerfettoTraceProcessor.Session
     ): List<Measurement> {
         val slices =
-            traceSession.querySlices(
-                sectionName,
-                packageName = if (targetPackageOnly) captureInfo.targetPackageName else null
-            )
+            traceSession
+                .querySlices(
+                    sectionName,
+                    packageName = if (targetPackageOnly) captureInfo.targetPackageName else null
+                )
+                .filter { it.dur != -1L } // filter out non-terminating slices
 
         return when (mode) {
             Mode.First -> {
