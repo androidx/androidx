@@ -59,6 +59,22 @@ internal class InterfaceParser(
         ) {
             logger.error("Error in $name: annotated interfaces cannot declare companion objects.")
         }
+        if (
+            interfaceDeclaration.declarations
+                .filterIsInstance<KSClassDeclaration>()
+                .filter {
+                    listOf(
+                            ClassKind.OBJECT,
+                            ClassKind.INTERFACE,
+                            ClassKind.ENUM_CLASS,
+                            ClassKind.CLASS
+                        )
+                        .contains(it.classKind)
+                }
+                .any { !it.isCompanionObject }
+        ) {
+            logger.error("Error in $name: annotated interfaces cannot declare objects or classes.")
+        }
         val invalidModifiers =
             interfaceDeclaration.modifiers.filterNot(validInterfaceModifiers::contains)
         if (invalidModifiers.isNotEmpty()) {

@@ -218,6 +218,64 @@ class ValueParserTest {
     }
 
     @Test
+    fun dataClassWithObject_fails() {
+        val dataClass =
+            annotatedValue(
+                """
+            |data class MySdkRequest(val id: Int) {
+            |   object Constants {
+            |       val someConstant = 12
+            |   }
+            |}
+        """
+                    .trimMargin()
+            )
+        checkSourceFails(dataClass)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest: annotated values cannot declare objects or " +
+                    "classes."
+            )
+    }
+
+    @Test
+    fun dataClassWithInnerClass_fails() {
+        val dataClass =
+            annotatedValue(
+                """
+            |data class MySdkRequest(val id: Int) {
+            |   class MyClass {
+            |       val someConstant = 12
+            |   }
+            |}
+        """
+                    .trimMargin()
+            )
+        checkSourceFails(dataClass)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest: annotated values cannot declare objects or " +
+                    "classes."
+            )
+    }
+
+    @Test
+    fun dataClassWithEnumClass_fails() {
+        val dataClass =
+            annotatedValue(
+                """
+            |data class MySdkRequest(val id: Int) {
+            |   enum class MyClass { RED, GREEN }
+            |}
+        """
+                    .trimMargin()
+            )
+        checkSourceFails(dataClass)
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdkRequest: annotated values cannot declare objects or " +
+                    "classes."
+            )
+    }
+
+    @Test
     fun dataClassWithTypeParameters_fails() {
         val dataClass = annotatedValue("data class MySdkRequest<T>(val id: Int, val data: T)")
         checkSourceFails(dataClass)

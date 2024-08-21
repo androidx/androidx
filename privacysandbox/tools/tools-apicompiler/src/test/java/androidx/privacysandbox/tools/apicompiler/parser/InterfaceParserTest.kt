@@ -256,6 +256,71 @@ class InterfaceParserTest {
     }
 
     @Test
+    fun interfaceWithObject_fails() {
+        checkSourceFails(
+                serviceInterface(
+                    """public interface MySdk {
+                    |   object MyObject {
+                    |   }
+                    |}
+                """
+                        .trimMargin()
+                )
+            )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare objects or classes."
+            )
+    }
+
+    @Test
+    fun interfaceWithEnumClass_fails() {
+        checkSourceFails(
+                serviceInterface(
+                    """public interface MySdk {
+                    |   enum class MyEnumClass {}
+                    |}
+                """
+                        .trimMargin()
+                )
+            )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare objects or classes."
+            )
+    }
+
+    @Test
+    fun interfaceWithInterface_fails() {
+        checkSourceFails(
+                serviceInterface(
+                    """public interface MySdk {
+                    |   private interface MyInterface {}
+                    |}
+                """
+                        .trimMargin()
+                )
+            )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare objects or classes."
+            )
+    }
+
+    @Test
+    fun interfaceWithInnerClass_fails() {
+        checkSourceFails(
+                serviceInterface(
+                    """public interface MySdk {
+                    |   class MyInnerClass {}
+                    |}
+                """
+                        .trimMargin()
+                )
+            )
+            .containsExactlyErrors(
+                "Error in com.mysdk.MySdk: annotated interfaces cannot declare objects or classes."
+            )
+    }
+
+    @Test
     fun interfaceWithInvalidModifier_fails() {
         checkSourceFails(
                 serviceInterface(
