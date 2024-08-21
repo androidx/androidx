@@ -314,4 +314,33 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
 
         rule.onNodeWithTag(LazyStaggeredGrid).assertMainAxisSizeIsEqualTo(itemSizeDp * 6)
     }
+
+    @Test
+    fun afterContentPaddingWithSmallScrolls() {
+        state = LazyStaggeredGridState(initialFirstVisibleItemIndex = 0)
+        rule.setContent {
+            Box(Modifier.axisSize(itemSizeDp * 2, itemSizeDp * 4)) {
+                LazyStaggeredGrid(
+                    lanes = 2,
+                    modifier = Modifier.testTag(LazyStaggeredGrid),
+                    contentPadding = PaddingValues(afterContent = itemSizeDp / 2),
+                    state = state
+                ) {
+                    items(20, key = { it }) {
+                        val size = if (it == 0 || it == 19) itemSizeDp / 2 else itemSizeDp * 2
+                        Spacer(Modifier.mainAxisSize(size).testTag("$it").debugBorder())
+                    }
+                }
+            }
+        }
+
+        // scroll to the end
+        state.scrollBy(itemSizeDp * 30)
+
+        state.scrollBy(-5.dp)
+
+        state.scrollBy(itemSizeDp / 2)
+
+        rule.onNodeWithTag("19").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 3f)
+    }
 }

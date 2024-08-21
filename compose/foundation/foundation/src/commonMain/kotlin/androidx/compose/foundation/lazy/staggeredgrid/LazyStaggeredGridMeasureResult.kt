@@ -168,6 +168,7 @@ internal class LazyStaggeredGridMeasureResult(
         ) {
             return null
         }
+        val mainAxisMax = viewportEndOffset - afterContentPadding
         visibleItemsInfo.fastForEach {
             // non scrollable items require special handling.
             if (
@@ -192,7 +193,7 @@ internal class LazyStaggeredGridMeasureResult(
                 if (!canApply) return null
             }
             // item is partially visible at the bottom.
-            if (it.mainAxisOffset + it.mainAxisSizeWithSpacings >= viewportEndOffset) {
+            if (it.mainAxisOffset + it.mainAxisSizeWithSpacings >= mainAxisMax) {
                 val canApply =
                     if (delta < 0) { // scrolling forward
                         it.mainAxisOffset + it.mainAxisSizeWithSpacings - viewportEndOffset > -delta
