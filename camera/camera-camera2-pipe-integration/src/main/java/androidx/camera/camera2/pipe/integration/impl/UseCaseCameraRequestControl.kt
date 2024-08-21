@@ -354,9 +354,9 @@ constructor(
         runIfNotClosed {
             useGraphSessionOrFailed {
                 it.update3A(
-                    aeRegions = METERING_REGIONS_DEFAULT.asList(),
-                    afRegions = METERING_REGIONS_DEFAULT.asList(),
-                    awbRegions = METERING_REGIONS_DEFAULT.asList()
+                    aeRegions = aeRegions ?: METERING_REGIONS_DEFAULT.asList(),
+                    afRegions = afRegions ?: METERING_REGIONS_DEFAULT.asList(),
+                    awbRegions = awbRegions ?: METERING_REGIONS_DEFAULT.asList()
                 )
             }
         } ?: submitFailedResult
