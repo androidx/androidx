@@ -16,8 +16,6 @@
 
 package androidx.compose.material3
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.Interaction
@@ -34,24 +32,18 @@ import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
+import androidx.compose.material3.internal.rememberAnimatedShape
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.material3.tokens.SplitButtonSmallTokens
 import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.layout.Layout
@@ -60,9 +52,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
@@ -70,9 +60,6 @@ import androidx.compose.ui.unit.offset
 import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastSumBy
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
 
 /**
  * A [SplitButton] let user define a button group consisting of 2 buttons. The leading button
@@ -579,9 +566,10 @@ object SplitButtonDefaults {
      * @param onClick called when the button is clicked
      * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
-     *   will
-     * @param shapes defines the shapes of this button's container, border (when [border] is not
-     *   null), and shadow (when using [elevation])
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
      * @param colors [ButtonColors] that will be used to resolve the colors for this button in
      *   different states. See [ButtonDefaults.buttonColors].
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
@@ -659,9 +647,10 @@ object SplitButtonDefaults {
      *   trigger the corner morphing animation to reflect the updated state.
      * @param modifier the [Modifier] to be applied to this button.
      * @param enabled controls the enabled state of the split button. When `false`, this component
-     *   will
-     * @param shapes the shapes for the container when transition between different
-     *   [ShapeAnimationState]
+     *   will not respond to user input, and it will appear visually disabled and disabled to
+     *   accessibility services.
+     * @param shapes the [SplitButtonShapes] that the trailing button will morph between depending
+     *   on the user's interaction with the button.
      * @param colors [ButtonColors] that will be used to resolve the colors for this button in
      *   different states. See [ButtonDefaults.buttonColors].
      * @param elevation [ButtonElevation] used to resolve the elevation for this button in different
@@ -901,92 +890,17 @@ private fun shapeByInteraction(
     checked: Boolean,
     animationSpec: FiniteAnimationSpec<Float>
 ): Shape {
+    val shape =
+        if (pressed) {
+            shapes.pressedShape ?: shapes.shape
+        } else if (checked) {
+            shapes.checkedShape ?: shapes.shape
+        } else shapes.shape
+
     if (shapes.hasRoundedCornerShapes) {
-        return rememberAnimatedShape(shapes, pressed, checked, animationSpec)
+        return rememberAnimatedShape(shape as RoundedCornerShape, animationSpec)
     }
-    if (pressed) {
-        return shapes.pressedShape ?: shapes.shape
-    }
-    if (checked) {
-        return shapes.checkedShape ?: shapes.shape
-    }
-    return shapes.shape
-}
-
-@Composable
-private fun rememberAnimatedShape(
-    shapes: SplitButtonShapes,
-    pressed: Boolean,
-    checked: Boolean,
-    animationSpec: FiniteAnimationSpec<Float>,
-): Shape {
-    val defaultShape = shapes.shape as RoundedCornerShape
-    val pressedShape = shapes.pressedShape as RoundedCornerShape?
-    val checkedShape = shapes.checkedShape as RoundedCornerShape?
-    val currentShape =
-        if (pressedShape != null && pressed) pressedShape
-        else if (checkedShape != null && checked) checkedShape else defaultShape
-
-    val state =
-        remember(animationSpec) {
-            ShapeAnimationState(
-                shape = currentShape,
-                spec = animationSpec,
-            )
-        }
-
-    val channel = remember { Channel<RoundedCornerShape>(Channel.CONFLATED) }
-    SideEffect { channel.trySend(currentShape) }
-    LaunchedEffect(state, channel) {
-        for (target in channel) {
-            val newTarget = channel.tryReceive().getOrNull() ?: target
-            launch { state.animateToShape(newTarget) }
-        }
-    }
-
-    return rememberAnimatedShape(state)
-}
-
-@Composable
-private fun rememberAnimatedShape(state: ShapeAnimationState): Shape {
-    val density = LocalDensity.current
-    state.density = density
-
-    return remember(density, state) {
-        object : ShapeWithOpticalCentering {
-            var clampedRange by mutableStateOf(0f..1f)
-
-            override fun offset(): Float {
-                val topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f
-                val topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f
-                val bottomStart = state.bottomStart?.value?.coerceIn(clampedRange) ?: 0f
-                val bottomEnd = state.bottomEnd?.value?.coerceIn(clampedRange) ?: 0f
-                val avgStart = (topStart + bottomStart) / 2
-                val avgEnd = (topEnd + bottomEnd) / 2
-                return OpticalCenteringCoefficient * (avgStart - avgEnd)
-            }
-
-            override fun createOutline(
-                size: Size,
-                layoutDirection: LayoutDirection,
-                density: Density
-            ): Outline {
-                state.size = size
-                if (!state.didInit) {
-                    state.init()
-                }
-
-                clampedRange = 0f..size.height / 2
-                return RoundedCornerShape(
-                        topStart = state.topStart?.value?.coerceIn(clampedRange) ?: 0f,
-                        topEnd = state.topEnd?.value?.coerceIn(clampedRange) ?: 0f,
-                        bottomStart = state.bottomStart?.value?.coerceIn(clampedRange) ?: 0f,
-                        bottomEnd = state.bottomEnd?.value?.coerceIn(clampedRange) ?: 0f,
-                    )
-                    .createOutline(size, layoutDirection, density)
-            }
-        }
-    }
+    return shape
 }
 
 /**
@@ -1006,46 +920,6 @@ internal val SplitButtonShapes.hasRoundedCornerShapes: Boolean
         if (checkedShape != null && checkedShape !is RoundedCornerShape) return false
         return shape is RoundedCornerShape
     }
-
-@Stable
-private class ShapeAnimationState(
-    val shape: RoundedCornerShape,
-    val spec: FiniteAnimationSpec<Float>,
-) {
-    var size: Size = Size.Zero
-    var density: Density = Density(0f, 0f)
-    var didInit = false
-
-    var topStart: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var topEnd: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var bottomStart: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    var bottomEnd: Animatable<Float, AnimationVector1D>? = null
-        private set
-
-    fun init() {
-        topStart = Animatable(shape.topStart.toPx(size, density))
-        topEnd = Animatable(shape.topEnd.toPx(size, density))
-        bottomStart = Animatable(shape.bottomStart.toPx(size, density))
-        bottomEnd = Animatable(shape.bottomEnd.toPx(size, density))
-        didInit = true
-    }
-
-    suspend fun animateToShape(shape: RoundedCornerShape?) =
-        shape?.let {
-            coroutineScope {
-                launch { topStart?.animateTo(it.topStart.toPx(size, density), spec) }
-                launch { topEnd?.animateTo(it.topEnd.toPx(size, density), spec) }
-                launch { bottomStart?.animateTo(it.bottomStart.toPx(size, density), spec) }
-                launch { bottomEnd?.animateTo(it.bottomEnd.toPx(size, density), spec) }
-            }
-        }
-}
 
 private const val LeadingButtonLayoutId = "LeadingButton"
 private const val TrailingButtonLayoutId = "TrailingButton"
