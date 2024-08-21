@@ -43,7 +43,10 @@ function usage() {
 
   You can also supply additional arguments that will be passed through to validateRefactorHelper.py, using -P
   For example, the baseline arguments that validateRefactorHelper.py accepts.
-  Example: $0 HEAD^ -PagpKmp
+  Example: $0 HEAD^ -p agpKmp
+
+  validateRefactor also accepts git treeishes as named arguments using -g
+  Example: $0 -g HEAD^ -p agpKmp
   "
   return 1
 }
@@ -123,18 +126,26 @@ function doBuild() {
   unzipInPlace "${tempOutPath}/dist/docs-public-0.zip"
 }
 
+nonNamedArgs=()
 oldCommits=()
 passThruArgs=()
-while getopts ":p:g:" opt; do
-  case $opt in
-    \? ) usage;;
-    g ) oldCommits+="$(expandCommitArgs $OPTARG)";;
-    p ) passThruArgs+="$OPTARG";;
-  esac
-  case $OPTARG in
-    -*) usage;;
-  esac
+while [ $OPTIND -le "$#" ]; do
+  if getopts ":p:g:" opt; then
+    case $opt in
+      \? ) usage;;
+      g ) oldCommits+="$(expandCommitArgs $OPTARG)";;
+      p ) passThruArgs+="$OPTARG";;
+    esac
+    case $OPTARG in
+      -*) usage;;
+    esac
+  else
+    nonNamedArgs+=("${!OPTIND}")
+    ((OPTIND++))
+  fi
 done
+
+oldCommits+="$(expandCommitArgs $nonNamedArgs)"
 
 projectPaths="$(getParticipatingProjectPaths $oldCommits)"
 if [ "$oldCommits" == "" ]; then
