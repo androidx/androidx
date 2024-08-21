@@ -29,6 +29,10 @@ class TraceSectionMetricTest {
         createTempFileFromAsset(prefix = "api24_startup_cold", suffix = ".perfetto-trace")
             .absolutePath
 
+    private val api31ColdStart =
+        createTempFileFromAsset(prefix = "api31_startup_cold", suffix = ".perfetto-trace")
+            .absolutePath
+
     private val commasInSliceNames =
         createTempFileFromAsset(prefix = "api24_commas_in_slice_names", suffix = ".perfetto-trace")
             .absolutePath
@@ -104,6 +108,20 @@ class TraceSectionMetricTest {
             expectedMaxMs = 13.318,
             expectedSumMs = 43.128,
             expectedSumCount = 8,
+            targetPackageOnly = false,
+        )
+
+    @Test
+    fun filterNonTerminatingSlices() =
+        verifyFirstSum(
+            tracePath = api31ColdStart, // arbitrary trace which includes non-termination slices
+            packageName = Packages.TARGET, // ignored
+            sectionName = "wait",
+            expectedFirstMs = 0.00724,
+            expectedMinMs = 0.001615, // filtered out non-terminating -1 duration
+            expectedMaxMs = 357.761234,
+            expectedSumMs = 811.865025,
+            expectedSumCount = 226, // filtered out single case where dur = -1
             targetPackageOnly = false,
         )
 
