@@ -74,7 +74,7 @@ internal constructor(internal val features: List<Feature>, val centerX: Float, v
                 }
             }
         }
-        if (lastCubic != null && firstCubic != null)
+        if (lastCubic != null && firstCubic != null) {
             add(
                 Cubic(
                     lastCubic.anchor0X,
@@ -87,6 +87,21 @@ internal constructor(internal val features: List<Feature>, val centerX: Float, v
                     firstCubic.anchor0Y
                 )
             )
+        } else {
+            // Empty / 0-sized polygon.
+            add(
+                Cubic(
+                    centerX,
+                    centerY,
+                    centerX,
+                    centerY,
+                    centerX,
+                    centerY,
+                    centerX,
+                    centerY,
+                )
+            )
+        }
     }
 
     init {
@@ -100,12 +115,11 @@ internal constructor(internal val features: List<Feature>, val centerX: Float, v
                     abs(cubic.anchor0Y - prevCubic.anchor1Y) > DistanceEpsilon
             ) {
                 debugLog("RoundedPolygon") {
-                    "Ix: $index | (${cubic.anchor0X},${cubic.anchor0Y}) vs " + "$prevCubic"
+                    "Ix: $index | (${cubic.anchor0X},${cubic.anchor0Y}) vs $prevCubic"
                 }
                 throw IllegalArgumentException(
-                    "RoundedPolygon must be contiguous, with the " +
-                        "anchor points of all curves matching the anchor points of the preceding " +
-                        "and succeeding cubics"
+                    "RoundedPolygon must be contiguous, with the anchor points of all curves " +
+                        "matching the anchor points of the preceding and succeeding cubics"
                 )
             }
             prevCubic = cubic
@@ -483,27 +497,51 @@ private class RoundedCorner(
     val p2: Point,
     val rounding: CornerRounding? = null
 ) {
-    val d1 = (p0 - p1).getDirection()
-    val d2 = (p2 - p1).getDirection()
-    val cornerRadius = rounding?.radius ?: 0f
-    val smoothing = rounding?.smoothing ?: 0f
+    val d1: Point
+    val d2: Point
+    val cornerRadius: Float
+    val smoothing: Float
+    val cosAngle: Float
+    val sinAngle: Float
+    val expectedRoundCut: Float
 
-    // cosine of angle at p1 is dot product of unit vectors to the other two vertices
-    val cosAngle = d1.dotProduct(d2)
+    init {
+        val v01 = p0 - p1
+        val v21 = p2 - p1
+        val d01 = v01.getDistance()
+        val d21 = v21.getDistance()
+        if (d01 > 0f && d21 > 0f) {
+            d1 = v01 / d01
+            d2 = v21 / d21
+            cornerRadius = rounding?.radius ?: 0f
+            smoothing = rounding?.smoothing ?: 0f
 
-    // identity: sin^2 + cos^2 = 1
-    // sinAngle gives us the intersection
-    val sinAngle = sqrt(1 - square(cosAngle))
+            // cosine of angle at p1 is dot product of unit vectors to the other two vertices
+            cosAngle = d1.dotProduct(d2)
 
-    // How much we need to cut, as measured on a side, to get the required radius
-    // calculating where the rounding circle hits the edge
-    // This uses the identity of tan(A/2) = sinA/(1 + cosA), where tan(A/2) = radius/cut
-    val expectedRoundCut =
-        if (sinAngle > 1e-3) {
-            cornerRadius * (cosAngle + 1) / sinAngle
+            // identity: sin^2 + cos^2 = 1
+            // sinAngle gives us the intersection
+            sinAngle = sqrt(1 - square(cosAngle))
+            // How much we need to cut, as measured on a side, to get the required radius
+            // calculating where the rounding circle hits the edge
+            // This uses the identity of tan(A/2) = sinA/(1 + cosA), where tan(A/2) = radius/cut
+            expectedRoundCut =
+                if (sinAngle > 1e-3) {
+                    cornerRadius * (cosAngle + 1) / sinAngle
+                } else {
+                    0f
+                }
         } else {
-            0f
+            // One (or both) of the sides is empty, not much we can do.
+            d1 = Point(0f, 0f)
+            d2 = Point(0f, 0f)
+            cornerRadius = 0f
+            smoothing = 0f
+            cosAngle = 0f
+            sinAngle = 0f
+            expectedRoundCut = 0f
         }
+    }
 
     // smoothing changes the actual cut. 0 is same as expectedRoundCut, 1 doubles it
     val expectedCut: Float

@@ -229,6 +229,29 @@ class PolygonTest {
         }
     }
 
+    @Test
+    fun emptyPolygonTest() {
+        val poly = RoundedPolygon(6, radius = 0f, rounding = CornerRounding(0.1f))
+        assert(poly.cubics.size == 1)
+
+        val stillEmpty = poly.transformed(scaleTransform(10f, 20f))
+        assert(stillEmpty.cubics.size == 1)
+        assert(stillEmpty.cubics.first().zeroLength())
+    }
+
+    @Test
+    fun emptySideTest() {
+        val poly1 =
+            RoundedPolygon(
+                floatArrayOf(0f, 0f, 1f, 0f, 1f, 0f, 0f, 1f), // Triangle with one point repeated
+            )
+        val poly2 =
+            RoundedPolygon(
+                floatArrayOf(0f, 0f, 1f, 0f, 0f, 1f), // Triangle
+            )
+        assertCubicListsEqualish(poly1.cubics, poly2.cubics)
+    }
+
     private fun nonzeroCubics(original: List<Cubic>): List<Cubic> {
         val result = mutableListOf<Cubic>()
         for (i in original.indices) {
