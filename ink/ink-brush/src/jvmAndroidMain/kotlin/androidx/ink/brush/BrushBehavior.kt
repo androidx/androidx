@@ -18,38 +18,27 @@ package androidx.ink.brush
 
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
+import java.util.Collections.unmodifiableList
 import java.util.Collections.unmodifiableSet
 import kotlin.jvm.JvmField
+import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 /**
- * Specification for a behavior that maps values of an input property to multipliers/offsets to the
- * value of a tip property through a configurable curve.
+ * A behavior describing how stroke input properties should affect the shape and color of the brush
+ * tip.
  *
- * Tip properties consist of the shape and a color-shift that can be used to augment the [Brush]
- * color.
- *
- * The effect of each behavior is calculated as follows:
- * 1. If the current input tool type is not enabled in [enabledToolTypes], or the [source] input
- *    property is not reported, then the behavior is inactive and skipped.
- * 2. The [source] enumerator is used to retrieve the appropriate value from the current input
- *    state.
- * 3. The input value is mapped to a unitless value in the range [0, 1] by inverse linear
- *    interpolation using the range [sourceValueRangeLowerBound, sourceValueRangeUpperBound] and
- *    [sourceOutOfRangeBehavior].
- * 4. The result of the previous step is mapped to a new unitless value according to the
- *    [responseCurve] easing function.
- * 5. The unitless output value from the previous step is linearly interpolated or extrapolated
- *    using the range [targetModifierRangeLowerBound, targetModifierRangeUpperBound] to produce a
- *    proposed modifier (either an offset or a multiplier, depending on the [Target]) to be applied
- *    to the [target] tip property.
- * 6. The behavior's actual modifier value decays towards this proposed modifier over time based on
- *    [responseTimeMillis] (or snaps to it instantly if [responseTimeMillis] is zero).
- *
- * Note that the elements of sourceValueRange and targetModifierRange do not have a required order.
- * For example, [sourceValueRangeLowerBound] can be greater than or less than
- * [sourceValueRangeUpperBound]. In either case, [sourceValueRangeLowerBound] will correspond to
- * passing 0 as an input to the [responseCurve].
+ * The behavior is conceptually a graph made from the various node types defined below. Each edge of
+ * the graph represents passing a nullable floating point value between nodes, and each node in the
+ * graph fits into one of the following categories:
+ * 1. Leaf nodes generate an output value without graph inputs. For example, they can create a value
+ *    from properties of stroke input.
+ * 2. Filter nodes can conditionally toggle branches of the graph "on" by outputting their input
+ *    value, or "off" by outputting a null value.
+ * 3. Operator nodes take in one or more input values and generate an output. For example, by
+ *    mapping input to output with an easing function.
+ * 4. Target nodes apply an input value to chosen properties of the brush tip.
  *
  * For each input in a stroke, [BrushTip.behaviors] are applied as follows:
  * 1. The actual target modifier (as calculated above) for each tip property is accumulated from
@@ -65,34 +54,156 @@ import kotlin.jvm.JvmStatic
  *    +100%. Note that when stored on a vertex, the color shift is encoded such that each channel is
  *    in the range [0, 1], where 0.5 represents a 0% shift.
  *
- * Note that the accumulated tip shape property offsets may be modified by the implementation before
- * being applied: The rates of change of shape properties may be constrained to keep them from
- * changing too rapidly with respect to distance traveled from one input to the next.
- *
- * Note to Java developers: use [BrushBehavior.Builder] for building a BrushBehavior with default
- * values.
+ * Note that the accumulated tip shape property modifiers may be adjusted by the implementation
+ * before being applied: The rates of change of shape properties may be constrained to keep them
+ * from changing too rapidly with respect to distance traveled from one input to the next.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @ExperimentalInkCustomBrushApi
-@Suppress("NotCloseable") // Finalize is only used to free the native peer.
+// NotCloseable: Finalize is only used to free the native peer.
+// Deprecation: b/356424519 Migrate to targetNodes
+@Suppress("NotCloseable", "DEPRECATION")
 public class BrushBehavior(
-    public val source: Source,
-    public val target: Target,
-    public val sourceValueRangeLowerBound: Float,
-    public val sourceValueRangeUpperBound: Float,
-    public val targetModifierRangeLowerBound: Float,
-    public val targetModifierRangeUpperBound: Float,
-    public val sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
-    public val responseCurve: EasingFunction = EasingFunction.Predefined.LINEAR,
-    public val responseTimeMillis: Long = 0L,
-    // The [enabledToolTypes] val below is a defensive copy of this parameter.
-    enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES,
-    public val isFallbackFor: OptionalInputProperty? = null,
+    // The [targetNodes] val below is a defensive copy of this parameter.
+    targetNodes: List<TargetNode>
 ) {
-    public val enabledToolTypes: Set<InputToolType> = unmodifiableSet(enabledToolTypes.toSet())
+    public val targetNodes: List<TargetNode> = unmodifiableList(targetNodes.toList())
 
     /** A handle to the underlying native [BrushBehavior] object. */
-    internal val nativePointer: Long = createNativeBrushBehavior()
+    internal val nativePointer: Long = createNativeBrushBehavior(targetNodes)
+
+    /**
+     * Constructs a simple [BrushBehavior] using whatever [Node]s are necessary for the specified
+     * fields.
+     */
+    public constructor(
+        source: Source,
+        target: Target,
+        sourceValueRangeLowerBound: Float,
+        sourceValueRangeUpperBound: Float,
+        targetModifierRangeLowerBound: Float,
+        targetModifierRangeUpperBound: Float,
+        sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
+        responseCurve: EasingFunction = EasingFunction.Predefined.LINEAR,
+        responseTimeMillis: Long = 0L,
+        enabledToolTypes: Set<InputToolType> = ALL_TOOL_TYPES,
+        isFallbackFor: OptionalInputProperty? = null,
+    ) : this(
+        run<List<TargetNode>> {
+            var node: ValueNode =
+                SourceNode(
+                    source,
+                    sourceValueRangeLowerBound,
+                    sourceValueRangeUpperBound,
+                    sourceOutOfRangeBehavior,
+                )
+            if (enabledToolTypes != ALL_TOOL_TYPES) {
+                node = ToolTypeFilterNode(enabledToolTypes, node)
+            }
+            if (isFallbackFor != null) {
+                node = FallbackFilterNode(isFallbackFor, node)
+            }
+            // [EasingFunction.Predefined.LINEAR] is the identity function, so no need to add a
+            // [ResponseNode] with that function.
+            if (responseCurve != EasingFunction.Predefined.LINEAR) {
+                node = ResponseNode(responseCurve, node)
+            }
+            if (responseTimeMillis != 0L) {
+                node =
+                    DampingNode(
+                        DampingSource.TIME_IN_SECONDS,
+                        responseTimeMillis.toFloat() / 1000.0f,
+                        node
+                    )
+            }
+            listOf(
+                TargetNode(
+                    target,
+                    targetModifierRangeLowerBound,
+                    targetModifierRangeUpperBound,
+                    node
+                )
+            )
+        }
+    )
+
+    /**
+     * Returns a node in the behavior of the given [Node] subclass, matching the given predicate (if
+     * any).
+     */
+    // TODO: b/356424519 - Remove this method once the below legacy properties are removed.
+    private fun <T : Node> findNode(
+        nodeClass: KClass<T>,
+        predicate: (T) -> Boolean = { true }
+    ): T? {
+        val stack = ArrayDeque<Node>(targetNodes)
+        while (!stack.isEmpty()) {
+            val node = stack.removeLast()
+            // [KClass.safeCast] is apparently discouraged on Android for performance reasons.
+            if (nodeClass.isInstance(node)) {
+                @Suppress("UNCHECKED_CAST") // cast is protected by enclosing if statement
+                val result = node as T
+                if (predicate(result)) return result
+            }
+            stack.addAll(node.inputs())
+        }
+        return null
+    }
+
+    // The below properties are implemented so as to give the correct answer in cases where the
+    // [BrushBehavior] was created using the legacy convenience constructor, and to give _some_ kind
+    // of plausible answer in the more general case of a [BrushBehavior] created with an arbitrary
+    // node graph. Once existing callers of these properties are migrated to working with [Node]s
+    // instead, we can remove them.
+    //
+    // TODO: b/356424519 - Remove the below getters once we no longer need them.
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val source: Source
+        get() = findNode(SourceNode::class)?.source ?: Source.NORMALIZED_PRESSURE
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val target: Target
+        get() = findNode(TargetNode::class)?.target ?: Target.SIZE_MULTIPLIER
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val sourceValueRangeLowerBound: Float
+        get() = findNode(SourceNode::class)?.sourceValueRangeLowerBound ?: 0.0f
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val sourceValueRangeUpperBound: Float
+        get() = findNode(SourceNode::class)?.sourceValueRangeUpperBound ?: 1.0f
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val targetModifierRangeLowerBound: Float
+        get() = findNode(TargetNode::class)?.targetModifierRangeLowerBound ?: 0.0f
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val targetModifierRangeUpperBound: Float
+        get() = findNode(TargetNode::class)?.targetModifierRangeUpperBound ?: 1.0f
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val sourceOutOfRangeBehavior: OutOfRange
+        get() = findNode(SourceNode::class)?.sourceOutOfRangeBehavior ?: OutOfRange.CLAMP
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val responseCurve: EasingFunction
+        get() = findNode(ResponseNode::class)?.responseCurve ?: EasingFunction.Predefined.LINEAR
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val responseTimeMillis: Long
+        get() =
+            ((findNode(DampingNode::class, { it.dampingSource == DampingSource.TIME_IN_SECONDS })
+                    ?.dampingGap ?: 0.0f) * 1000.0f)
+                .toLong()
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val enabledToolTypes: Set<InputToolType>
+        get() = findNode(ToolTypeFilterNode::class)?.enabledToolTypes ?: ALL_TOOL_TYPES
+
+    @Deprecated("Prefer using targetNodes instead.")
+    public val isFallbackFor: OptionalInputProperty?
+        get() = findNode(FallbackFilterNode::class)?.isFallbackFor
 
     /**
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
@@ -281,186 +392,35 @@ public class BrushBehavior(
         nativeFreeBrushBehavior(nativePointer)
     }
 
-    /**
-     * Depending on the variant of the responseCurve, call the corresponding native method that
-     * accepts the EasingFunction arguments to create it.
-     */
-    private fun createNativeBrushBehavior(): Long =
-        when (responseCurve) {
-            is EasingFunction.Predefined ->
-                nativeCreateBrushBehaviorPredefined(
-                    source.value,
-                    target.value,
-                    sourceOutOfRangeBehavior.value,
-                    sourceValueRangeLowerBound,
-                    sourceValueRangeUpperBound,
-                    targetModifierRangeLowerBound,
-                    targetModifierRangeUpperBound,
-                    responseCurve.value,
-                    responseTimeMillis,
-                    enabledToolTypes.contains(InputToolType.MOUSE),
-                    enabledToolTypes.contains(InputToolType.TOUCH),
-                    enabledToolTypes.contains(InputToolType.STYLUS),
-                    enabledToolTypes.contains(InputToolType.UNKNOWN),
-                    isFallbackFor?.value ?: -1,
-                )
-            is EasingFunction.Steps ->
-                nativeCreateBrushBehaviorSteps(
-                    source.value,
-                    target.value,
-                    sourceOutOfRangeBehavior.value,
-                    sourceValueRangeLowerBound,
-                    sourceValueRangeUpperBound,
-                    targetModifierRangeLowerBound,
-                    targetModifierRangeUpperBound,
-                    responseCurve.stepCount,
-                    responseCurve.stepPosition.value,
-                    responseTimeMillis,
-                    enabledToolTypes.contains(InputToolType.MOUSE),
-                    enabledToolTypes.contains(InputToolType.TOUCH),
-                    enabledToolTypes.contains(InputToolType.STYLUS),
-                    enabledToolTypes.contains(InputToolType.UNKNOWN),
-                    isFallbackFor?.value ?: -1,
-                )
-            is EasingFunction.CubicBezier ->
-                nativeCreateBrushBehaviorCubicBezier(
-                    source.value,
-                    target.value,
-                    sourceOutOfRangeBehavior.value,
-                    sourceValueRangeLowerBound,
-                    sourceValueRangeUpperBound,
-                    targetModifierRangeLowerBound,
-                    targetModifierRangeUpperBound,
-                    responseCurve.x1,
-                    responseCurve.y1,
-                    responseCurve.x2,
-                    responseCurve.y2,
-                    responseTimeMillis,
-                    enabledToolTypes.contains(InputToolType.MOUSE),
-                    enabledToolTypes.contains(InputToolType.TOUCH),
-                    enabledToolTypes.contains(InputToolType.STYLUS),
-                    enabledToolTypes.contains(InputToolType.UNKNOWN),
-                    isFallbackFor?.value ?: -1,
-                )
-            is EasingFunction.Linear ->
-                nativeCreateBrushBehaviorLinear(
-                    source.value,
-                    target.value,
-                    sourceOutOfRangeBehavior.value,
-                    sourceValueRangeLowerBound,
-                    sourceValueRangeUpperBound,
-                    targetModifierRangeLowerBound,
-                    targetModifierRangeUpperBound,
-                    FloatArray(responseCurve.points.size * 2).apply {
-                        var index = 0
-                        for (point in responseCurve.points) {
-                            set(index, point.x)
-                            ++index
-                            set(index, point.y)
-                            ++index
-                        }
-                    },
-                    responseTimeMillis,
-                    enabledToolTypes.contains(InputToolType.MOUSE),
-                    enabledToolTypes.contains(InputToolType.TOUCH),
-                    enabledToolTypes.contains(InputToolType.STYLUS),
-                    enabledToolTypes.contains(InputToolType.UNKNOWN),
-                    isFallbackFor?.value ?: -1,
-                )
-            else -> throw IllegalArgumentException("Unsupported response curve: $responseCurve")
+    private fun createNativeBrushBehavior(targetNodes: List<TargetNode>): Long {
+        // TODO: b/356424519 - Use dup/swap nodes to avoid repeating common subexpressions.
+        val orderedNodes = ArrayDeque<Node>()
+        val stack = ArrayDeque<Node>(targetNodes)
+        while (!stack.isEmpty()) {
+            stack.removeLast().let { node ->
+                orderedNodes.addFirst(node)
+                stack.addAll(node.inputs())
+            }
         }
 
-    /**
-     * Create underlying native brush behavior with response curve of type
-     * [EasingFunction.Predefined] and return its memory address.
-     */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
-    private external fun nativeCreateBrushBehaviorPredefined(
-        source: Int,
-        target: Int,
-        sourceOutOfRangeBehavior: Int,
-        sourceValueRangeLowerBound: Float,
-        sourceValueRangeUpperBound: Float,
-        targetModifierRangeLowerBound: Float,
-        targetModifierRangeUpperBound: Float,
-        predefinedResponseCurve: Int,
-        responseTimeMillis: Long,
-        mouseEnabled: Boolean,
-        touchEnabled: Boolean,
-        stylusEnabled: Boolean,
-        unknownEnabled: Boolean,
-        isFallbackFor: Int,
-    ): Long
+        val nativePointer = nativeCreateEmptyBrushBehavior()
+        for (node in orderedNodes) {
+            node.appendToNativeBrushBehavior(nativePointer)
+        }
+        return nativeValidateOrDeleteAndThrow(nativePointer)
+    }
+
+    /** Creates an underlying native brush behavior with no nodes and returns its memory address. */
+    private external fun nativeCreateEmptyBrushBehavior():
+        Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
 
     /**
-     * Create underlying native brush behavior with response curve of type [EasingFunction.Steps]
-     * and return its memory address.
+     * Validates a native `BrushBehavior` and returns the pointer back, or deletes the native
+     * `BrushBehavior` and throws an exception if it's not valid.
      */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
-    private external fun nativeCreateBrushBehaviorSteps(
-        source: Int,
-        target: Int,
-        sourceOutOfRangeBehavior: Int,
-        sourceValueRangeLowerBound: Float,
-        sourceValueRangeUpperBound: Float,
-        targetModifierRangeLowerBound: Float,
-        targetModifierRangeUpperBound: Float,
-        stepsCount: Int,
-        stepsPosition: Int,
-        responseTimeMillis: Long,
-        mouseEnabled: Boolean,
-        touchEnabled: Boolean,
-        stylusEnabled: Boolean,
-        unknownEnabled: Boolean,
-        isFallbackFor: Int,
-    ): Long
-
-    /**
-     * Create underlying native brush behavior with response curve of type
-     * [EasingFunction.CubicBezier] and return its memory address.
-     */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
-    private external fun nativeCreateBrushBehaviorCubicBezier(
-        source: Int,
-        target: Int,
-        sourceOutOfRangeBehavior: Int,
-        sourceValueRangeLowerBound: Float,
-        sourceValueRangeUpperBound: Float,
-        targetModifierRangeLowerBound: Float,
-        targetModifierRangeUpperBound: Float,
-        cubicBezierX1: Float,
-        cubicBezierX2: Float,
-        cubicBezierY1: Float,
-        cubicBezierY2: Float,
-        responseTimeMillis: Long,
-        mouseEnabled: Boolean,
-        touchEnabled: Boolean,
-        stylusEnabled: Boolean,
-        unknownEnabled: Boolean,
-        isFallbackFor: Int,
-    ): Long
-
-    /**
-     * Create underlying native brush behavior with response curve of type [EasingFunction.Linear]
-     * and return its memory address.
-     */
-    // TODO: b/355248266 - @Keep must go in Proguard config file instead.
-    private external fun nativeCreateBrushBehaviorLinear(
-        source: Int,
-        target: Int,
-        sourceOutOfRangeBehavior: Int,
-        sourceValueRangeLowerBound: Float,
-        sourceValueRangeUpperBound: Float,
-        targetModifierRangeLowerBound: Float,
-        targetModifierRangeUpperBound: Float,
-        points: FloatArray,
-        responseTimeMillis: Long,
-        mouseEnabled: Boolean,
-        touchEnabled: Boolean,
-        stylusEnabled: Boolean,
-        unknownEnabled: Boolean,
-        isFallbackFor: Int,
-    ): Long
+    private external fun nativeValidateOrDeleteAndThrow(
+        nativePointer: Long
+    ): Long // TODO: b/355248266 - @Keep must go in Proguard config file instead.
 
     /**
      * Release the underlying memory allocated in [nativeCreateBrushBehaviorLinear],
@@ -1021,5 +981,505 @@ public class BrushBehavior(
             @JvmField public val TILT_X_AND_Y: OptionalInputProperty = OptionalInputProperty(3)
             private const val PREFIX = "BrushBehavior.OptionalInputProperty."
         }
+    }
+
+    /** A binary operation for combining two values in a [BinaryOpNode]. */
+    public class BinaryOp private constructor(@JvmField internal val value: Int) {
+
+        internal fun toSimpleString(): String =
+            when (this) {
+                PRODUCT -> "PRODUCT"
+                SUM -> "SUM"
+                else -> "INVALID"
+            }
+
+        override fun toString(): String = PREFIX + this.toSimpleString()
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is BinaryOp) return false
+            return value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
+
+        public companion object {
+            /** Evaluates to the product of the two input values, or null if either is null. */
+            @JvmField public val PRODUCT: BinaryOp = BinaryOp(0)
+            /** Evaluates to the sum of the two input values, or null if either is null. */
+            @JvmField public val SUM: BinaryOp = BinaryOp(1)
+
+            private const val PREFIX = "BrushBehavior.BinaryOp."
+        }
+    }
+
+    /** Dimensions/units for measuring the [dampingGap] field of a [DampingNode] */
+    public class DampingSource private constructor(@JvmField internal val value: Int) {
+
+        internal fun toSimpleString(): String =
+            when (this) {
+                TIME_IN_SECONDS -> "TIME_IN_SECONDS"
+                else -> "INVALID"
+            }
+
+        override fun toString(): String = PREFIX + this.toSimpleString()
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is DampingSource) return false
+            return value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
+
+        public companion object {
+            /** Value damping occurs over time, and the [dampingGap] is measured in seconds. */
+            @JvmField public val TIME_IN_SECONDS: DampingSource = DampingSource(0)
+
+            private const val PREFIX = "BrushBehavior.DampingSource."
+        }
+    }
+
+    /**
+     * Represents one node in a [BrushBehavior]'s expression graph. [Node] objects are immutable and
+     * their inputs must be chosen at construction time; therefore, they can only ever be assembled
+     * into an acyclic graph.
+     */
+    public abstract class Node internal constructor() {
+        /** Returns the ordered list of inputs that this node directly depends on. */
+        public open fun inputs(): List<ValueNode> = emptyList()
+
+        /** Appends a native version of this [Node] to a native [BrushBehavior]. */
+        internal abstract fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long)
+    }
+
+    /**
+     * A [ValueNode] is a non-terminal node in the graph; it produces a value to be consumed as an
+     * input by other [Node]s, and may itself depend on zero or more inputs.
+     */
+    public abstract class ValueNode internal constructor() : Node() {}
+
+    /** A [ValueNode] that gets data from the stroke input batch. */
+    public class SourceNode
+    @JvmOverloads
+    constructor(
+        public val source: Source,
+        public val sourceValueRangeLowerBound: Float,
+        public val sourceValueRangeUpperBound: Float,
+        public val sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
+    ) : ValueNode() {
+        init {
+            require(sourceValueRangeLowerBound.isFinite()) {
+                "sourceValueRangeLowerBound must be finite, was $sourceValueRangeLowerBound"
+            }
+            require(sourceValueRangeUpperBound.isFinite()) {
+                "sourceValueRangeUpperBound must be finite, was $sourceValueRangeUpperBound"
+            }
+            require(sourceValueRangeLowerBound != sourceValueRangeUpperBound) {
+                "sourceValueRangeLowerBound and sourceValueRangeUpperBound must be distinct, both were $sourceValueRangeLowerBound"
+            }
+        }
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendSourceNode(
+                nativeBehaviorPointer,
+                source.value,
+                sourceValueRangeLowerBound,
+                sourceValueRangeUpperBound,
+                sourceOutOfRangeBehavior.value,
+            )
+        }
+
+        override fun toString(): String =
+            "SourceNode(${source.toSimpleString()}, $sourceValueRangeLowerBound, $sourceValueRangeUpperBound, ${sourceOutOfRangeBehavior.toSimpleString()})"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is SourceNode) return false
+            return source == other.source &&
+                sourceValueRangeLowerBound == other.sourceValueRangeLowerBound &&
+                sourceValueRangeUpperBound == other.sourceValueRangeUpperBound &&
+                sourceOutOfRangeBehavior == other.sourceOutOfRangeBehavior
+        }
+
+        override fun hashCode(): Int {
+            var result = source.hashCode()
+            result = 31 * result + sourceValueRangeLowerBound.hashCode()
+            result = 31 * result + sourceValueRangeUpperBound.hashCode()
+            result = 31 * result + sourceOutOfRangeBehavior.hashCode()
+            return result
+        }
+
+        /** Appends a native `BrushBehavior::SourceNode` to a native brush behavior struct. */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendSourceNode(
+            nativeBehaviorPointer: Long,
+            source: Int,
+            sourceValueRangeLowerBound: Float,
+            sourceValueRangeUpperBound: Float,
+            sourceOutOfRangeBehavior: Int,
+        )
+    }
+
+    /** A [ValueNode] that produces a constant output value. */
+    public class ConstantNode constructor(public val value: Float) : ValueNode() {
+        init {
+            require(value.isFinite()) { "value must be finite, was $value" }
+        }
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendConstantNode(nativeBehaviorPointer, value)
+        }
+
+        override fun toString(): String = "ConstantNode($value)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is ConstantNode) return false
+            return value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
+
+        /** Appends a native `BrushBehavior::ConstantNode` to a native brush behavior struct. */
+        private external fun nativeAppendConstantNode(
+            nativeBehaviorPointer: Long,
+            value: Float
+        ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    }
+
+    /**
+     * A [ValueNode] for filtering out a branch of a behavior graph unless a particular stroke input
+     * property is missing.
+     */
+    public class FallbackFilterNode
+    constructor(public val isFallbackFor: OptionalInputProperty, public val input: ValueNode) :
+        ValueNode() {
+        override fun inputs(): List<ValueNode> = listOf(input)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendFallbackFilterNode(nativeBehaviorPointer, isFallbackFor.value)
+        }
+
+        override fun toString(): String =
+            "FallbackFilterNode(${isFallbackFor.toSimpleString()}, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is FallbackFilterNode) return false
+            return isFallbackFor == other.isFallbackFor && input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = isFallbackFor.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+
+        /**
+         * Appends a native `BrushBehavior::FallbackFilterNode` to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendFallbackFilterNode(
+            nativeBehaviorPointer: Long,
+            isFallbackFor: Int,
+        )
+    }
+
+    /**
+     * A [ValueNode] for filtering out a branch of a behavior graph unless this stroke's tool type
+     * is in the specified set.
+     */
+    public class ToolTypeFilterNode
+    constructor(
+        // The [enabledToolTypes] val below is a defensive copy of this parameter.
+        enabledToolTypes: Set<InputToolType>,
+        public val input: ValueNode,
+    ) : ValueNode() {
+        public val enabledToolTypes: Set<InputToolType> = unmodifiableSet(enabledToolTypes.toSet())
+
+        init {
+            require(!enabledToolTypes.isEmpty()) { "enabledToolTypes must be non-empty" }
+        }
+
+        override fun inputs(): List<ValueNode> = listOf(input)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendToolTypeFilterNode(
+                nativeBehaviorPointer = nativeBehaviorPointer,
+                mouseEnabled = enabledToolTypes.contains(InputToolType.MOUSE),
+                touchEnabled = enabledToolTypes.contains(InputToolType.TOUCH),
+                stylusEnabled = enabledToolTypes.contains(InputToolType.STYLUS),
+                unknownEnabled = enabledToolTypes.contains(InputToolType.UNKNOWN),
+            )
+        }
+
+        override fun toString(): String = "ToolTypeFilterNode($enabledToolTypes, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is ToolTypeFilterNode) return false
+            return enabledToolTypes == other.enabledToolTypes && input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = enabledToolTypes.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+
+        /**
+         * Appends a native `BrushBehavior::ToolTypeFilterNode` to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendToolTypeFilterNode(
+            nativeBehaviorPointer: Long,
+            mouseEnabled: Boolean,
+            touchEnabled: Boolean,
+            stylusEnabled: Boolean,
+            unknownEnabled: Boolean,
+        )
+    }
+
+    /**
+     * A [ValueNode] that damps changes in an input value, causing the output value to slowly follow
+     * changes in the input value over a specified time or distance.
+     */
+    public class DampingNode
+    constructor(
+        public val dampingSource: DampingSource,
+        public val dampingGap: Float,
+        public val input: ValueNode,
+    ) : ValueNode() {
+        init {
+            require(dampingGap.isFinite() && dampingGap >= 0.0f) {
+                "dampingGap must be finite and non-negative, was $dampingGap"
+            }
+        }
+
+        override fun inputs(): List<ValueNode> = listOf(input)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendDampingNode(nativeBehaviorPointer, dampingSource.value, dampingGap)
+        }
+
+        override fun toString(): String =
+            "DampingNode(${dampingSource.toSimpleString()}, $dampingGap, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is DampingNode) return false
+            return dampingSource == other.dampingSource &&
+                dampingGap == other.dampingGap &&
+                input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = dampingSource.hashCode()
+            result = 31 * result + dampingGap.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+
+        /** Appends a native `BrushBehavior::DampingNode` to a native brush behavior struct. */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendDampingNode(
+            nativeBehaviorPointer: Long,
+            dampingSource: Int,
+            dampingGap: Float,
+        )
+    }
+
+    /** A [ValueNode] that maps an input value through a response curve. */
+    public class ResponseNode
+    constructor(public val responseCurve: EasingFunction, public val input: ValueNode) :
+        ValueNode() {
+        override fun inputs(): List<ValueNode> = listOf(input)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            when (responseCurve) {
+                is EasingFunction.Predefined ->
+                    nativeAppendResponseNodePredefined(nativeBehaviorPointer, responseCurve.value)
+                is EasingFunction.CubicBezier ->
+                    nativeAppendResponseNodeCubicBezier(
+                        nativeBehaviorPointer,
+                        responseCurve.x1,
+                        responseCurve.y1,
+                        responseCurve.x2,
+                        responseCurve.y2,
+                    )
+                is EasingFunction.Steps ->
+                    nativeAppendResponseNodeSteps(
+                        nativeBehaviorPointer,
+                        responseCurve.stepCount,
+                        responseCurve.stepPosition.value,
+                    )
+                is EasingFunction.Linear ->
+                    nativeAppendResponseNodeLinear(
+                        nativeBehaviorPointer,
+                        FloatArray(responseCurve.points.size * 2).apply {
+                            var index = 0
+                            for (point in responseCurve.points) {
+                                set(index, point.x)
+                                ++index
+                                set(index, point.y)
+                                ++index
+                            }
+                        },
+                    )
+            }
+        }
+
+        override fun toString(): String = "ResponseNode($responseCurve, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is ResponseNode) return false
+            return responseCurve == other.responseCurve && input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = responseCurve.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+
+        /**
+         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
+         * [EasingFunction.Predefined] to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendResponseNodePredefined(
+            nativeBehaviorPointer: Long,
+            predefinedResponseCurve: Int,
+        )
+
+        /**
+         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
+         * [EasingFunction.CubicBezier] to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendResponseNodeCubicBezier(
+            nativeBehaviorPointer: Long,
+            cubicBezierX1: Float,
+            cubicBezierX2: Float,
+            cubicBezierY1: Float,
+            cubicBezierY2: Float,
+        )
+
+        /**
+         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
+         * [EasingFunction.Steps] to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendResponseNodeSteps(
+            nativeBehaviorPointer: Long,
+            stepsCount: Int,
+            stepsPosition: Int,
+        )
+
+        /**
+         * Appends a native `BrushBehavior::ResponseNode` with response curve of type
+         * [EasingFunction.Linear] to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendResponseNodeLinear(
+            nativeBehaviorPointer: Long,
+            points: FloatArray,
+        )
+    }
+
+    /** A [ValueNode] that combines two other values with a binary operation. */
+    public class BinaryOpNode
+    constructor(
+        public val operation: BinaryOp,
+        public val firstInput: ValueNode,
+        public val secondInput: ValueNode,
+    ) : ValueNode() {
+        override fun inputs(): List<ValueNode> = listOf(firstInput, secondInput)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendBinaryOpNode(nativeBehaviorPointer, operation.value)
+        }
+
+        override fun toString(): String =
+            "BinaryOpNode(${operation.toSimpleString()}, $firstInput, $secondInput)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is BinaryOpNode) return false
+            return operation == other.operation &&
+                firstInput == other.firstInput &&
+                secondInput == other.secondInput
+        }
+
+        override fun hashCode(): Int {
+            var result = operation.hashCode()
+            result = 31 * result + firstInput.hashCode()
+            result = 31 * result + secondInput.hashCode()
+            return result
+        }
+
+        /** Appends a native `BrushBehavior::BinaryOpNode` to a native brush behavior struct. */
+        private external fun nativeAppendBinaryOpNode(
+            nativeBehaviorPointer: Long,
+            operation: Int
+        ) // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+    }
+
+    /**
+     * A [TargetNode] is a terminal node in the graph; it does not produce a value and cannot be
+     * used as an input to other [Node]s, but instead applies a modification to the brush tip state.
+     * A [BrushBehavior] consists of a list of [TargetNode]s and the various [ValueNode]s that they
+     * transitively depend on.
+     */
+    public class TargetNode
+    constructor(
+        public val target: Target,
+        public val targetModifierRangeLowerBound: Float,
+        public val targetModifierRangeUpperBound: Float,
+        public val input: ValueNode,
+    ) : Node() {
+        init {
+            require(targetModifierRangeLowerBound.isFinite()) {
+                "targetModifierRangeLowerBound must be finite, was $targetModifierRangeLowerBound"
+            }
+            require(targetModifierRangeUpperBound.isFinite()) {
+                "targetModifierRangeUpperBound must be finite, was $targetModifierRangeUpperBound"
+            }
+            require(targetModifierRangeLowerBound != targetModifierRangeUpperBound) {
+                "targetModifierRangeLowerBound and targetModifierRangeUpperBound must be distinct, both were $targetModifierRangeLowerBound"
+            }
+        }
+
+        override fun inputs(): List<ValueNode> = listOf(input)
+
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendTargetNode(
+                nativeBehaviorPointer,
+                target.value,
+                targetModifierRangeLowerBound,
+                targetModifierRangeUpperBound,
+            )
+        }
+
+        override fun toString(): String =
+            "TargetNode(${target.toSimpleString()}, $targetModifierRangeLowerBound, $targetModifierRangeUpperBound, $input)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is TargetNode) return false
+            return target == other.target &&
+                targetModifierRangeLowerBound == other.targetModifierRangeLowerBound &&
+                targetModifierRangeUpperBound == other.targetModifierRangeUpperBound &&
+                input == other.input
+        }
+
+        override fun hashCode(): Int {
+            var result = target.hashCode()
+            result = 31 * result + targetModifierRangeLowerBound.hashCode()
+            result = 31 * result + targetModifierRangeUpperBound.hashCode()
+            result = 31 * result + input.hashCode()
+            return result
+        }
+
+        /** Appends a native `BrushBehavior::TargetNode` to a native brush behavior struct. */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendTargetNode(
+            nativeBehaviorPointer: Long,
+            target: Int,
+            targetModifierRangeLowerBound: Float,
+            targetModifierRangeUpperBound: Float,
+        )
     }
 }

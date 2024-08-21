@@ -17,21 +17,22 @@
 package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
+import androidx.annotation.Size
 
 /**
  * An affine transformation in the plane. The transformation can be thought of as a 3x3 matrix:
  * ```
- *   ⎡a  b  c⎤
- *   ⎢d  e  f⎥
- *   ⎣0  0  1⎦
+ *   ⎡m00  m10  m20⎤
+ *   ⎢m01  m11  m21⎥
+ *   ⎣ 0    0    1 ⎦
  * ```
  *
  * Applying the transformation can be thought of as a matrix multiplication, with the
  * to-be-transformed point represented as a column vector with an extra 1:
  * ```
- *   ⎡a  b  c⎤   ⎡x⎤   ⎡a*x + b*y + c⎤
- *   ⎢d  e  f⎥ * ⎢y⎥ = ⎢d*x + e*y + f⎥
- *   ⎣0  0  1⎦   ⎣1⎦   ⎣      1      ⎦
+ *   ⎡m00  m10  m20⎤   ⎡x⎤   ⎡m00*x + m10*y + m20⎤
+ *   ⎢m01  m11  m21⎥ * ⎢y⎥ = ⎢m01*x + m11*y + m21⎥
+ *   ⎣ 0    0    1 ⎦   ⎣1⎦   ⎣         1         ⎦
  * ```
  *
  * Transformations are composed via multiplication. Multiplication is not commutative (i.e. A*B !=
@@ -42,25 +43,46 @@ import androidx.annotation.RestrictTo
  * val translate = ImmutableAffineTransform.translate(Vec(10, 0))
  * ```
  *
- * then the `rotate * translate` first translates 10 units in the positive x-direction, then rotates
- * 90° about the origin.
- *
- * This class follows AndroidX guidelines ({@link http://go/androidx-api-guidelines#kotlin-data}) to
- * avoid Kotlin data classes.
+ * then `rotate * translate` first translates 10 units in the positive x-direction, then rotates 45°
+ * about the origin.
  *
  * See [MutableAffineTransform] for mutable alternative to this class.
+ *
+ * @constructor Constructs this transform with 6 float values, starting with the top left corner of
+ *   the matrix and proceeding in row-major order. Prefer to create this object with functions that
+ *   apply specific transform operations, such as [scale] or [translate], rather than directly
+ *   passing in the actual numeric values of this transform. This constructor is useful for when the
+ *   values are needed to be provided all at once, for example for serialization. To access these
+ *   values in the same order as they are passed in here, use [AffineTransform.getValues]. To
+ *   construct this object using an array as input, there is another public constructor for that.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public class ImmutableAffineTransform(
-    override val a: Float,
-    override val b: Float,
-    override val c: Float,
-    override val d: Float,
-    override val e: Float,
-    override val f: Float,
-) : AffineTransform {
+public class ImmutableAffineTransform
+public constructor(
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m00: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m10: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m20: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m01: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m11: Float,
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+    override val m21: Float,
+) : AffineTransform() {
 
-    override public fun asImmutable(): ImmutableAffineTransform = this
+    /**
+     * Like the primary constructor, but accepts a [FloatArray] instead of individual [Float]
+     * values.
+     */
+    public constructor(
+        @Size(min = 6) values: FloatArray
+    ) : this(values[0], values[1], values[2], values[3], values[4], values[5])
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public override fun asImmutable(): ImmutableAffineTransform = this
 
     /**
      * Component-wise equality operator for [ImmutableAffineTransform].
@@ -70,18 +92,18 @@ public class ImmutableAffineTransform(
      * [equals] in some cases.
      */
     override fun equals(other: Any?): Boolean =
-        other === this || (other is AffineTransform && AffineTransform.areEquivalent(this, other))
+        other === this || (other is AffineTransform && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = AffineTransform.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Immutable${AffineTransform.hash(this)}"
+    override fun toString(): String = "Immutable${string(this)}"
 
     public companion object {
         /** Returns a transformation that translates by the given [offset] vector. */
         @JvmStatic
         public fun translate(offset: Vec): ImmutableAffineTransform =
-            ImmutableAffineTransform(a = 1f, b = 0f, c = offset.x, d = 0f, e = 1f, f = offset.y)
+            ImmutableAffineTransform(1f, 0f, offset.x, 0f, 1f, offset.y)
 
         /**
          * Returns a transformation that scales in both the x- and y-direction by the given pair of
@@ -89,14 +111,7 @@ public class ImmutableAffineTransform(
          */
         @JvmStatic
         public fun scale(xScaleFactor: Float, yScaleFactor: Float): ImmutableAffineTransform =
-            ImmutableAffineTransform(
-                a = xScaleFactor,
-                b = 0f,
-                c = 0f,
-                d = 0f,
-                e = yScaleFactor,
-                f = 0f
-            )
+            ImmutableAffineTransform(xScaleFactor, 0f, 0f, 0f, yScaleFactor, 0f)
 
         /**
          * Returns a transformation that scales in both the x- and y-direction by the given

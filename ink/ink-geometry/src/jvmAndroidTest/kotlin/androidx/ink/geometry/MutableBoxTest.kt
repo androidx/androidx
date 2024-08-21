@@ -284,7 +284,7 @@ class MutableBoxTest {
     fun populateCenter_modifiesMutableVec() {
         val rect = MutableBox().populateFromTwoPoints(ImmutableVec(1F, 20F), ImmutableVec(3F, 40F))
         val outCenter = MutableVec()
-        rect.populateCenter(outCenter)
+        rect.computeCenter(outCenter)
 
         assertThat(outCenter).isEqualTo(MutableVec(2F, 30F))
     }
@@ -296,7 +296,7 @@ class MutableBoxTest {
         val p1 = MutableVec()
         val p2 = MutableVec()
         val p3 = MutableVec()
-        rect.corners(p0, p1, p2, p3)
+        rect.computeCorners(p0, p1, p2, p3)
 
         assertThat(p0).isEqualTo(MutableVec(1F, 20F))
         assertThat(p1).isEqualTo(MutableVec(3F, 20F))

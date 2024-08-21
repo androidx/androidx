@@ -106,6 +106,76 @@ class MutableAffineTransformTest {
     }
 
     @Test
+    fun setValuesAndGetValues_shouldRoundTrip() {
+        val affineTransform = MutableAffineTransform()
+        val values = floatArrayOf(1F, 2F, 3F, 4F, 5F, 6F)
+
+        affineTransform.setValues(values)
+        val outValues = FloatArray(6)
+        affineTransform.getValues(outValues)
+
+        assertThat(outValues).usingExactEquality().containsExactly(values)
+    }
+
+    @Test
+    fun constructWithValuesAndGetValues_shouldRoundTrip() {
+        val affineTransform = MutableAffineTransform(1F, 2F, 3F, 4F, 5F, 6F)
+
+        val outValues = FloatArray(6)
+        affineTransform.getValues(outValues)
+
+        assertThat(outValues)
+            .usingExactEquality()
+            .containsExactly(floatArrayOf(1F, 2F, 3F, 4F, 5F, 6F))
+    }
+
+    @Test
+    fun setValues_shouldMatchConstructedWithFactoryFunctions() {
+        assertThat(MutableAffineTransform().apply { setValues(7F, 0F, 0F, 0F, 7F, 0F) })
+            .isEqualTo(ImmutableAffineTransform.scale(7F))
+
+        assertThat(MutableAffineTransform().apply { setValues(3F, 0F, 0F, 0F, 5F, 0F) })
+            .isEqualTo(ImmutableAffineTransform.scale(3F, 5F))
+
+        assertThat(MutableAffineTransform().apply { setValues(4F, 0F, 0F, 0F, 1F, 0F) })
+            .isEqualTo(ImmutableAffineTransform.scaleX(4F))
+
+        assertThat(MutableAffineTransform().apply { setValues(1F, 0F, 0F, 0F, 2F, 0F) })
+            .isEqualTo(ImmutableAffineTransform.scaleY(2F))
+
+        assertThat(MutableAffineTransform().apply { setValues(1F, 0F, 8F, 0F, 1F, 9F) })
+            .isEqualTo(ImmutableAffineTransform.translate(ImmutableVec(8F, 9F)))
+    }
+
+    @Test
+    fun setValuesArray_shouldMatchConstructedWithFactoryFunctions() {
+        assertThat(
+                MutableAffineTransform().apply { setValues(floatArrayOf(7F, 0F, 0F, 0F, 7F, 0F)) }
+            )
+            .isEqualTo(ImmutableAffineTransform.scale(7F))
+
+        assertThat(
+                MutableAffineTransform().apply { setValues(floatArrayOf(3F, 0F, 0F, 0F, 5F, 0F)) }
+            )
+            .isEqualTo(ImmutableAffineTransform.scale(3F, 5F))
+
+        assertThat(
+                MutableAffineTransform().apply { setValues(floatArrayOf(4F, 0F, 0F, 0F, 1F, 0F)) }
+            )
+            .isEqualTo(ImmutableAffineTransform.scaleX(4F))
+
+        assertThat(
+                MutableAffineTransform().apply { setValues(floatArrayOf(1F, 0F, 0F, 0F, 2F, 0F)) }
+            )
+            .isEqualTo(ImmutableAffineTransform.scaleY(2F))
+
+        assertThat(
+                MutableAffineTransform().apply { setValues(floatArrayOf(1F, 0F, 8F, 0F, 1F, 9F)) }
+            )
+            .isEqualTo(ImmutableAffineTransform.translate(ImmutableVec(8F, 9F)))
+    }
+
+    @Test
     fun asImmutable_returnsEquivalentImmutableAffineTransform() {
         val affineTransform = MutableAffineTransform(A, B, C, D, E, F)
 

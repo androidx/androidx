@@ -405,14 +405,14 @@ public class BrushPaint(
             from = 0.0,
             fromInclusive = false,
             to = Double.POSITIVE_INFINITY,
-            toInclusive = false
+            toInclusive = false,
         )
         public val sizeX: Float,
         @FloatRange(
             from = 0.0,
             fromInclusive = false,
             to = Double.POSITIVE_INFINITY,
-            toInclusive = false
+            toInclusive = false,
         )
         public val sizeY: Float,
         @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)
@@ -565,14 +565,14 @@ public class BrushPaint(
                 from = 0.0,
                 fromInclusive = false,
                 to = Double.POSITIVE_INFINITY,
-                toInclusive = false
+                toInclusive = false,
             )
             private var sizeX: Float,
             @FloatRange(
                 from = 0.0,
                 fromInclusive = false,
                 to = Double.POSITIVE_INFINITY,
-                toInclusive = false
+                toInclusive = false,
             )
             private var sizeY: Float,
             @FloatRange(from = 0.0, to = 1.0, fromInclusive = true, toInclusive = true)

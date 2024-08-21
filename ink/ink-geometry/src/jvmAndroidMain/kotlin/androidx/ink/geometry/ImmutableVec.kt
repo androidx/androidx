@@ -17,9 +17,7 @@
 package androidx.ink.geometry
 
 import androidx.annotation.RestrictTo
-import kotlin.jvm.JvmSynthetic
 import kotlin.math.cos
-import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
@@ -32,37 +30,17 @@ import kotlin.math.sin
  * alternative.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public class ImmutableVec(override val x: Float, override val y: Float) : Vec {
+public class ImmutableVec(override val x: Float, override val y: Float) : Vec() {
 
-    /** Fills [output] with the x and y coordinates of this [ImmutableVec] */
-    public fun fillMutable(output: MutableVec) {
-        output.x = this.x
-        output.y = this.y
-    }
-
-    /** Returns a [MutableVec] containing the same x and y coordinates as this [ImmutableVec] */
-    public fun newMutable(): MutableVec {
-        return MutableVec(x, y)
-    }
-
-    override val magnitude: Float = hypot(x, y)
-
-    override val magnitudeSquared: Float = x * x + y * y
-
-    override val asImmutable: ImmutableVec = this
-
-    @JvmSynthetic
-    override fun asImmutable(x: Float, y: Float): ImmutableVec {
-        return if (x == this.x && y == this.y) this else ImmutableVec(x, y)
-    }
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableVec = this
 
     override fun equals(other: Any?): Boolean =
-        other === this || (other is Vec && Vec.areEquivalent(this, other))
+        other === this || (other is Vec && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = Vec.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Immutable${Vec.string(this)}"
+    override fun toString(): String = "Immutable${string(this)}"
 
     public companion object {
         @JvmStatic

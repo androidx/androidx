@@ -193,7 +193,7 @@ internal constructor(
             from = 0.0,
             fromInclusive = false,
             to = Double.POSITIVE_INFINITY,
-            toInclusive = false
+            toInclusive = false,
         )
         private var size: Float? = null
 
@@ -201,7 +201,7 @@ internal constructor(
             from = 0.0,
             fromInclusive = false,
             to = Double.POSITIVE_INFINITY,
-            toInclusive = false
+            toInclusive = false,
         )
         private var epsilon: Float? = null
 
@@ -250,7 +250,7 @@ internal constructor(
                 from = 0.0,
                 fromInclusive = false,
                 to = Double.POSITIVE_INFINITY,
-                toInclusive = false
+                toInclusive = false,
             )
             size: Float
         ): Builder {
@@ -263,7 +263,7 @@ internal constructor(
                 from = 0.0,
                 fromInclusive = false,
                 to = Double.POSITIVE_INFINITY,
-                toInclusive = false
+                toInclusive = false,
             )
             epsilon: Float
         ): Builder {

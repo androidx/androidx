@@ -28,18 +28,20 @@ class MutableSegmentTest {
     fun vec_whenPrimaryValuesAreUnchanged_returnsCorrectImmutableVec() {
         val segment = MutableSegment(MutableVec(0f, 0f), MutableVec(1f, 2f))
 
-        assertThat(segment.vec).isEqualTo(ImmutableVec(1f, 2f))
+        assertThat(segment.computeDisplacement()).isEqualTo(ImmutableVec(1f, 2f))
     }
 
     @Test
     fun vec_whenPrimaryValuesAreModified_returnsDifferentImmutableVec() {
         val segment = MutableSegment(MutableVec(10f, 50f), MutableVec(1f, 2f))
 
-        segment.start(0f, 0f)
-        assertThat(segment.vec).isEqualTo(ImmutableVec(1f, 2f))
+        segment.start.x = 0f
+        segment.start.y = 0f
+        assertThat(segment.computeDisplacement()).isEqualTo(ImmutableVec(1f, 2f))
 
-        segment.end(-.005f, -456f)
-        assertThat(segment.vec).isEqualTo(ImmutableVec(-.005f, -456f))
+        segment.end.x = -.005f
+        segment.end.y = -456f
+        assertThat(segment.computeDisplacement()).isEqualTo(ImmutableVec(-.005f, -456f))
     }
 
     @Test
@@ -90,42 +92,6 @@ class MutableSegmentTest {
     }
 
     @Test
-    fun start_correctlyModifiesStartValue() {
-        val segment = MutableSegment(MutableVec(10f, 20f), MutableVec(1f, 2f))
-
-        segment.start(ImmutableVec(1.5f, 21.6f))
-
-        assertThat(segment.start).isEqualTo(MutableVec(1.5f, 21.6f))
-    }
-
-    @Test
-    fun start_withXYArgs_correctlyModifiesStartValue() {
-        val segment = MutableSegment(MutableVec(10f, 20f), MutableVec(1f, 2f))
-
-        segment.start(x = 1.5f, y = 21.6f)
-
-        assertThat(segment.start).isEqualTo(MutableVec(1.5f, 21.6f))
-    }
-
-    @Test
-    fun end_correctlyModifiesEndValue() {
-        val segment = MutableSegment(MutableVec(10f, 20f), MutableVec(1f, 2f))
-
-        segment.end(ImmutableVec(-1.5f, -21.6f))
-
-        assertThat(segment.end).isEqualTo(MutableVec(-1.5f, -21.6f))
-    }
-
-    @Test
-    fun end_withXYArgs_correctlyModifiesEndValue() {
-        val segment = MutableSegment(MutableVec(10f, 20f), MutableVec(1f, 2f))
-
-        segment.end(x = -1.5f, y = -21.6f)
-
-        assertThat(segment.end).isEqualTo(MutableVec(-1.5f, -21.6f))
-    }
-
-    @Test
     fun asImmutable_returnsImmutableCopy() {
         val start = MutableVec(10f, 20f)
         val end = MutableVec(1f, 2f)
@@ -137,18 +103,7 @@ class MutableSegmentTest {
     }
 
     @Test
-    fun asImmutable_withNewValues_ReturnsNewImmutable() {
-        val segment = MutableSegment(MutableVec(0f, 0f), MutableVec(-100f, -200f))
-        val newStart = ImmutableVec(10f, 20f)
-        val newEnd = ImmutableVec(30f, 40f)
-        val output = segment.asImmutable(newStart, newEnd)
-
-        assertThat(output.start).isEqualTo(newStart)
-        assertThat(output.end).isEqualTo(newEnd)
-    }
-
-    @Test
-    fun isAlmostEqual_usesTolereneceToCompareValues() {
+    fun isAlmostEqual_usesToleranceToCompareValues() {
         val segment = MutableSegment(MutableVec(1f, 2f), MutableVec(3f, 4f))
         val other = MutableSegment(MutableVec(1.01f, 2.02f), MutableVec(3.03f, 4.04f))
 

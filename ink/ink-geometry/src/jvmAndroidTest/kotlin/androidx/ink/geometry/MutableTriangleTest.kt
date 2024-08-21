@@ -24,9 +24,13 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class MutableTriangleTest {
 
+    private val p0 = MutableVec(1f, 2f)
+    private val p1 = MutableVec(5f, 2f)
+    private val p2 = MutableVec(5f, 6f)
+
     @Test
     fun equals_whenSameInstance_returnsTrueAndSameHashCode() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), P2.newMutable())
+        val triangle = MutableTriangle(p0, p1, p2)
 
         // Ensure test coverage of the same-instance case, but call .equals directly for lint.
         assertThat(triangle.equals(triangle)).isTrue()
@@ -34,8 +38,9 @@ class MutableTriangleTest {
 
     @Test
     fun equals_whenSameValues_returnsTrueAndSameHashCode() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), P2.newMutable())
-        val other = MutableTriangle(P0.newMutable(), P1.newMutable(), P2.newMutable())
+        val triangle = MutableTriangle(p0, p1, p2)
+        val other =
+            MutableTriangle(MutableVec(p0.x, p0.y), MutableVec(p1.x, p1.y), MutableVec(p2.x, p2.y))
 
         assertThat(triangle).isEqualTo(other)
         assertThat(triangle.hashCode()).isEqualTo(other.hashCode())
@@ -43,11 +48,9 @@ class MutableTriangleTest {
 
     @Test
     fun equals_whenPermutedEndpoints_returnsFalse() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), P2.newMutable())
-        val clockWisePermutation =
-            MutableTriangle(P1.newMutable(), P2.newMutable(), P0.newMutable())
-        val counterClockWisePermutation =
-            MutableTriangle(P2.newMutable(), P0.newMutable(), P1.newMutable())
+        val triangle = MutableTriangle(p0, p1, p2)
+        val clockWisePermutation = MutableTriangle(p1, p2, p0)
+        val counterClockWisePermutation = MutableTriangle(p2, p0, p1)
 
         assertThat(triangle).isNotEqualTo(clockWisePermutation)
         assertThat(triangle).isNotEqualTo(counterClockWisePermutation)
@@ -55,9 +58,9 @@ class MutableTriangleTest {
 
     @Test
     fun equals_whenP0different_returnsFalse() {
-        val triangle = MutableTriangle(MutableVec(1f, 2f), P1.newMutable(), P2.newMutable())
-        val p0XChange = MutableTriangle(MutableVec(1.23f, 2f), P1.newMutable(), P2.newMutable())
-        val p0YChange = MutableTriangle(MutableVec(1f, 21.1f), P1.newMutable(), P2.newMutable())
+        val triangle = MutableTriangle(MutableVec(1f, 2f), p1, p2)
+        val p0XChange = MutableTriangle(MutableVec(1.23f, 2f), p1, p2)
+        val p0YChange = MutableTriangle(MutableVec(1f, 21.1f), p1, p2)
 
         assertThat(triangle).isNotEqualTo(p0XChange)
         assertThat(triangle).isNotEqualTo(p0YChange)
@@ -65,9 +68,9 @@ class MutableTriangleTest {
 
     @Test
     fun equals_whenP1different_returnsFalse() {
-        val triangle = MutableTriangle(P0.newMutable(), MutableVec(3f, 4f), P2.newMutable())
-        val p1XChange = MutableTriangle(P0.newMutable(), MutableVec(41.21f, 4f), P2.newMutable())
-        val p1YChange = MutableTriangle(P0.newMutable(), MutableVec(3f, -6.77f), P2.newMutable())
+        val triangle = MutableTriangle(p0, MutableVec(3f, 4f), p2)
+        val p1XChange = MutableTriangle(p0, MutableVec(41.21f, 4f), p2)
+        val p1YChange = MutableTriangle(p0, MutableVec(3f, -6.77f), p2)
 
         assertThat(triangle).isNotEqualTo(p1XChange)
         assertThat(triangle).isNotEqualTo(p1YChange)
@@ -75,71 +78,17 @@ class MutableTriangleTest {
 
     @Test
     fun equals_whenP2different_returnsFalse() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), MutableVec(5f, 6f))
-        val p2XChange = MutableTriangle(P0.newMutable(), P1.newMutable(), MutableVec(-0.43f, 6f))
-        val p2YChange = MutableTriangle(P0.newMutable(), P1.newMutable(), MutableVec(5f, -10f))
+        val triangle = MutableTriangle(p0, p1, MutableVec(5f, 6f))
+        val p2XChange = MutableTriangle(p0, p1, MutableVec(-0.43f, 6f))
+        val p2YChange = MutableTriangle(p0, p1, MutableVec(5f, -10f))
 
         assertThat(triangle).isNotEqualTo(p2XChange)
         assertThat(triangle).isNotEqualTo(p2YChange)
     }
 
     @Test
-    fun p0_correctlyModifiesP0Value() {
-        val triangle = MutableTriangle(MutableVec(1f, 2f), P1.newMutable(), P2.newMutable())
-
-        triangle.p0(MutableVec(1.5f, 21.6f))
-
-        assertThat(triangle.p0).isEqualTo(MutableVec(1.5f, 21.6f))
-    }
-
-    @Test
-    fun p0_withXYArgs_correctlyModifiesP0Value() {
-        val triangle = MutableTriangle(MutableVec(1f, 2f), P1.newMutable(), P2.newMutable())
-
-        triangle.p0(x = 1.5f, y = 21.6f)
-
-        assertThat(triangle.p0).isEqualTo(MutableVec(1.5f, 21.6f))
-    }
-
-    @Test
-    fun p1_correctlyModifiesP1Value() {
-        val triangle = MutableTriangle(P0.newMutable(), MutableVec(3f, 4f), P2.newMutable())
-
-        triangle.p1(MutableVec(20.9f, 513f))
-
-        assertThat(triangle.p1).isEqualTo(MutableVec(20.9f, 513f))
-    }
-
-    @Test
-    fun p1_withXYArgs_correctlyModifiesP1Value() {
-        val triangle = MutableTriangle(P0.newMutable(), MutableVec(3f, 4f), P2.newMutable())
-
-        triangle.p1(x = 20.9f, y = 513f)
-
-        assertThat(triangle.p1).isEqualTo(MutableVec(20.9f, 513f))
-    }
-
-    @Test
-    fun p2_correctlyModifiesP2Value() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), MutableVec(5f, 6f))
-
-        triangle.p2(MutableVec(600f, 900f))
-
-        assertThat(triangle.p2).isEqualTo(MutableVec(600f, 900f))
-    }
-
-    @Test
-    fun p2_withXYArgs_correctlyModifiesP2Value() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), MutableVec(5f, 6f))
-
-        triangle.p2(x = 600f, y = 900f)
-
-        assertThat(triangle.p2).isEqualTo(MutableVec(600f, 900f))
-    }
-
-    @Test
     fun populateFrom_correctlyCopiesValues() {
-        val triangle = MutableTriangle(P0.newMutable(), P1.newMutable(), P2.newMutable())
+        val triangle = MutableTriangle(p0, p1, p2)
         val other =
             ImmutableTriangle(
                 ImmutableVec(10f, 11f),
@@ -156,7 +105,7 @@ class MutableTriangleTest {
 
     @Test
     fun contains_forContainedPoint_returnsTrue() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val point = MutableVec(4f, 3f)
 
         assertThat(triangle.contains(point)).isTrue()
@@ -164,7 +113,7 @@ class MutableTriangleTest {
 
     @Test
     fun contains_forExternalPoint_returnsFalse() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val point = MutableVec(6f, 3f)
 
         assertThat(triangle.contains(point)).isFalse()
@@ -172,72 +121,59 @@ class MutableTriangleTest {
 
     @Test
     fun edge_returnsCorrectSegment() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
 
-        assertThat(triangle.edge(0)).isEqualTo(MutableSegment(P0, P1))
-        assertThat(triangle.edge(1)).isEqualTo(MutableSegment(P1, P2))
-        assertThat(triangle.edge(2)).isEqualTo(MutableSegment(P2, P0))
-        assertThat(triangle.edge(3)).isEqualTo(MutableSegment(P0, P1))
-        assertThat(triangle.edge(4)).isEqualTo(MutableSegment(P1, P2))
-        assertThat(triangle.edge(5)).isEqualTo(MutableSegment(P2, P0))
+        assertThat(triangle.computeEdge(0)).isEqualTo(MutableSegment(p0, p1))
+        assertThat(triangle.computeEdge(1)).isEqualTo(MutableSegment(p1, p2))
+        assertThat(triangle.computeEdge(2)).isEqualTo(MutableSegment(p2, p0))
+        assertThat(triangle.computeEdge(3)).isEqualTo(MutableSegment(p0, p1))
+        assertThat(triangle.computeEdge(4)).isEqualTo(MutableSegment(p1, p2))
+        assertThat(triangle.computeEdge(5)).isEqualTo(MutableSegment(p2, p0))
     }
 
     @Test
     fun populateEdge_zeroIndex_correctlyPopulatesSegment() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val segment0 = MutableSegment()
         val segment6 = MutableSegment()
 
-        triangle.populateEdge(0, segment0)
-        triangle.populateEdge(6, segment6)
+        triangle.computeEdge(0, segment0)
+        triangle.computeEdge(6, segment6)
 
-        assertThat(segment0).isEqualTo(MutableSegment(P0, P1))
-        assertThat(segment6).isEqualTo(MutableSegment(P0, P1))
+        assertThat(segment0).isEqualTo(MutableSegment(p0, p1))
+        assertThat(segment6).isEqualTo(MutableSegment(p0, p1))
     }
 
     @Test
     fun populateEdge_oneIndex_correctlyPopulatesSegment() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val segment1 = MutableSegment()
         val segment7 = MutableSegment()
 
-        triangle.populateEdge(1, segment1)
-        triangle.populateEdge(7, segment7)
+        triangle.computeEdge(1, segment1)
+        triangle.computeEdge(7, segment7)
 
-        assertThat(segment1).isEqualTo(MutableSegment(P1, P2))
-        assertThat(segment7).isEqualTo(MutableSegment(P1, P2))
+        assertThat(segment1).isEqualTo(MutableSegment(p1, p2))
+        assertThat(segment7).isEqualTo(MutableSegment(p1, p2))
     }
 
     @Test
     fun populateEdge_twoIndex_correctlyPopulatesSegment() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val segment2 = MutableSegment()
         val segment8 = MutableSegment()
 
-        triangle.populateEdge(2, segment2)
-        triangle.populateEdge(8, segment8)
+        triangle.computeEdge(2, segment2)
+        triangle.computeEdge(8, segment8)
 
-        assertThat(segment2).isEqualTo(MutableSegment(P2, P0))
-        assertThat(segment8).isEqualTo(MutableSegment(P2, P0))
+        assertThat(segment2).isEqualTo(MutableSegment(p2, p0))
+        assertThat(segment8).isEqualTo(MutableSegment(p2, p0))
     }
 
     @Test
     fun asImmutable_returnsImmutableCopy() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
         val output = triangle.asImmutable()
-
-        assertThat(output.p0).isEqualTo(P0)
-        assertThat(output.p1).isEqualTo(P1)
-        assertThat(output.p2).isEqualTo(P2)
-    }
-
-    @Test
-    fun asImmutable_withNewValues_ReturnsNewImmutable() {
-        val triangle = MutableTriangle(P0, P1, P2)
-        val p0 = ImmutableVec(10f, 20f)
-        val p1 = ImmutableVec(30f, 40f)
-        val p2 = ImmutableVec(50f, 60f)
-        val output = triangle.asImmutable(p0, p1, p2)
 
         assertThat(output.p0).isEqualTo(p0)
         assertThat(output.p1).isEqualTo(p1)
@@ -260,7 +196,7 @@ class MutableTriangleTest {
 
     @Test
     fun toString_correctlyReturnsString() {
-        val triangle = MutableTriangle(P0, P1, P2)
+        val triangle = MutableTriangle(p0, p1, p2)
 
         val string = triangle.toString()
 
@@ -270,13 +206,5 @@ class MutableTriangleTest {
         assertThat(string).contains("2")
         assertThat(string).contains("5")
         assertThat(string).contains("6")
-    }
-
-    companion object {
-        private val P0 = ImmutableVec(1f, 2f)
-
-        private val P1 = ImmutableVec(5f, 2f)
-
-        private val P2 = ImmutableVec(5f, 6f)
     }
 }

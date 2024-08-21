@@ -61,37 +61,40 @@ class VecTest {
 
     @Test
     fun direction_returnsCorrectValue() {
-        assertThat(ImmutableVec(5f, 0f).direction).isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(ImmutableVec(0f, 5f).direction).isEqualTo(Angle.degreesToRadians(90f))
-        assertThat(ImmutableVec(-5f, 0f).direction).isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(ImmutableVec(0f, -5f).direction).isEqualTo(Angle.degreesToRadians(-90f))
-        assertThat(ImmutableVec(5f, 5f).direction).isEqualTo(Angle.degreesToRadians(45f))
-        assertThat(ImmutableVec(-5f, 5f).direction).isEqualTo(Angle.degreesToRadians(135f))
-        assertThat(ImmutableVec(-5f, -5f).direction).isEqualTo(Angle.degreesToRadians(-135f))
-        assertThat(ImmutableVec(5f, -5f).direction).isEqualTo(Angle.degreesToRadians(-45f))
+        assertThat(ImmutableVec(5f, 0f).computeDirection()).isEqualTo(Angle.degreesToRadians(0f))
+        assertThat(ImmutableVec(0f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(90f))
+        assertThat(ImmutableVec(-5f, 0f).computeDirection()).isEqualTo(Angle.degreesToRadians(180f))
+        assertThat(ImmutableVec(0f, -5f).computeDirection()).isEqualTo(Angle.degreesToRadians(-90f))
+        assertThat(ImmutableVec(5f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(45f))
+        assertThat(ImmutableVec(-5f, 5f).computeDirection()).isEqualTo(Angle.degreesToRadians(135f))
+        assertThat(ImmutableVec(-5f, -5f).computeDirection())
+            .isEqualTo(Angle.degreesToRadians(-135f))
+        assertThat(ImmutableVec(5f, -5f).computeDirection()).isEqualTo(Angle.degreesToRadians(-45f))
     }
 
     @Test
     fun direction_whenVecContainsZero_returnsCorrectValue() {
-        assertThat(ImmutableVec(+0f, +0f).direction).isEqualTo(Angle.degreesToRadians(0f))
-        assertThat(ImmutableVec(+0f, -0f).direction).isEqualTo(Angle.degreesToRadians(-0f))
-        assertThat(ImmutableVec(-0f, +0f).direction).isEqualTo(Angle.degreesToRadians(180f))
-        assertThat(ImmutableVec(-0f, -0f).direction).isEqualTo(Angle.degreesToRadians(-180f))
+        assertThat(ImmutableVec(+0f, +0f).computeDirection()).isEqualTo(Angle.degreesToRadians(0f))
+        assertThat(ImmutableVec(+0f, -0f).computeDirection()).isEqualTo(Angle.degreesToRadians(-0f))
+        assertThat(ImmutableVec(-0f, +0f).computeDirection())
+            .isEqualTo(Angle.degreesToRadians(180f))
+        assertThat(ImmutableVec(-0f, -0f).computeDirection())
+            .isEqualTo(Angle.degreesToRadians(-180f))
     }
 
     @Test
     fun unitVec_returnsCorrectValue() {
-        assertThat(ImmutableVec(4f, 0f).unitVec).isEqualTo(ImmutableVec(1f, 0f))
-        assertThat(MutableVec(0f, -25f).unitVec).isEqualTo(ImmutableVec(0f, -1f))
+        assertThat(ImmutableVec(4f, 0f).computeUnitVec()).isEqualTo(ImmutableVec(1f, 0f))
+        assertThat(MutableVec(0f, -25f).computeUnitVec()).isEqualTo(ImmutableVec(0f, -1f))
         assertThat(
                 ImmutableVec(30f, 30f)
-                    .unitVec
+                    .computeUnitVec()
                     .isAlmostEqual(ImmutableVec(sqrt(.5f), sqrt(.5f)), tolerance = 0.000001f)
             )
             .isTrue()
         assertThat(
                 MutableVec(-.05f, -.05f)
-                    .unitVec
+                    .computeUnitVec()
                     .isAlmostEqual(ImmutableVec(-sqrt(.5f), -sqrt(.5f)), tolerance = 0.000001f)
             )
             .isTrue()
@@ -99,33 +102,33 @@ class VecTest {
 
     @Test
     fun unitVec_whenVecContainsZeroes_returnsCorrectValue() {
-        assertThat(ImmutableVec(+0f, 0f).unitVec).isEqualTo(ImmutableVec(1f, 0f))
-        assertThat(MutableVec(-0f, 0f).unitVec).isEqualTo(ImmutableVec(-1f, 0f))
+        assertThat(ImmutableVec(+0f, 0f).computeUnitVec()).isEqualTo(ImmutableVec(1f, 0f))
+        assertThat(MutableVec(-0f, 0f).computeUnitVec()).isEqualTo(ImmutableVec(-1f, 0f))
     }
 
     @Test
     fun populateUnitVec_populatesCorrectValue() {
         val mutableVec = MutableVec(0f, 0f)
-        MutableVec(4f, 0f).populateUnitVec(mutableVec)
+        MutableVec(4f, 0f).computeUnitVec(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(1f, 0f))
 
-        ImmutableVec(0f, -25f).populateUnitVec(mutableVec)
+        ImmutableVec(0f, -25f).computeUnitVec(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(0f, -1f))
 
-        MutableVec(30f, 30f).populateUnitVec(mutableVec)
+        MutableVec(30f, 30f).computeUnitVec(mutableVec)
         assertThat(mutableVec.isAlmostEqual(ImmutableVec(sqrt(.5f), sqrt(.5f)))).isTrue()
 
-        ImmutableVec(-.05f, -.05f).populateUnitVec(mutableVec)
+        ImmutableVec(-.05f, -.05f).computeUnitVec(mutableVec)
         assertThat(mutableVec.isAlmostEqual(ImmutableVec(-sqrt(.5f), -sqrt(.5f)))).isTrue()
     }
 
     @Test
     fun populateUnitVec_whenVecContainsZeroes_populatesCorrectValue() {
         val mutableVec = MutableVec(0f, 0f)
-        MutableVec(+0f, 0f).populateUnitVec(mutableVec)
+        MutableVec(+0f, 0f).computeUnitVec(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(1f, 0f))
 
-        ImmutableVec(-0f, -0f).populateUnitVec(mutableVec)
+        ImmutableVec(-0f, -0f).computeUnitVec(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(-1f, 0f))
     }
 

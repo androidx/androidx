@@ -29,12 +29,12 @@ private val matrixValuesScratchArray by threadLocal { FloatArray(9) }
 /** Writes the values from this [AffineTransform] to [matrixOut]. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public fun AffineTransform.populateMatrix(matrixOut: Matrix) {
-    matrixValuesScratchArray[Matrix.MSCALE_X] = a
-    matrixValuesScratchArray[Matrix.MSKEW_X] = b
-    matrixValuesScratchArray[Matrix.MTRANS_X] = c
-    matrixValuesScratchArray[Matrix.MSKEW_Y] = d
-    matrixValuesScratchArray[Matrix.MSCALE_Y] = e
-    matrixValuesScratchArray[Matrix.MTRANS_Y] = f
+    matrixValuesScratchArray[Matrix.MSCALE_X] = m00
+    matrixValuesScratchArray[Matrix.MSKEW_X] = m10
+    matrixValuesScratchArray[Matrix.MTRANS_X] = m20
+    matrixValuesScratchArray[Matrix.MSKEW_Y] = m01
+    matrixValuesScratchArray[Matrix.MSCALE_Y] = m11
+    matrixValuesScratchArray[Matrix.MTRANS_Y] = m21
     matrixValuesScratchArray[Matrix.MPERSP_0] = 0f
     matrixValuesScratchArray[Matrix.MPERSP_1] = 0f
     matrixValuesScratchArray[Matrix.MPERSP_2] = 1f

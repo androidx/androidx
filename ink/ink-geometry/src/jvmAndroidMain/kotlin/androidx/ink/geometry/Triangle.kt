@@ -22,47 +22,61 @@ import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
 
 /**
- * A triangle defined by its three corners [p0], [p1] and [p2] in order. This is a read-only
- * interface that has mutable and immutable implementations. See [MutableTriangle] and
- * [ImmutableTriangle].
+ * A triangle defined by its three corners [p0], [p1] and [p2]. The order of these points matter - a
+ * triangle with [p0, p1, p2] is not the same as the permuted [p1, p0, p2], or even the rotated
+ * [p2, p0, p1].
+ *
+ * A [Triangle] may be degenerate, meaning it is constructed with its 3 points colinear. One way
+ * that a [Triangle] may be degenerate is if two or three of its points are at the same location
+ * (coincident).
+ *
+ * This is a read-only interface that has mutable and immutable implementations. See
+ * [MutableTriangle] and [ImmutableTriangle].
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public interface Triangle {
+public abstract class Triangle internal constructor() {
 
-    /** The three points that define the [Triangle]. */
-    public val p0: Vec
-    public val p1: Vec
-    public val p2: Vec
+    /** One of the three points that define the [Triangle]. */
+    public abstract val p0: Vec
+
+    /** One of the three points that define the [Triangle]. */
+    public abstract val p1: Vec
+
+    /** One of the three points that define the [Triangle]. */
+    public abstract val p2: Vec
 
     /**
-     * The signed area of the Triangle. If the Triangle's points wind in a positive direction (as
-     * defined by [Angle]), then the Triangle's area will be positive. Otherwise, it will be
+     * Return the signed area of the [Triangle]. If the [Triangle] is degenerate, meaning its 3
+     * points are all colinear, then the result will be zero. If its points wind in a positive
+     * direction (as defined by [Angle]), then the result will be positive. Otherwise, it will be
      * negative.
      */
-    public val signedArea: Float
-        get() = run {
-            // TODO(b/354236964): Optimize unnecessary allocations
-            val p1MinusP0 = MutableVec()
-            val p2MinusP1 = MutableVec()
-            Vec.subtract(p1, p0, p1MinusP0)
-            Vec.subtract(p2, p1, p2MinusP1)
-            return 0.5f * Vec.determinant(p1MinusP0, p2MinusP1)
-        }
+    public fun computeSignedArea(): Float {
+        // TODO(b/354236964): Optimize unnecessary allocations
+        val p1MinusP0 = MutableVec()
+        val p2MinusP1 = MutableVec()
+        Vec.subtract(p1, p0, p1MinusP0)
+        Vec.subtract(p2, p1, p2MinusP1)
+        return 0.5f * Vec.determinant(p1MinusP0, p2MinusP1)
+    }
 
     /** Returns the minimum bounding box containing the [Triangle]. */
-    public val boundingBox: ImmutableBox
-        get() = run {
-            // TODO(b/354236964): Optimize unnecessary allocations
-            val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
-            ImmutableBox.fromTwoPoints(ImmutableVec(minX, minY), ImmutableVec(maxX, maxY))
-        }
-
-    /** Populates [output] with the minimum bounding box containing the [Triangle]. */
-    public fun populateBoundingBox(output: MutableBox) {
+    public fun computeBoundingBox(): ImmutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
-        output.setXBounds(minX, maxX)
-        output.setYBounds(minY, maxY)
+        return ImmutableBox.fromTwoPoints(ImmutableVec(minX, minY), ImmutableVec(maxX, maxY))
+    }
+
+    /**
+     * Populates [outBox] with the minimum bounding box containing the [Triangle] and returns
+     * [outBox].
+     */
+    public fun computeBoundingBox(outBox: MutableBox): MutableBox {
+        // TODO(b/354236964): Optimize unnecessary allocations
+        val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
+        outBox.setXBounds(minX, maxX)
+        outBox.setYBounds(minY, maxY)
+        return outBox
     }
 
     /**
@@ -85,7 +99,7 @@ public interface Triangle {
      * Returns the segment of the Triangle between the point at [index] and the point at [index] + 1
      * modulo 3.
      */
-    public fun edge(@IntRange(from = 0, to = 2) index: Int): ImmutableSegment {
+    public fun computeEdge(@IntRange(from = 0, to = 2) index: Int): ImmutableSegment {
         val modIndex = index % 3
         return when (modIndex) {
             0 -> ImmutableSegment(p0, p1)
@@ -96,48 +110,41 @@ public interface Triangle {
     }
 
     /**
-     * Fills [output] with the segment of the Triangle between the point at [index] and the point at
-     * [index] + 1 modulo 3.
+     * Fills [outSegment] with the segment of the Triangle between the point at [index] and the
+     * point at [index] + 1 modulo 3. Returns [outSegment].
      */
-    public fun populateEdge(@IntRange(from = 0, to = 2) index: Int, output: MutableSegment) {
+    public fun computeEdge(
+        @IntRange(from = 0, to = 2) index: Int,
+        outSegment: MutableSegment,
+    ): MutableSegment {
         val modIndex = index % 3
+        val start: Vec
+        val end: Vec
         when (modIndex) {
             0 -> {
-                output.start(p0)
-                output.end(p1)
+                start = p0
+                end = p1
             }
             1 -> {
-                output.start(p1)
-                output.end(p2)
+                start = p1
+                end = p2
             }
             2 -> {
-                output.start(p2)
-                output.end(p0)
+                start = p2
+                end = p0
             }
             else -> throw IllegalArgumentException("Invalid index: $index")
         }
+        outSegment.start.populateFrom(start)
+        outSegment.end.populateFrom(end)
+        return outSegment
     }
 
     /**
-     * Returns an immutable copy of [this] object. This will return itself if called on an immutable
+     * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    public fun asImmutable(): ImmutableTriangle
-
-    /**
-     * Returns an [ImmutableTriangle] with some or all of its values taken from `this`. For each
-     * value, the returned [ImmutableTriangle] will use the given value; if no value is given, it
-     * will instead be set to the value on `this`. If `this` is an [ImmutableTriangle], and the
-     * result would be an identical [ImmutableTriangle], then `this` is returned. This occurs when
-     * either no values are given, or when all given values are structurally equal to the values in
-     * `this`.
-     */
-    @JvmSynthetic
-    public fun asImmutable(
-        p0: Vec = this.p0,
-        p1: Vec = this.p1,
-        p2: Vec = this.p2
-    ): ImmutableTriangle
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun asImmutable(): ImmutableTriangle
 
     public fun isAlmostEqual(other: Triangle, @FloatRange(from = 0.0) tolerance: Float): Boolean =
         p0.isAlmostEqual(other.p0, tolerance) &&
@@ -186,17 +193,14 @@ public interface Triangle {
     }
 }
 
-/** Helper object to contain native JNI calls */
+/** Helper object to contain native JNI calls. */
 private object TriangleNative {
 
     init {
         NativeLoader.load()
     }
 
-    /**
-     * Helper method to construct a native C++ [Triangle] and [Point], check if the native
-     * [Triangle] contains the native [Point], and return the result.
-     */
+    /** Helper method to check if a native `ink::Triangle` contains the native `ink::Point`. */
     // TODO: b/355248266 - @Keep must go in Proguard config file instead.
     external fun nativeContains(
         triangleP0X: Float,
