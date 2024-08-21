@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,29 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// VERSION: v0_103
+// VERSION: v0_14_0
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.compose.material3.tokens
 
-import androidx.compose.ui.unit.dp
-
-internal object FabPrimarySmallTokens {
+internal object FabPrimaryContainerTokens {
     val ContainerColor = ColorSchemeKeyTokens.PrimaryContainer
     val ContainerElevation = ElevationTokens.Level3
-    val ContainerHeight = 40.0.dp
-    val ContainerShape = ShapeKeyTokens.CornerMedium
-    val ContainerWidth = 40.0.dp
-    val FocusContainerElevation = ElevationTokens.Level3
-    val FocusIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val HoverContainerElevation = ElevationTokens.Level4
-    val HoverIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val FocusedContainerElevation = ElevationTokens.Level3
+    val FocusedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
+    val HoveredContainerElevation = ElevationTokens.Level4
+    val HoveredIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
     val IconColor = ColorSchemeKeyTokens.OnPrimaryContainer
-    val IconSize = 24.0.dp
-    val LoweredContainerElevation = ElevationTokens.Level1
-    val LoweredFocusContainerElevation = ElevationTokens.Level1
-    val LoweredHoverContainerElevation = ElevationTokens.Level2
-    val LoweredPressedContainerElevation = ElevationTokens.Level1
     val PressedContainerElevation = ElevationTokens.Level3
     val PressedIconColor = ColorSchemeKeyTokens.OnPrimaryContainer
 }

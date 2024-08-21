@@ -43,10 +43,16 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.animateElevation
+import androidx.compose.material3.tokens.ElevationTokens
+import androidx.compose.material3.tokens.ExtendedFabLargeTokens
+import androidx.compose.material3.tokens.ExtendedFabMediumTokens
 import androidx.compose.material3.tokens.ExtendedFabPrimaryTokens
-import androidx.compose.material3.tokens.FabPrimaryLargeTokens
-import androidx.compose.material3.tokens.FabPrimarySmallTokens
-import androidx.compose.material3.tokens.FabPrimaryTokens
+import androidx.compose.material3.tokens.ExtendedFabSmallTokens
+import androidx.compose.material3.tokens.FabBaselineTokens
+import androidx.compose.material3.tokens.FabLargeTokens
+import androidx.compose.material3.tokens.FabMediumTokens
+import androidx.compose.material3.tokens.FabPrimaryContainerTokens
+import androidx.compose.material3.tokens.FabSmallTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
 import androidx.compose.material3.tokens.TypographyKeyTokens
 import androidx.compose.runtime.Composable
@@ -130,8 +136,8 @@ fun FloatingActionButton(
     FloatingActionButton(
         onClick,
         ExtendedFabPrimaryTokens.LabelTextFont.value,
-        FabPrimaryTokens.ContainerWidth,
-        FabPrimaryTokens.ContainerHeight,
+        FabBaselineTokens.ContainerWidth,
+        FabBaselineTokens.ContainerHeight,
         modifier,
         shape,
         containerColor,
@@ -229,8 +235,8 @@ fun SmallFloatingActionButton(
         onClick = onClick,
         modifier =
             modifier.sizeIn(
-                minWidth = FabPrimarySmallTokens.ContainerWidth,
-                minHeight = FabPrimarySmallTokens.ContainerHeight,
+                minWidth = FabSmallTokens.ContainerWidth,
+                minHeight = FabSmallTokens.ContainerHeight,
             ),
         shape = shape,
         containerColor = containerColor,
@@ -285,10 +291,9 @@ fun MediumFloatingActionButton(
     FloatingActionButton(
         onClick = onClick,
         modifier =
-            // TODO: update sizes to use tokens
             modifier.sizeIn(
-                minWidth = 80.dp,
-                minHeight = 80.dp,
+                minWidth = FabMediumTokens.ContainerWidth,
+                minHeight = FabMediumTokens.ContainerHeight,
             ),
         shape = shape,
         containerColor = containerColor,
@@ -346,8 +351,8 @@ fun LargeFloatingActionButton(
         onClick = onClick,
         modifier =
             modifier.sizeIn(
-                minWidth = FabPrimaryLargeTokens.ContainerWidth,
-                minHeight = FabPrimaryLargeTokens.ContainerHeight,
+                minWidth = FabLargeTokens.ContainerWidth,
+                minHeight = FabLargeTokens.ContainerHeight,
             ),
         shape = shape,
         containerColor = containerColor,
@@ -412,7 +417,11 @@ fun SmallExtendedFloatingActionButton(
         interactionSource = interactionSource,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = SmallExtendedFabHorizontalPadding),
+            modifier =
+                Modifier.padding(
+                    start = SmallExtendedFabPaddingStart,
+                    end = SmallExtendedFabPaddingEnd
+                ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             content = content,
@@ -474,7 +483,11 @@ fun MediumExtendedFloatingActionButton(
         interactionSource = interactionSource,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = MediumExtendedFabHorizontalPadding),
+            modifier =
+                Modifier.padding(
+                    start = MediumExtendedFabPaddingStart,
+                    end = MediumExtendedFabPaddingEnd
+                ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             content = content,
@@ -536,7 +549,11 @@ fun LargeExtendedFloatingActionButton(
         interactionSource = interactionSource,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = LargeExtendedFabHorizontalPadding),
+            modifier =
+                Modifier.padding(
+                    start = LargeExtendedFabPaddingStart,
+                    end = LargeExtendedFabPaddingEnd
+                ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             content = content,
@@ -662,7 +679,8 @@ fun SmallExtendedFloatingActionButton(
         textStyle = SmallExtendedFabTextStyle.value,
         minWidth = SmallExtendedFabMinimumWidth,
         minHeight = SmallExtendedFabMinimumHeight,
-        horizontalPadding = SmallExtendedFabHorizontalPadding,
+        startPadding = SmallExtendedFabPaddingStart,
+        endPadding = SmallExtendedFabPaddingEnd,
         iconPadding = SmallExtendedFabIconPadding,
         modifier = modifier,
         expanded = expanded,
@@ -729,7 +747,8 @@ fun MediumExtendedFloatingActionButton(
         textStyle = MediumExtendedFabTextStyle.value,
         minWidth = MediumExtendedFabMinimumWidth,
         minHeight = MediumExtendedFabMinimumHeight,
-        horizontalPadding = MediumExtendedFabHorizontalPadding,
+        startPadding = MediumExtendedFabPaddingStart,
+        endPadding = MediumExtendedFabPaddingEnd,
         iconPadding = MediumExtendedFabIconPadding,
         modifier = modifier,
         expanded = expanded,
@@ -796,7 +815,8 @@ fun LargeExtendedFloatingActionButton(
         textStyle = LargeExtendedFabTextStyle.value,
         minWidth = LargeExtendedFabMinimumWidth,
         minHeight = LargeExtendedFabMinimumHeight,
-        horizontalPadding = LargeExtendedFabHorizontalPadding,
+        startPadding = LargeExtendedFabPaddingStart,
+        endPadding = LargeExtendedFabPaddingEnd,
         iconPadding = LargeExtendedFabIconPadding,
         modifier = modifier,
         expanded = expanded,
@@ -877,7 +897,7 @@ fun ExtendedFloatingActionButton(
                             if (expanded) {
                                 ExtendedFabMinimumWidth
                             } else {
-                                FabPrimaryTokens.ContainerWidth
+                                FabBaselineTokens.ContainerWidth
                             }
                     )
                     .padding(start = startPadding, end = endPadding),
@@ -907,7 +927,8 @@ private fun ExtendedFloatingActionButton(
     textStyle: TextStyle,
     minWidth: Dp,
     minHeight: Dp,
-    horizontalPadding: Dp,
+    startPadding: Dp,
+    endPadding: Dp,
     iconPadding: Dp,
     modifier: Modifier = Modifier,
     expanded: Boolean = true,
@@ -947,7 +968,7 @@ private fun ExtendedFloatingActionButton(
                         layout(width, placeable.height) { placeable.place(0, 0) }
                     }
                     .sizeIn(minWidth = minWidth, minHeight = minHeight)
-                    .padding(horizontal = horizontalPadding),
+                    .padding(start = startPadding, end = endPadding),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             icon()
@@ -978,18 +999,18 @@ object FloatingActionButtonDefaults {
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
-    val MediumIconSize = 28.dp // TODO: update to use token
+    val MediumIconSize = FabMediumTokens.IconSize
 
     /** The recommended size of the icon inside a [LargeFloatingActionButton]. */
-    val LargeIconSize = FabPrimaryLargeTokens.IconSize
+    val LargeIconSize = 36.dp // TODO: FabLargeTokens.IconSize is incorrect
 
     /** Default shape for a floating action button. */
     val shape: Shape
-        @Composable get() = FabPrimaryTokens.ContainerShape.value
+        @Composable get() = FabBaselineTokens.ContainerShape.value
 
     /** Default shape for a small floating action button. */
     val smallShape: Shape
-        @Composable get() = FabPrimarySmallTokens.ContainerShape.value
+        @Composable get() = FabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium floating action button. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -1000,7 +1021,7 @@ object FloatingActionButtonDefaults {
 
     /** Default shape for a large floating action button. */
     val largeShape: Shape
-        @Composable get() = FabPrimaryLargeTokens.ContainerShape.value
+        @Composable get() = FabLargeTokens.ContainerShape.value
 
     /** Default shape for an extended floating action button. */
     val extendedFabShape: Shape
@@ -1011,7 +1032,7 @@ object FloatingActionButtonDefaults {
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val smallExtendedFabShape: Shape
-        @Composable get() = ShapeDefaults.Large // TODO: update to use token
+        @Composable get() = ExtendedFabSmallTokens.ContainerShape.value
 
     /** Default shape for a medium extended floating action button. */
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
@@ -1025,11 +1046,11 @@ object FloatingActionButtonDefaults {
     @get:ExperimentalMaterial3ExpressiveApi
     @ExperimentalMaterial3ExpressiveApi
     val largeExtendedFabShape: Shape
-        @Composable get() = ShapeDefaults.ExtraLarge // TODO: update to use token
+        @Composable get() = ExtendedFabLargeTokens.ContainerShape.value
 
     /** Default container color for a floating action button. */
     val containerColor: Color
-        @Composable get() = FabPrimaryTokens.ContainerColor.value
+        @Composable get() = FabPrimaryContainerTokens.ContainerColor.value
 
     /**
      * Creates a [FloatingActionButtonElevation] that represents the elevation of a
@@ -1044,10 +1065,10 @@ object FloatingActionButtonDefaults {
      */
     @Composable
     fun elevation(
-        defaultElevation: Dp = FabPrimaryTokens.ContainerElevation,
-        pressedElevation: Dp = FabPrimaryTokens.PressedContainerElevation,
-        focusedElevation: Dp = FabPrimaryTokens.FocusContainerElevation,
-        hoveredElevation: Dp = FabPrimaryTokens.HoverContainerElevation,
+        defaultElevation: Dp = FabPrimaryContainerTokens.ContainerElevation,
+        pressedElevation: Dp = FabPrimaryContainerTokens.PressedContainerElevation,
+        focusedElevation: Dp = FabPrimaryContainerTokens.FocusedContainerElevation,
+        hoveredElevation: Dp = FabPrimaryContainerTokens.HoveredContainerElevation,
     ): FloatingActionButtonElevation =
         FloatingActionButtonElevation(
             defaultElevation = defaultElevation,
@@ -1068,10 +1089,10 @@ object FloatingActionButtonDefaults {
      */
     @Composable
     fun loweredElevation(
-        defaultElevation: Dp = FabPrimaryTokens.LoweredContainerElevation,
-        pressedElevation: Dp = FabPrimaryTokens.LoweredPressedContainerElevation,
-        focusedElevation: Dp = FabPrimaryTokens.LoweredFocusContainerElevation,
-        hoveredElevation: Dp = FabPrimaryTokens.LoweredHoverContainerElevation,
+        defaultElevation: Dp = ElevationTokens.Level1,
+        pressedElevation: Dp = ElevationTokens.Level1,
+        focusedElevation: Dp = ElevationTokens.Level1,
+        hoveredElevation: Dp = ElevationTokens.Level2,
     ): FloatingActionButtonElevation =
         FloatingActionButtonElevation(
             defaultElevation = defaultElevation,
@@ -1404,22 +1425,27 @@ private class FloatingActionButtonElevationAnimatable(
     fun asState(): State<Dp> = animatable.asState()
 }
 
-private val SmallExtendedFabMinimumWidth = 56.dp
-private val SmallExtendedFabMinimumHeight = 56.dp
-private val SmallExtendedFabHorizontalPadding = 16.dp
-private val SmallExtendedFabIconPadding = 8.dp
+private val SmallExtendedFabMinimumWidth = ExtendedFabSmallTokens.ContainerHeight
+private val SmallExtendedFabMinimumHeight = ExtendedFabSmallTokens.ContainerHeight
+private val SmallExtendedFabPaddingStart = ExtendedFabSmallTokens.LeadingSpace
+private val SmallExtendedFabPaddingEnd = ExtendedFabSmallTokens.TrailingSpace
+private val SmallExtendedFabIconPadding = ExtendedFabSmallTokens.IconLabelSpace
 private val SmallExtendedFabTextStyle = TypographyKeyTokens.TitleMedium
 
-private val MediumExtendedFabMinimumWidth = 80.dp
-private val MediumExtendedFabMinimumHeight = 80.dp
-private val MediumExtendedFabHorizontalPadding = 26.dp
-private val MediumExtendedFabIconPadding = 16.dp
+private val MediumExtendedFabMinimumWidth = ExtendedFabMediumTokens.ContainerHeight
+private val MediumExtendedFabMinimumHeight = ExtendedFabMediumTokens.ContainerHeight
+private val MediumExtendedFabPaddingStart = ExtendedFabMediumTokens.LeadingSpace
+private val MediumExtendedFabPaddingEnd = ExtendedFabMediumTokens.TrailingSpace
+// TODO: ExtendedFabMediumTokens.IconLabelSpace is incorrect
+private val MediumExtendedFabIconPadding = 12.dp
 private val MediumExtendedFabTextStyle = TypographyKeyTokens.TitleLarge
 
-private val LargeExtendedFabMinimumWidth = 96.dp
-private val LargeExtendedFabMinimumHeight = 96.dp
-private val LargeExtendedFabHorizontalPadding = 28.dp
-private val LargeExtendedFabIconPadding = 20.dp
+private val LargeExtendedFabMinimumWidth = ExtendedFabLargeTokens.ContainerHeight
+private val LargeExtendedFabMinimumHeight = ExtendedFabLargeTokens.ContainerHeight
+private val LargeExtendedFabPaddingStart = ExtendedFabLargeTokens.LeadingSpace
+private val LargeExtendedFabPaddingEnd = ExtendedFabLargeTokens.TrailingSpace
+// TODO: ExtendedFabLargeTokens.IconLabelSpace is incorrect
+private val LargeExtendedFabIconPadding = 16.dp
 private val LargeExtendedFabTextStyle = TypographyKeyTokens.HeadlineSmall
 
 private val ExtendedFabStartIconPadding = 16.dp

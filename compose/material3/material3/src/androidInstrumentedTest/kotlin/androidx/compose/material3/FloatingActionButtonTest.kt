@@ -32,9 +32,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.tokens.ExtendedFabPrimaryTokens
-import androidx.compose.material3.tokens.FabPrimaryLargeTokens
-import androidx.compose.material3.tokens.FabPrimarySmallTokens
-import androidx.compose.material3.tokens.FabPrimaryTokens
+import androidx.compose.material3.tokens.FabBaselineTokens
+import androidx.compose.material3.tokens.FabLargeTokens
+import androidx.compose.material3.tokens.FabSmallTokens
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
@@ -128,12 +128,12 @@ class FloatingActionButtonTest {
                     Icon(Icons.Filled.Favorite, null, modifier = Modifier.testTag("icon"))
                 }
             }
-            .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
+            .assertIsSquareWithSize(FabBaselineTokens.ContainerHeight)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
-            .assertHeightIsEqualTo(FabPrimaryTokens.IconSize)
-            .assertWidthIsEqualTo(FabPrimaryTokens.IconSize)
+            .assertHeightIsEqualTo(FabBaselineTokens.IconSize)
+            .assertWidthIsEqualTo(FabBaselineTokens.IconSize)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -148,12 +148,12 @@ class FloatingActionButtonTest {
                 }
             }
             // Expecting the size to be equal to the token size.
-            .assertIsSquareWithSize(FabPrimarySmallTokens.ContainerHeight)
+            .assertIsSquareWithSize(FabSmallTokens.ContainerHeight)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
-            .assertHeightIsEqualTo(FabPrimarySmallTokens.IconSize)
-            .assertWidthIsEqualTo(FabPrimarySmallTokens.IconSize)
+            .assertHeightIsEqualTo(FabSmallTokens.IconSize)
+            .assertWidthIsEqualTo(FabSmallTokens.IconSize)
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -184,7 +184,7 @@ class FloatingActionButtonTest {
                     )
                 }
             }
-            .assertIsSquareWithSize(FabPrimaryLargeTokens.ContainerHeight)
+            .assertIsSquareWithSize(FabLargeTokens.ContainerHeight)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
@@ -206,7 +206,7 @@ class FloatingActionButtonTest {
         rule
             .onNodeWithTag("FAB")
             .assertHeightIsEqualTo(ExtendedFabPrimaryTokens.ContainerHeight)
-            .assertWidthIsAtLeast(FabPrimaryTokens.ContainerHeight)
+            .assertWidthIsAtLeast(FabBaselineTokens.ContainerHeight)
     }
 
     @Test
@@ -468,7 +468,7 @@ class FloatingActionButtonTest {
             )
         }
 
-        rule.onNodeWithTag("FAB").assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
+        rule.onNodeWithTag("FAB").assertIsSquareWithSize(FabBaselineTokens.ContainerHeight)
 
         rule
             .onNodeWithTag("icon", useUnmergedTree = true)
@@ -504,9 +504,9 @@ class FloatingActionButtonTest {
 
         rule
             .onNodeWithTag("FAB")
-            .assertIsSquareWithSize(FabPrimaryTokens.ContainerHeight)
-            .assertHeightIsEqualTo(FabPrimaryTokens.ContainerHeight)
-            .assertWidthIsEqualTo(FabPrimaryTokens.ContainerWidth)
+            .assertIsSquareWithSize(FabBaselineTokens.ContainerHeight)
+            .assertHeightIsEqualTo(FabBaselineTokens.ContainerHeight)
+            .assertWidthIsEqualTo(FabBaselineTokens.ContainerWidth)
     }
 
     @OptIn(ExperimentalMaterial3ExpressiveApi::class)
