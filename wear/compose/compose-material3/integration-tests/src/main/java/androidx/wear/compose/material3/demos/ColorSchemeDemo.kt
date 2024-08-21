@@ -17,12 +17,10 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ListHeader
@@ -249,7 +247,7 @@ private fun ButtonWithColor(text: String, containerColor: Color, contentColor: C
     Button(
         onClick = {},
         label = { Text(text, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth()) },
-        modifier = Modifier.width(150.dp),
+        modifier = Modifier.fillMaxWidth(),
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = containerColor,

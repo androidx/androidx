@@ -17,6 +17,7 @@
 package androidx.wear.compose.integration.demos
 
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -25,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.SwipeToDismissKeys
 import androidx.wear.compose.foundation.SwipeToDismissValue
@@ -123,6 +126,8 @@ internal fun BoxScope.DisplayDemoList(category: DemoCategory, onNavigateTo: (Dem
             modifier = Modifier.fillMaxWidth().testTag(DemoListTag),
             state = state,
             autoCentering = AutoCenteringParams(itemIndex = if (category.demos.size >= 2) 2 else 1),
+            contentPadding =
+                PaddingValues(horizontal = LocalConfiguration.current.screenWidthDp.dp * 0.052f),
         ) {
             item {
                 ListHeader {

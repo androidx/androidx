@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
@@ -28,7 +30,8 @@ import androidx.wear.compose.material3.ScreenScaffold
 
 @Composable
 fun ScalingLazyDemo(
-    contentPadding: PaddingValues = PaddingValues(),
+    contentPadding: PaddingValues =
+        PaddingValues(horizontal = LocalConfiguration.current.screenWidthDp.dp * 0.052f),
     content: ScalingLazyListScope.() -> Unit
 ) {
     val scrollState = rememberScalingLazyListState()
