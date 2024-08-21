@@ -707,7 +707,7 @@ public class SeekableTransitionState<S>(initialState: S) : TransitionState<S>() 
                     animation.animationSpecDuration =
                         ((1.0 - animation.start[0]) * totalDurationNanos).roundToLong()
                 }
-            } else {
+            } else if (totalDurationNanos != 0L) {
                 // seekTo() called with a fraction. If an animation is running, we can just wait
                 // for the animation to change the value. The fraction may not be the best way
                 // to advance a regular animation.

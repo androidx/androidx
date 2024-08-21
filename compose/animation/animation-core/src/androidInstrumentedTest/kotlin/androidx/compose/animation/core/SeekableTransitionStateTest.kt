@@ -71,6 +71,7 @@ import kotlinx.coroutines.runBlocking
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -2470,6 +2471,46 @@ class SeekableTransitionStateTest {
         rule.runOnIdle {
             assertEquals(1000, animatedValue)
             assertFalse(transition.isRunning)
+        }
+    }
+
+    @Test
+    fun isRunningFalseAfterChildAnimatedVisibilityTransition() {
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        lateinit var coroutineScope: CoroutineScope
+        lateinit var transition: Transition<AnimStates>
+        var animatedVisibilityTransition: Transition<*>? = null
+
+        rule.mainClock.autoAdvance = false
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            transition = rememberTransition(seekableTransitionState, label = "Test")
+            transition.AnimatedVisibility(
+                visible = { it == AnimStates.To },
+            ) {
+                animatedVisibilityTransition = this.transition
+                Box(Modifier.size(100.dp))
+            }
+        }
+        rule.runOnIdle {
+            assertFalse(transition.isRunning)
+            assertNull(animatedVisibilityTransition)
+        }
+
+        rule.runOnUiThread {
+            coroutineScope.launch { seekableTransitionState.animateTo(AnimStates.To) }
+        }
+        rule.mainClock.advanceTimeBy(50)
+        rule.runOnIdle {
+            assertTrue(transition.isRunning)
+            assertTrue(animatedVisibilityTransition!!.isRunning)
+        }
+
+        rule.mainClock.advanceTimeBy(5000)
+        rule.runOnIdle {
+            assertFalse(transition.isRunning)
+            assertFalse(animatedVisibilityTransition!!.isRunning)
         }
     }
 
