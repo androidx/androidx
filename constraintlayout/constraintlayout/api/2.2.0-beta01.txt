@@ -1,0 +1,1714 @@
+// Signature format: 4.0
+package androidx.constraintlayout.helper.widget {
+
+  public class Carousel extends androidx.constraintlayout.motion.widget.MotionHelper {
+    ctor public Carousel(android.content.Context!);
+    ctor public Carousel(android.content.Context!, android.util.AttributeSet!);
+    ctor public Carousel(android.content.Context!, android.util.AttributeSet!, int);
+    method public int getCount();
+    method public int getCurrentIndex();
+    method public boolean isInfinite();
+    method public void jumpToIndex(int);
+    method public void refresh();
+    method public void setAdapter(androidx.constraintlayout.helper.widget.Carousel.Adapter!);
+    method public void setInfinite(boolean);
+    method public void transitionToIndex(int, int);
+    field public static final int TOUCH_UP_CARRY_ON = 2; // 0x2
+    field public static final int TOUCH_UP_IMMEDIATE_STOP = 1; // 0x1
+  }
+
+  public static interface Carousel.Adapter {
+    method public int count();
+    method public void onNewItem(int);
+    method public void populate(android.view.View!, int);
+  }
+
+  public class CircularFlow extends androidx.constraintlayout.widget.VirtualLayout {
+    ctor public CircularFlow(android.content.Context!);
+    ctor public CircularFlow(android.content.Context!, android.util.AttributeSet!);
+    ctor public CircularFlow(android.content.Context!, android.util.AttributeSet!, int);
+    method public void addViewToCircularFlow(android.view.View!, int, float);
+    method public float[]! getAngles();
+    method public int[]! getRadius();
+    method public boolean isUpdatable(android.view.View!);
+    method public void setDefaultAngle(float);
+    method public void setDefaultRadius(int);
+    method public void updateAngle(android.view.View!, float);
+    method public void updateRadius(android.view.View!, int);
+    method public void updateReference(android.view.View!, int, float);
+  }
+
+  public class Flow extends androidx.constraintlayout.widget.VirtualLayout {
+    ctor public Flow(android.content.Context!);
+    ctor public Flow(android.content.Context!, android.util.AttributeSet!);
+    ctor public Flow(android.content.Context!, android.util.AttributeSet!, int);
+    method public void setFirstHorizontalBias(float);
+    method public void setFirstHorizontalStyle(int);
+    method public void setFirstVerticalBias(float);
+    method public void setFirstVerticalStyle(int);
+    method public void setHorizontalAlign(int);
+    method public void setHorizontalBias(float);
+    method public void setHorizontalGap(int);
+    method public void setHorizontalStyle(int);
+    method public void setLastHorizontalBias(float);
+    method public void setLastHorizontalStyle(int);
+    method public void setLastVerticalBias(float);
+    method public void setLastVerticalStyle(int);
+    method public void setMaxElementsWrap(int);
+    method public void setOrientation(int);
+    method public void setPadding(int);
+    method public void setPaddingBottom(int);
+    method public void setPaddingLeft(int);
+    method public void setPaddingRight(int);
+    method public void setPaddingTop(int);
+    method public void setVerticalAlign(int);
+    method public void setVerticalBias(float);
+    method public void setVerticalGap(int);
+    method public void setVerticalStyle(int);
+    method public void setWrapMode(int);
+    field public static final int CHAIN_PACKED = 2; // 0x2
+    field public static final int CHAIN_SPREAD = 0; // 0x0
+    field public static final int CHAIN_SPREAD_INSIDE = 1; // 0x1
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int HORIZONTAL_ALIGN_CENTER = 2; // 0x2
+    field public static final int HORIZONTAL_ALIGN_END = 1; // 0x1
+    field public static final int HORIZONTAL_ALIGN_START = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+    field public static final int VERTICAL_ALIGN_BASELINE = 3; // 0x3
+    field public static final int VERTICAL_ALIGN_BOTTOM = 1; // 0x1
+    field public static final int VERTICAL_ALIGN_CENTER = 2; // 0x2
+    field public static final int VERTICAL_ALIGN_TOP = 0; // 0x0
+    field public static final int WRAP_ALIGNED = 2; // 0x2
+    field public static final int WRAP_CHAIN = 1; // 0x1
+    field public static final int WRAP_NONE = 0; // 0x0
+  }
+
+  public class Grid extends androidx.constraintlayout.widget.VirtualLayout {
+    ctor public Grid(android.content.Context!);
+    ctor public Grid(android.content.Context!, android.util.AttributeSet!);
+    ctor public Grid(android.content.Context!, android.util.AttributeSet!, int);
+    method public String! getColumnWeights();
+    method public int getColumns();
+    method public float getHorizontalGaps();
+    method public int getOrientation();
+    method public String! getRowWeights();
+    method public int getRows();
+    method public String! getSkips();
+    method public String! getSpans();
+    method public float getVerticalGaps();
+    method public void setColumnWeights(String!);
+    method public void setColumns(int);
+    method public void setHorizontalGaps(float);
+    method public void setOrientation(int);
+    method public void setRowWeights(String!);
+    method public void setRows(int);
+    method public void setSkips(String!);
+    method public void setSpans(CharSequence!);
+    method public void setVerticalGaps(float);
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int VERTICAL = 1; // 0x1
+  }
+
+  public class Layer extends androidx.constraintlayout.widget.ConstraintHelper {
+    ctor public Layer(android.content.Context!);
+    ctor public Layer(android.content.Context!, android.util.AttributeSet!);
+    ctor public Layer(android.content.Context!, android.util.AttributeSet!, int);
+    method protected void calcCenters();
+    field protected float mComputedCenterX;
+    field protected float mComputedCenterY;
+    field protected float mComputedMaxX;
+    field protected float mComputedMaxY;
+    field protected float mComputedMinX;
+    field protected float mComputedMinY;
+  }
+
+  public class MotionEffect extends androidx.constraintlayout.motion.widget.MotionHelper {
+    ctor public MotionEffect(android.content.Context!);
+    ctor public MotionEffect(android.content.Context!, android.util.AttributeSet!);
+    ctor public MotionEffect(android.content.Context!, android.util.AttributeSet!, int);
+    field public static final int AUTO = -1; // 0xffffffff
+    field public static final int EAST = 2; // 0x2
+    field public static final int NORTH = 0; // 0x0
+    field public static final int SOUTH = 1; // 0x1
+    field public static final String TAG = "FadeMove";
+    field public static final int WEST = 3; // 0x3
+  }
+
+  public class MotionPlaceholder extends androidx.constraintlayout.widget.VirtualLayout {
+    ctor public MotionPlaceholder(android.content.Context!);
+    ctor public MotionPlaceholder(android.content.Context!, android.util.AttributeSet!);
+    ctor public MotionPlaceholder(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public MotionPlaceholder(android.content.Context!, android.util.AttributeSet!, int, int);
+  }
+
+}
+
+package androidx.constraintlayout.motion.utils {
+
+  public class CustomSupport {
+    ctor public CustomSupport();
+    method public static void setInterpolatedValue(androidx.constraintlayout.widget.ConstraintAttribute!, android.view.View!, float[]!);
+  }
+
+  public class StopLogic extends androidx.constraintlayout.motion.widget.MotionInterpolator {
+    ctor public StopLogic();
+    method public void config(float, float, float, float, float, float);
+    method public String! debug(String!, float);
+    method public float getInterpolation(float);
+    method public float getVelocity();
+    method public float getVelocity(float);
+    method public boolean isStopped();
+    method public void springConfig(float, float, float, float, float, float, float, int);
+  }
+
+  public abstract class ViewOscillator extends androidx.constraintlayout.core.motion.utils.KeyCycleOscillator {
+    ctor public ViewOscillator();
+    method public static androidx.constraintlayout.motion.utils.ViewOscillator! makeSpline(String!);
+    method public abstract void setProperty(android.view.View!, float);
+  }
+
+  public static class ViewOscillator.PathRotateSet extends androidx.constraintlayout.motion.utils.ViewOscillator {
+    ctor public ViewOscillator.PathRotateSet();
+    method public void setPathRotate(android.view.View!, float, double, double);
+    method public void setProperty(android.view.View!, float);
+  }
+
+  public abstract class ViewSpline extends androidx.constraintlayout.core.motion.utils.SplineSet {
+    ctor public ViewSpline();
+    method public static androidx.constraintlayout.motion.utils.ViewSpline! makeCustomSpline(String!, android.util.SparseArray<androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public static androidx.constraintlayout.motion.utils.ViewSpline! makeSpline(String!);
+    method public abstract void setProperty(android.view.View!, float);
+  }
+
+  public static class ViewSpline.CustomSet extends androidx.constraintlayout.motion.utils.ViewSpline {
+    ctor public ViewSpline.CustomSet(String!, android.util.SparseArray<androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public void setPoint(int, androidx.constraintlayout.widget.ConstraintAttribute!);
+    method public void setProperty(android.view.View!, float);
+  }
+
+  public static class ViewSpline.PathRotate extends androidx.constraintlayout.motion.utils.ViewSpline {
+    ctor public ViewSpline.PathRotate();
+    method public void setPathRotate(android.view.View!, float, double, double);
+    method public void setProperty(android.view.View!, float);
+  }
+
+  public class ViewState {
+    ctor public ViewState();
+    method public void getState(android.view.View!);
+    method public int height();
+    method public int width();
+    field public int bottom;
+    field public int left;
+    field public int right;
+    field public float rotation;
+    field public int top;
+  }
+
+  public abstract class ViewTimeCycle extends androidx.constraintlayout.core.motion.utils.TimeCycleSplineSet {
+    ctor public ViewTimeCycle();
+    method public float get(float, long, android.view.View!, androidx.constraintlayout.core.motion.utils.KeyCache!);
+    method public static androidx.constraintlayout.motion.utils.ViewTimeCycle! makeCustomSpline(String!, android.util.SparseArray<androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public static androidx.constraintlayout.motion.utils.ViewTimeCycle! makeSpline(String!, long);
+    method public abstract boolean setProperty(android.view.View!, float, long, androidx.constraintlayout.core.motion.utils.KeyCache!);
+  }
+
+  public static class ViewTimeCycle.CustomSet extends androidx.constraintlayout.motion.utils.ViewTimeCycle {
+    ctor public ViewTimeCycle.CustomSet(String!, android.util.SparseArray<androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public void setPoint(int, androidx.constraintlayout.widget.ConstraintAttribute!, float, int, float);
+    method public boolean setProperty(android.view.View!, float, long, androidx.constraintlayout.core.motion.utils.KeyCache!);
+  }
+
+  public static class ViewTimeCycle.PathRotate extends androidx.constraintlayout.motion.utils.ViewTimeCycle {
+    ctor public ViewTimeCycle.PathRotate();
+    method public boolean setPathRotate(android.view.View!, androidx.constraintlayout.core.motion.utils.KeyCache!, float, long, double, double);
+    method public boolean setProperty(android.view.View!, float, long, androidx.constraintlayout.core.motion.utils.KeyCache!);
+  }
+
+}
+
+package androidx.constraintlayout.motion.widget {
+
+  public interface Animatable {
+    method public float getProgress();
+    method public void setProgress(float);
+  }
+
+  public interface CustomFloatAttributes {
+    method public float get(String!);
+    method public String![]! getListOfAttributes();
+    method public void set(String!, float);
+  }
+
+  public class Debug {
+    ctor public Debug();
+    method public static void dumpLayoutParams(android.view.ViewGroup!, String!);
+    method public static void dumpLayoutParams(android.view.ViewGroup.LayoutParams!, String!);
+    method public static void dumpPoc(Object!);
+    method public static String! getActionType(android.view.MotionEvent!);
+    method public static String! getCallFrom(int);
+    method public static String! getLoc();
+    method public static String! getLocation();
+    method public static String! getLocation2();
+    method public static String! getName(android.content.Context!, int);
+    method public static String! getName(android.content.Context!, int[]!);
+    method public static String! getName(android.view.View!);
+    method public static String! getState(androidx.constraintlayout.motion.widget.MotionLayout!, int);
+    method public static String! getState(androidx.constraintlayout.motion.widget.MotionLayout!, int, int);
+    method public static void logStack(String!, String!, int);
+    method public static void printStack(String!, int);
+  }
+
+  public class DesignTool {
+    ctor public DesignTool(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public int designAccess(int, String!, Object!, float[]!, int, float[]!, int);
+    method public void disableAutoTransition(boolean);
+    method public void dumpConstraintSet(String!);
+    method public int getAnimationKeyFrames(Object!, float[]!);
+    method public int getAnimationPath(Object!, float[]!, int);
+    method public void getAnimationRectangles(Object!, float[]!);
+    method public String! getEndState();
+    method public int getKeyFrameInfo(Object!, int, int[]!);
+    method public float getKeyFramePosition(Object!, int, float, float);
+    method public int getKeyFramePositions(Object!, int[]!, float[]!);
+    method public Object! getKeyframe(int, int, int);
+    method public Object! getKeyframe(Object!, int, int);
+    method public Object! getKeyframeAtLocation(Object!, float, float);
+    method public Boolean! getPositionKeyframe(Object!, Object!, float, float, String![]!, float[]!);
+    method public float getProgress();
+    method public String! getStartState();
+    method public String! getState();
+    method public long getTransitionTimeMs();
+    method public boolean isInTransition();
+    method public void setAttributes(int, String!, Object!, Object!);
+    method public void setKeyFrame(Object!, int, String!, Object!);
+    method public boolean setKeyFramePosition(Object!, int, int, float, float);
+    method public void setKeyframe(Object!, String!, Object!);
+    method public void setState(String!);
+    method public void setToolPosition(float);
+    method public void setTransition(String!, String!);
+    method public void setViewDebug(Object!, int);
+  }
+
+  public interface FloatLayout {
+    method public void layout(float, float, float, float);
+  }
+
+  public abstract class Key {
+    ctor public Key();
+    method public abstract void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public abstract androidx.constraintlayout.motion.widget.Key! clone();
+    method public androidx.constraintlayout.motion.widget.Key! copy(androidx.constraintlayout.motion.widget.Key!);
+    method public int getFramePosition();
+    method public void setFramePosition(int);
+    method public void setInterpolation(java.util.HashMap<java.lang.String!,java.lang.Integer!>!);
+    method public abstract void setValue(String!, Object!);
+    method public androidx.constraintlayout.motion.widget.Key! setViewId(int);
+    field public static final String ALPHA = "alpha";
+    field public static final String CURVEFIT = "curveFit";
+    field public static final String CUSTOM = "CUSTOM";
+    field public static final String ELEVATION = "elevation";
+    field public static final String MOTIONPROGRESS = "motionProgress";
+    field public static final String PIVOT_X = "transformPivotX";
+    field public static final String PIVOT_Y = "transformPivotY";
+    field public static final String PROGRESS = "progress";
+    field public static final String ROTATION = "rotation";
+    field public static final String ROTATION_X = "rotationX";
+    field public static final String ROTATION_Y = "rotationY";
+    field public static final String SCALE_X = "scaleX";
+    field public static final String SCALE_Y = "scaleY";
+    field public static final String TRANSITIONEASING = "transitionEasing";
+    field public static final String TRANSITION_PATH_ROTATE = "transitionPathRotate";
+    field public static final String TRANSLATION_X = "translationX";
+    field public static final String TRANSLATION_Y = "translationY";
+    field public static final String TRANSLATION_Z = "translationZ";
+    field public static int UNSET;
+    field public static final String VISIBILITY = "visibility";
+    field public static final String WAVE_OFFSET = "waveOffset";
+    field public static final String WAVE_PERIOD = "wavePeriod";
+    field public static final String WAVE_PHASE = "wavePhase";
+    field public static final String WAVE_VARIES_BY = "waveVariesBy";
+    field protected int mType;
+  }
+
+  public class KeyAttributes extends androidx.constraintlayout.motion.widget.Key {
+    ctor public KeyAttributes();
+    method public void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public androidx.constraintlayout.motion.widget.Key! clone();
+    method public void getAttributeNames(java.util.HashSet<java.lang.String!>!);
+    method public void load(android.content.Context!, android.util.AttributeSet!);
+    method public void setValue(String!, Object!);
+    field public static final int KEY_TYPE = 1; // 0x1
+  }
+
+  public class KeyCycle extends androidx.constraintlayout.motion.widget.Key {
+    ctor public KeyCycle();
+    method public void addCycleValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewOscillator!>!);
+    method public void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public androidx.constraintlayout.motion.widget.Key! clone();
+    method public void getAttributeNames(java.util.HashSet<java.lang.String!>!);
+    method public float getValue(String!);
+    method public void load(android.content.Context!, android.util.AttributeSet!);
+    method public void setValue(String!, Object!);
+    field public static final int KEY_TYPE = 4; // 0x4
+    field public static final int SHAPE_BOUNCE = 6; // 0x6
+    field public static final int SHAPE_COS_WAVE = 5; // 0x5
+    field public static final int SHAPE_REVERSE_SAW_WAVE = 4; // 0x4
+    field public static final int SHAPE_SAW_WAVE = 3; // 0x3
+    field public static final int SHAPE_SIN_WAVE = 0; // 0x0
+    field public static final int SHAPE_SQUARE_WAVE = 1; // 0x1
+    field public static final int SHAPE_TRIANGLE_WAVE = 2; // 0x2
+    field public static final String WAVE_OFFSET = "waveOffset";
+    field public static final String WAVE_PERIOD = "wavePeriod";
+    field public static final String WAVE_PHASE = "wavePhase";
+    field public static final String WAVE_SHAPE = "waveShape";
+  }
+
+  public class KeyFrames {
+    ctor public KeyFrames();
+    ctor public KeyFrames(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
+    method public void addAllFrames(androidx.constraintlayout.motion.widget.MotionController!);
+    method public void addFrames(androidx.constraintlayout.motion.widget.MotionController!);
+    method public void addKey(androidx.constraintlayout.motion.widget.Key!);
+    method public java.util.ArrayList<androidx.constraintlayout.motion.widget.Key!>! getKeyFramesForView(int);
+    method public java.util.Set<java.lang.Integer!>! getKeys();
+    field public static final int UNSET = -1; // 0xffffffff
+  }
+
+  public class KeyPosition extends androidx.constraintlayout.motion.widget.Key {
+    ctor public KeyPosition();
+    method public void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public androidx.constraintlayout.motion.widget.Key! clone();
+    method public boolean intersects(int, int, android.graphics.RectF!, android.graphics.RectF!, float, float);
+    method public void load(android.content.Context!, android.util.AttributeSet!);
+    method public void positionAttributes(android.view.View!, android.graphics.RectF!, android.graphics.RectF!, float, float, String![]!, float[]!);
+    method public void setType(int);
+    method public void setValue(String!, Object!);
+    field public static final String DRAWPATH = "drawPath";
+    field public static final String PERCENT_HEIGHT = "percentHeight";
+    field public static final String PERCENT_WIDTH = "percentWidth";
+    field public static final String PERCENT_X = "percentX";
+    field public static final String PERCENT_Y = "percentY";
+    field public static final String SIZE_PERCENT = "sizePercent";
+    field public static final String TRANSITION_EASING = "transitionEasing";
+    field public static final int TYPE_AXIS = 3; // 0x3
+    field public static final int TYPE_CARTESIAN = 0; // 0x0
+    field public static final int TYPE_PATH = 1; // 0x1
+    field public static final int TYPE_SCREEN = 2; // 0x2
+  }
+
+  public class KeyTimeCycle extends androidx.constraintlayout.motion.widget.Key {
+    ctor public KeyTimeCycle();
+    method public void addTimeValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewTimeCycle!>!);
+    method public void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public androidx.constraintlayout.motion.widget.Key! clone();
+    method public void getAttributeNames(java.util.HashSet<java.lang.String!>!);
+    method public void load(android.content.Context!, android.util.AttributeSet!);
+    method public void setValue(String!, Object!);
+    field public static final int KEY_TYPE = 3; // 0x3
+    field public static final int SHAPE_BOUNCE = 6; // 0x6
+    field public static final int SHAPE_COS_WAVE = 5; // 0x5
+    field public static final int SHAPE_REVERSE_SAW_WAVE = 4; // 0x4
+    field public static final int SHAPE_SAW_WAVE = 3; // 0x3
+    field public static final int SHAPE_SIN_WAVE = 0; // 0x0
+    field public static final int SHAPE_SQUARE_WAVE = 1; // 0x1
+    field public static final int SHAPE_TRIANGLE_WAVE = 2; // 0x2
+    field public static final String WAVE_OFFSET = "waveOffset";
+    field public static final String WAVE_PERIOD = "wavePeriod";
+    field public static final String WAVE_SHAPE = "waveShape";
+  }
+
+  public class KeyTrigger extends androidx.constraintlayout.motion.widget.Key {
+    ctor public KeyTrigger();
+    method public void addValues(java.util.HashMap<java.lang.String!,androidx.constraintlayout.motion.utils.ViewSpline!>!);
+    method public androidx.constraintlayout.motion.widget.Key! clone();
+    method public void conditionallyFire(float, android.view.View!);
+    method public void getAttributeNames(java.util.HashSet<java.lang.String!>!);
+    method public void load(android.content.Context!, android.util.AttributeSet!);
+    method public void setValue(String!, Object!);
+    field public static final String CROSS = "CROSS";
+    field public static final int KEY_TYPE = 5; // 0x5
+    field public static final String NEGATIVE_CROSS = "negativeCross";
+    field public static final String POSITIVE_CROSS = "positiveCross";
+    field public static final String POST_LAYOUT = "postLayout";
+    field public static final String TRIGGER_COLLISION_ID = "triggerCollisionId";
+    field public static final String TRIGGER_COLLISION_VIEW = "triggerCollisionView";
+    field public static final String TRIGGER_ID = "triggerID";
+    field public static final String TRIGGER_RECEIVER = "triggerReceiver";
+    field public static final String TRIGGER_SLACK = "triggerSlack";
+    field public static final String VIEW_TRANSITION_ON_CROSS = "viewTransitionOnCross";
+    field public static final String VIEW_TRANSITION_ON_NEGATIVE_CROSS = "viewTransitionOnNegativeCross";
+    field public static final String VIEW_TRANSITION_ON_POSITIVE_CROSS = "viewTransitionOnPositiveCross";
+  }
+
+  public class MotionController {
+    method public void addKey(androidx.constraintlayout.motion.widget.Key!);
+    method public int getAnimateRelativeTo();
+    method public void getCenter(double, float[]!, float[]!);
+    method public float getCenterX();
+    method public float getCenterY();
+    method public int getDrawPath();
+    method public float getFinalHeight();
+    method public float getFinalWidth();
+    method public float getFinalX();
+    method public float getFinalY();
+    method public int getKeyFrameInfo(int, int[]!);
+    method public int getKeyFramePositions(int[]!, float[]!);
+    method public float getStartHeight();
+    method public float getStartWidth();
+    method public float getStartX();
+    method public float getStartY();
+    method public int getTransformPivotTarget();
+    method public android.view.View! getView();
+    method public void remeasure();
+    method public void setDrawPath(int);
+    method public void setPathMotionArc(int);
+    method public void setStartState(androidx.constraintlayout.motion.utils.ViewState!, android.view.View!, int, int, int);
+    method public void setTransformPivotTarget(int);
+    method public void setView(android.view.View!);
+    method public void setup(int, int, float, long);
+    method public void setupRelative(androidx.constraintlayout.motion.widget.MotionController!);
+    field public static final int DRAW_PATH_AS_CONFIGURED = 4; // 0x4
+    field public static final int DRAW_PATH_BASIC = 1; // 0x1
+    field public static final int DRAW_PATH_CARTESIAN = 3; // 0x3
+    field public static final int DRAW_PATH_NONE = 0; // 0x0
+    field public static final int DRAW_PATH_RECTANGLE = 5; // 0x5
+    field public static final int DRAW_PATH_RELATIVE = 2; // 0x2
+    field public static final int DRAW_PATH_SCREEN = 6; // 0x6
+    field public static final int HORIZONTAL_PATH_X = 2; // 0x2
+    field public static final int HORIZONTAL_PATH_Y = 3; // 0x3
+    field public static final int PATH_PERCENT = 0; // 0x0
+    field public static final int PATH_PERPENDICULAR = 1; // 0x1
+    field public static final int ROTATION_LEFT = 2; // 0x2
+    field public static final int ROTATION_RIGHT = 1; // 0x1
+    field public static final int VERTICAL_PATH_X = 4; // 0x4
+    field public static final int VERTICAL_PATH_Y = 5; // 0x5
+  }
+
+  public class MotionHelper extends androidx.constraintlayout.widget.ConstraintHelper implements androidx.constraintlayout.motion.widget.MotionHelperInterface {
+    ctor public MotionHelper(android.content.Context!);
+    ctor public MotionHelper(android.content.Context!, android.util.AttributeSet!);
+    ctor public MotionHelper(android.content.Context!, android.util.AttributeSet!, int);
+    method public float getProgress();
+    method public boolean isDecorator();
+    method public boolean isUseOnHide();
+    method public boolean isUsedOnShow();
+    method public void onFinishedMotionScene(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public void onPostDraw(android.graphics.Canvas!);
+    method public void onPreDraw(android.graphics.Canvas!);
+    method public void onPreSetup(androidx.constraintlayout.motion.widget.MotionLayout!, java.util.HashMap<android.view.View!,androidx.constraintlayout.motion.widget.MotionController!>!);
+    method public void onTransitionChange(androidx.constraintlayout.motion.widget.MotionLayout!, int, int, float);
+    method public void onTransitionCompleted(androidx.constraintlayout.motion.widget.MotionLayout!, int);
+    method public void onTransitionStarted(androidx.constraintlayout.motion.widget.MotionLayout!, int, int);
+    method public void onTransitionTrigger(androidx.constraintlayout.motion.widget.MotionLayout!, int, boolean, float);
+    method public void setProgress(android.view.View!, float);
+    method public void setProgress(float);
+    field protected android.view.View![]! views;
+  }
+
+  public interface MotionHelperInterface extends androidx.constraintlayout.motion.widget.Animatable androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener {
+    method public boolean isDecorator();
+    method public boolean isUseOnHide();
+    method public boolean isUsedOnShow();
+    method public void onFinishedMotionScene(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public void onPostDraw(android.graphics.Canvas!);
+    method public void onPreDraw(android.graphics.Canvas!);
+    method public void onPreSetup(androidx.constraintlayout.motion.widget.MotionLayout!, java.util.HashMap<android.view.View!,androidx.constraintlayout.motion.widget.MotionController!>!);
+  }
+
+  public abstract class MotionInterpolator implements android.view.animation.Interpolator {
+    ctor public MotionInterpolator();
+    method public abstract float getVelocity();
+  }
+
+  public class MotionLayout extends androidx.constraintlayout.widget.ConstraintLayout implements androidx.core.view.NestedScrollingParent3 {
+    ctor public MotionLayout(android.content.Context);
+    ctor public MotionLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public MotionLayout(android.content.Context, android.util.AttributeSet?, int);
+    method public void addTransitionListener(androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener!);
+    method public boolean applyViewTransition(int, androidx.constraintlayout.motion.widget.MotionController!);
+    method public androidx.constraintlayout.widget.ConstraintSet! cloneConstraintSet(int);
+    method public void enableTransition(int, boolean);
+    method public void enableViewTransition(int, boolean);
+    method protected void fireTransitionCompleted();
+    method public void fireTrigger(int, boolean, float);
+    method public androidx.constraintlayout.widget.ConstraintSet! getConstraintSet(int);
+    method @IdRes public int[]! getConstraintSetIds();
+    method public int getCurrentState();
+    method public java.util.ArrayList<androidx.constraintlayout.motion.widget.MotionScene.Transition!>! getDefinedTransitions();
+    method public androidx.constraintlayout.motion.widget.DesignTool! getDesignTool();
+    method public int getEndState();
+    method public int[]! getMatchingConstraintSetIds(java.lang.String!...!);
+    method protected long getNanoTime();
+    method public float getProgress();
+    method public androidx.constraintlayout.motion.widget.MotionScene! getScene();
+    method public int getStartState();
+    method public float getTargetPosition();
+    method public androidx.constraintlayout.motion.widget.MotionScene.Transition! getTransition(int);
+    method public android.os.Bundle! getTransitionState();
+    method public long getTransitionTimeMs();
+    method public float getVelocity();
+    method public void getViewVelocity(android.view.View!, float, float, float[]!, int);
+    method public boolean isDelayedApplicationOfInitialState();
+    method public boolean isInRotation();
+    method public boolean isInteractionEnabled();
+    method public boolean isViewTransitionEnabled(int);
+    method public void jumpToState(int);
+    method protected androidx.constraintlayout.motion.widget.MotionLayout.MotionTracker! obtainVelocityTracker();
+    method public void onNestedPreScroll(android.view.View, int, int, int[], int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int);
+    method public void onNestedScroll(android.view.View, int, int, int, int, int, int[]!);
+    method public void onNestedScrollAccepted(android.view.View, android.view.View, int, int);
+    method public boolean onStartNestedScroll(android.view.View, android.view.View, int, int);
+    method public void onStopNestedScroll(android.view.View, int);
+    method @Deprecated public void rebuildMotion();
+    method public void rebuildScene();
+    method public boolean removeTransitionListener(androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener!);
+    method public void rotateTo(int, int);
+    method public void scheduleTransitionTo(int);
+    method public void setDebugMode(int);
+    method public void setDelayedApplicationOfInitialState(boolean);
+    method public void setInteractionEnabled(boolean);
+    method public void setInterpolatedProgress(float);
+    method public void setOnHide(float);
+    method public void setOnShow(float);
+    method public void setProgress(float);
+    method public void setProgress(float, float);
+    method public void setScene(androidx.constraintlayout.motion.widget.MotionScene!);
+    method protected void setTransition(androidx.constraintlayout.motion.widget.MotionScene.Transition!);
+    method public void setTransition(int);
+    method public void setTransition(int, int);
+    method public void setTransitionDuration(int);
+    method public void setTransitionListener(androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener!);
+    method public void setTransitionState(android.os.Bundle!);
+    method public void touchAnimateTo(int, float, float);
+    method public void touchSpringTo(float, float);
+    method public void transitionToEnd();
+    method public void transitionToEnd(Runnable!);
+    method public void transitionToStart();
+    method public void transitionToStart(Runnable!);
+    method public void transitionToState(int);
+    method public void transitionToState(int, int);
+    method public void transitionToState(int, int, int);
+    method public void transitionToState(int, int, int, int);
+    method public void updateState();
+    method public void updateState(int, androidx.constraintlayout.widget.ConstraintSet!);
+    method public void updateStateAnimate(int, androidx.constraintlayout.widget.ConstraintSet!, int);
+    method public void viewTransition(int, android.view.View!...!);
+    field public static final int DEBUG_SHOW_NONE = 0; // 0x0
+    field public static final int DEBUG_SHOW_PATH = 2; // 0x2
+    field public static final int DEBUG_SHOW_PROGRESS = 1; // 0x1
+    field public static boolean IS_IN_EDIT_MODE;
+    field public static final int TOUCH_UP_COMPLETE = 0; // 0x0
+    field public static final int TOUCH_UP_COMPLETE_TO_END = 2; // 0x2
+    field public static final int TOUCH_UP_COMPLETE_TO_START = 1; // 0x1
+    field public static final int TOUCH_UP_DECELERATE = 4; // 0x4
+    field public static final int TOUCH_UP_DECELERATE_AND_COMPLETE = 5; // 0x5
+    field public static final int TOUCH_UP_NEVER_TO_END = 7; // 0x7
+    field public static final int TOUCH_UP_NEVER_TO_START = 6; // 0x6
+    field public static final int TOUCH_UP_STOP = 3; // 0x3
+    field public static final int VELOCITY_LAYOUT = 1; // 0x1
+    field public static final int VELOCITY_POST_LAYOUT = 0; // 0x0
+    field public static final int VELOCITY_STATIC_LAYOUT = 3; // 0x3
+    field public static final int VELOCITY_STATIC_POST_LAYOUT = 2; // 0x2
+    field protected boolean mMeasureDuringTransition;
+  }
+
+  protected static interface MotionLayout.MotionTracker {
+    method public void addMovement(android.view.MotionEvent!);
+    method public void clear();
+    method public void computeCurrentVelocity(int);
+    method public void computeCurrentVelocity(int, float);
+    method public float getXVelocity();
+    method public float getXVelocity(int);
+    method public float getYVelocity();
+    method public float getYVelocity(int);
+    method public void recycle();
+  }
+
+  public static interface MotionLayout.TransitionListener {
+    method public void onTransitionChange(androidx.constraintlayout.motion.widget.MotionLayout!, int, int, float);
+    method public void onTransitionCompleted(androidx.constraintlayout.motion.widget.MotionLayout!, int);
+    method public void onTransitionStarted(androidx.constraintlayout.motion.widget.MotionLayout!, int, int);
+    method public void onTransitionTrigger(androidx.constraintlayout.motion.widget.MotionLayout!, int, boolean, float);
+  }
+
+  public class MotionScene {
+    ctor public MotionScene(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public void addOnClickListeners(androidx.constraintlayout.motion.widget.MotionLayout!, int);
+    method public void addTransition(androidx.constraintlayout.motion.widget.MotionScene.Transition!);
+    method public boolean applyViewTransition(int, androidx.constraintlayout.motion.widget.MotionController!);
+    method public androidx.constraintlayout.motion.widget.MotionScene.Transition! bestTransitionFor(int, float, float, android.view.MotionEvent!);
+    method public void disableAutoTransition(boolean);
+    method public void enableViewTransition(int, boolean);
+    method public int gatPathMotionArc();
+    method public androidx.constraintlayout.widget.ConstraintSet! getConstraintSet(android.content.Context!, String!);
+    method public int[]! getConstraintSetIds();
+    method public java.util.ArrayList<androidx.constraintlayout.motion.widget.MotionScene.Transition!>! getDefinedTransitions();
+    method public int getDuration();
+    method public android.view.animation.Interpolator! getInterpolator();
+    method public void getKeyFrames(androidx.constraintlayout.motion.widget.MotionController!);
+    method public int[]! getMatchingStateLabels(java.lang.String!...!);
+    method public float getPathPercent(android.view.View!, int);
+    method public float getStaggered();
+    method public androidx.constraintlayout.motion.widget.MotionScene.Transition! getTransitionById(int);
+    method public java.util.List<androidx.constraintlayout.motion.widget.MotionScene.Transition!>! getTransitionsWithState(int);
+    method public boolean isViewTransitionEnabled(int);
+    method public int lookUpConstraintId(String!);
+    method public String! lookUpConstraintName(int);
+    method protected void onLayout(boolean, int, int, int, int);
+    method public void removeTransition(androidx.constraintlayout.motion.widget.MotionScene.Transition!);
+    method public void setConstraintSet(int, androidx.constraintlayout.widget.ConstraintSet!);
+    method public void setDuration(int);
+    method public void setKeyframe(android.view.View!, int, String!, Object!);
+    method public void setRtl(boolean);
+    method public void setTransition(androidx.constraintlayout.motion.widget.MotionScene.Transition!);
+    method public static String! stripID(String!);
+    method public boolean validateLayout(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public void viewTransition(int, android.view.View!...!);
+    field public static final int LAYOUT_CALL_MEASURE = 2; // 0x2
+    field public static final int LAYOUT_HONOR_REQUEST = 1; // 0x1
+    field public static final int LAYOUT_IGNORE_REQUEST = 0; // 0x0
+    field public static final int UNSET = -1; // 0xffffffff
+  }
+
+  public static class MotionScene.Transition {
+    ctor public MotionScene.Transition(int, androidx.constraintlayout.motion.widget.MotionScene!, int, int);
+    method public void addKeyFrame(androidx.constraintlayout.motion.widget.KeyFrames!);
+    method public void addOnClick(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
+    method public void addOnClick(int, int);
+    method public String! debugString(android.content.Context!);
+    method public int getAutoTransition();
+    method public int getDuration();
+    method public int getEndConstraintSetId();
+    method public int getId();
+    method public java.util.List<androidx.constraintlayout.motion.widget.KeyFrames!>! getKeyFrameList();
+    method public int getLayoutDuringTransition();
+    method public java.util.List<androidx.constraintlayout.motion.widget.MotionScene.Transition.TransitionOnClick!>! getOnClickList();
+    method public int getPathMotionArc();
+    method public float getStagger();
+    method public int getStartConstraintSetId();
+    method public androidx.constraintlayout.motion.widget.TouchResponse! getTouchResponse();
+    method public boolean isEnabled();
+    method public boolean isTransitionFlag(int);
+    method public void removeOnClick(int);
+    method public void setAutoTransition(int);
+    method public void setDuration(int);
+    method public void setEnabled(boolean);
+    method public void setInterpolatorInfo(int, String!, int);
+    method public void setLayoutDuringTransition(int);
+    method public void setOnSwipe(androidx.constraintlayout.motion.widget.OnSwipe!);
+    method public void setOnTouchUp(int);
+    method public void setPathMotionArc(int);
+    method public void setStagger(float);
+    method public void setTransitionFlag(int);
+    field public static final int AUTO_ANIMATE_TO_END = 4; // 0x4
+    field public static final int AUTO_ANIMATE_TO_START = 3; // 0x3
+    field public static final int AUTO_JUMP_TO_END = 2; // 0x2
+    field public static final int AUTO_JUMP_TO_START = 1; // 0x1
+    field public static final int AUTO_NONE = 0; // 0x0
+    field public static final int INTERPOLATE_ANTICIPATE = 6; // 0x6
+    field public static final int INTERPOLATE_BOUNCE = 4; // 0x4
+    field public static final int INTERPOLATE_EASE_IN = 1; // 0x1
+    field public static final int INTERPOLATE_EASE_IN_OUT = 0; // 0x0
+    field public static final int INTERPOLATE_EASE_OUT = 2; // 0x2
+    field public static final int INTERPOLATE_LINEAR = 3; // 0x3
+    field public static final int INTERPOLATE_OVERSHOOT = 5; // 0x5
+    field public static final int INTERPOLATE_REFERENCE_ID = -2; // 0xfffffffe
+    field public static final int INTERPOLATE_SPLINE_STRING = -1; // 0xffffffff
+  }
+
+  public static class MotionScene.Transition.TransitionOnClick implements android.view.View.OnClickListener {
+    ctor public MotionScene.Transition.TransitionOnClick(android.content.Context!, androidx.constraintlayout.motion.widget.MotionScene.Transition!, org.xmlpull.v1.XmlPullParser!);
+    ctor public MotionScene.Transition.TransitionOnClick(androidx.constraintlayout.motion.widget.MotionScene.Transition!, int, int);
+    method public void addOnClickListeners(androidx.constraintlayout.motion.widget.MotionLayout!, int, androidx.constraintlayout.motion.widget.MotionScene.Transition!);
+    method public void onClick(android.view.View!);
+    method public void removeOnClickListeners(androidx.constraintlayout.motion.widget.MotionLayout!);
+    field public static final int ANIM_TOGGLE = 17; // 0x11
+    field public static final int ANIM_TO_END = 1; // 0x1
+    field public static final int ANIM_TO_START = 16; // 0x10
+    field public static final int JUMP_TO_END = 256; // 0x100
+    field public static final int JUMP_TO_START = 4096; // 0x1000
+  }
+
+  public class OnSwipe {
+    ctor public OnSwipe();
+    method public int getAutoCompleteMode();
+    method public int getDragDirection();
+    method public float getDragScale();
+    method public float getDragThreshold();
+    method public int getLimitBoundsTo();
+    method public float getMaxAcceleration();
+    method public float getMaxVelocity();
+    method public boolean getMoveWhenScrollAtTop();
+    method public int getNestedScrollFlags();
+    method public int getOnTouchUp();
+    method public int getRotationCenterId();
+    method public int getSpringBoundary();
+    method public float getSpringDamping();
+    method public float getSpringMass();
+    method public float getSpringStiffness();
+    method public float getSpringStopThreshold();
+    method public int getTouchAnchorId();
+    method public int getTouchAnchorSide();
+    method public int getTouchRegionId();
+    method public void setAutoCompleteMode(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setDragDirection(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setDragScale(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setDragThreshold(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setLimitBoundsTo(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setMaxAcceleration(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setMaxVelocity(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setMoveWhenScrollAtTop(boolean);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setNestedScrollFlags(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setOnTouchUp(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setRotateCenter(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setSpringBoundary(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setSpringDamping(float);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setSpringMass(float);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setSpringStiffness(float);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setSpringStopThreshold(float);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setTouchAnchorId(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setTouchAnchorSide(int);
+    method public androidx.constraintlayout.motion.widget.OnSwipe! setTouchRegionId(int);
+    field public static final int COMPLETE_MODE_CONTINUOUS_VELOCITY = 0; // 0x0
+    field public static final int COMPLETE_MODE_SPRING = 1; // 0x1
+    field public static final int DRAG_ANTICLOCKWISE = 7; // 0x7
+    field public static final int DRAG_CLOCKWISE = 6; // 0x6
+    field public static final int DRAG_DOWN = 1; // 0x1
+    field public static final int DRAG_END = 5; // 0x5
+    field public static final int DRAG_LEFT = 2; // 0x2
+    field public static final int DRAG_RIGHT = 3; // 0x3
+    field public static final int DRAG_START = 4; // 0x4
+    field public static final int DRAG_UP = 0; // 0x0
+    field public static final int FLAG_DISABLE_POST_SCROLL = 1; // 0x1
+    field public static final int FLAG_DISABLE_SCROLL = 2; // 0x2
+    field public static final int ON_UP_AUTOCOMPLETE = 0; // 0x0
+    field public static final int ON_UP_AUTOCOMPLETE_TO_END = 2; // 0x2
+    field public static final int ON_UP_AUTOCOMPLETE_TO_START = 1; // 0x1
+    field public static final int ON_UP_DECELERATE = 4; // 0x4
+    field public static final int ON_UP_DECELERATE_AND_COMPLETE = 5; // 0x5
+    field public static final int ON_UP_NEVER_TO_END = 7; // 0x7
+    field public static final int ON_UP_NEVER_TO_START = 6; // 0x6
+    field public static final int ON_UP_STOP = 3; // 0x3
+    field public static final int SIDE_BOTTOM = 3; // 0x3
+    field public static final int SIDE_END = 6; // 0x6
+    field public static final int SIDE_LEFT = 1; // 0x1
+    field public static final int SIDE_MIDDLE = 4; // 0x4
+    field public static final int SIDE_RIGHT = 2; // 0x2
+    field public static final int SIDE_START = 5; // 0x5
+    field public static final int SIDE_TOP = 0; // 0x0
+    field public static final int SPRING_BOUNDARY_BOUNCEBOTH = 3; // 0x3
+    field public static final int SPRING_BOUNDARY_BOUNCEEND = 2; // 0x2
+    field public static final int SPRING_BOUNDARY_BOUNCESTART = 1; // 0x1
+    field public static final int SPRING_BOUNDARY_OVERSHOOT = 0; // 0x0
+  }
+
+  public abstract class TransitionAdapter implements androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener {
+    ctor public TransitionAdapter();
+    method public void onTransitionChange(androidx.constraintlayout.motion.widget.MotionLayout!, int, int, float);
+    method public void onTransitionCompleted(androidx.constraintlayout.motion.widget.MotionLayout!, int);
+    method public void onTransitionStarted(androidx.constraintlayout.motion.widget.MotionLayout!, int, int);
+    method public void onTransitionTrigger(androidx.constraintlayout.motion.widget.MotionLayout!, int, boolean, float);
+  }
+
+  public class TransitionBuilder {
+    ctor public TransitionBuilder();
+    method public static androidx.constraintlayout.motion.widget.MotionScene.Transition! buildTransition(androidx.constraintlayout.motion.widget.MotionScene!, int, int, androidx.constraintlayout.widget.ConstraintSet!, int, androidx.constraintlayout.widget.ConstraintSet!);
+    method public static void validate(androidx.constraintlayout.motion.widget.MotionLayout!);
+  }
+
+  public class ViewTransition {
+    method public int getSharedValue();
+    method public int getSharedValueCurrent();
+    method public int getSharedValueID();
+    method public int getStateTransition();
+    method public void setSharedValue(int);
+    method public void setSharedValueCurrent(int);
+    method public void setSharedValueID(int);
+    method public void setStateTransition(int);
+    field public static final String CONSTRAINT_OVERRIDE = "ConstraintOverride";
+    field public static final String CUSTOM_ATTRIBUTE = "CustomAttribute";
+    field public static final String CUSTOM_METHOD = "CustomMethod";
+    field public static final String KEY_FRAME_SET_TAG = "KeyFrameSet";
+    field public static final int ONSTATE_ACTION_DOWN = 1; // 0x1
+    field public static final int ONSTATE_ACTION_DOWN_UP = 3; // 0x3
+    field public static final int ONSTATE_ACTION_UP = 2; // 0x2
+    field public static final int ONSTATE_SHARED_VALUE_SET = 4; // 0x4
+    field public static final int ONSTATE_SHARED_VALUE_UNSET = 5; // 0x5
+    field public static final String VIEW_TRANSITION_TAG = "ViewTransition";
+  }
+
+  public class ViewTransitionController {
+    ctor public ViewTransitionController(androidx.constraintlayout.motion.widget.MotionLayout!);
+    method public void add(androidx.constraintlayout.motion.widget.ViewTransition!);
+  }
+
+}
+
+package androidx.constraintlayout.utils.widget {
+
+  public class ImageFilterButton extends androidx.appcompat.widget.AppCompatImageButton {
+    ctor public ImageFilterButton(android.content.Context!);
+    ctor public ImageFilterButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public ImageFilterButton(android.content.Context!, android.util.AttributeSet!, int);
+    method public float getContrast();
+    method public float getCrossfade();
+    method public float getImagePanX();
+    method public float getImagePanY();
+    method public float getImageRotate();
+    method public float getImageZoom();
+    method public float getRound();
+    method public float getRoundPercent();
+    method public float getSaturation();
+    method public float getWarmth();
+    method public void setAltImageResource(int);
+    method public void setBrightness(float);
+    method public void setContrast(float);
+    method public void setCrossfade(float);
+    method public void setImagePanX(float);
+    method public void setImagePanY(float);
+    method public void setImageRotate(float);
+    method public void setImageZoom(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setSaturation(float);
+    method public void setWarmth(float);
+  }
+
+  public class ImageFilterView extends androidx.appcompat.widget.AppCompatImageView {
+    ctor public ImageFilterView(android.content.Context!);
+    ctor public ImageFilterView(android.content.Context!, android.util.AttributeSet!);
+    ctor public ImageFilterView(android.content.Context!, android.util.AttributeSet!, int);
+    method public float getBrightness();
+    method public float getContrast();
+    method public float getCrossfade();
+    method public float getImagePanX();
+    method public float getImagePanY();
+    method public float getImageRotate();
+    method public float getImageZoom();
+    method public float getRound();
+    method public float getRoundPercent();
+    method public float getSaturation();
+    method public float getWarmth();
+    method public void setAltImageDrawable(android.graphics.drawable.Drawable!);
+    method public void setAltImageResource(int);
+    method public void setBrightness(float);
+    method public void setContrast(float);
+    method public void setCrossfade(float);
+    method public void setImagePanX(float);
+    method public void setImagePanY(float);
+    method public void setImageRotate(float);
+    method public void setImageZoom(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setSaturation(float);
+    method public void setWarmth(float);
+  }
+
+  public class MockView extends android.view.View {
+    ctor public MockView(android.content.Context!);
+    ctor public MockView(android.content.Context!, android.util.AttributeSet!);
+    ctor public MockView(android.content.Context!, android.util.AttributeSet!, int);
+    method public void onDraw(android.graphics.Canvas);
+    field protected String! mText;
+  }
+
+  public class MotionButton extends androidx.appcompat.widget.AppCompatButton {
+    ctor public MotionButton(android.content.Context!);
+    ctor public MotionButton(android.content.Context!, android.util.AttributeSet!);
+    ctor public MotionButton(android.content.Context!, android.util.AttributeSet!, int);
+    method public float getRound();
+    method public float getRoundPercent();
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+  }
+
+  public class MotionLabel extends android.view.View implements androidx.constraintlayout.motion.widget.FloatLayout {
+    ctor public MotionLabel(android.content.Context!);
+    ctor public MotionLabel(android.content.Context!, android.util.AttributeSet?);
+    ctor public MotionLabel(android.content.Context!, android.util.AttributeSet?, int);
+    method public float getRound();
+    method public float getRoundPercent();
+    method public float getScaleFromTextSize();
+    method public float getTextBackgroundPanX();
+    method public float getTextBackgroundPanY();
+    method public float getTextBackgroundRotate();
+    method public float getTextBackgroundZoom();
+    method public int getTextOutlineColor();
+    method public float getTextPanX();
+    method public float getTextPanY();
+    method public float getTextureHeight();
+    method public float getTextureWidth();
+    method public android.graphics.Typeface! getTypeface();
+    method public void layout(float, float, float, float);
+    method public void setGravity(int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRound(float);
+    method @RequiresApi(android.os.Build.VERSION_CODES.LOLLIPOP) public void setRoundPercent(float);
+    method public void setScaleFromTextSize(float);
+    method public void setText(CharSequence!);
+    method public void setTextBackgroundPanX(float);
+    method public void setTextBackgroundPanY(float);
+    method public void setTextBackgroundRotate(float);
+    method public void setTextBackgroundZoom(float);
+    method public void setTextFillColor(int);
+    method public void setTextOutlineColor(int);
+    method public void setTextOutlineThickness(float);
+    method public void setTextPanX(float);
+    method public void setTextPanY(float);
+    method public void setTextSize(float);
+    method public void setTextureHeight(float);
+    method public void setTextureWidth(float);
+    method public void setTypeface(android.graphics.Typeface!);
+  }
+
+  public class MotionTelltales extends androidx.constraintlayout.utils.widget.MockView {
+    ctor public MotionTelltales(android.content.Context!);
+    ctor public MotionTelltales(android.content.Context!, android.util.AttributeSet!);
+    ctor public MotionTelltales(android.content.Context!, android.util.AttributeSet!, int);
+    method public void setText(CharSequence!);
+  }
+
+}
+
+package androidx.constraintlayout.widget {
+
+  public class Barrier extends androidx.constraintlayout.widget.ConstraintHelper {
+    ctor public Barrier(android.content.Context!);
+    ctor public Barrier(android.content.Context!, android.util.AttributeSet!);
+    ctor public Barrier(android.content.Context!, android.util.AttributeSet!, int);
+    method @Deprecated public boolean allowsGoneWidget();
+    method public boolean getAllowsGoneWidget();
+    method public int getMargin();
+    method public int getType();
+    method public void setAllowsGoneWidget(boolean);
+    method public void setDpMargin(int);
+    method public void setMargin(int);
+    method public void setType(int);
+    field public static final int BOTTOM = 3; // 0x3
+    field public static final int END = 6; // 0x6
+    field public static final int LEFT = 0; // 0x0
+    field public static final int RIGHT = 1; // 0x1
+    field public static final int START = 5; // 0x5
+    field public static final int TOP = 2; // 0x2
+  }
+
+  public class ConstraintAttribute {
+    ctor public ConstraintAttribute(androidx.constraintlayout.widget.ConstraintAttribute!, Object!);
+    ctor public ConstraintAttribute(String!, androidx.constraintlayout.widget.ConstraintAttribute.AttributeType!);
+    ctor public ConstraintAttribute(String!, androidx.constraintlayout.widget.ConstraintAttribute.AttributeType!, Object!, boolean);
+    method public void applyCustom(android.view.View!);
+    method public boolean diff(androidx.constraintlayout.widget.ConstraintAttribute!);
+    method public static java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>! extractAttributes(java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>!, android.view.View!);
+    method public int getColorValue();
+    method public float getFloatValue();
+    method public int getIntegerValue();
+    method public String! getName();
+    method public String! getStringValue();
+    method public androidx.constraintlayout.widget.ConstraintAttribute.AttributeType! getType();
+    method public float getValueToInterpolate();
+    method public void getValuesToInterpolate(float[]!);
+    method public boolean isBooleanValue();
+    method public boolean isContinuous();
+    method public boolean isMethod();
+    method public int numberOfInterpolatedValues();
+    method public static void parse(android.content.Context!, org.xmlpull.v1.XmlPullParser!, java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public static void setAttributes(android.view.View!, java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>!);
+    method public void setColorValue(int);
+    method public void setFloatValue(float);
+    method public void setIntValue(int);
+    method public void setStringValue(String!);
+    method public void setValue(float[]!);
+    method public void setValue(Object!);
+  }
+
+  public enum ConstraintAttribute.AttributeType {
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType BOOLEAN_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType COLOR_DRAWABLE_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType COLOR_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType DIMENSION_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType FLOAT_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType INT_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType REFERENCE_TYPE;
+    enum_constant public static final androidx.constraintlayout.widget.ConstraintAttribute.AttributeType STRING_TYPE;
+  }
+
+  public abstract class ConstraintHelper extends android.view.View {
+    ctor public ConstraintHelper(android.content.Context!);
+    ctor public ConstraintHelper(android.content.Context!, android.util.AttributeSet!);
+    ctor public ConstraintHelper(android.content.Context!, android.util.AttributeSet!, int);
+    method public void addView(android.view.View!);
+    method public void applyHelperParams();
+    method protected void applyLayoutFeatures();
+    method protected void applyLayoutFeatures(androidx.constraintlayout.widget.ConstraintLayout!);
+    method protected void applyLayoutFeaturesInConstraintSet(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public boolean containsId(int);
+    method public int[]! getReferencedIds();
+    method protected android.view.View![]! getViews(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public int indexFromId(int);
+    method protected void init(android.util.AttributeSet!);
+    method public static boolean isChildOfHelper(android.view.View!);
+    method public void loadParameters(androidx.constraintlayout.widget.ConstraintSet.Constraint!, androidx.constraintlayout.core.widgets.HelperWidget!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
+    method public void onDraw(android.graphics.Canvas);
+    method public int removeView(android.view.View!);
+    method public void resolveRtl(androidx.constraintlayout.core.widgets.ConstraintWidget!, boolean);
+    method protected void setIds(String!);
+    method protected void setReferenceTags(String!);
+    method public void setReferencedIds(int[]!);
+    method public void updatePostConstraints(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void updatePostLayout(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void updatePostMeasure(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void updatePreDraw(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void updatePreLayout(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, androidx.constraintlayout.core.widgets.Helper!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
+    method public void updatePreLayout(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void validateParams();
+    field protected static final String CHILD_TAG = "CONSTRAINT_LAYOUT_HELPER_CHILD";
+    field protected int mCount;
+    field protected androidx.constraintlayout.core.widgets.Helper! mHelperWidget;
+    field protected int[]! mIds;
+    field protected java.util.HashMap<java.lang.Integer!,java.lang.String!>! mMap;
+    field protected String! mReferenceIds;
+    field protected String! mReferenceTags;
+    field protected boolean mUseViewMeasure;
+    field protected android.content.Context! myContext;
+  }
+
+  public class ConstraintLayout extends android.view.ViewGroup {
+    ctor public ConstraintLayout(android.content.Context);
+    ctor public ConstraintLayout(android.content.Context, android.util.AttributeSet?);
+    ctor public ConstraintLayout(android.content.Context, android.util.AttributeSet?, int);
+    ctor public ConstraintLayout(android.content.Context, android.util.AttributeSet?, int, int);
+    method public void addValueModifier(androidx.constraintlayout.widget.ConstraintLayout.ValueModifier!);
+    method protected void applyConstraintsFromLayoutParams(boolean, android.view.View!, androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
+    method protected boolean dynamicUpdateConstraints(int, int);
+    method public void fillMetrics(androidx.constraintlayout.core.Metrics!);
+    method protected androidx.constraintlayout.widget.ConstraintLayout.LayoutParams! generateDefaultLayoutParams();
+    method public androidx.constraintlayout.widget.ConstraintLayout.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+    method public Object! getDesignInformation(int, Object!);
+    method public int getMaxHeight();
+    method public int getMaxWidth();
+    method public int getMinHeight();
+    method public int getMinWidth();
+    method public int getOptimizationLevel();
+    method public String! getSceneString();
+    method public static androidx.constraintlayout.widget.SharedValues! getSharedValues();
+    method public android.view.View! getViewById(int);
+    method public final androidx.constraintlayout.core.widgets.ConstraintWidget! getViewWidget(android.view.View!);
+    method protected boolean isRtl();
+    method public void loadLayoutDescription(int);
+    method protected void parseLayoutDescription(int);
+    method protected void resolveMeasuredDimension(int, int, int, int, boolean, boolean);
+    method protected void resolveSystem(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, int, int, int);
+    method public void setConstraintSet(androidx.constraintlayout.widget.ConstraintSet!);
+    method public void setDesignInformation(int, Object!, Object!);
+    method public void setMaxHeight(int);
+    method public void setMaxWidth(int);
+    method public void setMinHeight(int);
+    method public void setMinWidth(int);
+    method public void setOnConstraintsChanged(androidx.constraintlayout.widget.ConstraintsChangedListener!);
+    method public void setOptimizationLevel(int);
+    method protected void setSelfDimensionBehaviour(androidx.constraintlayout.core.widgets.ConstraintWidgetContainer!, int, int, int, int);
+    method public void setState(int, int, int);
+    field public static final int DESIGN_INFO_ID = 0; // 0x0
+    field public static final String VERSION = "ConstraintLayout-2.2.0-alpha04";
+    field protected androidx.constraintlayout.widget.ConstraintLayoutStates! mConstraintLayoutSpec;
+    field protected boolean mDirtyHierarchy;
+    field protected androidx.constraintlayout.core.widgets.ConstraintWidgetContainer! mLayoutWidget;
+  }
+
+  public static class ConstraintLayout.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+    ctor public ConstraintLayout.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor public ConstraintLayout.LayoutParams(android.view.ViewGroup.LayoutParams!);
+    ctor public ConstraintLayout.LayoutParams(int, int);
+    method public String! getConstraintTag();
+    method public androidx.constraintlayout.core.widgets.ConstraintWidget! getConstraintWidget();
+    method public void reset();
+    method public void setWidgetDebugName(String!);
+    method public void validate();
+    field public static final int BASELINE = 5; // 0x5
+    field public static final int BOTTOM = 4; // 0x4
+    field public static final int CHAIN_PACKED = 2; // 0x2
+    field public static final int CHAIN_SPREAD = 0; // 0x0
+    field public static final int CHAIN_SPREAD_INSIDE = 1; // 0x1
+    field public static final int CIRCLE = 8; // 0x8
+    field public static final int END = 7; // 0x7
+    field public static final int GONE_UNSET = -2147483648; // 0x80000000
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int LEFT = 1; // 0x1
+    field public static final int MATCH_CONSTRAINT = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_PERCENT = 2; // 0x2
+    field public static final int MATCH_CONSTRAINT_SPREAD = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_WRAP = 1; // 0x1
+    field public static final int PARENT_ID = 0; // 0x0
+    field public static final int RIGHT = 2; // 0x2
+    field public static final int START = 6; // 0x6
+    field public static final int TOP = 3; // 0x3
+    field public static final int UNSET = -1; // 0xffffffff
+    field public static final int VERTICAL = 1; // 0x1
+    field public static final int WRAP_BEHAVIOR_HORIZONTAL_ONLY = 1; // 0x1
+    field public static final int WRAP_BEHAVIOR_INCLUDED = 0; // 0x0
+    field public static final int WRAP_BEHAVIOR_SKIPPED = 3; // 0x3
+    field public static final int WRAP_BEHAVIOR_VERTICAL_ONLY = 2; // 0x2
+    field public int baselineMargin;
+    field public int baselineToBaseline;
+    field public int baselineToBottom;
+    field public int baselineToTop;
+    field public int bottomToBottom;
+    field public int bottomToTop;
+    field public float circleAngle;
+    field public int circleConstraint;
+    field public int circleRadius;
+    field public boolean constrainedHeight;
+    field public boolean constrainedWidth;
+    field public String! constraintTag;
+    field public String! dimensionRatio;
+    field public int editorAbsoluteX;
+    field public int editorAbsoluteY;
+    field public int endToEnd;
+    field public int endToStart;
+    field public int goneBaselineMargin;
+    field public int goneBottomMargin;
+    field public int goneEndMargin;
+    field public int goneLeftMargin;
+    field public int goneRightMargin;
+    field public int goneStartMargin;
+    field public int goneTopMargin;
+    field public int guideBegin;
+    field public int guideEnd;
+    field public float guidePercent;
+    field public boolean guidelineUseRtl;
+    field public boolean helped;
+    field public float horizontalBias;
+    field public int horizontalChainStyle;
+    field public float horizontalWeight;
+    field public int leftToLeft;
+    field public int leftToRight;
+    field public int matchConstraintDefaultHeight;
+    field public int matchConstraintDefaultWidth;
+    field public int matchConstraintMaxHeight;
+    field public int matchConstraintMaxWidth;
+    field public int matchConstraintMinHeight;
+    field public int matchConstraintMinWidth;
+    field public float matchConstraintPercentHeight;
+    field public float matchConstraintPercentWidth;
+    field public int orientation;
+    field public int rightToLeft;
+    field public int rightToRight;
+    field public int startToEnd;
+    field public int startToStart;
+    field public int topToBottom;
+    field public int topToTop;
+    field public float verticalBias;
+    field public int verticalChainStyle;
+    field public float verticalWeight;
+    field public int wrapBehaviorInParent;
+  }
+
+  public static interface ConstraintLayout.ValueModifier {
+    method public boolean update(int, int, int, android.view.View!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!);
+  }
+
+  public class ConstraintLayoutStates {
+    method public boolean needsToChange(int, float, float);
+    method public void setOnConstraintsChanged(androidx.constraintlayout.widget.ConstraintsChangedListener!);
+    method public void updateConstraints(int, float, float);
+    field public static final String TAG = "ConstraintLayoutStates";
+  }
+
+  public class ConstraintLayoutStatistics {
+    ctor public ConstraintLayoutStatistics(androidx.constraintlayout.widget.ConstraintLayout!);
+    ctor public ConstraintLayoutStatistics(androidx.constraintlayout.widget.ConstraintLayoutStatistics!);
+    method public void attach(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public androidx.constraintlayout.widget.ConstraintLayoutStatistics! clone();
+    method public void detach();
+    method public long getValue(int);
+    method public void logSummary(String!);
+    method public void logSummary(String!, androidx.constraintlayout.widget.ConstraintLayoutStatistics!);
+    method public void reset();
+    field public static final int DURATION_OF_CHILD_MEASURES = 5; // 0x5
+    field public static final int DURATION_OF_LAYOUT = 7; // 0x7
+    field public static final int DURATION_OF_MEASURES = 6; // 0x6
+    field public static final int NUMBER_OF_CHILD_MEASURES = 4; // 0x4
+    field public static final int NUMBER_OF_CHILD_VIEWS = 3; // 0x3
+    field public static final int NUMBER_OF_EQUATIONS = 9; // 0x9
+    field public static final int NUMBER_OF_LAYOUTS = 1; // 0x1
+    field public static final int NUMBER_OF_ON_MEASURES = 2; // 0x2
+    field public static final int NUMBER_OF_SIMPLE_EQUATIONS = 10; // 0xa
+    field public static final int NUMBER_OF_VARIABLES = 8; // 0x8
+  }
+
+  public class ConstraintProperties {
+    ctor public ConstraintProperties(android.view.View!);
+    method public androidx.constraintlayout.widget.ConstraintProperties! addToHorizontalChain(int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! addToHorizontalChainRTL(int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! addToVerticalChain(int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! alpha(float);
+    method public void apply();
+    method public androidx.constraintlayout.widget.ConstraintProperties! center(int, int, int, int, int, int, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerHorizontally(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerHorizontally(int, int, int, int, int, int, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerHorizontallyRtl(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerHorizontallyRtl(int, int, int, int, int, int, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerVertically(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! centerVertically(int, int, int, int, int, int, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! connect(int, int, int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainDefaultHeight(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainDefaultWidth(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainHeight(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainMaxHeight(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainMaxWidth(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainMinHeight(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainMinWidth(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! constrainWidth(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! dimensionRatio(String!);
+    method public androidx.constraintlayout.widget.ConstraintProperties! elevation(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! goneMargin(int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! horizontalBias(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! horizontalChainStyle(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! horizontalWeight(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! margin(int, int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! removeConstraints(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! removeFromHorizontalChain();
+    method public androidx.constraintlayout.widget.ConstraintProperties! removeFromVerticalChain();
+    method public androidx.constraintlayout.widget.ConstraintProperties! rotation(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! rotationX(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! rotationY(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! scaleX(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! scaleY(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! transformPivot(float, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! transformPivotX(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! transformPivotY(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! translation(float, float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! translationX(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! translationY(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! translationZ(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! verticalBias(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! verticalChainStyle(int);
+    method public androidx.constraintlayout.widget.ConstraintProperties! verticalWeight(float);
+    method public androidx.constraintlayout.widget.ConstraintProperties! visibility(int);
+    field public static final int BASELINE = 5; // 0x5
+    field public static final int BOTTOM = 4; // 0x4
+    field public static final int END = 7; // 0x7
+    field public static final int LEFT = 1; // 0x1
+    field public static final int MATCH_CONSTRAINT = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_SPREAD = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_WRAP = 1; // 0x1
+    field public static final int PARENT_ID = 0; // 0x0
+    field public static final int RIGHT = 2; // 0x2
+    field public static final int START = 6; // 0x6
+    field public static final int TOP = 3; // 0x3
+    field public static final int UNSET = -1; // 0xffffffff
+    field public static final int WRAP_CONTENT = -2; // 0xfffffffe
+  }
+
+  public class ConstraintSet {
+    ctor public ConstraintSet();
+    method public void addColorAttributes(java.lang.String!...!);
+    method public void addFloatAttributes(java.lang.String!...!);
+    method public void addIntAttributes(java.lang.String!...!);
+    method public void addStringAttributes(java.lang.String!...!);
+    method public void addToHorizontalChain(int, int, int);
+    method public void addToHorizontalChainRTL(int, int, int);
+    method public void addToVerticalChain(int, int, int);
+    method public void applyCustomAttributes(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void applyDeltaFrom(androidx.constraintlayout.widget.ConstraintSet!);
+    method public void applyTo(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void applyToHelper(androidx.constraintlayout.widget.ConstraintHelper!, androidx.constraintlayout.core.widgets.ConstraintWidget!, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!, android.util.SparseArray<androidx.constraintlayout.core.widgets.ConstraintWidget!>!);
+    method public void applyToLayoutParams(int, androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!);
+    method public void applyToWithoutCustom(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public static androidx.constraintlayout.widget.ConstraintSet.Constraint! buildDelta(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
+    method public void center(int, int, int, int, int, int, int, float);
+    method public void centerHorizontally(int, int);
+    method public void centerHorizontally(int, int, int, int, int, int, int, float);
+    method public void centerHorizontallyRtl(int, int);
+    method public void centerHorizontallyRtl(int, int, int, int, int, int, int, float);
+    method public void centerVertically(int, int);
+    method public void centerVertically(int, int, int, int, int, int, int, float);
+    method public void clear(int);
+    method public void clear(int, int);
+    method public void clone(android.content.Context!, int);
+    method public void clone(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void clone(androidx.constraintlayout.widget.Constraints!);
+    method public void clone(androidx.constraintlayout.widget.ConstraintSet!);
+    method public void connect(int, int, int, int);
+    method public void connect(int, int, int, int, int);
+    method public void constrainCircle(int, int, int, float);
+    method public void constrainDefaultHeight(int, int);
+    method public void constrainDefaultWidth(int, int);
+    method public void constrainHeight(int, int);
+    method public void constrainMaxHeight(int, int);
+    method public void constrainMaxWidth(int, int);
+    method public void constrainMinHeight(int, int);
+    method public void constrainMinWidth(int, int);
+    method public void constrainPercentHeight(int, float);
+    method public void constrainPercentWidth(int, float);
+    method public void constrainWidth(int, int);
+    method public void constrainedHeight(int, boolean);
+    method public void constrainedWidth(int, boolean);
+    method public void create(int, int);
+    method public void createBarrier(int, int, int, int...!);
+    method public void createHorizontalChain(int, int, int, int, int[]!, float[]!, int);
+    method public void createHorizontalChainRtl(int, int, int, int, int[]!, float[]!, int);
+    method public void createVerticalChain(int, int, int, int, int[]!, float[]!, int);
+    method public void dump(androidx.constraintlayout.motion.widget.MotionScene!, int...!);
+    method public boolean getApplyElevation(int);
+    method public androidx.constraintlayout.widget.ConstraintSet.Constraint! getConstraint(int);
+    method public java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>! getCustomAttributeSet();
+    method public int getHeight(int);
+    method public int[]! getKnownIds();
+    method public androidx.constraintlayout.widget.ConstraintSet.Constraint! getParameters(int);
+    method public int[]! getReferencedIds(int);
+    method public String![]! getStateLabels();
+    method public int getVisibility(int);
+    method public int getVisibilityMode(int);
+    method public int getWidth(int);
+    method public boolean isForceId();
+    method public boolean isValidateOnParse();
+    method public void load(android.content.Context!, int);
+    method public void load(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
+    method public boolean matchesLabels(java.lang.String!...!);
+    method public void parseColorAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
+    method public void parseFloatAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
+    method public void parseIntAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
+    method public void parseStringAttributes(androidx.constraintlayout.widget.ConstraintSet.Constraint!, String!);
+    method public void readFallback(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void readFallback(androidx.constraintlayout.widget.ConstraintSet!);
+    method public void removeAttribute(String!);
+    method public void removeFromHorizontalChain(int);
+    method public void removeFromVerticalChain(int);
+    method public void setAlpha(int, float);
+    method public void setApplyElevation(int, boolean);
+    method public void setBarrierType(int, int);
+    method public void setColorValue(int, String!, int);
+    method public void setDimensionRatio(int, String!);
+    method public void setEditorAbsoluteX(int, int);
+    method public void setEditorAbsoluteY(int, int);
+    method public void setElevation(int, float);
+    method public void setFloatValue(int, String!, float);
+    method public void setForceId(boolean);
+    method public void setGoneMargin(int, int, int);
+    method public void setGuidelineBegin(int, int);
+    method public void setGuidelineEnd(int, int);
+    method public void setGuidelinePercent(int, float);
+    method public void setHorizontalBias(int, float);
+    method public void setHorizontalChainStyle(int, int);
+    method public void setHorizontalWeight(int, float);
+    method public void setIntValue(int, String!, int);
+    method public void setLayoutWrapBehavior(int, int);
+    method public void setMargin(int, int, int);
+    method public void setReferencedIds(int, int...!);
+    method public void setRotation(int, float);
+    method public void setRotationX(int, float);
+    method public void setRotationY(int, float);
+    method public void setScaleX(int, float);
+    method public void setScaleY(int, float);
+    method public void setStateLabels(String!);
+    method public void setStateLabelsList(java.lang.String!...!);
+    method public void setStringValue(int, String!, String!);
+    method public void setTransformPivot(int, float, float);
+    method public void setTransformPivotX(int, float);
+    method public void setTransformPivotY(int, float);
+    method public void setTranslation(int, float, float);
+    method public void setTranslationX(int, float);
+    method public void setTranslationY(int, float);
+    method public void setTranslationZ(int, float);
+    method public void setValidateOnParse(boolean);
+    method public void setVerticalBias(int, float);
+    method public void setVerticalChainStyle(int, int);
+    method public void setVerticalWeight(int, float);
+    method public void setVisibility(int, int);
+    method public void setVisibilityMode(int, int);
+    method public void writeState(java.io.Writer!, androidx.constraintlayout.widget.ConstraintLayout!, int) throws java.io.IOException;
+    field public static final int BASELINE = 5; // 0x5
+    field public static final int BOTTOM = 4; // 0x4
+    field public static final int CHAIN_PACKED = 2; // 0x2
+    field public static final int CHAIN_SPREAD = 0; // 0x0
+    field public static final int CHAIN_SPREAD_INSIDE = 1; // 0x1
+    field public static final int CIRCLE_REFERENCE = 8; // 0x8
+    field public static final int END = 7; // 0x7
+    field public static final int GONE = 8; // 0x8
+    field public static final int HORIZONTAL = 0; // 0x0
+    field public static final int HORIZONTAL_GUIDELINE = 0; // 0x0
+    field public static final int INVISIBLE = 4; // 0x4
+    field public static final int LEFT = 1; // 0x1
+    field public static final int MATCH_CONSTRAINT = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_PERCENT = 2; // 0x2
+    field public static final int MATCH_CONSTRAINT_SPREAD = 0; // 0x0
+    field public static final int MATCH_CONSTRAINT_WRAP = 1; // 0x1
+    field public static final int PARENT_ID = 0; // 0x0
+    field public static final int RIGHT = 2; // 0x2
+    field public static final int ROTATE_LEFT_OF_PORTRATE = 4; // 0x4
+    field public static final int ROTATE_NONE = 0; // 0x0
+    field public static final int ROTATE_PORTRATE_OF_LEFT = 2; // 0x2
+    field public static final int ROTATE_PORTRATE_OF_RIGHT = 1; // 0x1
+    field public static final int ROTATE_RIGHT_OF_PORTRATE = 3; // 0x3
+    field public static final int START = 6; // 0x6
+    field public static final int TOP = 3; // 0x3
+    field public static final int UNSET = -1; // 0xffffffff
+    field public static final int VERTICAL = 1; // 0x1
+    field public static final int VERTICAL_GUIDELINE = 1; // 0x1
+    field public static final int VISIBILITY_MODE_IGNORE = 1; // 0x1
+    field public static final int VISIBILITY_MODE_NORMAL = 0; // 0x0
+    field public static final int VISIBLE = 0; // 0x0
+    field public static final int WRAP_CONTENT = -2; // 0xfffffffe
+    field public String! derivedState;
+    field public String! mIdString;
+    field public int mRotate;
+  }
+
+  public static class ConstraintSet.Constraint {
+    ctor public ConstraintSet.Constraint();
+    method public void applyDelta(androidx.constraintlayout.widget.ConstraintSet.Constraint!);
+    method public void applyTo(androidx.constraintlayout.widget.ConstraintLayout.LayoutParams!);
+    method public androidx.constraintlayout.widget.ConstraintSet.Constraint! clone();
+    method public void printDelta(String!);
+    field public final androidx.constraintlayout.widget.ConstraintSet.Layout! layout;
+    field public java.util.HashMap<java.lang.String!,androidx.constraintlayout.widget.ConstraintAttribute!>! mCustomConstraints;
+    field public final androidx.constraintlayout.widget.ConstraintSet.Motion! motion;
+    field public final androidx.constraintlayout.widget.ConstraintSet.PropertySet! propertySet;
+    field public final androidx.constraintlayout.widget.ConstraintSet.Transform! transform;
+  }
+
+  public static class ConstraintSet.Layout {
+    ctor public ConstraintSet.Layout();
+    method public void copyFrom(androidx.constraintlayout.widget.ConstraintSet.Layout!);
+    method public void dump(androidx.constraintlayout.motion.widget.MotionScene!, StringBuilder!);
+    field public static final int UNSET = -1; // 0xffffffff
+    field public static final int UNSET_GONE_MARGIN = -2147483648; // 0x80000000
+    field public int baselineMargin;
+    field public int baselineToBaseline;
+    field public int baselineToBottom;
+    field public int baselineToTop;
+    field public int bottomMargin;
+    field public int bottomToBottom;
+    field public int bottomToTop;
+    field public float circleAngle;
+    field public int circleConstraint;
+    field public int circleRadius;
+    field public boolean constrainedHeight;
+    field public boolean constrainedWidth;
+    field public String! dimensionRatio;
+    field public int editorAbsoluteX;
+    field public int editorAbsoluteY;
+    field public int endMargin;
+    field public int endToEnd;
+    field public int endToStart;
+    field public int goneBaselineMargin;
+    field public int goneBottomMargin;
+    field public int goneEndMargin;
+    field public int goneLeftMargin;
+    field public int goneRightMargin;
+    field public int goneStartMargin;
+    field public int goneTopMargin;
+    field public int guideBegin;
+    field public int guideEnd;
+    field public float guidePercent;
+    field public boolean guidelineUseRtl;
+    field public int heightDefault;
+    field public int heightMax;
+    field public int heightMin;
+    field public float heightPercent;
+    field public float horizontalBias;
+    field public int horizontalChainStyle;
+    field public float horizontalWeight;
+    field public int leftMargin;
+    field public int leftToLeft;
+    field public int leftToRight;
+    field public boolean mApply;
+    field public boolean mBarrierAllowsGoneWidgets;
+    field public int mBarrierDirection;
+    field public int mBarrierMargin;
+    field public String! mConstraintTag;
+    field public int mHeight;
+    field public int mHelperType;
+    field public boolean mIsGuideline;
+    field public boolean mOverride;
+    field public String! mReferenceIdString;
+    field public int[]! mReferenceIds;
+    field public int mWidth;
+    field public int mWrapBehavior;
+    field public int orientation;
+    field public int rightMargin;
+    field public int rightToLeft;
+    field public int rightToRight;
+    field public int startMargin;
+    field public int startToEnd;
+    field public int startToStart;
+    field public int topMargin;
+    field public int topToBottom;
+    field public int topToTop;
+    field public float verticalBias;
+    field public int verticalChainStyle;
+    field public float verticalWeight;
+    field public int widthDefault;
+    field public int widthMax;
+    field public int widthMin;
+    field public float widthPercent;
+  }
+
+  public static class ConstraintSet.Motion {
+    ctor public ConstraintSet.Motion();
+    method public void copyFrom(androidx.constraintlayout.widget.ConstraintSet.Motion!);
+    field public int mAnimateCircleAngleTo;
+    field public int mAnimateRelativeTo;
+    field public boolean mApply;
+    field public int mDrawPath;
+    field public float mMotionStagger;
+    field public int mPathMotionArc;
+    field public float mPathRotate;
+    field public int mPolarRelativeTo;
+    field public int mQuantizeInterpolatorID;
+    field public String! mQuantizeInterpolatorString;
+    field public int mQuantizeInterpolatorType;
+    field public float mQuantizeMotionPhase;
+    field public int mQuantizeMotionSteps;
+    field public String! mTransitionEasing;
+  }
+
+  public static class ConstraintSet.PropertySet {
+    ctor public ConstraintSet.PropertySet();
+    method public void copyFrom(androidx.constraintlayout.widget.ConstraintSet.PropertySet!);
+    field public float alpha;
+    field public boolean mApply;
+    field public float mProgress;
+    field public int mVisibilityMode;
+    field public int visibility;
+  }
+
+  public static class ConstraintSet.Transform {
+    ctor public ConstraintSet.Transform();
+    method public void copyFrom(androidx.constraintlayout.widget.ConstraintSet.Transform!);
+    field public boolean applyElevation;
+    field public float elevation;
+    field public boolean mApply;
+    field public float rotation;
+    field public float rotationX;
+    field public float rotationY;
+    field public float scaleX;
+    field public float scaleY;
+    field public int transformPivotTarget;
+    field public float transformPivotX;
+    field public float transformPivotY;
+    field public float translationX;
+    field public float translationY;
+    field public float translationZ;
+  }
+
+  public class Constraints extends android.view.ViewGroup {
+    ctor public Constraints(android.content.Context!);
+    ctor public Constraints(android.content.Context!, android.util.AttributeSet!);
+    ctor public Constraints(android.content.Context!, android.util.AttributeSet!, int);
+    method protected androidx.constraintlayout.widget.Constraints.LayoutParams! generateDefaultLayoutParams();
+    method public androidx.constraintlayout.widget.Constraints.LayoutParams! generateLayoutParams(android.util.AttributeSet!);
+    method public androidx.constraintlayout.widget.ConstraintSet! getConstraintSet();
+    field public static final String TAG = "Constraints";
+  }
+
+  public static class Constraints.LayoutParams extends androidx.constraintlayout.widget.ConstraintLayout.LayoutParams {
+    ctor public Constraints.LayoutParams(android.content.Context!, android.util.AttributeSet!);
+    ctor public Constraints.LayoutParams(androidx.constraintlayout.widget.Constraints.LayoutParams!);
+    ctor public Constraints.LayoutParams(int, int);
+    field public float alpha;
+    field public boolean applyElevation;
+    field public float elevation;
+    field public float rotation;
+    field public float rotationX;
+    field public float rotationY;
+    field public float scaleX;
+    field public float scaleY;
+    field public float transformPivotX;
+    field public float transformPivotY;
+    field public float translationX;
+    field public float translationY;
+    field public float translationZ;
+  }
+
+  public abstract class ConstraintsChangedListener {
+    ctor public ConstraintsChangedListener();
+    method public void postLayoutChange(int, int);
+    method public void preLayoutChange(int, int);
+  }
+
+  public class Group extends androidx.constraintlayout.widget.ConstraintHelper {
+    ctor public Group(android.content.Context!);
+    ctor public Group(android.content.Context!, android.util.AttributeSet!);
+    ctor public Group(android.content.Context!, android.util.AttributeSet!, int);
+    method public void onAttachedToWindow();
+  }
+
+  public class Guideline extends android.view.View {
+    ctor public Guideline(android.content.Context!);
+    ctor public Guideline(android.content.Context!, android.util.AttributeSet!);
+    ctor public Guideline(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public Guideline(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public void setFilterRedundantCalls(boolean);
+    method public void setGuidelineBegin(int);
+    method public void setGuidelineEnd(int);
+    method public void setGuidelinePercent(float);
+  }
+
+  public class Placeholder extends android.view.View {
+    ctor public Placeholder(android.content.Context!);
+    ctor public Placeholder(android.content.Context!, android.util.AttributeSet!);
+    ctor public Placeholder(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public Placeholder(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public android.view.View! getContent();
+    method public int getEmptyVisibility();
+    method public void onDraw(android.graphics.Canvas);
+    method public void setContentId(int);
+    method public void setEmptyVisibility(int);
+    method public void updatePostMeasure(androidx.constraintlayout.widget.ConstraintLayout!);
+    method public void updatePreLayout(androidx.constraintlayout.widget.ConstraintLayout!);
+  }
+
+  public class ReactiveGuide extends android.view.View implements androidx.constraintlayout.widget.SharedValues.SharedValuesListener {
+    ctor public ReactiveGuide(android.content.Context!);
+    ctor public ReactiveGuide(android.content.Context!, android.util.AttributeSet!);
+    ctor public ReactiveGuide(android.content.Context!, android.util.AttributeSet!, int);
+    ctor public ReactiveGuide(android.content.Context!, android.util.AttributeSet!, int, int);
+    method public int getApplyToConstraintSetId();
+    method public int getAttributeId();
+    method public boolean isAnimatingChange();
+    method public void onNewValue(int, int, int);
+    method public void setAnimateChange(boolean);
+    method public void setApplyToConstraintSetId(int);
+    method public void setAttributeId(int);
+    method public void setGuidelineBegin(int);
+    method public void setGuidelineEnd(int);
+    method public void setGuidelinePercent(float);
+  }
+
+  public class SharedValues {
+    ctor public SharedValues();
+    method public void addListener(int, androidx.constraintlayout.widget.SharedValues.SharedValuesListener!);
+    method public void clearListeners();
+    method public void fireNewValue(int, int);
+    method public int getValue(int);
+    method public void removeListener(androidx.constraintlayout.widget.SharedValues.SharedValuesListener!);
+    method public void removeListener(int, androidx.constraintlayout.widget.SharedValues.SharedValuesListener!);
+    field public static final int UNSET = -1; // 0xffffffff
+  }
+
+  public static interface SharedValues.SharedValuesListener {
+    method public void onNewValue(int, int, int);
+  }
+
+  public class StateSet {
+    ctor public StateSet(android.content.Context!, org.xmlpull.v1.XmlPullParser!);
+    method public int convertToConstraintSet(int, int, float, float);
+    method public boolean needsToChange(int, float, float);
+    method public void setOnConstraintsChanged(androidx.constraintlayout.widget.ConstraintsChangedListener!);
+    method public int stateGetConstraintID(int, int, int);
+    method public int updateConstraints(int, int, float, float);
+    field public static final String TAG = "ConstraintLayoutStates";
+  }
+
+  public abstract class VirtualLayout extends androidx.constraintlayout.widget.ConstraintHelper {
+    ctor public VirtualLayout(android.content.Context!);
+    ctor public VirtualLayout(android.content.Context!, android.util.AttributeSet!);
+    ctor public VirtualLayout(android.content.Context!, android.util.AttributeSet!, int);
+    method public void onAttachedToWindow();
+    method public void onMeasure(androidx.constraintlayout.core.widgets.VirtualLayout!, int, int);
+  }
+
+}
+
