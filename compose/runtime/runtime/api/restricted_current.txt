@@ -156,7 +156,7 @@ package androidx.compose.runtime {
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void recordSideEffect(kotlin.jvm.functions.Function0<kotlin.Unit> effect);
     method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public void recordUsed(androidx.compose.runtime.RecomposeScope scope);
     method @androidx.compose.runtime.ComposeCompilerApi public Object? rememberedValue();
-    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public boolean shouldExecute(boolean parametersChanged);
+    method @SuppressCompatibility @androidx.compose.runtime.InternalComposeApi public boolean shouldExecute(boolean parametersChanged, int flags);
     method @androidx.compose.runtime.ComposeCompilerApi public void skipCurrentGroup();
     method @androidx.compose.runtime.ComposeCompilerApi public void skipToGroupEnd();
     method public void sourceInformation(String sourceInformation);

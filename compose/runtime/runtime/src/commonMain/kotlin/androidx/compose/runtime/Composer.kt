@@ -985,7 +985,7 @@ sealed interface Composer {
      * execute (such as its scope was invalidated or a static composition local it was changed) or
      * the composition is pausable and the composition is pausing.
      */
-    @InternalComposeApi fun shouldExecute(parametersChanged: Boolean): Boolean
+    @InternalComposeApi fun shouldExecute(parametersChanged: Boolean, flags: Int): Boolean
 
     // Internal API
 
@@ -3038,7 +3038,8 @@ internal class ComposerImpl(
     }
 
     @ComposeCompilerApi
-    override fun shouldExecute(parametersChanged: Boolean): Boolean {
+    @Suppress("UNUSED")
+    override fun shouldExecute(parametersChanged: Boolean, flags: Int): Boolean {
         return parametersChanged || !skipping
     }
 
