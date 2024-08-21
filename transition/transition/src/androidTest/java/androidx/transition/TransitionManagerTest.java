@@ -20,22 +20,30 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
+import android.os.Build;
+import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.transition.test.R;
 
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @MediumTest
 public class TransitionManagerTest extends BaseTest {
@@ -218,4 +226,48 @@ public class TransitionManagerTest extends BaseTest {
         verify(listener, never()).onTransitionEnd(any(Transition.class));
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    public void endTransitionOnTransitionCancel() throws Throwable {
+        final ViewGroup root = rule.getActivity().getRoot();
+
+        View[] views = new View[] {
+                new View(root.getContext()),
+                new View(root.getContext()),
+                new View(root.getContext()),
+                new View(root.getContext()),
+                new View(root.getContext())
+        };
+
+        for (View view : views) {
+            CountDownLatch latch = new CountDownLatch(1);
+            rule.runOnUiThread(() -> {
+                Fade fadeIn = new Fade();
+                fadeIn.addListener(new TransitionListenerAdapter() {
+                    @Override
+                    public void onTransitionCancel(@NonNull Transition transition) {
+                        TransitionManager.endTransitions(root);
+                    }
+                });
+                TransitionSeekController seekController =
+                        TransitionManager.controlDelayedTransition(root, fadeIn);
+                ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(10, 10);
+                root.addView(view, layoutParams);
+                assert seekController != null;
+                seekController.addOnReadyListener(transitionSeekController -> latch.countDown());
+            });
+            assertTrue(latch.await(1, TimeUnit.SECONDS));
+        }
+        for (View view : views) {
+            CountDownLatch latch = new CountDownLatch(1);
+            rule.runOnUiThread(() -> {
+                TransitionSeekController seekController =
+                        TransitionManager.controlDelayedTransition(root, new Fade());
+                root.removeView(view);
+                assert seekController != null;
+                seekController.addOnReadyListener(transitionSeekController -> latch.countDown());
+            });
+            assertTrue(latch.await(1, TimeUnit.SECONDS));
+        }
+    }
 }
