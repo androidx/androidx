@@ -28,6 +28,7 @@ import androidx.sqlite.db.SupportSQLiteStatement
  *   database.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("No longer used by generated code.", ReplaceWith("EntityInsertAdapter"))
 abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteStatement(database) {
     /**
      * Binds the entity into the given statement.

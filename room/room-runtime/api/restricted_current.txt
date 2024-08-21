@@ -60,12 +60,12 @@ package androidx.room {
     method public final int handleMultiple(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
-    ctor public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
-    method public final int handle(T entity);
-    method public final int handleMultiple(Iterable<? extends T> entities);
-    method public final int handleMultiple(T[] entities);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityDeletionOrUpdateAdapter<T> extends androidx.room.SharedSQLiteStatement {
+    ctor @Deprecated public EntityDeletionOrUpdateAdapter(androidx.room.RoomDatabase database);
+    method @Deprecated protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
+    method @Deprecated public final int handle(T entity);
+    method @Deprecated public final int handleMultiple(Iterable<? extends T> entities);
+    method @Deprecated public final int handleMultiple(T[] entities);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertAdapter<T> {
@@ -84,19 +84,19 @@ package androidx.room {
     method public final java.util.List<java.lang.Long> insertAndReturnIdsList(androidx.sqlite.SQLiteConnection connection, T?[]? entities);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
-    ctor public EntityInsertionAdapter(androidx.room.RoomDatabase database);
-    method protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
-    method public final void insert(Iterable<? extends T> entities);
-    method public final void insert(T entity);
-    method public final void insert(T[] entities);
-    method public final long insertAndReturnId(T entity);
-    method public final long[] insertAndReturnIdsArray(java.util.Collection<? extends T> entities);
-    method public final long[] insertAndReturnIdsArray(T[] entities);
-    method public final Long[] insertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
-    method public final Long[] insertAndReturnIdsArrayBox(T[] entities);
-    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
-    method public final java.util.List<java.lang.Long> insertAndReturnIdsList(T[] entities);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public abstract class EntityInsertionAdapter<T> extends androidx.room.SharedSQLiteStatement {
+    ctor @Deprecated public EntityInsertionAdapter(androidx.room.RoomDatabase database);
+    method @Deprecated protected abstract void bind(androidx.sqlite.db.SupportSQLiteStatement statement, T entity);
+    method @Deprecated public final void insert(Iterable<? extends T> entities);
+    method @Deprecated public final void insert(T entity);
+    method @Deprecated public final void insert(T[] entities);
+    method @Deprecated public final long insertAndReturnId(T entity);
+    method @Deprecated public final long[] insertAndReturnIdsArray(java.util.Collection<? extends T> entities);
+    method @Deprecated public final long[] insertAndReturnIdsArray(T[] entities);
+    method @Deprecated public final Long[] insertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method @Deprecated public final Long[] insertAndReturnIdsArrayBox(T[] entities);
+    method @Deprecated public final java.util.List<java.lang.Long> insertAndReturnIdsList(java.util.Collection<? extends T> entities);
+    method @Deprecated public final java.util.List<java.lang.Long> insertAndReturnIdsList(T[] entities);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertAdapter<T> {
@@ -117,18 +117,18 @@ package androidx.room {
   public static final class EntityUpsertAdapter.Companion {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
-    ctor public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
-    method public void upsert(Iterable<? extends T> entities);
-    method public void upsert(T entity);
-    method public void upsert(T[] entities);
-    method public long upsertAndReturnId(T entity);
-    method public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
-    method public long[] upsertAndReturnIdsArray(T[] entities);
-    method public Long[] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
-    method public Long[] upsertAndReturnIdsArrayBox(T[] entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(java.util.Collection<? extends T> entities);
-    method public java.util.List<java.lang.Long> upsertAndReturnIdsList(T[] entities);
+  @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class EntityUpsertionAdapter<T> {
+    ctor @Deprecated public EntityUpsertionAdapter(androidx.room.EntityInsertionAdapter<T> insertionAdapter, androidx.room.EntityDeletionOrUpdateAdapter<T> updateAdapter);
+    method @Deprecated public void upsert(Iterable<? extends T> entities);
+    method @Deprecated public void upsert(T entity);
+    method @Deprecated public void upsert(T[] entities);
+    method @Deprecated public long upsertAndReturnId(T entity);
+    method @Deprecated public long[] upsertAndReturnIdsArray(java.util.Collection<? extends T> entities);
+    method @Deprecated public long[] upsertAndReturnIdsArray(T[] entities);
+    method @Deprecated public Long[] upsertAndReturnIdsArrayBox(java.util.Collection<? extends T> entities);
+    method @Deprecated public Long[] upsertAndReturnIdsArrayBox(T[] entities);
+    method @Deprecated public java.util.List<java.lang.Long> upsertAndReturnIdsList(java.util.Collection<? extends T> entities);
+    method @Deprecated public java.util.List<java.lang.Long> upsertAndReturnIdsList(T[] entities);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.CLASS, kotlin.annotation.AnnotationTarget.FUNCTION}) public @interface ExperimentalRoomApi {

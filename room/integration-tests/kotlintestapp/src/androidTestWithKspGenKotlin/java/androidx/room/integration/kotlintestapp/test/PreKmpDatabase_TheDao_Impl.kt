@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION", "ktlint") // Due to old entity adapter usage.
+
 package androidx.room.integration.kotlintestapp.test
 
 import android.database.Cursor
