@@ -54,10 +54,10 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         }
         val adapter: SandboxedUiAdapter =
             when (adType) {
-                AdType.NON_WEBVIEW -> {
+                AdType.BASIC_NON_WEBVIEW -> {
                     loadNonWebViewBannerAd("Simple Ad", waitInsideOnDraw)
                 }
-                AdType.WEBVIEW -> {
+                AdType.BASIC_WEBVIEW -> {
                     loadWebViewBannerAd()
                 }
                 AdType.WEBVIEW_FROM_LOCAL_ASSETS -> {

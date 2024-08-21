@@ -25,9 +25,9 @@
     <string name="zorder_below_switch">Z Order Below</string>
     <string name="mediation_switch">Mediation</string>
     <string name="app_owned_mediatee_switch">AppOwnedMediatee</string>
-    <string name="webview_switch">Webview</string>
+    <string name="basic_webview_switch">Basic Webview</string>
     <string name="trigger_sandbox_death_button">Trigger Sandbox Death</string>
     <string name="display_viewability_switch">Display Viewability Geometry</string>
     <string name="video_switch">Video</string>
-    <string name="non_webview_switch">Non-Webview</string>
+    <string name="basic_non_webview_switch">Basic Non-Webview</string>
 </resources>
