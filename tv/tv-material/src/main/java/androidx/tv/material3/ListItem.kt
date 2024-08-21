@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -302,13 +301,19 @@ private fun BaseListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             leadingContent?.let {
-                Box(
-                    modifier =
-                        Modifier.defaultMinSize(minWidth = minIconSize, minHeight = minIconSize)
-                            .graphicsLayer { alpha = ListItemDefaults.LeadingContentOpacity },
-                    contentAlignment = Alignment.Center,
-                    content = it
-                )
+                CompositionLocalProvider(
+                    LocalContentColor provides ListItemDefaults.LeadingContentColor
+                ) {
+                    Box(
+                        modifier =
+                            Modifier.defaultMinSize(
+                                minWidth = minIconSize,
+                                minHeight = minIconSize
+                            ),
+                        contentAlignment = Alignment.Center,
+                        content = it
+                    )
+                }
                 Spacer(modifier = Modifier.padding(end = ListItemDefaults.LeadingContentEndPadding))
             }
 
