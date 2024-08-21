@@ -28,13 +28,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.internal.ProvideContentColorTextStyle
 import androidx.compose.material3.internal.rememberAnimatedShape
+import androidx.compose.material3.tokens.BaselineButtonTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
-import androidx.compose.material3.tokens.ShapeTokens
 import androidx.compose.material3.tokens.SplitButtonSmallTokens
 import androidx.compose.material3.tokens.StateTokens
 import androidx.compose.runtime.Composable
@@ -461,34 +462,41 @@ private fun SplitButtonLayout(
     )
 }
 
-// TODO Replace default value with tokens
 /** Contains default values used by [SplitButton] and its style variants. */
 @ExperimentalMaterial3ExpressiveApi
 object SplitButtonDefaults {
     /** Default icon size for the leading button */
-    val LeadingIconSize = 20.dp
+    val LeadingIconSize = BaselineButtonTokens.IconSize
 
     /** Default icon size for the trailing button */
-    val TrailingIconSize = 22.dp
+    val TrailingIconSize = SplitButtonSmallTokens.TrailingIconSize
 
     /** Default spacing between the `leading` and `trailing` button */
     val Spacing = SplitButtonSmallTokens.BetweenSpace
 
     /** Default size for the leading button end corners and trailing button start corners */
-    val InnerCornerSize = CornerSize(4.dp)
-
-    private val InnerCornerSizePressed = CornerSize(8.dp)
+    // TODO update token to dp size and use it here
+    val InnerCornerSize = SplitButtonSmallTokens.InnerCornerSize
+    private val InnerCornerSizePressed = ShapeDefaults.CornerSmall
 
     /**
      * Default percentage size for the leading button start corners and trailing button end corners
      */
-    val OuterCornerSize = CornerSize(50)
+    val OuterCornerSize = ShapeDefaults.CornerFull
 
     /** Default content padding of the leading button */
-    val LeadingButtonContentPadding = PaddingValues(16.dp, 10.dp, 12.dp, 10.dp)
+    val LeadingButtonContentPadding =
+        PaddingValues(
+            start = SplitButtonSmallTokens.LeadingButtonLeadingSpace,
+            end = SplitButtonSmallTokens.LeadingButtonTrailingSpace
+        )
 
     /** Default content padding of the trailing button */
-    val TrailingButtonContentPadding = PaddingValues(horizontal = 13.dp)
+    val TrailingButtonContentPadding =
+        PaddingValues(
+            start = SplitButtonSmallTokens.TrailingButtonLeadingSpace,
+            end = SplitButtonSmallTokens.TrailingButtonTrailingSpace
+        )
 
     /**
      * Default minimum width of the [LeadingButton], applies to all 4 variants of the split button
@@ -504,7 +512,7 @@ object SplitButtonDefaults {
     /** Default minimum width of the [TrailingButton]. */
     private val TrailingButtonMinWidth = LeadingButtonMinWidth
 
-    /** Trailng button state layer alpha when in checked state */
+    /** Trailing button state layer alpha when in checked state */
     private const val TrailingButtonStateLayerAlpha = StateTokens.PressedStateLayerOpacity
 
     /** Default shape of the leading button. */
@@ -525,7 +533,7 @@ object SplitButtonDefaults {
             topEnd = OuterCornerSize,
             bottomEnd = OuterCornerSize
         )
-    private val TrailingCheckedShape = ShapeTokens.CornerFull
+    private val TrailingCheckedShape = CircleShape
 
     /**
      * Default shapes for the leading button. This defines the shapes the leading button should
