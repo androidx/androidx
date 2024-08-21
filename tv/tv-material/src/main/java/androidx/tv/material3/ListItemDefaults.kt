@@ -58,7 +58,9 @@ object ListItemDefaults {
     /** The default content padding [PaddingValues] used by [DenseListItem] */
     internal val ContentPaddingDense = PaddingValues(horizontal = 12.dp, vertical = 10.dp)
 
-    internal const val LeadingContentOpacity = 0.8f
+    internal val LeadingContentColor
+        @ReadOnlyComposable @Composable get() = LocalContentColor.current.copy(alpha = 0.8f)
+
     internal const val OverlineContentOpacity = 0.6f
     internal const val SupportingContentOpacity = 0.8f
 
