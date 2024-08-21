@@ -180,6 +180,13 @@ internal constructor(
                                 )
                             else -> throw FrameworkClassParsingException()
                         }
+                    DigitalCredential.TYPE_DIGITAL_CREDENTIAL ->
+                        GetDigitalCredentialOption.createFrom(
+                            requestData = requestData,
+                            candidateQueryData = candidateQueryData,
+                            requireSystemProvider = requireSystemProvider,
+                            allowedProviders = allowedProviders,
+                        )
                     else -> throw FrameworkClassParsingException()
                 }
             } catch (e: FrameworkClassParsingException) {

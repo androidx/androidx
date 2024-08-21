@@ -32,6 +32,7 @@ import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.CredentialProvider
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
+import androidx.credentials.GetDigitalCredentialOption
 import androidx.credentials.GetRestoreCredentialOption
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
@@ -44,6 +45,7 @@ import androidx.credentials.playservices.controllers.BeginSignIn.CredentialProvi
 import androidx.credentials.playservices.controllers.CreatePassword.CredentialProviderCreatePasswordController
 import androidx.credentials.playservices.controllers.CreatePublicKeyCredential.CredentialProviderCreatePublicKeyCredentialController
 import androidx.credentials.playservices.controllers.CreateRestoreCredential.CredentialProviderCreateRestoreCredentialController
+import androidx.credentials.playservices.controllers.GetRestoreCredential.CredentialProviderGetDigitalCredentialController
 import androidx.credentials.playservices.controllers.GetRestoreCredential.CredentialProviderGetRestoreCredentialController
 import androidx.credentials.playservices.controllers.GetSignInIntent.CredentialProviderGetSignInIntentController
 import com.google.android.gms.auth.api.identity.Identity
@@ -72,7 +74,23 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        if (isGetRestoreCredentialRequest(request)) {
+        if (isDigitalCredentialRequest(request)) {
+            if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_DIGITAL_CRED)) {
+                cancellationReviewerWithCallback(cancellationSignal) {
+                    executor.execute {
+                        callback.onError(
+                            GetCredentialProviderConfigurationException(
+                                "this device requires a Google Play Services update for the" +
+                                    " given feature to be supported"
+                            )
+                        )
+                    }
+                }
+                return
+            }
+            CredentialProviderGetDigitalCredentialController(context)
+                .invokePlayServices(request, callback, executor, cancellationSignal)
+        } else if (isGetRestoreCredentialRequest(request)) {
             if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
                 cancellationReviewerWithCallback(cancellationSignal) {
                     executor.execute {
@@ -263,6 +281,8 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) const val MIN_GMS_APK_VERSION = 230815045
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         const val MIN_GMS_APK_VERSION_RESTORE_CRED = 242200000
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        const val MIN_GMS_APK_VERSION_DIGITAL_CRED = 243100000
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
@@ -297,6 +317,15 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         internal fun isGetRestoreCredentialRequest(request: GetCredentialRequest): Boolean {
             for (option in request.credentialOptions) {
                 if (option is GetRestoreCredentialOption) {
+                    return true
+                }
+            }
+            return false
+        }
+
+        internal fun isDigitalCredentialRequest(request: GetCredentialRequest): Boolean {
+            for (option in request.credentialOptions) {
+                if (option is GetDigitalCredentialOption) {
                     return true
                 }
             }

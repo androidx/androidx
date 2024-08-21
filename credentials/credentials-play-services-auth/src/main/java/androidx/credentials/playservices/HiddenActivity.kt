@@ -32,6 +32,8 @@ import androidx.credentials.playservices.controllers.CredentialProviderBaseContr
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_INTERRUPTED
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_NO_CREDENTIALS
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.GET_UNKNOWN
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.reportError
+import androidx.credentials.playservices.controllers.CredentialProviderBaseController.Companion.reportResult
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
 import com.google.android.gms.auth.api.identity.Identity
@@ -150,11 +152,7 @@ open class HiddenActivity : Activity() {
     }
 
     private fun setupFailure(resultReceiver: ResultReceiver, errName: String, errMsg: String) {
-        val bundle = Bundle()
-        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE_TAG, true)
-        bundle.putString(CredentialProviderBaseController.EXCEPTION_TYPE_TAG, errName)
-        bundle.putString(CredentialProviderBaseController.EXCEPTION_MESSAGE_TAG, errMsg)
-        resultReceiver.send(Integer.MAX_VALUE, bundle)
+        resultReceiver.reportError(errName, errMsg)
         finish()
     }
 
@@ -336,11 +334,11 @@ open class HiddenActivity : Activity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        val bundle = Bundle()
-        bundle.putBoolean(CredentialProviderBaseController.FAILURE_RESPONSE_TAG, false)
-        bundle.putInt(CredentialProviderBaseController.ACTIVITY_REQUEST_CODE_TAG, requestCode)
-        bundle.putParcelable(CredentialProviderBaseController.RESULT_DATA_TAG, data)
-        resultReceiver?.send(resultCode, bundle)
+        resultReceiver?.reportResult(
+            requestCode = requestCode,
+            data = data,
+            resultCode = resultCode
+        )
         mWaitingForActivityResult = false
         finish()
     }

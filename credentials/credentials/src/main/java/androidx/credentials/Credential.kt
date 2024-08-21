@@ -56,6 +56,7 @@ internal constructor(
                     PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL ->
                         PublicKeyCredential.createFrom(data)
                     RestoreCredential.TYPE_RESTORE_CREDENTIAL -> RestoreCredential.createFrom(data)
+                    DigitalCredential.TYPE_DIGITAL_CREDENTIAL -> DigitalCredential.createFrom(data)
                     else -> throw FrameworkClassParsingException()
                 }
             } catch (e: FrameworkClassParsingException) {
