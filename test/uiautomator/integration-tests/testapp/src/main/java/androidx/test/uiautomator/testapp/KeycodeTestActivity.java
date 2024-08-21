@@ -31,6 +31,8 @@ public class KeycodeTestActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.keycode_test_activity);
+        TextView textView = (TextView) findViewById(R.id.text_view);
+        textView.setText("");
     }
 
     @Override
@@ -38,55 +40,54 @@ public class KeycodeTestActivity extends Activity {
         TextView textView = (TextView) findViewById(R.id.text_view);
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                textView.setText("keycode back pressed");
+                textView.append("keycode back pressed; ");
                 break;
             case KeyEvent.KEYCODE_DEL:
-                textView.setText("keycode delete pressed");
+                textView.append("keycode delete pressed; ");
                 break;
             case KeyEvent.KEYCODE_DPAD_CENTER:
-                textView.setText("keycode dpad center pressed");
+                textView.append("keycode dpad center pressed; ");
                 break;
             case KeyEvent.KEYCODE_DPAD_DOWN:
-                textView.setText("keycode dpad down pressed");
+                textView.append("keycode dpad down pressed; ");
                 break;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                textView.setText("keycode dpad left pressed");
+                textView.append("keycode dpad left pressed; ");
                 break;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                textView.setText("keycode dpad right pressed");
+                textView.append("keycode dpad right pressed; ");
                 break;
             case KeyEvent.KEYCODE_DPAD_UP:
-                textView.setText("keycode dpad up pressed");
+                textView.append("keycode dpad up pressed; ");
                 break;
             case KeyEvent.KEYCODE_ENTER:
-                textView.setText("keycode enter pressed");
+                textView.append("keycode enter pressed; ");
                 break;
             case KeyEvent.KEYCODE_MENU:
-                textView.setText("keycode menu pressed");
+                textView.append("keycode menu pressed; ");
                 break;
             case KeyEvent.KEYCODE_SEARCH:
-                textView.setText("keycode search pressed");
-                break;
-            case KeyEvent.KEYCODE_Z:
-                textView.setText("keycode Z pressed");
-                break;
-            case KeyEvent.KEYCODE_0:
-                textView.setText("keycode 0 pressed");
+                textView.append("keycode search pressed; ");
                 break;
             case KeyEvent.KEYCODE_A:
-                if (mLastPressedKeyCode == KeyEvent.KEYCODE_B) {
-                    textView.setText("keycode A and keycode B are pressed");
-                }
+                textView.append("keycode A pressed; ");
                 break;
             case KeyEvent.KEYCODE_B:
-                if (mLastPressedKeyCode == KeyEvent.KEYCODE_A) {
-                    textView.setText("keycode A and keycode B are pressed");
-                }
+                textView.append("keycode B pressed; ");
+                break;
+            case KeyEvent.KEYCODE_Z:
+                textView.append("keycode Z pressed; ");
+                break;
+            case KeyEvent.KEYCODE_0:
+                textView.append("keycode 0 pressed; ");
+                break;
+            case KeyEvent.KEYCODE_SHIFT_LEFT:
+                textView.append("keycode shift left pressed; ");
                 break;
         }
 
         if ((event.getMetaState() & (KeyEvent.META_SHIFT_LEFT_ON | KeyEvent.META_SHIFT_ON)) != 0) {
-            textView.append(" with meta shift left on");
+            textView.append("with meta shift left on; ");
         }
 
         mLastPressedKeyCode = keyCode;
