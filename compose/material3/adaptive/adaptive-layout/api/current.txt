@@ -248,7 +248,7 @@ package androidx.compose.material3.adaptive.layout {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public sealed interface ThreePaneScaffoldScope extends androidx.compose.material3.adaptive.layout.ExtendedPaneScaffoldScope<androidx.compose.material3.adaptive.layout.ThreePaneScaffoldRole,androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue> {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class ThreePaneScaffoldState {
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Stable public final class ThreePaneScaffoldState {
     ctor public ThreePaneScaffoldState(androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue initialScaffoldValue);
     method public suspend Object? animateTo(optional androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public androidx.compose.material3.adaptive.layout.ThreePaneScaffoldValue getCurrentState();
