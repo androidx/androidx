@@ -43,7 +43,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinStdlib)
                 api("androidx.compose.foundation:foundation:1.6.5")
                 api("androidx.compose.ui:ui-geometry:1.6.5")
-                api("androidx.window:window-core:1.3.0-rc01")
+                api("androidx.window:window-core:1.3.0")
             }
         }
 
@@ -63,7 +63,7 @@ androidXMultiplatform {
             dependencies {
                 api("androidx.annotation:annotation:1.8.1")
                 api("androidx.annotation:annotation-experimental:1.4.1")
-                api("androidx.window:window:1.3.0-rc01")
+                api("androidx.window:window:1.3.0")
             }
         }
 
@@ -78,7 +78,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(project(":compose:material3:material3"))
                 implementation(project(":compose:test-utils"))
-                implementation(project(":window:window-testing"))
+                implementation("androidx.window:window-testing:1.3.0")
                 implementation(libs.junit)
                 implementation(libs.testRunner)
                 implementation(libs.truth)
