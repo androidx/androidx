@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
@@ -71,6 +72,10 @@ class LazyColumnState : ScrollableState {
     internal var anchorItemIndex by mutableIntStateOf(0)
         private set
 
+    internal var nearestRange: IntRange by
+        mutableStateOf(IntRange.EMPTY, structuralEqualityPolicy())
+        private set
+
     internal var anchorItemScrollOffset by mutableIntStateOf(0)
         private set
 
@@ -95,6 +100,31 @@ class LazyColumnState : ScrollableState {
         anchorItemScrollOffset = measureResult.anchorItemScrollOffset
         lastMeasuredAnchorItemHeight = measureResult.lastMeasuredItemHeight
         layoutInfoState.value = measureResult
+        nearestRange = calculateNearestItemsRange(anchorItemIndex)
+    }
+
+    private companion object {
+        /**
+         * We use the idea of sliding window as an optimization, so user can scroll up to this
+         * number of items until we have to regenerate the key to index map.
+         */
+        private const val NearestItemsSlidingWindowSize = 20
+
+        /**
+         * The minimum amount of items near the current first visible item we want to have mapping
+         * for.
+         */
+        private const val NearestItemsExtraItemCount = 30
+
+        private fun calculateNearestItemsRange(anchorItemIndex: Int): IntRange {
+            val slidingWindowStart =
+                NearestItemsSlidingWindowSize * (anchorItemIndex / NearestItemsSlidingWindowSize)
+
+            val start = maxOf(slidingWindowStart - NearestItemsExtraItemCount, 0)
+            val end =
+                slidingWindowStart + NearestItemsSlidingWindowSize + NearestItemsExtraItemCount
+            return start until end
+        }
     }
 
     private val scrollableState = ScrollableState { -onScroll(-it) }

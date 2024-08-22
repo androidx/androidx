@@ -419,12 +419,16 @@ package androidx.wear.compose.foundation.lazy {
   }
 
   public sealed interface LazyColumnVisibleItemInfo {
+    method public Object? getContentType();
     method public int getHeight();
     method public int getIndex();
+    method public Object getKey();
     method public int getOffset();
     method public androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress getScrollProgress();
+    property public abstract Object? contentType;
     property public abstract int height;
     property public abstract int index;
+    property public abstract Object key;
     property public abstract int offset;
     property public abstract androidx.wear.compose.foundation.lazy.LazyColumnItemScrollProgress scrollProgress;
   }
