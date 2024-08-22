@@ -16,8 +16,8 @@
 
 <resources>
     <string-array name="ad_type_dropdown_menu_array">
-        <item>@string/non_webview_switch</item>
-        <item>@string/webview_switch</item>
+        <item>@string/basic_non_webview_switch</item>
+        <item>@string/basic_webview_switch</item>
         <item>@string/content_from_assets_switch</item>
         <item>@string/video_switch</item>
     </string-array>

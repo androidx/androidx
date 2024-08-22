@@ -40,7 +40,7 @@ class MediateeSdkApiImpl(private val sdkContext: Context) : IMediateeSdkApi.Stub
     ): Bundle {
         val adapter: SandboxedUiAdapter =
             when (adType) {
-                AdType.WEBVIEW -> loadWebViewBannerAd()
+                AdType.BASIC_WEBVIEW -> loadWebViewBannerAd()
                 AdType.WEBVIEW_FROM_LOCAL_ASSETS -> loadWebViewBannerAdFromLocalAssets()
                 AdType.NON_WEBVIEW_VIDEO -> loadVideoAd()
                 else -> loadNonWebViewBannerAd(mediationDescription, waitInsideOnDraw)

@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var mediationDropDownMenu: Spinner
     private lateinit var adTypeDropDownMenu: Spinner
 
-    @AdType private var adType = AdType.NON_WEBVIEW
+    @AdType private var adType = AdType.BASIC_NON_WEBVIEW
 
     @MediationOption private var mediationOption = MediationOption.NON_MEDIATED
     private var drawViewabilityLayer = false
@@ -246,11 +246,11 @@ class MainActivity : AppCompatActivity() {
                     }
                     adType =
                         when (position) {
-                            0 -> AdType.NON_WEBVIEW
-                            1 -> AdType.WEBVIEW
+                            0 -> AdType.BASIC_NON_WEBVIEW
+                            1 -> AdType.BASIC_WEBVIEW
                             2 -> AdType.WEBVIEW_FROM_LOCAL_ASSETS
                             3 -> AdType.NON_WEBVIEW_VIDEO
-                            else -> AdType.NON_WEBVIEW
+                            else -> AdType.BASIC_NON_WEBVIEW
                         }
                     loadAllAds()
                 }

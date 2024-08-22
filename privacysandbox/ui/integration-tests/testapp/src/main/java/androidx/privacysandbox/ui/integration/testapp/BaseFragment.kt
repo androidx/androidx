@@ -135,7 +135,7 @@ abstract class BaseFragment : Fragment() {
             "androidx.privacysandbox.ui.integration.mediateesdkprovider"
         const val TAG = "TestSandboxClient"
         var isZOrderOnTop = true
-        @AdType var currentAdType = AdType.NON_WEBVIEW
+        @AdType var currentAdType = AdType.BASIC_NON_WEBVIEW
         @MediationOption var currentMediationOption = MediationOption.NON_MEDIATED
         var shouldDrawViewabilityLayer = false
     }
