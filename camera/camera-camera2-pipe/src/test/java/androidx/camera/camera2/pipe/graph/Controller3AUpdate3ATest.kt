@@ -253,6 +253,6 @@ internal class Controller3AUpdate3ATest {
 
     private fun initGraphProcessor() {
         graphProcessor.onGraphStarted(fakeGraphRequestProcessor)
-        graphProcessor.startRepeating(Request(streams = listOf(StreamId(1))))
+        graphProcessor.repeatingRequest = Request(streams = listOf(StreamId(1)))
     }
 }

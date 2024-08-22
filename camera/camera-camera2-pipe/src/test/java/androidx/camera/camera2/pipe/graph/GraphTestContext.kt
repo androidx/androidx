@@ -33,7 +33,7 @@ internal class GraphTestContext : AutoCloseable {
     init {
         captureSequenceProcessor.surfaceMap = surfaceMap
         graphProcessor.onGraphStarted(graphRequestProcessor)
-        graphProcessor.startRepeating(Request(streams = listOf(streamId)))
+        graphProcessor.repeatingRequest = Request(streams = listOf(streamId))
     }
 
     override fun close() {

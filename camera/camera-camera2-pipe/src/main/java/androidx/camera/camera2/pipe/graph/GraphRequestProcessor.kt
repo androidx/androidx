@@ -104,10 +104,10 @@ private constructor(
         captureSequenceProcessor.stopRepeating()
     }
 
-    internal fun close() {
+    internal suspend fun shutdown() {
         Log.debug { "Closing $this" }
         if (closed.compareAndSet(expect = false, update = true)) {
-            captureSequenceProcessor.close()
+            captureSequenceProcessor.shutdown()
         }
     }
 

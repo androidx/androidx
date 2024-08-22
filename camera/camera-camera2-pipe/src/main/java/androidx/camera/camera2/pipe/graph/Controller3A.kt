@@ -186,7 +186,7 @@ internal class Controller3A(
     ): Deferred<Result3A> {
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or trigger set a new listener.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             graphState3A.update(
                 aeMode,
                 afMode,
@@ -222,7 +222,7 @@ internal class Controller3A(
         return result
     }
 
-    suspend fun submit3A(
+    fun submit3A(
         aeMode: AeMode? = null,
         afMode: AfMode? = null,
         awbMode: AwbMode? = null,
@@ -231,9 +231,10 @@ internal class Controller3A(
         awbRegions: List<MeteringRectangle>? = null
     ): Deferred<Result3A> {
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
+
         // Add the listener to a global pool of 3A listeners to monitor the state change to the
         // desired one.
         val listener = createListenerFor3AParams(aeMode, afMode, awbMode)
@@ -247,7 +248,7 @@ internal class Controller3A(
         afRegions?.let { extra3AParams.put(CaptureRequest.CONTROL_AF_REGIONS, it.toTypedArray()) }
         awbRegions?.let { extra3AParams.put(CaptureRequest.CONTROL_AWB_REGIONS, it.toTypedArray()) }
 
-        if (!graphProcessor.trySubmit(extra3AParams)) {
+        if (!graphProcessor.submit(extra3AParams)) {
             graphListener3A.removeListener(listener)
             return deferredResult3ASubmitFailed
         }
@@ -308,7 +309,7 @@ internal class Controller3A(
 
         // If the GraphProcessor does not have a repeating request we should update the current
         // parameters, but should not invalidate or trigger set a new listener.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
 
@@ -316,7 +317,7 @@ internal class Controller3A(
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afLockBehaviorSanitized.shouldUnlockAf()) {
             debug { "lock3A - sending a request to unlock af first." }
-            if (!graphProcessor.trySubmit(parameterForAfTriggerCancel)) {
+            if (!graphProcessor.submit(parameterForAfTriggerCancel)) {
                 return deferredResult3ASubmitFailed
             }
         }
@@ -394,7 +395,7 @@ internal class Controller3A(
      * There are two requests involved in this operation, (a) a single request with af trigger =
      * cancel, to unlock af, and then (a) a repeating request to unlock ae, awb.
      */
-    suspend fun unlock3A(
+    fun unlock3A(
         ae: Boolean? = null,
         af: Boolean? = null,
         awb: Boolean? = null,
@@ -410,17 +411,14 @@ internal class Controller3A(
             return CompletableDeferred(Result3A(Status.OK, /* frameMetadata= */ null))
         }
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
         // If we explicitly need to unlock af first before proceeding to lock it, we need to send
         // a single request with TRIGGER = TRIGGER_CANCEL so that af can start a fresh scan.
         if (afSanitized == true) {
             debug { "unlock3A - sending a request to unlock af first." }
-            if (!graphProcessor.trySubmit(parameterForAfTriggerCancel)) {
-                debug { "unlock3A - request to unlock af failed, returning early." }
-                return deferredResult3ASubmitFailed
-            }
+            graphProcessor.submit(parameterForAfTriggerCancel)
         }
 
         // As needed unlock ae, awb and wait for ae, af and awb to converge.
@@ -463,7 +461,7 @@ internal class Controller3A(
      *   which the locks were applied or the frame number at which the method returned early because
      *   either frame limit or time limit was reached.
      */
-    suspend fun lock3AForCapture(
+    fun lock3AForCapture(
         lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
@@ -496,7 +494,7 @@ internal class Controller3A(
      *   which the locks were applied or the frame number at which the method returned early because
      *   either frame limit or time limit was reached.
      */
-    suspend fun lock3AForCapture(
+    fun lock3AForCapture(
         triggerAf: Boolean = true,
         waitForAwb: Boolean = false,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
@@ -538,14 +536,14 @@ internal class Controller3A(
      *   which the locks were applied or the frame number at which the method returned early because
      *   either frame limit or time limit was reached.
      */
-    private suspend fun lock3AForCapture(
+    private fun lock3AForCapture(
         triggerCondition: Map<CaptureRequest.Key<*>, Any>? = null,
         lockedCondition: ((FrameMetadata) -> Boolean)? = null,
         frameLimit: Int = DEFAULT_FRAME_LIMIT,
         timeLimitNs: Long = DEFAULT_TIME_LIMIT_NS,
     ): Deferred<Result3A> {
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
 
@@ -569,24 +567,19 @@ internal class Controller3A(
             )
 
         graphListener3A.addListener(listener)
-
         debug { "lock3AForCapture - sending a request to trigger ae precapture metering and af." }
-        if (!graphProcessor.trySubmit(finalTriggerCondition)) {
-            debug {
-                "lock3AForCapture - request to trigger ae precapture metering and af failed, " +
-                    "returning early."
-            }
+
+        if (!graphProcessor.submit(finalTriggerCondition)) {
             graphListener3A.removeListener(listener)
             return deferredResult3ASubmitFailed
         }
-
         graphProcessor.invalidate()
         return listener.result
     }
 
-    suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A> {
+    fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A> {
         // If the GraphProcessor does not have a repeating request, we should fail immediately.
-        if (!graphProcessor.hasRepeatingRequest()) {
+        if (graphProcessor.repeatingRequest == null) {
             return deferredResult3ASubmitFailed
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -601,22 +594,15 @@ internal class Controller3A(
      * REF :
      * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER
      */
-    private suspend fun unlock3APostCaptureAndroidLAndBelow(
-        cancelAf: Boolean = true
-    ): Deferred<Result3A> {
+    private fun unlock3APostCaptureAndroidLAndBelow(cancelAf: Boolean = true): Deferred<Result3A> {
         debug { "unlock3AForCapture - sending a request to cancel af and turn on ae." }
-        if (
-            !graphProcessor.trySubmit(
-                if (cancelAf) {
-                    unlock3APostCaptureLockAeAndCancelAfParams
-                } else {
-                    unlock3APostCaptureLockAeParams
-                }
-            )
-        ) {
-            debug { "unlock3AForCapture - request to cancel af and lock ae as failed." }
-            return deferredResult3ASubmitFailed
-        }
+        val cancelParams =
+            if (cancelAf) {
+                unlock3APostCaptureLockAeAndCancelAfParams
+            } else {
+                unlock3APostCaptureLockAeParams
+            }
+        if (!graphProcessor.submit(cancelParams)) return deferredResult3ASubmitFailed
 
         // Listener to monitor when we receive the capture result corresponding to the request
         // below.
@@ -624,8 +610,7 @@ internal class Controller3A(
         graphListener3A.addListener(listener)
 
         debug { "unlock3AForCapture - sending a request to turn off ae." }
-        if (!graphProcessor.trySubmit(unlock3APostCaptureUnlockAeParams)) {
-            debug { "unlock3AForCapture - request to unlock ae failed." }
+        if (!graphProcessor.submit(unlock3APostCaptureUnlockAeParams)) {
             graphListener3A.removeListener(listener)
             return deferredResult3ASubmitFailed
         }
@@ -639,16 +624,10 @@ internal class Controller3A(
      * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#CONTROL_AE_PRECAPTURE_TRIGGER
      */
     @RequiresApi(23)
-    private suspend fun unlock3APostCaptureAndroidMAndAbove(
-        cancelAf: Boolean = true
-    ): Deferred<Result3A> {
+    private fun unlock3APostCaptureAndroidMAndAbove(cancelAf: Boolean = true): Deferred<Result3A> {
         debug { "unlock3APostCapture - sending a request to reset af and ae precapture metering." }
         val cancelParams = if (cancelAf) aePrecaptureAndAfCancelParams else aePrecaptureCancelParams
-        if (!graphProcessor.trySubmit(cancelParams)) {
-            debug {
-                "unlock3APostCapture - request to reset af and ae precapture metering failed, " +
-                    "returning early."
-            }
+        if (!graphProcessor.submit(cancelParams)) {
             return deferredResult3ASubmitFailed
         }
 
@@ -677,11 +656,7 @@ internal class Controller3A(
         return update3A(aeMode = desiredAeMode, flashMode = flashMode)
     }
 
-    internal fun onStopRepeating() {
-        graphListener3A.onStopRepeating()
-    }
-
-    private suspend fun lock3ANow(
+    private fun lock3ANow(
         aeLockBehavior: Lock3ABehavior?,
         afLockBehavior: Lock3ABehavior?,
         awbLockBehavior: Lock3ABehavior?,
@@ -724,7 +699,9 @@ internal class Controller3A(
         }
 
         debug { "lock3A - submitting a request to lock af." }
-        val submitSuccess = graphProcessor.trySubmit(parameterForAfTriggerStart)
+        if (!graphProcessor.submit(parameterForAfTriggerStart)) {
+            return deferredResult3ASubmitFailed
+        }
 
         lastAeMode?.let {
             graphState3A.update(aeMode = it)
@@ -732,14 +709,6 @@ internal class Controller3A(
             //  by making sure invalidate() and submit() don't interleave
             //  w.r.t. building the parameter snapshot
             graphProcessor.invalidate()
-        }
-
-        if (!submitSuccess) {
-            // TODO(sushilnath@): Change the error code to a more specific code so it's clear
-            // that one of the request in sequence of requests failed and the caller should
-            // unlock 3A to bring the 3A system to an initial state and then try again if they
-            // want to. The other option is to reset or restore the 3A state here.
-            return deferredResult3ASubmitFailed
         }
         return resultForLocked!!
     }

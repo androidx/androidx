@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.graph
 
 import androidx.annotation.GuardedBy
+import androidx.camera.camera2.pipe.CameraGraphId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
@@ -24,6 +25,7 @@ import androidx.camera.camera2.pipe.core.ProcessingQueue
 import androidx.camera.camera2.pipe.core.ProcessingQueue.Companion.processIn
 import androidx.camera.camera2.pipe.putAllMetadata
 import java.io.Closeable
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -36,12 +38,22 @@ import kotlinx.coroutines.cancel
  * cleanup of pending requests during shutdown.
  */
 internal class GraphLoop(
-    private val defaultParameters: Map<Any, Any?>,
-    private val requiredParameters: Map<Any, Any?>,
-    private val listeners: List<Request.Listener>,
+    private val cameraGraphId: CameraGraphId,
+    private val defaultParameters: Map<*, Any?>,
+    private val requiredParameters: Map<*, Any?>,
+    private val graphListeners: List<Request.Listener>,
     private val graphState3A: GraphState3A?,
+    private val listeners: List<GraphLoop.Listener>,
     dispatcher: CoroutineDispatcher
 ) : Closeable {
+    internal interface Listener {
+        fun onStopRepeating()
+
+        fun onGraphStopped()
+
+        fun onGraphShutdown()
+    }
+
     private val lock = Any()
     private val graphProcessorScope =
         CoroutineScope(dispatcher.plus(CoroutineName("CXCP-GraphLoop")))
@@ -57,71 +69,108 @@ internal class GraphLoop(
 
     var requestProcessor: GraphRequestProcessor?
         get() = synchronized(lock) { _requestProcessor }
-        set(value) =
+        set(value) {
             synchronized(lock) {
-                check(!closed)
                 val previous = _requestProcessor
                 _requestProcessor = value
 
-                // Ignore duplicate calls to set with the same value.
-                if (previous !== value) {
-                    if (previous != null) {
-                        // Closing the request processor can (sometimes) block the calling thread.
-                        // Make
-                        // sure this is invoked in the background.
-                        processingQueue.tryEmit(CloseRequestProcessor(previous))
-                    }
+                check(value == null || !closed) {
+                    "Cannot set requestProcessor after $this is closed."
+                }
 
-                    if (value != null) {
-                        val repeatingRequest = _repeatingRequest
-                        if (repeatingRequest == null) {
-                            // This handles the case where a single request has been issued before
-                            // the GraphRequestProcessor was configured when there is not repeating
-                            // request.
-                            processingQueue.tryEmit(Invalidate)
-                        } else {
-                            // If there is an active repeating request, make sure the request is
-                            // issued to the new request processor.
-                            processingQueue.tryEmit(StartRepeating(repeatingRequest))
-                        }
+                // Ignore duplicate calls to set with the same value.
+                if (previous === value) {
+                    return@synchronized
+                }
+
+                if (previous != null) {
+                    // Closing the request processor can (sometimes) block the calling thread.
+                    // Make sure this is invoked in the background.
+                    processingQueue.tryEmit(CloseRequestProcessor(previous))
+                }
+
+                if (value != null) {
+                    val repeatingRequest = _repeatingRequest
+                    if (repeatingRequest == null) {
+                        // This handles the case where a single request has been issued before
+                        // the GraphRequestProcessor was configured when there is not repeating
+                        // request. Invalidate will cause the commandLoop to re-evaluate, which
+                        // may succeed now that a valid request processor has been configured.
+                        processingQueue.tryEmit(Invalidate)
+                    } else {
+                        // If there is an active repeating request, make sure the request is
+                        // issued to the new request processor. This serves the same purpose as
+                        // Invalidate which re-triggers the commandLoop.
+                        processingQueue.tryEmit(StartRepeating(repeatingRequest))
                     }
                 }
             }
 
+            if (value == null) {
+                for (i in listeners.indices) {
+                    listeners[i].onGraphStopped()
+                }
+            }
+        }
+
     var repeatingRequest: Request?
         get() = synchronized(lock) { _repeatingRequest }
-        set(value) =
+        set(value) {
             synchronized(lock) {
                 val previous = _repeatingRequest
                 _repeatingRequest = value
 
-                // Ignore duplicate calls to set with the same value.
-                if (previous !== value) {
-                    if (value != null) {
-                        processingQueue.tryEmit(StartRepeating(value))
-                    } else {
-                        // If the repeating request is set to null, stop repeating (using the
-                        // current request processor instance), this is allowed because stop and
-                        // abort can be called on a requestProcessor that has, or is in the
-                        // process, of being released.
-                        processingQueue.tryEmit(StopRepeating(_requestProcessor))
-                    }
+                // Ignore duplicate calls to set null, this avoids multiple stopRepeating calls from
+                // being invoked.
+                if (previous == null && value == null) {
+                    return@synchronized
+                }
+
+                if (value != null) {
+                    processingQueue.tryEmit(StartRepeating(value))
+                } else {
+                    // If the repeating request is set to null, stop repeating (using the current
+                    // request processor instance). This is allowed because stop and abort can be
+                    // called on a requestProcessor that has, or is in the process, of being
+                    // released.
+                    processingQueue.tryEmit(StopRepeating(_requestProcessor))
                 }
             }
 
-    fun submit(requests: List<Request>) {
+            if (value == null) {
+                for (i in listeners.indices) {
+                    listeners[i].onStopRepeating()
+                }
+            }
+        }
+
+    private val _captureProcessingEnabled = atomic(true)
+    var captureProcessingEnabled: Boolean
+        get() = _captureProcessingEnabled.value
+        set(value) {
+            _captureProcessingEnabled.value = value
+            if (value) {
+                invalidate()
+            }
+        }
+
+    fun submit(request: Request): Boolean = submit(listOf(request))
+
+    fun submit(requests: List<Request>): Boolean {
         if (!processingQueue.tryEmit(SubmitCapture(requests))) {
             abortRequests(requests)
+            return false
         }
+        return true
     }
 
-    fun submit(parameters: Map<Any, Any?>) {
+    fun submit(parameters: Map<*, Any?>): Boolean {
         synchronized(lock) {
             val currentRepeatingRequest = _repeatingRequest
             check(currentRepeatingRequest != null) {
                 "Cannot submit parameters without an active repeating request!"
             }
-            processingQueue.tryEmit(SubmitParameters(currentRepeatingRequest, parameters))
+            return processingQueue.tryEmit(SubmitParameters(currentRepeatingRequest, parameters))
         }
     }
 
@@ -155,6 +204,10 @@ internal class GraphLoop(
             //    close the request processor before cancelling the scope.
             processingQueue.tryEmit(Shutdown(previousRequestProcessor))
         }
+
+        for (i in listeners.indices) {
+            listeners[i].onGraphShutdown()
+        }
     }
 
     /**
@@ -165,12 +218,12 @@ internal class GraphLoop(
         // Internal listeners
         for (rIdx in requests.indices) {
             val request = requests[rIdx]
-            for (listenerIdx in listeners.indices) {
-                listeners[listenerIdx].onAborted(request)
+            for (listenerIdx in graphListeners.indices) {
+                graphListeners[listenerIdx].onAborted(request)
             }
         }
 
-        // Request listeners
+        // Request-specific listeners
         for (rIdx in requests.indices) {
             val request = requests[rIdx]
             for (listenerIdx in request.listeners.indices) {
@@ -191,7 +244,7 @@ internal class GraphLoop(
 
     private var lastRepeatingRequest: Request? = null
 
-    private fun commandLoop(commands: MutableList<GraphCommand>) {
+    private suspend fun commandLoop(commands: MutableList<GraphCommand>) {
         // Command Loop Design:
         //
         // 1. Iterate through commands, newest first.
@@ -257,19 +310,22 @@ internal class GraphLoop(
 
                 // If the request processor is not null, shut it down. Consider making this a
                 // suspending call instead of just blocking to allow suspend-with-timeout.
-                command.requestProcessor?.close()
+                command.requestProcessor?.shutdown()
 
-                // Cancel the scope.
+                // Cancel the scope. This will trigger the onUnprocessedItems callback after after
+                // this hits the next suspension point.
                 graphProcessorScope.cancel()
             }
             is CloseRequestProcessor -> {
                 commands.removeAt(idx)
-                // TODO: Consider making this a suspending call. This would allow things like
-                //  "await repeating request" to suspend-with-timeout instead of blocking.
-                command.requestProcessor.close()
+                command.requestProcessor.shutdown()
             }
             is AbortCaptures -> {
                 commands.removeAt(idx)
+
+                // Attempt to abort captures in the approximate order they were submitted:
+                // 1. Abort captures submitted to the camera
+                // 2. Invoke abort on captures that have not yet been submitted to the camera.
                 if (command.requestProcessor != null) {
                     command.requestProcessor.abortCaptures()
                 }
@@ -315,6 +371,13 @@ internal class GraphLoop(
                 commands.removeUpTo(idx) { it is StartRepeating }
             }
             is SubmitCapture -> {
+                if (!_captureProcessingEnabled.value) {
+                    Log.warn {
+                        "Skipping SubmitCapture because capture processing is paused: " +
+                            "${command.requests}"
+                    }
+                    return
+                }
                 val success =
                     requestProcessor?.buildAndSubmit(
                         isRepeating = false,
@@ -330,6 +393,14 @@ internal class GraphLoop(
                 }
             }
             is SubmitParameters -> {
+                if (!_captureProcessingEnabled.value) {
+                    Log.warn {
+                        "Skipping SubmitParameters because capture processing is paused: " +
+                            "${command.parameters}"
+                    }
+                    return
+                }
+
                 val success =
                     requestProcessor?.buildAndSubmit(
                         isRepeating = false,
@@ -368,7 +439,7 @@ internal class GraphLoop(
     private fun GraphRequestProcessor.buildAndSubmit(
         isRepeating: Boolean,
         requests: List<Request>,
-        parameters: Map<Any, Any?> = emptyMap()
+        parameters: Map<*, Any?> = emptyMap<Any, Any?>()
     ): Boolean {
         val graphRequiredParameters = buildMap {
             // Build the required parameter map:
@@ -384,9 +455,11 @@ internal class GraphLoop(
             requests = requests,
             defaultParameters = defaultParameters,
             requiredParameters = graphRequiredParameters,
-            listeners = listeners
+            listeners = graphListeners
         )
     }
+
+    override fun toString(): String = "GraphLoop($cameraGraphId)"
 
     private sealed class GraphCommand
 
@@ -405,6 +478,6 @@ internal class GraphLoop(
 
     private class SubmitCapture(val requests: List<Request>) : GraphCommand()
 
-    private class SubmitParameters(val request: Request, val parameters: Map<Any, Any?>) :
+    private class SubmitParameters(val request: Request, val parameters: Map<*, Any?>) :
         GraphCommand()
 }

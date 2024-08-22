@@ -67,7 +67,7 @@ internal class CameraGraphSessionImpl(
 
     override fun startRepeating(request: Request) {
         check(!token.released) { "Cannot call startRepeating on $this after close." }
-        graphProcessor.startRepeating(request)
+        graphProcessor.repeatingRequest = request
     }
 
     override fun abort() {
@@ -77,8 +77,7 @@ internal class CameraGraphSessionImpl(
 
     override fun stopRepeating() {
         check(!token.released) { "Cannot call stopRepeating on $this after close." }
-        graphProcessor.stopRepeating()
-        controller3A.onStopRepeating()
+        graphProcessor.repeatingRequest = null
     }
 
     override fun close() {
