@@ -169,6 +169,9 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:Finalize:OFF",
                     "-Xep:AddressSelection:OFF",
                     "-Xep:StringCharset:OFF",
+                    "-Xep:EnumOrdinal:OFF",
+                    "-Xep:ClassInitializationDeadlock:OFF",
+                    "-Xep:VoidUsed:OFF",
 
                     // We allow inter library RestrictTo usage.
                     "-Xep:RestrictTo:OFF",
@@ -246,6 +249,15 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:ObjectToString:ERROR",
                     "-Xep:CatchAndPrintStackTrace:ERROR",
                     "-Xep:MixedMutabilityReturnType:ERROR",
+
+                    // Enforce checks related to nullness annotation usage
+                    "-Xep:NullablePrimitiveArray:ERROR",
+                    "-Xep:MultipleNullnessAnnotations:ERROR",
+                    "-Xep:NullablePrimitive:ERROR",
+                    "-Xep:NullableVoid:ERROR",
+                    "-Xep:NullableWildcard:ERROR",
+                    "-Xep:NullableTypeParameter:ERROR",
+                    "-Xep:NullableConstructor:ERROR",
 
                     // Nullaway
                     "-XepIgnoreUnknownCheckNames", // https://github.com/uber/NullAway/issues/25

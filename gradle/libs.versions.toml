@@ -143,7 +143,7 @@ espressoIdlingResource = { module = "androidx.test.espresso:espresso-idling-reso
 espressoIntents = { module = "androidx.test.espresso:espresso-intents", version.ref = "espresso" }
 espressoRemote = { module = "androidx.test.espresso:espresso-remote", version.ref = "espresso" }
 espressoWeb = { module = "androidx.test.espresso:espresso-web", version.ref = "espresso" }
-errorProne = { module = "com.google.errorprone:error_prone_core", version = "2.23.0" }
+errorProne = { module = "com.google.errorprone:error_prone_core", version = "2.30.0" }
 findbugs = { module = "com.google.code.findbugs:jsr305", version = "3.0.2" }
 firebaseAppindexing = { module = "com.google.firebase:firebase-appindexing", version = "19.2.0" }
 freemarker = { module = "org.freemarker:freemarker", version = "2.3.31"}
