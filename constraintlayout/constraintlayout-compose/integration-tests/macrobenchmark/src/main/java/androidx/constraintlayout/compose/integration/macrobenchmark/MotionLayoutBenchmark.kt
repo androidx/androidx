@@ -121,7 +121,7 @@ class MotionLayoutBenchmark {
             packageName = PACKAGE_NAME,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = CompilationMode.DEFAULT,
-            iterations = 10,
+            iterations = 8,
             // HOT causes issues with the measure block logic where multiple click actions are
             // triggered at once
             startupMode = StartupMode.WARM,

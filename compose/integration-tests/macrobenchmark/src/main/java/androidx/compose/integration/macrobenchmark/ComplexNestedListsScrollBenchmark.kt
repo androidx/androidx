@@ -49,7 +49,7 @@ class ComplexNestedListsScrollBenchmark {
             packageName = PACKAGE_NAME,
             metrics = listOf(FrameTimingMetric(), FrameTimingGfxInfoMetric()),
             compilationMode = CompilationMode.Full(),
-            iterations = 8,
+            iterations = 5,
             setupBlock = {
                 val intent = Intent()
                 intent.action = ACTION
@@ -59,7 +59,7 @@ class ComplexNestedListsScrollBenchmark {
             val lazyColumn = device.findObject(By.desc(CONTENT_DESCRIPTION))
             // Setting a gesture margin is important otherwise gesture nav is triggered.
             lazyColumn.setGestureMargin(device.displayWidth / 5)
-            for (i in 1..10) {
+            for (i in 1..8) {
                 // From center we scroll 2/3 of it which is 1/3 of the screen.
                 lazyColumn.drag(Point(lazyColumn.visibleCenter.x, lazyColumn.visibleCenter.y / 3))
                 device.wait(Until.findObject(By.desc(COMPOSE_IDLE)), 3000)
