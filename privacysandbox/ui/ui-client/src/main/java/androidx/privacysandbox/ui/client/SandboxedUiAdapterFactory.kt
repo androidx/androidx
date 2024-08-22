@@ -23,7 +23,6 @@ import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.RemoteException
 import android.util.Log
 import android.view.Display
 import android.view.SurfaceControlViewHost
@@ -31,6 +30,9 @@ import android.view.SurfaceView
 import android.view.View
 import android.window.SurfaceSyncGroup
 import androidx.annotation.RequiresApi
+import androidx.privacysandbox.ui.client.RemoteCallManager.addBinderDeathListener
+import androidx.privacysandbox.ui.client.RemoteCallManager.closeRemoteSession
+import androidx.privacysandbox.ui.client.RemoteCallManager.tryToCallRemoteObject
 import androidx.privacysandbox.ui.core.IRemoteSessionClient
 import androidx.privacysandbox.ui.core.IRemoteSessionController
 import androidx.privacysandbox.ui.core.ISandboxedUiAdapter
@@ -259,8 +261,8 @@ object SandboxedUiAdapterFactory {
                 context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
             val displayId = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY).displayId
 
-            tryToCallRemoteObject {
-                adapterInterface.openRemoteSession(
+            tryToCallRemoteObject(adapterInterface) {
+                this.openRemoteSession(
                     windowInputToken,
                     displayId,
                     initialWidth,
@@ -299,8 +301,8 @@ object SandboxedUiAdapterFactory {
 
                         override fun onViewAttachedToWindow(v: View) {
                             if (hasViewBeenPreviouslyAttached) {
-                                tryToCallRemoteObject {
-                                    remoteSessionController.notifyFetchUiForSession()
+                                tryToCallRemoteObject(remoteSessionController) {
+                                    this.notifyFetchUiForSession()
                                 }
                             } else {
                                 hasViewBeenPreviouslyAttached = true
@@ -321,10 +323,8 @@ object SandboxedUiAdapterFactory {
                         )
                     )
                 }
-                tryToCallRemoteObject {
-                    remoteSessionController
-                        .asBinder()
-                        .linkToDeath({ onRemoteSessionError("Remote process died") }, 0)
+                addBinderDeathListener(remoteSessionController) {
+                    onRemoteSessionError("Remote process died")
                 }
             }
 
@@ -361,8 +361,8 @@ object SandboxedUiAdapterFactory {
                 }
 
             override fun notifyConfigurationChanged(configuration: Configuration) {
-                tryToCallRemoteObject {
-                    remoteSessionController.notifyConfigurationChanged(configuration)
+                tryToCallRemoteObject(remoteSessionController) {
+                    this.notifyConfigurationChanged(configuration)
                 }
             }
 
@@ -379,7 +379,9 @@ object SandboxedUiAdapterFactory {
                 }
 
                 val providerResizeRunnable = Runnable {
-                    tryToCallRemoteObject { remoteSessionController.notifyResized(width, height) }
+                    tryToCallRemoteObject(remoteSessionController) {
+                        this.notifyResized(width, height)
+                    }
                 }
 
                 val syncGroup = SurfaceSyncGroup("AppAndSdkViewsSurfaceSync")
@@ -391,29 +393,19 @@ object SandboxedUiAdapterFactory {
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
                 surfaceView.setZOrderOnTop(isZOrderOnTop)
-                tryToCallRemoteObject { remoteSessionController.notifyZOrderChanged(isZOrderOnTop) }
+                tryToCallRemoteObject(remoteSessionController) {
+                    this.notifyZOrderChanged(isZOrderOnTop)
+                }
             }
 
             override fun notifyUiChanged(uiContainerInfo: Bundle) {
-                tryToCallRemoteObject { remoteSessionController.notifyUiChanged(uiContainerInfo) }
+                tryToCallRemoteObject(remoteSessionController) {
+                    this.notifyUiChanged(uiContainerInfo)
+                }
             }
 
             override fun close() {
-                tryToCallRemoteObject { remoteSessionController.close() }
-            }
-        }
-
-        private companion object {
-
-            /**
-             * Tries to call the remote object and handles exceptions if the remote object has died.
-             */
-            private inline fun tryToCallRemoteObject(function: () -> Unit) {
-                try {
-                    function()
-                } catch (e: RemoteException) {
-                    Log.e(TAG, "Calling remote object failed: $e")
-                }
+                closeRemoteSession(remoteSessionController)
             }
         }
     }
