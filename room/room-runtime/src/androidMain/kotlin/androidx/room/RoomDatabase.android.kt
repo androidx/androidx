@@ -549,9 +549,6 @@ actual abstract class RoomDatabase {
      * Once a [RoomDatabase] is closed it should no longer be used.
      */
     actual open fun close() {
-        if (inCompatibilityMode() && !isOpen) {
-            return
-        }
         closeBarrier.close()
     }
 
