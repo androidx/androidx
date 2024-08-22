@@ -43,7 +43,8 @@ val Material3Demos =
                 "Shapes",
                 listOf(
                     ComposableDemo("Shape") { ShapeDemo() },
-                    ComposableDemo("Material Shapes") { MaterialShapeDemo() },
+                    ComposableDemo("Material Shape") { MaterialShapeDemo() },
+                    ComposableDemo("Material Shape Morphing") { MaterialShapeMorphDemo() },
                 )
             )
         ),

@@ -26,15 +26,24 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -48,13 +57,61 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-class MaterialShapesScreenshotTest() {
+class MaterialShapesScreenshotTest {
     @get:Rule val rule = createComposeRule()
 
     @get:Rule val screenshotRule = AndroidXScreenshotTestRule(GOLDEN_MATERIAL3)
 
     private val wrap = Modifier.wrapContentSize(Alignment.TopStart)
     private val wrapperTestTag = "materialShapesWrapper"
+
+    @Test
+    fun morphShape_start() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Button(
+                    onClick = {},
+                    modifier = Modifier.requiredSize(56.dp),
+                    shape = morphShape(progress = 0f)
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertIndicatorAgainstGolden("morphShape_start")
+    }
+
+    @Test
+    fun morphShape_mid() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Button(
+                    onClick = {},
+                    modifier = Modifier.requiredSize(56.dp),
+                    shape = morphShape(progress = 0.5f)
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertIndicatorAgainstGolden("morphShape_mid")
+    }
+
+    @Test
+    fun morphShape_end() {
+        rule.setMaterialContent(lightColorScheme()) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                Button(
+                    onClick = {},
+                    modifier = Modifier.requiredSize(56.dp),
+                    shape = morphShape(progress = 1f)
+                ) {
+                    Icon(Icons.Filled.Favorite, contentDescription = "Localized description")
+                }
+            }
+        }
+        assertIndicatorAgainstGolden("morphShape_end")
+    }
 
     @Test
     fun materialShapes_allShapes() {
@@ -119,6 +176,23 @@ class MaterialShapesScreenshotTest() {
             MaterialShapes.Bun,
             MaterialShapes.Heart
         )
+    }
+
+    private fun morphShape(progress: Float): Shape {
+        val morph = Morph(MaterialShapes.Diamond, MaterialShapes.Cookie12Sided)
+        return object : Shape {
+            override fun createOutline(
+                size: Size,
+                layoutDirection: LayoutDirection,
+                density: Density
+            ): Outline {
+                val matrix = Matrix()
+                matrix.scale(size.width, size.height)
+                val path = morph.toPath(progress)
+                path.transform(matrix)
+                return Outline.Generic(path)
+            }
+        }
     }
 
     private fun assertIndicatorAgainstGolden(goldenName: String) {

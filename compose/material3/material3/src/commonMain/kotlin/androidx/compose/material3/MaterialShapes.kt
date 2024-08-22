@@ -34,6 +34,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import androidx.graphics.shapes.CornerRounding
+import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
 import androidx.graphics.shapes.TransformResult
 import androidx.graphics.shapes.circle
@@ -46,11 +47,23 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Returns a normalized [Path] that is remembered across compositions for this [RoundedPolygon].
+ * Returns a [Path] for this [Morph].
+ *
+ * @param progress the [Morph]'s progress
+ * @param path a [Path] to rewind and set with the new path data. In case provided, this Path would
+ *   be the returned one.
+ * @param startAngle an angle to rotate the [Path] to start drawing from
+ */
+@ExperimentalMaterial3ExpressiveApi
+fun Morph.toPath(progress: Float, path: Path = Path(), startAngle: Int = 0): Path {
+    return this.toPath(path = path, progress = progress, startAngle = startAngle)
+}
+
+/**
+ * Returns a [Path] that is remembered across compositions for this [RoundedPolygon].
  *
  * @param startAngle an angle to rotate the Material shape's path to start drawing from. The
  *   rotation pivot is set to be the shape's centerX and centerY coordinates.
- * @see RoundedPolygon.normalized
  */
 @ExperimentalMaterial3ExpressiveApi
 @Composable
