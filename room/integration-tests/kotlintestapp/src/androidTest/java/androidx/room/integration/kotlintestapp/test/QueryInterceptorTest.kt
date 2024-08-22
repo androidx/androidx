@@ -31,8 +31,8 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -82,11 +82,10 @@ class QueryInterceptorTest {
     @After
     fun tearDown() {
         database.close()
-        testCoroutineScope.cancel()
     }
 
     @Test
-    fun testInsert() {
+    fun testInsert() = runTest {
         database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
@@ -100,14 +99,14 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testDelete() {
+    fun testDelete() = runTest {
         database.queryInterceptorDao().delete("Insert")
         assertQueryLogged("DELETE FROM queryInterceptorTestDatabase WHERE id=?", listOf("Insert"))
         assertTransactionQueries()
     }
 
     @Test
-    fun testUpdate() {
+    fun testUpdate() = runTest {
         database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
@@ -125,7 +124,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testCompileStatement() {
+    fun testCompileStatement() = runTest {
         assertEquals(queryAndArgs.size, 0)
         database
             .queryInterceptorDao()
@@ -137,7 +136,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testLoggingSupportSQLiteQuery() {
+    fun testLoggingSupportSQLiteQuery() = runTest {
         database.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
@@ -153,7 +152,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testExecSQLWithBindArgs() {
+    fun testExecSQLWithBindArgs() = runTest {
         database.openHelper.writableDatabase.execSQL(
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)",
@@ -167,7 +166,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testNullBindArgument() {
+    fun testNullBindArgument() = runTest {
         database.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
                 "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
@@ -183,7 +182,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testNullBindArgumentCompileStatement() {
+    fun testNullBindArgumentCompileStatement() = runTest {
         val sql =
             "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
                 "VALUES (?,?)"
@@ -203,7 +202,7 @@ class QueryInterceptorTest {
     }
 
     @Test
-    fun testCallbackCalledOnceAfterCloseAndReOpen() {
+    fun testCallbackCalledOnceAfterCloseAndReOpen() = runTest {
         val dbBuilder =
             Room.inMemoryDatabaseBuilder(
                     ApplicationProvider.getApplicationContext(),
@@ -218,8 +217,6 @@ class QueryInterceptorTest {
 
         dbBuilder.build().close()
 
-        database = dbBuilder.build()
-
         database
             .queryInterceptorDao()
             .insert(QueryInterceptorEntity("Insert", "Inserted a placeholder query"))
@@ -231,6 +228,12 @@ class QueryInterceptorTest {
         )
         assertTransactionQueries()
     }
+
+    private fun runTest(testBody: suspend TestScope.() -> Unit) =
+        testCoroutineScope.runTest {
+            testBody.invoke(this)
+            database.close()
+        }
 
     private fun assertQueryLogged(query: String, expectedArgs: List<String?>) {
         testCoroutineScope.testScheduler.advanceUntilIdle()

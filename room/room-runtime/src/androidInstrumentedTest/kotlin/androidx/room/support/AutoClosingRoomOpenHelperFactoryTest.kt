@@ -25,8 +25,8 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -65,14 +65,12 @@ class AutoClosingRoomOpenHelperFactoryTest {
 
     @After
     fun cleanUp() {
-        testWatch.step()
         // At the end of all tests we always expect to auto-close the database
         assertWithMessage("Database was not closed").that(autoCloser.delegateDatabase).isNull()
-        testCoroutineScope.cancel()
     }
 
     @Test
-    fun testCallbacksCalled() {
+    fun testCallbacksCalled() = runTest {
         val callbackCount = AtomicInteger()
 
         val countingCallback =
@@ -121,7 +119,7 @@ class AutoClosingRoomOpenHelperFactoryTest {
     }
 
     @Test
-    fun testDatabaseIsOpenForSlowCallbacks() {
+    fun testDatabaseIsOpenForSlowCallbacks() = runTest {
         val refCountCheckingCallback =
             object : SupportSQLiteOpenHelper.Callback(1) {
                 @SuppressLint("BanThreadSleep")
@@ -162,4 +160,10 @@ class AutoClosingRoomOpenHelperFactoryTest {
         val db = autoClosingRoomOpenHelper.writableDatabase
         assertTrue(db.isOpen)
     }
+
+    private fun runTest(testBody: suspend TestScope.() -> Unit) =
+        testCoroutineScope.runTest {
+            testBody.invoke(this)
+            testWatch.step()
+        }
 }
