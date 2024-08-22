@@ -67,6 +67,7 @@ internal constructor(internal val features: List<Feature>, val centerX: Float, v
                         // enough discontinuity to throw an exception later, even though the
                         // distances are quite small. Account for that by making the last
                         // cubic use the latest anchor point, always.
+                        lastCubic = Cubic(lastCubic.points.copyOf()) // Make a copy before mutating
                         lastCubic.points[6] = cubic.anchor1X
                         lastCubic.points[7] = cubic.anchor1Y
                     }
