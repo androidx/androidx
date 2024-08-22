@@ -29,7 +29,6 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -142,15 +141,7 @@ private fun measureLazyColumn(
         anchorItemIndex = anchorItem.index,
         anchorItemScrollOffset =
             anchorItem.let { it.offset + it.height - containerConstraints.maxHeight / 2 },
-        visibleItems =
-            visibleItems.fastMap {
-                LazyColumnVisibleItemInfoImpl(
-                    index = it.index,
-                    offset = it.offset,
-                    height = it.height,
-                    scrollProgress = it.scrollProgress,
-                )
-            },
+        visibleItems = visibleItems,
         totalItemsCount = itemsCount,
         lastMeasuredItemHeight = anchorItem.height,
         measureResult =
@@ -159,13 +150,6 @@ private fun measureLazyColumn(
             }
     )
 }
-
-private class LazyColumnVisibleItemInfoImpl(
-    override val index: Int,
-    override val offset: Int,
-    override val height: Int,
-    override val scrollProgress: LazyColumnItemScrollProgress
-) : LazyColumnVisibleItemInfo
 
 private fun bottomItemScrollProgress(
     offset: Int,

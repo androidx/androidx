@@ -24,22 +24,22 @@ import androidx.compose.ui.unit.LayoutDirection
 /** Represents a placeable item in the [LazyColumn] layout. */
 internal data class LazyColumnMeasuredItem(
     /** The index of the item in the list. */
-    val index: Int,
+    override val index: Int,
     /** The [Placeable] representing the content of the item. */
     val placeable: Placeable,
     /** The constraints of the container holding the item. */
     val containerConstraints: Constraints,
     /** The vertical offset of the item from the top of the list after transformations applied. */
-    var offset: Int,
+    override var offset: Int,
     /** Scroll progress of the item used to calculate transformations applied. */
-    val scrollProgress: LazyColumnItemScrollProgress,
+    override val scrollProgress: LazyColumnItemScrollProgress,
     /** The horizontal alignment to apply during placement. */
     val horizontalAlignment: Alignment.Horizontal,
     /** The [LayoutDirection] of the `Layout`. */
     private val layoutDirection: LayoutDirection,
-) {
+) : LazyColumnVisibleItemInfo {
     /** The height of the item after transformations applied. */
-    val height =
+    override val height =
         (placeable.parentData as? HeightProviderParentData)?.let {
             it.heightProvider(placeable.height, scrollProgress)
         } ?: placeable.height
