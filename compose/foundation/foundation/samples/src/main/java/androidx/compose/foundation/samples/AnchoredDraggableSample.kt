@@ -18,7 +18,6 @@ package androidx.compose.foundation.samples
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.AnchoredDraggableDefaults
@@ -174,52 +173,6 @@ fun AnchoredDraggableCustomAnchoredSample() {
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-fun AnchoredDraggableCatchAnimatingWidgetSample() {
-    // Attempting to press the box while it is settling to one anchor won't stop the box from
-    // animating to that anchor. If you want to catch it while it is animating, you need to press
-    // the box and drag it past the touchSlop. This is because startDragImmediately is set to false.
-    val state =
-        rememberSaveable(saver = AnchoredDraggableState.Saver()) {
-            AnchoredDraggableState(initialValue = Start)
-        }
-    val density = LocalDensity.current
-    val draggableSize = 100.dp
-    val draggableSizePx = with(density) { draggableSize.toPx() }
-    Box(
-        Modifier.fillMaxWidth().onSizeChanged { layoutSize ->
-            val dragEndPoint = layoutSize.width - draggableSizePx
-            state.updateAnchors(
-                DraggableAnchors {
-                    Start at 0f
-                    End at dragEndPoint
-                }
-            )
-        }
-    ) {
-        Box(
-            Modifier.size(draggableSize)
-                .offset { IntOffset(x = state.requireOffset().roundToInt(), y = 0) }
-                .anchoredDraggable(
-                    state = state,
-                    orientation = Orientation.Horizontal,
-                    startDragImmediately = false,
-                    flingBehavior =
-                        AnchoredDraggableDefaults.flingBehavior(
-                            state,
-                            positionalThreshold = { with(density) { 56.dp.toPx() } },
-                            // Setting the duration of the snapAnimationSpec to 3000ms gives more
-                            // time
-                            // to attempt to press or drag the settling box.
-                            animationSpec = tween(durationMillis = 3000)
-                        )
-                )
-                .background(Color.Red)
-        )
     }
 }
 
