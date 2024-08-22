@@ -388,8 +388,10 @@ package androidx.wear.compose.foundation.lazy {
 
   public sealed interface LazyColumnLayoutInfo {
     method public int getTotalItemsCount();
+    method public long getViewportSize();
     method public java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> getVisibleItems();
     property public abstract int totalItemsCount;
+    property public abstract long viewportSize;
     property public abstract java.util.List<androidx.wear.compose.foundation.lazy.LazyColumnVisibleItemInfo> visibleItems;
   }
 

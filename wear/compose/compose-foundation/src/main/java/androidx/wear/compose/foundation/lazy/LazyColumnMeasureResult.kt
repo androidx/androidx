@@ -17,6 +17,7 @@
 package androidx.wear.compose.foundation.lazy
 
 import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.unit.IntSize
 
 /** The result of the measure pass of the [LazyColumn]. */
 internal class LazyColumnMeasureResult(
@@ -32,4 +33,8 @@ internal class LazyColumnMeasureResult(
     override val visibleItems: List<LazyColumnVisibleItemInfo>,
     /** see [LazyColumnLayoutInfo.totalItemsCount] */
     override val totalItemsCount: Int,
-) : LazyColumnLayoutInfo, MeasureResult by measureResult
+) : LazyColumnLayoutInfo, MeasureResult by measureResult {
+    /** see [LazyColumnLayoutInfo.viewportSize] */
+    override val viewportSize: IntSize
+        get() = IntSize(width = width, height = height)
+}

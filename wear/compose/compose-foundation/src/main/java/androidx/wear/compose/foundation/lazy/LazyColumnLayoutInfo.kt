@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.foundation.lazy
 
+import androidx.compose.ui.unit.IntSize
+
 /**
  * Scroll progress of an item in a [LazyColumn] before any modifications to the item's height are
  * applied (using [LazyColumnItemScope.transformedHeight] modifier).
@@ -44,21 +46,26 @@ sealed interface LazyColumnItemScrollProgress {
 sealed interface LazyColumnVisibleItemInfo {
     /** The index of the item in the underlying data source. */
     val index: Int
+
     /** The offset of the item from the start of the visible area. */
     val offset: Int
+
     /** The height of the item after applying any height changes. */
     val height: Int
+
     /** The scroll progress of the item, indicating its position within the visible area. */
     val scrollProgress: LazyColumnItemScrollProgress
 }
 
 /** Holds the layout information for a [LazyColumn]. */
 sealed interface LazyColumnLayoutInfo {
+
     /** A list of [LazyColumnVisibleItemInfo] objects representing the visible items in the list. */
     val visibleItems: List<LazyColumnVisibleItemInfo>
 
     /** The total count of items passed to [LazyColumn]. */
     val totalItemsCount: Int
 
-    // TODO: b/352686661 - Expose more properties related to layout.
+    /** The size of the viewport in pixels. */
+    val viewportSize: IntSize
 }
