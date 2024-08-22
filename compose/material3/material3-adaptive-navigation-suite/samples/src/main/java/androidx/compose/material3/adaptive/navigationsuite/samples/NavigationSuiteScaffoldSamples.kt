@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // Suppress for WindowWidthSizeClass
+
 package androidx.compose.material3.adaptive.navigationsuite.samples
 
 import androidx.annotation.Sampled
@@ -76,6 +78,7 @@ fun NavigationSuiteScaffoldSample() {
 @Preview
 @Sampled
 @Composable
+@Suppress("DEPRECATION") // WindowWidthSizeClass is deprecated
 fun NavigationSuiteScaffoldCustomConfigSample() {
     var selectedItem by remember { mutableIntStateOf(0) }
     val navItems = listOf("Songs", "Artists", "Playlists")

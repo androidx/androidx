@@ -16,16 +16,18 @@
 
 package androidx.window.core.layout
 
-import androidx.window.core.ExperimentalWindowCoreApi
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 /** Tests for [WindowSizeClass] that verify construction. */
 class WindowSizeClassTest {
 
+    @Suppress("DEPRECATION")
     @Test
-    fun testWidthSizeClass_construction() {
+    fun testWindowWidthSizeClass_compatibility() {
         val expected =
             listOf(
                 WindowWidthSizeClass.COMPACT,
@@ -41,6 +43,7 @@ class WindowSizeClassTest {
         assertEquals(expected, actual)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun testWindowSizeClass_computeRounds() {
         val expected = WindowSizeClass.compute(0f, 0f)
@@ -50,18 +53,9 @@ class WindowSizeClassTest {
         assertEquals(expected, actual)
     }
 
-    @OptIn(ExperimentalWindowCoreApi::class)
+    @Suppress("DEPRECATION")
     @Test
-    fun testConstruction_usingPx() {
-        val expected = WindowSizeClass.compute(600f, 600f)
-
-        val actual = WindowSizeClass.compute(600, 600, 1f)
-
-        assertEquals(expected, actual)
-    }
-
-    @Test
-    fun testHeightSizeClass_construction() {
+    fun testWindowHeightSizeClass_compatibility() {
         val expected =
             listOf(
                 WindowHeightSizeClass.COMPACT,
@@ -79,16 +73,17 @@ class WindowSizeClassTest {
 
     @Test
     fun testEqualsImpliesHashCode() {
-        val first = WindowSizeClass.compute(100f, 500f)
-        val second = WindowSizeClass.compute(100f, 500f)
+        val first = WindowSizeClass(100, 500)
+        val second = WindowSizeClass(100, 500)
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun truncated_float_does_not_throw() {
-        val sizeClass = WindowSizeClass.compute(0.5f, 0.5f)
+        val sizeClass = WindowSizeClass(0.5f, 0.5f)
 
         val widthSizeClass = sizeClass.windowWidthSizeClass
         val heightSizeClass = sizeClass.windowHeightSizeClass
@@ -97,9 +92,10 @@ class WindowSizeClassTest {
         assertEquals(WindowHeightSizeClass.COMPACT, heightSizeClass)
     }
 
+    @Suppress("DEPRECATION")
     @Test
     fun zero_size_class_does_not_throw() {
-        val sizeClass = WindowSizeClass.compute(0f, 0f)
+        val sizeClass = WindowSizeClass(0, 0)
 
         val widthSizeClass = sizeClass.windowWidthSizeClass
         val heightSizeClass = sizeClass.windowHeightSizeClass
@@ -110,11 +106,94 @@ class WindowSizeClassTest {
 
     @Test
     fun negative_width_throws() {
-        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass.compute(-1f, 0f) }
+        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass(-1, 0) }
     }
 
     @Test
     fun negative_height_throws() {
-        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass.compute(0f, -1f) }
+        assertFailsWith(IllegalArgumentException::class) { WindowSizeClass(0, -1) }
+    }
+
+    @Test
+    fun is_width_at_least_returns_true_when_input_is_greater() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isWidthAtLeast(width + 1))
+    }
+
+    @Test
+    fun is_width_at_least_returns_true_when_input_is_equal() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isWidthAtLeast(width))
+    }
+
+    @Test
+    fun is_width_at_least_returns_false_when_input_is_smaller() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertFalse(sizeClass.isWidthAtLeast(width - 1))
+    }
+
+    @Test
+    fun is_height_at_least_returns_true_when_input_is_greater() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isHeightAtLeast(height + 1))
+    }
+
+    @Test
+    fun is_height_at_least_returns_true_when_input_is_equal() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isHeightAtLeast(height))
+    }
+
+    @Test
+    fun is_height_at_least_returns_false_when_input_is_smaller() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertFalse(sizeClass.isHeightAtLeast(height - 1))
+    }
+
+    @Test
+    fun is_at_least_returns_true_when_input_is_greater() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isAtLeast(width, height + 1))
+        assertTrue(sizeClass.isAtLeast(width + 1, height))
+    }
+
+    @Test
+    fun is_at_least_returns_true_when_input_is_equal() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertTrue(sizeClass.isAtLeast(width, height))
+    }
+
+    @Test
+    fun is_at_least_returns_false_when_input_is_smaller() {
+        val width = 200
+        val height = 100
+        val sizeClass = WindowSizeClass(width, height)
+
+        assertFalse(sizeClass.isAtLeast(width, height - 1))
+        assertFalse(sizeClass.isAtLeast(width - 1, height))
     }
 }

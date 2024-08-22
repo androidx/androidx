@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.window.core.layout
 
 import androidx.window.core.layout.WindowWidthSizeClass.Companion.COMPACT

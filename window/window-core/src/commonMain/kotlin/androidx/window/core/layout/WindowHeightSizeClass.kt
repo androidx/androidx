@@ -16,9 +16,6 @@
 
 package androidx.window.core.layout
 
-import androidx.window.core.layout.WindowHeightSizeClass.Companion.COMPACT
-import androidx.window.core.layout.WindowHeightSizeClass.Companion.EXPANDED
-import androidx.window.core.layout.WindowHeightSizeClass.Companion.MEDIUM
 import kotlin.jvm.JvmField
 
 /**
@@ -27,6 +24,8 @@ import kotlin.jvm.JvmField
  * type. It is possible to have resizeable windows in different device types. The viewport might
  * change from a [COMPACT] all the way to an [EXPANDED] size class.
  */
+@Suppress("DEPRECATION")
+@Deprecated("WindowHeightSizeClass will not be developed further, use WindowSizeClass instead.")
 class WindowHeightSizeClass private constructor(private val rawValue: Int) {
 
     override fun toString(): String {
@@ -56,16 +55,22 @@ class WindowHeightSizeClass private constructor(private val rawValue: Int) {
 
     companion object {
         /** A bucket to represent a compact height, typical for a phone that is in landscape. */
-        @JvmField val COMPACT: WindowHeightSizeClass = WindowHeightSizeClass(0)
+        @Deprecated("WindowHeightSizeClass not be developed further.")
+        @JvmField
+        val COMPACT: WindowHeightSizeClass = WindowHeightSizeClass(0)
 
         /** A bucket to represent a medium height, typical for a phone in portrait or a tablet. */
-        @JvmField val MEDIUM: WindowHeightSizeClass = WindowHeightSizeClass(1)
+        @Deprecated("WindowHeightSizeClass not be developed further.")
+        @JvmField
+        val MEDIUM: WindowHeightSizeClass = WindowHeightSizeClass(1)
 
         /**
          * A bucket to represent an expanded height window, typical for a large tablet or a desktop
          * form-factor.
          */
-        @JvmField val EXPANDED: WindowHeightSizeClass = WindowHeightSizeClass(2)
+        @Deprecated("WindowHeightSizeClass not be developed further.")
+        @JvmField
+        val EXPANDED: WindowHeightSizeClass = WindowHeightSizeClass(2)
 
         /**
          * Returns a recommended [WindowHeightSizeClass] for the height of a window given the height
@@ -75,6 +80,7 @@ class WindowHeightSizeClass private constructor(private val rawValue: Int) {
          * @return A recommended size class for the height
          * @throws IllegalArgumentException if the height is negative
          */
+        @Deprecated("WindowHeightSizeClass not be developed further.")
         internal fun compute(dpHeight: Float): WindowHeightSizeClass {
             require(dpHeight >= 0) { "Height must be positive, received $dpHeight" }
             return when {
