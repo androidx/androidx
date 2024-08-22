@@ -22,8 +22,11 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold as Base
 import androidx.compose.material3.adaptive.layout.PaneExpansionDragHandle
 import androidx.compose.material3.adaptive.layout.PaneExpansionState
 import androidx.compose.material3.adaptive.layout.SupportingPaneScaffold as BaseSupportingPaneScaffold
+import androidx.compose.material3.adaptive.layout.ThreePaneMotion
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.layout.calculateListDetailPaneScaffoldMotion
+import androidx.compose.material3.adaptive.layout.calculateSupportingPaneScaffoldMotion
 import androidx.compose.material3.adaptive.layout.rememberPaneExpansionState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -45,6 +48,8 @@ import androidx.compose.ui.Modifier
  *   mail app. See [ListDetailPaneScaffoldRole.Extra].
  * @param defaultBackBehavior the default back navigation behavior when the system back event
  *   happens. See [BackNavigationBehavior] for the use cases of each behavior.
+ * @param paneMotions The specified motion of the panes. By default the value will be calculated by
+ *   [calculateListDetailPaneScaffoldMotion] according to the target [ThreePaneScaffoldValue].
  * @param paneExpansionDragHandle the pane expansion drag handle to let users be able to drag to
  *   change pane expansion state. Note that by default this argument will be `null`, and there won't
  *   be a drag handle rendered and users won't be able to drag to change the pane split. You can
@@ -62,6 +67,7 @@ fun NavigableListDetailPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
+    paneMotions: ThreePaneMotion = calculateListDetailPaneScaffoldMotion(navigator.scaffoldValue),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
@@ -77,6 +83,7 @@ fun NavigableListDetailPaneScaffold(
         detailPane = detailPane,
         listPane = listPane,
         extraPane = extraPane,
+        paneMotions = paneMotions,
         paneExpansionDragHandle = paneExpansionDragHandle,
         paneExpansionState = paneExpansionState,
     )
@@ -98,6 +105,8 @@ fun NavigableListDetailPaneScaffold(
  *   [SupportingPaneScaffoldRole.Extra].
  * @param defaultBackBehavior the default back navigation behavior when the system back event
  *   happens. See [BackNavigationBehavior] for the use cases of each behavior.
+ * @param paneMotions The specified motion of the panes. By default the value will be calculated by
+ *   [calculateSupportingPaneScaffoldMotion] according to the target [ThreePaneScaffoldValue].
  * @param paneExpansionDragHandle the pane expansion drag handle to let users be able to drag to
  *   change pane expansion state. Note that by default this argument will be `null`, and there won't
  *   be a drag handle rendered and users won't be able to drag to change the pane split. You can
@@ -115,6 +124,7 @@ fun NavigableSupportingPaneScaffold(
     modifier: Modifier = Modifier,
     extraPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
     defaultBackBehavior: BackNavigationBehavior = BackNavigationBehavior.PopUntilContentChange,
+    paneMotions: ThreePaneMotion = calculateSupportingPaneScaffoldMotion(navigator.scaffoldValue),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(navigator.scaffoldValue),
@@ -130,6 +140,7 @@ fun NavigableSupportingPaneScaffold(
         mainPane = mainPane,
         supportingPane = supportingPane,
         extraPane = extraPane,
+        paneMotions = paneMotions,
         paneExpansionDragHandle = paneExpansionDragHandle,
         paneExpansionState = paneExpansionState,
     )
