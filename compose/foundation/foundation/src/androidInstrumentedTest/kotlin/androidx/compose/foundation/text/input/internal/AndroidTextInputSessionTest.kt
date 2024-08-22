@@ -242,6 +242,7 @@ class AndroidTextInputSessionTest {
             composeImm = composeImm,
             receiveContentConfiguration = receiveContentConfiguration,
             onImeAction = onImeAction,
+            updateSelectionState = null,
             stylusHandwritingTrigger = null,
             viewConfiguration = null
         )

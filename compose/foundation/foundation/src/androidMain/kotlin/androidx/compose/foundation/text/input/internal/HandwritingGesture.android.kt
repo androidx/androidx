@@ -57,12 +57,15 @@ internal object HandwritingGestureApi34 {
     internal fun TransformedTextFieldState.performHandwritingGesture(
         handwritingGesture: HandwritingGesture,
         layoutState: TextLayoutState,
+        updateSelectionState: (() -> Unit)?,
         viewConfiguration: ViewConfiguration?
     ): Int {
         return when (handwritingGesture) {
-            is SelectGesture -> performSelectGesture(handwritingGesture, layoutState)
+            is SelectGesture ->
+                performSelectGesture(handwritingGesture, layoutState, updateSelectionState)
             is DeleteGesture -> performDeleteGesture(handwritingGesture, layoutState)
-            is SelectRangeGesture -> performSelectRangeGesture(handwritingGesture, layoutState)
+            is SelectRangeGesture ->
+                performSelectRangeGesture(handwritingGesture, layoutState, updateSelectionState)
             is DeleteRangeGesture -> performDeleteRangeGesture(handwritingGesture, layoutState)
             is JoinOrSplitGesture ->
                 performJoinOrSplitGesture(handwritingGesture, layoutState, viewConfiguration)
@@ -92,7 +95,8 @@ internal object HandwritingGestureApi34 {
 
     private fun TransformedTextFieldState.performSelectGesture(
         gesture: SelectGesture,
-        layoutState: TextLayoutState
+        layoutState: TextLayoutState,
+        updateSelectionState: (() -> Unit)?,
     ): Int {
         val rangeInTransformedText =
             layoutState
@@ -103,8 +107,8 @@ internal object HandwritingGestureApi34 {
                 )
                 .apply { if (collapsed) return fallback(gesture) }
 
-        // TODO(332749926) show toolbar after selection.
         selectCharsIn(rangeInTransformedText)
+        updateSelectionState?.invoke()
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
@@ -159,7 +163,8 @@ internal object HandwritingGestureApi34 {
 
     private fun TransformedTextFieldState.performSelectRangeGesture(
         gesture: SelectRangeGesture,
-        layoutState: TextLayoutState
+        layoutState: TextLayoutState,
+        updateSelectionState: (() -> Unit)?,
     ): Int {
         val rangeInTransformedText =
             layoutState
@@ -171,8 +176,8 @@ internal object HandwritingGestureApi34 {
                 )
                 .apply { if (collapsed) return fallback(gesture) }
 
-        // TODO(332749926) show toolbar after selection.
         selectCharsIn(rangeInTransformedText)
+        updateSelectionState?.invoke()
         return InputConnection.HANDWRITING_GESTURE_RESULT_SUCCESS
     }
 
