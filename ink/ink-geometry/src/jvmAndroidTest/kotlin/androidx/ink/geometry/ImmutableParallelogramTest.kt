@@ -261,9 +261,9 @@ class ImmutableParallelogramTest {
         val negativeAreaParallelogram =
             ImmutableParallelogram.fromCenterAndDimensions(ImmutableVec(0f, 10f), 2f, -3f)
 
-        assertThat(parallelogram.signedArea()).isEqualTo(24f)
-        assertThat(degenerateParallelogram.signedArea()).isZero()
-        assertThat(negativeAreaParallelogram.signedArea()).isEqualTo(-6f)
+        assertThat(parallelogram.computeSignedArea()).isEqualTo(24f)
+        assertThat(degenerateParallelogram.computeSignedArea()).isZero()
+        assertThat(negativeAreaParallelogram.computeSignedArea()).isEqualTo(-6f)
     }
 
     @Test

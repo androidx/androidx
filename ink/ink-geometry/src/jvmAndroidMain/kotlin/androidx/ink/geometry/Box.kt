@@ -27,18 +27,18 @@ import kotlin.math.abs
  * The [Box] interface is the read-only view of the underlying data which may or may not be mutable.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public interface Box {
+public abstract class Box internal constructor() {
     /** The lower bound in the `X` direction. */
-    public val xMin: Float
+    public abstract val xMin: Float
 
     /** The lower bound in the `Y` direction. */
-    public val yMin: Float
+    public abstract val yMin: Float
 
     /** The upper bound in the `X` direction. */
-    public val xMax: Float
+    public abstract val xMax: Float
 
     /** The upper bound in the `Y` direction. */
-    public val yMax: Float
+    public abstract val yMax: Float
 
     /** The width of the rectangle. This can never be negative. */
     public val width: Float
@@ -48,28 +48,30 @@ public interface Box {
     public val height: Float
         @FloatRange(from = 0.0) get() = yMax - yMin
 
-    /** Populates [out] with the center of the [Box]. */
-    public fun populateCenter(out: MutableVec): Unit =
-        BoxHelper.nativeCenter(xMin, yMin, xMax, yMax, out)
+    /** Populates [outVec] with the center of the [Box], and returns [outVec]. */
+    public fun computeCenter(outVec: MutableVec): MutableVec {
+        BoxHelper.nativeCenter(xMin, yMin, xMax, yMax, outVec)
+        return outVec
+    }
 
     /**
-     * Populates the 4 [output] points with the corners of the [Box]. The order of the corners is:
+     * Populates the 4 output points with the corners of the [Box]. The order of the corners is:
      * (x_min, y_min), (x_max, y_min), (x_max, y_max), (x_min, y_max)
      */
-    public fun corners(
-        outputXMinYMin: MutableVec,
-        outputXMaxYMin: MutableVec,
-        outputXMaxYMax: MutableVec,
-        outputXMinYMax: MutableVec,
+    public fun computeCorners(
+        outVecXMinYMin: MutableVec,
+        outVecXMaxYMin: MutableVec,
+        outVecXMaxYMax: MutableVec,
+        outVecXMinYMax: MutableVec,
     ) {
-        outputXMinYMin.x = xMin
-        outputXMinYMin.y = yMin
-        outputXMaxYMin.x = xMax
-        outputXMaxYMin.y = yMin
-        outputXMaxYMax.x = xMax
-        outputXMaxYMax.y = yMax
-        outputXMinYMax.x = xMin
-        outputXMinYMax.y = yMax
+        outVecXMinYMin.x = xMin
+        outVecXMinYMin.y = yMin
+        outVecXMaxYMin.x = xMax
+        outVecXMaxYMin.y = yMin
+        outVecXMaxYMax.x = xMax
+        outVecXMaxYMax.y = yMax
+        outVecXMinYMax.x = xMin
+        outVecXMinYMax.y = yMax
     }
 
     /**

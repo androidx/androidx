@@ -36,7 +36,7 @@ class MutableVecTest {
     @Test
     fun equals_whenDifferentType_returnsFalse() {
         val vec = MutableVec(1f, 2f)
-        val segment = MutableSegment(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
+        val segment = MutableSegment(MutableVec(1f, 2f), MutableVec(3f, 4f))
 
         assertThat(vec).isNotEqualTo(segment)
     }
@@ -85,24 +85,6 @@ class MutableVecTest {
     }
 
     @Test
-    fun x_modifiesValue() {
-        val testVec = MutableVec(10f, 25f)
-
-        testVec.x(999f)
-
-        assertThat(testVec).isEqualTo(MutableVec(999f, 25f))
-    }
-
-    @Test
-    fun y_modifiesValue() {
-        val testVec = MutableVec(10f, 25f)
-
-        testVec.y(999f)
-
-        assertThat(testVec).isEqualTo(MutableVec(10f, 999f))
-    }
-
-    @Test
     fun populateFrom_modifiesValue() {
         val testVec = MutableVec(10f, 25f)
 
@@ -112,133 +94,126 @@ class MutableVecTest {
     }
 
     @Test
-    fun orthogonal_returnsCorrectValue() {
-        assertThat(MutableVec(3f, 1f).orthogonal).isEqualTo(ImmutableVec(-1f, 3f))
-        assertThat(MutableVec(-395f, .005f).orthogonal).isEqualTo(ImmutableVec(-.005f, -395f))
-        assertThat(MutableVec(-.2f, -.66f).orthogonal).isEqualTo(ImmutableVec(.66f, -.2f))
-        assertThat(MutableVec(123f, -987f).orthogonal).isEqualTo(ImmutableVec(987f, 123f))
+    fun computeOrthogonal_returnsCorrectValue() {
+        assertThat(MutableVec(3f, 1f).computeOrthogonal()).isEqualTo(ImmutableVec(-1f, 3f))
+        assertThat(MutableVec(-395f, .005f).computeOrthogonal())
+            .isEqualTo(ImmutableVec(-.005f, -395f))
+        assertThat(MutableVec(-.2f, -.66f).computeOrthogonal()).isEqualTo(ImmutableVec(.66f, -.2f))
+        assertThat(MutableVec(123f, -987f).computeOrthogonal()).isEqualTo(ImmutableVec(987f, 123f))
     }
 
     @Test
-    fun orthogonal_whenMutableVecIsModified_returnsCorrectValue() {
+    fun computeOrthogonal_whenMutableVecIsModified_returnsCorrectValue() {
         val vec = MutableVec(3f, 1f)
-        assertThat(vec.orthogonal).isEqualTo(ImmutableVec(-1f, 3f))
+        assertThat(vec.computeOrthogonal()).isEqualTo(ImmutableVec(-1f, 3f))
         vec.x = 10f
         vec.y = 2134f
-        assertThat(vec.orthogonal).isEqualTo(ImmutableVec(-2134f, 10f))
+        assertThat(vec.computeOrthogonal()).isEqualTo(ImmutableVec(-2134f, 10f))
     }
 
     @Test
-    fun populateOrthogonal_populatesCorrectValue() {
+    fun computeOrthogonal_populatesCorrectValue() {
         val mutableVec = MutableVec()
-        MutableVec(3f, 1f).populateOrthogonal(mutableVec)
+        MutableVec(3f, 1f).computeOrthogonal(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(-1f, 3f))
-        MutableVec(-395f, .005f).populateOrthogonal(mutableVec)
+        MutableVec(-395f, .005f).computeOrthogonal(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(-.005f, -395f))
-        MutableVec(-.2f, -.66f).populateOrthogonal(mutableVec)
+        MutableVec(-.2f, -.66f).computeOrthogonal(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(.66f, -.2f))
-        MutableVec(123f, -987f).populateOrthogonal(mutableVec)
+        MutableVec(123f, -987f).computeOrthogonal(mutableVec)
         assertThat(mutableVec).isEqualTo(ImmutableVec(987f, 123f))
     }
 
     @Test
-    fun populateOrthogonal_whenMutableVecIsModified_populatesCorrectValue() {
+    fun computeOrthogonal_whenMutableVecIsModified_populatesCorrectValue() {
         val inputVec = MutableVec(3f, 1f)
         val outputVec = MutableVec()
-        inputVec.populateOrthogonal(outputVec)
+        inputVec.computeOrthogonal(outputVec)
         assertThat(outputVec).isEqualTo(ImmutableVec(-1f, 3f))
         inputVec.x = -9956f
         inputVec.y = -.001f
-        inputVec.populateOrthogonal(outputVec)
+        inputVec.computeOrthogonal(outputVec)
         assertThat(outputVec).isEqualTo(ImmutableVec(.001f, -9956f))
     }
 
     @Test
-    fun negation_returnsCorrectValue() {
-        assertThat(MutableVec(3f, 1f).negation).isEqualTo(MutableVec(-3f, -1f))
-        assertThat(MutableVec(-395f, .005f).negation).isEqualTo(MutableVec(395f, -.005f))
-        assertThat(MutableVec(-.2f, -.66f).negation).isEqualTo(MutableVec(.2f, .66f))
-        assertThat(MutableVec(123f, -987f).negation).isEqualTo(MutableVec(-123f, 987f))
+    fun computeNegation_returnsCorrectValue() {
+        assertThat(MutableVec(3f, 1f).computeNegation()).isEqualTo(MutableVec(-3f, -1f))
+        assertThat(MutableVec(-395f, .005f).computeNegation()).isEqualTo(MutableVec(395f, -.005f))
+        assertThat(MutableVec(-.2f, -.66f).computeNegation()).isEqualTo(MutableVec(.2f, .66f))
+        assertThat(MutableVec(123f, -987f).computeNegation()).isEqualTo(MutableVec(-123f, 987f))
     }
 
     @Test
-    fun populateNegation_populatesCorrectValue() {
+    fun computeNegation_populatesCorrectValue() {
         val mutableVec = MutableVec()
-        MutableVec(3f, 1f).populateNegation(mutableVec)
+        MutableVec(3f, 1f).computeNegation(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-3f, -1f))
-        MutableVec(-395f, .005f).populateNegation(mutableVec)
+        MutableVec(-395f, .005f).computeNegation(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(395f, -.005f))
-        MutableVec(-.2f, -.66f).populateNegation(mutableVec)
+        MutableVec(-.2f, -.66f).computeNegation(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(.2f, .66f))
-        MutableVec(123f, -987f).populateNegation(mutableVec)
+        MutableVec(123f, -987f).computeNegation(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-123f, 987f))
     }
 
     @Test
-    fun negation_whenMutableVecIsModified_returnsCorrectValue() {
+    fun computeNegation_whenMutableVecIsModified_returnsCorrectValue() {
         val vec = MutableVec(3f, 1f)
-        assertThat(vec.negation).isEqualTo(MutableVec(-3f, -1f))
+        assertThat(vec.computeNegation()).isEqualTo(MutableVec(-3f, -1f))
         vec.x = 10f
         vec.y = 2134f
-        assertThat(vec.negation).isEqualTo(MutableVec(-10f, -2134f))
+        assertThat(vec.computeNegation()).isEqualTo(MutableVec(-10f, -2134f))
     }
 
     @Test
-    fun populateNegation_whenMutableVecIsModified_populatesCorrectValue() {
+    fun computeNegation_whenMutableVecIsModified_populatesCorrectValue() {
         val inputVec = MutableVec(3f, 1f)
         val outputVec = MutableVec()
-        inputVec.populateNegation(outputVec)
+        inputVec.computeNegation(outputVec)
         assertThat(outputVec).isEqualTo(MutableVec(-3f, -1f))
         inputVec.x = -9956f
         inputVec.y = -.001f
-        inputVec.populateNegation(outputVec)
+        inputVec.computeNegation(outputVec)
         assertThat(outputVec).isEqualTo(MutableVec(9956f, .001f))
     }
 
     @Test
-    fun magnitude_returnsCorrectValue() {
-        assertThat(MutableVec(1f, 1f).magnitude).isEqualTo(sqrt(2f))
-        assertThat(MutableVec(-3f, 4f).magnitude).isEqualTo(5f)
-        assertThat(MutableVec(0f, 0f).magnitude).isEqualTo(0f)
-        assertThat(MutableVec(0f, 17f).magnitude).isEqualTo(17f)
+    fun computeMagnitude_returnsCorrectValue() {
+        assertThat(MutableVec(1f, 1f).computeMagnitude()).isEqualTo(sqrt(2f))
+        assertThat(MutableVec(-3f, 4f).computeMagnitude()).isEqualTo(5f)
+        assertThat(MutableVec(0f, 0f).computeMagnitude()).isEqualTo(0f)
+        assertThat(MutableVec(0f, 17f).computeMagnitude()).isEqualTo(17f)
     }
 
     @Test
-    fun magnitude_whenMutableVecIsModified_returnsCorrectValue() {
+    fun computeMagnitude_whenMutableVecIsModified_returnsCorrectValue() {
         val vec = MutableVec(-3f, 4f)
-        assertThat(vec.magnitude).isEqualTo(5f)
+        assertThat(vec.computeMagnitude()).isEqualTo(5f)
         vec.x = 5f
         vec.y = 12f
-        assertThat(vec.magnitude).isEqualTo(13f)
+        assertThat(vec.computeMagnitude()).isEqualTo(13f)
     }
 
     @Test
-    fun magnitudeSquared_returnsCorrectValue() {
-        assertThat(MutableVec(1f, 1f).magnitudeSquared).isEqualTo(2f)
-        assertThat(MutableVec(3f, -4f).magnitudeSquared).isEqualTo(25f)
-        assertThat(MutableVec(0f, 0f).magnitudeSquared).isEqualTo(0f)
-        assertThat(MutableVec(15f, 0f).magnitudeSquared).isEqualTo(225f)
+    fun computeMagnitudeSquared_returnsCorrectValue() {
+        assertThat(MutableVec(1f, 1f).computeMagnitudeSquared()).isEqualTo(2f)
+        assertThat(MutableVec(3f, -4f).computeMagnitudeSquared()).isEqualTo(25f)
+        assertThat(MutableVec(0f, 0f).computeMagnitudeSquared()).isEqualTo(0f)
+        assertThat(MutableVec(15f, 0f).computeMagnitudeSquared()).isEqualTo(225f)
     }
 
     @Test
-    fun magnitudeSquared_whenMutableVecIsModified_returnsCorrectValue() {
+    fun computeMagnitudeSquared_whenMutableVecIsModified_returnsCorrectValue() {
         val vec = MutableVec(-3f, 4f)
-        assertThat(vec.magnitudeSquared).isEqualTo(25f)
+        assertThat(vec.computeMagnitudeSquared()).isEqualTo(25f)
         vec.x = 5f
         vec.y = 12f
-        assertThat(vec.magnitudeSquared).isEqualTo(169f)
+        assertThat(vec.computeMagnitudeSquared()).isEqualTo(169f)
     }
 
     @Test
-    fun asImmutableVal_returnsNewEquivalentImmutableVec() {
-        val vec = MutableVec(1f, 2f)
-
-        assertThat(vec.asImmutable).isNotSameInstanceAs(vec)
-        assertThat(vec.asImmutable).isEqualTo(vec)
-    }
-
-    @Test
-    fun asImmutableFun_withNoArguments_returnsNewEquivalentImmutableVec() {
+    fun asImmutable_returnsNewEquivalentImmutableVec() {
         val vec = MutableVec(1f, 2f)
 
         assertThat(vec.asImmutable()).isNotSameInstanceAs(vec)
@@ -246,23 +221,12 @@ class MutableVecTest {
     }
 
     @Test
-    fun asImmutableFun_withArguments_returnsCorrectNewImmutableVec() {
-        val vec = MutableVec(1f, 2f)
-
-        assertThat(vec.asImmutable(x = 10f)).isEqualTo(ImmutableVec(10f, 2f))
-        assertThat(vec.asImmutable(10f)).isEqualTo(ImmutableVec(10f, 2f))
-        assertThat(vec.asImmutable(y = 20f)).isEqualTo(ImmutableVec(1f, 20f))
-        assertThat(vec.asImmutable(x = 10f, y = 20f)).isEqualTo(ImmutableVec(10f, 20f))
-        assertThat(vec.asImmutable(10f, 20f)).isEqualTo(ImmutableVec(10f, 20f))
-    }
-
-    @Test
-    fun unitVec_whenModified_returnsCorrectValue() {
+    fun computeUnitVec_whenModified_returnsCorrectValue() {
         val vec = MutableVec(4f, 0f)
-        assertThat(vec.unitVec).isEqualTo(ImmutableVec(1f, 0f))
+        assertThat(vec.computeUnitVec()).isEqualTo(ImmutableVec(1f, 0f))
         vec.x = 0f
         vec.y = -.05f
-        assertThat(vec.unitVec).isEqualTo(ImmutableVec(0f, -1f))
+        assertThat(vec.computeUnitVec()).isEqualTo(ImmutableVec(0f, -1f))
     }
 
     @Test

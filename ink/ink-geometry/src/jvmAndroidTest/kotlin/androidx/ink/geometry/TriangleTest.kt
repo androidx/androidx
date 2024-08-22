@@ -24,20 +24,20 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class TriangleTest {
 
+    @Test
     fun signedArea_correctlyReturnsArea() {
         val triangle0 =
             ImmutableTriangle(ImmutableVec(-1f, -3f), ImmutableVec(3f, -3f), ImmutableVec(-3f, -1f))
         val triangle1 =
-            MutableTriangle(ImmutableVec(1f, 1f), ImmutableVec(-5f, 4f), ImmutableVec(-1f, -2f))
+            MutableTriangle(MutableVec(1f, 1f), MutableVec(-5f, 4f), MutableVec(-1f, -2f))
         val triangle2 =
             ImmutableTriangle(ImmutableVec(-5f, 5f), ImmutableVec(2f, 4f), ImmutableVec(1f, -5f))
-        val triangle3 =
-            MutableTriangle(ImmutableVec(1f, -4f), ImmutableVec(3f, 1f), ImmutableVec(4f, 2f))
+        val triangle3 = MutableTriangle(MutableVec(1f, -4f), MutableVec(3f, 1f), MutableVec(4f, 2f))
 
-        assertThat(triangle0.signedArea).isWithin(1e-5f).of(4f)
-        assertThat(triangle1.signedArea).isWithin(1e-5f).of(12f)
-        assertThat(triangle2.signedArea).isWithin(1e-5f).of(-32f)
-        assertThat(triangle3.signedArea).isWithin(1e-5f).of(-1.5f)
+        assertThat(triangle0.computeSignedArea()).isWithin(1e-5f).of(4f)
+        assertThat(triangle1.computeSignedArea()).isWithin(1e-5f).of(12f)
+        assertThat(triangle2.computeSignedArea()).isWithin(1e-5f).of(-32f)
+        assertThat(triangle3.computeSignedArea()).isWithin(1e-5f).of(-1.5f)
     }
 
     @Test
@@ -45,79 +45,74 @@ class TriangleTest {
         val triangle0 =
             ImmutableTriangle(ImmutableVec(3f, 2f), ImmutableVec(5f, 2f), ImmutableVec(2f, 2f))
         val triangle1 =
-            MutableTriangle(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f), ImmutableVec(1f, -2f))
+            MutableTriangle(MutableVec(-1f, 2f), MutableVec(0f, 0f), MutableVec(1f, -2f))
         val triangle2 =
             ImmutableTriangle(ImmutableVec(0f, 1f), ImmutableVec(-2f, 3f), ImmutableVec(-2f, 3f))
-        val triangle3 =
-            MutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
+        val triangle3 = MutableTriangle(MutableVec(5f, 2f), MutableVec(5f, 2f), MutableVec(5f, 2f))
 
-        assertThat(triangle0.signedArea).isWithin(1e-5f).of(0f)
-        assertThat(triangle1.signedArea).isWithin(1e-5f).of(0f)
-        assertThat(triangle2.signedArea).isWithin(1e-5f).of(0f)
-        assertThat(triangle3.signedArea).isWithin(1e-5f).of(0f)
+        assertThat(triangle0.computeSignedArea()).isWithin(1e-5f).of(0f)
+        assertThat(triangle1.computeSignedArea()).isWithin(1e-5f).of(0f)
+        assertThat(triangle2.computeSignedArea()).isWithin(1e-5f).of(0f)
+        assertThat(triangle3.computeSignedArea()).isWithin(1e-5f).of(0f)
     }
 
     @Test
     fun boundingBox_correctlyReturnsBoundingBox() {
-        val triangle0 =
-            MutableTriangle(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f), ImmutableVec(2f, 2f))
+        val triangle0 = MutableTriangle(MutableVec(1f, 1f), MutableVec(5f, 2f), MutableVec(2f, 2f))
         val triangle1 =
             ImmutableTriangle(ImmutableVec(-1f, -2f), ImmutableVec(0f, 0f), ImmutableVec(1f, -2f))
         val triangle2 =
-            MutableTriangle(ImmutableVec(0f, 1f), ImmutableVec(-2f, 3f), ImmutableVec(-2f, 3f))
+            MutableTriangle(MutableVec(0f, 1f), MutableVec(-2f, 3f), MutableVec(-2f, 3f))
         val triangle3 =
             ImmutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
 
-        assertThat(triangle0.boundingBox)
+        assertThat(triangle0.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f)))
-        assertThat(triangle1.boundingBox)
+        assertThat(triangle1.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 0f)))
-        assertThat(triangle2.boundingBox)
+        assertThat(triangle2.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f)))
-        assertThat(triangle3.boundingBox)
+        assertThat(triangle3.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f)))
     }
 
     @Test
     fun boundingBox_forDegenerateTriangle_correctlyReturnsBoundingBox() {
-        val triangle0 =
-            MutableTriangle(ImmutableVec(3f, 2f), ImmutableVec(5f, 2f), ImmutableVec(2f, 2f))
+        val triangle0 = MutableTriangle(MutableVec(3f, 2f), MutableVec(5f, 2f), MutableVec(2f, 2f))
         val triangle1 =
-            MutableTriangle(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f), ImmutableVec(1f, -2f))
+            MutableTriangle(MutableVec(-1f, 2f), MutableVec(0f, 0f), MutableVec(1f, -2f))
         val triangle2 =
             ImmutableTriangle(ImmutableVec(0f, 1f), ImmutableVec(-2f, 3f), ImmutableVec(-2f, 3f))
         val triangle3 =
             ImmutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
 
-        assertThat(triangle0.boundingBox)
+        assertThat(triangle0.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(2f, 2f), ImmutableVec(5f, 2f)))
-        assertThat(triangle1.boundingBox)
+        assertThat(triangle1.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, -2f), ImmutableVec(1f, 2f)))
-        assertThat(triangle2.boundingBox)
+        assertThat(triangle2.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-2f, 1f), ImmutableVec(0f, 3f)))
-        assertThat(triangle3.boundingBox)
+        assertThat(triangle3.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f)))
     }
 
     @Test
     fun populateBoundingBox_correctlyReturnsBoundingBox() {
-        val triangle0 =
-            MutableTriangle(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f), ImmutableVec(2f, 2f))
+        val triangle0 = MutableTriangle(MutableVec(1f, 1f), MutableVec(5f, 2f), MutableVec(2f, 2f))
         val triangle1 =
             ImmutableTriangle(ImmutableVec(-1f, -2f), ImmutableVec(0f, 0f), ImmutableVec(1f, -2f))
         val triangle2 =
             ImmutableTriangle(ImmutableVec(0f, 1f), ImmutableVec(-2f, 3f), ImmutableVec(-2f, 3f))
-        val triangle3 =
-            MutableTriangle(ImmutableVec(5f, 2f), ImmutableVec(5f, 2f), ImmutableVec(5f, 2f))
+        val triangle3 = MutableTriangle(MutableVec(5f, 2f), MutableVec(5f, 2f), MutableVec(5f, 2f))
         val box0 = MutableBox()
         val box1 = MutableBox()
         val box2 = MutableBox()
         val box3 = MutableBox()
 
-        triangle0.populateBoundingBox(box0)
-        triangle1.populateBoundingBox(box1)
-        triangle2.populateBoundingBox(box2)
-        triangle3.populateBoundingBox(box3)
+        triangle0.computeBoundingBox(box0)
+        triangle1.computeBoundingBox(box1)
+        triangle2.computeBoundingBox(box2)
+        triangle3.computeBoundingBox(box3)
 
         assertThat(box0)
             .isEqualTo(
@@ -139,10 +134,9 @@ class TriangleTest {
 
     @Test
     fun populateBoundingBox_forDegenerateTriangle_correctlyReturnsBoundingBox() {
-        val triangle0 =
-            MutableTriangle(ImmutableVec(3f, 2f), ImmutableVec(5f, 2f), ImmutableVec(2f, 2f))
+        val triangle0 = MutableTriangle(MutableVec(3f, 2f), MutableVec(5f, 2f), MutableVec(2f, 2f))
         val triangle1 =
-            MutableTriangle(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f), ImmutableVec(1f, -2f))
+            MutableTriangle(MutableVec(-1f, 2f), MutableVec(0f, 0f), MutableVec(1f, -2f))
         val triangle2 =
             ImmutableTriangle(ImmutableVec(0f, 1f), ImmutableVec(-2f, 3f), ImmutableVec(-2f, 3f))
         val triangle3 =
@@ -152,10 +146,10 @@ class TriangleTest {
         val box2 = MutableBox()
         val box3 = MutableBox()
 
-        triangle0.populateBoundingBox(box0)
-        triangle1.populateBoundingBox(box1)
-        triangle2.populateBoundingBox(box2)
-        triangle3.populateBoundingBox(box3)
+        triangle0.computeBoundingBox(box0)
+        triangle1.computeBoundingBox(box1)
+        triangle2.computeBoundingBox(box2)
+        triangle3.computeBoundingBox(box3)
 
         assertThat(box0)
             .isEqualTo(

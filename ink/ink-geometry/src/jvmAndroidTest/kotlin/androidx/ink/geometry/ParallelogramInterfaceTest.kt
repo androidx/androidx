@@ -29,17 +29,17 @@ class ParallelogramInterfaceTest {
         val expectedWidth = 5f
         val expectedHeight = -3f
         val expectedRotation = Angle.QUARTER_TURN_RADIANS + Angle.HALF_TURN_RADIANS
-        val assertExpectedValues: (Float, Float, Float) -> TestParallelogram =
+        val assertExpectedValues: (Float, Float, Float) -> Parallelogram =
             { normalizedWidth: Float, normalizedHeight: Float, normalizedRotation: Float ->
                 assertThat(normalizedWidth).isEqualTo(expectedWidth)
                 assertThat(normalizedHeight).isEqualTo(expectedHeight)
                 assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotation)
-                TestParallelogram(
+                ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
                     ImmutableVec(0f, 0f),
                     expectedWidth,
                     expectedHeight,
                     expectedRotation,
-                    0f
+                    0f,
                 )
             }
         Parallelogram.normalizeAndRun(
@@ -55,17 +55,17 @@ class ParallelogramInterfaceTest {
         val expectedWidth = 5f
         val expectedHeight = 3f
         val expectedRotation = Angle.QUARTER_TURN_RADIANS // 5 Pi normalized to range [0, 2*pi]
-        val assertExpectedValues: (Float, Float, Float) -> TestParallelogram =
+        val assertExpectedValues: (Float, Float, Float) -> Parallelogram =
             { normalizedWidth: Float, normalizedHeight: Float, normalizedRotation: Float ->
                 assertThat(normalizedWidth).isEqualTo(expectedWidth)
                 assertThat(normalizedHeight).isEqualTo(expectedHeight)
                 assertThat(normalizedRotation).isWithin(tolerance).of(expectedRotation)
-                TestParallelogram(
+                ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
                     ImmutableVec(0f, 0f),
                     expectedWidth,
                     expectedHeight,
                     expectedRotation,
-                    0f
+                    0f,
                 )
             }
 
@@ -84,23 +84,17 @@ class ParallelogramInterfaceTest {
                 width = 5f,
                 height = 3f,
                 rotation = Angle.QUARTER_TURN_RADIANS,
-                runBlock = TestParallelogram.makeTestParallelogram,
+                runBlock = { w: Float, h: Float, r: Float ->
+                    ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                        ImmutableVec(0f, 0f),
+                        w,
+                        h,
+                        r,
+                        0f,
+                    )
+                },
             )
-        assertThat(parallelogram.signedArea()).isEqualTo(15f)
-    }
-
-    private class TestParallelogram(
-        override val center: ImmutableVec,
-        override val width: Float,
-        override val height: Float,
-        override val rotation: Float,
-        override val shearFactor: Float,
-    ) : Parallelogram {
-        companion object {
-            val makeTestParallelogram = { w: Float, h: Float, r: Float ->
-                TestParallelogram(ImmutableVec(0f, 0f), w, h, r, 0f)
-            }
-        }
+        assertThat(parallelogram.computeSignedArea()).isEqualTo(15f)
     }
 
     private val tolerance = 0.000001f

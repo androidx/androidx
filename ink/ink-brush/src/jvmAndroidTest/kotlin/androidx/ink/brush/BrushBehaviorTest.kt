@@ -390,6 +390,577 @@ class BrushBehaviorTest {
     }
 
     @Test
+    fun binaryOpConstants_areDistinct() {
+        val list =
+            listOf<BrushBehavior.BinaryOp>(
+                BrushBehavior.BinaryOp.PRODUCT,
+                BrushBehavior.BinaryOp.SUM
+            )
+        assertThat(list.toSet()).hasSize(list.size)
+    }
+
+    @Test
+    fun binaryOpHashCode_withIdenticalValues_match() {
+        assertThat(BrushBehavior.BinaryOp.PRODUCT.hashCode())
+            .isEqualTo(BrushBehavior.BinaryOp.PRODUCT.hashCode())
+
+        assertThat(BrushBehavior.BinaryOp.PRODUCT.hashCode())
+            .isNotEqualTo(BrushBehavior.BinaryOp.SUM.hashCode())
+    }
+
+    @Test
+    fun binaryOpEquals_checksEqualityOfValues() {
+        assertThat(BrushBehavior.BinaryOp.PRODUCT).isEqualTo(BrushBehavior.BinaryOp.PRODUCT)
+
+        assertThat(BrushBehavior.BinaryOp.PRODUCT).isNotEqualTo(BrushBehavior.BinaryOp.SUM)
+        assertThat(BrushBehavior.BinaryOp.PRODUCT).isNotEqualTo(null)
+    }
+
+    @Test
+    fun binaryOpToString_returnsCorrectString() {
+        assertThat(BrushBehavior.BinaryOp.PRODUCT.toString())
+            .isEqualTo("BrushBehavior.BinaryOp.PRODUCT")
+        assertThat(BrushBehavior.BinaryOp.SUM.toString()).isEqualTo("BrushBehavior.BinaryOp.SUM")
+    }
+
+    @Test
+    fun dampingSourceConstants_areDistinct() {
+        val list = listOf<BrushBehavior.DampingSource>(BrushBehavior.DampingSource.TIME_IN_SECONDS)
+        assertThat(list.toSet()).hasSize(list.size)
+    }
+
+    @Test
+    fun dampingSourceHashCode_withIdenticalValues_match() {
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.hashCode())
+            .isEqualTo(BrushBehavior.DampingSource.TIME_IN_SECONDS.hashCode())
+    }
+
+    @Test
+    fun dampingSourceEquals_checksEqualityOfValues() {
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS)
+            .isEqualTo(BrushBehavior.DampingSource.TIME_IN_SECONDS)
+
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS).isNotEqualTo(null)
+    }
+
+    @Test
+    fun dampingSourceToString_returnsCorrectString() {
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.toString())
+            .isEqualTo("BrushBehavior.DampingSource.TIME_IN_SECONDS")
+    }
+
+    @Test
+    fun sourceNodeConstructor_throwsForNonFiniteSourceValueRange() {
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, Float.NaN, 1f)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.SourceNode(
+                BrushBehavior.Source.NORMALIZED_PRESSURE,
+                0f,
+                Float.POSITIVE_INFINITY,
+            )
+        }
+    }
+
+    @Test
+    fun sourceNodeConstructor_throwsForEmptySourceValueRange() {
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0.5f, 0.5f)
+        }
+    }
+
+    @Test
+    fun sourceNodeInputs_isEmpty() {
+        val node = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        assertThat(node.inputs()).isEmpty()
+    }
+
+    @Test
+    fun sourceNodeToString() {
+        val node = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        assertThat(node.toString()).isEqualTo("SourceNode(NORMALIZED_PRESSURE, 0.0, 1.0, CLAMP)")
+    }
+
+    @Test
+    fun sourceNodeEquals_checksEqualityOfValues() {
+        val node1 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        val node2 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        val node3 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 2f)
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun sourceNodeHashCode_withIdenticalValues_match() {
+        val node1 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        val node2 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
+        val node3 = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 2f)
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun constantNodeConstructor_throwsForNonFiniteValue() {
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.ConstantNode(Float.POSITIVE_INFINITY)
+        }
+        assertFailsWith<IllegalArgumentException> { BrushBehavior.ConstantNode(Float.NaN) }
+    }
+
+    @Test
+    fun constantNodeInputs_isEmpty() {
+        assertThat(BrushBehavior.ConstantNode(42f).inputs()).isEmpty()
+    }
+
+    @Test
+    fun constantNodeToString() {
+        assertThat(BrushBehavior.ConstantNode(42f).toString()).isEqualTo("ConstantNode(42.0)")
+    }
+
+    @Test
+    fun constantNodeEquals_checksEqualityOfValues() {
+        val node1 = BrushBehavior.ConstantNode(1f)
+        val node2 = BrushBehavior.ConstantNode(1f)
+        val node3 = BrushBehavior.ConstantNode(2f)
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun constantNodeHashCode_withIdenticalValues_match() {
+        val node1 = BrushBehavior.ConstantNode(1f)
+        val node2 = BrushBehavior.ConstantNode(1f)
+        val node3 = BrushBehavior.ConstantNode(2f)
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun fallbackFilterNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node =
+            BrushBehavior.FallbackFilterNode(BrushBehavior.OptionalInputProperty.PRESSURE, input)
+        assertThat(node.inputs()).containsExactly(input)
+    }
+
+    @Test
+    fun fallbackFilterNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node =
+            BrushBehavior.FallbackFilterNode(BrushBehavior.OptionalInputProperty.PRESSURE, input)
+        assertThat(node.toString()).isEqualTo("FallbackFilterNode(PRESSURE, ConstantNode(0.0))")
+    }
+
+    @Test
+    fun fallbackFilterNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun fallbackFilterNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.FallbackFilterNode(
+                BrushBehavior.OptionalInputProperty.PRESSURE,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun toolTypeFilterNodeConstructor_throwsForEmptyEnabledToolTypes() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.ToolTypeFilterNode(emptySet(), input)
+        }
+    }
+
+    @Test
+    fun toolTypeFilterNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.ToolTypeFilterNode(setOf(InputToolType.STYLUS), input)
+        assertThat(node.inputs()).containsExactly(input)
+    }
+
+    @Test
+    fun toolTypeFilterNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.ToolTypeFilterNode(setOf(InputToolType.STYLUS), input)
+        assertThat(node.toString())
+            .isEqualTo("ToolTypeFilterNode([InputToolType.STYLUS], ConstantNode(0.0))")
+    }
+
+    @Test
+    fun toolTypeFilterNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node2 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node3 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(2f)
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun toolTypeFilterNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node2 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node3 =
+            BrushBehavior.ToolTypeFilterNode(
+                setOf(InputToolType.STYLUS),
+                BrushBehavior.ConstantNode(2f)
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun dampingNodeConstructor_throwsForNonFiniteDampingGap() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                Float.POSITIVE_INFINITY,
+                input,
+            )
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, Float.NaN, input)
+        }
+    }
+
+    @Test
+    fun dampingNodeConstructor_throwsForNegativeDampingGap() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, -1f, input)
+        }
+    }
+
+    @Test
+    fun dampingNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f, input)
+        assertThat(node.inputs()).containsExactly(input)
+    }
+
+    @Test
+    fun dampingNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f, input)
+        assertThat(node.toString())
+            .isEqualTo("DampingNode(TIME_IN_SECONDS, 1.0, ConstantNode(0.0))")
+    }
+
+    @Test
+    fun dampingNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun dampingNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.DampingNode(
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+                1f,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun responseNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.ResponseNode(EasingFunction.Predefined.EASE, input)
+        assertThat(node.inputs()).containsExactly(input)
+    }
+
+    @Test
+    fun responseNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.ResponseNode(EasingFunction.Predefined.EASE, input)
+        assertThat(node.toString())
+            .isEqualTo("ResponseNode(EasingFunction.Predefined.EASE, ConstantNode(0.0))")
+    }
+
+    @Test
+    fun responseNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node2 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node3 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(2f)
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun responseNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node2 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(1f)
+            )
+        val node3 =
+            BrushBehavior.ResponseNode(
+                EasingFunction.Predefined.EASE,
+                BrushBehavior.ConstantNode(2f)
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun binaryOpNodeInputs_containsInputsInOrder() {
+        val firstInput = BrushBehavior.ConstantNode(0f)
+        val secondInput = BrushBehavior.ConstantNode(1f)
+        val node = BrushBehavior.BinaryOpNode(BrushBehavior.BinaryOp.SUM, firstInput, secondInput)
+        assertThat(node.inputs()).containsExactly(firstInput, secondInput).inOrder()
+    }
+
+    @Test
+    fun binaryOpNodeToString() {
+        val firstInput = BrushBehavior.ConstantNode(0f)
+        val secondInput = BrushBehavior.ConstantNode(1f)
+        val node = BrushBehavior.BinaryOpNode(BrushBehavior.BinaryOp.SUM, firstInput, secondInput)
+        assertThat(node.toString())
+            .isEqualTo("BinaryOpNode(SUM, ConstantNode(0.0), ConstantNode(1.0))")
+    }
+
+    @Test
+    fun binaryOpNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun binaryOpNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.BinaryOpNode(
+                BrushBehavior.BinaryOp.SUM,
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
+    fun targetNodeConstructor_throwsForNonFiniteTargetModifierRange() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.TargetNode(BrushBehavior.Target.SIZE_MULTIPLIER, Float.NaN, 1f, input)
+        }
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                Float.POSITIVE_INFINITY,
+                input,
+            )
+        }
+    }
+
+    @Test
+    fun targetNodeConstructor_throwsForEmptyTargetModifierRange() {
+        val input = BrushBehavior.ConstantNode(0f)
+        assertFailsWith<IllegalArgumentException> {
+            BrushBehavior.TargetNode(BrushBehavior.Target.SIZE_MULTIPLIER, 0.5f, 0.5f, input)
+        }
+    }
+
+    @Test
+    fun targetNodeInputs_containsInput() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.TargetNode(BrushBehavior.Target.SIZE_MULTIPLIER, 0f, 1f, input)
+        assertThat(node.inputs()).containsExactly(input)
+    }
+
+    @Test
+    fun targetNodeToString() {
+        val input = BrushBehavior.ConstantNode(0f)
+        val node = BrushBehavior.TargetNode(BrushBehavior.Target.SIZE_MULTIPLIER, 0f, 1f, input)
+        assertThat(node.toString())
+            .isEqualTo("TargetNode(SIZE_MULTIPLIER, 0.0, 1.0, ConstantNode(0.0))")
+    }
+
+    @Test
+    fun targetNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun targetNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.TargetNode(
+                BrushBehavior.Target.SIZE_MULTIPLIER,
+                0f,
+                1f,
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
     fun brushBehaviorConstructor_withInvalidArguments_throws() {
         // sourceValueRangeLowerBound not finite
         val sourceValueRangeLowerBoundError =
@@ -502,7 +1073,7 @@ class BrushBehaviorTest {
                     enabledToolTypes = setOf(InputToolType.STYLUS),
                 )
             }
-        assertThat(responseTimeMillisError.message).contains("response_time")
+        assertThat(responseTimeMillisError.message).contains("dampingGap")
         assertThat(responseTimeMillisError.message).contains("non-negative")
 
         // enabledToolType contains empty set.
@@ -521,8 +1092,8 @@ class BrushBehaviorTest {
                     enabledToolTypes = setOf(),
                 )
             }
-        assertThat(enabledToolTypeError.message).contains("enabled_tool_types")
-        assertThat(enabledToolTypeError.message).contains("at least one")
+        assertThat(enabledToolTypeError.message).contains("enabledToolTypes")
+        assertThat(enabledToolTypeError.message).contains("non-empty")
 
         // source and outOfRangeBehavior combination is invalid (TIME_SINCE_INPUT must use CLAMP)
         val sourceOutOfRangeBehaviorError =
@@ -537,7 +1108,7 @@ class BrushBehaviorTest {
                     sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.REPEAT,
                     responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
                     responseTimeMillis = 1L,
-                    enabledToolTypes = setOf(),
+                    enabledToolTypes = setOf(InputToolType.STYLUS),
                 )
             }
         assertThat(sourceOutOfRangeBehaviorError.message).contains("TimeSince")

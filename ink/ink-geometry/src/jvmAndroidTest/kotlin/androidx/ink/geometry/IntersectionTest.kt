@@ -750,8 +750,105 @@ class IntersectionTest {
         assertThat(farParallelogram.intersects(rect)).isFalse()
     }
 
+    @Test
+    fun intersects_forEqualsParallelograms_returnsTrue() {
+        val parallelogram1 =
+            ImmutableParallelogram.fromCenterAndDimensions(
+                center = ImmutableVec(0f, 1f),
+                width = 4f,
+                height = 10f,
+            )
+        val parallelogram2 =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(0f, 1f),
+                width = 4f,
+                height = 10f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+
+        assertThat(parallelogram1.intersects(parallelogram1)).isTrue()
+        assertThat(parallelogram1.intersects(parallelogram2)).isTrue()
+        assertThat(parallelogram2.intersects(parallelogram1)).isTrue()
+    }
+
+    @Test
+    fun intersects_whenParallelogramParallelogramIntersects_returnsTrue() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(10f, 20f),
+                width = 6f,
+                height = 4f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+        val parallelogramWithCommonVertex =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(6f, 16f),
+                width = 2f,
+                height = 4f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+        val parallelogramWithCommonEdge =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(100f, 30f),
+                width = 200f,
+                height = 16f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+        val intersectingParallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                ImmutableVec(10f, 20f),
+                2.9f,
+                2.1f,
+                Angle.HALF_TURN_RADIANS / 4f,
+                0f,
+            )
+
+        assertThat(parallelogram.intersects(parallelogramWithCommonVertex)).isTrue()
+        assertThat(parallelogram.intersects(parallelogramWithCommonEdge)).isTrue()
+        assertThat(parallelogram.intersects(intersectingParallelogram)).isTrue()
+        assertThat(parallelogramWithCommonVertex.intersects(parallelogram)).isTrue()
+        assertThat(parallelogramWithCommonEdge.intersects(parallelogram)).isTrue()
+        assertThat(intersectingParallelogram.intersects(parallelogram)).isTrue()
+    }
+
+    @Test
+    fun intersects_whenParallelogramParallelogramDoesNotIntersects_returnsFalse() {
+        val parallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(10f, 20f),
+                width = 6f,
+                height = 4f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+        val closeParallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(0.9f, 20f),
+                width = 12f,
+                height = 4f,
+                rotation = Angle.ZERO,
+                shearFactor = 0f,
+            )
+        val farParallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(100f, 200f),
+                width = 0.6f,
+                height = 2.3f,
+                rotation = Angle.QUARTER_TURN_RADIANS,
+                shearFactor = 0f,
+            )
+
+        assertThat(parallelogram.intersects(closeParallelogram)).isFalse()
+        assertThat(parallelogram.intersects(farParallelogram)).isFalse()
+        assertThat(closeParallelogram.intersects(parallelogram)).isFalse()
+        assertThat(farParallelogram.intersects(parallelogram)).isFalse()
+    }
+
     companion object {
-        private val SCALE_TRANSFORM =
-            ImmutableAffineTransform(a = 2f, b = 0f, c = 0f, d = 0f, e = 5f, f = 0f)
+        private val SCALE_TRANSFORM = ImmutableAffineTransform(2f, 0f, 0f, 0f, 5f, 0f)
     }
 }

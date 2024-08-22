@@ -81,40 +81,38 @@ import kotlin.math.abs
  * [Parallelogram] with both [rotation] and [shearFactor] of zero.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public interface Parallelogram {
+public abstract class Parallelogram internal constructor() {
 
-    public val center: Vec
+    public abstract val center: Vec
 
     /**
      * A [Parallelogram] may *not* have a negative width. If an operation on a parallelogram would
      * result in a negative width, it is instead normalized, by negating both the width and the
      * height, adding π to the angle of rotation, and normalizing rotation to the range [0, 2π).
      */
-    @get:FloatRange(from = 0.0) public val width: Float
+    @get:FloatRange(from = 0.0) public abstract val width: Float
 
     /**
      * A [Parallelogram] may have a positive or negative height; a positive height indicates that
      * the angle from the first semi-axis to the second will also be positive.
      */
-    public val height: Float
+    public abstract val height: Float
 
-    @get:AngleRadiansFloat public val rotation: Float
+    @get:AngleRadiansFloat public abstract val rotation: Float
 
     /**
      * A [Parallelogram]] may have a positive or negative shear factor; a positive shear factor
      * indicates a smaller absolute angle between the semi-axes (the shear factor is, in fact, the
      * cotangent of that angle).
      */
-    public val shearFactor: Float
+    public abstract val shearFactor: Float
 
     /**
-     * A [Parallelogram] may have a positive or negative height; a positive height indicates that
-     * the angle from the first semi-axis to the second will also be positive. A [Parallelogram]]
-     * may have a positive or negative shear factor; a positive shear factor indicates a smaller
-     * absolute angle between the semi-axes (the shear factor is, in fact, the cotangent of that
-     * angle).
+     * Returns the signed area of the [Parallelogram]. If either the width or the height is zero,
+     * this will be equal to zero; if the width is non-zero, then this will have the same sign as
+     * the height.
      */
-    public fun signedArea(): Float = width * height
+    public fun computeSignedArea(): Float = width * height
 
     public companion object {
         /**

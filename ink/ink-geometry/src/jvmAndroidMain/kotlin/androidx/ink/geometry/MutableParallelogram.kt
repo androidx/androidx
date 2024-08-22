@@ -22,32 +22,32 @@ import androidx.annotation.RestrictTo
 /**
  * Mutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
  * [width], [height], [rotation], and [shearFactor].
+ *
+ * @constructor Create the [MutableParallelogram] from an existing [MutableVec] instance and
+ *   primitive [Float] parameters. Note that this instances will become the internal state of this
+ *   [MutableParallelogram], so modifications made to it directly or through setters on this
+ *   [MutableParallelogram] will modify the input [MutableVec] instances too. This is to allow
+ *   performance-critical code to avoid any unnecessary allocations. This can be tricky to manage,
+ *   especially in multithreaded code, so when calling code is unable to guarantee ownership of the
+ *   nested mutable data at a particular time, it may be safest to construct this with a copy of the
+ *   data to give this [MutableSegment] exclusive ownership of that copy.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableParallelogram
 private constructor(
-    center: Vec,
+    override var center: MutableVec,
     width: Float,
     override var height: Float,
     @AngleRadiansFloat rotation: Float,
     override var shearFactor: Float,
-) : Parallelogram {
+) : Parallelogram() {
 
-    /* [_center] is a private backing field that is internally constructed such that no
-     * caller can obtain a direct reference to it. */
-    private var _center: MutableVec = MutableVec(center.x, center.y)
     @AngleRadiansFloat private var _rotation: Float = Angle.normalized(rotation)
+
     override var rotation: Float
         @AngleRadiansFloat get() = _rotation
         set(@AngleRadiansFloat value) {
             _rotation = Angle.normalized(value)
-        }
-
-    override var center: Vec
-        get() = _center
-        set(value) {
-            _center.x = value.x
-            _center.y = value.y
         }
 
     private var _width: Float = width
@@ -57,7 +57,7 @@ private constructor(
             // A [Parallelogram] may *not* have a negative width. If an operation is performed on
             // [Parallelogram] resulting
             // in a negative width, it will be normalized.
-            Parallelogram.normalizeAndRun(value, height, rotation) { w: Float, h: Float, r: Float ->
+            normalizeAndRun(value, height, rotation) { w: Float, h: Float, r: Float ->
                 _width = w
                 height = h
                 rotation = r
@@ -65,7 +65,7 @@ private constructor(
             }
         }
 
-    public constructor() : this(ImmutableVec(0f, 0f), 0f, 0f, Angle.ZERO, 0f)
+    public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO, 0f)
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     // TODO: b/355248266 - @UsedByNative("parallelogram_jni_helper.cc") must go in Proguard config
@@ -78,13 +78,13 @@ private constructor(
         @AngleRadiansFloat rotation: Float,
         shearFactor: Float,
     ): Unit = run {
-        Parallelogram.normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+        normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
             this.width = w
             this.height = h
             this.rotation = r
             this.shearFactor = shearFactor
-            this._center.x = centerX
-            this._center.y = centerY
+            this.center.x = centerX
+            this.center.y = centerY
             this
         }
     }
@@ -93,9 +93,9 @@ private constructor(
         other === this || (other is Parallelogram && Parallelogram.areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = Parallelogram.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Mutable${Parallelogram.string(this)}"
+    override fun toString(): String = "Mutable${string(this)}"
 
     public companion object {
 
@@ -106,14 +106,11 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterAndDimensions(
-            center: Vec,
+            center: MutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
         ): MutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation = Angle.ZERO) {
-                w: Float,
-                h: Float,
-                r: Float ->
+            normalizeAndRun(width, height, rotation = Angle.ZERO) { w: Float, h: Float, r: Float ->
                 MutableParallelogram(center, w, h, r, shearFactor = 0f)
             }
 
@@ -125,12 +122,12 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsAndRotation(
-            center: Vec,
+            center: MutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,
         ): MutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
                 MutableParallelogram(center, w, h, r, shearFactor = 0f)
             }
 
@@ -141,13 +138,13 @@ private constructor(
          */
         @JvmStatic
         public fun fromCenterDimensionsRotationAndShear(
-            center: Vec,
+            center: MutableVec,
             @FloatRange(from = 0.0) width: Float,
             height: Float,
             @AngleRadiansFloat rotation: Float,
             shearFactor: Float,
         ): MutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
                 MutableParallelogram(center, w, h, r, shearFactor)
             }
     }

@@ -33,20 +33,44 @@ import kotlin.jvm.JvmStatic
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
-    // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
-    // like it on the getter so suppress its complaint.
     @ExperimentalInkCustomBrushApi
     @get:ExperimentalInkCustomBrushApi
     @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     @JvmStatic
     public val predictionFadeOutBehavior: BrushBehavior =
         BrushBehavior(
-            source = BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_MILLIS,
-            target = BrushBehavior.Target.OPACITY_MULTIPLIER,
-            sourceValueRangeLowerBound = 0F,
-            sourceValueRangeUpperBound = 24F,
-            targetModifierRangeLowerBound = 1F,
-            targetModifierRangeUpperBound = 0.3F,
+            targetNodes =
+                listOf(
+                    BrushBehavior.TargetNode(
+                        target = BrushBehavior.Target.OPACITY_MULTIPLIER,
+                        targetModifierRangeLowerBound = 1F,
+                        targetModifierRangeUpperBound = 0.3F,
+                        BrushBehavior.BinaryOpNode(
+                            operation = BrushBehavior.BinaryOp.PRODUCT,
+                            firstInput =
+                                BrushBehavior.SourceNode(
+                                    source = BrushBehavior.Source.PREDICTED_TIME_ELAPSED_IN_MILLIS,
+                                    sourceValueRangeLowerBound = 0F,
+                                    sourceValueRangeUpperBound = 24F,
+                                ),
+                            // The second branch of the binary op node keeps the opacity fade-out
+                            // from starting
+                            // until the predicted inputs have traveled at least 1.5x brush-size.
+                            secondInput =
+                                BrushBehavior.ResponseNode(
+                                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
+                                    input =
+                                        BrushBehavior.SourceNode(
+                                            source =
+                                                BrushBehavior.Source
+                                                    .PREDICTED_DISTANCE_TRAVELED_IN_MULTIPLES_OF_BRUSH_SIZE,
+                                            sourceValueRangeLowerBound = 1.5F,
+                                            sourceValueRangeUpperBound = 2F,
+                                        ),
+                                ),
+                        ),
+                    )
+                )
         )
 
     /**

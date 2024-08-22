@@ -16,10 +16,8 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import kotlin.math.cos
-import kotlin.math.hypot
 import kotlin.math.sin
 
 /**
@@ -40,35 +38,12 @@ public class MutableVec(
     override var y:
         Float, // TODO: b/355248266 - @set:UsedByNative("vec_jni_helper.cc") must go in Proguard
     // config file instead.
-) : Vec {
+) : Vec() {
 
-    /**
-     * Constructs a [MutableVec] without any initial data. This is useful when pre-allocating an
-     * instance to be filled later.
-     */
-    public constructor() : this(0f, 0f)
+    public constructor() : this(0F, 0F)
 
-    override val magnitude: Float
-        @FloatRange(from = 0.0) get() = hypot(x, y)
-
-    override val magnitudeSquared: Float
-        @FloatRange(from = 0.0) get() = x * x + y * y
-
-    override val asImmutable: ImmutableVec = ImmutableVec(x, y)
-
-    @JvmSynthetic override fun asImmutable(x: Float, y: Float): ImmutableVec = ImmutableVec(x, y)
-
-    /** Sets the value of [x]. */
-    public fun x(value: Float): MutableVec {
-        x = value
-        return this
-    }
-
-    /** Sets the value of [y]. */
-    public fun y(value: Float): MutableVec {
-        y = value
-        return this
-    }
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    override fun asImmutable(): ImmutableVec = ImmutableVec(x, y)
 
     /** Fills this [MutableVec] with the same values contained in [input]. */
     public fun populateFrom(input: Vec): MutableVec {
@@ -78,12 +53,12 @@ public class MutableVec(
     }
 
     override fun equals(other: Any?): Boolean =
-        other === this || (other is Vec && Vec.areEquivalent(this, other))
+        other === this || (other is Vec && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = Vec.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Mutable${Vec.string(this)}"
+    override fun toString(): String = "Mutable${string(this)}"
 
     public companion object {
         @JvmStatic

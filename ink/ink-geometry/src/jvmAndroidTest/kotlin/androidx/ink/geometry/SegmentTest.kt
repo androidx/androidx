@@ -28,37 +28,37 @@ class SegmentTest {
 
     @Test
     fun length_returnsCorrectValue() {
-        assertThat(ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).computeLength())
             .isEqualTo(sqrt(2f))
-        assertThat(ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f)).computeLength())
             .isEqualTo(5f)
-        assertThat(ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f)).computeLength())
             .isEqualTo(sqrt(5f))
-        assertThat(ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f)).computeLength())
             .isEqualTo(sqrt(41f))
     }
 
     @Test
     fun length_whenSegmentIsHorizontal_returnsCorrectValue() {
-        assertThat(ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f)).computeLength())
             .isEqualTo(4f)
-        assertThat(ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f)).computeLength())
             .isEqualTo(6f)
     }
 
     @Test
     fun length_whenSegmentIsVertical_returnsCorrectValue() {
-        assertThat(ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).computeLength())
             .isEqualTo(1f)
-        assertThat(ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f)).computeLength())
             .isEqualTo(2f)
     }
 
     @Test
     fun length_whenSegmentIsDegenerate_returnsZero() {
-        assertThat(ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(4f, 1f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(4f, 1f)).computeLength())
             .isEqualTo(0f)
-        assertThat(ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).length)
+        assertThat(ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).computeLength())
             .isEqualTo(0f)
     }
 
@@ -66,35 +66,35 @@ class SegmentTest {
     fun vec_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(1f, 1f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(4f, 3f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(-1f, 2f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(-4f, -5f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0.6f, 1.9f), ImmutableVec(-1.2f, 3.3f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(-1.8f, 1.4f), 0.000001f)
             )
             .isTrue()
@@ -104,14 +104,14 @@ class SegmentTest {
     fun vec_whenSegmentIsHorizontal_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(0f, -4f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(0f, 6f), 0.000001f)
             )
             .isTrue()
@@ -121,14 +121,14 @@ class SegmentTest {
     fun vec_whenSegmentIsVertical_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(1f, 0f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(-2f, 0f), 0.000001f)
             )
             .isTrue()
@@ -138,14 +138,14 @@ class SegmentTest {
     fun vec_whenSegmentIsDegenerate_fillsZeroes() {
         assertThat(
                 ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(0f, 0f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
-                    .vec
+                    .computeDisplacement()
                     .isAlmostEqual(ImmutableVec(0f, 0f), 0.000001f)
             )
             .isTrue()
@@ -154,50 +154,57 @@ class SegmentTest {
     @Test
     fun populateVec_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(1f, 1f))
 
-        ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(4f, 3f))
 
-        ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-1f, 2f))
 
-        ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-4f, -5f))
 
         ImmutableSegment(ImmutableVec(0.6f, 1.9f), ImmutableVec(-1.2f, 3.3f))
-            .populateVec(mutableVec)
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(-1.8f, 1.4f), 0.000001f)).isTrue()
     }
 
     @Test
     fun populateVec_whenSegmentIsHorizontal_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(0f, -4f))
 
-        ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(0f, 6f))
     }
 
     @Test
     fun populateVec_whenSegmentIsVertical_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(1f, 0f))
 
-        ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-2f, 0f))
     }
 
     @Test
     fun populateVec_whenSegmentIsDegenerate_fillsZeroes() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f))
+            .computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(0f, 0f))
 
-        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).populateVec(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).computeDisplacement(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(0f, 0f))
     }
 
@@ -205,35 +212,35 @@ class SegmentTest {
     fun midpoint_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(.5f, .5f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(-2f, 3.5f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(-.5f, 2f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(1f, 1.5f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0.6f, 1.9f), ImmutableVec(-1.2f, 3.3f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(-.3f, 2.6f), 0.000001f)
             )
             .isTrue()
@@ -243,14 +250,14 @@ class SegmentTest {
     fun midpoint_whenSegmentIsHorizontal_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(1f, -1f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(3f, 1f), 0.000001f)
             )
             .isTrue()
@@ -260,14 +267,14 @@ class SegmentTest {
     fun midpoint_whenSegmentIsVertical_fillsCorrectValues() {
         assertThat(
                 ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(4.5f, 1f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(-2f, -5f), 0.000001f)
             )
             .isTrue()
@@ -277,14 +284,14 @@ class SegmentTest {
     fun midpoint_whenSegmentIsDegenerate_fillsZeroes() {
         assertThat(
                 ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(1f, -5f), 0.000001f)
             )
             .isTrue()
 
         assertThat(
                 ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
-                    .midpoint
+                    .computeMidpoint()
                     .isAlmostEqual(ImmutableVec(0f, 0f), 0.000001f)
             )
             .isTrue()
@@ -293,85 +300,84 @@ class SegmentTest {
     @Test
     fun populateMidpoint_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 1f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(.5f, .5f))
 
-        ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(-4f, 2f), ImmutableVec(0f, 5f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-2f, 3.5f))
 
-        ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 1f), ImmutableVec(-1f, 3f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-.5f, 2f))
 
-        ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(3f, 4f), ImmutableVec(-1f, -1f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(1f, 1.5f))
 
         ImmutableSegment(ImmutableVec(0.6f, 1.9f), ImmutableVec(-1.2f, 3.3f))
-            .populateMidpoint(mutableVec)
+            .computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-.3f, 2.6f))
     }
 
     @Test
     fun populateMidpoint_whenSegmentIsHorizontal_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(1f, 1f), ImmutableVec(1f, -3f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(1f, -1f))
 
-        ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(3f, -2f), ImmutableVec(3f, 4f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(3f, 1f))
     }
 
     @Test
     fun populateMidpoint_whenSegmentIsVertical_fillsCorrectValues() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(4f, 1f), ImmutableVec(5f, 1f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(4.5f, 1f))
 
-        ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f))
-            .populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(-1f, -5f), ImmutableVec(-3f, -5f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(-2f, -5f))
     }
 
     @Test
     fun populateMidpoint_whenSegmentIsDegenerate_fillsZeroes() {
         val mutableVec = MutableVec(0f, 0f)
-        ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(1f, -5f), ImmutableVec(1f, -5f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(1f, -5f))
 
-        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).populateMidpoint(mutableVec)
+        ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)).computeMidpoint(mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(0f, 0f))
     }
 
     @Test
     fun boundingBox_correctlyReturnsBoundingBox() {
-        val segment0 = MutableSegment(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f))
+        val segment0 = MutableSegment(MutableVec(1f, 1f), MutableVec(5f, 2f))
         val segment1 = ImmutableSegment(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f))
 
-        assertThat(segment0.boundingBox)
+        assertThat(segment0.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f)))
-        assertThat(segment1.boundingBox)
+        assertThat(segment1.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(-1f, 0f), ImmutableVec(0f, 2f)))
     }
 
     @Test
     fun boundingBox_forDegenerateSegment_correctlyReturnsBoundingBox() {
-        val segment0 = MutableSegment(ImmutableVec(3f, 2f), ImmutableVec(3f, 2f))
+        val segment0 = MutableSegment(MutableVec(3f, 2f), MutableVec(3f, 2f))
         val segment1 = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
 
-        assertThat(segment0.boundingBox)
+        assertThat(segment0.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(3f, 2f), ImmutableVec(3f, 2f)))
-        assertThat(segment1.boundingBox)
+        assertThat(segment1.computeBoundingBox())
             .isEqualTo(ImmutableBox.fromTwoPoints(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f)))
     }
 
     @Test
     fun populateBoundingBox_correctlyReturnsBoundingBox() {
-        val segment0 = MutableSegment(ImmutableVec(1f, 1f), ImmutableVec(5f, 2f))
+        val segment0 = MutableSegment(MutableVec(1f, 1f), MutableVec(5f, 2f))
         val segment1 = ImmutableSegment(ImmutableVec(-1f, 2f), ImmutableVec(0f, 0f))
         val box0 = MutableBox()
         val box1 = MutableBox()
 
-        segment0.populateBoundingBox(box0)
-        segment1.populateBoundingBox(box1)
+        segment0.computeBoundingBox(box0)
+        segment1.computeBoundingBox(box1)
 
         assertThat(box0)
             .isEqualTo(
@@ -385,13 +391,13 @@ class SegmentTest {
 
     @Test
     fun populateBoundingBox_forDegenerateSegment_correctlyReturnsBoundingBox() {
-        val segment0 = MutableSegment(ImmutableVec(3f, 2f), ImmutableVec(3f, 2f))
+        val segment0 = MutableSegment(MutableVec(3f, 2f), MutableVec(3f, 2f))
         val segment1 = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(0f, 0f))
         val box0 = MutableBox()
         val box1 = MutableBox()
 
-        segment0.populateBoundingBox(box0)
-        segment1.populateBoundingBox(box1)
+        segment0.computeBoundingBox(box0)
+        segment1.computeBoundingBox(box1)
 
         assertThat(box0)
             .isEqualTo(
@@ -407,21 +413,28 @@ class SegmentTest {
     fun lerpPoint_withZeroOrOneRatio_fillsCorrectValues() {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
 
-        assertThat(segment.lerpPoint(0.0f).isAlmostEqual(ImmutableVec(6f, 3f), 0.000001f)).isTrue()
+        assertThat(segment.computeLerpPoint(0.0f).isAlmostEqual(ImmutableVec(6f, 3f), 0.000001f))
+            .isTrue()
 
-        assertThat(segment.lerpPoint(1.0f).isAlmostEqual(ImmutableVec(8f, -5f), 0.000001f)).isTrue()
+        assertThat(segment.computeLerpPoint(1.0f).isAlmostEqual(ImmutableVec(8f, -5f), 0.000001f))
+            .isTrue()
     }
 
     @Test
     fun lerpPoint_withRatioBetweenZeroAndOne_fillsCorrectValues() {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
 
-        assertThat(segment.lerpPoint(0.2f).isAlmostEqual(ImmutableVec(6.4f, 1.4f), 0.000001f))
+        assertThat(
+                segment.computeLerpPoint(0.2f).isAlmostEqual(ImmutableVec(6.4f, 1.4f), 0.000001f)
+            )
             .isTrue()
 
-        assertThat(segment.lerpPoint(0.5f).isAlmostEqual(ImmutableVec(7f, -1f), 0.000001f)).isTrue()
+        assertThat(segment.computeLerpPoint(0.5f).isAlmostEqual(ImmutableVec(7f, -1f), 0.000001f))
+            .isTrue()
 
-        assertThat(segment.lerpPoint(0.9f).isAlmostEqual(ImmutableVec(7.8f, -4.2f), 0.000001f))
+        assertThat(
+                segment.computeLerpPoint(0.9f).isAlmostEqual(ImmutableVec(7.8f, -4.2f), 0.000001f)
+            )
             .isTrue()
     }
 
@@ -429,9 +442,12 @@ class SegmentTest {
     fun lerpPoint_withRatioOutsideZeroAndOne_fillsCorrectValues() {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
 
-        assertThat(segment.lerpPoint(-1f).isAlmostEqual(ImmutableVec(4f, 11f), 0.000001f)).isTrue()
+        assertThat(segment.computeLerpPoint(-1f).isAlmostEqual(ImmutableVec(4f, 11f), 0.000001f))
+            .isTrue()
 
-        assertThat(segment.lerpPoint(1.3f).isAlmostEqual(ImmutableVec(8.6f, -7.4f), 0.000001f))
+        assertThat(
+                segment.computeLerpPoint(1.3f).isAlmostEqual(ImmutableVec(8.6f, -7.4f), 0.000001f)
+            )
             .isTrue()
     }
 
@@ -440,10 +456,10 @@ class SegmentTest {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
         val mutableVec = MutableVec(0f, 0f)
 
-        segment.populateLerpPoint(0.0f, mutableVec)
+        segment.computeLerpPoint(0.0f, mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(6f, 3f))
 
-        segment.populateLerpPoint(1.0f, mutableVec)
+        segment.computeLerpPoint(1.0f, mutableVec)
         assertThat(mutableVec).isEqualTo(MutableVec(8f, -5f))
     }
 
@@ -452,13 +468,13 @@ class SegmentTest {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
         val mutableVec = MutableVec(0f, 0f)
 
-        segment.populateLerpPoint(0.2f, mutableVec)
+        segment.computeLerpPoint(0.2f, mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(6.4f, 1.4f), .000001f)).isTrue()
 
-        segment.populateLerpPoint(0.5f, mutableVec)
+        segment.computeLerpPoint(0.5f, mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(7f, -1f), .000001f)).isTrue()
 
-        segment.populateLerpPoint(0.9f, mutableVec)
+        segment.computeLerpPoint(0.9f, mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(7.8f, -4.2f), .000001f)).isTrue()
     }
 
@@ -467,10 +483,10 @@ class SegmentTest {
         val segment = ImmutableSegment(ImmutableVec(6f, 3f), ImmutableVec(8f, -5f))
         val mutableVec = MutableVec(0f, 0f)
 
-        segment.populateLerpPoint(-1f, mutableVec)
+        segment.computeLerpPoint(-1f, mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(4f, 11f), .000001f)).isTrue()
 
-        segment.populateLerpPoint(1.3f, mutableVec)
+        segment.computeLerpPoint(1.3f, mutableVec)
         assertThat(mutableVec.isAlmostEqual(MutableVec(8.6f, -7.4f), .000001f)).isTrue()
     }
 

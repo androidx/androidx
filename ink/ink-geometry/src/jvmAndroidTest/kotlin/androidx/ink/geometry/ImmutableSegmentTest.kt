@@ -25,14 +25,6 @@ import org.junit.runners.JUnit4
 class ImmutableSegmentTest {
 
     @Test
-    fun vec_whenPrimaryValuesAreUnchanged_returnsSameInstance() {
-        val segment = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 2f))
-        val vec = segment.vec
-
-        assertThat(vec).isSameInstanceAs(segment.vec)
-    }
-
-    @Test
     fun equals_whenSameInstance_returnsTrueAndSameHashCode() {
         val segment = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 2f))
 
@@ -96,18 +88,7 @@ class ImmutableSegmentTest {
     }
 
     @Test
-    fun asImmutable_withDifferentValues_returnsNewInstance() {
-        val segment = ImmutableSegment(ImmutableVec(0f, 0f), ImmutableVec(1f, 2f))
-        val newStart = ImmutableVec(10f, 20f)
-        val newEnd = ImmutableVec(30f, 40f)
-        val output = segment.asImmutable(newStart, newEnd)
-
-        assertThat(output.start).isSameInstanceAs(newStart)
-        assertThat(output.end).isSameInstanceAs(newEnd)
-    }
-
-    @Test
-    fun isAlmostEqual_usesTolereneceToCompareValues() {
+    fun isAlmostEqual_usesToleranceToCompareValues() {
         val segment = ImmutableSegment(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f))
         val other = ImmutableSegment(ImmutableVec(1.01f, 2.02f), ImmutableVec(3.03f, 4.04f))
 

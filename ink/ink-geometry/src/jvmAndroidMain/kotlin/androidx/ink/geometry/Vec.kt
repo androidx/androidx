@@ -20,6 +20,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import kotlin.math.abs
 import kotlin.math.atan2
+import kotlin.math.hypot
 
 /**
  * A two-dimensional vector, i.e. an (x, y) coordinate pair. It can be used to represent either:
@@ -27,81 +28,98 @@ import kotlin.math.atan2
  * 2) A point in space, i.e. treating the vector as an offset from the origin
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public interface Vec {
+public abstract class Vec internal constructor() {
     /** The [Vec]'s offset in the x-direction */
-    public val x: Float
+    public abstract val x: Float
 
     /** The [Vec]'s offset in the y-direction */
-    public val y: Float
+    public abstract val y: Float
 
     /** The length of the [Vec]. */
-    public val magnitude: Float
+    @FloatRange(from = 0.0) public fun computeMagnitude(): Float = hypot(x, y)
 
     /** The squared length of the [Vec]. */
-    public val magnitudeSquared: Float
+    @FloatRange(from = 0.0) public fun computeMagnitudeSquared(): Float = x * x + y * y
 
     /**
      * The direction of the vec, represented as the angle between the positive x-axis and this vec.
-     * The [direction] value will lie in the interval [-π, π], and will have the same sign as the
-     * vec's y-component.
+     * If either component of the vector is NaN, this returns a NaN angle; otherwise, the returned
+     * value will lie in the interval [-π, π], and will have the same sign as the vector's
+     * y-component.
+     *
+     * Following the behavior of `atan2`, this will return either ±0 or ±π for the zero vector,
+     * depending on the signs of the zeros.
      */
-    public val direction: Float
-        @FloatRange(from = -Math.PI, to = Math.PI) @AngleRadiansFloat get() = atan2(y, x)
-
-    /** Returns a vector with the same direction as this one, but with a magnitude of 1. */
-    public val unitVec: ImmutableVec
-        get() = VecNative.unitVec(this.x, this.y, ImmutableVec::class.java)
+    @FloatRange(from = -Math.PI, to = Math.PI)
+    @AngleRadiansFloat
+    public fun computeDirection(): Float = atan2(y, x)
 
     /**
-     * Modifies [output] into a vector with the same direction as this one, but with a magnitude
-     * of 1.
+     * Returns a newly allocated vector with the same direction as this one, but with a magnitude of
+     * `1`. This is equivalent to (but faster than) calling [ImmutableVec.fromDirectionAndMagnitude]
+     * with [computeDirection] and `1`.
+     *
+     * In keeping with the above equivalence, this will return <±1, ±0> for the zero vector,
+     * depending on the signs of the zeros.
+     *
+     * For performance-sensitive code, use [computeUnitVec] with a pre-allocated instance of
+     * [MutableVec].
      */
-    public fun populateUnitVec(output: MutableVec) {
-        VecNative.populateUnitVec(x, y, output)
+    public fun computeUnitVec(): ImmutableVec =
+        VecNative.unitVec(this.x, this.y, ImmutableVec::class.java)
+
+    /**
+     * Modifies [outVec] into a vector with the same direction as this one, but with a magnitude of
+     * `1`. Returns [outVec]. This is equivalent to (but faster than) calling
+     * [MutableVec.fromDirectionAndMagnitude] with [computeDirection] and `1`.
+     *
+     * In keeping with the above equivalence, this will return <±1, ±0> for the zero vector,
+     * depending on the signs of the zeros.
+     */
+    public fun computeUnitVec(outVec: MutableVec): MutableVec {
+        VecNative.populateUnitVec(x, y, outVec)
+        return outVec
     }
 
     /**
-     * Returns a vector with the same magnitude as this one, but rotated by (positive) 90 degrees.
+     * Returns a newly allocated vector with the same magnitude as this one, but rotated by
+     * (positive) 90 degrees. For performance-sensitive code, use [computeOrthogonal] with a
+     * pre-allocated instance of [MutableVec].
      */
-    public val orthogonal: ImmutableVec
-        get() = ImmutableVec(-y, x)
+    public fun computeOrthogonal(): ImmutableVec = ImmutableVec(-y, x)
 
     /**
-     * Modifies [output] into a vector with the same magnitude as this one, but rotated by
-     * (positive) 90 degrees.
+     * Modifies [outVec] into a vector with the same magnitude as this one, but rotated by
+     * (positive) 90 degrees. Returns [outVec].
      */
-    public fun populateOrthogonal(output: MutableVec) {
-        output.x = -y
-        output.y = x
+    public fun computeOrthogonal(outVec: MutableVec): MutableVec {
+        outVec.x = -y
+        outVec.y = x
+        return outVec
     }
 
-    /** Returns a vector with the same magnitude, but pointing in the opposite direction. */
-    public val negation: ImmutableVec
-        get() = ImmutableVec(-x, -y)
+    /**
+     * Returns a newly allocated vector with the same magnitude, but pointing in the opposite
+     * direction. For performance-sensitive code, use [computeNegation] with a pre-allocated
+     * instance of [MutableVec].
+     */
+    public fun computeNegation(): ImmutableVec = ImmutableVec(-x, -y)
 
     /**
-     * Modifies [output] into a vector with the same magnitude, but pointing in the opposite
-     * direction.
+     * Modifies [outVec] into a vector with the same magnitude, but pointing in the opposite
+     * direction. Returns [outVec].
      */
-    public fun populateNegation(output: MutableVec) {
-        output.x = -x
-        output.y = -y
+    public fun computeNegation(outVec: MutableVec): MutableVec {
+        outVec.x = -x
+        outVec.y = -y
+        return outVec
     }
 
     /**
      * Returns an immutable copy of this object. This will return itself if called on an immutable
      * instance.
      */
-    public val asImmutable: ImmutableVec
-
-    /**
-     * Returns an [ImmutableVec] with some or all of its values taken from `this`. For each value,
-     * the returned [ImmutableVec] will use the given value; if no value is given, it will instead
-     * be set to the value on `this`. If `this` is an [ImmutableVec], and the result would be an
-     * identical [ImmutableVec], then `this` is returned. This occurs when either no values are
-     * given, or when all given values are structurally equal to the values in `this`.
-     */
-    @JvmSynthetic public fun asImmutable(x: Float = this.x, y: Float = this.y): ImmutableVec
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) public abstract fun asImmutable(): ImmutableVec
 
     /**
      * Returns true if the angle formed by `this` and [other] is within [angleTolerance] of 0

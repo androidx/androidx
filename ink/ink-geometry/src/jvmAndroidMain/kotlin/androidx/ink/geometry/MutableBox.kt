@@ -29,7 +29,7 @@ import kotlin.math.min
  * system rather than just Android screen/View space.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box {
+public class MutableBox private constructor(x1: Float, y1: Float, x2: Float, y2: Float) : Box() {
 
     /** The lower bound in the `X` direction. */
     override var xMin: Float = min(x1, x2)

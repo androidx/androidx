@@ -122,12 +122,12 @@ public object Intersection {
             nativeMeshAddress = mesh.getNativeAddress(),
             vecX = this.x,
             vecY = this.y,
-            meshToVecA = meshToPoint.a,
-            meshToVecB = meshToPoint.b,
-            meshToVecC = meshToPoint.c,
-            meshToVecD = meshToPoint.d,
-            meshToVecE = meshToPoint.e,
-            meshToVecF = meshToPoint.f,
+            meshToVecA = meshToPoint.m00,
+            meshToVecB = meshToPoint.m10,
+            meshToVecC = meshToPoint.m20,
+            meshToVecD = meshToPoint.m01,
+            meshToVecE = meshToPoint.m11,
+            meshToVecF = meshToPoint.m21,
         )
     }
 
@@ -225,12 +225,12 @@ public object Intersection {
             segmentStartY = this.start.y,
             segmentEndX = this.end.x,
             segmentEndY = this.end.y,
-            meshToSegmentA = meshToSegment.a,
-            meshToSegmentB = meshToSegment.b,
-            meshToSegmentC = meshToSegment.c,
-            meshToSegmentD = meshToSegment.d,
-            meshToSegmentE = meshToSegment.e,
-            meshToSegmentF = meshToSegment.f,
+            meshToSegmentA = meshToSegment.m00,
+            meshToSegmentB = meshToSegment.m10,
+            meshToSegmentC = meshToSegment.m20,
+            meshToSegmentD = meshToSegment.m01,
+            meshToSegmentE = meshToSegment.m11,
+            meshToSegmentF = meshToSegment.m21,
         )
     }
 
@@ -322,12 +322,12 @@ public object Intersection {
             triangleP1Y = this.p1.y,
             triangleP2X = this.p2.x,
             triangleP2Y = this.p2.y,
-            meshToTriangleA = meshToTriangle.a,
-            meshToTriangleB = meshToTriangle.b,
-            meshToTriangleC = meshToTriangle.c,
-            meshToTriangleD = meshToTriangle.d,
-            meshToTriangleE = meshToTriangle.e,
-            meshToTriangleF = meshToTriangle.f,
+            meshToTriangleA = meshToTriangle.m00,
+            meshToTriangleB = meshToTriangle.m10,
+            meshToTriangleC = meshToTriangle.m20,
+            meshToTriangleD = meshToTriangle.m01,
+            meshToTriangleE = meshToTriangle.m11,
+            meshToTriangleF = meshToTriangle.m21,
         )
     }
 
@@ -387,12 +387,12 @@ public object Intersection {
             boxYMin = this.yMin,
             boxXMax = this.xMax,
             boxYMax = this.yMax,
-            meshToBoxA = meshToBox.a,
-            meshToBoxB = meshToBox.b,
-            meshToBoxC = meshToBox.c,
-            meshToBoxD = meshToBox.d,
-            meshToBoxE = meshToBox.e,
-            meshToBoxF = meshToBox.f,
+            meshToBoxA = meshToBox.m00,
+            meshToBoxB = meshToBox.m10,
+            meshToBoxC = meshToBox.m20,
+            meshToBoxD = meshToBox.m01,
+            meshToBoxE = meshToBox.m11,
+            meshToBoxF = meshToBox.m21,
         )
     }
 
@@ -445,12 +445,12 @@ public object Intersection {
             parallelogramHeight = this.height,
             parallelogramAngleInRadian = this.rotation,
             parallelogramShearFactor = this.shearFactor,
-            meshToParallelogramA = meshToParallelogram.a,
-            meshToParallelogramB = meshToParallelogram.b,
-            meshToParallelogramC = meshToParallelogram.c,
-            meshToParallelogramD = meshToParallelogram.d,
-            meshToParallelogramE = meshToParallelogram.e,
-            meshToParallelogramF = meshToParallelogram.f,
+            meshToParallelogramA = meshToParallelogram.m00,
+            meshToParallelogramB = meshToParallelogram.m10,
+            meshToParallelogramC = meshToParallelogram.m20,
+            meshToParallelogramD = meshToParallelogram.m01,
+            meshToParallelogramE = meshToParallelogram.m11,
+            meshToParallelogramF = meshToParallelogram.m21,
         )
     }
 
@@ -471,18 +471,18 @@ public object Intersection {
         return nativeMeshModeledShapeIntersects(
             thisModeledShapeAddress = this.getNativeAddress(),
             otherModeledShapeAddress = other.getNativeAddress(),
-            thisToCommonTransformA = thisToCommonTransForm.a,
-            thisToCommonTransformB = thisToCommonTransForm.b,
-            thisToCommonTransformC = thisToCommonTransForm.c,
-            thisToCommonTransformD = thisToCommonTransForm.d,
-            thisToCommonTransformE = thisToCommonTransForm.e,
-            thisToCommonTransformF = thisToCommonTransForm.f,
-            otherToCommonTransformA = otherToCommonTransform.a,
-            otherToCommonTransformB = otherToCommonTransform.b,
-            otherToCommonTransformC = otherToCommonTransform.c,
-            otherToCommonTransformD = otherToCommonTransform.d,
-            otherToCommonTransformE = otherToCommonTransform.e,
-            otherToCommonTransformF = otherToCommonTransform.f,
+            thisToCommonTransformA = thisToCommonTransForm.m00,
+            thisToCommonTransformB = thisToCommonTransForm.m10,
+            thisToCommonTransformC = thisToCommonTransForm.m20,
+            thisToCommonTransformD = thisToCommonTransForm.m01,
+            thisToCommonTransformE = thisToCommonTransForm.m11,
+            thisToCommonTransformF = thisToCommonTransForm.m21,
+            otherToCommonTransformA = otherToCommonTransform.m00,
+            otherToCommonTransformB = otherToCommonTransform.m10,
+            otherToCommonTransformC = otherToCommonTransform.m20,
+            otherToCommonTransformD = otherToCommonTransform.m01,
+            otherToCommonTransformE = otherToCommonTransform.m11,
+            otherToCommonTransformF = otherToCommonTransform.m21,
         )
     }
 

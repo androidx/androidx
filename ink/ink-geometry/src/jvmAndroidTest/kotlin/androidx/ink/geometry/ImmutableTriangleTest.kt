@@ -94,12 +94,12 @@ class ImmutableTriangleTest {
     fun edge_returnsCorrectSegment() {
         val triangle = ImmutableTriangle(P0, P1, P2)
 
-        assertThat(triangle.edge(0)).isEqualTo(ImmutableSegment(P0, P1))
-        assertThat(triangle.edge(1)).isEqualTo(ImmutableSegment(P1, P2))
-        assertThat(triangle.edge(2)).isEqualTo(ImmutableSegment(P2, P0))
-        assertThat(triangle.edge(3)).isEqualTo(ImmutableSegment(P0, P1))
-        assertThat(triangle.edge(4)).isEqualTo(ImmutableSegment(P1, P2))
-        assertThat(triangle.edge(5)).isEqualTo(ImmutableSegment(P2, P0))
+        assertThat(triangle.computeEdge(0)).isEqualTo(ImmutableSegment(P0, P1))
+        assertThat(triangle.computeEdge(1)).isEqualTo(ImmutableSegment(P1, P2))
+        assertThat(triangle.computeEdge(2)).isEqualTo(ImmutableSegment(P2, P0))
+        assertThat(triangle.computeEdge(3)).isEqualTo(ImmutableSegment(P0, P1))
+        assertThat(triangle.computeEdge(4)).isEqualTo(ImmutableSegment(P1, P2))
+        assertThat(triangle.computeEdge(5)).isEqualTo(ImmutableSegment(P2, P0))
     }
 
     @Test
@@ -124,8 +124,8 @@ class ImmutableTriangleTest {
         val segment0 = MutableSegment()
         val segment6 = MutableSegment()
 
-        triangle.populateEdge(0, segment0)
-        triangle.populateEdge(6, segment6)
+        triangle.computeEdge(0, segment0)
+        triangle.computeEdge(6, segment6)
 
         assertThat(segment0).isEqualTo(ImmutableSegment(P0, P1))
         assertThat(segment6).isEqualTo(ImmutableSegment(P0, P1))
@@ -137,8 +137,8 @@ class ImmutableTriangleTest {
         val segment1 = MutableSegment()
         val segment7 = MutableSegment()
 
-        triangle.populateEdge(1, segment1)
-        triangle.populateEdge(7, segment7)
+        triangle.computeEdge(1, segment1)
+        triangle.computeEdge(7, segment7)
 
         assertThat(segment1).isEqualTo(ImmutableSegment(P1, P2))
         assertThat(segment7).isEqualTo(ImmutableSegment(P1, P2))
@@ -150,8 +150,8 @@ class ImmutableTriangleTest {
         val segment2 = MutableSegment()
         val segment8 = MutableSegment()
 
-        triangle.populateEdge(2, segment2)
-        triangle.populateEdge(8, segment8)
+        triangle.computeEdge(2, segment2)
+        triangle.computeEdge(8, segment8)
 
         assertThat(segment2).isEqualTo(ImmutableSegment(P2, P0))
         assertThat(segment8).isEqualTo(ImmutableSegment(P2, P0))
@@ -166,28 +166,7 @@ class ImmutableTriangleTest {
     }
 
     @Test
-    fun asImmutable_withSameValues_returnsSelf() {
-        val triangle = ImmutableTriangle(P0, P1, P2)
-        val output = triangle.asImmutable(P0, P1, P2)
-
-        assertThat(output).isSameInstanceAs(triangle)
-    }
-
-    @Test
-    fun asImmutable_withDifferentValues_returnsNewInstance() {
-        val triangle = ImmutableTriangle(P0, P1, P2)
-        val p0 = ImmutableVec(10f, 20f)
-        val p1 = ImmutableVec(30f, 40f)
-        val p2 = ImmutableVec(50f, 60f)
-        val output = triangle.asImmutable(p0, p1, p2)
-
-        assertThat(output.p0).isSameInstanceAs(p0)
-        assertThat(output.p1).isSameInstanceAs(p1)
-        assertThat(output.p2).isSameInstanceAs(p2)
-    }
-
-    @Test
-    fun isAlmostEqual_usesTolereneceToCompareValues() {
+    fun isAlmostEqual_usesToleranceToCompareValues() {
         val triangle =
             ImmutableTriangle(ImmutableVec(1f, 2f), ImmutableVec(3f, 4f), ImmutableVec(5f, 6f))
         val other =

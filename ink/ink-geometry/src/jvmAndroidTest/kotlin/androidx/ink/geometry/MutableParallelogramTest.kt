@@ -358,16 +358,16 @@ class MutableParallelogramTest {
         val negativeAreaParallelogram =
             MutableParallelogram.fromCenterAndDimensions(MutableVec(0f, 10f), 2f, -3f)
 
-        assertThat(parallelogram.signedArea()).isEqualTo(24f)
-        assertThat(degenerateParallelogram.signedArea()).isZero()
-        assertThat(negativeAreaParallelogram.signedArea()).isEqualTo(-6f)
+        assertThat(parallelogram.computeSignedArea()).isEqualTo(24f)
+        assertThat(degenerateParallelogram.computeSignedArea()).isZero()
+        assertThat(negativeAreaParallelogram.computeSignedArea()).isEqualTo(-6f)
     }
 
     @Test
     fun toString_returnsCorrectValue() {
         val parallelogramString =
             MutableParallelogram.fromCenterDimensionsRotationAndShear(
-                    ImmutableVec(3f, -5f),
+                    MutableVec(3f, -5f),
                     8f,
                     -1f,
                     Angle.HALF_TURN_RADIANS,

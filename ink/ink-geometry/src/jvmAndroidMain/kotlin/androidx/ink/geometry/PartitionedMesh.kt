@@ -210,12 +210,12 @@ public constructor(
             triangleP1Y = triangle.p1.y,
             triangleP2X = triangle.p2.x,
             triangleP2Y = triangle.p2.y,
-            triangleToThisTransformA = triangleToThis.a,
-            triangleToThisTransformB = triangleToThis.b,
-            triangleToThisTransformC = triangleToThis.c,
-            triangleToThisTransformD = triangleToThis.d,
-            triangleToThisTransformE = triangleToThis.e,
-            triangleToThisTransformF = triangleToThis.f,
+            triangleToThisTransformA = triangleToThis.m00,
+            triangleToThisTransformB = triangleToThis.m10,
+            triangleToThisTransformC = triangleToThis.m20,
+            triangleToThisTransformD = triangleToThis.m01,
+            triangleToThisTransformE = triangleToThis.m11,
+            triangleToThisTransformF = triangleToThis.m21,
         )
 
     /**
@@ -242,12 +242,12 @@ public constructor(
             boxYMin = box.yMin,
             boxXMax = box.xMax,
             boxYMax = box.yMax,
-            boxToThisTransformA = boxToThis.a,
-            boxToThisTransformB = boxToThis.b,
-            boxToThisTransformC = boxToThis.c,
-            boxToThisTransformD = boxToThis.d,
-            boxToThisTransformE = boxToThis.e,
-            boxToThisTransformF = boxToThis.f,
+            boxToThisTransformA = boxToThis.m00,
+            boxToThisTransformB = boxToThis.m10,
+            boxToThisTransformC = boxToThis.m20,
+            boxToThisTransformD = boxToThis.m01,
+            boxToThisTransformE = boxToThis.m11,
+            boxToThisTransformF = boxToThis.m21,
         )
 
     /**
@@ -280,12 +280,12 @@ public constructor(
             parallelogramHeight = parallelogram.height,
             parallelogramAngleInRadian = parallelogram.rotation,
             parallelogramShearFactor = parallelogram.shearFactor,
-            parallelogramToThisTransformA = parallelogramToThis.a,
-            parallelogramToThisTransformB = parallelogramToThis.b,
-            parallelogramToThisTransformC = parallelogramToThis.c,
-            parallelogramToThisTransformD = parallelogramToThis.d,
-            parallelogramToThisTransformE = parallelogramToThis.e,
-            parallelogramToThisTransformF = parallelogramToThis.f,
+            parallelogramToThisTransformA = parallelogramToThis.m00,
+            parallelogramToThisTransformB = parallelogramToThis.m10,
+            parallelogramToThisTransformC = parallelogramToThis.m20,
+            parallelogramToThisTransformD = parallelogramToThis.m01,
+            parallelogramToThisTransformE = parallelogramToThis.m11,
+            parallelogramToThisTransformF = parallelogramToThis.m21,
         )
 
     /**
@@ -313,12 +313,12 @@ public constructor(
         ModeledShapeNative.modeledShapeModeledShapeCoverage(
             thisShapeNativeAddress = nativeAddress,
             otherShapeNativeAddress = other.nativeAddress,
-            otherShapeToThisTransformA = otherShapeToThis.a,
-            otherShapeToThisTransformB = otherShapeToThis.b,
-            otherShapeToThisTransformC = otherShapeToThis.c,
-            otherShapeToThisTransformD = otherShapeToThis.d,
-            otherShapeToThisTransformE = otherShapeToThis.e,
-            otherShapeToThisTransformF = otherShapeToThis.f,
+            otherShapeToThisTransformA = otherShapeToThis.m00,
+            otherShapeToThisTransformB = otherShapeToThis.m10,
+            otherShapeToThisTransformC = otherShapeToThis.m20,
+            otherShapeToThisTransformD = otherShapeToThis.m01,
+            otherShapeToThisTransformE = otherShapeToThis.m11,
+            otherShapeToThisTransformF = otherShapeToThis.m21,
         )
 
     /**
@@ -353,12 +353,12 @@ public constructor(
             triangleP2X = triangle.p2.x,
             triangleP2Y = triangle.p2.y,
             coverageThreshold = coverageThreshold,
-            triangleToThisTransformA = triangleToThis.a,
-            triangleToThisTransformB = triangleToThis.b,
-            triangleToThisTransformC = triangleToThis.c,
-            triangleToThisTransformD = triangleToThis.d,
-            triangleToThisTransformE = triangleToThis.e,
-            triangleToThisTransformF = triangleToThis.f,
+            triangleToThisTransformA = triangleToThis.m00,
+            triangleToThisTransformB = triangleToThis.m10,
+            triangleToThisTransformC = triangleToThis.m20,
+            triangleToThisTransformD = triangleToThis.m01,
+            triangleToThisTransformE = triangleToThis.m11,
+            triangleToThisTransformF = triangleToThis.m21,
         )
 
     /**
@@ -390,12 +390,12 @@ public constructor(
             boxXMax = box.xMax,
             boxYMax = box.yMax,
             coverageThreshold = coverageThreshold,
-            boxToThisTransformA = boxToThis.a,
-            boxToThisTransformB = boxToThis.b,
-            boxToThisTransformC = boxToThis.c,
-            boxToThisTransformD = boxToThis.d,
-            boxToThisTransformE = boxToThis.e,
-            boxToThisTransformF = boxToThis.f,
+            boxToThisTransformA = boxToThis.m00,
+            boxToThisTransformB = boxToThis.m10,
+            boxToThisTransformC = boxToThis.m20,
+            boxToThisTransformD = boxToThis.m01,
+            boxToThisTransformE = boxToThis.m11,
+            boxToThisTransformF = boxToThis.m21,
         )
 
     /**
@@ -430,12 +430,12 @@ public constructor(
             parallelogramAngleInRadian = parallelogram.rotation,
             parallelogramShearFactor = parallelogram.shearFactor,
             coverageThreshold = coverageThreshold,
-            parallelogramToThisTransformA = parallelogramToThis.a,
-            parallelogramToThisTransformB = parallelogramToThis.b,
-            parallelogramToThisTransformC = parallelogramToThis.c,
-            parallelogramToThisTransformD = parallelogramToThis.d,
-            parallelogramToThisTransformE = parallelogramToThis.e,
-            parallelogramToThisTransformF = parallelogramToThis.f,
+            parallelogramToThisTransformA = parallelogramToThis.m00,
+            parallelogramToThisTransformB = parallelogramToThis.m10,
+            parallelogramToThisTransformC = parallelogramToThis.m20,
+            parallelogramToThisTransformD = parallelogramToThis.m01,
+            parallelogramToThisTransformE = parallelogramToThis.m11,
+            parallelogramToThisTransformF = parallelogramToThis.m21,
         )
 
     /**
@@ -465,12 +465,12 @@ public constructor(
             thisShapeNativeAddress = nativeAddress,
             otherShapeNativeAddress = other.nativeAddress,
             coverageThreshold = coverageThreshold,
-            otherShapeToThisTransformA = otherShapeToThis.a,
-            otherShapeToThisTransformB = otherShapeToThis.b,
-            otherShapeToThisTransformC = otherShapeToThis.c,
-            otherShapeToThisTransformD = otherShapeToThis.d,
-            otherShapeToThisTransformE = otherShapeToThis.e,
-            otherShapeToThisTransformF = otherShapeToThis.f,
+            otherShapeToThisTransformA = otherShapeToThis.m00,
+            otherShapeToThisTransformB = otherShapeToThis.m10,
+            otherShapeToThisTransformC = otherShapeToThis.m20,
+            otherShapeToThisTransformD = otherShapeToThis.m01,
+            otherShapeToThisTransformE = otherShapeToThis.m11,
+            otherShapeToThisTransformF = otherShapeToThis.m21,
         )
 
     /**

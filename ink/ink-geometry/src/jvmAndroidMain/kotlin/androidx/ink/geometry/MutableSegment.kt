@@ -21,77 +21,40 @@ import androidx.annotation.RestrictTo
 /**
  * Represents a mutable directed line segment between two points. See [ImmutableSegment] for the
  * immutable alternative.
+ *
+ * @constructor Create the [MutableSegment] from two existing [MutableVec] instances. Note that
+ *   these instances will become the internal state of this [MutableSegment], so modifications made
+ *   to them directly or through setters on this [MutableSegment] will modify the input [MutableVec]
+ *   instances too. This is to allow performance-critical code to avoid any unnecessary allocations.
+ *   This can be tricky to manage, especially in multithreaded code, so when calling code is unable
+ *   to guarantee ownership of the nested mutable data at a particular time, it may be safest to
+ *   construct this with copies of the data to give this [MutableSegment] exclusive ownership of
+ *   those copies.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public class MutableSegment(start: Vec, end: Vec) : Segment {
-
-    private var _start = MutableVec(start.x, start.y)
-    private var _end = MutableVec(end.x, end.y)
-
-    override var start: Vec = _start
-        private set
-
-    override var end: Vec = _end
-        private set
+public class MutableSegment(override var start: MutableVec, override var end: MutableVec) :
+    Segment() {
 
     /** Constructs a degenerate [MutableSegment] with both [start] and [end] set to (0f, 0f) */
     public constructor() : this(MutableVec(0f, 0f), MutableVec(0f, 0f))
 
-    /** Sets this segment’s [start] point. */
-    public fun start(point: Vec): MutableSegment {
-        this._start.x = point.x
-        this._start.y = point.y
-        return this
-    }
-
-    /** Sets this segment's [start] point to ([x], [y]). */
-    public fun start(x: Float, y: Float): MutableSegment {
-        this._start.x = x
-        this._start.y = y
-        return this
-    }
-
-    /** Sets this segment’s [end] point. */
-    public fun end(point: Vec): MutableSegment {
-        this._end.x = point.x
-        this._end.y = point.y
-        return this
-    }
-
-    /** Sets this segment's [end] point to ([x], [y]). */
-    public fun end(x: Float, y: Float): MutableSegment {
-        this._end.x = x
-        this._end.y = y
-        return this
-    }
-
-    /** Fills this [MutableSegment] with the same values contained in [input]. */
+    /** Fills this [MutableSegment] with the same values contained in [input] and returns `this`. */
     public fun populateFrom(input: Segment): MutableSegment {
-        this._start.x = input.start.x
-        this._start.y = input.start.y
-        this._end.x = input.end.x
-        this._end.y = input.end.y
+        this.start.x = input.start.x
+        this.start.y = input.start.y
+        this.end.x = input.end.x
+        this.end.y = input.end.y
         return this
     }
 
-    override val vec: ImmutableVec
-        get() = ImmutableVec(end.x - start.x, end.y - start.y)
-
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun asImmutable(): ImmutableSegment = ImmutableSegment(this.start, this.end)
 
-    @JvmSynthetic
-    override fun asImmutable(start: Vec, end: Vec): ImmutableSegment {
-        return ImmutableSegment(start, end)
-    }
-
-    override val midpoint: ImmutableVec
-        get() = ImmutableVec((start.x + end.x) / 2, (start.y + end.y) / 2)
-
     override fun equals(other: Any?): Boolean =
-        other === this || (other is Segment && Segment.areEquivalent(this, other))
+        other === this || (other is Segment && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = Segment.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Mutable${Segment.string(this)}"
+    override fun toString(): String = "Mutable${string(this)}"
 }

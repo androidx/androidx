@@ -31,15 +31,15 @@ private constructor(
     override val height: Float,
     @AngleRadiansFloat override val rotation: Float,
     override val shearFactor: Float,
-) : Parallelogram {
+) : Parallelogram() {
 
     override fun equals(other: Any?): Boolean =
-        other === this || (other is Parallelogram && Parallelogram.areEquivalent(this, other))
+        other === this || (other is Parallelogram && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode
-    override fun hashCode(): Int = Parallelogram.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Immutable${Parallelogram.string(this)}"
+    override fun toString(): String = "Immutable${string(this)}"
 
     public companion object {
 
@@ -54,10 +54,7 @@ private constructor(
             @FloatRange(from = 0.0) width: Float,
             height: Float,
         ): ImmutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation = Angle.ZERO) {
-                w: Float,
-                h: Float,
-                r: Float ->
+            normalizeAndRun(width, height, rotation = Angle.ZERO) { w: Float, h: Float, r: Float ->
                 ImmutableParallelogram(center, w, h, r, shearFactor = 0f)
             }
 
@@ -74,7 +71,7 @@ private constructor(
             height: Float,
             @AngleRadiansFloat rotation: Float,
         ): ImmutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
                 ImmutableParallelogram(center, w, h, r, shearFactor = 0f)
             }
 
@@ -91,7 +88,7 @@ private constructor(
             @AngleRadiansFloat rotation: Float,
             shearFactor: Float,
         ): ImmutableParallelogram =
-            Parallelogram.normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
+            normalizeAndRun(width, height, rotation) { w: Float, h: Float, r: Float ->
                 ImmutableParallelogram(center, w, h, r, shearFactor)
             }
     }

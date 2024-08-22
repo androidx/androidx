@@ -23,32 +23,23 @@ import androidx.annotation.RestrictTo
  * immutable, so it is inherently thread-safe. See [MutableTriangle] for the mutable version.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public class ImmutableTriangle(p0: Vec, p1: Vec, p2: Vec) : Triangle {
+public class ImmutableTriangle(p0: Vec, p1: Vec, p2: Vec) : Triangle() {
 
-    @Suppress("Immutable") override val p0: Vec = p0.asImmutable
-    @Suppress("Immutable") override val p1: Vec = p1.asImmutable
-    @Suppress("Immutable") override val p2: Vec = p2.asImmutable
+    @Suppress("Immutable") override val p0: Vec = p0.asImmutable()
+    @Suppress("Immutable") override val p1: Vec = p1.asImmutable()
+    @Suppress("Immutable") override val p2: Vec = p2.asImmutable()
 
-    override fun asImmutable(): ImmutableTriangle = this
-
-    @JvmSynthetic
-    override fun asImmutable(p0: Vec, p1: Vec, p2: Vec): ImmutableTriangle {
-        if (this.p0 === p0 && this.p1 === p1 && this.p2 === p2) {
-            return this
-        }
-
-        return ImmutableTriangle(p0, p1, p2)
-    }
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) override fun asImmutable(): ImmutableTriangle = this
 
     /**
      * Equality for [ImmutableTriangle] is defined using the order in which [p0], [p1] and [p2] are
      * defined. Rotated/flipped triangles with out-of-order vertices are not considered equal.
      */
     override fun equals(other: Any?): Boolean =
-        other === this || (other is Triangle && Triangle.areEquivalent(this, other))
+        other === this || (other is Triangle && areEquivalent(this, other))
 
     // NOMUTANTS -- not testing exact hashCode values, just that equality implies same hashCode.
-    override fun hashCode(): Int = Triangle.hash(this)
+    override fun hashCode(): Int = hash(this)
 
-    override fun toString(): String = "Immutable${Triangle.string(this)}"
+    override fun toString(): String = "Immutable${string(this)}"
 }
