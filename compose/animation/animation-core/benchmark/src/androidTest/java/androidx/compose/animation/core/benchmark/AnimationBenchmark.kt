@@ -128,7 +128,7 @@ class AnimationBenchmark {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
         val anim =
-            VectorizedKeyframesSpec<AnimationVector4D>(
+            VectorizedKeyframesSpec(
                 keyframes =
                     mapOf(
                         0 to (start to LinearEasing),
@@ -150,7 +150,7 @@ class AnimationBenchmark {
         val start = AnimationVector4D(0f, 0f, 0f, 0f)
         val end = AnimationVector4D(120f, -50f, 256f, 0f)
         val anim =
-            VectorizedKeyframesSpec<AnimationVector4D>(
+            VectorizedKeyframesSpec(
                 keyframes =
                     mapOf(
                         0 to (start to LinearEasing),

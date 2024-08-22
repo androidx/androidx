@@ -674,7 +674,7 @@ public class KeyframesSpec<T>(public val config: KeyframesSpecConfig<T>) :
     internal constructor(
         value: T,
         easing: Easing = LinearEasing,
-        internal var arcMode: ArcMode = ArcMode.Companion.ArcLinear
+        internal var arcMode: ArcMode = ArcMode.ArcLinear
     ) : KeyframeBaseEntity<T>(value = value, easing = easing) {
 
         override fun equals(other: Any?): Boolean {
@@ -758,16 +758,17 @@ public class KeyframesWithSplineSpec<T>(
         converter: TwoWayConverter<T, V>
     ): VectorizedDurationBasedAnimationSpec<V> {
         // Allocate so that we don't resize the list even if the initial/last timestamps are missing
-        val timestamps = MutableIntList(config.keyframes.size + 2)
-        val timeToVectorMap = MutableIntObjectMap<Pair<V, Easing>>(config.keyframes.size)
-        config.keyframes.forEach { key, value ->
+        val keyframes = config.keyframes
+        val timestamps = MutableIntList(keyframes.size + 2)
+        val timeToVectorMap = MutableIntObjectMap<Pair<V, Easing>>(keyframes.size)
+        keyframes.forEach { key, value ->
             timestamps.add(key)
             timeToVectorMap[key] = Pair(converter.convertToVector(value.value), value.easing)
         }
-        if (!config.keyframes.contains(0)) {
+        if (!keyframes.contains(0)) {
             timestamps.add(0, 0)
         }
-        if (!config.keyframes.contains(config.durationMillis)) {
+        if (!keyframes.contains(config.durationMillis)) {
             timestamps.add(config.durationMillis)
         }
         timestamps.sort()
@@ -832,8 +833,8 @@ public fun <T> spring(
  * @see KeyframesSpec.KeyframesSpecConfig
  */
 @Stable
-public fun <T> keyframes(init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit): KeyframesSpec<T> {
-    return KeyframesSpec(KeyframesSpec.KeyframesSpecConfig<T>().apply(init))
+public fun <T> keyframes(init: KeyframesSpecConfig<T>.() -> Unit): KeyframesSpec<T> {
+    return KeyframesSpec(KeyframesSpecConfig<T>().apply(init))
 }
 
 /**

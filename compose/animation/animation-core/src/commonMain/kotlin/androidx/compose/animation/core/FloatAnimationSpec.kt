@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
@@ -149,8 +151,7 @@ public class FloatSpringSpec(
         // TODO: Properly support Nanos in the spring impl
         val playTimeMillis = playTimeNanos / MillisToNanos
         spring.finalPosition = targetValue
-        val value = spring.updateValues(initialValue, initialVelocity, playTimeMillis).value
-        return value
+        return spring.updateValues(initialValue, initialVelocity, playTimeMillis).value
     }
 
     override fun getVelocityFromNanos(
@@ -162,8 +163,7 @@ public class FloatSpringSpec(
         // TODO: Properly support Nanos in the spring impl
         val playTimeMillis = playTimeNanos / MillisToNanos
         spring.finalPosition = targetValue
-        val velocity = spring.updateValues(initialValue, initialVelocity, playTimeMillis).velocity
-        return velocity
+        return spring.updateValues(initialValue, initialVelocity, playTimeMillis).velocity
     }
 
     override fun getEndVelocity(
@@ -193,7 +193,7 @@ public class FloatSpringSpec(
  * specified, the animation will start right away.
  *
  * @param duration the amount of time (in milliseconds) the animation will take to finish. Defaults
- *   to [DefaultDuration]
+ *   to [DefaultDurationMillis]
  * @param delay the amount of time the animation will wait before it starts running. Defaults to 0.
  * @param easing the easing function that will be used to interoplate between the start and end
  *   value of the animation. Defaults to [FastOutSlowInEasing].
@@ -215,12 +215,12 @@ public class FloatTweenSpec(
     ): Float {
         val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
         val rawFraction = if (duration == 0) 1f else clampedPlayTimeNanos / durationNanos.toFloat()
-        val fraction = easing.transform(rawFraction.fastCoerceIn(0f, 1f))
+        val fraction = easing.transform(rawFraction)
         return lerp(initialValue, targetValue, fraction)
     }
 
-    private fun clampPlayTimeNanos(playTimeNanos: Long): Long {
-        return (playTimeNanos - delayNanos).coerceIn(0, durationNanos)
+    private inline fun clampPlayTimeNanos(playTimeNanos: Long): Long {
+        return (playTimeNanos - delayNanos).fastCoerceIn(0, durationNanos)
     }
 
     @Suppress("MethodNameUnits")
@@ -229,7 +229,7 @@ public class FloatTweenSpec(
         targetValue: Float,
         initialVelocity: Float
     ): Long {
-        return (delay + duration) * MillisToNanos
+        return delayNanos + durationNanos
     }
 
     // Calculate velocity by difference between the current value and the value 1 ms ago. This is a
@@ -242,9 +242,7 @@ public class FloatTweenSpec(
         initialVelocity: Float
     ): Float {
         val clampedPlayTimeNanos = clampPlayTimeNanos(playTimeNanos)
-        if (clampedPlayTimeNanos < 0L) {
-            return 0f
-        } else if (clampedPlayTimeNanos == 0L) {
+        if (clampedPlayTimeNanos == 0L) {
             return initialVelocity
         }
         val startNum =

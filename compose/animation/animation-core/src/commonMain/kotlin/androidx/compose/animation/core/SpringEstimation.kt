@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.RestrictTo
+import androidx.compose.ui.util.fastIsFinite
 import kotlin.math.abs
 import kotlin.math.exp
 import kotlin.math.ln
@@ -67,12 +68,17 @@ public fun estimateAnimationDurationMillis(
     // Compute the roots of the polynomial [a]x^2+[b]x+[c]=0 which may be complex.
     // Here a is set to the constant 1.0, and folded into the other computations
     val partialRoot = dampingCoefficient * dampingCoefficient - 4.0 * stiffness
-    val firstRoot = (-dampingCoefficient + complexSqrt(partialRoot)) * 0.5
-    val secondRoot = (-dampingCoefficient - complexSqrt(partialRoot)) * 0.5
+    val partialRootReal = if (partialRoot < 0.0) 0.0 else sqrt(partialRoot)
+    val partialRootImaginary = if (partialRoot < 0.0) sqrt(abs(partialRoot)) else 0.0
+
+    val firstRootReal = (-dampingCoefficient + partialRootReal) * 0.5
+    val firstRootImaginary = partialRootImaginary * 0.5
+    val secondRootReal = (-dampingCoefficient - partialRootReal) * 0.5
 
     return estimateDurationInternal(
-        firstRoot,
-        secondRoot,
+        firstRootReal,
+        firstRootImaginary,
+        secondRootReal,
         dampingRatio,
         initialVelocity,
         initialDisplacement,
@@ -96,12 +102,17 @@ public fun estimateAnimationDurationMillis(
     // Compute the roots of the polynomial [a]x^2+[b]x+[c]=0 which may be complex.
     val partialRoot = dampingCoefficient * dampingCoefficient - 4.0 * mass * springConstant
     val divisor = 1.0 / (2.0 * mass)
-    val firstRoot = (-dampingCoefficient + complexSqrt(partialRoot)) * divisor
-    val secondRoot = (-dampingCoefficient - complexSqrt(partialRoot)) * divisor
+    val partialRootReal = if (partialRoot < 0.0) 0.0 else sqrt(partialRoot)
+    val partialRootImaginary = if (partialRoot < 0.0) sqrt(abs(partialRoot)) else 0.0
+
+    val firstRootReal = (-dampingCoefficient + partialRootReal) * divisor
+    val firstRootImaginary = partialRootImaginary * divisor
+    val secondRootReal = (-dampingCoefficient - partialRootReal) * divisor
 
     return estimateDurationInternal(
-        firstRoot,
-        secondRoot,
+        firstRootReal,
+        firstRootImaginary,
+        secondRootReal,
         dampingRatio,
         initialVelocity,
         initialDisplacement,
@@ -115,14 +126,15 @@ public fun estimateAnimationDurationMillis(
  * c*e^(r*t)*cos(...) where c*e^(r*t) is the envelope of x(t)
  */
 private fun estimateUnderDamped(
-    firstRoot: ComplexDouble,
+    firstRootReal: Double,
+    firstRootImaginary: Double,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r = firstRoot.real
+    val r = firstRootReal
     val c1 = p0
-    val c2 = (v0 - r * c1) / firstRoot.imaginary
+    val c2 = (v0 - r * c1) / firstRootImaginary
     val c = sqrt(c1 * c1 + c2 * c2)
 
     return ln(delta / c) / r
@@ -133,12 +145,12 @@ private fun estimateUnderDamped(
  * equation x(t) = c_1*e^(r*t) + c_2*t*e^(r*t)
  */
 private fun estimateCriticallyDamped(
-    firstRoot: ComplexDouble,
+    firstRootReal: Double,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r = firstRoot.real
+    val r = firstRootReal
     val c1 = p0
     val c2 = v0 - r * c1
 
@@ -214,14 +226,14 @@ private fun estimateCriticallyDamped(
  * equation x(t) = c_1*e^(r_1*t) + c_2*e^(r_2*t)
  */
 private fun estimateOverDamped(
-    firstRoot: ComplexDouble,
-    secondRoot: ComplexDouble,
+    firstRootReal: Double,
+    secondRootReal: Double,
     p0: Double,
     v0: Double,
     delta: Double
 ): Double {
-    val r1 = firstRoot.real
-    val r2 = secondRoot.real
+    val r1 = firstRootReal
+    val r2 = secondRootReal
     val c2 = (r1 * p0 - v0) / (r1 - r2)
     val c1 = p0 - c2
 
@@ -293,8 +305,9 @@ private fun estimateOverDamped(
 // Applies Newton-Raphson's method to solve for the estimated time the spring mass system will
 // last be at [delta].
 private fun estimateDurationInternal(
-    firstRoot: ComplexDouble,
-    secondRoot: ComplexDouble,
+    firstRootReal: Double,
+    firstRootImaginary: Double,
+    secondRootReal: Double,
     dampingRatio: Double,
     initialVelocity: Double,
     initialPosition: Double,
@@ -309,16 +322,16 @@ private fun estimateDurationInternal(
 
     return (when {
             dampingRatio > 1.0 ->
-                estimateOverDamped(
-                    firstRoot = firstRoot,
-                    secondRoot = secondRoot,
+                estimateOverDamped(firstRootReal, secondRootReal, p0 = p0, v0 = v0, delta = delta)
+            dampingRatio < 1.0 ->
+                estimateUnderDamped(
+                    firstRootReal,
+                    firstRootImaginary,
                     v0 = v0,
                     p0 = p0,
                     delta = delta
                 )
-            dampingRatio < 1.0 ->
-                estimateUnderDamped(firstRoot = firstRoot, v0 = v0, p0 = p0, delta = delta)
-            else -> estimateCriticallyDamped(firstRoot = firstRoot, v0 = v0, p0 = p0, delta = delta)
+            else -> estimateCriticallyDamped(firstRootReal, p0 = p0, v0 = v0, delta = delta)
         } * 1000.0)
         .toLong()
 }
@@ -331,4 +344,4 @@ private inline fun iterateNewtonsMethod(
     return x - fn(x) / fnPrime(x)
 }
 
-@Suppress("NOTHING_TO_INLINE") private inline fun Double.isNotFinite() = !isFinite()
+@Suppress("NOTHING_TO_INLINE") private inline fun Double.isNotFinite() = !fastIsFinite()
