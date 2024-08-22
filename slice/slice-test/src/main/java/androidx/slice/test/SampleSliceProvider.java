@@ -1680,7 +1680,7 @@ public class SampleSliceProvider extends SliceProvider {
         private SetHostExtraApi21Impl() {}
         static void setHostExtra(ListBuilder listBuilder, String key, String value) {
             PersistableBundle extras = new PersistableBundle();
-            extras.putString("tts", "hello world");
+            extras.putString(key, value);
             // Attach additional information for host. Depending on the host apps, this
             // information might or might not be used.
             // In this case, SliceBrowser is customized to play TTS when binding the slice.

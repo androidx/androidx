@@ -71,7 +71,7 @@ public class BatchedMotionEvent {
             return mMotionEvent;
         }
 
-        public @NonNull int getPointerCount() {
+        public int getPointerCount() {
             return mPointerCount;
         }
 

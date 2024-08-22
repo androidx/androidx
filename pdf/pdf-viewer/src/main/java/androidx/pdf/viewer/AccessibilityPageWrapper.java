@@ -84,7 +84,6 @@ public class AccessibilityPageWrapper extends FrameLayout implements PageViewFac
         mPageLinksView.setPageUrlLinks(links);
     }
 
-    @NonNull
     @Override
     public void setPageGotoLinks(@Nullable List<GotoLink> links) {
         mPageView.setPageGotoLinks(links);

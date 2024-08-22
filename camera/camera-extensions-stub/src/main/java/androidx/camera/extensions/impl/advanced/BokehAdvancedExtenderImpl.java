@@ -105,7 +105,6 @@ public class BokehAdvancedExtenderImpl implements AdvancedExtenderImpl {
     }
 
     @Override
-    @NonNull
     public boolean isCaptureProcessProgressAvailable() {
         throw new RuntimeException("Stub, replace with implementation.");
     }

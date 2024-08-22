@@ -354,7 +354,6 @@ public class SliceMetadata {
      *
      * @return the current value of a progress bar or input range associated with this slice.
      */
-    @NonNull
     public int getRangeValue() {
         if (mTemplateType == ROW_TYPE_SLIDER
                 || mTemplateType == ROW_TYPE_PROGRESS) {

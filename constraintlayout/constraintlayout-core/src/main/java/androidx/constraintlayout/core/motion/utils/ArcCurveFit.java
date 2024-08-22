@@ -399,10 +399,12 @@ public class ArcCurveFit extends CurveFit {
             return mY1 + t * (mY2 - mY1);
         }
 
+        @SuppressWarnings("UnusedVariable")
         public double getLinearDX(double t) {
             return mEllipseCenterX;
         }
 
+        @SuppressWarnings("UnusedVariable")
         public double getLinearDY(double t) {
             return mEllipseCenterY;
         }

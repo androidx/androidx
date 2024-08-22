@@ -401,6 +401,7 @@ public class WearableActionDrawerView extends WearableDrawerView {
                     }
                 };
 
+        @SuppressWarnings("UnusedVariable")
         ActionListAdapter(Menu menu) {
             mActionMenu = getMenu();
         }
