@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.animation.core
 
 import androidx.compose.ui.geometry.Offset
@@ -24,6 +26,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
@@ -64,7 +67,7 @@ private class TwoWayConverterImpl<T, V : AnimationVector>(
     override val convertFromVector: (V) -> T
 ) : TwoWayConverter<T, V>
 
-internal fun lerp(start: Float, stop: Float, fraction: Float) =
+internal inline fun lerp(start: Float, stop: Float, fraction: Float) =
     (start * (1 - fraction) + stop * fraction)
 
 /** A [TwoWayConverter] that converts [Float] from and to [AnimationVector1D] */
@@ -157,8 +160,8 @@ private val IntSizeToVector: TwoWayConverter<IntSize, AnimationVector2D> =
         { AnimationVector2D(it.width.toFloat(), it.height.toFloat()) },
         {
             IntSize(
-                width = it.v1.fastRoundToInt().coerceAtLeast(0),
-                height = it.v2.fastRoundToInt().coerceAtLeast(0)
+                width = it.v1.fastRoundToInt().fastCoerceAtLeast(0),
+                height = it.v2.fastRoundToInt().fastCoerceAtLeast(0)
             )
         }
     )

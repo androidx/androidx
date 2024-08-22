@@ -107,18 +107,20 @@ class KeyframesSpecWithSplineBenchmark {
         val frame0 = playTimeNanosToEvaluate
         val frame1 = frame0 + (1000.0f / 60 * 1_000_000).roundToLong()
         benchmarkRule.measureRepeated {
-            vectorized.getValueFromNanos(
-                playTimeNanos = frame0,
-                initialValue = initialVector,
-                targetValue = targetVector,
-                initialVelocity = initialVector
-            )
-            vectorized.getValueFromNanos(
-                playTimeNanos = frame1,
-                initialValue = initialVector,
-                targetValue = targetVector,
-                initialVelocity = initialVector
-            )
+            for (i in 0..10) {
+                vectorized.getValueFromNanos(
+                    playTimeNanos = frame0,
+                    initialValue = initialVector,
+                    targetValue = targetVector,
+                    initialVelocity = initialVector
+                )
+                vectorized.getValueFromNanos(
+                    playTimeNanos = frame1,
+                    initialValue = initialVector,
+                    targetValue = targetVector,
+                    initialVelocity = initialVector
+                )
+            }
         }
     }
 

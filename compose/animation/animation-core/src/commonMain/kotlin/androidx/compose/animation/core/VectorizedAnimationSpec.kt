@@ -278,23 +278,23 @@ internal constructor(
      *
      * This will be used to do a faster lookup for the corresponding Easing curves.
      */
-    private lateinit var modes: IntArray
-    private lateinit var times: FloatArray
-    private lateinit var valueVector: V
-    private lateinit var velocityVector: V
+    private var modes: IntArray = EmptyIntArray
+    private var times: FloatArray = EmptyFloatArray
+    private var valueVector: V? = null
+    private var velocityVector: V? = null
 
     // Objects for ArcSpline
-    private lateinit var lastInitialValue: V
-    private lateinit var lastTargetValue: V
-    private lateinit var posArray: FloatArray
-    private lateinit var slopeArray: FloatArray
-    private lateinit var arcSpline: ArcSpline
+    private var lastInitialValue: V? = null
+    private var lastTargetValue: V? = null
+    private var posArray: FloatArray = EmptyFloatArray
+    private var slopeArray: FloatArray = EmptyFloatArray
+    private var arcSpline: ArcSpline = EmptyArcSpline
 
     private fun init(initialValue: V, targetValue: V, initialVelocity: V) {
-        var requiresArcSpline = ::arcSpline.isInitialized
+        var requiresArcSpline = arcSpline !== EmptyArcSpline
 
         // Only need to initialize once
-        if (!::valueVector.isInitialized) {
+        if (valueVector == null) {
             valueVector = initialValue.newInstance()
             velocityVector = initialVelocity.newInstance()
 
@@ -317,7 +317,7 @@ internal constructor(
 
         // Initialize variables dependent on initial and/or target value
         if (
-            !::arcSpline.isInitialized ||
+            arcSpline === EmptyArcSpline ||
                 lastInitialValue != initialValue ||
                 lastTargetValue != targetValue
         ) {
@@ -333,26 +333,18 @@ internal constructor(
             //  may change, and only if the keyframes does not overwrite it
             val values =
                 Array(timestamps.size) {
-                    when (val timestamp = timestamps[it]) {
-                        // Start (zero) and end (durationMillis) may not have been declared in
-                        // keyframes
-                        0 -> {
-                            if (!keyframes.contains(timestamp)) {
-                                FloatArray(dimensionCount, initialValue::get)
-                            } else {
-                                FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
-                            }
-                        }
-                        durationMillis -> {
-                            if (!keyframes.contains(timestamp)) {
-                                FloatArray(dimensionCount, targetValue::get)
-                            } else {
-                                FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
-                            }
-                        }
-
+                    val timestamp = timestamps[it]
+                    val info = keyframes[timestamp]
+                    // Start (zero) and end (durationMillis) may not have been declared in
+                    // keyframes
+                    if (timestamp == 0 && info == null) {
+                        FloatArray(dimensionCount) { i -> initialValue[i] }
+                    } else if (timestamp == durationMillis && info == null) {
+                        FloatArray(dimensionCount) { i -> targetValue[i] }
+                    } else {
                         // All other values are guaranteed to exist
-                        else -> FloatArray(dimensionCount, keyframes[timestamp]!!.vectorValue::get)
+                        val vectorValue = info!!.vectorValue
+                        FloatArray(dimensionCount) { i -> vectorValue[i] }
                     }
                 }
             arcSpline = ArcSpline(arcModes = modes, timePoints = times, y = values)
@@ -373,21 +365,28 @@ internal constructor(
         val clampedPlayTime = clampPlayTime(playTimeMillis).toInt()
 
         // If there is a key frame defined with the given time stamp, return that value
-        if (keyframes.contains(clampedPlayTime)) {
-            return keyframes[clampedPlayTime]!!.vectorValue
+        val keyframe = keyframes[clampedPlayTime]
+        if (keyframe != null) {
+            return keyframe.vectorValue
         }
 
         if (clampedPlayTime >= durationMillis) {
             return targetValue
-        } else if (clampedPlayTime <= 0) return initialValue
+        } else if (clampedPlayTime <= 0) {
+            return initialValue
+        }
 
         init(initialValue, targetValue, initialVelocity)
 
+        // Cannot be null after calling init()
+        val valueVector = valueVector!!
+
         // ArcSpline is only initialized when necessary
-        if (::arcSpline.isInitialized) {
+        if (arcSpline !== EmptyArcSpline) {
             // ArcSpline requires eased play time in seconds
             val easedTime = getEasedTime(clampedPlayTime)
 
+            val posArray = posArray
             arcSpline.getPos(time = easedTime, v = posArray)
             for (i in posArray.indices) {
                 valueVector[i] = posArray[i]
@@ -402,28 +401,18 @@ internal constructor(
         val easedTime = getEasedTimeFromIndex(index, clampedPlayTime, true)
 
         val timestampStart = timestamps[index]
-        val startValue: V =
-            if (keyframes.contains(timestampStart)) {
-                keyframes[timestampStart]!!.vectorValue
-            } else {
-                // Use initial value if it wasn't overwritten by the user
-                // This is always the correct fallback assuming timestamps and keyframes were
-                // populated
-                // as expected
-                initialValue
-            }
+        val startKeyframe = keyframes[timestampStart]
+        // Use initial value if it wasn't overwritten by the user
+        // This is always the correct fallback assuming timestamps and keyframes were populated
+        // as expected
+        val startValue: V = startKeyframe?.vectorValue ?: initialValue
 
         val timestampEnd = timestamps[index + 1]
-        val endValue =
-            if (keyframes.contains(timestampEnd)) {
-                keyframes[timestampEnd]!!.vectorValue
-            } else {
-                // Use target value if it wasn't overwritten by the user
-                // This is always the correct fallback assuming timestamps and keyframes were
-                // populated
-                // as expected
-                targetValue
-            }
+        val endKeyframe = keyframes[timestampEnd]
+        // Use target value if it wasn't overwritten by the user
+        // This is always the correct fallback assuming timestamps and keyframes were populated
+        // as expected
+        val endValue: V = endKeyframe?.vectorValue ?: targetValue
 
         for (i in 0 until valueVector.size) {
             valueVector[i] = lerp(startValue[i], endValue[i], easedTime)
@@ -445,9 +434,13 @@ internal constructor(
 
         init(initialValue, targetValue, initialVelocity)
 
+        // Cannot be null after calling init()
+        val velocityVector = velocityVector!!
+
         // ArcSpline is only initialized when necessary
-        if (::arcSpline.isInitialized) {
+        if (arcSpline !== EmptyArcSpline) {
             val easedTime = getEasedTime(clampedPlayTime.toInt())
+            val slopeArray = slopeArray
             arcSpline.getSlope(time = easedTime, v = slopeArray)
             for (i in slopeArray.indices) {
                 velocityVector[i] = slopeArray[i]
@@ -859,7 +852,7 @@ private constructor(
     public val dampingRatio: Float,
     public val stiffness: Float,
     anims: Animations
-) : VectorizedFiniteAnimationSpec<V> by VectorizedFloatAnimationSpec<V>(anims) {
+) : VectorizedFiniteAnimationSpec<V> by VectorizedFloatAnimationSpec(anims) {
 
     /**
      * Creates a [VectorizedSpringSpec] that uses the same spring constants (i.e. [dampingRatio] and
@@ -887,17 +880,17 @@ private fun <V : AnimationVector> createSpringAnimations(
     dampingRatio: Float,
     stiffness: Float
 ): Animations {
-    if (visibilityThreshold != null) {
-        return object : Animations {
+    return if (visibilityThreshold != null) {
+        object : Animations {
             private val anims =
-                (0 until visibilityThreshold.size).map { index ->
+                Array(visibilityThreshold.size) { index ->
                     FloatSpringSpec(dampingRatio, stiffness, visibilityThreshold[index])
                 }
 
             override fun get(index: Int): FloatSpringSpec = anims[index]
         }
     } else {
-        return object : Animations {
+        object : Animations {
             private val anim = FloatSpringSpec(dampingRatio, stiffness)
 
             override fun get(index: Int): FloatSpringSpec = anim
@@ -1027,17 +1020,18 @@ internal constructor(private val anims: Animations) : VectorizedFiniteAnimationS
     @Suppress("MethodNameUnits")
     override fun getDurationNanos(initialValue: V, targetValue: V, initialVelocity: V): Long {
         var maxDuration = 0L
-        (0 until initialValue.size).forEach {
+        for (i in 0 until initialValue.size) {
             maxDuration =
                 maxOf(
                     maxDuration,
-                    anims[it].getDurationNanos(
-                        initialValue[it],
-                        targetValue[it],
-                        initialVelocity[it]
-                    )
+                    anims[i].getDurationNanos(initialValue[i], targetValue[i], initialVelocity[i])
                 )
         }
         return maxDuration
     }
 }
+
+private val EmptyIntArray: IntArray = IntArray(0)
+private val EmptyFloatArray: FloatArray = FloatArray(0)
+private val EmptyArcSpline =
+    ArcSpline(IntArray(2), FloatArray(2), arrayOf(FloatArray(2), FloatArray(2)))
