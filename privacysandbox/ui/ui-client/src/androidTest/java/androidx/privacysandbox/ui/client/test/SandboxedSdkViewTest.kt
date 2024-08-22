@@ -181,7 +181,7 @@ class SandboxedSdkViewTest {
                 view.layoutParams = LinearLayout.LayoutParams(initialWidth, initialHeight)
             }
 
-            fun requestSizeChange(width: Int, height: Int) {
+            fun requestResize(width: Int, height: Int) {
                 internalClient?.onResizeRequested(width, height)
             }
 
@@ -481,7 +481,7 @@ class SandboxedSdkViewTest {
             layout.addView(view)
         }
         testSandboxedUiAdapter.assertSessionOpened()
-        testSandboxedUiAdapter.testSession?.requestSizeChange(layout.width, layout.height)
+        testSandboxedUiAdapter.testSession?.requestResize(layout.width, layout.height)
         val observer = view.viewTreeObserver
         observer.addOnGlobalLayoutListener(
             object : ViewTreeObserver.OnGlobalLayoutListener {
@@ -617,10 +617,10 @@ class SandboxedSdkViewTest {
 
     @Ignore("b/307829956")
     @Test
-    fun requestSizeWithMeasureSpecAtMost_withinParentBounds() {
+    fun requestResizeWithMeasureSpecAtMost_withinParentBounds() {
         view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         addViewToLayoutAndWaitToBeActive()
-        requestSizeAndVerifyLayout(
+        requestResizeAndVerifyLayout(
             /* requestedWidth=*/ mainLayoutWidth - 100,
             /* requestedHeight=*/ mainLayoutHeight - 100,
             /* expectedWidth=*/ mainLayoutWidth - 100,
@@ -629,11 +629,11 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    fun requestSizeWithMeasureSpecAtMost_exceedsParentBounds() {
+    fun requestResizeWithMeasureSpecAtMost_exceedsParentBounds() {
         view.layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT)
         addViewToLayoutAndWaitToBeActive()
         // the resize is constrained by the parent's size
-        requestSizeAndVerifyLayout(
+        requestResizeAndVerifyLayout(
             /* requestedWidth=*/ mainLayoutWidth + 100,
             /* requestedHeight=*/ mainLayoutHeight + 100,
             /* expectedWidth=*/ mainLayoutWidth,
@@ -642,13 +642,13 @@ class SandboxedSdkViewTest {
     }
 
     @Test
-    fun requestSizeWithMeasureSpecExactly() {
+    fun requestResizeWithMeasureSpecExactly() {
         view.layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
         addViewToLayoutAndWaitToBeActive()
         val currentWidth = view.width
         val currentHeight = view.height
         // the request is a no-op when the MeasureSpec is EXACTLY
-        requestSizeAndVerifyLayout(
+        requestResizeAndVerifyLayout(
             /* requestedWidth=*/ currentWidth - 100,
             /* requestedHeight=*/ currentHeight - 100,
             /* expectedWidth=*/ currentWidth,
@@ -842,7 +842,7 @@ class SandboxedSdkViewTest {
         addViewToLayout(true, viewToAdd)
     }
 
-    private fun requestSizeAndVerifyLayout(
+    private fun requestResizeAndVerifyLayout(
         requestedWidth: Int,
         requestedHeight: Int,
         expectedWidth: Int,
@@ -856,7 +856,7 @@ class SandboxedSdkViewTest {
             height = bottom - top
             layoutLatch.countDown()
         }
-        activityScenarioRule.withActivity { view.requestSize(requestedWidth, requestedHeight) }
+        activityScenarioRule.withActivity { view.requestResize(requestedWidth, requestedHeight) }
         assertThat(layoutLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
         assertThat(width).isEqualTo(expectedWidth)
         assertThat(height).isEqualTo(expectedHeight)

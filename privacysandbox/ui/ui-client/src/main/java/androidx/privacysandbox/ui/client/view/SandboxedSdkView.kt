@@ -226,7 +226,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    internal fun requestSize(width: Int, height: Int) {
+    internal fun requestResize(width: Int, height: Int) {
         if (width == this.width && height == this.height) return
         requestedWidth = width
         requestedHeight = height
@@ -566,7 +566,7 @@ class SandboxedSdkView @JvmOverloads constructor(context: Context, attrs: Attrib
 
         override fun onResizeRequested(width: Int, height: Int) {
             if (sandboxedSdkView == null) return
-            sandboxedSdkView?.requestSize(width, height)
+            sandboxedSdkView?.requestResize(width, height)
         }
     }
 
