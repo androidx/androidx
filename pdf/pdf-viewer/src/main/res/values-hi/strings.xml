@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"फ़ाइल टाइप"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"यह फ़ाइल सुरक्षित है"</string>
     <string name="label_password_first" msgid="4456258714097111908">"पासवर्ड"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"पासवर्ड गलत है"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g> प्रतिशत ज़ूम करें"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> पेज पर जाएं"</string>
     <string name="desc_page" msgid="5684226167093594168">"पेज <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"टिप्पणी करने के लिए टेक्स्ट चुनें"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"टिप्पणी करने के लिए किसी जगह पर टैप करें"</string>
-    <string name="action_cancel" msgid="5494417739210197522">"रद्द करें"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF फ़ाइल नहीं दिखाई जा सकती (<xliff:g id="TITLE">%1$s</xliff:g> अमान्य फ़ॉर्मैट में है)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"<xliff:g id="PAGE">%1$d</xliff:g> पेज नहीं दिखाया जा सकता (फ़ाइल में गड़बड़ी है)"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"इस आइटम के लिए, एनोटेशन मोड लोड नहीं किया जा सका."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"लिंक: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> पर वेबपेज"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"लिंक: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"ईमेल: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"पीछे जाएं"</string>
     <string name="next_button_description" msgid="4702699322249103693">"आगे बढ़ें"</string>
     <string name="close_button_description" msgid="7379823906921067675">"बंद करें"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"इससे मिलता-जुलता कोई नतीजा नहीं मिला."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"फ़ाइल में बदलाव करें"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"अनलॉक करने के लिए पासवर्ड डालें"</string>

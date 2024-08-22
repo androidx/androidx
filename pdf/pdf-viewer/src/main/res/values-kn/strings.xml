@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"ಫೈಲ್ ಪ್ರಕಾರ"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"ಈ ಫೈಲ್ ಅನ್ನು ಸಂರಕ್ಷಿಸಲಾಗಿದೆ"</string>
     <string name="label_password_first" msgid="4456258714097111908">"ಪಾಸ್‌ವರ್ಡ್"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"ಪಾಸ್‌ವರ್ಡ್ ತಪ್ಪಾಗಿದೆ"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"ಶೇಕಡಾ <xliff:g id="FIRST">%1$d</xliff:g> ರಷ್ಟು ಝೂಮ್ ಮಾಡಿ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"ಪುಟ <xliff:g id="PAGE_NUMBER">%1$d</xliff:g> ಕ್ಕೆ ತೆರಳಿ"</string>
     <string name="desc_page" msgid="5684226167093594168">"ಪುಟ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"ನಿಮ್ಮ ಕಾಮೆಂಟ್ ಅನ್ನು ಇರಿಸಲು ಪಠ್ಯವನ್ನು ಆಯ್ಕೆಮಾಡಿ"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"ಕಾಮೆಂಟ್ ಮಾಡಲು ಪ್ರದೇಶವನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
-    <string name="action_cancel" msgid="5494417739210197522">"ರದ್ದುಮಾಡಿ"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF ಅನ್ನು ಪ್ರದರ್ಶಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ (<xliff:g id="TITLE">%1$s</xliff:g> ಅಮಾನ್ಯವಾದ ಫಾರ್ಮ್ಯಾಟ್ ಆಗಿದೆ)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"<xliff:g id="PAGE">%1$d</xliff:g> ಪುಟವನ್ನು ಪ್ರದರ್ಶಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ (ಫೈಲ್ ದೋಷ)"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"ಈ ಐಟಂಗೆ ಟಿಪ್ಪಣಿಯನ್ನು ಲೋಡ್ ಮಾಡಲು ಸಾಧ್ಯವಿಲ್ಲ."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"ಲಿಂಕ್: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g> ನಲ್ಲಿರುವ ವೆಬ್‌ಪುಟ"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"ಲಿಂಕ್: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"ಇಮೇಲ್: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"ಹಿಂದಿನದು"</string>
     <string name="next_button_description" msgid="4702699322249103693">"ಮುಂದಿನದು"</string>
     <string name="close_button_description" msgid="7379823906921067675">"ಮುಚ್ಚಿರಿ"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"ಯಾವುದೇ ಹೊಂದಾಣಿಕೆಗಳು ಕಂಡುಬಂದಿಲ್ಲ."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"ಫೈಲ್ ಎಡಿಟ್‌ ಮಾಡಿ"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ಅನ್‌ಲಾಕ್‌ ಮಾಡಲು ಪಾಸವರ್ಡ್‌ ಅನ್ನು ನಮೂದಿಸಿ"</string>

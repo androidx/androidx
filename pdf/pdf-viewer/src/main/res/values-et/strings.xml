@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"Faili tüüp"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"Fail on kaitstud"</string>
     <string name="label_password_first" msgid="4456258714097111908">"Parool"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"Parool on vale"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"suum <xliff:g id="FIRST">%1$d</xliff:g> protsenti"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"Mine lehele <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"lk <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"Valige tekst, millele kommentaar lisada"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"Puudutage ala, millele kommentaar lisada"</string>
-    <string name="action_cancel" msgid="5494417739210197522">"Tühista"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF-i ei saa kuvada (<xliff:g id="TITLE">%1$s</xliff:g> on vales vormingus)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"Lehekülge <xliff:g id="PAGE">%1$d</xliff:g> ei saa kuvada (viga failis)"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"Selle üksuse jaoks ei saa märkuste lisamise režiimi laadida."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"Link: veebileht aadressil <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"Link: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"E-posti aadress: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"Eelmine"</string>
     <string name="next_button_description" msgid="4702699322249103693">"Järgmine"</string>
     <string name="close_button_description" msgid="7379823906921067675">"Sule"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"Vasteid ei leitud."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"Faili muutmine"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Avamiseks sisestage parool"</string>

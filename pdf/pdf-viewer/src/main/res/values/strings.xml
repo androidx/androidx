@@ -15,10 +15,6 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Content description for an icon representing the file's type (e.g. image or pdf). If
-     we know the exact file type, it will be appended to this description, and result in e.g.
-     "file type: Image" [CHAR LIMIT=25] -->
-    <string name="desc_file_type">File type</string>
 
     <!-- Title of the password dialog [CHAR LIMIT=40] -->
     <string name="title_dialog_password">This file is protected</string>
@@ -61,26 +57,12 @@
     <!-- Content description for a page of a paginated document, eg "page 3". [CHAR LIMIT=50] -->
     <string name="desc_page">page <xliff:g example="3" id="page">%1$d</xliff:g></string>
 
-    <!-- Message for instructing the user to select text to create an inline comment anchor. [CHAR LIMIT=45] -->
-    <string name="message_select_text_to_comment">Select text to place your comment</string>
-
-    <!-- Message for instructing the user to tap to create a positional comment anchor. [CHAR LIMIT=40] -->
-    <string name="message_tap_to_comment">Tap an area to comment on</string>
-
-    <!-- Text for an action to cancel an operation. [CHAR LIMIT=20] -->
-    <string name="action_cancel">Cancel</string>
-
-
     <!-- Error message when file format isn't valid PDF. [CHAR LIMIT=60] -->
     <string name="error_file_format_pdf">Cannot display PDF ("<xliff:g example="Treasure Island" id="title">%1$s</xliff:g>" is of invalid format)</string>
 
     <!-- Error message when there is an error on one page. [CHAR LIMIT=60] -->
     <string name="error_on_page">Cannot display page <xliff:g example="3" id="page">%1$d</xliff:g>
         (file error)</string>
-
-    <!-- Contents of a snackbar message that is shown when launching annotation mode fails. The user
-       can try again but it is unlikely that will solve the problem. [CHAR LIMIT=100] -->
-    <string name="annotation_mode_failed_to_open">Can\'t load annotation mode for this item.</string>
 
     <!-- Content description for a web link within a document that has been shortened to only include the domain.
          The entire URL is too long to read aloud, but the user should know that it is a link and the domain of the webpage that it links to. [CHAR LIMIT=40] -->
@@ -125,9 +107,6 @@
 
     <!-- Content description for close button in find in file menu -->
     <string name="close_button_description">Close</string>
-
-    <!-- Message for no matches found when searching for query text inside the file. [CHAR LIMIT=40] -->
-    <string name="message_no_matches_found">No matches found.</string>
 
     <!-- Message to show which match is selected out of how many matches when searching for query text inside the file.
       e.g. "3 of 12" meaning "match 3 is selected, out of 12 matches" [CHAR LIMIT=10] -->
