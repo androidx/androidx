@@ -30,6 +30,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.commitNow
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * Allows for adding a [Fragment] directly into Compose. It creates a fragment of the given class
@@ -93,6 +95,7 @@ fun <T : Fragment> AndroidFragment(
     )
 
     DisposableEffect(fragmentManager, clazz, fragmentState) {
+        var removeEvenIfStateIsSaved = false
         val fragment =
             fragmentManager.findFragmentById(container.id)
                 ?: fragmentManager.fragmentFactory
@@ -100,18 +103,42 @@ fun <T : Fragment> AndroidFragment(
                     .apply {
                         setInitialSavedState(fragmentState.state.value)
                         setArguments(arguments)
-                        fragmentManager
-                            .beginTransaction()
-                            .setReorderingAllowed(true)
-                            .add(container, this, "$hashKey")
-                            .commitNow()
+                        val transaction =
+                            fragmentManager
+                                .beginTransaction()
+                                .setReorderingAllowed(true)
+                                .add(container, this, "$hashKey")
+                        if (fragmentManager.isStateSaved) {
+                            // If the state is saved when we add the fragment,
+                            // we want to remove the Fragment in onDispose
+                            // if isStateSaved never becomes true for the lifetime
+                            // of this AndroidFragment - we use a LifecycleObserver
+                            // on the Fragment as a proxy for that signal
+                            removeEvenIfStateIsSaved = true
+                            lifecycle.addObserver(
+                                object : DefaultLifecycleObserver {
+                                    override fun onStart(owner: LifecycleOwner) {
+                                        removeEvenIfStateIsSaved = false
+                                        lifecycle.removeObserver(this)
+                                    }
+                                }
+                            )
+                            transaction.commitNowAllowingStateLoss()
+                        } else {
+                            transaction.commitNow()
+                        }
                     }
         fragmentManager.onContainerAvailable(container)
         @Suppress("UNCHECKED_CAST") updateCallback.value(fragment as T)
         onDispose {
             val state = fragmentManager.saveFragmentInstanceState(fragment)
             fragmentState.state.value = state
-            if (!fragmentManager.isStateSaved) {
+            if (removeEvenIfStateIsSaved) {
+                // The Fragment was added when the state was saved and
+                // isStateSaved never became true for the lifetime of this
+                // AndroidFragment, so we unconditionally remove it here
+                fragmentManager.commitNow(allowStateLoss = true) { remove(fragment) }
+            } else if (!fragmentManager.isStateSaved) {
                 // If the state isn't saved, that means that some state change
                 // has removed this Composable from the hierarchy
                 fragmentManager.commitNow { remove(fragment) }
