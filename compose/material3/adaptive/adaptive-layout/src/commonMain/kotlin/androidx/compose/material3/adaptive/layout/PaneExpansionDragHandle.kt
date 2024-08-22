@@ -43,7 +43,7 @@ fun ThreePaneScaffoldScope.PaneExpansionDragHandle(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    val animationProgress = { scaffoldStateTransitionFraction }
+    val animationProgress = { motionProgress }
     Box(
         modifier =
             modifier

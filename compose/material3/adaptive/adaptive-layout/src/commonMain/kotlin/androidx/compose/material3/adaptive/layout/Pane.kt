@@ -39,29 +39,27 @@ import androidx.compose.ui.draw.clipToBounds
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun ThreePaneScaffoldScope.AnimatedPane(
+fun <S, T : PaneScaffoldValue<S>> ExtendedPaneScaffoldPaneScope<S, T>.AnimatedPane(
     modifier: Modifier = Modifier,
     content: (@Composable AnimatedPaneScope.() -> Unit),
 ) {
-    val keepShowing =
-        scaffoldStateTransition.currentState[role] != PaneAdaptedValue.Hidden &&
-            scaffoldStateTransition.targetState[role] != PaneAdaptedValue.Hidden
-    val animateFraction = { scaffoldStateTransitionFraction }
+    val animatingBounds = paneMotion == DefaultPaneMotion.AnimateBounds
+    val motionProgress = { motionProgress }
     scaffoldStateTransition.AnimatedVisibility(
-        visible = { value: ThreePaneScaffoldValue -> value[role] != PaneAdaptedValue.Hidden },
+        visible = { value: T -> value[paneRole] != PaneAdaptedValue.Hidden },
         modifier =
             modifier
                 .animatedPane()
                 .animateBounds(
-                    animateFraction = animateFraction,
-                    positionAnimationSpec = positionAnimationSpec,
-                    sizeAnimationSpec = sizeAnimationSpec,
-                    lookaheadScope = this,
-                    enabled = keepShowing
+                    motionProgress,
+                    sizeAnimationSpec,
+                    positionAnimationSpec,
+                    this,
+                    animatingBounds
                 )
-                .then(if (keepShowing) Modifier else Modifier.clipToBounds()),
-        enter = enterTransition,
-        exit = exitTransition
+                .then(if (animatingBounds) Modifier else Modifier.clipToBounds()),
+        enter = with(paneMotion) { enterTransition },
+        exit = with(paneMotion) { exitTransition }
     ) {
         AnimatedPaneScopeImpl(this).content()
     }

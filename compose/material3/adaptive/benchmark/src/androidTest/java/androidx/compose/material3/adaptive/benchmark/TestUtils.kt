@@ -23,7 +23,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.layout.AnimatedPane
 import androidx.compose.material3.adaptive.layout.PaneScaffoldDirective
 import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldDestinationItem
-import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldScope
+import androidx.compose.material3.adaptive.layout.ThreePaneScaffoldPaneScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +51,7 @@ internal abstract class ThreePaneScaffoldTestCase(private val animated: Boolean)
     override fun toggleState() {}
 
     @Composable
-    fun ThreePaneScaffoldScope.TestPane(color: Color) {
+    fun ThreePaneScaffoldPaneScope.TestPane(color: Color) {
         val content = @Composable { Box(modifier = Modifier.fillMaxSize().background(color)) }
         if (animated) {
             AnimatedPane(Modifier) { content() }
