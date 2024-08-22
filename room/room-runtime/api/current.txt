@@ -32,6 +32,7 @@ package androidx.room {
 
   public class InvalidationTracker {
     method @WorkerThread public void addObserver(androidx.room.InvalidationTracker.Observer observer);
+    method public final kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> createFlow(String[] tables, optional boolean emitInitialState);
     method public final void refreshAsync();
     method public void refreshVersionsAsync();
     method @WorkerThread public void removeObserver(androidx.room.InvalidationTracker.Observer observer);
@@ -175,7 +176,7 @@ package androidx.room {
   }
 
   public final class RoomDatabaseKt {
-    method public static kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> invalidationTrackerFlow(androidx.room.RoomDatabase, String[] tables, optional boolean emitInitialState);
+    method @Deprecated public static kotlinx.coroutines.flow.Flow<java.util.Set<java.lang.String>> invalidationTrackerFlow(androidx.room.RoomDatabase, String[] tables, optional boolean emitInitialState);
     method public static suspend <R> Object? useReaderConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? useWriterConnection(androidx.room.RoomDatabase, kotlin.jvm.functions.Function2<? super androidx.room.Transactor,? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);
     method public static suspend <R> Object? withTransaction(androidx.room.RoomDatabase, kotlin.jvm.functions.Function1<? super kotlin.coroutines.Continuation<? super R>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super R>);

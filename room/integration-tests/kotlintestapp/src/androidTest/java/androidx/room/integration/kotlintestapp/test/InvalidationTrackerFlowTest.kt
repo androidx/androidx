@@ -17,84 +17,88 @@
 package androidx.room.integration.kotlintestapp.test
 
 import androidx.kruth.assertThat
-import androidx.room.invalidationTrackerFlow
+import androidx.kruth.assertThrows
+import androidx.room.Room
+import androidx.room.integration.kotlintestapp.TestDatabase
+import androidx.room.integration.kotlintestapp.dao.BooksDao
 import androidx.room.withTransaction
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit
+import kotlin.time.Duration.Companion.minutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.produceIn
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.yield
-import org.junit.After
-import org.junit.Assert.fail
-import org.junit.Ignore
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
-class InvalidationTrackerFlowTest : TestDatabaseTest() {
+class InvalidationTrackerFlowTest {
 
-    @After
-    fun teardown() {
-        // At the end of all tests, query executor should be idle (transaction thread released).
-        countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
-        assertThat(countingTaskExecutorRule.isIdle).isTrue()
+    private val testCoroutineScope = TestScope()
+
+    private lateinit var database: TestDatabase
+    private lateinit var booksDao: BooksDao
+
+    @Before
+    fun setup() {
+        database =
+            Room.inMemoryDatabaseBuilder(
+                    ApplicationProvider.getApplicationContext(),
+                    TestDatabase::class.java
+                )
+                .setQueryCoroutineContext(testCoroutineScope.coroutineContext)
+                .build()
+        booksDao = database.booksDao()
     }
 
     @Test
-    fun initiallyEmitAllTableNames(): Unit = runBlocking {
-        val result = database.invalidationTrackerFlow("author", "publisher", "book").first()
+    fun initiallyEmitAllTableNames(): Unit = runTest {
+        val result = database.invalidationTracker.createFlow("author", "publisher", "book").first()
         assertThat(result).containsExactly("author", "publisher", "book")
     }
 
     @Test
-    fun initiallyEmitNothingWhenLazy(): Unit = runBlocking {
+    fun initiallyEmitNothingWhenLazy(): Unit = runTest {
         val channel =
-            database
-                .invalidationTrackerFlow("author", "publisher", "book", emitInitialState = true)
-                .produceIn(this)
+            database.invalidationTracker.createFlow("author", "publisher", "book").produceIn(this)
 
-        drain()
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.isEmpty)
 
         channel.cancel()
     }
 
-    @Ignore("b/295223748")
     @Test
-    fun invalidationEmitTableNames(): Unit = runBlocking {
+    fun invalidationEmitTableNames(): Unit = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel =
-            database.invalidationTrackerFlow("author", "publisher", "book").produceIn(this)
+            database.invalidationTracker.createFlow("author", "publisher", "book").produceIn(this)
 
         assertThat(channel.receive()).isEqualTo(setOf("author", "publisher", "book"))
 
         booksDao.insertBookSuspend(TestUtil.BOOK_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly("book")
 
         booksDao.addPublisher(TestUtil.PUBLISHER2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly("publisher")
 
@@ -103,50 +107,50 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
         channel.cancel()
     }
 
-    @Ignore // b/268534919
     @Test
-    fun emitOnceForMultipleTablesInTransaction(): Unit = runBlocking {
-        val results = mutableListOf<Set<String>>()
-        val latch = CountDownLatch(1)
+    fun emitOnceForMultipleTablesInTransaction(): Unit = runTest {
+        val resultChannel = Channel<Set<String>>(capacity = 10)
         val job =
-            async(Dispatchers.IO) {
-                database.invalidationTrackerFlow("author", "publisher", "book").collect {
-                    results.add(it)
-                    latch.countDown()
+            backgroundScope.launch(Dispatchers.IO) {
+                database.invalidationTracker.createFlow("author", "publisher", "book").collect {
+                    resultChannel.send(it)
                 }
             }
+
+        testScheduler.advanceUntilIdle()
 
         database.withTransaction {
             booksDao.addAuthors(TestUtil.AUTHOR_1)
             booksDao.addPublishers(TestUtil.PUBLISHER)
             booksDao.addBooks(TestUtil.BOOK_1)
         }
-        latch.await()
-        job.cancelAndJoin()
 
-        assertThat(results.size).isEqualTo(1)
-        assertThat(results.first()).isEqualTo(setOf("author", "publisher", "book"))
+        advanceUntilIdle()
+
+        val result = resultChannel.receive()
+        assertThat(result).containsExactly("author", "publisher", "book")
+        assertThat(result.isEmpty())
+
+        resultChannel.close()
+        job.cancel()
     }
 
     @Test
-    fun dropInvalidationUsingConflated() = runBlocking {
+    fun dropInvalidationUsingConflated() = runTest {
         val channel =
-            database
-                .invalidationTrackerFlow("author", "publisher", "book")
+            database.invalidationTracker
+                .createFlow("author", "publisher", "book")
                 .buffer(Channel.CONFLATED)
                 .produceIn(this)
 
         booksDao.addAuthors(TestUtil.AUTHOR_1)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         booksDao.addPublishers(TestUtil.PUBLISHER)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         booksDao.addBooks(TestUtil.BOOK_1)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly("book")
         assertThat(channel.isEmpty).isTrue()
@@ -155,28 +159,29 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
     }
 
     @Test
-    fun collectInTransaction(): Unit = runBlocking {
+    fun collectInTransaction(): Unit = runTest {
         database.withTransaction {
-            val result = database.invalidationTrackerFlow("author").first()
+            val result = database.invalidationTracker.createFlow("author").first()
             assertThat(result).containsExactly("author")
         }
     }
 
-    @Ignore("b/277764166")
     @Test
-    fun mapBlockingQuery() = runBlocking {
+    fun mapBlockingQuery() = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel =
-            database.invalidationTrackerFlow("book").map { booksDao.getAllBooks() }.produceIn(this)
+            database.invalidationTracker
+                .createFlow("book")
+                .map { booksDao.getAllBooks() }
+                .produceIn(this)
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)
 
         booksDao.addBooks(TestUtil.BOOK_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
@@ -184,23 +189,21 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
     }
 
     @Test
-    @Ignore("b/295325379")
-    fun mapSuspendingQuery() = runBlocking {
+    fun mapSuspendingQuery() = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel =
-            database
-                .invalidationTrackerFlow("book")
+            database.invalidationTracker
+                .createFlow("book")
                 .map { booksDao.getBooksSuspend() }
                 .produceIn(this)
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)
 
         booksDao.addBooks(TestUtil.BOOK_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
@@ -208,46 +211,43 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
     }
 
     @Test
-    fun mapFlowQuery() = runBlocking {
+    fun mapFlowQuery() = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel =
-            database
-                .invalidationTrackerFlow("book")
+            database.invalidationTracker
+                .createFlow("book")
                 .map { booksDao.getBooksFlow().first() }
                 .produceIn(this)
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)
 
         booksDao.addBooks(TestUtil.BOOK_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
         channel.cancel()
     }
 
-    @Ignore("b/277764166")
     @Test
-    fun mapTransactionQuery() = runBlocking {
+    fun mapTransactionQuery() = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
         val channel =
-            database
-                .invalidationTrackerFlow("book")
+            database.invalidationTracker
+                .createFlow("book")
                 .map { database.withTransaction { booksDao.getBooksSuspend() } }
                 .produceIn(this)
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1)
 
         booksDao.addBooks(TestUtil.BOOK_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.receive()).containsExactly(TestUtil.BOOK_1, TestUtil.BOOK_2)
 
@@ -255,17 +255,16 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
     }
 
     @Test
-    fun transactionUpdateAndTransactionQuery() = runBlocking {
+    fun transactionUpdateAndTransactionQuery() = runTest {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        val results = mutableListOf<List<String>>()
-        val firstResultLatch = CountDownLatch(1)
-        val secondResultLatch = CountDownLatch(1)
+        val resultChannel = Channel<List<String>>(capacity = 2)
+
         val job =
-            async(Dispatchers.IO) {
-                database
-                    .invalidationTrackerFlow("author", "publisher")
+            backgroundScope.launch(Dispatchers.IO) {
+                database.invalidationTracker
+                    .createFlow("author", "publisher")
                     .map {
                         val (books, publishers) =
                             database.withTransaction {
@@ -277,61 +276,58 @@ class InvalidationTrackerFlowTest : TestDatabaseTest() {
                             "${book.title} from $publisherName"
                         }
                     }
-                    .collect {
-                        when (results.size) {
-                            0 -> {
-                                results.add(it)
-                                firstResultLatch.countDown()
-                            }
-                            1 -> {
-                                results.add(it)
-                                secondResultLatch.countDown()
-                            }
-                            else -> fail("Should have only collected 2 results.")
-                        }
-                    }
+                    .collect { resultChannel.send(it) }
             }
 
-        firstResultLatch.await()
+        testScheduler.advanceUntilIdle()
+
+        resultChannel.receive().let { result ->
+            assertThat(result).containsExactly("book title 1 from publisher 1")
+        }
+
         database.withTransaction {
             booksDao.addPublishers(TestUtil.PUBLISHER2)
             booksDao.addBooks(TestUtil.BOOK_2)
         }
+        testScheduler.advanceUntilIdle()
 
-        secondResultLatch.await()
-        assertThat(results.size).isEqualTo(2)
-        assertThat(results[0]).containsExactly("book title 1 from publisher 1")
-        assertThat(results[1])
-            .containsExactly("book title 1 from publisher 1", "book title 2 from publisher 1")
-
-        job.cancelAndJoin()
-    }
-
-    @Test
-    fun invalidTable() = runBlocking {
-        val flow = database.invalidationTrackerFlow("foo")
-        try {
-            flow.first()
-            fail("An exception should have thrown")
-        } catch (ex: IllegalArgumentException) {
-            assertThat(ex.message).isEqualTo("There is no table with name foo")
+        resultChannel.receive().let { result ->
+            assertThat(result)
+                .containsExactly("book title 1 from publisher 1", "book title 2 from publisher 1")
         }
+
+        resultChannel.close()
+        job.cancel()
     }
 
     @Test
-    fun emptyTables() = runBlocking {
+    fun invalidTable() {
+        assertThrows<IllegalArgumentException> { database.invalidationTracker.createFlow("foo") }
+            .hasMessageThat()
+            .isEqualTo("There is no table with name foo")
+
+        database.close()
+    }
+
+    @Test
+    fun emptyTables() = runTest {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
 
-        val channel = database.invalidationTrackerFlow().produceIn(this)
+        val channel = database.invalidationTracker.createFlow().produceIn(this)
 
         assertThat(channel.receive()).isEmpty()
 
         booksDao.addAuthorsSuspend(TestUtil.AUTHOR_2)
-        drain() // drain async invalidate
-        yield()
+        testScheduler.advanceUntilIdle()
 
         assertThat(channel.isEmpty).isTrue()
 
         channel.cancel()
     }
+
+    private fun runTest(testBody: suspend TestScope.() -> Unit) =
+        testCoroutineScope.runTest(timeout = 10.minutes) {
+            testBody.invoke(this)
+            database.close()
+        }
 }
