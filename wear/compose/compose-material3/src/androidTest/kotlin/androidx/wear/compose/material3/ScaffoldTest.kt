@@ -44,7 +44,9 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
+import androidx.wear.compose.foundation.lazy.LazyColumn as WearLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.rememberLazyColumnState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import com.google.common.truth.Truth.assertThat
 import junit.framework.TestCase.assertEquals
@@ -123,11 +125,49 @@ class ScaffoldTest {
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     @Test
+    fun displays_scroll_indicator_initially_when_scrollable_lazycolumn() {
+        val scrollIndicatorColor = Color.Red
+
+        rule.setContentWithTheme {
+            TestScreenScaffoldWithLazyColumn(
+                scrollIndicatorColor = scrollIndicatorColor,
+                timeTextColor = Color.Blue
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(scrollIndicatorColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
     fun hides_scroll_indicator_after_delay() {
         val scrollIndicatorColor = Color.Red
 
         rule.setContentWithTheme {
             TestScreenScaffold(
+                scrollIndicatorColor = scrollIndicatorColor,
+                timeTextColor = Color.Blue
+            )
+        }
+
+        // After a 2500 delay, the scroll indicator is animated away. Allow a little longer for the
+        // animation to complete.
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(4000)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertDoesNotContainColor(scrollIndicatorColor)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun hides_scroll_indicator_after_delay_lazycolumn() {
+        val scrollIndicatorColor = Color.Red
+
+        rule.setContentWithTheme {
+            TestScreenScaffoldWithLazyColumn(
                 scrollIndicatorColor = scrollIndicatorColor,
                 timeTextColor = Color.Blue
             )
@@ -163,6 +203,28 @@ class ScaffoldTest {
         rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun shows_time_text_after_delay_lazycolumn() {
+        val timeTextColor = Color.Red
+
+        rule.setContentWithTheme {
+            TestScreenScaffoldWithLazyColumn(
+                scrollIndicatorColor = Color.Blue,
+                timeTextColor = timeTextColor
+            )
+        }
+
+        rule.onNodeWithTag(SCROLL_TAG).performTouchInput { swipeUp(durationMillis = 10) }
+
+        // After a 2500 delay, the time text is animated back in. Allow a little longer for the
+        // animation to complete.
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(4000)
+
+        rule.onNodeWithTag(TEST_TAG).captureToImage().assertContainsColor(timeTextColor)
+    }
+
     @Test
     fun no_initial_room_for_bottom_button() {
         var spaceAvailable: Int = Int.MAX_VALUE
@@ -171,6 +233,28 @@ class ScaffoldTest {
             // Ensure we use the same size no mater where this is run.
             Box(Modifier.size(300.dp)) {
                 TestScreenScaffold(scrollIndicatorColor = Color.Blue, timeTextColor = Color.Red) {
+                    BoxWithConstraints {
+                        // Check how much space we have for the bottom button
+                        spaceAvailable = constraints.maxHeight
+                    }
+                }
+            }
+        }
+
+        assertEquals(0, spaceAvailable)
+    }
+
+    @Test
+    fun no_initial_room_for_bottom_button_wear_lazy_column() {
+        var spaceAvailable: Int = Int.MAX_VALUE
+
+        rule.setContentWithTheme {
+            // Ensure we use the same size no mater where this is run.
+            Box(Modifier.size(300.dp)) {
+                TestScreenScaffoldWithLazyColumn(
+                    scrollIndicatorColor = Color.Blue,
+                    timeTextColor = Color.Red
+                ) {
                     BoxWithConstraints {
                         // Check how much space we have for the bottom button
                         spaceAvailable = constraints.maxHeight
@@ -216,7 +300,7 @@ class ScaffoldTest {
         rule.setContentWithTheme {
             // Ensure we use the same size no mater where this is run.
             Box(Modifier.size(300.dp)) {
-                TestBottomButtonLC() {
+                TestBottomButtonLC {
                     BoxWithConstraints {
                         // Check how much space we have for the bottom button
                         spaceAvailable = constraints.maxHeight
@@ -278,6 +362,43 @@ class ScaffoldTest {
                 bottomButton = bottomButton
             ) {
                 ScalingLazyColumn(
+                    state = scrollState,
+                    modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG)
+                ) {
+                    items(10) {
+                        Button(
+                            onClick = {},
+                            label = { Text("Item ${it + 1}") },
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun TestScreenScaffoldWithLazyColumn(
+        scrollIndicatorColor: Color,
+        timeTextColor: Color,
+        bottomButton: @Composable BoxScope.() -> Unit = {}
+    ) {
+        AppScaffold {
+            val scrollState = rememberLazyColumnState()
+            ScreenScaffold(
+                modifier = Modifier.testTag(TEST_TAG),
+                scrollState = scrollState,
+                scrollIndicator = {
+                    Box(
+                        modifier =
+                            Modifier.size(20.dp)
+                                .align(Alignment.CenterEnd)
+                                .background(scrollIndicatorColor)
+                    )
+                },
+                timeText = { Box(Modifier.size(20.dp).background(timeTextColor)) },
+                bottomButton = bottomButton
+            ) {
+                WearLazyColumn(
                     state = scrollState,
                     modifier = Modifier.fillMaxSize().background(Color.Black).testTag(SCROLL_TAG)
                 ) {
