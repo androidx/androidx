@@ -29,16 +29,11 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastFlatMap
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
 import androidx.graphics.shapes.CornerRounding
 import androidx.graphics.shapes.Morph
 import androidx.graphics.shapes.RoundedPolygon
-import androidx.graphics.shapes.TransformResult
 import androidx.graphics.shapes.circle
-import androidx.graphics.shapes.pill
 import androidx.graphics.shapes.rectangle
 import androidx.graphics.shapes.star
 import kotlin.math.PI
@@ -126,20 +121,15 @@ sealed class MaterialShapes {
     companion object {
 
         // Cache various roundings for use below
-        private val cornerRound10 = CornerRounding(radius = .1f)
         private val cornerRound15 = CornerRounding(radius = .15f)
         private val cornerRound20 = CornerRounding(radius = .2f)
         private val cornerRound30 = CornerRounding(radius = .3f)
-        private val cornerRound40 = CornerRounding(radius = .4f)
         private val cornerRound50 = CornerRounding(radius = .5f)
         private val cornerRound100 = CornerRounding(radius = 1f)
 
         private val rotateNeg45 = Matrix().apply { rotateZ(-45f) }
-        private val rotate45 = Matrix().apply { rotateZ(45f) }
         private val rotateNeg90 = Matrix().apply { rotateZ(-90f) }
-        private val rotate90 = Matrix().apply { rotateZ(90f) }
         private val rotateNeg135 = Matrix().apply { rotateZ(-135f) }
-        private val unrounded = CornerRounding.Unrounded
 
         private var _circle: RoundedPolygon? = null
         private var _square: RoundedPolygon? = null
@@ -326,14 +316,13 @@ sealed class MaterialShapes {
         }
 
         internal fun slanted(): RoundedPolygon {
-            return RoundedPolygon(
-                    numVertices = 4,
-                    rounding = CornerRounding(radius = 0.3f, smoothing = 0.5f)
-                )
-                .transformed(rotateNeg45)
-                .transformed { x, y ->
-                    TransformResult(x - 0.1f * y, y) // Compose's matrix doesn't support skew!?
-                }
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.926f, 0.970f), CornerRounding(0.189f, 0.811f)),
+                    PointNRound(Offset(-0.021f, 0.967f), CornerRounding(0.187f, 0.057f))
+                ),
+                2
+            )
         }
 
         internal fun arch(): RoundedPolygon {
@@ -346,35 +335,27 @@ sealed class MaterialShapes {
         }
 
         internal fun fan(): RoundedPolygon {
-            return RoundedPolygon(
-                    numVertices = 4,
-                    perVertexRounding =
-                        listOf(cornerRound100, cornerRound20, cornerRound20, cornerRound20)
-                )
-                .transformed(rotateNeg45)
-        }
-
-        internal fun arrow(): RoundedPolygon {
-            return triangleChip(
-                innerRadius = .3375f,
-                rounding = CornerRounding(radius = .25f, smoothing = .48f)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(1.004f, 1.000f), CornerRounding(0.148f, 0.417f)),
+                    PointNRound(Offset(0.000f, 1.000f), CornerRounding(0.151f)),
+                    PointNRound(Offset(0.000f, -0.003f), CornerRounding(0.148f)),
+                    PointNRound(Offset(0.978f, 0.020f), CornerRounding(0.803f))
+                ),
+                1
             )
         }
 
-        internal fun triangleChip(innerRadius: Float, rounding: CornerRounding): RoundedPolygon {
-            val topR = 0.888f
-            val points =
-                floatArrayOf(
-                    radialToCartesian(radius = topR, 270f.toRadians()).x,
-                    radialToCartesian(radius = topR, 270f.toRadians()).y,
-                    radialToCartesian(radius = 1f, 30f.toRadians()).x,
-                    radialToCartesian(radius = 1f, 30f.toRadians()).y,
-                    radialToCartesian(radius = innerRadius, 90f.toRadians()).x,
-                    radialToCartesian(radius = innerRadius, 90f.toRadians()).y,
-                    radialToCartesian(radius = 1f, 150f.toRadians()).x,
-                    radialToCartesian(radius = 1f, 150f.toRadians()).y
-                )
-            return RoundedPolygon(points, rounding)
+        internal fun arrow(): RoundedPolygon {
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 0.892f), CornerRounding(0.313f)),
+                    PointNRound(Offset(-0.216f, 1.050f), CornerRounding(0.207f)),
+                    PointNRound(Offset(0.499f, -0.160f), CornerRounding(0.215f, 1.000f)),
+                    PointNRound(Offset(1.225f, 1.060f), CornerRounding(0.211f))
+                ),
+                1
+            )
         }
 
         internal fun semiCircle(): RoundedPolygon {
@@ -386,13 +367,21 @@ sealed class MaterialShapes {
             )
         }
 
-        internal fun oval(scaleX: Float = 1f, scaleY: Float = .7f): RoundedPolygon {
-            val m = Matrix().apply { scale(x = scaleX, y = scaleY) }
+        internal fun oval(): RoundedPolygon {
+            val m = Matrix().apply { scale(1f, 0.64f) }
             return RoundedPolygon.circle().transformed(m).transformed(rotateNeg45)
         }
 
-        internal fun pill(width: Float = 1.25f, height: Float = 1f): RoundedPolygon {
-            return RoundedPolygon.pill(width = width, height = height).transformed(rotateNeg45)
+        internal fun pill(): RoundedPolygon {
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.961f, 0.039f), CornerRounding(0.426f)),
+                    PointNRound(Offset(1.001f, 0.428f)),
+                    PointNRound(Offset(1.000f, 0.609f), CornerRounding(1.000f))
+                ),
+                reps = 2,
+                mirroring = true
+            )
         }
 
         internal fun triangle(): RoundedPolygon {
@@ -400,77 +389,50 @@ sealed class MaterialShapes {
                 .transformed(rotateNeg90)
         }
 
-        internal fun diamond(scaleX: Float = 1f, scaleY: Float = 1.2f): RoundedPolygon {
-            return RoundedPolygon(numVertices = 4, rounding = cornerRound30)
-                .transformed(Matrix().apply { scale(x = scaleX, y = scaleY) })
+        internal fun diamond(): RoundedPolygon {
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 1.096f), CornerRounding(0.151f, 0.524f)),
+                    PointNRound(Offset(0.040f, 0.500f), CornerRounding(0.159f))
+                ),
+                2
+            )
         }
 
         internal fun clamShell(): RoundedPolygon {
-            val cornerInset = .6f
-            val edgeInset = .4f
-            val height = .7f
-            val hexPoints =
-                floatArrayOf(
-                    1f,
-                    0f,
-                    cornerInset,
-                    height,
-                    edgeInset,
-                    height,
-                    -edgeInset,
-                    height,
-                    -cornerInset,
-                    height,
-                    -1f,
-                    0f,
-                    -cornerInset,
-                    -height,
-                    -edgeInset,
-                    -height,
-                    edgeInset,
-                    -height,
-                    cornerInset,
-                    -height,
-                )
-            val pvRounding =
+            return customPolygon(
                 listOf(
-                    cornerRound30,
-                    cornerRound30,
-                    unrounded,
-                    unrounded,
-                    cornerRound30,
-                    cornerRound30,
-                    cornerRound30,
-                    unrounded,
-                    unrounded,
-                    cornerRound30,
-                )
-            return RoundedPolygon(hexPoints, perVertexRounding = pvRounding)
+                    PointNRound(Offset(0.171f, 0.841f), CornerRounding(0.159f)),
+                    PointNRound(Offset(-0.020f, 0.500f), CornerRounding(0.140f)),
+                    PointNRound(Offset(0.170f, 0.159f), CornerRounding(0.159f))
+                ),
+                2
+            )
         }
 
         internal fun pentagon(): RoundedPolygon {
-            return RoundedPolygon(numVertices = 5, rounding = cornerRound30)
-                .transformed(Matrix().apply { rotateZ(-360f / 20f) })
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, -0.009f), CornerRounding(0.172f)),
+                    PointNRound(Offset(1.030f, 0.365f), CornerRounding(0.164f)),
+                    PointNRound(Offset(0.828f, 0.970f), CornerRounding(0.169f))
+                ),
+                reps = 1,
+                mirroring = true
+            )
         }
 
         internal fun gem(): RoundedPolygon {
-            // irregular hexagon (right narrower than left, then rotated)
-            // First, generate a standard hexagon
-            val numVertices = 6
-            val radius = 1f
-            val points = FloatArray(numVertices * 2)
-            var index = 0
-            for (i in 0 until numVertices) {
-                val vertex = radialToCartesian(radius, (PI.toFloat() / numVertices * 2 * i))
-                points[index++] = vertex.x
-                points[index++] = vertex.y
-            }
-            // Now adjust-in the points at the top (next-to-last and second vertices, post rotation)
-            points[2] -= .1f
-            points[3] -= .1f
-            points[10] -= .1f
-            points[11] += .1f
-            return RoundedPolygon(points, cornerRound40).transformed(rotateNeg90)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.499f, 1.023f), CornerRounding(0.241f, 0.778f)),
+                    PointNRound(Offset(-0.005f, 0.792f), CornerRounding(0.208f)),
+                    PointNRound(Offset(0.073f, 0.258f), CornerRounding(0.228f)),
+                    PointNRound(Offset(0.433f, -0.000f), CornerRounding(0.491f))
+                ),
+                1,
+                mirroring = true
+            )
         }
 
         internal fun sunny(): RoundedPolygon {
@@ -482,30 +444,34 @@ sealed class MaterialShapes {
         }
 
         internal fun verySunny(): RoundedPolygon {
-            return RoundedPolygon.star(
-                numVerticesPerRadius = 8,
-                innerRadius = .65f,
-                rounding = cornerRound15
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 1.080f), CornerRounding(0.085f)),
+                    PointNRound(Offset(0.358f, 0.843f), CornerRounding(0.085f))
+                ),
+                8
             )
         }
 
         internal fun cookie4(): RoundedPolygon {
-            return RoundedPolygon.star(
-                    numVerticesPerRadius = 4,
-                    innerRadius = .5f,
-                    rounding = cornerRound30
-                )
-                .transformed(rotateNeg45)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(1.237f, 1.236f), CornerRounding(0.258f)),
+                    PointNRound(Offset(0.500f, 0.918f), CornerRounding(0.233f))
+                ),
+                4
+            )
         }
 
         internal fun cookie6(): RoundedPolygon {
             // 6-point cookie
-            return RoundedPolygon.star(
-                    numVerticesPerRadius = 6,
-                    innerRadius = .75f,
-                    rounding = cornerRound50
-                )
-                .transformed(rotateNeg90)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.723f, 0.884f), CornerRounding(0.394f)),
+                    PointNRound(Offset(0.500f, 1.099f), CornerRounding(0.398f))
+                ),
+                6
+            )
         }
 
         internal fun cookie7(): RoundedPolygon {
@@ -537,303 +503,199 @@ sealed class MaterialShapes {
         }
 
         internal fun ghostish(): RoundedPolygon {
-            val inset = .46f
-            val h = 1.2f
-            val points = floatArrayOf(-1f, -h, 1f, -h, 1f, h, 0f, inset, -1f, h)
-            val pvRounding =
-                listOf(cornerRound100, cornerRound100, cornerRound50, cornerRound100, cornerRound50)
-            return RoundedPolygon(points, perVertexRounding = pvRounding)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 0f), CornerRounding(1.000f)),
+                    PointNRound(Offset(1f, 0f), CornerRounding(1.000f)),
+                    PointNRound(Offset(1f, 1.140f), CornerRounding(0.254f, 0.106f)),
+                    PointNRound(Offset(0.575f, 0.906f), CornerRounding(0.253f))
+                ),
+                reps = 1,
+                mirroring = true
+            )
         }
 
         internal fun clover4(): RoundedPolygon {
-            // (no inner rounding)
-            return RoundedPolygon.star(
-                    numVerticesPerRadius = 4,
-                    innerRadius = .2f,
-                    rounding = cornerRound40,
-                    innerRounding = unrounded
-                )
-                .transformed(rotate45)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 0.074f)),
+                    PointNRound(Offset(0.725f, -0.099f), CornerRounding(0.476f))
+                ),
+                reps = 4,
+                mirroring = true
+            )
         }
 
         internal fun clover8(): RoundedPolygon {
-            // (no inner rounding)
-            return RoundedPolygon.star(
-                    numVerticesPerRadius = 8,
-                    innerRadius = .65f,
-                    rounding = cornerRound30,
-                    innerRounding = unrounded
-                )
-                .transformed(Matrix().apply { rotateZ(360f / 16) })
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 0.036f)),
+                    PointNRound(Offset(0.758f, -0.101f), CornerRounding(0.209f))
+                ),
+                reps = 8
+            )
         }
 
         internal fun burst(): RoundedPolygon {
-            return RoundedPolygon.star(numVerticesPerRadius = 12, innerRadius = .7f)
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, -0.006f), CornerRounding(0.006f)),
+                    PointNRound(Offset(0.592f, 0.158f), CornerRounding(0.006f))
+                ),
+                reps = 12
+            )
         }
 
         internal fun softBurst(): RoundedPolygon {
-            return RoundedPolygon.star(
-                    radius = 1f,
-                    numVerticesPerRadius = 10,
-                    innerRadius = .65f,
-                    rounding = cornerRound10,
-                    innerRounding = cornerRound10
-                )
-                .transformed(Matrix().apply { rotateZ(360f / 20) })
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.193f, 0.277f), CornerRounding(0.053f)),
+                    PointNRound(Offset(0.176f, 0.055f), CornerRounding(0.053f))
+                ),
+                reps = 10
+            )
         }
 
         internal fun boom(): RoundedPolygon {
-            return RoundedPolygon.star(numVerticesPerRadius = 15, innerRadius = .42f)
-                .transformed(Matrix().apply { rotateZ(360f / 60) })
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.457f, 0.296f), CornerRounding(0.007f)),
+                    PointNRound(Offset(0.500f, -0.051f), CornerRounding(0.007f))
+                ),
+                reps = 15
+            )
         }
 
         internal fun softBoom(): RoundedPolygon {
-            val points =
-                arrayOf(
-                    Offset(0.456f, 0.224f),
-                    Offset(0.460f, 0.170f),
-                    Offset(0.500f, 0.100f),
-                    Offset(0.540f, 0.170f),
-                    Offset(0.544f, 0.224f),
-                    Offset(0.538f, 0.308f)
-                )
-            val actualPoints = doRepeat(points, 16, center = Offset(0.5f, 0.5f))
-            val roundings =
+            return customPolygon(
                 listOf(
-                        CornerRounding(radius = 0.020f),
-                        CornerRounding(radius = 0.143f),
-                        CornerRounding(radius = 0.025f),
-                        CornerRounding(radius = 0.143f),
-                        CornerRounding(radius = 0.190f),
-                        CornerRounding(radius = 0f)
-                    )
-                    .let { l -> (0 until 16).flatMap { l } }
-
-            return RoundedPolygon(
-                actualPoints,
-                perVertexRounding = roundings,
-                centerX = 0.5f,
-                centerY = 0.5f
+                    PointNRound(Offset(0.733f, 0.454f)),
+                    PointNRound(Offset(0.839f, 0.437f), CornerRounding(0.532f)),
+                    PointNRound(Offset(0.949f, 0.449f), CornerRounding(0.439f, 1.000f)),
+                    PointNRound(Offset(0.998f, 0.478f), CornerRounding(0.174f))
+                ),
+                reps = 16,
+                mirroring = true
             )
         }
 
         internal fun flower(): RoundedPolygon {
-            val smoothRound = CornerRounding(radius = .12f, smoothing = .48f)
-            return RoundedPolygon.star(
-                numVerticesPerRadius = 8,
-                radius = 1f,
-                innerRadius = .588f,
-                rounding = smoothRound,
-                innerRounding = unrounded
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.370f, 0.187f)),
+                    PointNRound(Offset(0.416f, 0.049f), CornerRounding(0.381f)),
+                    PointNRound(Offset(0.479f, 0.001f), CornerRounding(0.095f))
+                ),
+                reps = 8,
+                mirroring = true
             )
         }
 
         internal fun puffy(): RoundedPolygon {
-            val pnr =
-                listOf(
-                    PointNRound(Offset(0.500f, 0.260f), CornerRounding.Unrounded),
-                    PointNRound(Offset(0.526f, 0.188f), CornerRounding(0.095f)),
-                    PointNRound(Offset(0.676f, 0.226f), CornerRounding(0.095f)),
-                    PointNRound(Offset(0.660f, 0.300f), CornerRounding.Unrounded),
-                    PointNRound(Offset(0.734f, 0.230f), CornerRounding(0.095f)),
-                    PointNRound(Offset(0.838f, 0.350f), CornerRounding(0.095f)),
-                    PointNRound(Offset(0.782f, 0.418f), CornerRounding.Unrounded),
-                    PointNRound(Offset(0.874f, 0.414f), CornerRounding(0.095f)),
+            val m = Matrix().apply { scale(1f, 0.742f) }
+            return customPolygon(
+                    listOf(
+                        PointNRound(Offset(0.500f, 0.053f)),
+                        PointNRound(Offset(0.545f, -0.040f), CornerRounding(0.405f)),
+                        PointNRound(Offset(0.670f, -0.035f), CornerRounding(0.426f)),
+                        PointNRound(Offset(0.717f, 0.066f), CornerRounding(0.574f)),
+                        PointNRound(Offset(0.722f, 0.128f)),
+                        PointNRound(Offset(0.777f, 0.002f), CornerRounding(0.360f)),
+                        PointNRound(Offset(0.914f, 0.149f), CornerRounding(0.660f)),
+                        PointNRound(Offset(0.926f, 0.289f), CornerRounding(0.660f)),
+                        PointNRound(Offset(0.881f, 0.346f)),
+                        PointNRound(Offset(0.940f, 0.344f), CornerRounding(0.126f)),
+                        PointNRound(Offset(1.003f, 0.437f), CornerRounding(0.255f)),
+                    ),
+                    reps = 2,
+                    mirroring = true
                 )
-            val actualPoints =
-                doRepeat(pnr, reps = 4, center = Offset(0.5f, 0.5f), mirroring = true)
-
-            return RoundedPolygon(
-                actualPoints.fastFlatMap { listOf(it.o.x, it.o.y) }.toFloatArray(),
-                perVertexRounding = actualPoints.fastMap { it.r },
-                centerX = 0.5f,
-                centerY = 0.5f
-            )
+                .transformed(m)
         }
 
         internal fun puffyDiamond(): RoundedPolygon {
-            val points =
-                arrayOf(
-                    Offset(0.390f, 0.260f),
-                    Offset(0.390f, 0.130f),
-                    Offset(0.610f, 0.130f),
-                    Offset(0.610f, 0.260f),
-                    Offset(0.740f, 0.260f)
-                )
-            val actualPoints = doRepeat(points, reps = 4, center = Offset(0.5f, 0.5f))
-            val roundings =
+            return customPolygon(
                 listOf(
-                        CornerRounding(radius = 0.000f),
-                        CornerRounding(radius = 0.104f),
-                        CornerRounding(radius = 0.104f),
-                        CornerRounding(radius = 0.000f),
-                        CornerRounding(radius = 0.104f)
-                    )
-                    .let { l -> (0 until 4).flatMap { l } }
-
-            return RoundedPolygon(
-                actualPoints,
-                perVertexRounding = roundings,
-                centerX = 0.5f,
-                centerY = 0.5f
+                    PointNRound(Offset(0.870f, 0.130f), CornerRounding(0.146f)),
+                    PointNRound(Offset(0.818f, 0.357f)),
+                    PointNRound(Offset(1.000f, 0.332f), CornerRounding(0.853f))
+                ),
+                reps = 4,
+                mirroring = true
             )
         }
 
         @Suppress("ListIterator", "PrimitiveInCollection")
         internal fun pixelCircle(): RoundedPolygon {
-            val main = 0.4f
-            val holes = listOf(Offset(0.28f, 0.14f), Offset(0.16f, 0.16f), Offset(0.16f, 0.3f))
-            var p = Offset(main, -1f)
-            val corner = buildList {
-                add(p)
-                holes.fastForEach { delta ->
-                    p += Offset(0f, delta.y)
-                    add(p)
-                    p += Offset(delta.x, 0f)
-                    add(p)
-                }
-            }
-            val half = corner + corner.fastMap { Offset(it.x, -it.y) }.reversed()
-            val points = half + half.fastMap { Offset(-it.x, it.y) }.reversed()
-            return RoundedPolygon(
-                points.fastFlatMap { listOf(it.x, it.y) }.toFloatArray(),
-                unrounded
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.500f, 0.000f)),
+                    PointNRound(Offset(0.704f, 0.000f)),
+                    PointNRound(Offset(0.704f, 0.065f)),
+                    PointNRound(Offset(0.843f, 0.065f)),
+                    PointNRound(Offset(0.843f, 0.148f)),
+                    PointNRound(Offset(0.926f, 0.148f)),
+                    PointNRound(Offset(0.926f, 0.296f)),
+                    PointNRound(Offset(1.000f, 0.296f))
+                ),
+                reps = 2,
+                mirroring = true
             )
         }
 
         @Suppress("ListIterator", "PrimitiveInCollection")
         internal fun pixelTriangle(): RoundedPolygon {
-            var point = Offset(0f, 0f)
-            val points = mutableListOf<Offset>()
-            points.add(point)
-            val sizes = listOf(56f, 28f, 44f, 26f, 44f, 32f, 38f, 26f, 38f, 32f)
-            sizes.chunked(2).forEach { (dx, dy) ->
-                point += Offset(dx, 0f)
-                points.add(point)
-                point += Offset(0f, dy)
-                points.add(point)
-            }
-            point += Offset(32f, 0f)
-            points.add(point)
-            point += Offset(0f, 38f)
-            points.add(point)
-            point += Offset(-32f, 0f)
-            points.add(point)
-            sizes.reversed().chunked(2).forEach { (dy, dx) ->
-                point += Offset(0f, dy)
-                points.add(point)
-                point += Offset(-dx, 0f)
-                points.add(point)
-            }
-            val centerX = points.fastMaxBy { it.x }!!.x / 2
-            val centerY = points.fastMaxBy { it.y }!!.y / 2
-
-            return RoundedPolygon(
-                points.fastFlatMap { listOf(it.x, it.y) }.toFloatArray(),
-                centerX = centerX,
-                centerY = centerY,
+            return customPolygon(
+                listOf(
+                    PointNRound(Offset(0.110f, 0.500f)),
+                    PointNRound(Offset(0.113f, 0.000f)),
+                    PointNRound(Offset(0.287f, 0.000f)),
+                    PointNRound(Offset(0.287f, 0.087f)),
+                    PointNRound(Offset(0.421f, 0.087f)),
+                    PointNRound(Offset(0.421f, 0.170f)),
+                    PointNRound(Offset(0.560f, 0.170f)),
+                    PointNRound(Offset(0.560f, 0.265f)),
+                    PointNRound(Offset(0.674f, 0.265f)),
+                    PointNRound(Offset(0.675f, 0.344f)),
+                    PointNRound(Offset(0.789f, 0.344f)),
+                    PointNRound(Offset(0.789f, 0.439f)),
+                    PointNRound(Offset(0.888f, 0.439f))
+                ),
+                reps = 1,
+                mirroring = true
             )
         }
 
         internal fun bun(): RoundedPolygon {
-            // Basically, two pills stacked on each other
-            val inset = .4f
-            val sandwichPoints =
-                floatArrayOf(
-                    1f,
-                    1f,
-                    inset,
-                    1f,
-                    -inset,
-                    1f,
-                    -1f,
-                    1f,
-                    -1f,
-                    0f,
-                    -inset,
-                    0f,
-                    -1f,
-                    0f,
-                    -1f,
-                    -1f,
-                    -inset,
-                    -1f,
-                    inset,
-                    -1f,
-                    1f,
-                    -1f,
-                    1f,
-                    0f,
-                    inset,
-                    0f,
-                    1f,
-                    0f
-                )
-            val pvRounding =
+            return customPolygon(
                 listOf(
-                    cornerRound100,
-                    unrounded,
-                    unrounded,
-                    cornerRound100,
-                    cornerRound100,
-                    unrounded,
-                    cornerRound100,
-                    cornerRound100,
-                    unrounded,
-                    unrounded,
-                    cornerRound100,
-                    cornerRound100,
-                    unrounded,
-                    cornerRound100
-                )
-            return RoundedPolygon(sandwichPoints, perVertexRounding = pvRounding)
+                    PointNRound(Offset(0.796f, 0.500f)),
+                    PointNRound(Offset(0.853f, 0.518f), CornerRounding(1f)),
+                    PointNRound(Offset(0.992f, 0.631f), CornerRounding(1f)),
+                    PointNRound(Offset(0.968f, 1.000f), CornerRounding(1f))
+                ),
+                reps = 2,
+                mirroring = true
+            )
         }
 
         internal fun heart(): RoundedPolygon {
-            val points =
-                floatArrayOf(
-                    .2f,
-                    0f,
-                    -.4f,
-                    .5f,
-                    -1f,
-                    1f,
-                    -1.5f,
-                    .5f,
-                    -1f,
-                    0f,
-                    -1.5f,
-                    -.5f,
-                    -1f,
-                    -1f,
-                    -.4f,
-                    -.5f
-                )
-            val pvRounding =
+            return customPolygon(
                 listOf(
-                    unrounded,
-                    unrounded,
-                    cornerRound100,
-                    cornerRound100,
-                    unrounded,
-                    cornerRound100,
-                    cornerRound100,
-                    unrounded
-                )
-            return RoundedPolygon(points, perVertexRounding = pvRounding).transformed(rotate90)
+                    PointNRound(Offset(0.500f, 0.268f), CornerRounding(0.016f)),
+                    PointNRound(Offset(0.792f, -0.066f), CornerRounding(0.958f)),
+                    PointNRound(Offset(1.064f, 0.276f), CornerRounding(1.000f)),
+                    PointNRound(Offset(0.501f, 0.946f), CornerRounding(0.129f))
+                ),
+                reps = 1,
+                mirroring = true
+            )
         }
 
-        private data class PointNRound(val o: Offset, val r: CornerRounding)
-
-        private fun doRepeat(points: Array<Offset>, reps: Int, center: Offset) =
-            points.size.let { np ->
-                (0 until np * reps)
-                    .flatMap {
-                        val point = points[it % np].rotateDegrees((it / np) * 360f / reps, center)
-                        listOf(point.x, point.y)
-                    }
-                    .toFloatArray()
-            }
+        private data class PointNRound(
+            val o: Offset,
+            val r: CornerRounding = CornerRounding.Unrounded
+        )
 
         @Suppress("PrimitiveInCollection")
         private fun doRepeat(
@@ -846,8 +708,9 @@ sealed class MaterialShapes {
                 buildList {
                     val angles = points.fastMap { (it.o - center).angleDegrees() }
                     val distances = points.fastMap { (it.o - center).getDistance() }
-                    val sectionAngle = 360f / reps
-                    repeat(reps) {
+                    val actualReps = reps * 2
+                    val sectionAngle = 360f / actualReps
+                    repeat(actualReps) {
                         points.indices.forEach { index ->
                             val i = if (it % 2 == 0) index else points.lastIndex - index
                             if (i > 0 || it % 2 == 0) {
@@ -883,13 +746,22 @@ sealed class MaterialShapes {
 
         private fun Offset.angleDegrees() = atan2(y, x) * 180f / PI.toFloat()
 
-        private fun directionVector(angleRadians: Float) =
-            Offset(cos(angleRadians), sin(angleRadians))
-
-        private fun radialToCartesian(
-            radius: Float,
-            angleRadians: Float,
-            center: Offset = Offset.Zero
-        ) = directionVector(angleRadians) * radius + center
+        private fun customPolygon(
+            pnr: List<PointNRound>,
+            reps: Int,
+            center: Offset = Offset(0.5f, 0.5f),
+            mirroring: Boolean = false
+        ): RoundedPolygon {
+            val actualPoints = doRepeat(pnr, reps, center, mirroring)
+            return RoundedPolygon(
+                vertices =
+                    FloatArray(actualPoints.size * 2) { ix ->
+                        actualPoints[ix / 2].o.let { if (ix % 2 == 0) it.x else it.y }
+                    },
+                perVertexRounding = buildList { for (p in actualPoints) add(p.r) },
+                centerX = center.x,
+                centerY = center.y
+            )
+        }
     }
 }
