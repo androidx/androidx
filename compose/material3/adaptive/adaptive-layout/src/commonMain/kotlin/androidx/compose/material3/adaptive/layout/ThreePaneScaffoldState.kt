@@ -24,12 +24,14 @@ import androidx.compose.animation.core.rememberTransition
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 
 /**
  * The state of a three pane scaffold. It serves as the [SeekableTransitionState] to manipulate the
  * [Transition] between [ThreePaneScaffoldValue]s.
  */
 @ExperimentalMaterial3AdaptiveApi
+@Stable
 class ThreePaneScaffoldState
 internal constructor(
     private val transitionState: SeekableTransitionState<ThreePaneScaffoldValue>,
