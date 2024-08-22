@@ -140,6 +140,11 @@ public class DeviceQuirksLoader {
                 SizeCannotEncodeVideoQuirk.load())) {
             quirks.add(new SizeCannotEncodeVideoQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(
+                PreviewBlackScreenQuirk.class,
+                PreviewBlackScreenQuirk.load())) {
+            quirks.add(new PreviewBlackScreenQuirk());
+        }
         return quirks;
     }
 }
