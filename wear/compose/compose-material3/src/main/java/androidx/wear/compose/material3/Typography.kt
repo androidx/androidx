@@ -56,6 +56,9 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
  * Arc text styles are used for curved text making up the signposting on the UI such as time text
  * and curved labels, a tailored font axis that specifically optimizes type along a curve.
  *
+ * @property arcLarge ArcLarge is for arc headers and titles. Arc is for text along a curved path on
+ *   the screen, reserved for short header text strings at the very top or bottom of the screen like
+ *   confirmation overlays.
  * @property arcMedium ArcMedium is for arc headers and titles. Arc is for text along a curved path
  *   on the screen, reserved for short header text strings at the very top or bottom of the screen
  *   like page titles.
@@ -112,6 +115,7 @@ import androidx.wear.compose.material3.tokens.TypographyTokens
 @Immutable
 class Typography
 internal constructor(
+    val arcLarge: TextStyle,
     val arcMedium: TextStyle,
     val arcSmall: TextStyle,
     val displayLarge: TextStyle,
@@ -135,6 +139,7 @@ internal constructor(
 ) {
     constructor(
         defaultFontFamily: FontFamily = FontFamily.Default,
+        arcLarge: TextStyle = TypographyTokens.ArcLarge,
         arcMedium: TextStyle = TypographyTokens.ArcMedium,
         arcSmall: TextStyle = TypographyTokens.ArcSmall,
         displayLarge: TextStyle = TypographyTokens.DisplayLarge,
@@ -156,6 +161,7 @@ internal constructor(
         numeralSmall: TextStyle = TypographyTokens.NumeralSmall,
         numeralExtraSmall: TextStyle = TypographyTokens.NumeralExtraSmall,
     ) : this(
+        arcLarge = arcLarge.withDefaultFontFamily(defaultFontFamily),
         arcMedium = arcMedium.withDefaultFontFamily(defaultFontFamily),
         arcSmall = arcSmall.withDefaultFontFamily(defaultFontFamily),
         displayLarge = displayLarge.withDefaultFontFamily(defaultFontFamily),
@@ -180,6 +186,7 @@ internal constructor(
 
     /** Returns a copy of this Typography, optionally overriding some of the values. */
     fun copy(
+        arcLarge: TextStyle = this.arcLarge,
         arcMedium: TextStyle = this.arcMedium,
         arcSmall: TextStyle = this.arcSmall,
         displayLarge: TextStyle = this.displayLarge,
@@ -202,6 +209,7 @@ internal constructor(
         numeralExtraSmall: TextStyle = this.numeralExtraSmall,
     ): Typography =
         Typography(
+            arcLarge,
             arcMedium,
             arcSmall,
             displayLarge,
@@ -228,6 +236,7 @@ internal constructor(
         if (this === other) return true
         if (other !is Typography) return false
 
+        if (arcLarge != other.arcLarge) return false
         if (arcMedium != other.arcMedium) return false
         if (arcSmall != other.arcSmall) return false
         if (displayLarge != other.displayLarge) return false
@@ -253,7 +262,8 @@ internal constructor(
     }
 
     override fun hashCode(): Int {
-        var result = arcMedium.hashCode()
+        var result = arcLarge.hashCode()
+        result = 31 * result + arcMedium.hashCode()
         result = 31 * result + arcSmall.hashCode()
         result = 31 * result + displayLarge.hashCode()
         result = 31 * result + displayMedium.hashCode()
@@ -278,6 +288,7 @@ internal constructor(
 
     override fun toString(): String {
         return "Typography(" +
+            "arcLarge=$arcLarge, " +
             "arcMedium=$arcMedium, " +
             "arcSmall=$arcSmall, " +
             "displayLarge=$displayLarge, " +
@@ -327,6 +338,7 @@ internal val DefaultTextStyle =
 /** Helper function for typography tokens. */
 internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
     return when (value) {
+        TypographyKeyTokens.ArcLarge -> arcLarge
         TypographyKeyTokens.ArcMedium -> arcMedium
         TypographyKeyTokens.ArcSmall -> arcSmall
         TypographyKeyTokens.DisplayLarge -> displayLarge
