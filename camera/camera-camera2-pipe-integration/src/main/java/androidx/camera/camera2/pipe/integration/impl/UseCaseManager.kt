@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.content.Context
+import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice.TEMPLATE_PREVIEW
 import android.hardware.camera2.CaptureRequest
@@ -55,23 +56,30 @@ import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraComponent
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraConfig
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.camera2.pipe.integration.internal.DynamicRangeResolver
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraControl
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.core.DynamicRange
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
+import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraMode
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
-import androidx.camera.core.impl.PreviewConfig
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionConfig.OutputConfig.SURFACE_GROUP_ID_NONE
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder
 import androidx.camera.core.impl.SessionProcessor
+import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.stabilization.StabilizationMode
+import androidx.camera.core.streamsharing.StreamSharing
+import androidx.camera.core.streamsharing.StreamSharingConfig
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.Deferred
@@ -170,6 +178,8 @@ constructor(
             EncoderProfilesProviderAdapter(cameraConfig.cameraId.value, cameraQuirks.quirks)
         )
     }
+
+    private val dynamicRangeResolver = DynamicRangeResolver(cameraProperties.metadata)
 
     @Volatile private var _activeComponent: UseCaseCameraComponent? = null
     public val camera: UseCaseCamera?
@@ -602,7 +612,7 @@ constructor(
             return activeSurfaces > 0 &&
                 with(attachedUseCases.withoutMetering()) {
                     (onlyVideoCapture() || requireMeteringRepeating()) &&
-                        supportMeteringCombination()
+                        isMeteringCombinationSupported()
                 }
         }
         return false
@@ -624,7 +634,7 @@ constructor(
             return activeSurfaces == 0 ||
                 with(attachedUseCases.withoutMetering()) {
                     !(onlyVideoCapture() || requireMeteringRepeating()) ||
-                        !supportMeteringCombination()
+                        !isMeteringCombinationSupported()
                 }
         }
         return false
@@ -664,46 +674,133 @@ constructor(
             }
     }
 
-    private fun Collection<UseCase>.supportMeteringCombination(): Boolean {
-        val useCases = this.toMutableList().apply { add(meteringRepeating) }
+    private fun Collection<UseCase>.isMeteringCombinationSupported(): Boolean {
         if (meteringRepeating.attachedSurfaceResolution == null) {
             meteringRepeating.setupSession()
         }
-        return isCombinationSupported(useCases).also {
-            Log.debug { "Combination of $useCases is supported: $it" }
+
+        val attachedSurfaceInfoList = getAttachedSurfaceInfoList()
+
+        if (attachedSurfaceInfoList.isEmpty()) {
+            return false
         }
+
+        val sessionSurfacesConfigs = getSessionSurfacesConfigs()
+
+        return supportedSurfaceCombination
+            .checkSupported(
+                SupportedSurfaceCombination.FeatureSettings(
+                    CameraMode.DEFAULT,
+                    getRequiredMaxBitDepth(attachedSurfaceInfoList),
+                    isPreviewStabilizationOn(),
+                    isUltraHdrOn()
+                ),
+                mutableListOf<SurfaceConfig>().apply {
+                    addAll(sessionSurfacesConfigs)
+                    add(createMeteringRepeatingSurfaceConfig())
+                }
+            )
+            .also {
+                Log.debug {
+                    "Combination of $sessionSurfacesConfigs + $meteringRepeating is supported: $it"
+                }
+            }
     }
 
-    private fun isCombinationSupported(currentUseCases: Collection<UseCase>): Boolean {
-        val surfaceConfigs =
-            currentUseCases.map { useCase ->
-                // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution
-                // is
-                //  implemented.
-                supportedSurfaceCombination.transformSurfaceConfig(
-                    CameraMode.DEFAULT,
-                    useCase.imageFormat,
-                    useCase.attachedSurfaceResolution!!
+    private fun getRequiredMaxBitDepth(attachedSurfaceInfoList: List<AttachedSurfaceInfo>): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            dynamicRangeResolver
+                .resolveAndValidateDynamicRanges(
+                    attachedSurfaceInfoList,
+                    listOf(meteringRepeating.currentConfig),
+                    listOf(0)
+                )
+                .forEach { (_, u) ->
+                    if (u.bitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
+                        return DynamicRange.BIT_DEPTH_10_BIT
+                    }
+                }
+        }
+
+        return DynamicRange.BIT_DEPTH_8_BIT
+    }
+
+    private fun Collection<UseCase>.getAttachedSurfaceInfoList(): List<AttachedSurfaceInfo> =
+        mutableListOf<AttachedSurfaceInfo>().apply {
+            this@getAttachedSurfaceInfoList.forEach { useCase ->
+                val surfaceResolution = useCase.attachedSurfaceResolution
+                val streamSpec = useCase.attachedStreamSpec
+
+                // When collecting the info, the UseCases might be unbound to make these info
+                // become null.
+                if (surfaceResolution == null || streamSpec == null) {
+                    Log.warn { "Invalid surface resolution or stream spec is found." }
+                    clear()
+                    return@apply
+                }
+
+                val surfaceConfig =
+                    supportedSurfaceCombination.transformSurfaceConfig(
+                        // TODO: Test with correct Camera Mode when concurrent mode / ultra high
+                        // resolution is implemented.
+                        CameraMode.DEFAULT,
+                        useCase.currentConfig.inputFormat,
+                        surfaceResolution
+                    )
+                add(
+                    AttachedSurfaceInfo.create(
+                        surfaceConfig,
+                        useCase.currentConfig.inputFormat,
+                        surfaceResolution,
+                        streamSpec.dynamicRange,
+                        useCase.getCaptureTypes(),
+                        streamSpec.implementationOptions ?: MutableOptionsBundle.create(),
+                        useCase.currentConfig.getTargetFrameRate(null)
+                    )
                 )
             }
+        }
 
-        var isPreviewStabilizationOn = false
-        for (useCase in currentUseCases) {
-            if (useCase.currentConfig is PreviewConfig) {
-                isPreviewStabilizationOn =
-                    useCase.currentConfig.previewStabilizationMode == StabilizationMode.ON
+    private fun UseCase.getCaptureTypes() =
+        if (this is StreamSharing) {
+            (currentConfig as StreamSharingConfig).captureTypes
+        } else {
+            listOf(currentConfig.captureType)
+        }
+
+    private fun Collection<UseCase>.isPreviewStabilizationOn() =
+        filterIsInstance<Preview>().firstOrNull()?.currentConfig?.previewStabilizationMode ==
+            StabilizationMode.ON
+
+    private fun Collection<UseCase>.isUltraHdrOn() =
+        filterIsInstance<ImageCapture>().firstOrNull()?.currentConfig?.inputFormat ==
+            ImageFormat.JPEG_R
+
+    private fun Collection<UseCase>.getSessionSurfacesConfigs(): List<SurfaceConfig> =
+        mutableListOf<SurfaceConfig>().apply {
+            this@getSessionSurfacesConfigs.forEach { useCase ->
+                useCase.sessionConfig.surfaces.forEach { deferrableSurface ->
+                    add(
+                        supportedSurfaceCombination.transformSurfaceConfig(
+                            // TODO: Test with correct Camera Mode when concurrent mode / ultra high
+                            // resolution is implemented.
+                            CameraMode.DEFAULT,
+                            useCase.currentConfig.inputFormat,
+                            deferrableSurface.prescribedSize
+                        )
+                    )
+                }
             }
         }
 
-        return supportedSurfaceCombination.checkSupported(
-            SupportedSurfaceCombination.FeatureSettings(
-                CameraMode.DEFAULT,
-                DynamicRange.BIT_DEPTH_8_BIT,
-                isPreviewStabilizationOn
-            ),
-            surfaceConfigs
+    private fun createMeteringRepeatingSurfaceConfig() =
+        supportedSurfaceCombination.transformSurfaceConfig(
+            // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution is
+            // implemented.
+            CameraMode.DEFAULT,
+            meteringRepeating.imageFormat,
+            meteringRepeating.attachedSurfaceResolution!!
         )
-    }
 
     private fun Collection<UseCase>.surfaceCount(): Int =
         ValidatingBuilder().let { validatingBuilder ->
