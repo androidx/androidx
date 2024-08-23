@@ -56,7 +56,6 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCamera2CameraControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeSessionProcessor
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCameraComponentBuilder
-import androidx.camera.camera2.pipe.integration.testing.generateFakeStreamConfigurationMap
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
@@ -92,15 +91,17 @@ import org.robolectric.annotation.Config
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
+import org.robolectric.shadows.StreamConfigurationMapBuilder
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class UseCaseManagerTest {
     private val supportedSizes = arrayOf(Size(640, 480))
-    // If a device supports Ultra HDR, streamConfigurationMap.getOutputFormat() should contains
-    // JPEG_R format.
-    private val streamConfigurationMap = generateFakeStreamConfigurationMap(supportedSizes)
+    private val streamConfigurationMap =
+        StreamConfigurationMapBuilder.newBuilder()
+            .apply { supportedSizes.forEach(::addOutputSize) }
+            .build()
     private val useCaseManagerList = mutableListOf<UseCaseManager>()
     private val useCaseList = mutableListOf<UseCase>()
     private lateinit var useCaseThreads: UseCaseThreads
