@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.text.format.DateFormat
 import androidx.annotation.VisibleForTesting
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -29,6 +30,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
@@ -43,6 +45,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -57,6 +60,7 @@ import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedModifier
 import androidx.wear.compose.foundation.CurvedScope
 import androidx.wear.compose.foundation.CurvedTextStyle
+import androidx.wear.compose.foundation.background
 import androidx.wear.compose.foundation.curvedComposable
 import androidx.wear.compose.foundation.curvedRow
 import androidx.wear.compose.foundation.padding
@@ -115,6 +119,7 @@ fun TimeText(
     content: TimeTextScope.() -> Unit
 ) {
     val timeText = timeSource.currentTime()
+    val backgroundColor = CurvedTextDefaults.backgroundColor()
 
     if (isRoundDevice()) {
         CurvedLayout(modifier = modifier) {
@@ -122,7 +127,8 @@ fun TimeText(
                 modifier =
                     curvedModifier
                         .sizeIn(maxSweepDegrees = maxSweepAngle)
-                        .padding(contentPadding.toArcPadding()),
+                        .padding(contentPadding.toArcPadding())
+                        .background(backgroundColor, StrokeCap.Round),
                 radialAlignment = CurvedAlignment.Radial.Center
             ) {
                 CurvedTimeTextScope(timeText, timeTextStyle, maxSweepAngle, contentColor).apply {
@@ -134,7 +140,10 @@ fun TimeText(
     } else {
         Box(modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.align(Alignment.TopCenter).padding(contentPadding),
+                modifier =
+                    Modifier.align(Alignment.TopCenter)
+                        .background(backgroundColor, CircleShape)
+                        .padding(contentPadding),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
