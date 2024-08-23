@@ -23,8 +23,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.layout.AlignmentLine
+import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import kotlin.math.abs
@@ -48,13 +51,19 @@ class LazyColumnState : ScrollableState {
         block: suspend ScrollScope.() -> Unit
     ) = scrollableState.scroll(scrollPriority, block)
 
-    var layoutInfo: LazyColumnLayoutInfo by mutableStateOf(LazyColumnLayoutInfoImpl(emptyList(), 0))
-        private set
+    private val layoutInfoState = mutableStateOf(EmptyLazyColumnMeasureResult, neverEqualPolicy())
 
-    private data class LazyColumnLayoutInfoImpl(
-        override val visibleItems: List<LazyColumnVisibleItemInfo>,
-        override val totalItemsCount: Int,
-    ) : LazyColumnLayoutInfo
+    /**
+     * The object of LazyColumnLayoutInfo calculated during the last layout pass. For example, you
+     * can use it to calculate what items are currently visible. Note that this property is
+     * observable and is updated after every scroll or remeasure. If you use it in the composable
+     * function it will be recomposed on every change causing potential performance issues including
+     * infinity recomposition loop. Therefore, avoid using it in the composition. If you want to run
+     * some side effects like sending an analytics event or updating a state based on this value
+     * consider using "snapshotFlow":
+     */
+    val layoutInfo: LazyColumnLayoutInfo
+        get() = layoutInfoState.value
 
     internal var scrollToBeConsumed = 0f
         private set
@@ -85,11 +94,7 @@ class LazyColumnState : ScrollableState {
         anchorItemIndex = measureResult.anchorItemIndex
         anchorItemScrollOffset = measureResult.anchorItemScrollOffset
         lastMeasuredAnchorItemHeight = measureResult.lastMeasuredItemHeight
-        layoutInfo =
-            LazyColumnLayoutInfoImpl(
-                visibleItems = measureResult.visibleItems,
-                totalItemsCount = measureResult.totalItemsCount
-            )
+        layoutInfoState.value = measureResult
     }
 
     private val scrollableState = ScrollableState { -onScroll(-it) }
@@ -118,3 +123,22 @@ class LazyColumnState : ScrollableState {
         }
     }
 }
+
+private val EmptyLazyColumnMeasureResult =
+    LazyColumnMeasureResult(
+        anchorItemIndex = 0,
+        anchorItemScrollOffset = 0,
+        visibleItems = emptyList(),
+        totalItemsCount = 0,
+        lastMeasuredItemHeight = Int.MIN_VALUE,
+        measureResult =
+            object : MeasureResult {
+                override val width: Int = 0
+                override val height: Int = 0
+
+                @Suppress("PrimitiveInCollection")
+                override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
+
+                override fun placeChildren() {}
+            }
+    )

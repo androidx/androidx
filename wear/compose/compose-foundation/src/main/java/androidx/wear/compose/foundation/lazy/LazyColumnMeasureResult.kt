@@ -29,7 +29,7 @@ internal class LazyColumnMeasureResult(
     /** Last known height for the anchor item or negative number if it hasn't been measured. */
     val lastMeasuredItemHeight: Int,
     /** Layout information for the visible items. */
-    val visibleItems: List<LazyColumnVisibleItemInfo>,
+    override val visibleItems: List<LazyColumnVisibleItemInfo>,
     /** see [LazyColumnLayoutInfo.totalItemsCount] */
-    val totalItemsCount: Int,
-) : MeasureResult by measureResult
+    override val totalItemsCount: Int,
+) : LazyColumnLayoutInfo, MeasureResult by measureResult
