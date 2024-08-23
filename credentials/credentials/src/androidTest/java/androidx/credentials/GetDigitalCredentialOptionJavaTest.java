@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Bundle;
 
+import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -28,6 +29,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@OptIn(markerClass = ExperimentalDigitalCredentialApi.class)
 public class GetDigitalCredentialOptionJavaTest {
     private static final String TEST_REQUEST_JSON =
             "{\"protocol\":{\"preview\":{\"test\":\"val\"}}}";

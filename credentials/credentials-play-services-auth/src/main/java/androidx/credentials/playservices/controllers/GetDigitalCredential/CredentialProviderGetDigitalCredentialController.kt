@@ -28,6 +28,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.credentials.Credential
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.DigitalCredential
+import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.GetDigitalCredentialOption
@@ -47,6 +48,7 @@ import com.google.android.gms.identitycredentials.IntentHelper
 import java.util.concurrent.Executor
 
 /** A controller to handle the GetRestoreCredential flow with play services. */
+@OptIn(ExperimentalDigitalCredentialApi::class)
 internal class CredentialProviderGetDigitalCredentialController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,

@@ -17,6 +17,7 @@
 package androidx.credentials.playservices.getdigitalcredential
 
 import android.content.ComponentName
+import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetDigitalCredentialOption
 import androidx.credentials.playservices.TestCredentialsActivity
@@ -31,6 +32,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(ExperimentalDigitalCredentialApi::class)
 class CredentialProviderGetDigitalCredentialControllerTest {
     @Test
     fun convertRequestToPlayServices_success() {

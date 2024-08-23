@@ -25,6 +25,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 
 /** Factory that returns the credential provider to be used by Credential Manager. */
+@OptIn(ExperimentalDigitalCredentialApi::class)
 internal class CredentialProviderFactory(val context: Context) {
 
     @set:VisibleForTesting

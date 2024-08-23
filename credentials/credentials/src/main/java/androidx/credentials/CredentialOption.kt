@@ -63,6 +63,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   credential selector, with less precedence than account ordering but more precedence than last
  *   used time; see [PriorityHints] for more information
  */
+@OptIn(ExperimentalDigitalCredentialApi::class)
 abstract class CredentialOption
 internal constructor(
     val type: String,

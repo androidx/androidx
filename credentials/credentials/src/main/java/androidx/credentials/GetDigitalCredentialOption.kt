@@ -31,6 +31,7 @@ import androidx.credentials.internal.RequestValidationHelper
  * @property requestJson the request in the JSON format; the latest format is defined at
  *   https://wicg.github.io/digital-credentials/#the-digitalcredentialrequestoptions-dictionary
  */
+@ExperimentalDigitalCredentialApi
 class GetDigitalCredentialOption
 internal constructor(
     val requestJson: String,
