@@ -150,6 +150,9 @@ const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
 
 const val FORCE_KOTLIN_2_0_TARGET = "androidx.forceKotlin20Target"
 
+/** Defined by AndroidX Benchmark Plugin, may be used for local experiments with compilation */
+const val FORCE_BENCHMARK_AOT_COMPILATION = "androidx.benchmark.forceaotcompilation"
+
 val ALL_ANDROIDX_PROPERTIES =
     setOf(
         ADD_GROUP_CONSTRAINTS,
@@ -186,6 +189,7 @@ val ALL_ANDROIDX_PROPERTIES =
         MIGRATE_ARRAY_ANNOTATIONS,
         YARN_OFFLINE_MODE,
         FORCE_KOTLIN_2_0_TARGET,
+        FORCE_BENCHMARK_AOT_COMPILATION,
     ) + AndroidConfigImpl.GRADLE_PROPERTIES
 
 fun Project.shouldForceKotlin20Target() =
