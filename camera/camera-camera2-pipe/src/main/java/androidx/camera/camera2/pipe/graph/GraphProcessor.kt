@@ -143,6 +143,7 @@ constructor(
                 graphListeners = graphListeners + listOfNotNull(captureLimiter),
                 graphState3A = if (ignore3AState) null else graphState3A,
                 listeners = listOfNotNull(graphListener3A, captureLimiter),
+                shutdownScope = threads.globalScope,
                 dispatcher = threads.lightweightDispatcher
             )
 

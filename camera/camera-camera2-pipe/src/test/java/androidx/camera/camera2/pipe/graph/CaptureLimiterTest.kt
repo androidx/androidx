@@ -51,6 +51,7 @@ class CaptureLimiterTest {
             graphListeners = listOf(),
             graphState3A = graphState3A,
             listeners = listOf(captureLimiter),
+            shutdownScope = testScope,
             dispatcher = testDispatcher,
         )
 
