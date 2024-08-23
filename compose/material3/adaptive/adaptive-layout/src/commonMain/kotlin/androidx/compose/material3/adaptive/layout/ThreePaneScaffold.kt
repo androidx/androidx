@@ -79,6 +79,7 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
+    paneMotions: ThreePaneMotion = calculateThreePaneMotion(scaffoldValue, paneOrder),
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
@@ -93,6 +94,7 @@ internal fun ThreePaneScaffold(
         paneOrder = paneOrder,
         secondaryPane = secondaryPane,
         tertiaryPane = tertiaryPane,
+        paneMotions = paneMotions,
         paneExpansionState = paneExpansionState,
         paneExpansionDragHandle = paneExpansionDragHandle,
         primaryPane = primaryPane
@@ -108,6 +110,7 @@ internal fun ThreePaneScaffold(
     paneOrder: ThreePaneScaffoldHorizontalOrder,
     secondaryPane: @Composable ThreePaneScaffoldPaneScope.() -> Unit,
     tertiaryPane: (@Composable ThreePaneScaffoldPaneScope.() -> Unit)? = null,
+    paneMotions: ThreePaneMotion = calculateThreePaneMotion(scaffoldState.targetState, paneOrder),
     paneExpansionState: PaneExpansionState = rememberPaneExpansionState(),
     paneExpansionDragHandle: (@Composable ThreePaneScaffoldScope.(PaneExpansionState) -> Unit)? =
         null,
@@ -116,15 +119,9 @@ internal fun ThreePaneScaffold(
     val layoutDirection = LocalLayoutDirection.current
     val ltrPaneOrder =
         remember(paneOrder, layoutDirection) { paneOrder.toLtrOrder(layoutDirection) }
-    val previousScaffoldValue = remember { ThreePaneScaffoldValueHolder(scaffoldState.targetState) }
-    val paneMotions =
-        remember(scaffoldState.targetState, ltrPaneOrder) {
-            val previousValue = previousScaffoldValue.value
-            previousScaffoldValue.value = scaffoldState.targetState
-            calculatePaneMotion(previousValue, scaffoldState.targetState, ltrPaneOrder)
-        }
     val motionScope =
-        remember { ThreePaneScaffoldMotionScopeImpl() }.apply { updatePaneMotions(paneMotions) }
+        remember { ThreePaneScaffoldMotionScopeImpl() }
+            .apply { updateThreePaneMotion(paneMotions, ltrPaneOrder) }
 
     val currentTransition = scaffoldState.rememberTransition()
     val transitionScope =
@@ -150,7 +147,7 @@ internal fun ThreePaneScaffold(
                                 scaffoldScope
                             )
                         }
-                        .apply { updatePaneMotion(paneMotions, ltrPaneOrder) }
+                        .apply { updatePaneMotion(paneMotions) }
                         .primaryPane()
                 },
                 {
@@ -160,7 +157,7 @@ internal fun ThreePaneScaffold(
                                 scaffoldScope
                             )
                         }
-                        .apply { updatePaneMotion(paneMotions, ltrPaneOrder) }
+                        .apply { updatePaneMotion(paneMotions) }
                         .secondaryPane()
                 },
                 {
@@ -171,7 +168,7 @@ internal fun ThreePaneScaffold(
                                     scaffoldScope
                                 )
                             }
-                            .apply { updatePaneMotion(paneMotions, ltrPaneOrder) }
+                            .apply { updatePaneMotion(paneMotions) }
                             .tertiaryPane()
                     }
                 },
@@ -201,9 +198,6 @@ internal fun ThreePaneScaffold(
         Layout(contents = contents, modifier = modifier, measurePolicy = measurePolicy)
     }
 }
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-private class ThreePaneScaffoldValueHolder(var value: ThreePaneScaffoldValue)
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class ThreePaneContentMeasurePolicy(

@@ -27,7 +27,6 @@ import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -116,38 +115,19 @@ private class AnimateBoundsNode(
 
     // If animateBounds is not enabled, we need to do approach measure at least once so the size
     // tracker and the position tracker will be kept updated.
-    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean =
-        enabled && animateFraction() != 1f
+    override fun isMeasurementApproachInProgress(lookaheadSize: IntSize): Boolean {
+        sizeTracker.updateTargetSize(lookaheadSize)
+        return enabled && animateFraction() != 1f
+    }
 
     // If animateBounds is not enabled, we need to do approach measure at least once so the size
     // tracker and the position tracker will be kept updated.
     override fun Placeable.PlacementScope.isPlacementApproachInProgress(
         lookaheadCoordinates: LayoutCoordinates
-    ) = enabled && animateFraction() != 1f
-
-    override fun MeasureScope.measure(
-        measurable: Measurable,
-        constraints: Constraints
-    ): MeasureResult =
-        // MeasureScope.measure() will only be called during lookahead. Perform a "no-op" measuring
-        // here and Update target size and offset.
-        measurable.measure(constraints).run {
-            sizeTracker.updateTargetSize(IntSize(width, height))
-            if (!enabled) {
-                // When animating bounds is not enabled, just update the current size and offsets to
-                // the target values.
-                sizeTracker.updateAndGetCurrentSize(1f)
-            }
-            layout(width, height) {
-                coordinates?.let {
-                    positionTracker.updateTargetOffset(lookaheadOffset(lookaheadScope))
-                    if (!enabled) {
-                        positionTracker.updateAndGetCurrentOffset(1f)
-                    }
-                    place(0, 0)
-                }
-            }
-        }
+    ): Boolean {
+        positionTracker.updateTargetOffset(lookaheadOffset(lookaheadScope))
+        return enabled && animateFraction() != 1f
+    }
 
     override fun ApproachMeasureScope.approachMeasure(
         measurable: Measurable,
