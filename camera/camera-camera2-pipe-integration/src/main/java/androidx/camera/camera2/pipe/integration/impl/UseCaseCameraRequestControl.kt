@@ -28,7 +28,6 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
-import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
@@ -121,12 +120,20 @@ public interface UseCaseCameraRequestControl {
 
     // 3A
     /**
-     * Asynchronously sets the torch (flashlight) state.
+     * Asynchronously sets the torch (flashlight) to ON state.
      *
-     * @param enabled True to enable the torch, false to disable it.
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    public suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A>
+    public suspend fun setTorchOnAsync(): Deferred<Result3A>
+
+    /**
+     * Asynchronously sets the torch (flashlight) state to OFF state.
+     *
+     * @param aeMode The [AeMode] to set while setting the torch value. See
+     *   [CameraGraph.Session.setTorchOff] for details.
+     * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
+     */
+    public suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A>
 
     /**
      * Asynchronously starts a 3A (Auto Exposure, Auto Focus, Auto White Balance) operation with the
@@ -264,14 +271,14 @@ constructor(
                 )
         } ?: canceledResult
 
-    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> =
+    override suspend fun setTorchOnAsync(): Deferred<Result3A> =
+        runIfNotClosed { useGraphSessionOrFailed { it.setTorchOn() } } ?: submitFailedResult
+
+    override suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> =
         runIfNotClosed {
             useGraphSessionOrFailed {
-                it.setTorch(
-                    when (enabled) {
-                        true -> TorchState.ON
-                        false -> TorchState.OFF
-                    }
+                it.setTorchOff(
+                    aeMode = aeMode,
                 )
             }
         } ?: submitFailedResult

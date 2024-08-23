@@ -29,7 +29,6 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.OutputStatus
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.ABORTED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.FAILED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession.RequestStatus.TOTAL_CAPTURE_DONE
@@ -104,7 +103,11 @@ open class FakeCameraGraphSession : CameraGraph.Session {
         throw NotImplementedError("Not used in testing")
     }
 
-    override fun setTorch(torchState: TorchState): Deferred<Result3A> {
+    override fun setTorchOn(): Deferred<Result3A> {
+        throw NotImplementedError("Not used in testing")
+    }
+
+    override fun setTorchOff(aeMode: AeMode?): Deferred<Result3A> {
         throw NotImplementedError("Not used in testing")
     }
 

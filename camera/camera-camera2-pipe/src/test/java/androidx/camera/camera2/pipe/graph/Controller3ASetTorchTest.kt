@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.hardware.camera2.CaptureRequest
+import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE_ON_AUTO_FLASH
 import android.hardware.camera2.CaptureResult
 import android.os.Build
 import androidx.camera.camera2.pipe.AeMode
@@ -24,14 +25,12 @@ import androidx.camera.camera2.pipe.FlashMode
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
-import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -39,7 +38,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 internal class Controller3ASetTorchTest {
@@ -56,7 +54,7 @@ internal class Controller3ASetTorchTest {
     }
 
     @Test
-    fun testSetTorchFailsImmediatelyWithoutRepeatingRequest() = runTest {
+    fun setTorchOn_withoutRepeatingRequest_failsImmediatelyWithNoGraphStateChange() = runTest {
         val graphProcessor2 = FakeGraphProcessor()
         val controller3A =
             Controller3A(
@@ -65,17 +63,42 @@ internal class Controller3ASetTorchTest {
                 graphProcessor2.graphState3A,
                 listener3A
             )
-        val result = controller3A.setTorch(TorchState.ON)
+        val result = controller3A.setTorchOn()
         assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
         assertThat(graphProcessor2.graphState3A.flashMode).isEqualTo(FlashMode.TORCH)
     }
 
     @Test
-    fun testSetTorchOn() = runTest {
-        val result = controller3A.setTorch(TorchState.ON)
+    fun setTorchOff_withoutRepeatingRequest_failsImmediatelyWithNoGraphStateChange() = runTest {
+        val graphProcessor2 = FakeGraphProcessor()
+        val controller3A =
+            Controller3A(
+                graphProcessor2,
+                FakeCameraMetadata(),
+                graphProcessor2.graphState3A,
+                listener3A
+            )
+        val result = controller3A.setTorchOff()
+        assertThat(result.await().status).isEqualTo(Result3A.Status.SUBMIT_FAILED)
+        assertThat(graphProcessor2.graphState3A.flashMode).isEqualTo(FlashMode.OFF)
+    }
+
+    @Test
+    fun setTorchOn_updatesGraphStateWithAeModeOnAndFlashModeTorch() = runTest {
+        controller3A.setTorchOn()
         assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
         assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
+    }
+
+    @Test
+    fun setTorchOn_noCaptureResultProvided_resultIncomplete() = runTest {
+        val result = controller3A.setTorchOn()
         assertThat(result.isCompleted).isFalse()
+    }
+
+    @Test
+    fun setTorchOn_captureResultProvidedWithAeOnAndFlashTorch_returnsOkResult() = runTest {
+        val result = controller3A.setTorchOn()
 
         launch {
             listener3A.onRequestSequenceCreated(
@@ -94,17 +117,62 @@ internal class Controller3ASetTorchTest {
                 )
             )
         }
+
         val result3A = result.await()
         assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
     }
 
     @Test
-    fun testSetTorchOff() = runTest {
-        val result = controller3A.setTorch(TorchState.OFF)
-        assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_ON)
+    fun setTorchOn_captureResultProvidedWithOnlyFlashTorch_resultIncomplete() = runTest {
+        val result = controller3A.setTorchOn()
+
+        launch {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH)
+                    )
+                )
+            }
+            .join()
+
+        assertThat(result.isCompleted).isFalse()
+    }
+
+    @Test
+    fun setTorchOff_updatesGraphStateWithFlashModeOff() = runTest {
+        controller3A.setTorchOff()
         assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_OFF)
+    }
+
+    @Test
+    fun setTorchOffWithoutAeMode_graphStateAeModeStaysNull() = runTest {
+        controller3A.setTorchOff()
+        assertThat(graphState3A.aeMode?.value).isNull() // null is default value here
+    }
+
+    @Test
+    fun setTorchOffWithAutoFlashAeMode_graphStateAeModeUpdatedToAutoFlash() = runTest {
+        controller3A.setTorchOff(aeMode = AeMode.ON_AUTO_FLASH)
+        assertThat(graphState3A.aeMode?.value).isEqualTo(CONTROL_AE_MODE_ON_AUTO_FLASH)
+    }
+
+    @Test
+    fun setTorchOff_noCaptureResultWithUpdatedStates_resultIncomplete() = runTest {
+        val result = controller3A.setTorchOff()
         assertThat(result.isCompleted).isFalse()
+    }
+
+    @Test
+    fun setTorchOffWithoutAeMode_captureResultProvidedWithFlashOff_returnsOkResult() = runTest {
+        val result = controller3A.setTorchOff()
 
         launch {
             listener3A.onRequestSequenceCreated(
@@ -115,11 +183,7 @@ internal class Controller3ASetTorchTest {
                 FrameNumber(101L),
                 FakeFrameMetadata(
                     frameNumber = FrameNumber(101L),
-                    resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_ON,
-                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF
-                        )
+                    resultMetadata = mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF)
                 )
             )
         }
@@ -129,33 +193,90 @@ internal class Controller3ASetTorchTest {
     }
 
     @Test
-    fun testSetTorchDoesNotChangeAeModeIfNotNeeded() = runTest {
-        graphState3A.update(aeMode = AeMode.OFF)
+    fun setTorchOffWithAutoFlashAe_captureResultProvidedWithOnlyFlashOff_resultIncomplete() =
+        runTest {
+            val result = controller3A.setTorchOff(aeMode = AeMode.ON_AUTO_FLASH)
 
-        val result = controller3A.setTorch(TorchState.ON)
-        assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
-        assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
-        assertThat(result.isCompleted).isFalse()
-
-        launch {
-            listener3A.onRequestSequenceCreated(
-                FakeRequestMetadata(requestNumber = RequestNumber(1))
-            )
-            listener3A.onPartialCaptureResult(
-                FakeRequestMetadata(requestNumber = RequestNumber(1)),
-                FrameNumber(101L),
-                FakeFrameMetadata(
-                    frameNumber = FrameNumber(101L),
-                    resultMetadata =
-                        mapOf(
-                            CaptureResult.CONTROL_AE_MODE to CaptureResult.CONTROL_AE_MODE_OFF,
-                            CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH
+            launch {
+                    listener3A.onRequestSequenceCreated(
+                        FakeRequestMetadata(requestNumber = RequestNumber(1))
+                    )
+                    listener3A.onPartialCaptureResult(
+                        FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                        FrameNumber(101L),
+                        FakeFrameMetadata(
+                            frameNumber = FrameNumber(101L),
+                            resultMetadata =
+                                mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF)
                         )
-                )
-            )
+                    )
+                }
+                .join()
+
+            assertThat(result.isCompleted).isFalse()
         }
-        val result3A = result.await()
-        assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
-        assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
-    }
+
+    @Test
+    fun setTorchOffWithAutoFlashAe_captureResultProvidedWithAutoAeAndFlashOff_returnsOkResult() =
+        runTest {
+            val result = controller3A.setTorchOff(aeMode = AeMode.ON_AUTO_FLASH)
+
+            launch {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(
+                                CaptureResult.CONTROL_AE_MODE to
+                                    CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH,
+                                CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_OFF
+                            )
+                    )
+                )
+            }
+            val result3A = result.await()
+            assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+            assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        }
+
+    @Test
+    fun setTorchOn_graphStateAlreadyAeOffSoNoChangeNeeded_aeModeUnchangedButFlashChangedToTorch() =
+        runTest {
+            graphState3A.update(aeMode = AeMode.OFF)
+
+            controller3A.setTorchOn()
+            assertThat(graphState3A.aeMode!!.value).isEqualTo(CaptureRequest.CONTROL_AE_MODE_OFF)
+            assertThat(graphState3A.flashMode!!.value).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
+        }
+
+    @Test
+    fun setTorchOnWithGraphStateAlreadyAeOff_captureResultProvidedWithFlashTorch_returnsOkResult() =
+        runTest {
+            graphState3A.update(aeMode = AeMode.OFF)
+
+            val result = controller3A.setTorchOn()
+
+            launch {
+                listener3A.onRequestSequenceCreated(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1))
+                )
+                listener3A.onPartialCaptureResult(
+                    FakeRequestMetadata(requestNumber = RequestNumber(1)),
+                    FrameNumber(101L),
+                    FakeFrameMetadata(
+                        frameNumber = FrameNumber(101L),
+                        resultMetadata =
+                            mapOf(CaptureResult.FLASH_MODE to CaptureResult.FLASH_MODE_TORCH)
+                    )
+                )
+            }
+            val result3A = result.await()
+            assertThat(result3A.frameMetadata!!.frameNumber.value).isEqualTo(101L)
+            assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
+        }
 }

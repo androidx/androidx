@@ -503,20 +503,30 @@ public interface CameraGraph : AutoCloseable {
         ): Deferred<Result3A>
 
         /**
-         * Turns the torch to ON or OFF.
+         * Turns the torch to ON.
          *
          * This method has a side effect on the currently set AE mode. Ref:
          * https://developer.android.com/reference/android/hardware/camera2/CaptureRequest#FLASH_MODE
          * To use the flash control, AE mode must be set to ON or OFF. So if the AE mode is already
          * not either ON or OFF, we will need to update the AE mode to one of those states, here we
          * will choose ON. It is the responsibility of the application layer above CameraPipe to
-         * restore the AE mode after the torch control has been used. The [update3A] method can be
-         * used to restore the AE state to a previous value.
+         * restore the AE mode after the torch control has been used. The [setTorchOff] or
+         * [update3A] method can be used to restore the AE state to a previous value.
          *
          * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
          *   FrameNumber at which it was completely turned off when the switch was OFF.
          */
-        public fun setTorch(torchState: TorchState): Deferred<Result3A>
+        public fun setTorchOn(): Deferred<Result3A>
+
+        /**
+         * Turns the torch to OFF.
+         *
+         * @param aeMode The [AeMode] to set while disabling the torch value. If null which is the
+         *   default value, the current AE mode is used.
+         * @return the FrameNumber at which the turn was fully turned on if switch was ON, or the
+         *   FrameNumber at which it was completely turned off when the switch was OFF.
+         */
+        public fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A>
 
         /**
          * Locks the auto-exposure, auto-focus and auto-whitebalance as per the given desired

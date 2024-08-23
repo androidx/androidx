@@ -17,6 +17,9 @@
 package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CaptureRequest
+import androidx.camera.camera2.pipe.AeMode
+import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.config.CameraScope
@@ -86,6 +89,8 @@ constructor(
         cancelPreviousTask: Boolean = true,
         ignoreFlashUnitAvailability: Boolean = false
     ): Deferred<Unit> {
+        debug { "TorchControl#setTorchAsync: torch = $torch" }
+
         val signal = CompletableDeferred<Unit>()
 
         if (!ignoreFlashUnitAvailability && !hasFlashUnit) {
@@ -107,16 +112,31 @@ constructor(
 
                 _updateSignal = signal
 
-                // TODO(b/209757083), handle the failed result of the setTorchAsync().
-                requestControl.setTorchAsync(torch).join()
-
-                // Hold the internal AE mode to ON while the torch is turned ON.
+                // Hold the internal AE mode to ON while the torch is turned ON. If torch is OFF, a
+                // value of null will make the state3AControl calculate the correct AE mode based on
+                // other settings.
                 state3AControl.preferredAeMode =
                     if (torch) CaptureRequest.CONTROL_AE_MODE_ON else null
+                val aeMode: AeMode =
+                    AeMode.fromIntOrNull(state3AControl.getFinalSupportedAeMode())
+                        ?: run {
+                            warn {
+                                "TorchControl#setTorchAsync: Failed to convert ae mode of value" +
+                                    " ${state3AControl.getFinalSupportedAeMode()} with" +
+                                    " AeMode.fromIntOrNull, fallback to AeMode.ON"
+                            }
+                            AeMode.ON
+                        }
 
-                // Always update3A again to reset the AE state in the Camera-pipe controller.
-                state3AControl.invalidate()
-                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
+                val deferred =
+                    if (torch) requestControl.setTorchOnAsync()
+                    else requestControl.setTorchOffAsync(aeMode)
+                deferred.propagateTo(signal) {
+                    // TODO: b/209757083 - handle the failed result of the setTorchAsync().
+                    //   Since we are not handling the result here, signal is completed with Unit
+                    //   value here without exception when source deferred completes (returning Unit
+                    //   explicitly is redundant and thus this block looks empty)
+                }
             }
         }
             ?: run {

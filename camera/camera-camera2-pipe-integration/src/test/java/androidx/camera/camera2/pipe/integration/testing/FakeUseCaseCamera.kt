@@ -123,7 +123,11 @@ open class FakeUseCaseCameraRequestControl(
         return CompletableDeferred(Unit)
     }
 
-    override suspend fun setTorchAsync(enabled: Boolean): Deferred<Result3A> {
+    override suspend fun setTorchOnAsync(): Deferred<Result3A> {
+        return setTorchResult
+    }
+
+    override suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> {
         return setTorchResult
     }
 
