@@ -60,7 +60,6 @@ public abstract class Triangle internal constructor() {
     }
 
     /** Returns the minimum bounding box containing the [Triangle]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(): ImmutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
@@ -71,7 +70,6 @@ public abstract class Triangle internal constructor() {
      * Populates [outBox] with the minimum bounding box containing the [Triangle] and returns
      * [outBox].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(outBox: MutableBox): MutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)

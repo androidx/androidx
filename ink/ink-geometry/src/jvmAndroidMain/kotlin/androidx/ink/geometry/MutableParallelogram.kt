@@ -32,7 +32,6 @@ import androidx.annotation.RestrictTo
  *   nested mutable data at a particular time, it may be safest to construct this with a copy of the
  *   data to give this [MutableSegment] exclusive ownership of that copy.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableParallelogram
 private constructor(
     override var center: MutableVec,

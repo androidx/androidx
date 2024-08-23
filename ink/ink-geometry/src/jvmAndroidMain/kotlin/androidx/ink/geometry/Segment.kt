@@ -70,7 +70,6 @@ public abstract class Segment internal constructor() {
      * For performance-sensitive code, prefer to use [computeBoundingBox] with a pre-allocated
      * instance of [MutableBox].
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(): ImmutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
@@ -78,7 +77,6 @@ public abstract class Segment internal constructor() {
     }
 
     /** Populates [outBox] with the minimum bounding box containing the [Segment]. */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(outBox: MutableBox): MutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)

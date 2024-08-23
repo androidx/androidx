@@ -19,8 +19,6 @@ package androidx.ink.geometry
 import androidx.annotation.FloatRange
 import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
-import kotlin.Deprecated
-import kotlin.jvm.JvmSynthetic
 
 /**
  * A helper class for accumulating the minimum bounding boxes of zero or more geometry objects. In
@@ -28,7 +26,6 @@ import kotlin.jvm.JvmSynthetic
  */
 // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
 // instead.
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class BoxAccumulator {
     /**
      * The bounds, which are valid only if [hasBounds] is `true`. When [hasBounds] is `false`, this
@@ -75,16 +72,23 @@ public class BoxAccumulator {
      */
     public fun isEmpty(): Boolean = !hasBounds
 
-    /** Populates this [BoxAccumulator] with the same values contained in [input]. */
+    /**
+     * Populates this [BoxAccumulator] with the same values contained in [input].
+     *
+     * @return `this`
+     */
     public fun populateFrom(input: BoxAccumulator): BoxAccumulator {
         reset().add(input)
         return this
     }
 
-    /** Reset this object to have no bounds. Returns the same instance to chain function calls. */
+    /**
+     * Reset this object to have no bounds.
+     *
+     * @return `this`
+     */
     // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
     // instead.
-
     public fun reset(): BoxAccumulator {
         hasBounds = false
         _bounds.setXBounds(Float.NaN, Float.NaN).setYBounds(Float.NaN, Float.NaN)
@@ -94,6 +98,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [other]. If
      * [other] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(other: BoxAccumulator?): BoxAccumulator {
         BoxAccumulatorNative.nativeAddOptionalBox(
@@ -115,6 +121,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [point]. If
      * [point] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(point: Vec): BoxAccumulator {
         BoxAccumulatorNative.nativeAddPoint(
@@ -133,6 +141,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [segment]. If
      * [segment] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(segment: Segment): BoxAccumulator {
         BoxAccumulatorNative.nativeAddSegment(
@@ -153,6 +163,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [triangle]. If
      * [triangle] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(triangle: Triangle): BoxAccumulator {
         BoxAccumulatorNative.nativeAddTriangle(
@@ -175,6 +187,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [box]. If
      * [box] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(box: Box?): BoxAccumulator {
         BoxAccumulatorNative.nativeAddOptionalBox(
@@ -196,6 +210,8 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains
      * [parallelogram]. If [parallelogram] is null, this is a no-op.
+     *
+     * @return `this`
      */
     public fun add(parallelogram: Parallelogram): BoxAccumulator {
         BoxAccumulatorNative.nativeAddParallelogram(
@@ -218,7 +234,10 @@ public class BoxAccumulator {
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [mesh]. If
      * [mesh] is null or empty, this is a no-op.
+     *
+     * @return `this`
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun add(mesh: PartitionedMesh): BoxAccumulator = this.add(mesh.bounds)
 
     /**
@@ -235,13 +254,13 @@ public class BoxAccumulator {
 
     /**
      * Overwrite the entries of this object with new values. This is useful for recycling an
-     * instance. Returns the same instance to chain function calls.
+     * instance.
+     *
+     * @return `this`
      */
     // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
     // instead.
-
-    @JvmSynthetic
-    @Deprecated("Prefer to use methods [reset] and [add]")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun overwriteFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
         _bounds.setXBounds(x1, x2).setYBounds(y1, y2)
