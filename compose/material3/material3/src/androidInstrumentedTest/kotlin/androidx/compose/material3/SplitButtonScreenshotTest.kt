@@ -23,7 +23,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
@@ -63,7 +64,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                             onClick = { /* Do Nothing */ },
                         ) {
                             Icon(
-                                Icons.Outlined.Edit,
+                                Icons.Filled.Edit,
                                 modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
                                 contentDescription = "Localized description",
                             )
@@ -100,7 +101,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     checked = false,
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Edit,
+                            Icons.Filled.Edit,
                             contentDescription = "Localized description",
                             Modifier.size(SplitButtonDefaults.LeadingIconSize)
                         )
@@ -136,7 +137,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     onTrailingButtonClick = {},
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Edit,
+                            Icons.Filled.Edit,
                             contentDescription = "Localized description",
                             Modifier.size(SplitButtonDefaults.LeadingIconSize)
                         )
@@ -145,7 +146,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     },
                     trailingContent = {
                         Icon(
-                            Icons.Outlined.KeyboardArrowDown,
+                            Icons.Filled.KeyboardArrowDown,
                             modifier =
                                 Modifier.size(SplitButtonDefaults.TrailingIconSize).graphicsLayer {
                                     this.rotationZ = 180f
@@ -170,7 +171,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     checked = false,
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Edit,
+                            Icons.Filled.Edit,
                             contentDescription = "Localized description",
                             Modifier.size(SplitButtonDefaults.LeadingIconSize)
                         )
@@ -203,7 +204,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     checked = false,
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Edit,
+                            Icons.Filled.Edit,
                             contentDescription = "Localized description",
                             Modifier.size(SplitButtonDefaults.LeadingIconSize)
                         )
@@ -236,7 +237,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                     checked = false,
                     leadingContent = {
                         Icon(
-                            Icons.Outlined.Edit,
+                            Icons.Filled.Edit,
                             contentDescription = "Localized description",
                             Modifier.size(SplitButtonDefaults.LeadingIconSize)
                         )
@@ -269,7 +270,7 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
                             onClick = { /* Do Nothing */ },
                         ) {
                             Icon(
-                                Icons.Outlined.Edit,
+                                Icons.Filled.Edit,
                                 contentDescription = "Localized description",
                                 Modifier.size(SplitButtonDefaults.LeadingIconSize)
                             )

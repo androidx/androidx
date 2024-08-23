@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -448,7 +449,7 @@ class ToggleButtonScreenshotTest {
             Box(Modifier.testTag(wrapperTestTag)) {
                 ToggleButton(checked = false, onCheckedChange = {}) {
                     Icon(
-                        Icons.Filled.Favorite,
+                        Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
                         modifier = Modifier.size(ToggleButtonDefaults.IconSize)
                     )
@@ -466,7 +467,7 @@ class ToggleButtonScreenshotTest {
             Box(Modifier.testTag(wrapperTestTag)) {
                 ToggleButton(checked = false, onCheckedChange = {}, enabled = false) {
                     Icon(
-                        Icons.Filled.Favorite,
+                        Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
                         modifier = Modifier.size(ToggleButtonDefaults.IconSize)
                     )
@@ -484,7 +485,7 @@ class ToggleButtonScreenshotTest {
             Box(Modifier.testTag(wrapperTestTag)) {
                 ToggleButton(checked = false, onCheckedChange = {}) {
                     Icon(
-                        Icons.Filled.Favorite,
+                        Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
                         modifier = Modifier.size(ToggleButtonDefaults.IconSize)
                     )
@@ -539,7 +540,7 @@ class ToggleButtonScreenshotTest {
             Box(Modifier.testTag(wrapperTestTag)) {
                 ToggleButton(checked = false, onCheckedChange = {}) {
                     Icon(
-                        Icons.Filled.Favorite,
+                        Icons.Outlined.Favorite,
                         contentDescription = "Localized description",
                         modifier = Modifier.size(ToggleButtonDefaults.IconSize)
                     )
