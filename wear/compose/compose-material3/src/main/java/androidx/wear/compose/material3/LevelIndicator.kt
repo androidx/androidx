@@ -154,7 +154,7 @@ object LevelIndicatorDefaults {
     const val SweepAngle = 72f
 
     /** The default stroke width for the indicator and track strokes */
-    val StrokeWidth = 5.dp
+    val StrokeWidth = 6.dp
 
     internal val edgePadding = PaddingDefaults.edgePadding
 
