@@ -74,24 +74,91 @@ public fun <T> Deferred<T>.asListenableFuture(
     return CallbackToFutureAdapter.getFuture(resolver)
 }
 
+/**
+ * Propagates the result of this to `destination` parameter when this deferred is completed.
+ *
+ * Cancelling the destination is no-op returned from this function does not cancel the `Deferred`
+ * returned by `block`.
+ */
 public fun <T> Deferred<T>.propagateTo(destination: CompletableDeferred<T>) {
-    invokeOnCompletion { propagateOnceTo(destination, it) }
+    invokeOnCompletion { propagateCompletion(destination, it) }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
-public fun <T> Deferred<T>.propagateOnceTo(
-    destination: CompletableDeferred<T>,
-    throwable: Throwable?,
+/**
+ * Propagates the result of this to `destination` parameter when this deferred is completed.
+ *
+ * Cancelling the destination is no-op returned from this function does not cancel the `Deferred`
+ * returned by `block`.
+ *
+ * @param destination The destination [CompletableDeferred] to which result is propagated to.
+ * @param transform Transformation function to convert the result during propagation.
+ */
+public fun <T, R> Deferred<T>.propagateTo(
+    destination: CompletableDeferred<R>,
+    transform: (T) -> R,
 ) {
-    if (throwable != null) {
-        if (throwable is CancellationException) {
-            destination.cancel(throwable)
-        } else {
-            destination.completeExceptionally(throwable)
-        }
+    invokeOnCompletion { propagateCompletion(destination, it, transform) }
+}
+
+/**
+ * Propagates the result of this to `destination` parameter immediately.
+ *
+ * This function assumes that [Deferred.invokeOnCompletion] has already been invoked.
+ *
+ * @param destination The destination `Deferred` to which result is propagated to.
+ * @param completionCause The `Throwable` cause of completion that was passed in
+ *   `Deferred.invokeOnCompletion`.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+public fun <T> Deferred<T>.propagateCompletion(
+    destination: CompletableDeferred<T>,
+    completionCause: Throwable?,
+) {
+    if (completionCause != null) {
+        destination.completeFailing(completionCause)
     } else {
         // Ignore exceptions - This should never throw in this situation.
         destination.complete(getCompleted())
+    }
+}
+
+/**
+ * Propagates the result of this to `destination` parameter immediately.
+ *
+ * This function assumes that [Deferred.invokeOnCompletion] has already been invoked.
+ *
+ * @param destination The destination `Deferred` to which result is propagated to.
+ * @param completionCause The `Throwable` cause of completion that was passed in
+ *   `Deferred.invokeOnCompletion`.
+ * @param transform Transformation function to convert the result during propagation.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+public fun <T, R> Deferred<T>.propagateCompletion(
+    destination: CompletableDeferred<R>,
+    completionCause: Throwable?,
+    transform: (T) -> R,
+) {
+    if (completionCause != null) {
+        destination.completeFailing(completionCause)
+    } else {
+        // Ignore exceptions - This should never throw in this situation.
+        destination.complete(transform(getCompleted()))
+    }
+}
+
+/**
+ * Completes this `Deferred` as failure based on the provided `cause`.
+ *
+ * @param cause If it's an instance of [CancellationException], [Deferred.cancel] is invoked for
+ *   this, otherwise, [CompletableDeferred.completeExceptionally] is invoked.
+ */
+public fun <T> CompletableDeferred<T>.completeFailing(
+    cause: Throwable,
+) {
+    if (cause is CancellationException) {
+        cancel(cause)
+    } else {
+        completeExceptionally(cause)
     }
 }
 
