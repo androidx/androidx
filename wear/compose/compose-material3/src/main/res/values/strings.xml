@@ -31,5 +31,9 @@
         <item quantity="other">%d Seconds</item>
     </plurals>
     <string description="Content description of the period picker in TimePickerWith12HourClock. It lets the user select the period for 12H time format. [CHAR_LIMIT=NONE]" name="wear_m3c_time_picker_period">Period</string>
+    <string description="Lets the user know that this picker is to change the value of the day date unit. Appears on the DatePicker component, on top of the day picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_day">Day</string>
+    <string description="Lets the user know that this picker is to change the value of the month date unit. Appears on the DatePicker component, on top of the month picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_month">Month</string>
+    <string description="Lets the user know that this picker is to change the value of the year date unit. Appears on the DatePicker component, on top of the year picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_year">Year</string>
     <string description="Content description of the confirm button of DatePicker and TimePicker components. It lets the user confirm the date or time selected. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_confirm_button_content_description">Confirm</string>
+    <string description="Content description of the next button of DatePicker and TimePicker components. It lets the user to move to the next picker. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_next_button_content_description">Next</string>
 </resources>

@@ -38,7 +38,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -60,7 +59,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
@@ -223,8 +221,9 @@ fun TimePicker(
                                 option =
                                     pickerTextOption(
                                         textStyle = styles.optionTextStyle,
-                                        selectedPickerColor = colors.selectedPickerContentColor,
-                                        unselectedPickerColor = colors.unselectedPickerContentColor,
+                                        selectedContentColor = colors.selectedPickerContentColor,
+                                        unselectedContentColor =
+                                            colors.unselectedPickerContentColor,
                                         indexToText = {
                                             "%02d".format(if (is12hour) it + 1 else it)
                                         },
@@ -250,8 +249,9 @@ fun TimePicker(
                                     pickerTextOption(
                                         textStyle = styles.optionTextStyle,
                                         indexToText = { "%02d".format(it) },
-                                        selectedPickerColor = colors.selectedPickerContentColor,
-                                        unselectedPickerColor = colors.unselectedPickerContentColor,
+                                        selectedContentColor = colors.selectedPickerContentColor,
+                                        unselectedContentColor =
+                                            colors.unselectedPickerContentColor,
                                         optionHeight = styles.optionHeight,
                                     ),
                                 spacing = styles.optionSpacing
@@ -274,8 +274,9 @@ fun TimePicker(
                                     pickerTextOption(
                                         textStyle = styles.optionTextStyle,
                                         indexToText = thirdPicker.indexToText,
-                                        selectedPickerColor = colors.selectedPickerContentColor,
-                                        unselectedPickerColor = colors.unselectedPickerContentColor,
+                                        selectedContentColor = colors.selectedPickerContentColor,
+                                        unselectedContentColor =
+                                            colors.unselectedPickerContentColor,
                                         optionHeight = styles.optionHeight,
                                     ),
                                 spacing = styles.optionSpacing
@@ -690,33 +691,6 @@ private fun Separator(
     }
 }
 
-private fun pickerTextOption(
-    textStyle: TextStyle,
-    selectedPickerColor: Color,
-    unselectedPickerColor: Color,
-    indexToText: (Int) -> String,
-    optionHeight: Dp,
-): (@Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit) =
-    { value: Int, pickerSelected: Boolean ->
-        Box(
-            modifier = Modifier.fillMaxSize().height(optionHeight),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = indexToText(value),
-                maxLines = 1,
-                style = textStyle,
-                color =
-                    if (pickerSelected) {
-                        selectedPickerColor
-                    } else {
-                        unselectedPickerColor
-                    },
-                modifier = Modifier.align(Alignment.Center).wrapContentSize(),
-            )
-        }
-    }
-
 @Composable
 private fun createDescription(
     pickerGroupState: PickerGroupState,
@@ -728,19 +702,6 @@ private fun createDescription(
         FocusableElementsTimePicker.NONE.index -> label
         else -> getPlurals(plurals, selectedValue, selectedValue)
     }
-
-@Composable
-private fun FontScaleIndependent(content: @Composable () -> Unit) {
-    CompositionLocalProvider(
-        value =
-            LocalDensity provides
-                Density(
-                    density = LocalDensity.current.density,
-                    fontScale = 1f,
-                ),
-        content = content
-    )
-}
 
 private enum class FocusableElementsTimePicker(val index: Int) {
     HOURS(0),

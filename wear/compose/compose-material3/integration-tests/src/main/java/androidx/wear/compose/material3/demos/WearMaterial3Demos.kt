@@ -124,6 +124,13 @@ val WearMaterial3Demos =
             ),
             Material3DemoCategory("Slider", SliderDemos),
             Material3DemoCategory("Picker", PickerDemos),
+            // Requires API level 26 or higher due to java.time dependency.
+            *(if (Build.VERSION.SDK_INT >= 26)
+                arrayOf(
+                    Material3DemoCategory("TimePicker", TimePickerDemos),
+                    Material3DemoCategory("DatePicker", DatePickerDemos)
+                )
+            else emptyArray<Material3DemoCategory>()),
             Material3DemoCategory("Progress Indicator", ProgressIndicatorDemos),
             Material3DemoCategory("Scroll Indicator", ScrollIndicatorDemos),
             Material3DemoCategory("Placeholder", PlaceholderDemos),

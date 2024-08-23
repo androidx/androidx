@@ -256,6 +256,7 @@ class ColorScheme(
 
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
+    internal var defaultDatePickerColorsCached: DatePickerColors? = null
 }
 
 /**
