@@ -22,6 +22,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.os.Bundle;
 
+import androidx.annotation.OptIn;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -30,6 +31,7 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@OptIn(markerClass = ExperimentalDigitalCredentialApi.class)
 public class DigitalCredentialJavaTest {
     private static final String TEST_CREDENTIAL_JSON =
             "{\"protocol\":{\"preview\":{\"test\":\"val\"}}}";

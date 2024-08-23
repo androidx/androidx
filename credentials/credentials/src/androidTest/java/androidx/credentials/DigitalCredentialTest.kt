@@ -26,6 +26,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(ExperimentalDigitalCredentialApi::class)
 class DigitalCredentialTest {
     @Test
     fun typeConstant() {

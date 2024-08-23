@@ -30,6 +30,7 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *   [PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL] for `PublicKeyCredential`)
  * @property data the credential data in the [Bundle] format
  */
+@OptIn(ExperimentalDigitalCredentialApi::class)
 abstract class Credential
 internal constructor(
     val type: String,

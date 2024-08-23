@@ -25,6 +25,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
+@OptIn(ExperimentalDigitalCredentialApi::class)
 class GetDigitalCredentialOptionTest {
     @Test
     fun constructorAndGetter() {

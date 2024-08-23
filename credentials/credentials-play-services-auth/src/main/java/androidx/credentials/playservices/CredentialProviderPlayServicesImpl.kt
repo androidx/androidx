@@ -30,6 +30,7 @@ import androidx.credentials.CreatePublicKeyCredentialRequest
 import androidx.credentials.CreateRestoreCredentialRequest
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.CredentialProvider
+import androidx.credentials.ExperimentalDigitalCredentialApi
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
 import androidx.credentials.GetDigitalCredentialOption
@@ -60,6 +61,7 @@ import java.util.concurrent.Executor
 /** Entry point of all credential manager requests to the play-services-auth module. */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @Suppress("deprecation")
+@OptIn(ExperimentalDigitalCredentialApi::class)
 class CredentialProviderPlayServicesImpl(private val context: Context) : CredentialProvider {
 
     @VisibleForTesting var googleApiAvailability = GoogleApiAvailability.getInstance()
