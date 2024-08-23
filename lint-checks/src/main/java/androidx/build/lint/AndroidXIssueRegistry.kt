@@ -85,6 +85,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     ReplaceWithDetector.ISSUE,
                     // This issue is only enabled when `-Pandroidx.migrateArrayAnnotations=true`.
                     ArrayNullnessMigration.ISSUE,
+                    TypeMirrorToString.ISSUE,
                 )
             }
     }
