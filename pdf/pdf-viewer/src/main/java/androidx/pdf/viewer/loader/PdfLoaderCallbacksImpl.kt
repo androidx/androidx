@@ -233,6 +233,9 @@ public class PdfLoaderCallbacksImpl(
                         "Document not loaded but status " + status.number
                     )
                 PdfStatus.PDF_ERROR -> {
+                    loadingView.showErrorView(
+                        context.resources.getString(R.string.error_cannot_open_pdf)
+                    )
                     handleError(status)
                 }
                 PdfStatus.FILE_ERROR,
