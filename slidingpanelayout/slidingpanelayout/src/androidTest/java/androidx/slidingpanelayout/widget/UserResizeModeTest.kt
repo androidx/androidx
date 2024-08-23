@@ -361,44 +361,6 @@ class UserResizeModeTest {
         }
         assertWithMessage("non-transparent pixels were drawn").that(hasNonTransparentPixel).isTrue()
     }
-
-    @Test
-    fun skippedMeasurePassIsCorrected() {
-        val context = InstrumentationRegistry.getInstrumentation().context
-        val spl = createTestSpl(context, collapsibleContentViews = true)
-
-        fun assertAdjacentSiblings(message: String) {
-            val (leftChild, rightChild) = spl.leftAndRightViews()
-            assertWithMessage("adjacent view edges: $message")
-                .that(rightChild.left)
-                .isEqualTo(leftChild.right)
-        }
-
-        assertAdjacentSiblings("initial layout")
-
-        spl.splitDividerPosition = 0
-        spl.measureAndLayoutForTest()
-
-        assertAdjacentSiblings("with splitDividerPosition = 0")
-
-        val (left, right) = spl.leftAndRightViews()
-        assertWithMessage("left child width").that(left.width).isEqualTo(0)
-        assertWithMessage("right child width").that(right.width).isEqualTo(100)
-    }
-}
-
-private fun SlidingPaneLayout.leftAndRightViews(): Pair<View, View> {
-    val isRtl = this.layoutDirection == View.LAYOUT_DIRECTION_RTL
-    val leftChild: View
-    val rightChild: View
-    if (isRtl) {
-        leftChild = this[1]
-        rightChild = this[0]
-    } else {
-        leftChild = this[0]
-        rightChild = this[1]
-    }
-    return leftChild to rightChild
 }
 
 private fun View.drawToBitmap(): Bitmap {
@@ -411,40 +373,31 @@ private fun View.drawToBitmap(): Bitmap {
 private fun createTestSpl(
     context: Context,
     setDividerDrawable: Boolean = true,
-    childPanesAcceptTouchEvents: Boolean = false,
-    collapsibleContentViews: Boolean = false
+    childPanesAcceptTouchEvents: Boolean = false
 ): SlidingPaneLayout =
     SlidingPaneLayout(context).apply {
         addView(
             TestPaneView(context).apply {
-                val lpWidth: Int
-                if (collapsibleContentViews) {
-                    lpWidth = 0
-                } else {
-                    minimumWidth = 30
-                    lpWidth = LayoutParams.WRAP_CONTENT
-                }
+                minimumWidth = 30
                 acceptTouchEvents = childPanesAcceptTouchEvents
                 layoutParams =
-                    SlidingPaneLayout.LayoutParams(lpWidth, LayoutParams.MATCH_PARENT).apply {
-                        weight = 1f
-                    }
+                    SlidingPaneLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT,
+                            LayoutParams.MATCH_PARENT
+                        )
+                        .apply { weight = 1f }
             }
         )
         addView(
             TestPaneView(context).apply {
-                val lpWidth: Int
-                if (collapsibleContentViews) {
-                    lpWidth = 0
-                } else {
-                    minimumWidth = 30
-                    lpWidth = LayoutParams.WRAP_CONTENT
-                }
+                minimumWidth = 30
                 acceptTouchEvents = childPanesAcceptTouchEvents
                 layoutParams =
-                    SlidingPaneLayout.LayoutParams(lpWidth, LayoutParams.MATCH_PARENT).apply {
-                        weight = 1f
-                    }
+                    SlidingPaneLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT,
+                            LayoutParams.MATCH_PARENT
+                        )
+                        .apply { weight = 1f }
             }
         )
         isUserResizingEnabled = true

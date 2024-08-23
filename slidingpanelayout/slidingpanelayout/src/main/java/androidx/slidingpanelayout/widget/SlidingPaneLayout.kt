@@ -192,11 +192,7 @@ private fun layoutParamsError(childView: View, layoutParams: LayoutParams?): Not
 }
 
 private inline val View.spLayoutParams: SlidingPaneLayout.LayoutParams
-    get() =
-        when (val layoutParams = layoutParams) {
-            is SlidingPaneLayout.LayoutParams -> layoutParams
-            else -> layoutParamsError(this, layoutParams)
-        }
+    get() = layoutParams as SlidingPaneLayout.LayoutParams
 
 /**
  * SlidingPaneLayout provides a horizontal, multi-pane layout for use at the top level of a UI. A
@@ -986,7 +982,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                 if (child.visibility == GONE) return@forEachIndexed
                 val lp = child.spLayoutParams
                 val skippedFirstPass = !lp.canInfluenceParentSize || lp.weightOnlyWidth
-                val firstPassMeasuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
+                val measuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
                 val newWidth =
                     when {
                         // Child view consumes available space if the combined width cannot fit into
@@ -999,7 +995,7 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                                 val widthToDistribute = widthRemaining.coerceAtLeast(0)
                                 val addedWidth =
                                     (lp.weight * widthToDistribute / weightSum).roundToInt()
-                                firstPassMeasuredWidth + addedWidth
+                                measuredWidth + addedWidth
                             } else { // Explicit dividing line is defined
                                 val clampedPos =
                                     dividerPos
@@ -1019,9 +1015,9 @@ constructor(context: Context, attrs: AttributeSet? = null, defStyle: Int = 0) :
                             widthAvailable - lp.horizontalMargin - totalMeasuredWidth
                         }
                         lp.width > 0 -> lp.width
-                        else -> firstPassMeasuredWidth
+                        else -> measuredWidth
                     }
-                if (newWidth != child.measuredWidth) {
+                if (measuredWidth != newWidth) {
                     val childWidthSpec = MeasureSpec.makeMeasureSpec(newWidth, MeasureSpec.EXACTLY)
                     val childHeightSpec =
                         getChildHeightMeasureSpec(
