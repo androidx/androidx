@@ -35,6 +35,7 @@ import androidx.health.connect.client.ExperimentalDeduplicationApi
 import androidx.health.connect.client.HealthConnectClient
 import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.PermissionController
+import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByDuration
 import androidx.health.connect.client.aggregate.AggregationResultGroupedByPeriod
@@ -42,6 +43,7 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
 import androidx.health.connect.client.feature.HealthConnectFeaturesPlatformImpl
+import androidx.health.connect.client.impl.platform.aggregate.AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10
 import androidx.health.connect.client.impl.platform.aggregate.aggregateFallback
 import androidx.health.connect.client.impl.platform.aggregate.platformMetrics
 import androidx.health.connect.client.impl.platform.aggregate.plus
@@ -216,9 +218,7 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     }
 
     override suspend fun aggregate(request: AggregateRequest): AggregationResult {
-        if (request.metrics.isEmpty()) {
-            throw IllegalArgumentException("Requested record types must not be empty.")
-        }
+        verifyAggregationMetrics(request.metrics)
 
         val fallbackResponse = aggregateFallback(request)
 
@@ -244,6 +244,8 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     override suspend fun aggregateGroupByDuration(
         request: AggregateGroupByDurationRequest
     ): List<AggregationResultGroupedByDuration> {
+        verifyAggregationMetrics(request.metrics)
+
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregateGroupByDuration(
@@ -260,6 +262,8 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
     override suspend fun aggregateGroupByPeriod(
         request: AggregateGroupByPeriodRequest
     ): List<AggregationResultGroupedByPeriod> {
+        verifyAggregationMetrics(request.metrics)
+
         return wrapPlatformException {
                 suspendCancellableCoroutine { continuation ->
                     healthConnectManager.aggregateGroupByPeriod(
@@ -297,6 +301,12 @@ class HealthConnectClientUpsideDownImpl : HealthConnectClient, PermissionControl
                     )
                 }
             }
+    }
+
+    private fun verifyAggregationMetrics(metrics: Set<AggregateMetric<*>>) {
+        AGGREGATE_METRICS_ADDED_IN_SDK_EXT_10.intersect(metrics).firstOrNull()?.let {
+            throw UnsupportedOperationException("Unsupported metric type ${it.metricKey}")
+        }
     }
 
     override suspend fun getChangesToken(request: ChangesTokenRequest): String {
