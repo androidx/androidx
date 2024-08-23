@@ -17,13 +17,8 @@
 <resources>
     <dimen name="viewer_doc_additional_top_offset">12dp</dimen>
     <dimen name="viewer_fastscroll_edge_offset">24dp</dimen>
-    <dimen name="viewer_fastscroll_rounded_corner_radius">2dp</dimen>
     <dimen name="viewer_doc_padding_y">4dp</dimen>
     <dimen name="viewer_doc_padding_x">0dp</dimen>
-    <dimen name="mtrl_min_touch_target_size">48dp</dimen>
-
-    <dimen name="viewer_progress_bar_height">4dp</dimen>
-    <dimen name="viewer_frame_error_height">80dp</dimen>
 
     <!--Edit button FAB -->
     <dimen name="viewer_edit_fab_margin_bottom">16dp</dimen>

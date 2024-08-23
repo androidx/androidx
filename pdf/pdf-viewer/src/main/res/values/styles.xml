@@ -20,6 +20,4 @@
         <item name="android:textColor">@color/text_default</item>
     </style>
 
-    <style name="TextField" />
-
 </resources>
