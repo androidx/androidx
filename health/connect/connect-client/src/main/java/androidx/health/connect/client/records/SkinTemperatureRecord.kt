@@ -49,6 +49,7 @@ import java.time.ZoneOffset
  *   [SkinTemperatureMeasurementLocation].
  * @param metadata set of common metadata associated with the written record.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class SkinTemperatureRecord(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,

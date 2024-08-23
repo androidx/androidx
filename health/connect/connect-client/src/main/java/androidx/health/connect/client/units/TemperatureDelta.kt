@@ -16,11 +16,14 @@
 
 package androidx.health.connect.client.units
 
+import androidx.annotation.RestrictTo
+
 /**
  * Represents a unit of TemperatureDelta difference. Supported units:
  * - Celsius - see [TemperatureDelta.celsius], [Double.celsius]
  * - Fahrenheit - see [TemperatureDelta.fahrenheit], [Double.fahrenheit]
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 class TemperatureDelta
 private constructor(
     private val value: Double,
