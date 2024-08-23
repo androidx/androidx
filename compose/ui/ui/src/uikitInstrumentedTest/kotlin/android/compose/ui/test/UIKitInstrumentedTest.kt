@@ -81,7 +81,11 @@ internal class UIKitInstrumentedTest {
     ) {
         var onDraw = false
         composeContainer = ComposeContainer(
-            configuration = ComposeUIViewControllerConfiguration().apply(configure),
+            configuration = ComposeUIViewControllerConfiguration().apply {
+                // Current instrumented test environment doesn't allow providing a plist.
+                enforceStrictPlistSanityCheck = false
+                configure()
+            },
             content = {
                 Layout(
                     content = content,

@@ -32,12 +32,21 @@ internal object PlistSanityCheck {
                 DISPATCH_QUEUE_PRIORITY_LOW.toLong(),
                 0u
             )) {
-                val entry = NSBundle
+                val bundle = NSBundle
                     .mainBundle
+
+                val displayLinkEntry = bundle
                     .objectForInfoDictionaryKey("CADisableMinimumFrameDurationOnPhone") as? NSNumber
 
-                if (entry?.boolValue != true) {
-                    println("WARNING: `Info.plist` doesn't have a valid `CADisableMinimumFrameDurationOnPhone` entry. Framerate will be restricted to 60hz on iPhones. To support high frequency rendering on iPhones, add `<key>CADisableMinimumFrameDurationOnPhone</key><true/>` entry to `Info.plist`.")
+                if (displayLinkEntry?.boolValue != true) {
+                    val message = """
+                            Error: `Info.plist` doesn't have a valid `CADisableMinimumFrameDurationOnPhone` entry. 
+                            This will result in an inadequate performance on iPhones with high refresh rate. 
+                            Add `<key>CADisableMinimumFrameDurationOnPhone</key><true/>` entry to `Info.plist` to fix this error. 
+                            If you don't have a separate plist file, add the entry to the target from within Xcode: Project -> Targets -> Info -> Custom iOS Target Properties.                            
+                            Or set `ComposeUIViewController(configure = { enforceStrictPlistSanityCheck = false }) { .. }`, if it's intended.                            
+                        """.trimIndent()
+                    error(message)
                 }
             }
         }
