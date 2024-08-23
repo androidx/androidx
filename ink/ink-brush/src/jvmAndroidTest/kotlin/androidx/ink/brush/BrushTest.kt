@@ -35,11 +35,11 @@ class BrushTest {
 
     @Test
     fun constructor_withValidArguments_returnsABrush() {
-        val brush = Brush.withColorLong(family, color.value.toLong(), size, epsilon)
+        val brush = Brush.createWithColorLong(family, color.value.toLong(), size, epsilon)
         assertThat(brush).isNotNull()
         assertThat(brush.family).isEqualTo(family)
         assertThat(brush.colorLong).isEqualTo(color.value.toLong())
-        assertThat(brush.colorInt).isEqualTo(color.toArgb())
+        assertThat(brush.colorIntArgb).isEqualTo(color.toArgb())
         assertThat(brush.colorLong).isEqualTo(color.value.toLong())
         assertThat(brush.size).isEqualTo(size)
         assertThat(brush.epsilon).isEqualTo(epsilon)
@@ -80,39 +80,39 @@ class BrushTest {
     @Test
     fun colorAccessors_areAllEquivalent() {
         val color = Color(red = 230, green = 115, blue = 140, alpha = 196)
-        val brush = Brush.withColorLong(family, color.value.toLong(), size, epsilon)
+        val brush = Brush.createWithColorLong(family, color.value.toLong(), size, epsilon)
 
-        assertThat(brush.colorInt).isEqualTo(color.toArgb())
+        assertThat(brush.colorIntArgb).isEqualTo(color.toArgb())
         assertThat(brush.colorLong).isEqualTo(color.value.toLong())
     }
 
     @Test
     fun withColorIntArgb_withLowAlpha_returnsBrushWithCorrectColor() {
-        val brush = Brush.withColorIntArgb(family, 0x12345678, size, epsilon)
-        assertThat(brush.colorInt).isEqualTo(0x12345678)
+        val brush = Brush.createWithColorIntArgb(family, 0x12345678, size, epsilon)
+        assertThat(brush.colorIntArgb).isEqualTo(0x12345678)
     }
 
     @Test
     fun withColorIntArgb_withHighAlpha_returnsBrushWithCorrectColor() {
-        val brush = Brush.withColorIntArgb(family, 0xAA123456.toInt(), size, epsilon)
-        assertThat(brush.colorInt).isEqualTo(0xAA123456.toInt())
+        val brush = Brush.createWithColorIntArgb(family, 0xAA123456.toInt(), size, epsilon)
+        assertThat(brush.colorIntArgb).isEqualTo(0xAA123456.toInt())
     }
 
     @Test
     fun withColorLong_returnsBrushWithCorrectColor() {
         val colorLong = Color(0.9f, 0.45f, 0.55f, 0.15f, ColorSpaces.DisplayP3).value.toLong()
-        val brush = Brush.withColorLong(family, colorLong, size, epsilon)
+        val brush = Brush.createWithColorLong(family, colorLong, size, epsilon)
         assertThat(brush.colorLong).isEqualTo(colorLong)
     }
 
     @Test
     fun withColorLong_inUnsupportedColorSpace_returnsBrushWithConvertedColor() {
         val colorLong = Color(0.9f, 0.45f, 0.55f, 0.15f, ColorSpaces.AdobeRgb).value.toLong()
-        val brush = Brush.withColorLong(family, colorLong, size, epsilon)
+        val brush = Brush.createWithColorLong(family, colorLong, size, epsilon)
 
         val expectedColor = Color(colorLong.toULong()).convert(ColorSpaces.DisplayP3)
         assertThat(brush.colorLong).isEqualTo(expectedColor.value.toLong())
-        assertThat(brush.colorInt).isEqualTo(expectedColor.toArgb())
+        assertThat(brush.colorIntArgb).isEqualTo(expectedColor.toArgb())
     }
 
     @Test
@@ -148,7 +148,7 @@ class BrushTest {
             Color(red = 1F, green = 0F, blue = 0F, alpha = 1F, colorSpace = ColorSpaces.DisplayP3)
                 .value
                 .toLong()
-        val differentcolorBrush = Brush.withColorLong(family, otherColor, size, epsilon)
+        val differentcolorBrush = Brush.createWithColorLong(family, otherColor, size, epsilon)
         assertThat(brush == differentcolorBrush).isFalse()
         assertThat(differentcolorBrush == brush).isFalse()
         assertThat(brush != differentcolorBrush).isTrue()
@@ -179,7 +179,7 @@ class BrushTest {
             Color(red = 1F, green = 0F, blue = 0F, alpha = 1F, colorSpace = ColorSpaces.DisplayP3)
                 .value
                 .toLong()
-        val differentcolorBrush = Brush.withColorLong(family, otherColor, size, epsilon)
+        val differentcolorBrush = Brush.createWithColorLong(family, otherColor, size, epsilon)
         assertThat(differentcolorBrush.hashCode()).isNotEqualTo(brush.hashCode())
 
         val differentSizeBrush = Brush(family, color, 9.0f, epsilon)
@@ -222,7 +222,7 @@ class BrushTest {
 
         assertThat(newBrush).isNotEqualTo(originalBrush)
         assertThat(newBrush.colorLong).isNotEqualTo(originalBrush.colorLong)
-        assertThat(newBrush.colorInt).isEqualTo(0x12345678)
+        assertThat(newBrush.colorIntArgb).isEqualTo(0x12345678)
 
         // The new brush has the original family, size and epsilon.
         assertThat(newBrush.family).isSameInstanceAs(originalBrush.family)
@@ -238,7 +238,7 @@ class BrushTest {
 
         assertThat(newBrush).isNotEqualTo(originalBrush)
         assertThat(newBrush.colorLong).isNotEqualTo(originalBrush.colorLong)
-        assertThat(newBrush.colorInt).isEqualTo(0xAA123456.toInt())
+        assertThat(newBrush.colorIntArgb).isEqualTo(0xAA123456.toInt())
 
         // The new brush has the original family, size and epsilon.
         assertThat(newBrush.family).isSameInstanceAs(originalBrush.family)
@@ -272,7 +272,7 @@ class BrushTest {
 
         val expectedColor = Color(newColor.toULong()).convert(ColorSpaces.DisplayP3)
         assertThat(newBrush.colorLong).isEqualTo(expectedColor.value.toLong())
-        assertThat(newBrush.colorInt).isEqualTo(expectedColor.toArgb())
+        assertThat(newBrush.colorIntArgb).isEqualTo(expectedColor.toArgb())
     }
 
     @Test
@@ -288,7 +288,7 @@ class BrushTest {
                 .build()
 
         assertThat(builtBrush.family).isEqualTo(testBrush.family)
-        assertThat(builtBrush.colorInt).isEqualTo(0x12345678)
+        assertThat(builtBrush.colorIntArgb).isEqualTo(0x12345678)
         assertThat(builtBrush.size).isEqualTo(9f)
         assertThat(builtBrush.epsilon).isEqualTo(0.9f)
     }
@@ -306,7 +306,7 @@ class BrushTest {
                 .build()
 
         assertThat(builtBrush.family).isEqualTo(testBrush.family)
-        assertThat(builtBrush.colorInt).isEqualTo(0xAA123456.toInt())
+        assertThat(builtBrush.colorIntArgb).isEqualTo(0xAA123456.toInt())
         assertThat(builtBrush.size).isEqualTo(9f)
         assertThat(builtBrush.epsilon).isEqualTo(0.9f)
     }

@@ -34,7 +34,6 @@ import kotlin.jvm.JvmStatic
  * can be considered an instance of a [BrushFamily] with a particular [color], [size], and an extra
  * parameter controlling visual fidelity, called [epsilon].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class Brush
 internal constructor(
@@ -75,8 +74,8 @@ internal constructor(
     public val composeColor: ComposeColor = composeColor.toColorInInkSupportedColorSpace()
 
     /**
-     * The default color of a [Brush] is pure black. To set a custom color, use [withColorLong] or
-     * [withColorIntArgb].
+     * The default color of a [Brush] is pure black. To set a custom color, use
+     * [createWithColorLong] or [createWithColorIntArgb].
      */
     public constructor(
         family: BrushFamily,
@@ -96,7 +95,7 @@ internal constructor(
      * The brush color as a [ColorInt], which can only express colors in the sRGB color space. For
      * clients that want to support wide-gamut colors, use [colorLong].
      */
-    public val colorInt: Int
+    public val colorIntArgb: Int
         @ColorInt get(): Int = composeColor.toArgb()
 
     /** A handle to the underlying native [Brush] object. */
@@ -132,7 +131,7 @@ internal constructor(
      * Creates a copy of `this` and allows named properties to be altered while keeping the rest
      * unchanged. To change the color, use [copyWithColorLong] or [copyWithColorIntArgb].
      */
-    @JvmSynthetic
+    @JvmOverloads
     public fun copy(
         family: BrushFamily = this.family,
         size: Float = this.size,
@@ -148,10 +147,10 @@ internal constructor(
      * Some libraries (notably Jetpack UI Graphics) use [ULong] for [ColorLong]s, so the caller must
      * call [ULong.toLong] on such a value before passing it to this method.
      */
-    @JvmSynthetic
+    @JvmOverloads
     public fun copyWithColorLong(
-        family: BrushFamily = this.family,
         @ColorLong colorLong: Long,
+        family: BrushFamily = this.family,
         size: Float = this.size,
         epsilon: Float = this.epsilon,
     ): Brush = copy(family, ComposeColor(colorLong.toULong()), size, epsilon)
@@ -165,10 +164,10 @@ internal constructor(
      * Kotlin interprets integer literals greater than `0x7fffffff` as [Long]s, so callers that want
      * to specify a literal [ColorInt] with alpha >= 0x80 must call [Long.toInt] on the literal.
      */
-    @JvmSynthetic
+    @JvmOverloads
     public fun copyWithColorIntArgb(
-        family: BrushFamily = this.family,
         @ColorInt colorIntArgb: Int,
+        family: BrushFamily = this.family,
         size: Float = this.size,
         epsilon: Float = this.epsilon,
     ): Brush = copy(family, ComposeColor(colorIntArgb), size, epsilon)
@@ -240,8 +239,8 @@ internal constructor(
          * callers that want to specify a literal [ColorInt] with alpha >= 0x80 must call
          * [Long.toInt] on the literal.
          */
-        public fun setColorIntArgb(@ColorInt colorInt: Int): Builder {
-            this.composeColor = ComposeColor(colorInt)
+        public fun setColorIntArgb(@ColorInt colorIntArgb: Int): Builder {
+            this.composeColor = ComposeColor(colorIntArgb)
             return this
         }
 
@@ -351,7 +350,7 @@ internal constructor(
          * must call [ULong.toLong] on such a value before passing it to this method.
          */
         @JvmStatic
-        public fun withColorLong(
+        public fun createWithColorLong(
             family: BrushFamily,
             @ColorLong colorLong: Long,
             size: Float,
@@ -368,7 +367,7 @@ internal constructor(
          * literal.
          */
         @JvmStatic
-        public fun withColorIntArgb(
+        public fun createWithColorIntArgb(
             family: BrushFamily,
             @ColorInt colorIntArgb: Int,
             size: Float,

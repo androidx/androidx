@@ -48,7 +48,7 @@ public fun Brush.copyWithAndroidColor(
     family: BrushFamily = this.family,
     size: Float = this.size,
     epsilon: Float = this.epsilon,
-): Brush = copyWithColorLong(family, color.pack(), size, epsilon)
+): Brush = copyWithColorLong(color.pack(), family, size, epsilon)
 
 /**
  * Set the color on a [Brush.Builder] as an [android.graphics.Color] instance. sRGB and Display P3
@@ -125,5 +125,5 @@ public object BrushUtil {
         color: AndroidColor,
         size: Float,
         epsilon: Float,
-    ): Brush = Brush.withColorLong(family, color.pack(), size, epsilon)
+    ): Brush = Brush.createWithColorLong(family, color.pack(), size, epsilon)
 }
