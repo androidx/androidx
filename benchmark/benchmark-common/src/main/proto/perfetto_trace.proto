@@ -94,9 +94,18 @@ message TrackEvent {
   enum Type {
     TYPE_SLICE_BEGIN = 1;
     TYPE_SLICE_END = 2;
+    TYPE_COUNTER = 4;
   }
   optional Type type = 9;
   optional uint64 track_uuid = 11;
+  oneof counter_value_field {
+    int64 counter_value = 30;
+    double double_counter_value = 44;
+  }
+  repeated uint64 extra_counter_track_uuids = 31;
+  repeated int64 extra_counter_values = 12;
+  repeated uint64 extra_double_counter_track_uuids = 45;
+  repeated double extra_double_counter_values = 46;
 }
 
 message ThreadDescriptor {
@@ -104,10 +113,15 @@ message ThreadDescriptor {
   optional int32 tid = 2;
 }
 
+message CounterDescriptor {
+}
+
 message TrackDescriptor {
   optional uint64 uuid = 1;
+  optional uint64 parent_uuid = 5;
   optional string name = 2;
   optional ThreadDescriptor thread = 4;
+  optional CounterDescriptor counter = 8;
   optional bool disallow_merging_with_system_tracks = 9;
 }
 
