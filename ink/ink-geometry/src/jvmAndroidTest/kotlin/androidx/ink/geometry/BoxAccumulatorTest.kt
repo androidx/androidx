@@ -16,6 +16,10 @@
 
 package androidx.ink.geometry
 
+import androidx.ink.brush.Brush
+import androidx.ink.brush.StockBrushes
+import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -666,4 +670,43 @@ class BoxAccumulatorTest {
 
     private val rect1234 = ImmutableBox.fromTwoPoints(ImmutableVec(1F, 2F), ImmutableVec(3F, 4F))
     private val rect5678 = ImmutableBox.fromTwoPoints(ImmutableVec(5F, 6F), ImmutableVec(7F, 8F))
+
+    @Test
+    fun add_meshToEmptyEnvelope_updatesEnvelope() {
+        val envelope = BoxAccumulator()
+        val mesh = buildTestStrokeShape()
+
+        envelope.add(mesh)
+
+        assertThat(envelope.isEmpty()).isFalse()
+    }
+
+    @Test
+    fun add_meshToNonEmptyEnvelope_updatesEnvelope() {
+        val envelope =
+            BoxAccumulator()
+                .add(
+                    MutableBox()
+                        .populateFromTwoPoints(ImmutableVec(10F, 10F), ImmutableVec(20F, 25F))
+                )
+        val mesh = buildTestStrokeShape()
+
+        envelope.add(mesh)
+
+        // Verify that the original lower-bounds for envelope (10F, 10F) are updated after adding
+        // the
+        // mesh.
+        assertThat(envelope.isEmpty()).isFalse()
+        val box = envelope.box!!
+        assertThat(box.xMin).isLessThan(10f)
+        assertThat(box.yMin).isLessThan(10f)
+    }
+
+    private fun buildTestStrokeShape(): PartitionedMesh {
+        return Stroke(
+                Brush(family = StockBrushes.markerLatest, size = 10f, epsilon = 0.1f),
+                buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).asImmutable(),
+            )
+            .shape
+    }
 }

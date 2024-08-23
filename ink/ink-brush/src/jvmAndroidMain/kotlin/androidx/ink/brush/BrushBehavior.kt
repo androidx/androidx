@@ -345,46 +345,15 @@ public class BrushBehavior(
     }
 
     override fun equals(other: Any?): Boolean {
-        // NOMUTANTS -- Check the instance first to short circuit faster.
-        if (other === this) return true
         if (other == null || other !is BrushBehavior) return false
-        return (source == other.source &&
-            target == other.target &&
-            sourceOutOfRangeBehavior == other.sourceOutOfRangeBehavior &&
-            sourceValueRangeLowerBound == other.sourceValueRangeLowerBound &&
-            sourceValueRangeUpperBound == other.sourceValueRangeUpperBound &&
-            targetModifierRangeLowerBound == other.targetModifierRangeLowerBound &&
-            targetModifierRangeUpperBound == other.targetModifierRangeUpperBound &&
-            responseCurve == other.responseCurve &&
-            responseTimeMillis == other.responseTimeMillis &&
-            enabledToolTypes == other.enabledToolTypes &&
-            isFallbackFor == other.isFallbackFor)
+        return targetNodes == other.targetNodes
     }
 
     override fun hashCode(): Int {
-        var result = source.hashCode()
-        result = 31 * result + target.hashCode()
-        result = 31 * result + sourceOutOfRangeBehavior.hashCode()
-        result = 31 * result + sourceValueRangeLowerBound.hashCode()
-        result = 31 * result + sourceValueRangeUpperBound.hashCode()
-        result = 31 * result + targetModifierRangeLowerBound.hashCode()
-        result = 31 * result + targetModifierRangeUpperBound.hashCode()
-        result = 31 * result + responseCurve.hashCode()
-        result = 31 * result + responseTimeMillis.hashCode()
-        result = 31 * result + (isFallbackFor?.hashCode() ?: 0)
-        result = 31 * result + enabledToolTypes.hashCode()
-        return result
+        return targetNodes.hashCode()
     }
 
-    override fun toString(): String =
-        "BrushBehavior(source=$source, target=$target, " +
-            "sourceOutOfRangeBehavior=$sourceOutOfRangeBehavior, " +
-            "sourceValueRangeLowerBound=$sourceValueRangeLowerBound, " +
-            "sourceValueRangeUpperBound=$sourceValueRangeUpperBound, " +
-            "targetModifierRangeLowerBound=$targetModifierRangeLowerBound, " +
-            "targetModifierRangeUpperBound=$targetModifierRangeUpperBound, " +
-            "responseCurve=$responseCurve, responseTimeMillis=$responseTimeMillis, " +
-            "enabledToolTypes=$enabledToolTypes, isFallbackFor=$isFallbackFor)"
+    override fun toString(): String = "BrushBehavior($targetNodes)"
 
     /** Delete native BrushBehavior memory. */
     protected fun finalize() {
@@ -454,7 +423,7 @@ public class BrushBehavior(
      * [BrushBehavior].
      */
     public class Source private constructor(@JvmField internal val value: Int) {
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (this) {
                 CONSTANT_ZERO -> "CONSTANT_ZERO"
                 NORMALIZED_PRESSURE -> "NORMALIZED_PRESSURE"
@@ -768,7 +737,7 @@ public class BrushBehavior(
     /** List of tip properties that can be modified by a [BrushBehavior]. */
     public class Target private constructor(@JvmField internal val value: Int) {
 
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (this) {
                 WIDTH_MULTIPLIER -> "WIDTH_MULTIPLIER"
                 HEIGHT_MULTIPLIER -> "HEIGHT_MULTIPLIER"
@@ -908,7 +877,7 @@ public class BrushBehavior(
      * [sourceValueRangeLowerBound, sourceValueRangeUpperBound].
      */
     public class OutOfRange private constructor(@JvmField internal val value: Int) {
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (this) {
                 CLAMP -> "CLAMP"
                 REPEAT -> "REPEAT"
@@ -954,7 +923,7 @@ public class BrushBehavior(
     /** List of input properties that might not be reported by inputs. */
     public class OptionalInputProperty private constructor(@JvmField internal val value: Int) {
 
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (this) {
                 PRESSURE -> "PRESSURE"
                 TILT -> "TILT"
@@ -1017,6 +986,8 @@ public class BrushBehavior(
 
         internal fun toSimpleString(): String =
             when (this) {
+                DISTANCE_IN_CENTIMETERS -> "DISTANCE_IN_CENTIMETERS"
+                DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE -> "DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE"
                 TIME_IN_SECONDS -> "TIME_IN_SECONDS"
                 else -> "INVALID"
             }
@@ -1031,8 +1002,22 @@ public class BrushBehavior(
         override fun hashCode(): Int = value.hashCode()
 
         public companion object {
+            /**
+             * Value damping occurs over distance traveled by the input pointer, and the
+             * [dampingGap] is measured in centimeters. If the input data does not indicate the
+             * relationship between stroke units and physical units (e.g. as may be the case for
+             * programmatically-generated inputs), then no damping will be performed (i.e. the
+             * [dampingGap] will be treated as zero).
+             */
+            @JvmField public val DISTANCE_IN_CENTIMETERS: DampingSource = DampingSource(0)
+            /**
+             * Value damping occurs over distance traveled by the input pointer, and the
+             * [dampingGap] is measured in multiples of the brush size.
+             */
+            @JvmField
+            public val DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE: DampingSource = DampingSource(1)
             /** Value damping occurs over time, and the [dampingGap] is measured in seconds. */
-            @JvmField public val TIME_IN_SECONDS: DampingSource = DampingSource(0)
+            @JvmField public val TIME_IN_SECONDS: DampingSource = DampingSource(2)
 
             private const val PREFIX = "BrushBehavior.DampingSource."
         }

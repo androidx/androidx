@@ -127,14 +127,14 @@ class BrushExtensionsTest {
 
     @Test
     fun brushWithAndroidColor_createsBrushWithColor() {
-        val brush = Brush.withAndroidColor(testFamily, testColor, 1f, 1f)
+        val brush = Brush.createWithAndroidColor(testFamily, testColor, 1f, 1f)
         assertThat(brush.colorLong).isEqualTo(testColorLong)
     }
 
     @Test
     fun brushWithAndroidColor_withUnsupportedColorSpace_createsBrushWithConvertedColor() {
         val unsupportedColor = AndroidColor.valueOf(0.6f, 0.7f, 0.4f, 0.3f, adobeRgb)
-        val brush = Brush.withAndroidColor(testFamily, unsupportedColor, 1f, 1f)
+        val brush = Brush.createWithAndroidColor(testFamily, unsupportedColor, 1f, 1f)
 
         // unsupportedColor gets converted to ColorLong (losing precision) and then to Display P3.
         val expectedColor = AndroidColor.valueOf(unsupportedColor.pack()).convert(displayP3)
@@ -183,7 +183,7 @@ class BrushExtensionsTest {
     @Test
     fun brushUtilMakeBuilderWithAndroidColor_setsColor() {
         val brush =
-            BrushUtil.makeBuilderWithAndroidColor(testColor)
+            BrushUtil.createBuilderWithAndroidColor(testColor)
                 .setFamily(testFamily)
                 .setSize(2f)
                 .setEpsilon(0.2f)
@@ -199,7 +199,7 @@ class BrushExtensionsTest {
     fun brushUtilMakeBuilderAndroidColor_withUnsupportedColorSpace_setsConvertedColor() {
         val unsupportedColor = AndroidColor.valueOf(0.6f, 0.7f, 0.4f, 0.3f, adobeRgb)
         val brush =
-            BrushUtil.makeBuilderWithAndroidColor(unsupportedColor)
+            BrushUtil.createBuilderWithAndroidColor(unsupportedColor)
                 .setFamily(testFamily)
                 .setSize(2f)
                 .setEpsilon(0.2f)
@@ -212,14 +212,14 @@ class BrushExtensionsTest {
 
     @Test
     fun brushUtilMakeBrushWithAndroidColor_createsBrushWithColor() {
-        val brush = BrushUtil.makeBrushWithAndroidColor(testFamily, testColor, 1f, 1f)
+        val brush = BrushUtil.createWithAndroidColor(testFamily, testColor, 1f, 1f)
         assertThat(brush.colorLong).isEqualTo(testColorLong)
     }
 
     @Test
     fun brushUtilMakeBrushWithAndroidColor_withUnsupportedColorSpace_createsBrushWithConvertedColor() {
         val unsupportedColor = AndroidColor.valueOf(0.6f, 0.7f, 0.4f, 0.3f, adobeRgb)
-        val brush = BrushUtil.makeBrushWithAndroidColor(testFamily, unsupportedColor, 1f, 1f)
+        val brush = BrushUtil.createWithAndroidColor(testFamily, unsupportedColor, 1f, 1f)
 
         // unsupportedColor gets converted to ColorLong (losing precision) and then to Display P3.
         val expectedColor = AndroidColor.valueOf(unsupportedColor.pack()).convert(displayP3)

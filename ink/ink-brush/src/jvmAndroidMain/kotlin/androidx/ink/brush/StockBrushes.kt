@@ -38,7 +38,9 @@ import kotlin.jvm.JvmStatic
  */
 @OptIn(ExperimentalInkCustomBrushApi::class)
 public object StockBrushes {
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+
     // Needed on both property and on getter for AndroidX build, but the Kotlin compiler doesn't
     // like it on the getter so suppress its complaint.
     @ExperimentalInkCustomBrushApi
