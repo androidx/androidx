@@ -940,7 +940,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             projectName != null && projectName.contains("desktop") -> VERSION_11
             targetName != null && (targetName == "desktop" || targetName == "jvmStubs") ->
                 VERSION_11
-            libraryType == LibraryType.COMPILER_PLUGIN -> VERSION_11
             libraryType.compilationTarget == CompilationTarget.HOST -> VERSION_17
             else -> VERSION_1_8
         }
