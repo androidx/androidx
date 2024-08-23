@@ -66,7 +66,7 @@ dependencies {
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")
     androidTestImplementation(project(":annotation:annotation"))
-    androidTestImplementation("androidx.lifecycle:lifecycle-common:2.8.3")
+    androidTestImplementation(project(":lifecycle:lifecycle-common"))
 
     // Testing framework
     testImplementation(libs.kotlinCoroutinesTest)
