@@ -157,7 +157,7 @@ internal class CallSession(
     override fun onAvailableCallEndpointsChanged(endpoints: List<CallEndpoint>) {
         // due to the [CallsManager#getAvailableStartingCallEndpoints] API, endpoints the client
         // has can be different from the ones coming from the platform. Hence, a remapping is needed
-        mAvailableEndpoints = endpoints.map { toRemappedCallEndpointCompat(it) }
+        mAvailableEndpoints = endpoints.map { toRemappedCallEndpointCompat(it) }.sorted()
         // send the current call endpoints out to the client
         callChannels.availableEndpointChannel.trySend(mAvailableEndpoints).getOrThrow()
         Log.i(TAG, "onAvailableCallEndpointsChanged: endpoints=[$endpoints]")

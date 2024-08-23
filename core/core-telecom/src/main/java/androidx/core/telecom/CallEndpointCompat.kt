@@ -39,7 +39,7 @@ public class CallEndpointCompat(
     public val name: CharSequence,
     public val type: Int,
     public val identifier: ParcelUuid
-) {
+) : Comparable<CallEndpointCompat> {
     internal var mMackAddress: String = "-1"
 
     override fun toString(): String {
@@ -47,6 +47,29 @@ public class CallEndpointCompat(
             "name=[$name]," +
             "type=[${EndpointUtils.endpointTypeToString(type)}]," +
             "identifier=[$identifier])"
+    }
+
+    /**
+     * Compares this [CallEndpointCompat] to the other [CallEndpointCompat] for order. Returns a
+     * positive number if this type rank is greater than the other value. Returns a negative number
+     * if this type rank is less than the other value. Sort the CallEndpoint by type. Ranking them
+     * by:
+     * 1. TYPE_WIRED_HEADSET
+     * 2. TYPE_BLUETOOTH
+     * 3. TYPE_SPEAKER
+     * 4. TYPE_EARPIECE
+     * 5. TYPE_STREAMING
+     * 6. TYPE_UNKNOWN If two endpoints have the same type, the name is compared to determine the
+     *    value.
+     */
+    override fun compareTo(other: CallEndpointCompat): Int {
+        // sort by type
+        val res = this.getTypeRank().compareTo(other.getTypeRank())
+        if (res != 0) {
+            return res
+        }
+        // break ties using alphabetic order
+        return this.name.toString().compareTo(other.name.toString())
     }
 
     override fun equals(other: Any?): Boolean {
@@ -111,5 +134,16 @@ public class CallEndpointCompat(
     /** Internal helper to determine if this [CallEndpointCompat] is EndpointType#TYPE_BLUETOOTH */
     internal fun isBluetoothType(): Boolean {
         return type == TYPE_BLUETOOTH
+    }
+
+    private fun getTypeRank(): Int {
+        return when (this.type) {
+            TYPE_WIRED_HEADSET -> return 0
+            TYPE_BLUETOOTH -> return 1
+            TYPE_SPEAKER -> return 2
+            TYPE_EARPIECE -> return 3
+            TYPE_STREAMING -> return 4
+            else -> 5
+        }
     }
 }

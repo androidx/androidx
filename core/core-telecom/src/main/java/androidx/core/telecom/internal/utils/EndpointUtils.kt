@@ -61,6 +61,8 @@ internal class EndpointUtils {
             }
             omittedDevices.append("]")
             Log.i(TAG, omittedDevices.toString())
+            // Sort by endpoint type.  The first element has the highest priority!
+            endpoints.sort()
             return endpoints
         }
 

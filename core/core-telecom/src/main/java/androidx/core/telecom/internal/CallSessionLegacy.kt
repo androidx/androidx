@@ -142,7 +142,7 @@ internal class CallSessionLegacy(
 
     private fun setAvailableCallEndpoints(state: CallAudioState) {
         val availableEndpoints =
-            toCallEndpointsCompat(state).map { toRemappedCallEndpointCompat(it) }
+            toCallEndpointsCompat(state).map { toRemappedCallEndpointCompat(it) }.sorted()
         mAvailableCallEndpoints = availableEndpoints
         callChannels.availableEndpointChannel.trySend(availableEndpoints).getOrThrow()
     }
