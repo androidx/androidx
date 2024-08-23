@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"ປະເພດໄຟລ໌"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"ໄຟລ໌ນີ້ຖືກປ້ອງກັນໄວ້"</string>
     <string name="label_password_first" msgid="4456258714097111908">"ລະຫັດຜ່ານ"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"ຊູມ <xliff:g id="FIRST">%1$d</xliff:g> ເປີເຊັນ"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"ໄປທີ່ໜ້າ <xliff:g id="PAGE_NUMBER">%1$d</xliff:g>"</string>
     <string name="desc_page" msgid="5684226167093594168">"ໜ້າ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"ເລືອກຂໍ້ຄວາມເພື່ອວາງຄຳເຫັນຂອງທ່ານ"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"ແຕະໃສ່ພື້ນທີ່ໃດໜຶ່ງເພື່ອຂຽນຄຳເຫັນໃສ່"</string>
-    <string name="action_cancel" msgid="5494417739210197522">"ຍົກເລີກ"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"ບໍ່ສາມາດສະແດງ PDF (<xliff:g id="TITLE">%1$s</xliff:g> ມີຮູບແບບທີ່ບໍ່ຖືກຕ້ອງ)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"ບໍ່ສາມາດສະແດງໜ້າ <xliff:g id="PAGE">%1$d</xliff:g> (ໄຟລ໌ຜິດພາດ)"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"ບໍ່ສາມາດໂຫຼດໂໝດການອະທິບາຍຄວາມເຫັນສຳລັບລາຍການນີ້ໄດ້."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"ລິ້ງ: ໜ້າເວັບທີ່ <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"ລິ້ງ: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"ອີເມວ: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"ກ່ອນໜ້າ"</string>
     <string name="next_button_description" msgid="4702699322249103693">"ຕໍ່ໄປ"</string>
     <string name="close_button_description" msgid="7379823906921067675">"ປິດ"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"ບໍ່ພົບຂໍ້ມູນທີ່ກົງກັນ."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g> / <xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"ແກ້ໄຂໄຟລ໌"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"ໃສ່ລະຫັດເພື່ອປົດລັອກ"</string>

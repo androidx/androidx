@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"ఫైల్ రకం"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"ఈ ఫైల్ సంరక్షించబడుతోంది"</string>
     <string name="label_password_first" msgid="4456258714097111908">"పాస్‌వర్డ్"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"పాస్‌వర్డ్ తప్పు"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"జూమ్ <xliff:g id="FIRST">%1$d</xliff:g> శాతం"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> పేజీకి వెళ్లండి"</string>
     <string name="desc_page" msgid="5684226167093594168">"పేజీ <xliff:g id="PAGE">%1$d</xliff:g>"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"మీరు కామెంట్ చేయడానికి టెక్స్ట్‌ను ఎంచుకోండి"</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"ఎక్కడ కామెంట్ చేయాలో ట్యాప్ చేయండి"</string>
-    <string name="action_cancel" msgid="5494417739210197522">"రద్దు చేయండి"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"PDF డిస్‌ప్లే చేయడం సాధ్యం కాదు (<xliff:g id="TITLE">%1$s</xliff:g> చెల్లని ఫార్మాట్‌లో ఉంది)"</string>
     <string name="error_on_page" msgid="1592475819957182385">"పేజీని డిస్‌ప్లే చేయడం సాధ్యం కాదు <xliff:g id="PAGE">%1$d</xliff:g> (ఫైల్ ఎర్రర్)"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"ఈ ఐటెమ్ కోసం అదనపు గమనిక మోడ్‌ను లోడ్ చేయడం సాధ్యం కాదు."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"లింక్: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>‌లో వెబ్ పేజీ"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"లింక్: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"ఈమెయిల్: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"మునుపటి"</string>
     <string name="next_button_description" msgid="4702699322249103693">"తర్వాత"</string>
     <string name="close_button_description" msgid="7379823906921067675">"మూసివేయండి"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"మ్యాచ్‌లు ఏవీ దొరకలేదు."</string>
     <string name="message_match_status" msgid="6288242289981639727">"మొత్తం <xliff:g id="TOTAL">%2$d</xliff:g>లో <xliff:g id="POSITION">%1$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"ఫైల్‌ను ఎడిట్ చేయండి"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"అన్‌లాక్ చేయడానికి పాస్‌వర్డ్‌ను నమోదు చేయండి"</string>

@@ -17,7 +17,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="desc_file_type" msgid="8918077960128045611">"파일 형식"</string>
     <string name="title_dialog_password" msgid="2018068413709926925">"보호된 파일임"</string>
     <string name="label_password_first" msgid="4456258714097111908">"비밀번호"</string>
     <string name="label_password_incorrect" msgid="8449142641187704667">"비밀번호가 잘못됨"</string>
@@ -31,12 +30,8 @@
     <string name="desc_zoom" msgid="7318480946145947242">"<xliff:g id="FIRST">%1$d</xliff:g>%% 확대/축소"</string>
     <string name="desc_goto_link" msgid="2461368384824849714">"<xliff:g id="PAGE_NUMBER">%1$d</xliff:g> 페이지로 이동"</string>
     <string name="desc_page" msgid="5684226167093594168">"<xliff:g id="PAGE">%1$d</xliff:g>페이지"</string>
-    <string name="message_select_text_to_comment" msgid="5725327644007067522">"댓글을 달려는 텍스트를 선택하세요."</string>
-    <string name="message_tap_to_comment" msgid="7820801719181709999">"댓글을 달려는 영역을 탭하세요."</string>
-    <string name="action_cancel" msgid="5494417739210197522">"취소"</string>
     <string name="error_file_format_pdf" msgid="7567006188638831878">"<xliff:g id="TITLE">%1$s</xliff:g>의 형식이 잘못되어 PDF를 표시할 수 없음"</string>
     <string name="error_on_page" msgid="1592475819957182385">"파일 오류로 <xliff:g id="PAGE">%1$d</xliff:g> 페이지를 표시할 수 없음"</string>
-    <string name="annotation_mode_failed_to_open" msgid="1659648756255912463">"이 항목에 대한 주석 모드를 로드할 수 없습니다."</string>
     <string name="desc_web_link_shortened_to_domain" msgid="3323639528531061592">"링크: <xliff:g id="DESTINATION_DOMAIN">%1$s</xliff:g>의 웹페이지"</string>
     <string name="desc_web_link" msgid="2776023299237058419">"링크: <xliff:g id="DESTINATION">%1$s</xliff:g>"</string>
     <string name="desc_email_link" msgid="7027325672358507448">"이메일: <xliff:g id="EMAIL_ADDRESS">%1$s</xliff:g>"</string>
@@ -50,7 +45,6 @@
     <string name="previous_button_description" msgid="1169511027880317546">"이전"</string>
     <string name="next_button_description" msgid="4702699322249103693">"다음"</string>
     <string name="close_button_description" msgid="7379823906921067675">"닫기"</string>
-    <string name="message_no_matches_found" msgid="6965828658999779258">"일치하는 항목이 없습니다."</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"파일 수정"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"잠금 해제하려면 비밀번호 입력"</string>
