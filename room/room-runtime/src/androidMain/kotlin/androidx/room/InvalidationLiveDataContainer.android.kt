@@ -36,13 +36,12 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
         inTransaction: Boolean,
         callableFunction: Callable<T?>
     ): LiveData<T> {
-        return RoomTrackingLiveData(
+        return RoomCallableTrackingLiveData(
             database = database,
             container = this,
             inTransaction = inTransaction,
-            callableFunction = callableFunction,
-            lambdaFunction = null,
-            tableNames = tableNames
+            tableNames = tableNames,
+            callableFunction = callableFunction
         )
     }
 
@@ -51,13 +50,12 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
         inTransaction: Boolean,
         lambdaFunction: (SQLiteConnection) -> T?
     ): LiveData<T> {
-        return RoomTrackingLiveData(
+        return RoomLambdaTrackingLiveData(
             database = database,
             container = this,
             inTransaction = inTransaction,
-            callableFunction = null,
-            lambdaFunction = lambdaFunction,
-            tableNames = tableNames
+            tableNames = tableNames,
+            lambdaFunction = lambdaFunction
         )
     }
 
