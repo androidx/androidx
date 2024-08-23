@@ -23,7 +23,6 @@
  */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
@@ -33,8 +32,7 @@ plugins {
 
 androidXMultiplatform {
     android()
-    jvmStubs()
-    linuxX64Stubs()
+    desktop()
 
     defaultPlatform(PlatformIdentifier.ANDROID)
 
@@ -43,7 +41,7 @@ androidXMultiplatform {
             dependencies {
                 api(projectOrArtifact(":lifecycle:lifecycle-runtime"))
                 api("androidx.annotation:annotation:1.8.1")
-                api(project(":compose:runtime:runtime"))
+                api("androidx.compose.runtime:runtime:1.6.5")
             }
         }
 
@@ -68,18 +66,6 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
             }
-        }
-
-        nonAndroidMain {
-            dependsOn(commonMain)
-        }
-
-        jvmStubsMain {
-            dependsOn(nonAndroidMain)
-        }
-
-        linuxx64StubsMain {
-            dependsOn(nonAndroidMain)
         }
     }
 }
