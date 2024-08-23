@@ -6,6 +6,18 @@ package androidx.wear.protolayout.expression.pipeline {
     method @UiThread public void startEvaluation();
   }
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public interface DynamicTypeAnimator {
+    method public void advanceToAnimationTime(long);
+    method public Object? getCurrentValue();
+    method public long getDurationMs();
+    method public Object? getEndValue();
+    method public long getStartDelayMs();
+    method public Object? getStartValue();
+    method public android.animation.TypeEvaluator<? extends java.lang.Object!> getTypeEvaluator();
+    method public void setFloatValues(float...);
+    method public void setIntValues(int...);
+  }
+
   public abstract class DynamicTypeBindingRequest {
     method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicBool(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Boolean!>);
     method public static androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest forDynamicColor(androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor, java.util.concurrent.Executor, androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver<java.lang.Integer!>);
