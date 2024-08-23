@@ -23,20 +23,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.findRootCoordinates
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.modifier.ModifierLocalConsumer
+import androidx.compose.ui.modifier.ModifierLocalMap
+import androidx.compose.ui.modifier.ModifierLocalModifierNode
 import androidx.compose.ui.modifier.ModifierLocalProvider
 import androidx.compose.ui.modifier.ModifierLocalReadScope
 import androidx.compose.ui.modifier.ProvidableModifierLocal
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.compose.ui.modifier.modifierLocalOf
+import androidx.compose.ui.node.GlobalPositionAwareModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.invalidatePlacement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.unit.round
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Adds padding so that the content doesn't enter [insets] space.
@@ -319,6 +336,34 @@ expect fun Modifier.systemGesturesPadding(): Modifier
  */
 expect fun Modifier.mandatorySystemGesturesPadding(): Modifier
 
+/**
+ * This recalculates the [WindowInsets] based on the size and position. This only works when
+ * [Constraints] have [fixed width][Constraints.hasFixedWidth] and
+ * [fixed height][Constraints.hasFixedHeight]. This can be accomplished, for example, by having
+ * [Modifier.size], or [Modifier.fillMaxSize], or other size modifier before
+ * [recalculateWindowInsets]. If the [Constraints] sizes aren't fixed, [recalculateWindowInsets]
+ * won't adjust the [WindowInsets] and won't have any affect on layout.
+ *
+ * [recalculateWindowInsets] is useful when the parent does not call [consumeWindowInsets] when it
+ * aligns a child. For example, a [Column] with two children should have different [WindowInsets]
+ * for each child. The top item should exclude insets below its bottom and the bottom item should
+ * exclude the top insets, but the Column can't assign different insets for different children.
+ *
+ * @sample androidx.compose.foundation.layout.samples.recalculateWindowInsetsSample
+ *
+ * Another use is when a parent doesn't properly [consumeWindowInsets] for all space that it
+ * consumes. For example, a 3rd-party container has padding that doesn't properly use
+ * [consumeWindowInsets].
+ *
+ * @sample androidx.compose.foundation.layout.samples.unconsumedWindowInsetsWithPaddingSample
+ *
+ * In most cases you should not need to use this API, and the parent should instead use
+ * [consumeWindowInsets] to provide the correct values
+ *
+ * @sample androidx.compose.foundation.layout.samples.consumeWindowInsetsWithPaddingSample
+ */
+fun Modifier.recalculateWindowInsets(): Modifier = this.then(RecalculateWindowInsetsModifierElement)
+
 internal val ModifierLocalConsumedWindowInsets = modifierLocalOf { WindowInsets(0, 0, 0, 0) }
 
 internal class InsetsPaddingModifier(private val insets: WindowInsets) :
@@ -463,4 +508,115 @@ private class UnionInsetsConsumingModifier(private val insets: WindowInsets) :
     }
 
     override fun hashCode(): Int = insets.hashCode()
+}
+
+private object RecalculateWindowInsetsModifierElement :
+    ModifierNodeElement<RecalculateWindowInsetsModifierNode>() {
+    override fun create(): RecalculateWindowInsetsModifierNode =
+        RecalculateWindowInsetsModifierNode()
+
+    override fun hashCode(): Int = 0
+
+    override fun equals(other: Any?): Boolean = other === this
+
+    override fun update(node: RecalculateWindowInsetsModifierNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "recalculateWindowInsets"
+    }
+}
+
+private class RecalculateWindowInsetsModifierNode :
+    Modifier.Node(),
+    ModifierLocalModifierNode,
+    LayoutModifierNode,
+    GlobalPositionAwareModifierNode {
+    val insets = ValueInsets(InsetsValues(0, 0, 0, 0), "reset")
+    var oldPosition = IntOffset.Zero
+
+    override val providedValues: ModifierLocalMap =
+        modifierLocalMapOf(ModifierLocalConsumedWindowInsets to insets)
+
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        return if (!constraints.hasFixedWidth || !constraints.hasFixedHeight) {
+            // We can't provide the modifier local value.
+            // We'll fall back to measuring the contents without providing the value
+            provide(ModifierLocalConsumedWindowInsets, ModifierLocalConsumedWindowInsets.current)
+            val placeable = measurable.measure(constraints)
+            layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+        } else {
+            val width = constraints.maxWidth
+            val height = constraints.maxHeight
+            layout(width, height) {
+                val coordinates = coordinates
+                coordinates?.let { oldPosition = it.positionInRoot().round() }
+                val windowInsets =
+                    if (coordinates == null) {
+                        // We don't know where we are, so can't reset the value. Use the old value.
+                        ModifierLocalConsumedWindowInsets.current
+                    } else {
+                        val topLeft = coordinates.positionInRoot()
+                        val size = coordinates.size
+                        val bottomRight =
+                            coordinates.localToRoot(
+                                Offset(size.width.toFloat(), size.height.toFloat())
+                            )
+                        val root = coordinates.findRootCoordinates()
+                        val rootSize = root.size
+                        val left = topLeft.x.fastRoundToInt()
+                        val top = topLeft.y.fastRoundToInt()
+                        val right = rootSize.width - bottomRight.x.fastRoundToInt()
+                        val bottom = rootSize.height - bottomRight.y.fastRoundToInt()
+                        val oldValues = insets.value
+                        if (
+                            oldValues.left != left ||
+                                oldValues.top != top ||
+                                oldValues.right != right ||
+                                oldValues.bottom != bottom
+                        ) {
+                            insets.value = InsetsValues(left, top, right, bottom)
+                        }
+                        insets
+                    }
+                provide(ModifierLocalConsumedWindowInsets, windowInsets)
+                val placeable = measurable.measure(Constraints.fixed(width, height))
+                placeable.place(0, 0)
+            }
+        }
+    }
+
+    override fun IntrinsicMeasureScope.minIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.minIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.minIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = measurable.minIntrinsicWidth(height)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+        measurable: IntrinsicMeasurable,
+        width: Int
+    ): Int = measurable.maxIntrinsicHeight(width)
+
+    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+        measurable: IntrinsicMeasurable,
+        height: Int
+    ): Int = measurable.maxIntrinsicWidth(height)
+
+    override fun onGloballyPositioned(coordinates: LayoutCoordinates) {
+        val newPosition = coordinates.positionInRoot().round()
+        val hasMoved = oldPosition != newPosition
+        oldPosition = newPosition
+        if (hasMoved) {
+            invalidatePlacement()
+        }
+    }
 }

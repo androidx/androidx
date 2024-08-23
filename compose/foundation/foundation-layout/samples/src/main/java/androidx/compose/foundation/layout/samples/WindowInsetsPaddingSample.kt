@@ -22,6 +22,7 @@ import androidx.activity.compose.setContent
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.MutableWindowInsets
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutoutPadding
 import androidx.compose.foundation.layout.exclude
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.mandatorySystemGesturesPadding
@@ -39,6 +41,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.onConsumedWindowInsetsChanged
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.recalculateWindowInsets
 import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.safeDrawingPadding
@@ -52,7 +55,14 @@ import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.layout.waterfallPadding
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
@@ -376,5 +386,73 @@ fun withConsumedInsetsSample() {
                 }
             }
         }
+    }
+}
+
+@Sampled
+@Composable
+fun recalculateWindowInsetsSample() {
+    var hasFirstItem by remember { mutableStateOf(true) }
+    var hasLastItem by remember { mutableStateOf(true) }
+    Column(Modifier.fillMaxSize()) {
+        if (hasFirstItem) {
+            Box(Modifier.weight(1f).fillMaxWidth().background(Color.Magenta))
+        }
+        Box(
+            Modifier.fillMaxWidth() // force a fixed size on the content
+                .recalculateWindowInsets()
+                .weight(1f)
+                .background(Color.Yellow)
+                .safeDrawingPadding()
+        ) {
+            Button(
+                onClick = { hasFirstItem = !hasFirstItem },
+                Modifier.align(Alignment.TopCenter)
+            ) {
+                val action = if (hasFirstItem) "Remove" else "Add"
+                Text("$action First Item")
+            }
+            Button(
+                onClick = { hasLastItem = !hasLastItem },
+                Modifier.align(Alignment.BottomCenter)
+            ) {
+                val action = if (hasLastItem) "Remove" else "Add"
+                Text("$action Last Item")
+            }
+        }
+        if (hasLastItem) {
+            Box(Modifier.weight(1f).fillMaxWidth().background(Color.Cyan))
+        }
+    }
+}
+
+@Sampled
+@Composable
+fun consumeWindowInsetsWithPaddingSample() {
+    // The outer Box uses padding and properly compensates for it by using consumeWindowInsets()
+    Box(
+        Modifier.fillMaxSize()
+            .padding(10.dp)
+            .consumeWindowInsets(WindowInsets(10.dp, 10.dp, 10.dp, 10.dp))
+    ) {
+        Box(Modifier.fillMaxSize().safeContentPadding().background(Color.Blue))
+    }
+}
+
+@Sampled
+@Composable
+fun unconsumedWindowInsetsWithPaddingSample() {
+    // This outer Box is representing a 3rd-party layout that you don't control. It has a
+    // padding, but doesn't properly use consumeWindowInsets()
+    Box(Modifier.padding(10.dp)) {
+        // This is the content that you control. You can make sure that the WindowInsets are correct
+        // so you can pad your content despite the fact that the parent did not
+        // consumeWindowInsets()
+        Box(
+            Modifier.fillMaxSize() // Force a fixed size on the content
+                .recalculateWindowInsets()
+                .safeContentPadding()
+                .background(Color.Blue)
+        )
     }
 }
