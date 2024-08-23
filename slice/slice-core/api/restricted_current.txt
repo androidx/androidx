@@ -243,7 +243,7 @@ package androidx.slice.core {
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static int parseImageMode(androidx.slice.SliceItem);
     method @Deprecated public void setActivity(boolean);
     method @Deprecated public androidx.slice.core.SliceActionImpl setChecked(boolean);
-    method @Deprecated public androidx.slice.core.SliceAction? setContentDescription(CharSequence);
+    method @Deprecated public androidx.slice.core.SliceAction setContentDescription(CharSequence);
     method @Deprecated public androidx.slice.core.SliceActionImpl setKey(String);
     method @Deprecated public androidx.slice.core.SliceActionImpl setPriority(@IntRange(from=0) int);
   }

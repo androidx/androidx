@@ -41,7 +41,7 @@ public final class PrefetchOptions {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     PrefetchOptions(
-            @NonNull boolean requiresAnonymousIpWhenCrossOrigin, @Nullable Uri sourceOrigin) {
+            boolean requiresAnonymousIpWhenCrossOrigin, @Nullable Uri sourceOrigin) {
         this.requiresAnonymousIpWhenCrossOrigin = requiresAnonymousIpWhenCrossOrigin;
         this.sourceOrigin = sourceOrigin;
     }

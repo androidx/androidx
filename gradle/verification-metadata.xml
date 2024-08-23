@@ -175,6 +175,7 @@
             <trusting group="com.google.testing.compile"/>
             <trusting group="com.google.truth"/>
             <trusting group="com.google.truth.extensions"/>
+            <trusting group="org.jspecify"/>
          </trusted-key>
          <trusted-key id="44FBDBBC1A00FE414F1C1873586654072EAD6677" group="org.sonatype.oss"/>
          <trusted-key id="47504B76CF89C15C0512D9AFE16AB52D79FD224F">
