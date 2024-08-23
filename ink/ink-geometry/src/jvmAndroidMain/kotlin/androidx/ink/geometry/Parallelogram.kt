@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import kotlin.math.abs
 
 /**
@@ -80,7 +79,6 @@ import kotlin.math.abs
  * axes, and hence might have a non-zero [rotation]). A [Box], an axis-aligned rectangle; is a
  * [Parallelogram] with both [rotation] and [shearFactor] of zero.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class Parallelogram internal constructor() {
 
     public abstract val center: Vec

@@ -2,6 +2,8 @@
 package androidx.ink.geometry {
 
   public abstract class AffineTransform {
+    method public final androidx.ink.geometry.MutableParallelogram applyTransform(androidx.ink.geometry.Box box, androidx.ink.geometry.MutableParallelogram outParallelogram);
+    method public final androidx.ink.geometry.MutableParallelogram applyTransform(androidx.ink.geometry.Parallelogram parallelogram, androidx.ink.geometry.MutableParallelogram outParallelogram);
     method public final androidx.ink.geometry.MutableSegment applyTransform(androidx.ink.geometry.Segment segment, androidx.ink.geometry.MutableSegment outSegment);
     method public final androidx.ink.geometry.MutableTriangle applyTransform(androidx.ink.geometry.Triangle triangle, androidx.ink.geometry.MutableTriangle outTriangle);
     method public final androidx.ink.geometry.MutableVec applyTransform(androidx.ink.geometry.Vec vec, androidx.ink.geometry.MutableVec outVec);
@@ -33,6 +35,47 @@ package androidx.ink.geometry {
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.FIELD}) public @interface AngleRadiansFloat {
   }
 
+  public abstract class Box {
+    method public final androidx.ink.geometry.MutableVec computeCenter(androidx.ink.geometry.MutableVec outVec);
+    method public final void computeCorners(androidx.ink.geometry.MutableVec outVecXMinYMin, androidx.ink.geometry.MutableVec outVecXMaxYMin, androidx.ink.geometry.MutableVec outVecXMaxYMax, androidx.ink.geometry.MutableVec outVecXMinYMax);
+    method public final operator boolean contains(androidx.ink.geometry.Box otherBox);
+    method public final operator boolean contains(androidx.ink.geometry.Vec point);
+    method @FloatRange(from=0.0) public final float getHeight();
+    method @FloatRange(from=0.0) public final float getWidth();
+    method public abstract float getXMax();
+    method public abstract float getXMin();
+    method public abstract float getYMax();
+    method public abstract float getYMin();
+    method public final boolean isAlmostEqual(androidx.ink.geometry.Box other, @FloatRange(from=0.0) float tolerance);
+    property @FloatRange(from=0.0) public final float height;
+    property @FloatRange(from=0.0) public final float width;
+    property public abstract float xMax;
+    property public abstract float xMin;
+    property public abstract float yMax;
+    property public abstract float yMin;
+    field public static final androidx.ink.geometry.Box.Companion Companion;
+  }
+
+  public static final class Box.Companion {
+  }
+
+  public final class BoxAccumulator {
+    ctor public BoxAccumulator();
+    ctor public BoxAccumulator(androidx.ink.geometry.Box box);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.Box? box);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.BoxAccumulator? other);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.Parallelogram parallelogram);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.Segment segment);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.Triangle triangle);
+    method public androidx.ink.geometry.BoxAccumulator add(androidx.ink.geometry.Vec point);
+    method public androidx.ink.geometry.Box? getBox();
+    method public boolean isAlmostEqual(androidx.ink.geometry.BoxAccumulator other, @FloatRange(from=0.0) float tolerance);
+    method public boolean isEmpty();
+    method public androidx.ink.geometry.BoxAccumulator populateFrom(androidx.ink.geometry.BoxAccumulator input);
+    method public androidx.ink.geometry.BoxAccumulator reset();
+    property public final androidx.ink.geometry.Box? box;
+  }
+
   public final class ImmutableAffineTransform extends androidx.ink.geometry.AffineTransform {
     ctor public ImmutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
     ctor public ImmutableAffineTransform(@Size(min=6L) float[] values);
@@ -50,6 +93,48 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.ImmutableAffineTransform scaleX(float scaleFactor);
     method public androidx.ink.geometry.ImmutableAffineTransform scaleY(float scaleFactor);
     method public androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+  }
+
+  public final class ImmutableBox extends androidx.ink.geometry.Box {
+    method public static androidx.ink.geometry.ImmutableBox fromCenterAndDimensions(androidx.ink.geometry.Vec center, @FloatRange(from=0.0) float width, @FloatRange(from=0.0) float height);
+    method public static androidx.ink.geometry.ImmutableBox fromTwoPoints(androidx.ink.geometry.Vec point1, androidx.ink.geometry.Vec point2);
+    method public float getXMax();
+    method public float getXMin();
+    method public float getYMax();
+    method public float getYMin();
+    property public float xMax;
+    property public float xMin;
+    property public float yMax;
+    property public float yMin;
+    field public static final androidx.ink.geometry.ImmutableBox.Companion Companion;
+  }
+
+  public static final class ImmutableBox.Companion {
+    method public androidx.ink.geometry.ImmutableBox fromCenterAndDimensions(androidx.ink.geometry.Vec center, @FloatRange(from=0.0) float width, @FloatRange(from=0.0) float height);
+    method public androidx.ink.geometry.ImmutableBox fromTwoPoints(androidx.ink.geometry.Vec point1, androidx.ink.geometry.Vec point2);
+  }
+
+  public final class ImmutableParallelogram extends androidx.ink.geometry.Parallelogram {
+    method public static androidx.ink.geometry.ImmutableParallelogram fromCenterAndDimensions(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height);
+    method public static androidx.ink.geometry.ImmutableParallelogram fromCenterDimensionsAndRotation(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation);
+    method public static androidx.ink.geometry.ImmutableParallelogram fromCenterDimensionsRotationAndShear(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation, float shearFactor);
+    method public androidx.ink.geometry.ImmutableVec getCenter();
+    method public float getHeight();
+    method public float getRotation();
+    method public float getShearFactor();
+    method public float getWidth();
+    property public androidx.ink.geometry.ImmutableVec center;
+    property public float height;
+    property public float rotation;
+    property public float shearFactor;
+    property public float width;
+    field public static final androidx.ink.geometry.ImmutableParallelogram.Companion Companion;
+  }
+
+  public static final class ImmutableParallelogram.Companion {
+    method public androidx.ink.geometry.ImmutableParallelogram fromCenterAndDimensions(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height);
+    method public androidx.ink.geometry.ImmutableParallelogram fromCenterDimensionsAndRotation(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation);
+    method public androidx.ink.geometry.ImmutableParallelogram fromCenterDimensionsRotationAndShear(androidx.ink.geometry.ImmutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation, float shearFactor);
   }
 
   public final class ImmutableSegment extends androidx.ink.geometry.Segment {
@@ -84,10 +169,85 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.ImmutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
   }
 
+  public final class Intersection {
+    method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Box other);
+    method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Parallelogram parallelogram);
+    method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Segment segment);
+    method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Triangle triangle);
+    method public static boolean intersects(androidx.ink.geometry.Box, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Box box);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Parallelogram other);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Segment segment);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Triangle triangle);
+    method public static boolean intersects(androidx.ink.geometry.Parallelogram, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Box box);
+    method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Parallelogram parallelogram);
+    method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Segment other);
+    method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Triangle triangle);
+    method public static boolean intersects(androidx.ink.geometry.Segment, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Box box);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Parallelogram parallelogram);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Segment segment);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Triangle other);
+    method public static boolean intersects(androidx.ink.geometry.Triangle, androidx.ink.geometry.Vec point);
+    method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Box box);
+    method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Parallelogram parallelogram);
+    method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Segment segment);
+    method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Triangle triangle);
+    method public static boolean intersects(androidx.ink.geometry.Vec, androidx.ink.geometry.Vec other);
+    field public static final androidx.ink.geometry.Intersection INSTANCE;
+  }
+
   public final class MutableAffineTransform extends androidx.ink.geometry.AffineTransform {
     ctor public MutableAffineTransform();
     method public void setValues(float m00, float m10, float m20, float m01, float m11, float m21);
     method public void setValues(@Size(min=6L) float[] values);
+  }
+
+  public final class MutableBox extends androidx.ink.geometry.Box {
+    ctor public MutableBox();
+    method public float getXMax();
+    method public float getXMin();
+    method public float getYMax();
+    method public float getYMin();
+    method public androidx.ink.geometry.MutableBox populateFrom(androidx.ink.geometry.Box input);
+    method public androidx.ink.geometry.MutableBox populateFromCenterAndDimensions(androidx.ink.geometry.Vec center, @FloatRange(from=0.0) float width, @FloatRange(from=0.0) float height);
+    method public androidx.ink.geometry.MutableBox populateFromTwoPoints(androidx.ink.geometry.Vec point1, androidx.ink.geometry.Vec point2);
+    method public androidx.ink.geometry.MutableBox setXBounds(float x1, float x2);
+    method public androidx.ink.geometry.MutableBox setYBounds(float y1, float y2);
+    property public float xMax;
+    property public float xMin;
+    property public float yMax;
+    property public float yMin;
+  }
+
+  public final class MutableParallelogram extends androidx.ink.geometry.Parallelogram {
+    ctor public MutableParallelogram();
+    method public static androidx.ink.geometry.MutableParallelogram fromCenterAndDimensions(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height);
+    method public static androidx.ink.geometry.MutableParallelogram fromCenterDimensionsAndRotation(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation);
+    method public static androidx.ink.geometry.MutableParallelogram fromCenterDimensionsRotationAndShear(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation, float shearFactor);
+    method public androidx.ink.geometry.MutableVec getCenter();
+    method public float getHeight();
+    method @androidx.ink.geometry.AngleRadiansFloat public float getRotation();
+    method public float getShearFactor();
+    method @FloatRange(from=0.0) public float getWidth();
+    method public void setCenter(androidx.ink.geometry.MutableVec);
+    method public void setHeight(float);
+    method public void setRotation(@androidx.ink.geometry.AngleRadiansFloat float);
+    method public void setShearFactor(float);
+    method public void setWidth(@FloatRange(from=0.0) float);
+    property public androidx.ink.geometry.MutableVec center;
+    property public float height;
+    property @androidx.ink.geometry.AngleRadiansFloat public float rotation;
+    property public float shearFactor;
+    property @FloatRange(from=0.0) public float width;
+    field public static final androidx.ink.geometry.MutableParallelogram.Companion Companion;
+  }
+
+  public static final class MutableParallelogram.Companion {
+    method public androidx.ink.geometry.MutableParallelogram fromCenterAndDimensions(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height);
+    method public androidx.ink.geometry.MutableParallelogram fromCenterDimensionsAndRotation(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation);
+    method public androidx.ink.geometry.MutableParallelogram fromCenterDimensionsRotationAndShear(androidx.ink.geometry.MutableVec center, @FloatRange(from=0.0) float width, float height, @androidx.ink.geometry.AngleRadiansFloat float rotation, float shearFactor);
   }
 
   public final class MutableSegment extends androidx.ink.geometry.Segment {
@@ -135,7 +295,27 @@ package androidx.ink.geometry {
     method public androidx.ink.geometry.MutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
   }
 
+  public abstract class Parallelogram {
+    method public final float computeSignedArea();
+    method public abstract androidx.ink.geometry.Vec getCenter();
+    method public abstract float getHeight();
+    method @androidx.ink.geometry.AngleRadiansFloat public abstract float getRotation();
+    method public abstract float getShearFactor();
+    method @FloatRange(from=0.0) public abstract float getWidth();
+    property public abstract androidx.ink.geometry.Vec center;
+    property public abstract float height;
+    property @androidx.ink.geometry.AngleRadiansFloat public abstract float rotation;
+    property public abstract float shearFactor;
+    property @FloatRange(from=0.0) public abstract float width;
+    field public static final androidx.ink.geometry.Parallelogram.Companion Companion;
+  }
+
+  public static final class Parallelogram.Companion {
+  }
+
   public abstract class Segment {
+    method public final androidx.ink.geometry.ImmutableBox computeBoundingBox();
+    method public final androidx.ink.geometry.MutableBox computeBoundingBox(androidx.ink.geometry.MutableBox outBox);
     method public final androidx.ink.geometry.ImmutableVec computeDisplacement();
     method public final androidx.ink.geometry.MutableVec computeDisplacement(androidx.ink.geometry.MutableVec outVec);
     method @FloatRange(from=0.0) public final float computeLength();
@@ -156,6 +336,8 @@ package androidx.ink.geometry {
   }
 
   public abstract class Triangle {
+    method public final androidx.ink.geometry.ImmutableBox computeBoundingBox();
+    method public final androidx.ink.geometry.MutableBox computeBoundingBox(androidx.ink.geometry.MutableBox outBox);
     method public final androidx.ink.geometry.ImmutableSegment computeEdge(@IntRange(from=0L, to=2L) int index);
     method public final androidx.ink.geometry.MutableSegment computeEdge(@IntRange(from=0L, to=2L) int index, androidx.ink.geometry.MutableSegment outSegment);
     method public final float computeSignedArea();

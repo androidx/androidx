@@ -17,13 +17,11 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 
 /**
  * Immutable parallelogram (i.e. a quadrilateral with parallel sides), defined by its [center],
  * [width], [height], [rotation], and [shearFactor].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableParallelogram
 private constructor(
     override val center: ImmutableVec,

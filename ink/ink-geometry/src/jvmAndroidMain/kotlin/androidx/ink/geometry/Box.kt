@@ -17,7 +17,6 @@
 package androidx.ink.geometry
 
 import androidx.annotation.FloatRange
-import androidx.annotation.RestrictTo
 import kotlin.math.abs
 
 /**
@@ -26,7 +25,6 @@ import kotlin.math.abs
  *
  * The [Box] interface is the read-only view of the underlying data which may or may not be mutable.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class Box internal constructor() {
     /** The lower bound in the `X` direction. */
     public abstract val xMin: Float
