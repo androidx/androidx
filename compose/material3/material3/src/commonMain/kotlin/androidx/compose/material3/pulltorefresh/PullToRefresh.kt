@@ -319,11 +319,10 @@ internal class PullToRefreshModifierNode(
         if (isRefreshing) return 0f // Already refreshing, do nothing
         // Trigger refresh
         if (adjustedDistancePulled > thresholdPx) {
-            animateToThreshold()
             onRefresh()
-        } else {
-            animateToHidden()
         }
+
+        animateToHidden()
 
         val consumed =
             when {
