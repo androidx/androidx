@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo
  * Represents a directed line segment between two points. See [MutableSegment] for mutable
  * alternative.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableSegment(start: Vec, end: Vec) : Segment() {
 
     @Suppress("Immutable") override val start: Vec = start.asImmutable()

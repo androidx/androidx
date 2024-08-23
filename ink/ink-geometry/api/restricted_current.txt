@@ -1,6 +1,20 @@
 // Signature format: 4.0
 package androidx.ink.geometry {
 
+  public abstract class AffineTransform {
+    method public final androidx.ink.geometry.MutableSegment applyTransform(androidx.ink.geometry.Segment segment, androidx.ink.geometry.MutableSegment outSegment);
+    method public final androidx.ink.geometry.MutableTriangle applyTransform(androidx.ink.geometry.Triangle triangle, androidx.ink.geometry.MutableTriangle outTriangle);
+    method public final androidx.ink.geometry.MutableVec applyTransform(androidx.ink.geometry.Vec vec, androidx.ink.geometry.MutableVec outVec);
+    method public final androidx.ink.geometry.MutableAffineTransform computeInverse(androidx.ink.geometry.MutableAffineTransform outAffineTransform);
+    method @Size(min=6L) public final float[] getValues();
+    method @Size(min=6L) public final float[] getValues(optional @Size(min=6L) float[] outArray);
+    field public static final androidx.ink.geometry.AffineTransform.Companion Companion;
+    field public static final androidx.ink.geometry.ImmutableAffineTransform IDENTITY;
+  }
+
+  public static final class AffineTransform.Companion {
+  }
+
   public final class Angle {
     method @androidx.ink.geometry.AngleRadiansFloat public static float degreesToRadians(@androidx.ink.geometry.AngleDegreesFloat float degrees);
     method @FloatRange(from=0.0, to=androidx.ink.geometry.Angle.FULL_TURN_RADIANS_DOUBLE) @androidx.ink.geometry.AngleRadiansFloat public static float normalized(@androidx.ink.geometry.AngleRadiansFloat float radians);
@@ -17,6 +31,189 @@ package androidx.ink.geometry {
   }
 
   @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.SOURCE) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.VALUE_PARAMETER, kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.PROPERTY_GETTER, kotlin.annotation.AnnotationTarget.PROPERTY_SETTER, kotlin.annotation.AnnotationTarget.LOCAL_VARIABLE, kotlin.annotation.AnnotationTarget.FIELD}) public @interface AngleRadiansFloat {
+  }
+
+  public final class ImmutableAffineTransform extends androidx.ink.geometry.AffineTransform {
+    ctor public ImmutableAffineTransform(float m00, float m10, float m20, float m01, float m11, float m21);
+    ctor public ImmutableAffineTransform(@Size(min=6L) float[] values);
+    method public static androidx.ink.geometry.ImmutableAffineTransform scale(float scaleFactor);
+    method public static androidx.ink.geometry.ImmutableAffineTransform scale(float xScaleFactor, float yScaleFactor);
+    method public static androidx.ink.geometry.ImmutableAffineTransform scaleX(float scaleFactor);
+    method public static androidx.ink.geometry.ImmutableAffineTransform scaleY(float scaleFactor);
+    method public static androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+    field public static final androidx.ink.geometry.ImmutableAffineTransform.Companion Companion;
+  }
+
+  public static final class ImmutableAffineTransform.Companion {
+    method public androidx.ink.geometry.ImmutableAffineTransform scale(float scaleFactor);
+    method public androidx.ink.geometry.ImmutableAffineTransform scale(float xScaleFactor, float yScaleFactor);
+    method public androidx.ink.geometry.ImmutableAffineTransform scaleX(float scaleFactor);
+    method public androidx.ink.geometry.ImmutableAffineTransform scaleY(float scaleFactor);
+    method public androidx.ink.geometry.ImmutableAffineTransform translate(androidx.ink.geometry.Vec offset);
+  }
+
+  public final class ImmutableSegment extends androidx.ink.geometry.Segment {
+    ctor public ImmutableSegment(androidx.ink.geometry.Vec start, androidx.ink.geometry.Vec end);
+    method public androidx.ink.geometry.Vec getEnd();
+    method public androidx.ink.geometry.Vec getStart();
+    property public androidx.ink.geometry.Vec end;
+    property public androidx.ink.geometry.Vec start;
+  }
+
+  public final class ImmutableTriangle extends androidx.ink.geometry.Triangle {
+    ctor public ImmutableTriangle(androidx.ink.geometry.Vec p0, androidx.ink.geometry.Vec p1, androidx.ink.geometry.Vec p2);
+    method public androidx.ink.geometry.Vec getP0();
+    method public androidx.ink.geometry.Vec getP1();
+    method public androidx.ink.geometry.Vec getP2();
+    property public androidx.ink.geometry.Vec p0;
+    property public androidx.ink.geometry.Vec p1;
+    property public androidx.ink.geometry.Vec p2;
+  }
+
+  public final class ImmutableVec extends androidx.ink.geometry.Vec {
+    ctor public ImmutableVec(float x, float y);
+    method public static androidx.ink.geometry.ImmutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
+    method public float getX();
+    method public float getY();
+    property public float x;
+    property public float y;
+    field public static final androidx.ink.geometry.ImmutableVec.Companion Companion;
+  }
+
+  public static final class ImmutableVec.Companion {
+    method public androidx.ink.geometry.ImmutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
+  }
+
+  public final class MutableAffineTransform extends androidx.ink.geometry.AffineTransform {
+    ctor public MutableAffineTransform();
+    method public void setValues(float m00, float m10, float m20, float m01, float m11, float m21);
+    method public void setValues(@Size(min=6L) float[] values);
+  }
+
+  public final class MutableSegment extends androidx.ink.geometry.Segment {
+    ctor public MutableSegment();
+    ctor public MutableSegment(androidx.ink.geometry.MutableVec start, androidx.ink.geometry.MutableVec end);
+    method public androidx.ink.geometry.MutableVec getEnd();
+    method public androidx.ink.geometry.MutableVec getStart();
+    method public androidx.ink.geometry.MutableSegment populateFrom(androidx.ink.geometry.Segment input);
+    method public void setEnd(androidx.ink.geometry.MutableVec);
+    method public void setStart(androidx.ink.geometry.MutableVec);
+    property public androidx.ink.geometry.MutableVec end;
+    property public androidx.ink.geometry.MutableVec start;
+  }
+
+  public final class MutableTriangle extends androidx.ink.geometry.Triangle {
+    ctor public MutableTriangle();
+    ctor public MutableTriangle(androidx.ink.geometry.MutableVec p0, androidx.ink.geometry.MutableVec p1, androidx.ink.geometry.MutableVec p2);
+    method public androidx.ink.geometry.MutableVec getP0();
+    method public androidx.ink.geometry.MutableVec getP1();
+    method public androidx.ink.geometry.MutableVec getP2();
+    method public androidx.ink.geometry.MutableTriangle populateFrom(androidx.ink.geometry.Triangle input);
+    method public void setP0(androidx.ink.geometry.MutableVec);
+    method public void setP1(androidx.ink.geometry.MutableVec);
+    method public void setP2(androidx.ink.geometry.MutableVec);
+    property public androidx.ink.geometry.MutableVec p0;
+    property public androidx.ink.geometry.MutableVec p1;
+    property public androidx.ink.geometry.MutableVec p2;
+  }
+
+  public final class MutableVec extends androidx.ink.geometry.Vec {
+    ctor public MutableVec();
+    ctor public MutableVec(float x, float y);
+    method public static androidx.ink.geometry.MutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
+    method public float getX();
+    method public float getY();
+    method public androidx.ink.geometry.MutableVec populateFrom(androidx.ink.geometry.Vec input);
+    method public void setX(float);
+    method public void setY(float);
+    property public float x;
+    property public float y;
+    field public static final androidx.ink.geometry.MutableVec.Companion Companion;
+  }
+
+  public static final class MutableVec.Companion {
+    method public androidx.ink.geometry.MutableVec fromDirectionAndMagnitude(@androidx.ink.geometry.AngleRadiansFloat float direction, float magnitude);
+  }
+
+  public abstract class Segment {
+    method public final androidx.ink.geometry.ImmutableVec computeDisplacement();
+    method public final androidx.ink.geometry.MutableVec computeDisplacement(androidx.ink.geometry.MutableVec outVec);
+    method @FloatRange(from=0.0) public final float computeLength();
+    method public final androidx.ink.geometry.ImmutableVec computeLerpPoint(float ratio);
+    method public final androidx.ink.geometry.MutableVec computeLerpPoint(float ratio, androidx.ink.geometry.MutableVec outVec);
+    method public final androidx.ink.geometry.ImmutableVec computeMidpoint();
+    method public final androidx.ink.geometry.MutableVec computeMidpoint(androidx.ink.geometry.MutableVec outVec);
+    method public abstract androidx.ink.geometry.Vec getEnd();
+    method public abstract androidx.ink.geometry.Vec getStart();
+    method public final boolean isAlmostEqual(androidx.ink.geometry.Segment other, @FloatRange(from=0.0) float tolerance);
+    method public final float project(androidx.ink.geometry.Vec pointToProject);
+    property public abstract androidx.ink.geometry.Vec end;
+    property public abstract androidx.ink.geometry.Vec start;
+    field public static final androidx.ink.geometry.Segment.Companion Companion;
+  }
+
+  public static final class Segment.Companion {
+  }
+
+  public abstract class Triangle {
+    method public final androidx.ink.geometry.ImmutableSegment computeEdge(@IntRange(from=0L, to=2L) int index);
+    method public final androidx.ink.geometry.MutableSegment computeEdge(@IntRange(from=0L, to=2L) int index, androidx.ink.geometry.MutableSegment outSegment);
+    method public final float computeSignedArea();
+    method public final operator boolean contains(androidx.ink.geometry.Vec point);
+    method public abstract androidx.ink.geometry.Vec getP0();
+    method public abstract androidx.ink.geometry.Vec getP1();
+    method public abstract androidx.ink.geometry.Vec getP2();
+    method public final boolean isAlmostEqual(androidx.ink.geometry.Triangle other, @FloatRange(from=0.0) float tolerance);
+    property public abstract androidx.ink.geometry.Vec p0;
+    property public abstract androidx.ink.geometry.Vec p1;
+    property public abstract androidx.ink.geometry.Vec p2;
+    field public static final androidx.ink.geometry.Triangle.Companion Companion;
+  }
+
+  public static final class Triangle.Companion {
+  }
+
+  public abstract class Vec {
+    method @FloatRange(from=0.0, to=java.lang.Math.PI) @androidx.ink.geometry.AngleRadiansFloat public static final float absoluteAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public static final void add(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
+    method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI) @androidx.ink.geometry.AngleRadiansFloat public final float computeDirection();
+    method @FloatRange(from=0.0) public final float computeMagnitude();
+    method @FloatRange(from=0.0) public final float computeMagnitudeSquared();
+    method public final androidx.ink.geometry.ImmutableVec computeNegation();
+    method public final androidx.ink.geometry.MutableVec computeNegation(androidx.ink.geometry.MutableVec outVec);
+    method public final androidx.ink.geometry.ImmutableVec computeOrthogonal();
+    method public final androidx.ink.geometry.MutableVec computeOrthogonal(androidx.ink.geometry.MutableVec outVec);
+    method public final androidx.ink.geometry.ImmutableVec computeUnitVec();
+    method public final androidx.ink.geometry.MutableVec computeUnitVec(androidx.ink.geometry.MutableVec outVec);
+    method public static final float determinant(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public static final void divide(androidx.ink.geometry.Vec lhs, float rhs, androidx.ink.geometry.MutableVec output);
+    method public static final float dotProduct(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public abstract float getX();
+    method public abstract float getY();
+    method public final boolean isAlmostEqual(androidx.ink.geometry.Vec other);
+    method public final boolean isAlmostEqual(androidx.ink.geometry.Vec other, optional @FloatRange(from=0.0) float tolerance);
+    method public final boolean isParallelTo(androidx.ink.geometry.Vec other, @FloatRange(from=0.0) @androidx.ink.geometry.AngleRadiansFloat float angleTolerance);
+    method public final boolean isPerpendicularTo(androidx.ink.geometry.Vec other, @FloatRange(from=0.0) @androidx.ink.geometry.AngleRadiansFloat float angleTolerance);
+    method public static final void multiply(androidx.ink.geometry.Vec lhs, float rhs, androidx.ink.geometry.MutableVec output);
+    method public static final void multiply(float lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
+    method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public static final float signedAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public static final void subtract(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
+    property public abstract float x;
+    property public abstract float y;
+    field public static final androidx.ink.geometry.Vec.Companion Companion;
+    field public static final androidx.ink.geometry.ImmutableVec ORIGIN;
+  }
+
+  public static final class Vec.Companion {
+    method @FloatRange(from=0.0, to=java.lang.Math.PI) @androidx.ink.geometry.AngleRadiansFloat public float absoluteAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public void add(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
+    method public float determinant(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public void divide(androidx.ink.geometry.Vec lhs, float rhs, androidx.ink.geometry.MutableVec output);
+    method public float dotProduct(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public void multiply(androidx.ink.geometry.Vec lhs, float rhs, androidx.ink.geometry.MutableVec output);
+    method public void multiply(float lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
+    method @FloatRange(from=-3.141592653589793, to=java.lang.Math.PI, fromInclusive=false) @androidx.ink.geometry.AngleRadiansFloat public float signedAngleBetween(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs);
+    method public void subtract(androidx.ink.geometry.Vec lhs, androidx.ink.geometry.Vec rhs, androidx.ink.geometry.MutableVec output);
   }
 
 }

@@ -56,7 +56,6 @@ import androidx.annotation.Size
  *   values in the same order as they are passed in here, use [AffineTransform.getValues]. To
  *   construct this object using an array as input, there is another public constructor for that.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ImmutableAffineTransform
 public constructor(
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi

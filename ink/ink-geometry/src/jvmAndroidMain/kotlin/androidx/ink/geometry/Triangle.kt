@@ -33,7 +33,6 @@ import androidx.ink.nativeloader.NativeLoader
  * This is a read-only interface that has mutable and immutable implementations. See
  * [MutableTriangle] and [ImmutableTriangle].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class Triangle internal constructor() {
 
     /** One of the three points that define the [Triangle]. */
@@ -61,6 +60,7 @@ public abstract class Triangle internal constructor() {
     }
 
     /** Returns the minimum bounding box containing the [Triangle]. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(): ImmutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)
@@ -71,6 +71,7 @@ public abstract class Triangle internal constructor() {
      * Populates [outBox] with the minimum bounding box containing the [Triangle] and returns
      * [outBox].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun computeBoundingBox(outBox: MutableBox): MutableBox {
         // TODO(b/354236964): Optimize unnecessary allocations
         val (minX, maxX, minY, maxY) = getBoundingXYCoordinates(this)

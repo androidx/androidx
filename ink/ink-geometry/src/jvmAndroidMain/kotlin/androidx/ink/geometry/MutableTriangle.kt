@@ -31,7 +31,6 @@ import androidx.annotation.RestrictTo
  *   be safest to construct this with copies of the data to give this [MutableTriangle] exclusive
  *   ownership of those copies.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableTriangle(
     override var p0: MutableVec,
     override var p1: MutableVec,

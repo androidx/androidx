@@ -57,7 +57,6 @@ import androidx.annotation.Size
  *   [AffineTransform.getValues]. To construct this object using an array as input, there is another
  *   public constructor for that.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class MutableAffineTransform
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public constructor(

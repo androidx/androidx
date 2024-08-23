@@ -50,7 +50,6 @@ import kotlin.jvm.JvmField
  * [ImmutableAffineTransform] and [MutableAffineTransform] are the two concrete implementations of
  * this.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public abstract class AffineTransform internal constructor() {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public abstract val m00: Float
@@ -136,6 +135,7 @@ public abstract class AffineTransform internal constructor() {
      * This is the only Apply function where the input cannot also be the output, as applying an
      * Affine Transform to a Box makes a Parallelogram.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun applyTransform(
         box: Box,
         outParallelogram: MutableParallelogram,
@@ -163,6 +163,7 @@ public abstract class AffineTransform internal constructor() {
      * [MutableParallelogram]. The same [MutableParallelogram] can be used as both the input and
      * output to avoid additional allocations.
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun applyTransform(
         parallelogram: Parallelogram,
         outParallelogram: MutableParallelogram,
