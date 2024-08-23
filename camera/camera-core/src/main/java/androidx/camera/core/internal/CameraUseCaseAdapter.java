@@ -1031,16 +1031,9 @@ public final class CameraUseCaseAdapter implements Camera {
         // TODO(b/309900490): since there are other places (e.g. SupportedSurfaceCombination in
         //  camera2) that feature combination constraints are enforced, it would be nice if they
         //  followed a similar pattern for checking constraints.
-        if (hasExtension()) {
-            if (hasNonSdrConfig(useCases)) {
-                throw new IllegalArgumentException("Extensions are only supported for use with "
-                        + "standard dynamic range.");
-            }
-
-            if (hasUltraHdrImageCapture(useCases)) {
-                throw new IllegalArgumentException("Extensions are not supported for use with "
-                        + "Ultra HDR image capture.");
-            }
+        if (hasExtension() && hasNonSdrConfig(useCases)) {
+            throw new IllegalArgumentException("Extensions are only supported for use with "
+                    + "standard dynamic range.");
         }
 
         // TODO(b/322311893): throw exception to block feature combination of effect with Ultra

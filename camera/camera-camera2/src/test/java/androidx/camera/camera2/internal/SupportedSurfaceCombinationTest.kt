@@ -1739,7 +1739,6 @@ class SupportedSurfaceCombinationTest {
     // Resolution selection tests for Ultra HDR
     //
     // //////////////////////////////////////////////////////////////////////////////////////////
-
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun checkUltraHdrCombinationsSupported() {
@@ -1769,33 +1768,6 @@ class SupportedSurfaceCombinationTest {
         }
     }
 
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun checkUltraHdrCombinationsSupported_when8bit() {
-        // Device might support Ultra HDR but not 10-bit.
-        setupCameraAndInitCameraX(supportedFormats = intArrayOf(JPEG_R))
-        val supportedSurfaceCombination =
-            SupportedSurfaceCombination(
-                context,
-                DEFAULT_CAMERA_ID,
-                cameraManagerCompat!!,
-                mockCamcorderProfileHelper
-            )
-
-        GuaranteedConfigurationsUtil.getUltraHdrSupportedCombinationList().forEach {
-            assertThat(
-                    supportedSurfaceCombination.checkSupported(
-                        createFeatureSettings(
-                            requiredMaxBitDepth = BIT_DEPTH_8_BIT,
-                            isUltraHdrOn = true
-                        ),
-                        it.surfaceConfigList
-                    )
-                )
-                .isTrue()
-        }
-    }
-
     /** JPEG_R/MAXIMUM when Ultra HDR is ON. */
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
@@ -1803,6 +1775,7 @@ class SupportedSurfaceCombinationTest {
         val jpegUseCase =
             createUseCase(
                 CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
                 imageFormat = JPEG_R,
             ) // JPEG
         val useCaseExpectedResultMap =
@@ -1823,27 +1796,7 @@ class SupportedSurfaceCombinationTest {
         val jpegUseCase =
             createUseCase(
                 CaptureType.IMAGE_CAPTURE,
-                imageFormat = JPEG_R,
-            ) // JPEG
-        val useCaseExpectedResultMap =
-            mutableMapOf<UseCase, Size>().apply {
-                put(privUseCase, PREVIEW_SIZE)
-                put(jpegUseCase, MAXIMUM_SIZE)
-            }
-        getSuggestedSpecsAndVerify(
-            useCasesExpectedSizeMap = useCaseExpectedResultMap,
-            supportedOutputFormats = intArrayOf(JPEG_R),
-        )
-    }
-
-    /** HLG10 PRIV/PREVIEW + JPEG_R/MAXIMUM when Ultra HDR is ON. */
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun canSelectCorrectSizes_hlg10PrivPlusJpegr_whenUltraHdrIsOn() {
-        val privUseCase = createUseCase(CaptureType.PREVIEW, dynamicRange = HLG_10_BIT) // PRIV
-        val jpegUseCase =
-            createUseCase(
-                CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
                 imageFormat = JPEG_R,
             ) // JPEG
         val useCaseExpectedResultMap =
@@ -1868,6 +1821,7 @@ class SupportedSurfaceCombinationTest {
         val jpegUseCase =
             createUseCase(
                 CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
                 imageFormat = JPEG_R,
             ) // JPEG
         val useCaseExpectedResultMap =
@@ -3535,8 +3489,10 @@ class SupportedSurfaceCombinationTest {
             set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel)
             set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation)
             set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE, pixelArraySize)
-            // Setup stream configuration map, no matter supported output sizes are specified.
-            set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+            // Only setup stream configuration map when the supported output sizes are specified.
+            supportedSizes?.let {
+                set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap)
+            }
             set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES, deviceFPSRanges)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 dynamicRangeProfiles?.let {

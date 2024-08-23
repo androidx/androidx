@@ -182,10 +182,10 @@ final class SupportedSurfaceCombination {
 
         if (mDynamicRangeResolver.is10BitDynamicRangeSupported()) {
             generate10BitSupportedCombinationList();
-        }
 
-        if (isUltraHdrSupported()) {
-            generateUltraHdrSupportedCombinationList();
+            if (isUltraHdrSupported()) {
+                generateUltraHdrSupportedCombinationList();
+            }
         }
 
         mIsStreamUseCaseSupported = StreamUseCaseUtil.isStreamUseCaseSupported(mCharacteristics);
@@ -288,12 +288,7 @@ final class SupportedSurfaceCombination {
 
         List<SurfaceCombination> supportedSurfaceCombinations = new ArrayList<>();
 
-        if (featureSettings.isUltraHdrOn()) {
-            // For Ultra HDR output, only the default camera mode is currently supported.
-            if (featureSettings.getCameraMode() == CameraMode.DEFAULT) {
-                supportedSurfaceCombinations.addAll(mSurfaceCombinationsUltraHdr);
-            }
-        } else if (featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_8_BIT) {
+        if (featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_8_BIT) {
             switch (featureSettings.getCameraMode()) {
                 case CameraMode.CONCURRENT_CAMERA:
                     supportedSurfaceCombinations = mConcurrentSurfaceCombinations;
@@ -310,7 +305,11 @@ final class SupportedSurfaceCombination {
         } else if (featureSettings.getRequiredMaxBitDepth() == DynamicRange.BIT_DEPTH_10_BIT) {
             // For 10-bit outputs, only the default camera mode is currently supported.
             if (featureSettings.getCameraMode() == CameraMode.DEFAULT) {
-                supportedSurfaceCombinations.addAll(mSurfaceCombinations10Bit);
+                if (featureSettings.isUltraHdrOn()) {
+                    supportedSurfaceCombinations.addAll(mSurfaceCombinationsUltraHdr);
+                } else {
+                    supportedSurfaceCombinations.addAll(mSurfaceCombinations10Bit);
+                }
             }
         }
 
@@ -865,13 +864,6 @@ final class SupportedSurfaceCombination {
             @NonNull Map<UseCaseConfig<?>, DynamicRange> resolvedDynamicRanges,
             boolean isPreviewStabilizationOn, boolean isUltraHdrOn) {
         int requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges);
-
-        if (cameraMode != CameraMode.DEFAULT && isUltraHdrOn) {
-            throw new IllegalArgumentException(String.format("Camera device id is %s. Ultra HDR "
-                            + "is not currently supported in %s camera mode.",
-                    mCameraId,
-                    CameraMode.toLabelString(cameraMode)));
-        }
 
         if (cameraMode != CameraMode.DEFAULT
                 && requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {

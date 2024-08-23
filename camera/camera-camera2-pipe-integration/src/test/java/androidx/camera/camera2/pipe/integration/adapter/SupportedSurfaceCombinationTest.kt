@@ -1655,34 +1655,16 @@ class SupportedSurfaceCombinationTest {
         }
     }
 
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun checkUltraHdrCombinationsSupported_when8bit() {
-        // Device might support Ultra HDR but not 10-bit.
-        setupCamera(supportedFormats = intArrayOf(JPEG_R))
-        val supportedSurfaceCombination =
-            SupportedSurfaceCombination(context, fakeCameraMetadata, mockEncoderProfilesAdapter)
-
-        GuaranteedConfigurationsUtil.getUltraHdrSupportedCombinationList().forEach {
-            assertThat(
-                    supportedSurfaceCombination.checkSupported(
-                        SupportedSurfaceCombination.FeatureSettings(
-                            CameraMode.DEFAULT,
-                            requiredMaxBitDepth = DynamicRange.BIT_DEPTH_8_BIT,
-                            isUltraHdrOn = true
-                        ),
-                        it.surfaceConfigList
-                    )
-                )
-                .isTrue()
-        }
-    }
-
     /** JPEG_R/MAXIMUM when Ultra HDR is ON. */
     @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
     @Test
     fun canSelectCorrectSizes_onlyJpegr_whenUltraHdrIsOn() {
-        val jpegUseCase = createUseCase(CaptureType.IMAGE_CAPTURE, imageFormat = JPEG_R) // JPEG
+        val jpegUseCase =
+            createUseCase(
+                CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
+                imageFormat = JPEG_R
+            ) // JPEG
         val useCaseExpectedResultMap =
             mutableMapOf<UseCase, Size>().apply { put(jpegUseCase, maximumSize) }
         getSuggestedSpecsAndVerify(
@@ -1701,27 +1683,7 @@ class SupportedSurfaceCombinationTest {
         val jpegUseCase =
             createUseCase(
                 CaptureType.IMAGE_CAPTURE,
-                imageFormat = JPEG_R,
-            ) // JPEG
-        val useCaseExpectedResultMap =
-            mutableMapOf<UseCase, Size>().apply {
-                put(privUseCase, previewSize)
-                put(jpegUseCase, maximumSize)
-            }
-        getSuggestedSpecsAndVerify(
-            useCasesExpectedResultMap = useCaseExpectedResultMap,
-            supportedOutputFormats = intArrayOf(JPEG_R),
-        )
-    }
-
-    /** HLG10 PRIV/PREVIEW + JPEG_R/MAXIMUM when Ultra HDR is ON. */
-    @Config(minSdk = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
-    @Test
-    fun canSelectCorrectSizes_hlg10PrivPlusJpegr_whenUltraHdrIsOn() {
-        val privUseCase = createUseCase(CaptureType.PREVIEW, dynamicRange = HLG_10_BIT) // PRIV
-        val jpegUseCase =
-            createUseCase(
-                CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
                 imageFormat = JPEG_R,
             ) // JPEG
         val useCaseExpectedResultMap =
@@ -1746,6 +1708,7 @@ class SupportedSurfaceCombinationTest {
         val jpegUseCase =
             createUseCase(
                 CaptureType.IMAGE_CAPTURE,
+                dynamicRange = HLG_10_BIT,
                 imageFormat = JPEG_R,
             ) // JPEG
         val useCaseExpectedResultMap =

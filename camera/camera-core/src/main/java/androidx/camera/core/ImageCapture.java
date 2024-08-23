@@ -19,6 +19,7 @@ package androidx.camera.core;
 import static android.graphics.ImageFormat.JPEG_R;
 
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
+import static androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_CAPTURE_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
@@ -471,7 +472,7 @@ public final class ImageCapture extends UseCase {
             if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                 builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
-                        DynamicRange.UNSPECIFIED);
+                        HDR_UNSPECIFIED_10_BIT);
             } else if (useSoftwareJpeg) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                         ImageFormat.YUV_420_888);
@@ -2322,7 +2323,7 @@ public final class ImageCapture extends UseCase {
                 if (isOutputFormatUltraHdr(getMutableConfig())) {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                     getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
-                            DynamicRange.UNSPECIFIED);
+                            HDR_UNSPECIFIED_10_BIT);
                 } else {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
                 }
@@ -2827,6 +2828,14 @@ public final class ImageCapture extends UseCase {
          * {@link ImageCaptureCapabilities#getSupportedOutputFormats()}.
          *
          * <p>If not set, the output format will default to {@link #OUTPUT_FORMAT_JPEG}.
+         *
+         * <p>If an Ultra HDR output format is used, a {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}
+         * will be used as the dynamic range of this use case. Please note that some devices may not
+         * be able to support configuring both SDR and HDR use cases at the same time, e.g. use
+         * Ultra HDR ImageCapture with a SDR Preview. Configuring concurrent SDR and HDR on these
+         * devices will result in an {@link IllegalArgumentException} to be thrown when invoking
+         * {@code bindToLifecycle()}. Such device specific constraints can be queried by calling
+         * {@link android.hardware.camera2.params.DynamicRangeProfiles#getProfileCaptureRequestConstraints(long)}.
          *
          * @param outputFormat The output image format. Value is {@link #OUTPUT_FORMAT_JPEG} or
          *                     {@link #OUTPUT_FORMAT_JPEG_ULTRA_HDR}.
