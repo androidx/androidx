@@ -70,6 +70,7 @@ val WearMaterial3Demos =
             ),
             ComposableDemo("Compact Button") { CompactButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
+            ComposableDemo("Image Button") { ImageButtonDemo() },
             ComposableDemo("Text Button") { TextButtonDemo() },
             Material3DemoCategory(
                 "Edge Button",

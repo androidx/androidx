@@ -347,6 +347,7 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors filledVariantIconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float getDefaultButtonSize();
     method public float getDefaultIconSize();
+    method public float getDisabledImageOpacity();
     method public float getExtraSmallButtonSize();
     method public float getLargeButtonSize();
     method public float getLargeIconSize();
@@ -368,6 +369,7 @@ package androidx.wear.compose.material3 {
     property public final float LargeIconSize;
     property public final float SmallButtonSize;
     property public final float SmallIconSize;
+    property public final float disabledImageOpacity;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.CornerBasedShape pressedShape;
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.shape.RoundedCornerShape shape;
     field public static final androidx.wear.compose.material3.IconButtonDefaults INSTANCE;

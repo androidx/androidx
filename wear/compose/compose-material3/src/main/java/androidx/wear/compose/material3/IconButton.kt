@@ -68,6 +68,10 @@ import androidx.wear.compose.material3.tokens.ShapeTokens
  * Example of an [IconButton] with shape animation of rounded corners on press:
  *
  * @sample androidx.wear.compose.material3.samples.IconButtonWithCornerAnimationSample
+ *
+ * Example of an [IconButton] with image content:
+ *
+ * @sample androidx.wear.compose.material3.samples.IconButtonWithImageSample
  * @param onClick Will be called when the user clicks the button.
  * @param modifier Modifier to be applied to the button.
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -401,6 +405,9 @@ object IconButtonDefaults {
     /** Recommended pressed [Shape] for [IconButton]. */
     val pressedShape: CornerBasedShape
         @Composable get() = MaterialTheme.shapes.small
+
+    /** Recommended alpha to apply to an IconButton with Image content with disabled */
+    val disabledImageOpacity = DisabledContentAlpha
 
     /**
      * Creates a [Shape] with a animation between two CornerBasedShapes.
