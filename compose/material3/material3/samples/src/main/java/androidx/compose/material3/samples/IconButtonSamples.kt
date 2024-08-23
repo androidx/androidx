@@ -49,7 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 fun IconButtonSample() {
     IconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+        Icon(Icons.Filled.Lock, contentDescription = "Localized description")
     }
 }
 
@@ -71,7 +71,7 @@ fun XSmallNarrowSquareIconButtonsSample() {
         shape = IconButtonDefaults.xSmallSquareShape
     ) {
         Icon(
-            Icons.Outlined.Lock,
+            Icons.Filled.Lock,
             contentDescription = "Localized description",
             modifier = Modifier.size(IconButtonDefaults.xSmallIconSize)
         )
@@ -94,7 +94,7 @@ fun MediumRoundWideIconButtonSample() {
         shape = IconButtonDefaults.mediumRoundShape
     ) {
         Icon(
-            Icons.Outlined.Lock,
+            Icons.Filled.Lock,
             contentDescription = "Localized description",
             modifier = Modifier.size(IconButtonDefaults.mediumIconSize)
         )
@@ -112,7 +112,7 @@ fun LargeRoundUniformOutlinedIconButtonSample() {
         shape = IconButtonDefaults.largeRoundShape
     ) {
         Icon(
-            Icons.Outlined.Lock,
+            Icons.Filled.Lock,
             contentDescription = "Localized description",
             modifier = Modifier.size(IconButtonDefaults.largeIconSize)
         )
@@ -125,7 +125,7 @@ fun LargeRoundUniformOutlinedIconButtonSample() {
 fun TintedIconButtonSample() {
     IconButton(onClick = { /* doSomething() */ }) {
         Icon(
-            rememberVectorPainter(image = Icons.Outlined.Lock),
+            rememberVectorPainter(image = Icons.Filled.Lock),
             contentDescription = "Localized description",
             tint = Color.Red
         )
@@ -165,7 +165,7 @@ fun IconToggleButtonWithAnimatedShapeSample() {
 @Composable
 fun FilledIconButtonSample() {
     FilledIconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+        Icon(Icons.Filled.Lock, contentDescription = "Localized description")
     }
 }
 
@@ -212,7 +212,7 @@ fun FilledIconToggleButtonWithAnimatedShapeSample() {
 @Composable
 fun FilledTonalIconButtonSample() {
     FilledTonalIconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+        Icon(Icons.Filled.Lock, contentDescription = "Localized description")
     }
 }
 
@@ -259,7 +259,7 @@ fun FilledTonalIconToggleButtonWithAnimatedShapeSample() {
 @Composable
 fun OutlinedIconButtonSample() {
     OutlinedIconButton(onClick = { /* doSomething() */ }) {
-        Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+        Icon(Icons.Filled.Lock, contentDescription = "Localized description")
     }
 }
 
