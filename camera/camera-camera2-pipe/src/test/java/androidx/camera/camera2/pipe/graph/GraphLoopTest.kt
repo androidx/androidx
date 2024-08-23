@@ -32,7 +32,9 @@ import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -52,6 +54,7 @@ import org.robolectric.annotation.Config
 class GraphLoopTest {
     private val testScope = TestScope()
     private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
+    private val shutdownScope = CoroutineScope(testDispatcher)
 
     private val graphState3A = GraphState3A()
     private val listener3A = Listener3A()
@@ -89,12 +92,14 @@ class GraphLoopTest {
             graphListeners = listOf(mockListener),
             graphState3A = graphState3A,
             listeners = listOf(listener3A),
+            shutdownScope = shutdownScope,
             dispatcher = testDispatcher,
         )
 
     @After
     fun teardown() {
         fakeSurfaces.close()
+        shutdownScope.cancel()
     }
 
     @Test
@@ -468,6 +473,7 @@ class GraphLoopTest {
                     graphListeners = listOf(mockListener),
                     graphState3A = graphState3A,
                     listeners = listOf(listener3A),
+                    shutdownScope = shutdownScope,
                     dispatcher = testDispatcher,
                 )
 
@@ -505,6 +511,7 @@ class GraphLoopTest {
                     graphListeners = listOf(mockListener),
                     graphState3A = graphState3A,
                     listeners = listOf(listener3A),
+                    shutdownScope = shutdownScope,
                     dispatcher = testDispatcher,
                 )
 
@@ -778,6 +785,42 @@ class GraphLoopTest {
             // Assert: does not crash, and only Close is invoked.
             assertThat(csp1.events.size).isEqualTo(1)
             assertThat(csp1.events[0].isClose).isTrue()
+        }
+
+    @Test
+    fun settingRequestProcessorAfterCloseCausesRequestProcessorToBeShutdown() =
+        testScope.runTest {
+            // Arrange
+            graphLoop.close()
+
+            // Act
+            graphLoop.requestProcessor = grp1
+            advanceUntilIdle()
+
+            // Assert: Does not crash, and request processor is closed.
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isClose).isTrue()
+        }
+
+    @Test
+    fun settingRequestProcessorAfterShutdownCausesRequestProcessorToBeShutdown() =
+        testScope.runTest {
+            // Arrange
+
+            graphLoop.requestProcessor = grp1
+            graphLoop.close()
+            advanceUntilIdle() // Shutdown fully completes
+
+            // Act
+            graphLoop.requestProcessor = grp2
+            advanceUntilIdle()
+
+            // Assert: Does not crash, and request processor is closed.
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isClose).isTrue()
+
+            assertThat(csp2.events.size).isEqualTo(1)
+            assertThat(csp2.events[0].isClose).isTrue()
         }
 
     private val SimpleCSP.SimpleCSPEvent.requests: List<Request>

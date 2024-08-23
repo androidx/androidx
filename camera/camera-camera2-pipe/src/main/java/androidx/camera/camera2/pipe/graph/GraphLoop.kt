@@ -30,6 +30,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 /**
  * GraphLoop is a thread-safe class that handles incoming state changes and requests and executes
@@ -44,6 +45,7 @@ internal class GraphLoop(
     private val graphListeners: List<Request.Listener>,
     private val graphState3A: GraphState3A?,
     private val listeners: List<GraphLoop.Listener>,
+    private val shutdownScope: CoroutineScope,
     dispatcher: CoroutineDispatcher
 ) : Closeable {
     internal interface Listener {
@@ -74,8 +76,12 @@ internal class GraphLoop(
                 val previous = _requestProcessor
                 _requestProcessor = value
 
-                check(value == null || !closed) {
-                    "Cannot set requestProcessor after $this is closed."
+                if (closed) {
+                    _requestProcessor = null
+                    if (value != null) {
+                        shutdownScope.launch { value.shutdown() }
+                    }
+                    return
                 }
 
                 // Ignore duplicate calls to set with the same value.
