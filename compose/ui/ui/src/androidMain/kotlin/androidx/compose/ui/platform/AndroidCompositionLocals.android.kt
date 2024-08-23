@@ -34,6 +34,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.res.ImageVectorCache
 import androidx.compose.ui.res.ResourceIdCache
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 
@@ -53,11 +54,12 @@ internal val LocalImageVectorCache =
 internal val LocalResourceIdCache =
     staticCompositionLocalOf<ResourceIdCache> { noLocalProvidedFor("LocalResourceIdCache") }
 
+/** The CompositionLocal containing the current [LifecycleOwner]. */
 @Deprecated(
     "Moved to lifecycle-runtime-compose library in androidx.lifecycle.compose package.",
     ReplaceWith("androidx.lifecycle.compose.LocalLifecycleOwner"),
 )
-actual val LocalLifecycleOwner
+val LocalLifecycleOwner
     get() = LocalLifecycleOwner
 
 /** The CompositionLocal containing the current [SavedStateRegistryOwner]. */
