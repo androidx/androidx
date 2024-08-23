@@ -19,14 +19,26 @@ package androidx.camera.camera2.pipe.integration.compat
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.StreamConfigurationMap
 import android.util.Size
+import androidx.camera.core.Logger
 import androidx.camera.core.impl.ImageFormatConstants
+
+private const val TAG = "StreamConfigurationMapCompatBaseImpl"
 
 internal open class StreamConfigurationMapCompatBaseImpl(
     val streamConfigurationMap: StreamConfigurationMap?
 ) : StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
 
     override fun getOutputFormats(): Array<Int>? {
-        return streamConfigurationMap?.outputFormats?.toTypedArray()
+        // b/361590210: try-catch to workaround the NullPointerException issue when using
+        // StreamConfigurationMap provided by Robolectric.
+        val outputFormats =
+            try {
+                streamConfigurationMap?.outputFormats
+            } catch (e: NullPointerException) {
+                Logger.e(TAG, "Failed to get output formats from StreamConfigurationMap", e)
+                null
+            }
+        return outputFormats?.toTypedArray()
     }
 
     override fun getOutputSizes(format: Int): Array<Size>? {
