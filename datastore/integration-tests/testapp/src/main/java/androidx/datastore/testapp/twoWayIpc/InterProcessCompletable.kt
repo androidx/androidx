@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.parcelize.Parcelize
 
 /** A [Parcelable] [CompletableDeferred] implementation that can be shared across processes. */
+@SuppressLint("BanParcelableUsage")
 @Parcelize
 internal class InterProcessCompletable<T : Parcelable>(
     private val key: String = UUID.randomUUID().toString(),

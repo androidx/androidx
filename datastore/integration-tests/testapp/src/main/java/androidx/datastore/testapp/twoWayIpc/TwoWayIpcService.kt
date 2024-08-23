@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
 import android.content.Intent
 import android.os.Handler
@@ -44,7 +44,7 @@ class TwoWayIpcService2 : TwoWayIpcService()
  * It properly scopes those subjects and destroys their scopes when the Service is destroyed,
  * allowing tests to properly maintain resources.
  *
- * @see androidx.datastore.core.multiprocess.MultiProcessTestRule
+ * @see androidx.datastore.testapp.multiprocess.MultiProcessTestRule
  */
 open class TwoWayIpcService : LifecycleService() {
     private val subjects = mutableListOf<TwoWayIpcSubject>()
@@ -89,6 +89,7 @@ open class TwoWayIpcService : LifecycleService() {
         )
 
     override fun onBind(intent: Intent): IBinder? {
+        super.onBind(intent)
         return messenger.binder
     }
 

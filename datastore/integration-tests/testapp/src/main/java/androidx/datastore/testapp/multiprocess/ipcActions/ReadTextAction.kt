@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess.ipcActions
+// Parcelize object is testing internal implementation of datastore-core library
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
+package androidx.datastore.testapp.multiprocess.ipcActions
+
+import android.annotation.SuppressLint
 import android.os.Parcelable
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
 internal class ReadTextAction : IpcAction<ReadTextAction.TextValue>() {
-    @Parcelize data class TextValue(val value: String) : Parcelable
+    @SuppressLint("BanParcelableUsage")
+    @Parcelize
+    data class TextValue(val value: String) : Parcelable
 
     override suspend fun invokeInRemoteProcess(subject: TwoWayIpcSubject): TextValue {
         return TextValue(subject.datastore.data.first().text)

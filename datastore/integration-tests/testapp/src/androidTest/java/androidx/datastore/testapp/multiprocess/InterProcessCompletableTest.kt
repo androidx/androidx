@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess
+package androidx.datastore.testapp.multiprocess
 
 import android.os.Parcelable
-import androidx.datastore.core.twoWayIpc.InterProcessCompletable
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.IpcUnit
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.IpcUnit
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.async
 import kotlinx.coroutines.yield

@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess
+// Parcelize object is testing internal implementation of datastore-core library
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
+
+package androidx.datastore.testapp.multiprocess
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.CorruptionHandler
 import androidx.datastore.core.IOException
 import androidx.datastore.core.SharedCounter
-import androidx.datastore.core.multiprocess.ipcActions.ReadTextAction
-import androidx.datastore.core.multiprocess.ipcActions.SetTextAction
-import androidx.datastore.core.multiprocess.ipcActions.StorageVariant
-import androidx.datastore.core.multiprocess.ipcActions.createMultiProcessTestDatastore
-import androidx.datastore.core.multiprocess.ipcActions.datastore
-import androidx.datastore.core.twoWayIpc.InterProcessCompletable
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.IpcUnit
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.multiprocess.ipcActions.ReadTextAction
+import androidx.datastore.testapp.multiprocess.ipcActions.SetTextAction
+import androidx.datastore.testapp.multiprocess.ipcActions.StorageVariant
+import androidx.datastore.testapp.multiprocess.ipcActions.createMultiProcessTestDatastore
+import androidx.datastore.testapp.multiprocess.ipcActions.datastore
+import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.IpcUnit
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.CompletableDeferred

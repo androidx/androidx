@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess.ipcActions
+// Parcelize object is testing internal implementation of datastore-core library
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
+package androidx.datastore.testapp.multiprocess.ipcActions
+
+import android.annotation.SuppressLint
 import android.os.Parcelable
-import androidx.datastore.core.twoWayIpc.InterProcessCompletable
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.IpcUnit
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.twoWayIpc.InterProcessCompletable
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.IpcUnit
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import kotlinx.parcelize.Parcelize
 
+@SuppressLint("BanParcelableUsage")
 @Parcelize
 internal class SetTextAction(
     private val value: String,

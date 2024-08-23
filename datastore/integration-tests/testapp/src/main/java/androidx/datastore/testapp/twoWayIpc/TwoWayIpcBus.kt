@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.Messenger
-import androidx.datastore.core.twoWayIpc.IpcLogger.log
+import androidx.datastore.testapp.twoWayIpc.IpcLogger.log
 import java.util.UUID
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred

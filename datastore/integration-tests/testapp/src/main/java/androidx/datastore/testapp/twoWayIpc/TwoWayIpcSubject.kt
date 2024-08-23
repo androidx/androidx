@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
 import android.os.Bundle
 import android.os.Parcelable

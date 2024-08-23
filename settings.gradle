@@ -658,6 +658,7 @@ includeProject(":datastore:datastore-proto", [BuildType.MAIN, BuildType.INFRAROG
 includeProject(":datastore:datastore-rxjava2", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-rxjava3", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
 includeProject(":datastore:datastore-sampleapp", [BuildType.MAIN, BuildType.INFRAROGUE, BuildType.KMP])
+includeProject(":datastore:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":documentfile:documentfile", [BuildType.MAIN])
 includeProject(":draganddrop:draganddrop", [BuildType.MAIN])
 includeProject(":draganddrop:integration-tests:sampleapp", [BuildType.MAIN])

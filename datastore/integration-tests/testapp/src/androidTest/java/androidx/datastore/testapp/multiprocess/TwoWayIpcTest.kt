@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess
+package androidx.datastore.testapp.multiprocess
 
 import android.os.Parcelable
-import androidx.datastore.core.twoWayIpc.CompositeServiceSubjectModel
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.twoWayIpc.CompositeServiceSubjectModel
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import com.google.common.truth.Truth.assertThat
 import kotlinx.parcelize.Parcelize
 import org.junit.Rule

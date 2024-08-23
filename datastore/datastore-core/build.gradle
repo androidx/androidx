@@ -28,8 +28,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.google.protobuf")
-    id ("kotlin-parcelize")
 }
 
 android {
@@ -40,26 +38,6 @@ android {
         }
     }
     namespace "androidx.datastore.core"
-}
-
-protobuf {
-    protoc {
-        artifact = libs.protobufCompiler.get()
-    }
-    generateProtoTasks {
-        all().each { task ->
-            task.builtins {
-                java {
-                    option "lite"
-                }
-            }
-        }
-    }
-}
-
-def protoDir = project.layout.projectDirectory.dir("src/androidInstrumentedTest/proto")
-tasks.named("extractAndroidTestProto").configure {
-    it.inputFiles.from(project.files(protoDir))
 }
 
 androidXMultiplatform {
@@ -137,7 +115,6 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(commonJvmTest)
             dependencies {
-                implementation(libs.protobufLite)
                 implementation(libs.truth)
                 implementation(project(":internal-testutils-truth"))
                 implementation(libs.testRunner)
