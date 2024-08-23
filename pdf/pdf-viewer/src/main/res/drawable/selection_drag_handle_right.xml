@@ -18,12 +18,11 @@
     android:width="44dp"
     android:height="44dp"
     android:autoMirrored="true"
-    android:tint="#FFA8C7FA"
     android:viewportHeight="44"
     android:viewportWidth="44">
 
     <path
-        android:fillColor="#FFA8C7FA"
+        android:fillColor="?attr/colorPrimaryFixedDim"
         android:fillType="evenOdd"
         android:pathData="M9.901,9.899L9.942,23.94C9.965,31.695 16.271,38.001 24.026,38.024C31.781,38.047 38.049,31.779 38.026,24.024C38.003,16.269 31.697,9.963 23.942,9.94L9.901,9.899Z" />
 

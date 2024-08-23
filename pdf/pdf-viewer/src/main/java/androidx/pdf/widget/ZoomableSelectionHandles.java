@@ -16,6 +16,7 @@
 
 package androidx.pdf.widget;
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.view.MotionEvent;
 import android.view.View;
@@ -168,16 +169,17 @@ public abstract class ZoomableSelectionHandles<S> {
      */
     @NonNull
     protected ImageView createHandle(@NonNull ViewGroup parent, boolean isStop, int id) {
-        ImageView handle = new ImageView(parent.getContext());
+        Context context = parent.getContext();
+        ImageView handle = new ImageView(context);
         handle.setId(id);
         handle.setLayoutParams(
                 new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         handle.setColorFilter(
-                parent.getContext().getResources().getColor(R.color.selection_handles));
+                context.getResources().getColor(R.color.pdf_viewer_selection_handles));
         handle.setAlpha(HANDLE_ALPHA);
 
         int descId = isStop ? R.string.desc_selection_stop : R.string.desc_selection_start;
-        handle.setContentDescription(parent.getContext().getString(descId));
+        handle.setContentDescription(context.getString(descId));
         handle.setVisibility(View.GONE);
         parent.addView(handle);
         handle.setOnTouchListener(mOnTouchListener);

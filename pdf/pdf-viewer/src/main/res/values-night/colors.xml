@@ -1,5 +1,5 @@
-<!--
-  Copyright 2023 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!--
+  Copyright 2024 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -15,21 +15,7 @@
   -->
 
 <resources>
-
-    <color name="google_blue">#ff1a73e8</color>
-    <color name="google_white">#ffffffff</color>
-    <color name="google_grey">#ff3c4043</color>
-    <color name="text_default">#666</color>
-    <color name="text_error">#da4336</color>
-    <color name="selection_handles">#00aadd</color>
-    <color name="search_background">#241F17</color>
-    <color name="search_textbox">#3E382F</color>
-    <color name="search_texthint">#EBE1D4</color>
-    <color name="search_textColor">#EBE1D4</color>
-    <color name="search_count">#D1C5B4</color>
-    <color name="search_prev_button">#D1C5B4</color>
-    <color name="search_next_button">#D1C5B4</color>
-    <color name="search_close_button">#D1C5B4</color>
-
-
+    <color name="pdf_viewer_color_primary">@color/m3_sys_color_dark_primary</color>
+    <color name="pdf_viewer_color_on_surface">@color/m3_sys_color_dark_on_surface</color>
+    <color name="pdf_viewer_color_on_error">@color/m3_sys_color_dark_on_error</color>
 </resources>
