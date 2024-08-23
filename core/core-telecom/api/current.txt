@@ -57,8 +57,9 @@ package androidx.core.telecom {
     property public abstract kotlinx.coroutines.flow.Flow<java.lang.Boolean> isMuted;
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpointCompat {
+  @RequiresApi(android.os.Build.VERSION_CODES.O) public final class CallEndpointCompat implements java.lang.Comparable<androidx.core.telecom.CallEndpointCompat> {
     ctor public CallEndpointCompat(CharSequence name, int type, android.os.ParcelUuid identifier);
+    method public int compareTo(androidx.core.telecom.CallEndpointCompat other);
     method public android.os.ParcelUuid getIdentifier();
     method public CharSequence getName();
     method public int getType();

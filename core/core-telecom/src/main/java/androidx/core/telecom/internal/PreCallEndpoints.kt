@@ -127,6 +127,8 @@ internal class PreCallEndpoints(
     }
 
     private fun updateClient() {
+        // Sort by endpoint type.  The first element has the highest priority!
+        mCurrentDevices.sort()
         mSendChannel.trySend(mCurrentDevices)
     }
 }

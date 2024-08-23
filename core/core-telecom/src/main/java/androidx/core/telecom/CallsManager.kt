@@ -361,6 +361,10 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * cancel() from the same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting
      * in.
      *
+     * Note: The endpoints emitted will be sorted by the [CallEndpointCompat.type] . See
+     * [CallEndpointCompat.compareTo] for the ordering. The first element in the list will be the
+     * recommended call endpoint to default to for the user.
+     *
      * @return a flow of [CallEndpointCompat]s that can be used for a new call session
      */
     public fun getAvailableStartingCallEndpoints(): Flow<List<CallEndpointCompat>> = callbackFlow {

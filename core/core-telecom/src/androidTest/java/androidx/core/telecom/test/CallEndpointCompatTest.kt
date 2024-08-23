@@ -18,14 +18,13 @@ package androidx.core.telecom.test
 
 import android.media.AudioDeviceInfo
 import android.os.Build.VERSION_CODES
-import android.os.ParcelUuid
 import android.telecom.CallAudioState
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.internal.utils.EndpointUtils
 import androidx.core.telecom.internal.utils.EndpointUtils.Companion.remapAudioDeviceTypeToCallEndpointType
+import androidx.core.telecom.test.utils.TestUtils
 import androidx.test.filters.SdkSuppress
-import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -36,7 +35,7 @@ class CallEndpointCompatTest {
     fun testCallEndpointConstructor() {
         val name = "Endpoint"
         val type = CallEndpointCompat.TYPE_EARPIECE
-        val identifier = ParcelUuid.fromString(UUID.randomUUID().toString())
+        val identifier = TestUtils.generateRandomUuid()
         val endpoint = CallEndpointCompat(name, type, identifier)
         assertEquals(name, endpoint.name)
         assertEquals(type, endpoint.type)
@@ -169,5 +168,65 @@ class CallEndpointCompatTest {
             CallEndpointCompat.TYPE_BLUETOOTH,
             remapAudioDeviceTypeToCallEndpointType(AudioDeviceInfo.TYPE_BLE_BROADCAST)
         )
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @Test
+    fun testDefaultSort() {
+        val highestPriorityEndpoint = CallEndpointCompat("F", CallEndpointCompat.TYPE_WIRED_HEADSET)
+        val second = CallEndpointCompat("E", CallEndpointCompat.TYPE_BLUETOOTH)
+        val third = CallEndpointCompat("D", CallEndpointCompat.TYPE_SPEAKER)
+        val fourth = CallEndpointCompat("C", CallEndpointCompat.TYPE_EARPIECE)
+        val fifth = CallEndpointCompat("B", CallEndpointCompat.TYPE_STREAMING)
+        val lowestPriorityEndpoint = CallEndpointCompat("A", CallEndpointCompat.TYPE_UNKNOWN)
+
+        val endpoints =
+            mutableListOf(
+                lowestPriorityEndpoint,
+                fourth,
+                second,
+                fifth,
+                third,
+                highestPriorityEndpoint
+            )
+
+        endpoints.sort()
+
+        assertEquals(highestPriorityEndpoint, endpoints[0])
+        assertEquals(second, endpoints[1])
+        assertEquals(third, endpoints[2])
+        assertEquals(fourth, endpoints[3])
+        assertEquals(fifth, endpoints[4])
+        assertEquals(lowestPriorityEndpoint, endpoints[5])
+    }
+
+    @SdkSuppress(minSdkVersion = VERSION_CODES.O)
+    @Test
+    fun testDefaultSortWithDuplicateTypes() {
+        val highestPriorityEndpoint = CallEndpointCompat("A", CallEndpointCompat.TYPE_BLUETOOTH)
+        val second = CallEndpointCompat("B", CallEndpointCompat.TYPE_BLUETOOTH)
+        val third = CallEndpointCompat("C", CallEndpointCompat.TYPE_BLUETOOTH)
+        val fourth = CallEndpointCompat("D", CallEndpointCompat.TYPE_BLUETOOTH)
+        val fifth = CallEndpointCompat("E", CallEndpointCompat.TYPE_BLUETOOTH)
+        val lowestPriorityEndpoint = CallEndpointCompat("F", CallEndpointCompat.TYPE_BLUETOOTH)
+
+        val endpoints =
+            mutableListOf(
+                lowestPriorityEndpoint,
+                fourth,
+                second,
+                fifth,
+                third,
+                highestPriorityEndpoint
+            )
+
+        endpoints.sort()
+
+        assertEquals(highestPriorityEndpoint, endpoints[0])
+        assertEquals(second, endpoints[1])
+        assertEquals(third, endpoints[2])
+        assertEquals(fourth, endpoints[3])
+        assertEquals(fifth, endpoints[4])
+        assertEquals(lowestPriorityEndpoint, endpoints[5])
     }
 }

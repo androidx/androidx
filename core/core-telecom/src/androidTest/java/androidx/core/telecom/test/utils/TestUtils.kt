@@ -22,6 +22,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
+import android.os.ParcelUuid
 import android.os.UserHandle
 import android.os.UserManager
 import android.telecom.Call
@@ -38,6 +39,7 @@ import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.FileInputStream
+import java.util.UUID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
@@ -289,6 +291,10 @@ object TestUtils {
     fun dumpTelecom() {
         Log.i(LOG_TAG, "telecom dumpsys=[${runShellCommand(COMMAND_DUMP_TELECOM)}]")
         Log.i(LOG_TAG, "defaultDialer=[${getDefaultDialer()}]")
+    }
+
+    fun generateRandomUuid(): ParcelUuid {
+        return ParcelUuid.fromString(UUID.randomUUID().toString())
     }
 
     @OptIn(ExperimentalAppActions::class)
