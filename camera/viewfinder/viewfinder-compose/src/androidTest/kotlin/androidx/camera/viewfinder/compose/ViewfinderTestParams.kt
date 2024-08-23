@@ -34,14 +34,17 @@ data class ViewfinderTestParams(
             else -> throw IllegalArgumentException("Invalid source rotation: $sourceRotation")
         },
     val implementationMode: ImplementationMode = ImplementationMode.EXTERNAL,
+    val isMirroredHorizontally: Boolean = false,
+    val isMirroredVertically: Boolean = false,
     val transformationInfo: TransformationInfo =
         TransformationInfo(
             sourceRotation = sourceRotation,
+            isSourceMirroredHorizontally = isMirroredHorizontally,
+            isSourceMirroredVertically = isMirroredVertically,
             cropRectLeft = 0,
             cropRectTop = 0,
             cropRectRight = sourceResolution.width,
             cropRectBottom = sourceResolution.height,
-            shouldMirror = false
         )
 ) {
     companion object {

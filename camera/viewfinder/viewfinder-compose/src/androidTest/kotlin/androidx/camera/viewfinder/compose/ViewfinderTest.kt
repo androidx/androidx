@@ -108,11 +108,12 @@ class ViewfinderTest {
                     transformationInfo =
                         TransformationInfo(
                             sourceRotation = 0,
+                            isSourceMirroredHorizontally = false,
+                            isSourceMirroredVertically = false,
                             cropRectLeft = 0,
-                            cropRectRight = 270,
                             cropRectTop = 0,
-                            cropRectBottom = 480,
-                            shouldMirror = false
+                            cropRectRight = 270,
+                            cropRectBottom = 480
                         ),
                     implementationMode = ImplementationMode.EXTERNAL,
                     coordinateTransformer = coordinateTransformer
