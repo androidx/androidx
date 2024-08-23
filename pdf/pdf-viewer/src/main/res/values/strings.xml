@@ -135,4 +135,7 @@
 
     <!-- Exception message when the PDF document was insufficient file contents -->
     <string name="needs_more_data">Insufficient data for processing the PDF document</string>
+
+    <!-- Error Message on PDF File Load Error -->
+    <string name="error_cannot_open_pdf">Can\'t open PDF file</string>
 </resources>
