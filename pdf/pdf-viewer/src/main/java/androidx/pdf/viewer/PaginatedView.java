@@ -284,22 +284,6 @@ public class PaginatedView extends AbstractPaginatedView {
     }
 
     @Override
-    public void onWindowFocusChanged(boolean hasWindowFocus) {
-        super.onWindowFocusChanged(hasWindowFocus);
-        if (getVisibility() == View.VISIBLE && mPageRangeHandler != null) {
-            mPageRangeHandler.adjustMaxPageToUpperVisibleRange();
-            if (getChildCount() > 0) {
-                for (PageMosaicView page : getChildViews()) {
-                    page.clearTiles();
-                    if (mPdfLoader != null) {
-                        mPdfLoader.cancelAllTileBitmaps(page.getPageNum());
-                    }
-                }
-            }
-        }
-    }
-
-    @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (mPageRangeHandler != null) {
