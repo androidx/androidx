@@ -18,10 +18,11 @@ package androidx.compose.material3
 
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.spring
+import androidx.compose.material3.tokens.ExpressiveMotionTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
+import androidx.compose.material3.tokens.StandardMotionTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -225,27 +226,45 @@ inline fun <reified T> MotionScheme.rememberSlowEffectsSpec() =
 fun standardMotionScheme(): MotionScheme =
     object : MotionScheme {
         override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = StandardSpatialDampingRatio, stiffness = 700f)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringDefaultSpatialDamping,
+                stiffness = StandardMotionTokens.SpringDefaultSpatialStiffness
+            )
         }
 
         override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = StandardSpatialDampingRatio, stiffness = 1400f)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringFastSpatialDamping,
+                stiffness = StandardMotionTokens.SpringFastSpatialStiffness
+            )
         }
 
         override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = StandardSpatialDampingRatio, stiffness = 300f)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringSlowSpatialDamping,
+                stiffness = StandardMotionTokens.SpringSlowSpatialStiffness
+            )
         }
 
         override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsDefaultStiffness)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringDefaultEffectsDamping,
+                stiffness = StandardMotionTokens.SpringDefaultEffectsStiffness
+            )
         }
 
         override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsFastStiffness)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringFastEffectsDamping,
+                stiffness = StandardMotionTokens.SpringFastEffectsStiffness
+            )
         }
 
         override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsSlowStiffness)
+            return spring(
+                dampingRatio = StandardMotionTokens.SpringSlowEffectsDamping,
+                stiffness = StandardMotionTokens.SpringSlowEffectsStiffness
+            )
         }
     }
 
@@ -254,27 +273,45 @@ fun standardMotionScheme(): MotionScheme =
 fun expressiveMotionScheme(): MotionScheme =
     object : MotionScheme {
         override fun <T> defaultSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = 0.8f, stiffness = 380f)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringDefaultSpatialDamping,
+                stiffness = ExpressiveMotionTokens.SpringDefaultSpatialStiffness
+            )
         }
 
         override fun <T> fastSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = 0.6f, stiffness = 800f)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringFastSpatialDamping,
+                stiffness = ExpressiveMotionTokens.SpringFastSpatialStiffness
+            )
         }
 
         override fun <T> slowSpatialSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = 0.8f, stiffness = 200f)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringSlowSpatialDamping,
+                stiffness = ExpressiveMotionTokens.SpringSlowSpatialStiffness
+            )
         }
 
         override fun <T> defaultEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsDefaultStiffness)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringDefaultEffectsDamping,
+                stiffness = ExpressiveMotionTokens.SpringDefaultEffectsStiffness
+            )
         }
 
         override fun <T> fastEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsFastStiffness)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringFastEffectsDamping,
+                stiffness = ExpressiveMotionTokens.SpringFastEffectsStiffness
+            )
         }
 
         override fun <T> slowEffectsSpec(): FiniteAnimationSpec<T> {
-            return spring(dampingRatio = EffectsDampingRatio, stiffness = EffectsSlowStiffness)
+            return spring(
+                dampingRatio = ExpressiveMotionTokens.SpringSlowEffectsDamping,
+                stiffness = ExpressiveMotionTokens.SpringSlowEffectsStiffness
+            )
         }
     }
 
@@ -323,12 +360,3 @@ internal inline fun <reified T> MotionScheme.fromToken(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 internal inline fun <reified T> MotionSchemeKeyTokens.value(): FiniteAnimationSpec<T> =
     MaterialTheme.motionScheme.fromToken(this)
-
-// Common effects damping and stiffness values for both Standard and Expressive
-private const val EffectsDampingRatio = Spring.DampingRatioNoBouncy
-private const val EffectsDefaultStiffness = 1600f
-private const val EffectsFastStiffness = 3800f
-private const val EffectsSlowStiffness = 800f
-
-// Common damping for Standard spatial specs
-private const val StandardSpatialDampingRatio = 0.9f
