@@ -25,47 +25,80 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.StreamId
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.withTimeout
 
 /**
- * Fake implementation of a [CaptureSequenceProcessor] that passes events to a [Channel].
+ * Fake implementation of a [CaptureSequenceProcessor] that records events and simulates some low
+ * level behavior.
  *
  * This allows kotlin tests to check sequences of interactions that dispatch in the background
  * without blocking between events.
  */
 public class FakeCaptureSequenceProcessor(
-    private val cameraId: CameraId = CameraId("test-camera"),
+    private val cameraId: CameraId = FakeCameraIds.default,
     private val defaultTemplate: RequestTemplate = RequestTemplate(1)
 ) : CaptureSequenceProcessor<Request, FakeCaptureSequence> {
+    private val debugId = debugIds.incrementAndGet()
     private val lock = Any()
     private val sequenceIds = atomic(0)
-    private val eventChannel = Channel<Event>(Channel.UNLIMITED)
 
-    @GuardedBy("lock") private var pendingSequence: CompletableDeferred<FakeCaptureSequence>? = null
+    @GuardedBy("lock") private val captureQueue = mutableListOf<FakeCaptureSequence>()
 
-    @GuardedBy("lock") private val queue: MutableList<FakeCaptureSequence> = mutableListOf()
+    @GuardedBy("lock") private var repeatingCapture: FakeCaptureSequence? = null
 
-    @GuardedBy("lock") private var repeatingRequestSequence: FakeCaptureSequence? = null
+    @GuardedBy("lock") private var shutdown = false
 
-    @GuardedBy("lock") private var _rejectRequests = false
+    @GuardedBy("lock") private val _events = mutableListOf<Event>()
 
-    public var rejectRequests: Boolean
-        get() = synchronized(lock) { _rejectRequests }
-        set(value) {
-            synchronized(lock) { _rejectRequests = value }
+    @GuardedBy("lock") private var nextEventIndex = 0
+    public val events: List<Event>
+        get() = synchronized(lock) { _events }
+
+    /** Get the next event from queue with an option to specify a timeout for tests. */
+    public fun nextEvent(): Event {
+        synchronized(lock) {
+            val eventIdx = nextEventIndex++
+            check(_events.size > 0) {
+                "Failed to get next event for $this, there have been no interactions."
+            }
+            check(eventIdx < _events.size) {
+                "Failed to get next event. Last event was ${events[eventIdx - 1]}"
+            }
+            return events[eventIdx]
         }
+    }
 
-    private var _surfaceMap: Map<StreamId, Surface> = emptyMap()
-    public var surfaceMap: Map<StreamId, Surface>
-        get() = synchronized(lock) { _surfaceMap }
+    public fun clearEvents() {
+        synchronized(lock) {
+            _events.clear()
+            nextEventIndex = 0
+        }
+    }
+
+    public var rejectBuild: Boolean = false
+        get() = synchronized(lock) { field }
+        set(value) = synchronized(lock) { field = value }
+
+    public var rejectSubmit: Boolean = false
+        get() = synchronized(lock) { field }
+        set(value) = synchronized(lock) { field = value }
+
+    public var surfaceMap: Map<StreamId, Surface> = emptyMap()
+        get() = synchronized(lock) { field }
         set(value) =
             synchronized(lock) {
-                _surfaceMap = value
+                field = value
                 println("Configured surfaceMap for $this")
             }
+
+    @Volatile public var throwOnBuild: Boolean = false
+
+    @Volatile public var throwOnSubmit: Boolean = false
+
+    @Volatile public var throwOnStop: Boolean = false
+
+    @Volatile public var throwOnAbort: Boolean = false
+
+    @Volatile public var throwOnShutdown: Boolean = false
 
     override fun build(
         isRepeating: Boolean,
@@ -75,136 +108,157 @@ public class FakeCaptureSequenceProcessor(
         listeners: List<Request.Listener>,
         sequenceListener: CaptureSequenceListener
     ): FakeCaptureSequence? {
-        return FakeCaptureSequence.create(
-            cameraId = cameraId,
-            repeating = isRepeating,
-            requests = requests,
-            surfaceMap = surfaceMap,
-            defaultTemplate = defaultTemplate,
-            defaultParameters = defaultParameters,
-            requiredParameters = requiredParameters,
-            listeners = listeners,
-            sequenceListener = sequenceListener
-        )
+        throwTestExceptionIf(throwOnBuild)
+
+        val captureSequence =
+            FakeCaptureSequence.create(
+                cameraId,
+                isRepeating,
+                requests,
+                surfaceMap,
+                defaultTemplate,
+                defaultParameters,
+                requiredParameters,
+                listeners,
+                sequenceListener
+            )
+        synchronized(lock) {
+            if (rejectBuild || shutdown || captureSequence == null) {
+                println("$this: BuildRejected $captureSequence")
+                _events.add(BuildRejected(captureSequence))
+                return null
+            }
+        }
+        println("$this: Build $captureSequence")
+        return captureSequence
     }
 
     override fun submit(captureSequence: FakeCaptureSequence): Int {
-        println("submit $captureSequence")
+        throwTestExceptionIf(throwOnSubmit)
         synchronized(lock) {
-            if (rejectRequests) {
-                check(
-                    eventChannel
-                        .trySend(Event(requestSequence = captureSequence, rejected = true))
-                        .isSuccess
-                )
+            if (rejectSubmit || shutdown) {
+                println("$this: SubmitRejected $captureSequence")
+                _events.add(SubmitRejected(captureSequence))
                 return -1
             }
-            queue.add(captureSequence)
+            captureQueue.add(captureSequence)
             if (captureSequence.repeating) {
-                repeatingRequestSequence = captureSequence
+                repeatingCapture = captureSequence
             }
-            check(
-                eventChannel
-                    .trySend(Event(requestSequence = captureSequence, submit = true))
-                    .isSuccess
-            )
-            // If there is a non-null pending sequence, make sure we complete it here.
-            pendingSequence?.also {
-                pendingSequence = null
-                it.complete(captureSequence)
-            }
+            println("$this: Submit $captureSequence")
+            _events.add(Submit(captureSequence))
             return sequenceIds.incrementAndGet()
         }
     }
 
     override fun abortCaptures() {
+        throwTestExceptionIf(throwOnAbort)
+
         val requestSequencesToAbort: List<FakeCaptureSequence>
         synchronized(lock) {
-            requestSequencesToAbort = queue.toList()
-            queue.clear()
-            check(eventChannel.trySend(Event(abort = true)).isSuccess)
+            println("$this: AbortCaptures")
+            _events.add(AbortCaptures)
+            requestSequencesToAbort = captureQueue.toList()
+            captureQueue.clear()
         }
+
         for (sequence in requestSequencesToAbort) {
             sequence.invokeOnSequenceAborted()
         }
     }
 
     override fun stopRepeating() {
-        val requestSequence =
-            synchronized(lock) {
-                check(eventChannel.trySend(Event(stop = true)).isSuccess)
-                repeatingRequestSequence.also { repeatingRequestSequence = null }
-            }
-        requestSequence?.invokeOnSequenceAborted()
+        throwTestExceptionIf(throwOnStop)
+        synchronized(lock) {
+            println("$this: StopRepeating")
+            _events.add(StopRepeating)
+            repeatingCapture = null
+        }
     }
 
     override suspend fun shutdown() {
+        throwTestExceptionIf(throwOnShutdown)
         synchronized(lock) {
-            rejectRequests = true
-            check(eventChannel.trySend(Event(close = true)).isSuccess)
+            println("$this: Shutdown")
+            shutdown = true
+            _events.add(Shutdown)
         }
     }
 
-    /** Get the next event from queue with an option to specify a timeout for tests. */
-    public suspend fun nextEvent(timeMillis: Long = 500): Event =
-        withTimeout(timeMillis) { eventChannel.receive() }
+    override fun toString(): String {
+        return "FakeCaptureSequenceProcessor-$debugId($cameraId)"
+    }
 
-    public suspend fun nextRequestSequence(): FakeCaptureSequence {
-        while (true) {
-            val pending: Deferred<FakeCaptureSequence>
-            synchronized(lock) {
-                var sequence = queue.removeFirstOrNull()
-                if (sequence == null) {
-                    sequence = repeatingRequestSequence
-                }
-                if (sequence != null) {
-                    return sequence
-                }
+    /**
+     * Get the next CaptureSequence from this CaptureSequenceProcessor. If there are non-repeating
+     * capture requests in the queue, remove the first item from the queue. Otherwise, return the
+     * current repeating CaptureSequence, or null if there are no active CaptureSequences.
+     */
+    internal fun nextCaptureSequence(): FakeCaptureSequence? =
+        synchronized(lock) { captureQueue.removeFirstOrNull() ?: repeatingCapture }
 
-                if (pendingSequence == null) {
-                    pendingSequence = CompletableDeferred()
-                }
-                pending = pendingSequence!!
-            }
-
-            pending.await()
+    private fun throwTestExceptionIf(condition: Boolean) {
+        if (condition) {
+            throw RuntimeException("Test Exception")
         }
     }
 
-    /** TODO: It's probably better to model this as a sealed class. */
-    public data class Event(
-        val requestSequence: FakeCaptureSequence? = null,
-        val rejected: Boolean = false,
-        val abort: Boolean = false,
-        val close: Boolean = false,
-        val stop: Boolean = false,
-        val submit: Boolean = false
-    )
+    public open class Event
+
+    public object Shutdown : Event()
+
+    public object StopRepeating : Event()
+
+    public object AbortCaptures : Event()
+
+    public data class BuildRejected(val captureSequence: FakeCaptureSequence?) : Event()
+
+    public data class SubmitRejected(val captureSequence: FakeCaptureSequence) : Event()
+
+    public data class Submit(val captureSequence: FakeCaptureSequence) : Event()
 
     public companion object {
-        public suspend fun FakeCaptureSequenceProcessor.awaitEvent(
-            request: Request? = null,
-            filter: (event: Event) -> Boolean
-        ): Event {
+        private val debugIds = atomic(0)
+        public val Event.requests: List<Request>
+            get() = checkNotNull(captureSequence).captureRequestList
 
-            var event: Event
-            var loopCount = 0
-            while (loopCount < 10) {
-                loopCount++
-                event = this.nextEvent()
+        public val Event.requiredParameters: Map<*, Any?>
+            get() = checkNotNull(captureSequence).requiredParameters
 
-                if (request != null) {
-                    val contains =
-                        event.requestSequence?.captureRequestList?.contains(request) ?: false
-                    if (filter(event) && contains) {
-                        return event
-                    }
-                } else if (filter(event)) {
-                    return event
+        public val Event.defaultParameters: Map<*, Any?>
+            get() = checkNotNull(captureSequence).defaultParameters
+
+        // TODO: Decide if these should only work on successful submit or not.
+        public val Event.isRepeating: Boolean
+            get() = (this as? Submit)?.captureSequence?.repeating ?: false
+
+        public val Event.isCapture: Boolean
+            get() = (this as? Submit)?.captureSequence?.repeating == false
+
+        public val Event.isRejected: Boolean
+            get() =
+                when (this) {
+                    is BuildRejected,
+                    is SubmitRejected -> true
+                    else -> false
                 }
-            }
 
-            throw IllegalStateException("Failed to observe a submit event containing $request")
-        }
+        public val Event.isAbort: Boolean
+            get() = this is AbortCaptures
+
+        public val Event.isStopRepeating: Boolean
+            get() = this is StopRepeating
+
+        public val Event.isClose: Boolean
+            get() = this is Shutdown
+
+        public val Event.captureSequence: FakeCaptureSequence?
+            get() =
+                when (this) {
+                    is Submit -> captureSequence
+                    is BuildRejected -> captureSequence
+                    is SubmitRejected -> captureSequence
+                    else -> null
+                }
     }
 }

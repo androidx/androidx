@@ -27,6 +27,10 @@ import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isCapture
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isRepeating
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requests
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -147,14 +151,17 @@ internal class Controller3ALock3ATest {
 
         // We not check if the correct sequence of requests were submitted by lock3A call. The
         // request should be a repeating request to lock AE.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // The second request should be a single request to lock AF.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event2.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
     }
 
     @Test
@@ -199,10 +206,12 @@ internal class Controller3ALock3ATest {
 
         // Check the correctness of the requests submitted by lock3A.
         // One repeating request was sent to monitor the state of AE to get converged.
-        captureSequenceProcessor.nextEvent().requestSequence
-        // Once AE is converged, another repeatingrequest is sent to lock AE.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.isRepeating).isTrue()
+
+        // Once AE is converged, another repeating request is sent to lock AE.
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         globalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -228,9 +237,12 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // A single request to lock AF must have been used as well.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
         globalScope.cancel()
     }
 
@@ -275,8 +287,8 @@ internal class Controller3ALock3ATest {
 
         // For a new AE scan we first send a request to unlock AE just in case it was
         // previously or internally locked.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, false)
 
         globalScope.launch {
             listener3A.onRequestSequenceCreated(
@@ -302,14 +314,17 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // There should be one more request to lock AE after new scan is done.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // And one request to lock AF.
-        val request3 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event3.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
 
         globalScope.cancel()
     }
@@ -378,14 +393,17 @@ internal class Controller3ALock3ATest {
         // There should be one request to monitor AF to finish it's scan.
         captureSequenceProcessor.nextEvent()
         // One request to lock AE
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // And one request to lock AF.
-        val request3 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event3.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
         globalScope.cancel()
     }
 
@@ -451,21 +469,27 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+            )
         // There should be one request to monitor AF to finish it's scan.
         captureSequenceProcessor.nextEvent()
 
         // There should be one request to monitor lock AE.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // And one request to lock AF.
-        val request3 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event3.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
         globalScope.cancel()
     }
 
@@ -532,29 +556,26 @@ internal class Controller3ALock3ATest {
 
         // There should be one request to monitor AF to finish it's scan.
         val event = captureSequenceProcessor.nextEvent()
-        assertThat(event.requestSequence!!.repeating).isTrue()
-        assertThat(event.rejected).isFalse()
-        assertThat(event.abort).isFalse()
-        assertThat(event.close).isFalse()
-        assertThat(event.submit).isTrue()
+        assertThat(event.isRepeating).isTrue()
 
-        // One request to lock AE
+        // One request to lock AE (Repeating)
         val request2Event = captureSequenceProcessor.nextEvent()
-        assertThat(request2Event.requestSequence!!.repeating).isTrue()
-        assertThat(request2Event.submit).isTrue()
-        val request2 = request2Event.requestSequence!!
-        assertThat(request2).isNotNull()
-        assertThat(request2.requiredParameters).isNotEmpty()
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        assertThat(request2Event.isRepeating).isTrue()
+        assertThat(request2Event.requests.size).isEqualTo(1)
+        assertThat(request2Event.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // And one request to lock AF.
         val request3Event = captureSequenceProcessor.nextEvent()
-        assertThat(request3Event.requestSequence!!.repeating).isFalse()
-        assertThat(request3Event.submit).isTrue()
-        val request3 = request3Event.requestSequence!!
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request3.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        assertThat(request3Event.isCapture).isTrue()
+        assertThat(request3Event.requests.size).isEqualTo(1)
+        assertThat(request3Event.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(request3Event.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
 
         globalScope.cancel()
     }
@@ -620,22 +641,29 @@ internal class Controller3ALock3ATest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // One request to cancel AF to start a new scan.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+            )
+
         // There should be one request to unlock AE and monitor the current AF scan to finish.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, false)
 
         // There should be one request to monitor lock AE.
-        val request3 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request3!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event3 = captureSequenceProcessor.nextEvent()
+        assertThat(event3.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // And one request to lock AF.
-        val request4 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request4!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request4.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event4 = captureSequenceProcessor.nextEvent()
+        assertThat(event4.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
+        assertThat(event4.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
         globalScope.cancel()
     }
 
@@ -713,14 +741,17 @@ internal class Controller3ALock3ATest {
 
         // We not check if the correct sequence of requests were submitted by lock3A call. The
         // request should be a repeating request to lock AE.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // The second request should be a single request to lock AF.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
-        assertThat(request2.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+        val event2 = captureSequenceProcessor.nextEvent()
+        assertThat(event2.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AF_TRIGGER,
+                CaptureRequest.CONTROL_AF_TRIGGER_START
+            )
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
     }
 
     @Test

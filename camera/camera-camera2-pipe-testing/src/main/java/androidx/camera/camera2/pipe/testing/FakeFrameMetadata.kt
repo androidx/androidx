@@ -35,7 +35,7 @@ internal fun nextFakeFrameNumber(): FrameNumber = FrameNumber(fakeFrameNumbers.i
 public class FakeFrameMetadata(
     private val resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
     extraResultMetadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-    override val camera: CameraId = nextFakeCameraId(),
+    override val camera: CameraId = FakeCameraIds.default,
     override val frameNumber: FrameNumber = nextFakeFrameNumber(),
     override val extraMetadata: Map<*, Any?> = emptyMap<Any, Any>()
 ) : FakeMetadata(extraResultMetadata), FrameMetadata {

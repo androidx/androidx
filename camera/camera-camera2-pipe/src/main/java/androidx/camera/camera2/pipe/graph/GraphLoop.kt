@@ -373,8 +373,8 @@ internal class GraphLoop(
                 if (success) {
                     lastRepeatingRequest = command.request
                     commands.removeAt(idx)
+                    commands.removeUpTo(idx) { it is StartRepeating }
                 }
-                commands.removeUpTo(idx) { it is StartRepeating }
             }
             is SubmitCapture -> {
                 if (!_captureProcessingEnabled.value) {
