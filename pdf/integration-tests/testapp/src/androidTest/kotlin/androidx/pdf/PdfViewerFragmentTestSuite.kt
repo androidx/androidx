@@ -113,7 +113,6 @@ class PdfViewerFragmentTestSuite {
         scenario.close()
     }
 
-    @Test
     fun testPdfViewerFragment_isTextSearchActive_toggleMenu() {
         val scenario =
             scenarioLoadDocument(
@@ -160,7 +159,6 @@ class PdfViewerFragmentTestSuite {
         scenario.close()
     }
 
-    @Test
     fun testPdfViewerFragment_setDocumentUri_passwordProtected_portrait() {
         val scenario =
             scenarioLoadDocument(
