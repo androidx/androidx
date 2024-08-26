@@ -33,8 +33,7 @@ import androidx.pdf.models.SelectionBoundary;
 import androidx.pdf.service.PdfDocumentRemoteProto;
 import androidx.pdf.util.TileBoard.TileInfo;
 
-import com.google.common.collect.ImmutableList;
-
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -650,7 +649,7 @@ public class PdfPageLoader {
         protected List<GotoLink> doInBackground(PdfDocumentRemoteProto pdfDocument)
                 throws RemoteException {
             if (TaskDenyList.sDisableLinks) {
-                return ImmutableList.of();
+                return Collections.emptyList();
             } else {
                 return pdfDocument.getPdfDocumentRemote().getPageGotoLinks(mPageNum);
             }

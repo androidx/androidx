@@ -31,6 +31,7 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.pdf.R;
 import androidx.pdf.util.Accessibility;
@@ -43,7 +44,6 @@ import androidx.pdf.viewer.loader.PdfLoader;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
-import javax.annotation.Nullable;
 
 /**
  * A View that has a search query box, find-next and find-previous button, useful for finding

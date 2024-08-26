@@ -26,8 +26,7 @@ import android.os.ext.SdkExtensions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-
-import com.google.common.base.Preconditions;
+import androidx.core.util.Preconditions;
 
 /**
  * Represents the content associated with the destination where a goto link is directing.
