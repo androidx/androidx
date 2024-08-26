@@ -33,6 +33,9 @@ dependencies {
     api(libs.kotlinStdlib)
     api(project(":pdf:pdf-viewer"))
     api("androidx.core:core:1.13.1")
+
+    implementation("androidx.fragment:fragment-ktx:1.8.1")
+    implementation("com.google.android.material:material:1.11.0")
 }
 
 android {
