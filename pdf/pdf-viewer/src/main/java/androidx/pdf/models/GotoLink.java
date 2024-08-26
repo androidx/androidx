@@ -27,8 +27,7 @@ import android.os.ext.SdkExtensions;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-
-import com.google.common.base.Preconditions;
+import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;

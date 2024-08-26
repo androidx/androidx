@@ -24,10 +24,10 @@ import androidx.pdf.data.FutureValues.Converter;
 import androidx.pdf.data.FutureValues.SettableFutureValue;
 import androidx.pdf.util.ThreadUtils;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Helpers to create {@link FutureValue}s that are ready to be used for UI operations: their
@@ -58,8 +58,16 @@ import java.util.concurrent.Executors;
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class UiFutureValues {
     private static final String TAG = UiFutureValues.class.getSimpleName();
+
     private static final Executor DEFAULT_EXECUTOR = Executors.newFixedThreadPool(4,
-            new ThreadFactoryBuilder().setNameFormat("PdfViewer-" + TAG + "-%d").build());
+            new ThreadFactory() {
+                private final AtomicInteger mCount = new AtomicInteger(1);
+
+                @Override
+                public Thread newThread(Runnable r) {
+                    return new Thread(r, "PdfViewer-" + TAG + "-" + mCount.getAndIncrement());
+                }
+            });
     private static Executor sExecutor = DEFAULT_EXECUTOR;
 
     private UiFutureValues() {
