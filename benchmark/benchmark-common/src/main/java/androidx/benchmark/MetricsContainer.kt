@@ -136,30 +136,42 @@ internal class MetricsContainer(
      * Call exactly once at the end of a benchmark.
      */
     fun captureFinished(maxIterations: Int): List<MetricResult> {
+        val results =
+            names.mapIndexed { index, name ->
+                val metricData =
+                    List(repeatCount) {
+                        // convert to floats and divide by iter count here for efficiency
+                        data[it][index] / maxIterations.toDouble()
+                    }
+                metricData.chunked(10).forEachIndexed { chunkNum, chunk ->
+                    Log.d(
+                        BenchmarkState.TAG,
+                        name +
+                            "[%2d:%2d]: %s"
+                                .format(
+                                    chunkNum * 10,
+                                    (chunkNum + 1) * 10,
+                                    chunk.joinToString(" ") { it.toLong().toString() }
+                                )
+                    )
+                }
+                MetricResult(name, metricData)
+            }
+
+        val metricTraceLabels = names.map { "metric: $it" }
         for (i in 0..repeatTiming.lastIndex step 2) {
-            InMemoryTracing.beginSection("measurement ${i / 2}", nanoTime = repeatTiming[i])
+            val measurementIndex = i / 2
+            InMemoryTracing.beginSection(
+                "measurement $measurementIndex",
+                nanoTime = repeatTiming[i],
+                counterNames = metricTraceLabels,
+                counterValues = results.map { it.data[measurementIndex] }
+            )
             InMemoryTracing.endSection(nanoTime = repeatTiming[i + 1])
         }
+        // to clarify when measurement ends, reset metrics to 0
+        metricTraceLabels.forEach { InMemoryTracing.counter(it, 0.0, repeatTiming.last()) }
 
-        return names.mapIndexed { index, name ->
-            val metricData =
-                List(repeatCount) {
-                    // convert to floats and divide by iter count here for efficiency
-                    data[it][index] / maxIterations.toDouble()
-                }
-            metricData.chunked(10).forEachIndexed { chunkNum, chunk ->
-                Log.d(
-                    BenchmarkState.TAG,
-                    name +
-                        "[%2d:%2d]: %s"
-                            .format(
-                                chunkNum * 10,
-                                (chunkNum + 1) * 10,
-                                chunk.joinToString(" ") { it.toLong().toString() }
-                            )
-                )
-            }
-            MetricResult(name, metricData)
-        }
+        return results
     }
 }
