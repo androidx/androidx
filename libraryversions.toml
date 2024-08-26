@@ -1,5 +1,5 @@
 [versions]
-ACTIVITY = "1.10.0-alpha01"
+ACTIVITY = "1.10.0-alpha02"
 ANNOTATION = "1.9.0-alpha02"
 ANNOTATION_EXPERIMENTAL = "1.5.0-alpha01"
 APPCOMPAT = "1.8.0-alpha01"
