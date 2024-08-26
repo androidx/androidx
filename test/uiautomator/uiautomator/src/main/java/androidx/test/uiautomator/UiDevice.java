@@ -481,7 +481,8 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Presses one or more keys.
+     * Presses one or more keys. Keys that change meta state are supported, and will apply their
+     * meta state to following keys.
      * <br/>
      * For example, you can simulate taking a screenshot on the device by pressing both the
      * power and volume down keys.
@@ -497,7 +498,8 @@ public class UiDevice implements Searchable {
     }
 
     /**
-     * Presses one or more keys.
+     * Presses one or more keys. Keys that change meta state are supported, and will apply their
+     * meta state to following keys.
      * <br/>
      * For example, you can simulate taking a screenshot on the device by pressing both the
      * power and volume down keys.
