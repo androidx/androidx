@@ -39,8 +39,6 @@ dependencies {
     }
     implementation(libs.xerces)
 
-    implementation(libs.ktfmt)
-    implementation(libs.kotlinCoroutinesCore)
     implementation(libs.shadow) // used by BundleInsideHelper.kt
     api(libs.apacheAnt) // used in AarManifestTransformerTask.kt for unziping
     implementation(libs.toml)
