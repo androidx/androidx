@@ -49,36 +49,32 @@ internal class SurfaceControlUtils {
             var surfaceView: SurfaceView? = null
             val destroyLatch = CountDownLatch(1)
             val scenario =
-                ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                    .moveToState(Lifecycle.State.CREATED)
-                    .onActivity {
-                        it.setDestroyCallback { destroyLatch.countDown() }
-                        val callback =
-                            object : SurfaceHolder.Callback {
-                                override fun surfaceCreated(sh: SurfaceHolder) {
-                                    surfaceView = it.mSurfaceView
-                                    onSurfaceCreated(surfaceView!!, setupLatch)
-                                }
-
-                                override fun surfaceChanged(
-                                    holder: SurfaceHolder,
-                                    format: Int,
-                                    width: Int,
-                                    height: Int
-                                ) {
-                                    // NO-OP
-                                }
-
-                                override fun surfaceDestroyed(holder: SurfaceHolder) {
-                                    // NO-OP
-                                }
+                ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+                    it.setDestroyCallback { destroyLatch.countDown() }
+                    val callback =
+                        object : SurfaceHolder.Callback {
+                            override fun surfaceCreated(sh: SurfaceHolder) {
+                                surfaceView = it.mSurfaceView
+                                onSurfaceCreated(surfaceView!!, setupLatch)
                             }
 
-                        it.addSurface(it.mSurfaceView, callback)
-                        surfaceView = it.mSurfaceView
-                    }
+                            override fun surfaceChanged(
+                                holder: SurfaceHolder,
+                                format: Int,
+                                width: Int,
+                                height: Int
+                            ) {
+                                // NO-OP
+                            }
 
-            scenario.moveToState(Lifecycle.State.RESUMED)
+                            override fun surfaceDestroyed(holder: SurfaceHolder) {
+                                // NO-OP
+                            }
+                        }
+
+                    it.addSurface(it.mSurfaceView, callback)
+                    surfaceView = it.mSurfaceView
+                }
 
             Assert.assertTrue(setupLatch.await(3000, TimeUnit.MILLISECONDS))
             val coords = intArrayOf(0, 0)

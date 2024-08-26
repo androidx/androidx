@@ -137,9 +137,7 @@ class SurfaceControlWrapperTest {
     fun testSurfaceTransactionOnCompleteCallback() {
         val listener = TransactionOnCompleteListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -149,8 +147,6 @@ class SurfaceControlWrapperTest {
                     .addTransactionCompletedListener(listener)
                     .commit()
             }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener.mLatch.await(3, TimeUnit.SECONDS)
             assertEquals(0, listener.mLatch.count)
@@ -167,9 +163,7 @@ class SurfaceControlWrapperTest {
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -179,7 +173,6 @@ class SurfaceControlWrapperTest {
                     .addTransactionCommittedListener(executor!!, listener)
                     .commit()
             }
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener.mLatch.await(3, TimeUnit.SECONDS)
             assertEquals(0, listener.mLatch.count)
@@ -197,9 +190,7 @@ class SurfaceControlWrapperTest {
         val listener = TransactionOnCommitListener()
         val listener2 = TransactionOnCommitListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -210,8 +201,6 @@ class SurfaceControlWrapperTest {
                     .addTransactionCommittedListener(executor!!, listener2)
                     .commit()
             }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener.mLatch.await(3, TimeUnit.SECONDS)
             listener2.mLatch.await(3, TimeUnit.SECONDS)
@@ -234,9 +223,7 @@ class SurfaceControlWrapperTest {
         val listener1 = TransactionOnCommitListener()
         val listener2 = TransactionOnCompleteListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         val destroyLatch = CountDownLatch(1)
         try {
@@ -247,8 +234,6 @@ class SurfaceControlWrapperTest {
                     .addTransactionCompletedListener(listener2)
                     .commit()
             }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener1.mLatch.await(3, TimeUnit.SECONDS)
             listener2.mLatch.await(3, TimeUnit.SECONDS)
@@ -852,39 +837,37 @@ class SurfaceControlWrapperTest {
         var scCompat: SurfaceControlWrapper? = null
         val listener = TransactionOnCompleteListener()
         val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    val callback =
-                        object : SurfaceHolderCallback() {
-                            override fun surfaceCreated(sh: SurfaceHolder) {
-                                scCompat =
-                                    SurfaceControlWrapper.Builder()
-                                        .setParent(it.getSurfaceView().holder.surface)
-                                        .setDebugName("SurfaceControlCompatTest")
-                                        .build()
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            scCompat =
+                                SurfaceControlWrapper.Builder()
+                                    .setParent(it.getSurfaceView().holder.surface)
+                                    .setDebugName("SurfaceControlCompatTest")
+                                    .build()
 
-                                // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                                val buffer =
-                                    SurfaceControlUtils.getSolidBuffer(
-                                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                                        Color.BLUE
-                                    )
+                            // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                            val buffer =
+                                SurfaceControlUtils.getSolidBuffer(
+                                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                    Color.BLUE
+                                )
 
-                                SurfaceControlWrapper.Transaction()
-                                    .addTransactionCompletedListener(listener)
-                                    .setBuffer(scCompat!!, buffer)
-                                    .setVisibility(scCompat!!, true)
-                                    .setCrop(scCompat!!, Rect(20, 30, 90, 60))
-                                    .commit()
-                            }
+                            SurfaceControlWrapper.Transaction()
+                                .addTransactionCompletedListener(listener)
+                                .setBuffer(scCompat!!, buffer)
+                                .setVisibility(scCompat!!, true)
+                                .setCrop(scCompat!!, Rect(20, 30, 90, 60))
+                                .commit()
                         }
+                    }
 
-                    it.addSurface(it.mSurfaceView, callback)
-                }
+                it.addSurface(it.mSurfaceView, callback)
+            }
 
-        scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+        scenario.onActivity {
             assert(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
             SurfaceControlUtils.validateOutput { bitmap ->
                 val coord = intArrayOf(0, 0)
