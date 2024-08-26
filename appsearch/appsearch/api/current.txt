@@ -845,6 +845,14 @@ package androidx.appsearch.app {
 
 }
 
+package androidx.appsearch.ast {
+
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public interface Node {
+    method public default java.util.List<androidx.appsearch.ast.Node!> getChildren();
+  }
+
+}
+
 package androidx.appsearch.exceptions {
 
   public class AppSearchException extends java.lang.Exception {

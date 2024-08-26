@@ -139,4 +139,11 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_ENTERPRISE_EMPTY_BATCH_RESULT_FIX)
                 .isEqualTo("com.android.appsearch.flags.enable_enterprise_empty_batch_result_fix");
     }
+
+    @Test
+    public void testFlagValue_enableAbstractSyntaxTree() {
+        assertThat(Flags.FLAG_ENABLE_ABSTRACT_SYNTAX_TREES)
+                .isEqualTo("com.android.appsearch.flags"
+                        + ".enable_abstract_syntax_trees");
+    }
 }
