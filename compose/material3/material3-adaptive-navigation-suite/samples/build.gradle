@@ -44,7 +44,7 @@ dependencies {
     implementation(project(":compose:material3:material3-adaptive-navigation-suite"))
     implementation("androidx.compose.ui:ui-util:1.6.0-rc01")
     implementation("androidx.compose.ui:ui-tooling-preview:1.4.1")
-    implementation(project(":window:window-core"))
+    implementation("androidx.window:window-core:1.3.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.4.1")
 }
