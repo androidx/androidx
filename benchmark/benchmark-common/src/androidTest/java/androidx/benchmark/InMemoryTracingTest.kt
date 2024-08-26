@@ -22,6 +22,7 @@ import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
@@ -81,7 +82,7 @@ class InMemoryTracingTest {
 
         // verify events
         trace.packet[1].apply {
-            assert(timestamp in beforeTime..afterTime)
+            assertTrue(timestamp in beforeTime..afterTime)
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
@@ -99,7 +100,7 @@ class InMemoryTracingTest {
             )
         }
         trace.packet[2].apply {
-            assert(timestamp in beforeTime..afterTime)
+            assertTrue(timestamp in beforeTime..afterTime)
             assertEquals(
                 TracePacket(
                     timestamp = timestamp,
