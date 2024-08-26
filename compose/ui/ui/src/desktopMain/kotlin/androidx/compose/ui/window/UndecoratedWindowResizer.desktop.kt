@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerEventType
@@ -42,7 +41,7 @@ internal val DefaultBorderThickness = 8.dp
 
 internal class UndecoratedWindowResizer(
     private val window: Window,
-    var borderThickness: Dp = DefaultBorderThickness
+    private var borderThickness: Dp = DefaultBorderThickness
 ) {
     var enabled: Boolean by mutableStateOf(false)
 
@@ -102,20 +101,21 @@ internal class UndecoratedWindowResizer(
                 val change = event.changes.first()
                 val changedToPressed = !change.previousPressed && change.pressed
 
-                if (event.buttons.isPrimaryPressed && changedToPressed) {
-                    initialPointPos = MouseInfo.getPointerInfo().location
+                val mouseLocation = mouseLocationOnScreen()
+                if (event.buttons.isPrimaryPressed && changedToPressed && (mouseLocation != null)) {
+                    initialPointPos = mouseLocation
                     initialWindowPos = Point(window.x, window.y)
                     initialWindowSize = Dimension(window.width, window.height)
                     isResizing = true
                 }
 
-                if (!event.buttons.isPrimaryPressed) {
+                if (!event.buttons.isPrimaryPressed || (mouseLocation == null)) {
                     isResizing = false
                 }
 
-                if (event.type == PointerEventType.Move) {
+                if ((event.type == PointerEventType.Move) && (mouseLocation != null)) {
                     if (isResizing) {
-                        resize(sides)
+                        resize(sides, mouseLocation)
                     }
                 }
             }
@@ -131,12 +131,10 @@ internal class UndecoratedWindowResizer(
         }
     )
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun Modifier.cursor(awtCursorId: Int) =
         pointerHoverIcon(PointerIcon(Cursor(awtCursorId)))
 
-    private fun resize(sides: Int) {
-        val pointPos = MouseInfo.getPointerInfo().location
+    private fun resize(sides: Int, pointPos: Point) {
         val diffX = pointPos.x - initialPointPos.x
         val diffY = pointPos.y - initialPointPos.y
         var newXPos = window.x
@@ -144,35 +142,39 @@ internal class UndecoratedWindowResizer(
         var newWidth = window.width
         var newHeight = window.height
 
-        if (contains(sides, Side.Left)) {
+        fun Int.contains(value: Int) = this and value == value
+
+        if (sides.contains(Side.Left)) {
             newWidth = initialWindowSize.width - diffX
             newWidth = newWidth.coerceAtLeast(window.minimumSize.width)
             newXPos = initialWindowPos.x + initialWindowSize.width - newWidth
-        } else if (contains(sides, Side.Right)) {
+        } else if (sides.contains(Side.Right)) {
             newWidth = initialWindowSize.width + diffX
         }
-        if (contains(sides, Side.Top)) {
+        if (sides.contains(Side.Top)) {
             newHeight = initialWindowSize.height - diffY
             newHeight = newHeight.coerceAtLeast(window.minimumSize.height)
             newYPos = initialWindowPos.y + initialWindowSize.height - newHeight
-        } else if (contains(sides, Side.Bottom)) {
+        } else if (sides.contains(Side.Bottom)) {
             newHeight = initialWindowSize.height + diffY
         }
         window.setLocation(newXPos, newYPos)
         window.setSize(newWidth, newHeight)
     }
 
-    private fun contains(value: Int, other: Int): Boolean {
-        if (value and other == other) {
-            return true
-        }
-        return false
-    }
-
+    @Suppress("ConstPropertyName")
     private object Side {
-        val Left = 0x0001
-        val Top = 0x0010
-        val Right = 0x0100
-        val Bottom = 0x1000
+        const val Left = 0x0001
+        const val Top = 0x0010
+        const val Right = 0x0100
+        const val Bottom = 0x1000
     }
 }
+
+/**
+ * Returns the mouse pointer's location on the screen or `null` if none.
+ *
+ * Note that this can return null at any time, even if it previously returned a non-null value, and
+ * even during a mouse-dispatching event.
+ */
+private fun mouseLocationOnScreen(): Point? = MouseInfo.getPointerInfo()?.location
