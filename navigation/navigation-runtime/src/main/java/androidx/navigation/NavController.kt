@@ -1105,12 +1105,58 @@ public open class NavController(
             // Nothing to update
             return
         }
-        // First determine what the current resumed destination is and, if and only if
-        // the current resumed destination is a FloatingWindow, what destinations are
-        // underneath it that must remain started.
-        var nextResumed: NavDestination? = backStack.last().destination
+        // Lifecycle can be split into three layers:
+        // 1. Resumed - these are the topmost destination(s) that the user can interact with
+        // 2. Started - these destinations are visible, but are underneath resumed destinations
+        // 3. Created - these destinations are not visible or on the process of being animated out
+
+        // So first, we need to determine which destinations should be resumed and started
+        // This is done by looking at the two special interfaces we have:
+        // - FloatingWindow indicates a destination that is above all other destinations, leaving
+        //   destinations below it visible, but not interactable. These are always only on the
+        //   top of the back stack
+        // - SupportingPane indicates a destination that sits alongside the previous destination
+        //   and shares the same lifecycle (e.g., both will be resumed, started, or created)
+
+        // This means no matter what, the topmost destination should be able to be resumed,
+        // then we add in all of the destinations that also need to be resumed (if the
+        // topmost screen is a SupportingPane)
+        val topmostDestination = backStack.last().destination
+        val nextResumed: MutableList<NavDestination> = mutableListOf(topmostDestination)
+        if (topmostDestination is SupportingPane) {
+            // A special note for destinations that are marked as both a FloatingWindow and a
+            // SupportingPane: a supporting floating window destination can only support other
+            // floating windows - if a supporting floating window destination is above
+            // a regular destination, the regular destination will *not* be resumed, but instead
+            // follow the normal rules between floating windows and regular destinations and only
+            // be started.
+            val onlyAllowFloatingWindows = topmostDestination is FloatingWindow
+            val iterator = backStack.reversed().drop(1).iterator()
+            while (iterator.hasNext()) {
+                val destination = iterator.next().destination
+                if (
+                    onlyAllowFloatingWindows &&
+                        destination !is FloatingWindow &&
+                        destination !is NavGraph
+                ) {
+                    break
+                }
+                // Add all visible destinations (e.g., SupportingDestination destinations, their
+                // NavGraphs, and the screen directly below all SupportingDestination destinations)
+                // to nextResumed
+                nextResumed.add(destination)
+                // break if we find first visible screen
+                if (destination !is SupportingPane && destination !is NavGraph) {
+                    break
+                }
+            }
+        }
+
+        // Now that we've marked all of the resumed destinations, we continue to iterate
+        // through the back stack to find any destinations that should be started - ones that are
+        // below FloatingWindow destinations
         val nextStarted: MutableList<NavDestination> = mutableListOf()
-        if (nextResumed is FloatingWindow) {
+        if (nextResumed.last() is FloatingWindow) {
             // Find all visible destinations in the back stack as they
             // should still be STARTED when the FloatingWindow destination is above it.
             val iterator = backStack.reversed().iterator()
@@ -1121,12 +1167,17 @@ public open class NavController(
                 // to nextStarted
                 nextStarted.add(destination)
                 // break if we find first visible screen
-                if (destination !is FloatingWindow && destination !is NavGraph) {
+                if (
+                    destination !is FloatingWindow &&
+                        destination !is SupportingPane &&
+                        destination !is NavGraph
+                ) {
                     break
                 }
             }
         }
-        // First iterate downward through the stack, applying downward Lifecycle
+
+        // Now iterate downward through the stack, applying downward Lifecycle
         // transitions and capturing any upward Lifecycle transitions to apply afterwards.
         // This ensures proper nesting where parent navigation graphs are started before
         // their children and stopped only after their children are stopped.
@@ -1136,7 +1187,7 @@ public open class NavController(
             val entry = iterator.next()
             val currentMaxLifecycle = entry.maxLifecycle
             val destination = entry.destination
-            if (nextResumed != null && destination.id == nextResumed.id) {
+            if (nextResumed.firstOrNull()?.id == destination.id) {
                 // Upward Lifecycle transitions need to be done afterwards so that
                 // the parent navigation graph is resumed before their children
                 if (currentMaxLifecycle != Lifecycle.State.RESUMED) {
@@ -1153,7 +1204,8 @@ public open class NavController(
                     }
                 }
                 if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirstKt()
-                nextResumed = nextResumed.parent
+                nextResumed.removeFirstKt()
+                destination.parent?.let { nextResumed.add(it) }
             } else if (nextStarted.isNotEmpty() && destination.id == nextStarted.first().id) {
                 val started = nextStarted.removeFirstKt()
                 if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
