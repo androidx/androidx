@@ -23,14 +23,14 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class ArrayNullnessMigrationTest :
+class JSpecifyNullnessMigrationTest :
     AbstractLintDetectorTest(
-        useDetector = ArrayNullnessMigration(),
-        useIssues = listOf(ArrayNullnessMigration.ISSUE),
+        useDetector = JSpecifyNullnessMigration(),
+        useIssues = listOf(JSpecifyNullnessMigration.ISSUE),
         stubs = annotationStubs
     ) {
     @Test
-    fun `Nullness annotation on parameter`() {
+    fun `Nullness annotation on array parameter`() {
         val input =
             java(
                 """
@@ -45,7 +45,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:4: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public void foo(@NonNull String[] arr) {}
                                 ~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
@@ -61,11 +61,11 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
-    fun `Nullness annotation on method return`() {
+    fun `Nullness annotation on array method return`() {
         val input =
             java(
                 """
@@ -81,7 +81,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:5: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public String[] foo() { return null; }
                                 ~~~
             1 errors, 0 warnings
@@ -98,11 +98,11 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
-    fun `Nullness annotation on method return and parameter`() {
+    fun `Nullness annotation on array method return and array parameter`() {
         val input =
             java(
                 """
@@ -118,10 +118,10 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:5: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public String[] foo(@Nullable String[] arr) { return null; }
                                 ~~~
-            src/test/pkg/Foo.java:5: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:5: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public String[] foo(@Nullable String[] arr) { return null; }
                                     ~~~~~~~~~~~~~~~~~~~~~~
             2 errors, 0 warnings
@@ -142,11 +142,11 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
-    fun `Nullness annotation on field`() {
+    fun `Nullness annotation on array field`() {
         val input =
             java(
                 """
@@ -161,7 +161,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:4: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 @Nullable public String[] foo;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
@@ -177,7 +177,7 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
@@ -196,7 +196,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:4: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 @Nullable public String[][] foo;
                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
@@ -212,7 +212,7 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
@@ -231,7 +231,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:4: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:4: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public void foo(@NonNull String... arr) {}
                                 ~~~~~~~~~~~~~~~~~~~~~~
             1 errors, 0 warnings
@@ -247,7 +247,7 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
@@ -270,7 +270,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:8: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:8: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public String[] foo() { return null; }
                                 ~~~
             1 errors, 0 warnings
@@ -287,7 +287,7 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
     @Test
@@ -310,7 +310,7 @@ class ArrayNullnessMigrationTest :
 
         val expected =
             """
-            src/test/pkg/Foo.java:8: Error: Nullness annotation on array will apply to element [ArrayMigration]
+            src/test/pkg/Foo.java:8: Error: Switch nullness annotation to JSpecify [JSpecifyNullness]
                 public String[] foo() { return null; }
                                 ~~~
             1 errors, 0 warnings
@@ -327,10 +327,10 @@ class ArrayNullnessMigrationTest :
             """
                 .trimIndent()
 
-        runArrayNullnessTest(input, expected, expectedFixDiffs)
+        runNullnessTest(input, expected, expectedFixDiffs)
     }
 
-    private fun runArrayNullnessTest(input: TestFile, expected: String, expectedFixDiffs: String) {
+    private fun runNullnessTest(input: TestFile, expected: String, expectedFixDiffs: String) {
         lint()
             .files(*stubs, input)
             .skipTestModes(TestMode.WHITESPACE)
