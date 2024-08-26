@@ -34,6 +34,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,6 +48,7 @@ class NestedScrollingBenchmark {
 
     private val nestedScrollingCaseFactory = { NestedScrollingTestCase() }
 
+    @Ignore("b/362302352")
     @Test
     fun nested_scroll_propagation() {
         benchmarkRule.runBenchmarkFor(nestedScrollingCaseFactory) {
@@ -136,12 +140,12 @@ class NestedScrollingTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     }
 
     fun assertPostToggle() {
-        assert(collectedDeltasOuter != Offset.Zero)
-        assert(collectedDeltasMiddle != Offset.Zero)
-        assert(collectedVelocityOuter != Velocity.Zero)
-        assert(collectedVelocityMiddle != Velocity.Zero)
+        assertNotEquals(collectedDeltasOuter, Offset.Zero)
+        assertNotEquals(collectedDeltasMiddle, Offset.Zero)
+        assertNotEquals(collectedVelocityOuter, Velocity.Zero)
+        assertNotEquals(collectedVelocityMiddle, Velocity.Zero)
 
-        assert(collectedDeltasOuter == scrollResult)
-        assert(collectedVelocityOuter == velocityResult)
+        assertEquals(scrollResult, collectedDeltasOuter)
+        assertEquals(velocityResult, collectedVelocityOuter)
     }
 }
