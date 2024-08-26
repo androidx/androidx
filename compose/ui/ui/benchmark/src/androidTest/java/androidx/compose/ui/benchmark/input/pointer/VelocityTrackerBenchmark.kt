@@ -19,6 +19,7 @@ import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.input.pointer.util.VelocityTracker1D
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -95,7 +96,7 @@ class VelocityTrackerBenchmarkTest {
             velocityTracker.addDataPoint(dataPoint.timeMillis, dataPoint.motionValue)
         }
 
-        benchmarkRule.measureRepeated { assert(velocityTracker.calculateVelocity() != 0f) }
+        benchmarkRule.measureRepeated { assertTrue(velocityTracker.calculateVelocity() != 0f) }
     }
 
     companion object {
