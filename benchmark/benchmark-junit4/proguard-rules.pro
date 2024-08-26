@@ -18,6 +18,7 @@
 
 ## needed for listeners instantiated by reflection (e.g. InstrumentationResultsRunListener)
 -keepclasseswithmembers class * extends androidx.test.internal.runner.listener.InstrumentationRunListener { *; }
+-keepclasseswithmembers class * extends org.junit.runner.notification.RunListener { *; }
 
 ## Needed due to b/328649293 - shouldn't be needed since they're ref'd by manifest
 ## May need to leave these in place long term to account for old gradle versions
