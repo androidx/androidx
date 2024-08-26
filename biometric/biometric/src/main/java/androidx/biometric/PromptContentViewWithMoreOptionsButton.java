@@ -45,15 +45,12 @@ import androidx.annotation.RequiresPermission;
  *     .setContentView(
  *         new PromptContentViewWithMoreOptionsButton.Builder()
  *             .setDescription("test description")
- *             .setMoreOptionsButtonListener(executor, listener)
  *             .build()
  *      )
  *     .build();
  * </pre>
  */
 public final class PromptContentViewWithMoreOptionsButton implements PromptContentView {
-    static final int MAX_DESCRIPTION_CHARACTER_NUMBER = 225;
-
     private final String mDescription;
 
     private PromptContentViewWithMoreOptionsButton(@NonNull String description) {
@@ -89,10 +86,6 @@ public final class PromptContentViewWithMoreOptionsButton implements PromptConte
         @RequiresPermission(SET_BIOMETRIC_DIALOG_ADVANCED)
         @NonNull
         public Builder setDescription(@NonNull String description) {
-            if (description.length() > MAX_DESCRIPTION_CHARACTER_NUMBER) {
-                throw new IllegalArgumentException("The character number of description exceeds "
-                        + MAX_DESCRIPTION_CHARACTER_NUMBER);
-            }
             mDescription = description;
             return this;
         }

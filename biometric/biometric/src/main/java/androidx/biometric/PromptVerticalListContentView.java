@@ -42,10 +42,6 @@ import java.util.List;
  * </pre>
  */
 public final class PromptVerticalListContentView implements PromptContentView {
-    static final int MAX_ITEM_NUMBER = 20;
-    static final int MAX_EACH_ITEM_CHARACTER_NUMBER = 640;
-    static final int MAX_DESCRIPTION_CHARACTER_NUMBER = 225;
-
     private final List<PromptContentItem> mContentList;
     private final String mDescription;
 
@@ -93,10 +89,6 @@ public final class PromptVerticalListContentView implements PromptContentView {
          */
         @NonNull
         public Builder setDescription(@NonNull String description) {
-            if (description.length() > MAX_DESCRIPTION_CHARACTER_NUMBER) {
-                throw new IllegalArgumentException("The character number of description exceeds "
-                        + MAX_DESCRIPTION_CHARACTER_NUMBER);
-            }
             mDescription = description;
             return this;
         }
@@ -112,7 +104,6 @@ public final class PromptVerticalListContentView implements PromptContentView {
         @NonNull
         public Builder addListItem(@NonNull PromptContentItem listItem) {
             mContentList.add(listItem);
-            checkItemLimits(listItem);
             return this;
         }
 
@@ -128,32 +119,7 @@ public final class PromptVerticalListContentView implements PromptContentView {
         @NonNull
         public Builder addListItem(@NonNull PromptContentItem listItem, int index) {
             mContentList.add(index, listItem);
-            checkItemLimits(listItem);
             return this;
-        }
-
-        private void checkItemLimits(@NonNull PromptContentItem listItem) {
-            if (doesListItemExceedsCharLimit(listItem)) {
-                throw new IllegalArgumentException(
-                        "The character number of list item exceeds "
-                                + MAX_EACH_ITEM_CHARACTER_NUMBER);
-            }
-            if (mContentList.size() > MAX_ITEM_NUMBER) {
-                throw new IllegalArgumentException(
-                        "The number of list items exceeds " + MAX_ITEM_NUMBER);
-            }
-        }
-
-        private boolean doesListItemExceedsCharLimit(PromptContentItem listItem) {
-            if (listItem instanceof PromptContentItemPlainText) {
-                return ((PromptContentItemPlainText) listItem).getText().length()
-                        > MAX_EACH_ITEM_CHARACTER_NUMBER;
-            } else if (listItem instanceof PromptContentItemBulletedText) {
-                return ((PromptContentItemBulletedText) listItem).getText().length()
-                        > MAX_EACH_ITEM_CHARACTER_NUMBER;
-            } else {
-                return false;
-            }
         }
 
 
