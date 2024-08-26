@@ -64,7 +64,11 @@ public sealed class BufferFillPolicy(internal val value: Int) {
     private class RingBuffer : BufferFillPolicy(VALUE_BUFFER_FILL_POLICY_RING_BUFFER)
 }
 
-/** Obtain a flow to be called with all profiling results for this UID. */
+/**
+ * Obtain a flow to be called with all profiling results for this UID.
+ *
+ * @sample androidx.core.os.registerForAllProfilingResultsFlowSample
+ */
 @RequiresApi(api = 35)
 public fun registerForAllProfilingResults(context: Context): Flow<ProfilingResult> = callbackFlow {
     val listener = Consumer<ProfilingResult> { result -> trySend(result) }
@@ -75,7 +79,11 @@ public fun registerForAllProfilingResults(context: Context): Flow<ProfilingResul
     awaitClose { service.unregisterForAllProfilingResults(listener) }
 }
 
-/** Register a listener to be called with all profiling results for this UID. */
+/**
+ * Register a listener to be called with all profiling results for this UID.
+ *
+ * @sample androidx.core.os.registerForAllProfilingResultsSample
+ */
 @RequiresApi(api = 35)
 public fun registerForAllProfilingResults(
     context: Context,
@@ -98,6 +106,19 @@ public fun unregisterForAllProfilingResults(context: Context, listener: Consumer
  *
  * If the executor and/or listener are null, and if no global listener and executor combinations are
  * registered using [registerForAllProfilingResults], the request will be dropped.
+ *
+ * Requests will be rate limited and are not guaranteed to be filled.
+ *
+ * There might be a delay before profiling begins. For continuous profiling types (system tracing,
+ * stack sampling, and heap profiling), we recommend starting the collection early and stopping it
+ * with cancellationSignal, set on the [profilingRequest] builder, immediately after the area of
+ * interest to ensure that the section you want profiled is captured. For heap dumps, we recommend
+ * testing locally to ensure that the heap dump is collected at the proper time.
+ *
+ * @sample androidx.core.os.requestJavaHeapDump
+ * @sample androidx.core.os.requestHeapProfile
+ * @sample androidx.core.os.requestStackSampling
+ * @sample androidx.core.os.requestSystemTrace
  */
 @RequiresApi(api = 35)
 public fun requestProfiling(
@@ -164,7 +185,11 @@ internal constructor() {
     protected abstract fun getParams(): Bundle
 }
 
-/** Request builder to create a request for a java heap dump from [ProfilingManager]. */
+/**
+ * Request builder to create a request for a java heap dump from [ProfilingManager].
+ *
+ * @sample androidx.core.os.requestJavaHeapDump
+ */
 @RequiresApi(api = 35)
 public class JavaHeapDumpRequestBuilder : ProfilingRequestBuilder<JavaHeapDumpRequestBuilder>() {
     private val mParams: Bundle = Bundle()
@@ -191,7 +216,11 @@ public class JavaHeapDumpRequestBuilder : ProfilingRequestBuilder<JavaHeapDumpRe
     }
 }
 
-/** Request builder to create a request for a heap profile from [ProfilingManager]. */
+/**
+ * Request builder to create a request for a heap profile from [ProfilingManager].
+ *
+ * @sample androidx.core.os.requestHeapProfile
+ */
 @RequiresApi(api = 35)
 public class HeapProfileRequestBuilder : ProfilingRequestBuilder<HeapProfileRequestBuilder>() {
     private val mParams: Bundle = Bundle()
@@ -236,7 +265,11 @@ public class HeapProfileRequestBuilder : ProfilingRequestBuilder<HeapProfileRequ
     }
 }
 
-/** Request builder to create a request for stack sampling from [ProfilingManager]. */
+/**
+ * Request builder to create a request for stack sampling from [ProfilingManager].
+ *
+ * @sample androidx.core.os.requestStackSampling
+ */
 @RequiresApi(api = 35)
 public class StackSamplingRequestBuilder : ProfilingRequestBuilder<StackSamplingRequestBuilder>() {
     private val mParams: Bundle = Bundle()
@@ -275,7 +308,11 @@ public class StackSamplingRequestBuilder : ProfilingRequestBuilder<StackSampling
     }
 }
 
-/** Request builder to create a request for a system trace from [ProfilingManager]. */
+/**
+ * Request builder to create a request for a system trace from [ProfilingManager].
+ *
+ * @sample androidx.core.os.requestSystemTrace
+ */
 @RequiresApi(api = 35)
 public class SystemTraceRequestBuilder : ProfilingRequestBuilder<SystemTraceRequestBuilder>() {
     private val mParams: Bundle = Bundle()
