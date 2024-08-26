@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -50,6 +52,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithTabRowDemo() {
@@ -63,7 +66,10 @@ fun LookaheadWithTabRowDemo() {
             }
         Column(
             Modifier.fillMaxWidth()
-                .animateBounds(if (isWide) Modifier else Modifier.padding(end = 100.dp))
+                .animateBounds(
+                    this@LookaheadScope,
+                    if (isWide) Modifier else Modifier.padding(end = 100.dp)
+                )
                 .fillMaxHeight()
                 .background(Color(0xFFfffbd0))
         ) {

@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.foundation.background
@@ -77,6 +79,7 @@ import kotlinx.coroutines.launch
 private val colors =
     listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff264653), Color(0xff2a9d84))
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithScaffold() {
@@ -91,7 +94,10 @@ fun LookaheadWithScaffold() {
         Box(
             Modifier.fillMaxHeight()
                 .background(Color.Gray)
-                .animateBounds(if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier)
+                .animateBounds(
+                    this@LookaheadScope,
+                    if (hasPadding) Modifier.padding(bottom = 300.dp) else Modifier
+                )
         ) {
             var state by remember { mutableIntStateOf(0) }
             val titles =

@@ -2557,8 +2557,9 @@ class LookaheadScopeTest {
             // Verify initial offset, should be the same values for the "excluded" offset
             positionToExcludedArray.forEachIndexed { index, (position, excluded) ->
                 // Rounding to avoid -0.0f
-                assertEquals((index * boxSizePx).fastRoundToInt(), position.y.fastRoundToInt())
-                assertEquals((index * boxSizePx).fastRoundToInt(), excluded.y.fastRoundToInt())
+                val expected = (index * boxSizePx).fastRoundToInt()
+                assertEquals("At index: $index", expected, position.y.fastRoundToInt())
+                assertEquals("At index: $index", expected, excluded.y.fastRoundToInt())
             }
 
             // Scroll to the end
@@ -2633,8 +2634,9 @@ class LookaheadScopeTest {
             // Verify initial offset, should be the same values for the "excluded" offset
             positionToExcludedArray.forEachIndexed { index, (position, excluded) ->
                 // Rounding to avoid -0.0f
-                assertEquals((index * boxSizePx).fastRoundToInt(), position.y.fastRoundToInt())
-                assertEquals((index * boxSizePx).fastRoundToInt(), excluded.y.fastRoundToInt())
+                val expected = (index * boxSizePx).fastRoundToInt()
+                assertEquals("At index: $index", expected, position.y.fastRoundToInt())
+                assertEquals("At index: $index", expected, excluded.y.fastRoundToInt())
             }
 
             // Scroll to the end
@@ -3100,6 +3102,134 @@ class LookaheadScopeTest {
             assertEquals(200f, lookingAheadPosition.y)
             // Round to int, since it may return -0.0f
             assertEquals(0, lookingAheadPositionExcludingDmp.y.fastRoundToInt())
+        }
+
+    @Test
+    fun testLookaheadAndApproachCoordinatesAreConsistentOnFirstPass_usingAlign() =
+        with(rule.density) {
+            val rootSizePx = 300
+            val alignmentOffsetPx = IntOffset(0, 100)
+
+            // Both positions are expected to be from lookahead coordinates
+            var lookaheadPassPosition = Offset.Unspecified
+            var approachPassPosition = Offset.Unspecified
+
+            rule.setContent {
+                Box(Modifier.size(rootSizePx.toDp())) {
+                    LookaheadScope {
+                        Box(Modifier.align { _, _, _ -> alignmentOffsetPx }.fillMaxWidth()) {
+                            // Capture lookahead coordinates from Lookahead and Approach pass.
+                            Box(
+                                Modifier.onLookaheadPassCoordinates(this@LookaheadScope) {
+                                        lookaheadScopeCoordinates,
+                                        coordinates ->
+                                        lookaheadPassPosition =
+                                            lookaheadScopeCoordinates.localPositionOf(coordinates)
+                                    }
+                                    .onApproachPassCoordinates(this@LookaheadScope) {
+                                        lookaheadScopeCoordinates,
+                                        coordinates ->
+                                        approachPassPosition =
+                                            lookaheadScopeCoordinates.localLookaheadPositionOf(
+                                                coordinates
+                                            )
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+            rule.waitForIdle()
+
+            // Assert both positions are equal on the first pass.
+            assertEquals(alignmentOffsetPx, lookaheadPassPosition.round())
+            assertEquals(alignmentOffsetPx, approachPassPosition.round())
+        }
+
+    @Test
+    fun testLookaheadAndApproachCoordinatesAreConsistentOnFirstPass_usingOffset() =
+        with(rule.density) {
+            val rootSizePx = 300
+            val alignmentOffsetPx = IntOffset(0, 100)
+
+            // Both positions are expected to be from lookahead coordinates
+            var lookaheadPassPosition = Offset.Unspecified
+            var approachPassPosition = Offset.Unspecified
+
+            rule.setContent {
+                Box(Modifier.size(rootSizePx.toDp())) {
+                    LookaheadScope {
+                        Box(Modifier.offset { alignmentOffsetPx }.fillMaxWidth()) {
+                            // Capture lookahead coordinates from Lookahead and Approach pass.
+                            Box(
+                                Modifier.onLookaheadPassCoordinates(this@LookaheadScope) {
+                                        lookaheadScopeCoordinates,
+                                        coordinates ->
+                                        lookaheadPassPosition =
+                                            lookaheadScopeCoordinates.localPositionOf(coordinates)
+                                    }
+                                    .onApproachPassCoordinates(this@LookaheadScope) {
+                                        lookaheadScopeCoordinates,
+                                        coordinates ->
+                                        approachPassPosition =
+                                            lookaheadScopeCoordinates.localLookaheadPositionOf(
+                                                coordinates
+                                            )
+                                    }
+                            )
+                        }
+                    }
+                }
+            }
+            rule.waitForIdle()
+
+            // Assert both positions are equal on the first pass.
+            assertEquals(alignmentOffsetPx, lookaheadPassPosition.round())
+            assertEquals(alignmentOffsetPx, approachPassPosition.round())
+        }
+
+    /** Capture LookaheadScope coordinates during the Lookahead pass. */
+    private fun Modifier.onLookaheadPassCoordinates(
+        lookaheadScope: LookaheadScope,
+        onLookaheadPassCoordinates:
+            (
+                lookaheadScopeCoordinates: LayoutCoordinates, layoutCoordinates: LayoutCoordinates
+            ) -> Unit
+    ): Modifier =
+        with(lookaheadScope) {
+            this@onLookaheadPassCoordinates.layout { measurable, constraints ->
+                val placeable = measurable.measure(constraints)
+                layout(placeable.width, placeable.height) {
+                    if (isLookingAhead) {
+                        coordinates?.let { coordinates ->
+                            onLookaheadPassCoordinates(lookaheadScopeCoordinates, coordinates)
+                        }
+                    }
+                    placeable.place(0, 0)
+                }
+            }
+        }
+
+    /** Capture LookaheadScope coordinates during the Approach pass. */
+    private fun Modifier.onApproachPassCoordinates(
+        lookaheadScope: LookaheadScope,
+        onApproachPassCoordinates:
+            (
+                lookaheadScopeCoordinates: LayoutCoordinates, layoutCoordinates: LayoutCoordinates
+            ) -> Unit
+    ): Modifier =
+        with(lookaheadScope) {
+            this@onApproachPassCoordinates.approachLayout(
+                isMeasurementApproachInProgress = { false },
+                isPlacementApproachInProgress = {
+                    onApproachPassCoordinates(lookaheadScopeCoordinates, it)
+                    false
+                },
+                approachMeasure = { measurable, constraints ->
+                    val placeable = measurable.measure(constraints)
+                    layout(placeable.width, placeable.height) { placeable.place(0, 0) }
+                }
+            )
         }
 
     private fun assertSameLayoutWithAndWithoutLookahead(

@@ -16,6 +16,8 @@
 
 package androidx.compose.animation.demos.lookahead
 
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -137,11 +139,13 @@ fun SceneScope.Details(modifier: Modifier) {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun Root(state: DisplayState) {
     SceneHost {
         Row(
             Modifier.animateBounds(
+                    this,
                     if (state == DisplayState.Compact) {
                         Modifier.wrapContentSize(align = Alignment.TopStart, unbounded = true)
                             .requiredWidth(800.dp)
@@ -322,10 +326,12 @@ fun SceneScope.Message(messageData: MessageData) {
     }
 }
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun SceneScope.NavRail(state: DisplayState) {
     Column(
         Modifier.animateBounds(
+                this,
                 if (state == DisplayState.Tablet) Modifier.width(200.dp)
                 else Modifier.width(IntrinsicSize.Min)
             )

@@ -17,8 +17,11 @@
 package androidx.compose.animation.demos.lookahead
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.animateBounds
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.VisibilityThreshold
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.demos.R
 import androidx.compose.animation.demos.gesture.pastelColors
@@ -47,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.LookaheadScope
@@ -54,6 +58,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview
 @Composable
 fun LookaheadWithLazyColumn() {
@@ -74,10 +79,7 @@ fun LookaheadWithLazyColumn() {
                         LookaheadScope {
                             val title = remember {
                                 movableContentOf {
-                                    Text(
-                                        names[index],
-                                        Modifier.padding(20.dp).animateBounds(Modifier)
-                                    )
+                                    Text(names[index], Modifier.padding(20.dp).animateBounds(this))
                                 }
                             }
                             val image = remember {
@@ -89,9 +91,16 @@ fun LookaheadWithLazyColumn() {
                                             modifier =
                                                 Modifier.padding(10.dp)
                                                     .animateBounds(
+                                                        this,
                                                         if (expanded) Modifier.fillMaxWidth()
                                                         else Modifier.size(80.dp),
-                                                        spring(stiffness = Spring.StiffnessLow)
+                                                        { _, _ ->
+                                                            spring(
+                                                                Spring.DampingRatioNoBouncy,
+                                                                Spring.StiffnessLow,
+                                                                Rect.VisibilityThreshold
+                                                            )
+                                                        }
                                                     )
                                                     .clip(RoundedCornerShape(5.dp)),
                                             contentScale =
@@ -108,10 +117,17 @@ fun LookaheadWithLazyColumn() {
                                             modifier =
                                                 Modifier.padding(10.dp)
                                                     .animateBounds(
+                                                        lookaheadScope = this,
                                                         if (expanded)
                                                             Modifier.fillMaxWidth().aspectRatio(1f)
                                                         else Modifier.size(80.dp),
-                                                        spring(stiffness = Spring.StiffnessLow)
+                                                        { _, _ ->
+                                                            spring(
+                                                                Spring.DampingRatioNoBouncy,
+                                                                Spring.StiffnessLow,
+                                                                Rect.VisibilityThreshold
+                                                            )
+                                                        }
                                                     )
                                                     .background(
                                                         Color.LightGray,

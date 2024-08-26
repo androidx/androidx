@@ -5,6 +5,10 @@ package androidx.compose.animation {
     method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> defaultDecayAnimationSpec();
   }
 
+  public final class AnimateBoundsModifierKt {
+    method @SuppressCompatibility @androidx.compose.animation.ExperimentalSharedTransitionApi public static androidx.compose.ui.Modifier animateBounds(androidx.compose.ui.Modifier, androidx.compose.ui.layout.LookaheadScope lookaheadScope, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.animation.BoundsTransform boundsTransform, optional boolean animateMotionFrameOfReference);
+  }
+
   public final class AnimatedContentKt {
     method @androidx.compose.runtime.Composable public static <S> void AnimatedContent(androidx.compose.animation.core.Transition<S>, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional kotlin.jvm.functions.Function1<? super S,? extends java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentScope,? super S,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static <S> void AnimatedContent(S targetState, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.animation.AnimatedContentTransitionScope<S>,androidx.compose.animation.ContentTransform> transitionSpec, optional androidx.compose.ui.Alignment contentAlignment, optional String label, optional kotlin.jvm.functions.Function1<? super S,? extends java.lang.Object?> contentKey, kotlin.jvm.functions.Function2<? super androidx.compose.animation.AnimatedContentScope,? super S,kotlin.Unit> content);
