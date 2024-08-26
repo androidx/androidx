@@ -26,7 +26,6 @@
         android:layout_height="wrap_content"
         android:indeterminate="true"
         android:visibility="gone"
-        app:trackColor="@color/material_on_background_emphasis_high_type"
-        />
+        app:trackColor="?attr/colorSecondaryContainer" />
 
 </LinearLayout>

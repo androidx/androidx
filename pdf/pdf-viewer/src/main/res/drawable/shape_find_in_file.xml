@@ -17,17 +17,17 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <solid android:color="@color/search_background"/>
-
-    <padding
-        android:left="12dp"
-        android:top="12dp"
-        android:bottom="12dp"/>
-
     <corners
         android:bottomLeftRadius="0dp"
         android:bottomRightRadius="0dp"
         android:topLeftRadius="36dp"
-        android:topRightRadius="36dp"/>
+        android:topRightRadius="36dp" />
+
+    <padding
+        android:bottom="12dp"
+        android:left="12dp"
+        android:top="12dp" />
+
+    <solid android:color="?attr/colorSurfaceContainer" />
 
 </shape>

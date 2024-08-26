@@ -17,7 +17,6 @@
   -->
 
 <merge xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:id="@+id/search_container"
@@ -33,8 +32,8 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:hint="@string/hint_find"
-            android:textColor="@color/search_textColor"
-            android:textColorHint="@color/search_texthint"
+            android:textColor="?attr/colorOnSurface"
+            android:textColorHint="?attr/colorOutline"
             android:paddingLeft="16dp"
             android:imeOptions="actionSearch"
             android:inputType="textFilter"
@@ -50,7 +49,7 @@
             android:layout_height="wrap_content"
             android:layout_alignEnd="@+id/query_box"
             android:paddingRight="10dp"
-            android:textColor="@color/search_count">
+            android:textColor="?attr/colorOnSurfaceVariant">
         </TextView>
     </LinearLayout>
 
@@ -60,7 +59,7 @@
         android:layout_height="34dp"
         android:background="@drawable/shape_oval"
         android:src="@drawable/keyboard_up"
-        app:tint="@color/search_prev_button"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="3dp"
         android:scaleType="centerInside"
@@ -73,7 +72,7 @@
         android:layout_height="34dp"
         android:background="@drawable/shape_oval"
         android:src="@drawable/keyboard_down"
-        app:tint="@color/search_next_button"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="3dp"
         android:scaleType="centerInside"
@@ -85,7 +84,7 @@
         android:layout_height="34dp"
         android:background="@drawable/shape_oval"
         android:src="@drawable/close_button"
-        app:tint="@color/search_close_button"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:cropToPadding="true"
         android:padding="5dp"
         android:scaleType="centerInside"

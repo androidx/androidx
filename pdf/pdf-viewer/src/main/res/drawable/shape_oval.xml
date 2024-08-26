@@ -15,10 +15,10 @@
   -->
 
 <ripple xmlns:android="http://schemas.android.com/apk/res/android"
-    android:color="@color/search_textbox">
+    android:color="?attr/colorSurfaceBright">
     <item>
         <shape android:shape="oval">
-            <solid android:color="@color/search_background" />
+            <solid android:color="?attr/colorSurfaceContainer" />
         </shape>
     </item>
 </ripple>

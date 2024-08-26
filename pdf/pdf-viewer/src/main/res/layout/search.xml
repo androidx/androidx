@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   Copyright 2023 The Android Open Source Project
 
   Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,14 +14,12 @@
   limitations under the License.
   -->
 
-<androidx.pdf.find.FindInFileView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.pdf.find.FindInFileView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="72dp"
+    android:layout_gravity="bottom"
     android:background="@drawable/shape_find_in_file"
     android:orientation="horizontal"
-    android:visibility="gone"
-    android:layout_gravity="bottom"
-    >
+    android:visibility="gone">
 
 </androidx.pdf.find.FindInFileView>

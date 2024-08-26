@@ -27,7 +27,7 @@
     android:gravity="center"
     android:paddingLeft="12dp"
     android:paddingRight="12dp"
-    android:textColor="@color/google_grey"
+    android:textColor="?attr/colorOnSurface"
     android:textSize="12sp"
     tools:ignore="RtlHardcoded"
     tools:text="3 of 20"

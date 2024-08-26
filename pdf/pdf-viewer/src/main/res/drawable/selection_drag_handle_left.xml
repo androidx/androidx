@@ -22,7 +22,7 @@
     android:viewportWidth="44">
 
     <path
-        android:fillColor="#FFA8C7FA"
+        android:fillColor="?attr/colorPrimaryFixedDim"
         android:fillType="evenOdd"
         android:pathData="M33.939,9.899L33.897,23.94C33.874,31.695 27.569,38.001 19.814,38.024C12.059,38.047 5.791,31.779 5.814,24.024C5.837,16.269 12.142,9.963 19.897,9.94L33.939,9.899Z" />
 

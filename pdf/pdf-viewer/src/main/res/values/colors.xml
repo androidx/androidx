@@ -15,21 +15,10 @@
   -->
 
 <resources>
-
-    <color name="google_blue">#ff1a73e8</color>
-    <color name="google_white">#ffffffff</color>
-    <color name="google_grey">#ff3c4043</color>
-    <color name="text_default">#666</color>
-    <color name="text_error">#da4336</color>
-    <color name="selection_handles">#00aadd</color>
-    <color name="search_background">#F3EDE8</color>
-    <color name="search_textbox">#FEF8F3</color>
-    <color name="search_texthint">#494643</color>
-    <color name="search_textColor">#1D1B19</color>
-    <color name="search_count">#494643</color>
-    <color name="search_prev_button">#494643</color>
-    <color name="search_next_button">#494643</color>
-    <color name="search_close_button">#494643</color>
-
-
+    <color name="pdf_viewer_color_primary">@color/m3_sys_color_light_primary</color>
+    <color name="pdf_viewer_color_on_surface">@color/m3_sys_color_light_on_surface</color>
+    <color name="pdf_viewer_color_on_error">@color/m3_sys_color_light_on_error</color>
+    <!-- m3_sys_color_primary_fixed_dim doesn't have a day/night version, therefore defined only once -->
+    <color name="pdf_viewer_selection_handles">@color/m3_sys_color_primary_fixed_dim</color>
 </resources>
+
