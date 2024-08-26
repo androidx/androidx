@@ -37,6 +37,7 @@ import androidx.pdf.util.Preconditions;
 import androidx.pdf.viewer.PageMosaicView;
 import androidx.pdf.viewer.PageViewFactory;
 import androidx.pdf.viewer.PaginatedView;
+import androidx.pdf.viewer.PdfSelectionHandles;
 
 import java.util.Objects;
 
@@ -174,9 +175,40 @@ public class SelectionActionMode {
          */
         @Override
         public void onGetContentRect(ActionMode mode, View view, Rect outRect) {
-            PageSelection pageSelection = mSelectionModel.selection().get();
-            Rect bounds = pageSelection.getRects().get(0);
+            Rect bounds = getBoundsToPlaceMenu();
             outRect.set(bounds.left, bounds.top, bounds.right, bounds.bottom);
+        }
+
+        private Rect getBoundsToPlaceMenu() {
+            PageSelection pageSelection = mSelectionModel.mSelection.get();
+            int selectionPage = pageSelection.getPage();
+            PdfSelectionHandles mSelectionHandles = mPaginatedView.getSelectionHandles();
+            Rect startHandlerect = new Rect();
+            mSelectionHandles.getStartHandle().getGlobalVisibleRect(startHandlerect);
+
+            Rect stopHandleRect = new Rect();
+            mSelectionHandles.getStopHandle().getGlobalVisibleRect(stopHandleRect);
+
+            int screenWidth = mPaginatedView.getResources().getDisplayMetrics().widthPixels;
+            int screenHeight = mPaginatedView.getResources().getDisplayMetrics().heightPixels;
+
+            if (pageSelection.getRects().size() == 1 || startHandlerect.intersect(0, 0, 
+                    screenWidth, screenHeight)) {
+                return pageSelection.getRects().getFirst();
+            } else if (stopHandleRect.intersect(0, 0, screenWidth, screenHeight)) {
+                return pageSelection.getRects().getLast();
+            } else {
+                // Center of the view in page coordinates
+                int viewCentreX =
+                        mPaginatedView.getPaginationModel().getViewArea().centerX() *
+                                mPaginatedView.getPaginationModel().getPageSize(
+                                        selectionPage).getWidth()
+                                        / mPaginatedView.getPaginationModel().getWidth();
+                int viewCentreY = mPaginatedView.getPaginationModel().getViewArea().centerY()
+                        - mPaginatedView.getPaginationModel().getPageLocation(selectionPage).top;
+
+                return new Rect(viewCentreX, viewCentreY, viewCentreX, viewCentreY);
+            }
         }
     }
 }

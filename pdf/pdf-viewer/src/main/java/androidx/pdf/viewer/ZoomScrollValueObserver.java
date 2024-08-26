@@ -17,6 +17,7 @@
 package androidx.pdf.viewer;
 
 import android.animation.ValueAnimator;
+import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.View;
@@ -72,6 +73,9 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 || position == null || mPaginatedView.getPaginationModel().getSize() == 0) {
             return;
         }
+        // Stop showing context menu if there is any change in zoom or scroll, resume only when
+        // the new position is stable
+        mSelectionActionMode.stopActionMode();
         mZoomView.loadPageAssets(mLayoutHandler, mViewState);
 
         if (oldPosition.scrollY > position.scrollY) {
@@ -113,11 +117,8 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
             mPaginatedView.setConfigurationChanged(false);
         }
 
-        if (position.scrollY > 0) {
-            mSelectionActionMode.stopActionMode();
-        }
-        if (position.scrollY == oldPosition.scrollY) {
-            mSelectionActionMode.resume();
+        if (mPaginatedView.getSelectionModel().selection().get() != null && position.stable) {
+            setUpContextMenu();
         }
     }
 
@@ -152,4 +153,36 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     public void setAnnotationIntentResolvable(boolean annotationIntentResolvable) {
         mIsAnnotationIntentResolvable = annotationIntentResolvable;
     }
+
+    private void setUpContextMenu() {
+        // Resume the context menu if selected area is on the current viewing screen
+        if (mPaginatedView.getSelectionModel().getPage() != -1) {
+            int selectionPage = mPaginatedView.getSelectionModel().getPage();
+            int firstPageInVisibleRange =
+                    mPaginatedView.getPageRangeHandler().getVisiblePages().getFirst();
+            int lastPageInVisisbleRange =
+                    mPaginatedView.getPageRangeHandler().getVisiblePages().getLast();
+
+            // If selection is within the range of visible pages
+            if (selectionPage >= firstPageInVisibleRange
+                    && selectionPage <= lastPageInVisisbleRange) {
+                // Start and stop coordinates in a page wrt pagination model
+                int startX = mPaginatedView.getPaginationModel().getLookAtX(selectionPage,
+                        mPaginatedView.getSelectionModel().selection().get().getStart().getX());
+                int startY = mPaginatedView.getPaginationModel().getLookAtY(selectionPage,
+                        mPaginatedView.getSelectionModel().selection().get().getStart().getY());
+                int stopX = mPaginatedView.getPaginationModel().getLookAtX(selectionPage,
+                        mPaginatedView.getSelectionModel().selection().get().getStop().getX());
+                int stopY = mPaginatedView.getPaginationModel().getLookAtY(selectionPage,
+                        mPaginatedView.getSelectionModel().selection().get().getStop().getY());
+
+                Rect currentViewArea = mPaginatedView.getPaginationModel().getViewArea();
+
+                if (currentViewArea.intersect(startX, startY, stopX, stopY)) {
+                    mSelectionActionMode.resume();
+                }
+            }
+        }
+    }
+
 }
