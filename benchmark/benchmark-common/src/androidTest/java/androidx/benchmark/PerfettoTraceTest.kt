@@ -52,9 +52,10 @@ class PerfettoTraceTest {
             // noop
         }
         assertNotNull(perfettoTrace)
-        assert(perfettoTrace!!.path.matches(Regex(".*/testTrace_[0-9-]+.perfetto-trace"))) {
+        assertTrue(
+            perfettoTrace!!.path.matches(Regex(".*/testTrace_[0-9-]+.perfetto-trace")),
             "$perfettoTrace didn't match!"
-        }
+        )
     }
 
     private fun verifyRecordSuccess(config: PerfettoConfig) {
@@ -68,9 +69,10 @@ class PerfettoTraceTest {
             // noop
         }
         assertNotNull(perfettoTrace)
-        assert(perfettoTrace!!.path.matches(Regex(".*/${label}_[0-9-]+.perfetto-trace"))) {
+        assertTrue(
+            perfettoTrace!!.path.matches(Regex(".*/${label}_[0-9-]+.perfetto-trace")),
             "$perfettoTrace didn't match!"
-        }
+        )
     }
 
     private fun verifyRecordFails(config: PerfettoConfig) {

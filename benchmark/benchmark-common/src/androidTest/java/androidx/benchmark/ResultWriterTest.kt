@@ -76,7 +76,7 @@ class ResultWriterTest {
         tempFile.writeText(fakeText)
 
         ResultWriter.writeReport(tempFile, listOf(reportA, reportB))
-        assert(!tempFile.readText().startsWith(fakeText))
+        assertTrue(!tempFile.readText().startsWith(fakeText))
     }
 
     @Test
