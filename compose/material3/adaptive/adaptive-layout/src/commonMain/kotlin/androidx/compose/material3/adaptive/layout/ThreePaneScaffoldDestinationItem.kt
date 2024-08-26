@@ -22,31 +22,31 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
  * An item representing a navigation destination in a [ThreePaneScaffold].
  *
  * @param pane the pane destination of the navigation.
- * @param content the optional content, or an id representing the content of the destination. The
- *   type [T] must be storable in a Bundle.
+ * @param contentKey the optional key or id representing the content of the destination. The type
+ *   [T] must be storable in a Bundle.
  */
 @ExperimentalMaterial3AdaptiveApi
 class ThreePaneScaffoldDestinationItem<out T>(
     val pane: ThreePaneScaffoldRole,
-    val content: T? = null,
+    val contentKey: T? = null,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is ThreePaneScaffoldDestinationItem<*>) return false
 
         if (pane != other.pane) return false
-        if (content != other.content) return false
+        if (contentKey != other.contentKey) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = pane.hashCode()
-        result = 31 * result + (content?.hashCode() ?: 0)
+        result = 31 * result + (contentKey?.hashCode() ?: 0)
         return result
     }
 
     override fun toString(): String {
-        return "ThreePaneScaffoldDestinationItem(pane=$pane, content=$content)"
+        return "ThreePaneScaffoldDestinationItem(pane=$pane, contentKey=$contentKey)"
     }
 }
