@@ -39,6 +39,20 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.6.1")
     implementation("androidx.compose.runtime:runtime:1.6.1")
     implementation("androidx.core:core-ktx:1.12.0")
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":camera:camera-camera2"))
+    androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
+    androidTestImplementation(project(":camera:camera-lifecycle"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.1")
+    androidTestImplementation("androidx.compose.ui:ui-test-manifest:1.6.1")
 }
 
 android {
