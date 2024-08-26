@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 private const val DpVisibilityThreshold = 0.1f
 private const val PxVisibilityThreshold = 0.5f
 
-private val rectVisibilityThreshold =
+private val RectVisibilityThreshold =
     Rect(PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold, PxVisibilityThreshold)
 
 /**
@@ -93,11 +93,14 @@ public val IntSize.Companion.VisibilityThreshold: IntSize
  * to stop when the value is close enough to the target.
  */
 public val Rect.Companion.VisibilityThreshold: Rect
-    get() = rectVisibilityThreshold
+    get() = RectVisibilityThreshold
 
 // TODO: Add Dp.DefaultAnimation = spring<Dp>(visibilityThreshold = Dp.VisibilityThreshold)
-
-internal val visibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> =
+// The floats coming out of this map are fed to APIs that expect objects (generics), so it's
+// better to store them as boxed floats here instead of causing unboxing/boxing every time
+// the values are read out and forwarded to other APIs
+@Suppress("PrimitiveInCollection")
+internal val VisibilityThresholdMap: Map<TwoWayConverter<*, *>, Float> =
     mapOf(
         Int.VectorConverter to 1f,
         IntSize.VectorConverter to 1f,
