@@ -1,1 +1,9 @@
 // Signature format: 4.0
+package androidx.camera.compose {
+
+  public final class CameraXViewfinderKt {
+    method @androidx.compose.runtime.Composable public static void CameraXViewfinder(androidx.camera.core.SurfaceRequest surfaceRequest, optional androidx.compose.ui.Modifier modifier, optional androidx.camera.viewfinder.surface.ImplementationMode implementationMode, optional androidx.camera.viewfinder.compose.MutableCoordinateTransformer? coordinateTransformer);
+  }
+
+}
+
