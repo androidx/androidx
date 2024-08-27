@@ -71,19 +71,16 @@ class TextFieldStateSemanticAutofillTest {
         val passwordTag = "password_tag"
 
         rule.setContentWithAutofillEnabled {
-            val usernameState = remember { TextFieldState() }
-            val passwordState = remember { TextFieldState() }
-
             Column {
                 BasicTextField(
-                    state = usernameState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.testTag(usernameTag).semantics {
                             contentType = ContentType.Username
                         }
                 )
                 BasicTextField(
-                    state = passwordState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.testTag(passwordTag).semantics {
                             contentType = ContentType.Password
@@ -111,11 +108,9 @@ class TextFieldStateSemanticAutofillTest {
         val usernameTag = "username_tag"
 
         rule.setContentWithAutofillEnabled {
-            val usernameState = remember { TextFieldState() }
-
             Column {
                 BasicSecureTextField(
-                    state = usernameState,
+                    state = remember { TextFieldState() },
                     modifier =
                         Modifier.testTag(usernameTag).semantics {
                             contentType = ContentType.Username

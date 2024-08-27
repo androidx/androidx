@@ -24,6 +24,7 @@ dependencies {
     implementation(project(":compose:ui:ui:ui-samples"))
     implementation(project(":compose:material:material"))
     implementation("androidx.compose.material:material-icons-core:1.6.7")
+    implementation(project(":navigation:navigation-compose"))
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui"))

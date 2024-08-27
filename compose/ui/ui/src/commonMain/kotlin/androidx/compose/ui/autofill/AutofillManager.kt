@@ -28,10 +28,20 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 interface AutofillManager {
 
     /**
-     * Notify credentials have been committed.
+     * Indicate the autofill context should be committed.
      *
-     * This function is called when the Autofill framework needs to be notified that credentials
-     * have been entered by the user.
+     * Call this function to notify the Autofill framework that the current context should be
+     * committed. After calling this function, the framework considers the form submitted, and the
+     * credentials entered will be processed.
      */
     fun commit()
+
+    /**
+     * Indicate the autofill context should be canceled.
+     *
+     * Call this function to notify the Autofill framework that the current context should be
+     * canceled. After calling this function, the framework will stop the current autofill session
+     * without processing any information entered in the autofillable field.
+     */
+    fun cancel()
 }

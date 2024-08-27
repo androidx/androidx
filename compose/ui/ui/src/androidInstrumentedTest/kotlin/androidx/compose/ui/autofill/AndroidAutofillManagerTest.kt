@@ -19,6 +19,7 @@ package androidx.compose.ui.autofill
 import android.os.Build
 import android.view.View
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.AndroidComposeView
+import androidx.compose.ui.platform.LocalAutofillManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDataType
@@ -40,6 +42,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -222,6 +226,51 @@ class AndroidAutofillManagerTest {
         rule.runOnIdle { isVisible = true }
 
         rule.runOnIdle { verify(autofillManagerMock).notifyViewVisibilityChanged(any(), any()) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_notifyCommit() {
+        val forwardTag = "forward_button_tag"
+        var autofillManager: AutofillManager?
+
+        rule.setContentWithAutofillEnabled {
+            autofillManager = LocalAutofillManager.current
+            Box(
+                modifier =
+                    Modifier.clickable { autofillManager?.commit() }
+                        .size(height, width)
+                        .testTag(forwardTag)
+            )
+        }
+
+        rule.onNodeWithTag(forwardTag).performClick()
+
+        rule.runOnIdle { verify(autofillManagerMock).commit() }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    @SmallTest
+    @SdkSuppress(minSdkVersion = 26)
+    fun autofillManager_notifyCancel() {
+        val backTag = "back_button_tag"
+        var autofillManager: AutofillManager?
+
+        rule.setContentWithAutofillEnabled {
+            autofillManager = LocalAutofillManager.current
+            Box(
+                modifier =
+                    Modifier.clickable { autofillManager?.cancel() }
+                        .size(height, width)
+                        .testTag(backTag)
+            )
+        }
+        rule.onNodeWithTag(backTag).performClick()
+
+        rule.runOnIdle { verify(autofillManagerMock).cancel() }
     }
 
     // ============================================================================================
