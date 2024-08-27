@@ -247,7 +247,6 @@ public open class PdfViewerFragment : Fragment() {
         fastScrollView = pdfViewer?.findViewById(R.id.fast_scroll_view)
         loadingView = pdfViewer?.findViewById(R.id.loadingView)
         paginatedView = fastScrollView?.findViewById(R.id.pdf_view)
-        paginationModel = paginatedView!!.paginationModel
         zoomView = pdfViewer?.findViewById(R.id.zoom_view)
         findInFileView = pdfViewer?.findViewById(R.id.search)
         findInFileView!!.setPaginatedView(paginatedView!!)
@@ -553,6 +552,7 @@ public open class PdfViewerFragment : Fragment() {
             SingleTapHandler(
                 requireContext(),
                 annotationButton!!,
+                paginatedView!!,
                 findInFileView!!,
                 zoomView!!,
                 selectionModel,
@@ -574,7 +574,7 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun refreshContentAndModels(pdfLoader: PdfLoader) {
-        paginationModel = paginatedView!!.initPaginationModelAndPageRangeHandler(requireActivity())
+        paginationModel = paginatedView!!.model
 
         paginatedView?.setPdfLoader(pdfLoader)
         findInFileView?.setPdfLoader(pdfLoader)
@@ -705,10 +705,7 @@ public open class PdfViewerFragment : Fragment() {
 
     private fun detachViewsAndObservers() {
         zoomScrollObserver?.let { zoomView?.zoomScroll()?.removeObserver(it) }
-        paginatedView?.let { view ->
-            view.removeAllViews()
-            paginationModel?.removeObserver(view)
-        }
+        paginatedView?.let { view -> view.removeAllViews() }
     }
 
     override fun onDestroyView() {
@@ -753,6 +750,7 @@ public open class PdfViewerFragment : Fragment() {
             }
         if (pdfLoader != null) {
             pdfLoaderCallbacks?.uri = fileUri
+            paginatedView?.resetModels()
             destroyContentModel()
         }
         detachViewsAndObservers()

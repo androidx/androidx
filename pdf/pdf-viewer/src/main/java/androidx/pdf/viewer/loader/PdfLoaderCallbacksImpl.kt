@@ -117,28 +117,27 @@ public class PdfLoaderCallbacksImpl(
             return
         }
 
-        if (selection.page >= paginatedView.paginationModel.size) {
+        if (selection.page >= paginatedView.model.size) {
             layoutHandler!!.layoutPages(selection.page + 1)
             return
         }
 
         val rect = selection.pageMatches.getFirstRect(selection.selected)
-        val x: Int = paginatedView.paginationModel.getLookAtX(selection.page, rect.centerX())
-        val y: Int = paginatedView.paginationModel.getLookAtY(selection.page, rect.centerY())
+        val x: Int = paginatedView.model.getLookAtX(selection.page, rect.centerX())
+        val y: Int = paginatedView.model.getLookAtY(selection.page, rect.centerY())
         zoomView.centerAt(x.toFloat(), y.toFloat())
 
         pageViewFactory!!
             .getOrCreatePageView(
                 selection.page,
                 pageElevationInPixels,
-                paginatedView.paginationModel.getPageSize(selection.page)
+                paginatedView.model.getPageSize(selection.page)
             )
             .setOverlay(selection.overlay)
     }
 
     private fun isPageCreated(pageNum: Int): Boolean {
-        return pageNum < paginatedView.paginationModel.size &&
-            paginatedView.getViewAt(pageNum) != null
+        return pageNum < paginatedView.model.size && paginatedView.getViewAt(pageNum) != null
     }
 
     private fun getPage(pageNum: Int): PageViewFactory.PageView? {
@@ -198,16 +197,12 @@ public class PdfLoaderCallbacksImpl(
         paginatedView.pageRangeHandler.maxPage = 1
         if (viewState.get() != ViewState.NO_VIEW) {
             if (uri != null && data.uri == uri) {
-                paginatedView.paginationModel.setMaxPages(-1)
+                paginatedView.model.setMaxPages(-1)
             }
 
-            paginatedView.paginationModel.initialize(numPages)
+            paginatedView.model.initialize(numPages)
 
-            // Add pagination model to the view
-            paginatedView.model = paginatedView.paginationModel
-            paginatedView.let { paginatedView.paginationModel.addObserver(it) }
-
-            fastScrollView.setPaginationModel(paginatedView.paginationModel)
+            fastScrollView.setPaginationModel(paginatedView.model)
 
             dismissPasswordDialog()
 
@@ -249,12 +244,12 @@ public class PdfLoaderCallbacksImpl(
 
     override fun pageBroken(page: Int) {
         if (viewState.get() != ViewState.NO_VIEW) {
-            if (page < paginatedView.paginationModel.numPages) {
+            if (page < paginatedView.model.numPages) {
                 pageViewFactory!!
                     .getOrCreatePageView(
                         page,
                         pageElevationInPixels,
-                        paginatedView.paginationModel.getPageSize(page)
+                        paginatedView.model.getPageSize(page)
                     )
                     .setFailure(context.resources.getString(R.string.error_on_page, page + 1))
                 // TODO: Track render error.
@@ -265,9 +260,9 @@ public class PdfLoaderCallbacksImpl(
     override fun setPageDimensions(pageNum: Int, dimensions: Dimensions) {
         if (viewState.get() != ViewState.NO_VIEW) {
 
-            paginatedView.paginationModel.addPage(pageNum, dimensions)
+            paginatedView.model.addPage(pageNum, dimensions)
 
-            layoutHandler!!.pageLayoutReach = paginatedView.paginationModel.size
+            layoutHandler!!.pageLayoutReach = paginatedView.model.size
 
             if (
                 searchModel!!.query().get() != null &&

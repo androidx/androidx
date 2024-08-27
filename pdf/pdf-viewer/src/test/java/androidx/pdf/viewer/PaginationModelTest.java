@@ -178,25 +178,25 @@ public class PaginationModelTest {
         mPaginationModel.addPage(1, mdDimensions);
         mPaginationModel.addPage(2, lgDimensions);
         // Setting viewArea large enough to accommodate the entire model.
-        mPaginationModel.setViewArea(new Rect(0, 0, 800, 800));
+        Rect viewArea = new Rect(0, 0, 800, 800);
 
         Rect expectedSmLocation = new Rect(300, 0, 500, 100);
-        assertThat(mPaginationModel.getPageLocation(0)).isEqualTo(expectedSmLocation);
+        assertThat(mPaginationModel.getPageLocation(0, viewArea)).isEqualTo(expectedSmLocation);
 
         Rect expectedMdLocation =
                 new Rect(200, 100 + getSpacingAbovePage(1), 600, 300 + getSpacingAbovePage(1));
-        assertThat(mPaginationModel.getPageLocation(1)).isEqualTo(expectedMdLocation);
+        assertThat(mPaginationModel.getPageLocation(1, viewArea)).isEqualTo(expectedMdLocation);
 
         Rect expectedLgLocation =
                 new Rect(0, 300 + getSpacingAbovePage(2), 800, 700 + getSpacingAbovePage(2));
-        Assert.assertEquals(expectedLgLocation, mPaginationModel.getPageLocation(2));
-        assertThat(mPaginationModel.getPageLocation(2)).isEqualTo(expectedLgLocation);
+        assertThat(mPaginationModel.getPageLocation(2, viewArea)).isEqualTo(expectedLgLocation);
     }
 
     /**
-     * {@link PaginationModel#getPageLocation(int)} should try to fit as much of each page into the
-     * viewable area as possible. Dimensions do not change vertically but pages that are smaller
-     * than {@link PaginationModel#getWidth()} can be moved horizontally to make this happen.
+     * {@link PaginationModel#getPageLocation(int, Rect)} should try to fit as much of each page
+     * into the viewable area as possible. Dimensions do not change vertically but pages that are
+     * smaller than {@link PaginationModel#getWidth()} can be moved horizontally to make this
+     * happen.
      *
      * <p>Page 1's width is smaller than {@link PaginationModel#getWidth()} so it will be placed in
      * the middle when the visible area covers the whole model {@see #testGetPageLocation}. When the
@@ -216,11 +216,11 @@ public class PaginationModelTest {
         mPaginationModel.addPage(2, lgDimensions);
 
         // Setting viewArea to a 300x200 section in the bottom-left corner of the model.
-        mPaginationModel.setViewArea(new Rect(0, 500, 200, 800));
+        Rect viewArea = new Rect(0, 500, 200, 800);
 
         Rect expectedMdLocation =
                 new Rect(0, 100 + getSpacingAbovePage(1), 400, 300 + getSpacingAbovePage(1));
-        assertThat(mPaginationModel.getPageLocation(1)).isEqualTo(expectedMdLocation);
+        assertThat(mPaginationModel.getPageLocation(1, viewArea)).isEqualTo(expectedMdLocation);
     }
 
     /**

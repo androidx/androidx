@@ -902,7 +902,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
 
         PaginatedView paginatedView = this.findViewById(R.id.pdf_view);
         ZoomScroll position = this.zoomScroll().get();
-        if (position == null || !paginatedView.getPaginationModel().isInitialized()) {
+        if (position == null || !paginatedView.getModel().isInitialized()) {
             return;
         }
 
@@ -911,7 +911,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             this.setStableZoom(position.zoom);
         }
 
-        paginatedView.getPaginationModel().setViewArea(this.getVisibleAreaInContentCoords());
+        paginatedView.setViewArea(this.getVisibleAreaInContentCoords());
         paginatedView.refreshPageRangeInVisibleArea(position, this.getHeight());
         paginatedView.handleGonePages(false);
         paginatedView.loadInvisibleNearPageRange(this.getStableZoom());

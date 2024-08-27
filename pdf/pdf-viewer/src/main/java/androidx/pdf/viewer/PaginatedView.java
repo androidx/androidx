@@ -21,10 +21,12 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.util.PaginationUtils;
@@ -45,14 +47,11 @@ import java.util.List;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressWarnings("WrongCall")
-public class PaginatedView extends AbstractPaginatedView {
-
-    private static final String TAG = PaginatedView.class.getSimpleName();
-
+public class PaginatedView extends ViewGroup implements PaginationModelObserver {
     /** Maps the current child views to pages. */
     private final SparseArray<PageView> mPageViews = new SparseArray<>();
 
-    private PaginationModel mPaginationModel;
+    private PaginationModel mModel;
 
     private PageRangeHandler mPageRangeHandler;
 
@@ -68,6 +67,9 @@ public class PaginatedView extends AbstractPaginatedView {
 
     private boolean mIsConfigurationChanged = false;
 
+    /** The current viewport in content coordinates */
+    private final Rect mViewArea = new Rect();
+
     public PaginatedView(@NonNull Context context) {
         this(context, null);
     }
@@ -78,20 +80,112 @@ public class PaginatedView extends AbstractPaginatedView {
 
     public PaginatedView(@NonNull Context context, @Nullable AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-
+        mModel = new PaginationModel(context);
+        mPageRangeHandler = new PageRangeHandler(mModel);
     }
 
-    /** Instantiate PaginationModel and PageRangeHandler */
-    @NonNull
-    public PaginationModel initPaginationModelAndPageRangeHandler(@NonNull Context context) {
-        mPaginationModel = new PaginationModel(context);
-        mPageRangeHandler = new PageRangeHandler(mPaginationModel);
-        return mPaginationModel;
+    @Override
+    protected void onAttachedToWindow() {
+        super.onAttachedToWindow();
+        mModel.addObserver(this);
+    }
+
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mPageRangeHandler != null) {
+            mPageRangeHandler.setVisiblePages(null);
+        }
+        mModel.removeObserver(this);
+    }
+
+    @VisibleForTesting
+    public void setModel(@NonNull PaginationModel model) {
+        mModel = model;
     }
 
     @NonNull
-    public PaginationModel getPaginationModel() {
-        return mPaginationModel;
+    public PaginationModel getModel() {
+        return mModel;
+    }
+
+    @NonNull
+    public PaginationModel resetModels() {
+        mModel = new PaginationModel(getContext());
+        mPageRangeHandler = new PageRangeHandler(mModel);
+        return mModel;
+    }
+
+    /** Requests a layout because this view has to grow now to accommodate the new page(s). */
+    @Override
+    public void onPageAdded() {
+        requestLayout();
+    }
+
+    protected boolean isInitialized() {
+        return mModel != null;
+    }
+
+    /**
+     * Measures this view in relation to the {@link #mModel} then asks all child views to measure
+     * themselves.
+     *
+     * <p>If the {@link #mModel} is not initialized, this view has nothing to display and will
+     * measure (0, 0). Otherwise, view will measure ({@link #mModel}'s width, {@link #mModel}'s
+     * estimated height).
+     */
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        int width = 0;
+        int estimatedHeight = 0;
+
+        if (isInitialized()) {
+            width = mModel.getWidth();
+            estimatedHeight = mModel.getEstimatedFullHeight();
+        }
+
+        setMeasuredDimension(width, estimatedHeight);
+        measureChildren(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    /**
+     * Provides consistent layout behavior for subclasses.
+     *
+     * <p>Does not perform a layout if there aren't any child views. Otherwise asks the
+     * subclasses to
+     * layout each child by index.
+     */
+    @Override
+    protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        int count = getChildCount();
+        if (count == 0) {
+            return;
+        }
+
+        for (int i = 0; i < count; i++) {
+            layoutChild(i);
+        }
+    }
+
+    /**
+     * Returns the current viewport in content coordinates
+     */
+    @NonNull
+    public Rect getViewArea() {
+        return mViewArea;
+    }
+
+    /**
+     * Updates the current viewport
+     *
+     * @param viewArea the viewport in content coordinates
+     */
+    public void setViewArea(@NonNull Rect viewArea) {
+        if (!viewArea.equals(this.mViewArea)) {
+            this.mViewArea.set(viewArea);
+            onViewAreaChanged();
+        }
     }
 
     @NonNull
@@ -120,7 +214,7 @@ public class PaginatedView extends AbstractPaginatedView {
 
     @NonNull
     public PdfSelectionHandles getSelectionHandles() {
-        return  mSelectionHandles;
+        return mSelectionHandles;
     }
 
     public void setSelectionHandles(@NonNull PdfSelectionHandles selectionHandles) {
@@ -243,10 +337,10 @@ public class PaginatedView extends AbstractPaginatedView {
      *
      * @param index the index of the child view in this ViewGroup
      */
-    @Override
-    protected void layoutChild(int index) {
+    private void layoutChild(int index) {
         int pageNum = mPageViews.keyAt(index);
-        Rect pageCoordinates = getModel().getPageLocation(pageNum);
+        Rect viewArea = getViewArea();
+        Rect pageCoordinates = getModel().getPageLocation(pageNum, viewArea);
 
         PageView child = (PageView) getChildAt(index);
         child
@@ -257,7 +351,6 @@ public class PaginatedView extends AbstractPaginatedView {
                         pageCoordinates.right,
                         pageCoordinates.bottom);
 
-        Rect viewArea = getModel().getViewArea();
         child
                 .getPageView()
                 .setViewArea(
@@ -275,20 +368,11 @@ public class PaginatedView extends AbstractPaginatedView {
     }
 
     /** Perform a layout when the viewArea of the {@code model} has changed. */
-    @Override
-    public void onViewAreaChanged() {
+    private void onViewAreaChanged() {
         // We can't wait for the next layout pass, the pages will be drawn before.
         // We could still optimize to skip the next layoutChild() calls for the pages that have been
         // laid out already for this viewArea.
         onLayout(false, getLeft(), getTop(), getRight(), getBottom());
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mPageRangeHandler != null) {
-            mPageRangeHandler.setVisiblePages(null);
-        }
     }
 
     /**
@@ -334,7 +418,7 @@ public class PaginatedView extends AbstractPaginatedView {
             if (getViewAt(pageNum) == null) {
                 mPageViewFactory.getOrCreatePageView(pageNum,
                         PaginationUtils.getPageElevationInPixels(getContext()),
-                        mPaginationModel.getPageSize(pageNum));
+                        mModel.getPageSize(pageNum));
                 requiresLayoutPass = true;
             }
         }
@@ -384,7 +468,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mModel.getPageSize(page));
             pageView.clearTiles();
             pageView.requestFastDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
@@ -396,7 +480,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mModel.getPageSize(page));
             pageView.requestDrawAtZoom(stableZoom);
             pageView.refreshPageContentAndOverlays();
         }
@@ -417,7 +501,7 @@ public class PaginatedView extends AbstractPaginatedView {
             PageMosaicView pageView = mPageViewFactory.getOrCreatePageView(
                     page,
                     PaginationUtils.getPageElevationInPixels(getContext()),
-                    mPaginationModel.getPageSize(page));
+                    mModel.getPageSize(page));
             pageView.requestTiles();
         }
     }

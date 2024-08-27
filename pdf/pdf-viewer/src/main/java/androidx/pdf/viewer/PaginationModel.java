@@ -50,19 +50,14 @@ import java.util.Set;
  * <ol>
  *   <li>{@link #initialize(int)} with the number of pages it will contain.
  *   <li>{@link #addPage(int, Dimensions)} to set the dimensions for each page.
- *   <li>{@link #setViewArea(Rect)} to report current visible area so pages can be moved
- *       horizontally for maximum visibility.
  * </ol>
  *
  * <p>This model is observable. Any classes implementing {@link PaginationModelObserver} can
  * register themselves via {@link #addObserver(PaginationModelObserver)} and will be notified when
- * pages are added or the {@link #mViewArea} is changed.
+ * pages are added
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class PaginationModel {
-
-    private static final String TAG = PaginationModel.class.getSimpleName();
-
     /**
      * The spacing added before and after each page (the actual space between 2 consecutive pages is
      * twice this distance), in pixels.
@@ -85,22 +80,6 @@ public class PaginationModel {
     private float mEstimatedPageHeight = 0;
 
     private int mAccumulatedPageSize = 0;
-
-    /**
-     * The portion of this model that is currently (or last we knew) exposed on the screen.
-     *
-     * <p>In the co-ordinates of this model - so if this entire model is within the visible area,
-     * then
-     * {@code viewArea} will contain the rect Rect(0, 0, getWidth, getHeight). Current visible area
-     * should be reported to this model via {@link #setViewArea(Rect)}.
-     */
-    private final Rect mViewArea = new Rect();
-
-    /**
-     * A temp working instance for computing {@link #mViewArea} to avoid excessive object
-     * creation.
-     */
-    private final Rect mTempViewArea = new Rect();
 
     private final Set<PaginationModelObserver> mObservers = new HashSet<>();
 
@@ -284,21 +263,7 @@ public class PaginationModel {
                 mMaxPages - mSize + 1));
     }
 
-    /**
-     * Updates the portion of this model that is visible on the screen, in this model's
-     * coordinates -
-     * so relative to (0, 0)-(getWidth(), getHeight()).
-     */
-    public void setViewArea(@NonNull Rect viewArea) {
-        mTempViewArea.set(viewArea);
-        if (!mTempViewArea.intersect(
-                0, 0, getWidth(), getEstimatedFullHeight())) { // Modifies tempViewArea.
-        }
-        if (!mTempViewArea.equals(this.mViewArea)) {
-            this.mViewArea.set(mTempViewArea);
-            notifyViewAreaChanged();
-        }
-    }
+
 
     /**
      * Returns the location of the page in the model.
@@ -313,10 +278,11 @@ public class PaginationModel {
      * </ul>
      *
      * @param pageNum - index of requested page
+     * @param viewArea - the current viewport in content coordinates
      * @return - coordinates of the page within this model
      */
     @NonNull
-    public Rect getPageLocation(int pageNum) {
+    public Rect getPageLocation(int pageNum, @NonNull Rect viewArea) {
         int left = 0;
         int right = getWidth();
         int top = mPageStops[pageNum];
@@ -324,15 +290,15 @@ public class PaginationModel {
         int width = mPages[pageNum].getWidth();
         if (width < right - left) {
             // this page is smaller than the view's width, it may slide left or right.
-            if (width < mViewArea.width()) {
+            if (width < viewArea.width()) {
                 // page is smaller than the view: center (but respect min left margin)
-                left = Math.max(left, mViewArea.left + (mViewArea.width() - width) / 2);
+                left = Math.max(left, viewArea.left + (viewArea.width() - width) / 2);
             } else {
                 // page is larger than view: scroll proportionally between the margins.
-                if (mViewArea.right > right) {
+                if (viewArea.right > right) {
                     left = right - width;
-                } else if (mViewArea.left > left) {
-                    left = mViewArea.left * (right - width) / (right - mViewArea.width());
+                } else if (viewArea.left > left) {
+                    left = viewArea.left * (right - width) / (right - viewArea.width());
                 }
             }
             right = left + width;
@@ -369,23 +335,6 @@ public class PaginationModel {
     public int getNumPages() {
         Preconditions.checkState(mMaxPages != -1, "Model is not initialized");
         return mMaxPages;
-    }
-
-    /**
-     * Returns the intersection of this model and the last viewArea that was reported to this model
-     * via {@link #setViewArea(Rect)}.
-     */
-    @NonNull
-    public Rect getViewArea() {
-        return mViewArea;
-    }
-
-    /** Notify all observers that the {@code viewArea} has changed. */
-    private void notifyViewAreaChanged() {
-        Iterator<PaginationModelObserver> iterator = iterator();
-        while (iterator.hasNext()) {
-            iterator.next().onViewAreaChanged();
-        }
     }
 
     /** Notify all observers that a page has been added to the model. */
@@ -432,7 +381,7 @@ public class PaginationModel {
     @NonNull
     public Iterator<PaginationModelObserver> iterator() {
         synchronized (mObservers) {
-            return new ArrayList<PaginationModelObserver>(mObservers).iterator();
+            return new ArrayList<>(mObservers).iterator();
         }
     }
 

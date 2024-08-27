@@ -229,7 +229,7 @@ public class PdfViewer extends LoadingViewer {
         mFindInFileView = mPdfViewer.findViewById(R.id.search);
         mFastScrollView = mPdfViewer.findViewById(R.id.fast_scroll_view);
         mPaginatedView = mPdfViewer.findViewById(R.id.pdf_view);
-        mPaginationModel = mPaginatedView.getPaginationModel();
+        mPaginationModel = mPaginatedView.getModel();
         mZoomView = mPdfViewer.findViewById(R.id.zoom_view);
         mLoadingSpinner = mPdfViewer.findViewById(R.id.progress_indicator);
         setUpEditFab();
@@ -279,7 +279,7 @@ public class PdfViewer extends LoadingViewer {
                 new SearchQueryObserver(mPaginatedView);
         mSearchModel.query().addObserver(mSearchQueryObserver);
 
-        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton,
+        mSingleTapHandler = new SingleTapHandler(getContext(), mAnnotationButton, mPaginatedView,
                 mFindInFileView, mZoomView, mSelectionModel, mPaginationModel, mLayoutHandler);
         mPageViewFactory = new PageViewFactory(requireContext(), mPdfLoader,
                 mPaginatedView, mZoomView, mSingleTapHandler, mFindInFileView);
@@ -378,7 +378,6 @@ public class PdfViewer extends LoadingViewer {
 
         if (mPaginatedView != null) {
             mPaginatedView.removeAllViews();
-            mPaginationModel.removeObserver(mPaginatedView);
             mPaginatedView = null;
         }
 
@@ -627,8 +626,6 @@ public class PdfViewer extends LoadingViewer {
                         mPaginatedView.getPageRangeHandler().setMaxPage(1);
                         if (viewState().get() != ViewState.NO_VIEW) {
                             mPaginationModel.initialize(numPages);
-                            mPaginatedView.setModel(mPaginationModel);
-                            mPaginationModel.addObserver(mPaginatedView);
                             mFastScrollView.setPaginationModel(mPaginationModel);
 
                             dismissPasswordDialog();

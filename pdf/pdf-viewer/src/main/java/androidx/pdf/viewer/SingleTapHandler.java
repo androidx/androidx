@@ -38,6 +38,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 public class SingleTapHandler {
     private final Context mContext;
     private final FloatingActionButton mFloatingActionButton;
+    private final PaginatedView mPaginatedView;
     private final FindInFileView mFindInFileView;
     private final ZoomView mZoomView;
     private final PdfSelectionModel mPdfSelectionModel;
@@ -47,6 +48,7 @@ public class SingleTapHandler {
 
     public SingleTapHandler(@NonNull Context context,
             @NonNull FloatingActionButton floatingActionButton,
+            @NonNull PaginatedView paginatedView,
             @NonNull FindInFileView findInFileView,
             @NonNull ZoomView zoomView,
             @NonNull PdfSelectionModel pdfSelectionModel,
@@ -54,6 +56,7 @@ public class SingleTapHandler {
             @NonNull LayoutHandler layoutHandler) {
         mContext = context;
         mFloatingActionButton = floatingActionButton;
+        mPaginatedView = paginatedView;
         mFindInFileView = findInFileView;
         mZoomView = zoomView;
         mPdfSelectionModel = pdfSelectionModel;
@@ -65,7 +68,6 @@ public class SingleTapHandler {
         mIsAnnotationIntentResolvable = annotationIntentResolvable;
     }
 
-    /** */
     public void handleSingleTapConfirmedEventOnPage(@NonNull MotionEvent event,
             @NonNull PageMosaicView pageMosaicView) {
         if (mIsAnnotationIntentResolvable) {
@@ -123,7 +125,8 @@ public class SingleTapHandler {
         if (destination.getYCoordinate() != null) {
             int pageY = (int) destination.getYCoordinate().floatValue();
 
-            Rect pageRect = mPaginationModel.getPageLocation(destination.getPageNumber());
+            Rect pageRect = mPaginationModel.getPageLocation(destination.getPageNumber(),
+                    mPaginatedView.getViewArea());
             int x = pageRect.left + (pageRect.width() / 2);
             int y = mPaginationModel.getLookAtY(destination.getPageNumber(), pageY);
             // Zoom should match the width of the page.
@@ -155,7 +158,7 @@ public class SingleTapHandler {
             return;
         }
 
-        Rect pageRect = mPaginationModel.getPageLocation(pageNum);
+        Rect pageRect = mPaginationModel.getPageLocation(pageNum, mPaginatedView.getViewArea());
 
         int x = pageRect.left + (pageRect.width() / 2);
         int y = pageRect.top + (pageRect.height() / 2);

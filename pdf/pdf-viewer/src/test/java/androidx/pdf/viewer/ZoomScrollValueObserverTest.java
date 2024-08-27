@@ -80,7 +80,7 @@ public class ZoomScrollValueObserverTest {
         mNewPosition = new ZoomView.ZoomScroll(1.0f, 0, 0, false);
 
         when(mMockPaginatedView.getPageRangeHandler()).thenReturn(mPageRangeHandler);
-        when(mMockPaginatedView.getPaginationModel()).thenReturn(mMockPaginationModel);
+        when(mMockPaginatedView.getModel()).thenReturn(mMockPaginationModel);
         when(mMockPaginationModel.isInitialized()).thenReturn(true);
         when(mMockZoomView.getHeight()).thenReturn(100);
         when(mPageRangeHandler.computeVisibleRange(0, 1.0f, 100, false)).thenReturn(PAGE_RANGE);
@@ -103,7 +103,7 @@ public class ZoomScrollValueObserverTest {
         zoomScrollValueObserver.onChange(OLD_POSITION, mNewPosition);
 
         verify(mMockZoomView).setStableZoom(1.0f);
-        verify(mMockPaginationModel).setViewArea(RECT);
+        verify(mMockPaginatedView).setViewArea(RECT);
         verify(mMockPaginatedView).refreshPageRangeInVisibleArea(mNewPosition, 100);
         verify(mMockPaginatedView).handleGonePages(false);
         verify(mMockPaginatedView).loadInvisibleNearPageRange(1.0f);
