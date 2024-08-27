@@ -18,7 +18,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="emoji_category_recent" msgid="7142376595414250279">"المستخدمة حديثًا"</string>
-    <string name="emoji_category_emotions" msgid="1570830970240985537">"الوجوه المبتسمة والرموز التعبيرية"</string>
+    <string name="emoji_category_emotions" msgid="1570830970240985537">"الوجوه المبتسمة ورموز الإيموجي"</string>
     <string name="emoji_category_people" msgid="7968173366822927025">"الأشخاص"</string>
     <string name="emoji_category_animals_nature" msgid="4640771324837307541">"الحيوانات والطبيعة"</string>
     <string name="emoji_category_food_drink" msgid="1189971856721244395">"المأكولات والمشروبات"</string>
@@ -27,11 +27,11 @@
     <string name="emoji_category_objects" msgid="6106115586332708067">"عناصر متنوعة"</string>
     <string name="emoji_category_symbols" msgid="5626171724310261787">"الرموز"</string>
     <string name="emoji_category_flags" msgid="6185639503532784871">"الأعلام"</string>
-    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"لا تتوفر أي رموز تعبيرية."</string>
-    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"لم تستخدم أي رموز تعبيرية حتى الآن."</string>
-    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"مفتاح ثنائي الاتجاه للرموز التعبيرية"</string>
+    <string name="emoji_empty_non_recent_category" msgid="288822832574892625">"لا تتوفر أي رموز إيموجي."</string>
+    <string name="emoji_empty_recent_category" msgid="7863877827879290200">"لم تستخدم أي رموز إيموجي حتى الآن."</string>
+    <string name="emoji_bidirectional_switcher_content_desc" msgid="5084600168354220605">"مفتاح ثنائي الاتجاه لرموز الإيموجي"</string>
     <string name="emoji_bidirectional_switcher_clicked_desc" msgid="5055290162204827523">"تم تغيير اتجاه الإيموجي"</string>
-    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"أداة اختيار الرموز التعبيرية"</string>
+    <string name="emoji_variant_selector_content_desc" msgid="2898934883418401376">"أداة اختيار رموز الإيموجي"</string>
     <string name="emoji_variant_content_desc_template" msgid="6381933050671041489">"‏%1$s و%2$s"</string>
     <string name="emoji_skin_tone_shadow_content_desc" msgid="1759906883307507376">"الظل"</string>
     <string name="emoji_skin_tone_light_content_desc" msgid="1052239040923092881">"بشرة فاتحة"</string>
