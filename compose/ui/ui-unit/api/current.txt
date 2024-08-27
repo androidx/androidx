@@ -94,7 +94,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class DpKt {
-    method @androidx.compose.runtime.Stable public static long DpOffset(float x, float y);
+    method @androidx.compose.runtime.Stable public static inline long DpOffset(float x, float y);
     method @androidx.compose.runtime.Stable public static long DpSize(float width, float height);
     method @androidx.compose.runtime.Stable public static inline float coerceAtLeast(float, float minimumValue);
     method @androidx.compose.runtime.Stable public static inline float coerceAtMost(float, float maximumValue);
@@ -129,11 +129,14 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class DpOffset {
+    ctor public DpOffset(long packedValue);
     method public long copy(optional float x, optional float y);
+    method public long getPackedValue();
     method public float getX();
     method public float getY();
     method @androidx.compose.runtime.Stable public operator long minus(long other);
     method @androidx.compose.runtime.Stable public operator long plus(long other);
+    property public final long packedValue;
     property @androidx.compose.runtime.Stable public final float x;
     property @androidx.compose.runtime.Stable public final float y;
     field public static final androidx.compose.ui.unit.DpOffset.Companion Companion;
@@ -203,10 +206,12 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
+    ctor public IntOffset(long packedValue);
     method @androidx.compose.runtime.Stable public inline operator int component1();
     method @androidx.compose.runtime.Stable public inline operator int component2();
     method public long copy(optional int x, optional int y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
+    method public long getPackedValue();
     method public int getX();
     method public int getY();
     method @androidx.compose.runtime.Stable public operator long minus(long other);
@@ -214,6 +219,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public operator long rem(int operand);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
     method @androidx.compose.runtime.Stable public operator long unaryMinus();
+    property public final long packedValue;
     property @androidx.compose.runtime.Stable public final int x;
     property @androidx.compose.runtime.Stable public final int y;
     field public static final androidx.compose.ui.unit.IntOffset.Companion Companion;
@@ -225,7 +231,7 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntOffsetKt {
-    method @androidx.compose.runtime.Stable public static long IntOffset(int x, int y);
+    method @androidx.compose.runtime.Stable public static inline long IntOffset(int x, int y);
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
     method @androidx.compose.runtime.Stable public static operator long minus(long, long offset);
     method @androidx.compose.runtime.Stable public static operator long minus(long, long offset);
@@ -309,9 +315,11 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public inline operator int component2();
     method @androidx.compose.runtime.Stable public operator long div(int other);
     method public inline int getHeight();
+    method public long getPackedValue();
     method public inline int getWidth();
     method @androidx.compose.runtime.Stable public operator long times(int other);
     property @androidx.compose.runtime.Stable public final inline int height;
+    property public final long packedValue;
     property @androidx.compose.runtime.Stable public final inline int width;
     field public static final androidx.compose.ui.unit.IntSize.Companion Companion;
   }

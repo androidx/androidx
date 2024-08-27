@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.geometry
 
 import androidx.compose.runtime.Immutable
@@ -24,8 +26,8 @@ import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
 import kotlin.math.sqrt
 
-/** Constructs an Offset from the given relative x and y offsets */
-@Stable fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
+/** Constructs an Offset from the given relative [x] and [y] offsets */
+@Stable inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
 
 /**
  * An immutable 2D floating-point offset.
@@ -44,15 +46,20 @@ import kotlin.math.sqrt
  * See also:
  * * [Size], which represents a vector describing the size of a rectangle.
  *
- * Creates an offset. The first argument sets [x], the horizontal component, and the second sets
- * [y], the vertical component.
+ * To create an [Offset], call the top-level function that accepts an x/y pair of coordinates:
+ * ```
+ * val offset = Offset(x, y)
+ * ```
+ *
+ * The primary constructor of [Offset] is intended to be used with the [packedValue] property to
+ * allow storing offsets in arrays or collections of primitives without boxing.
+ *
+ * @param packedValue [Long] value encoding the [x] and [y] components of the [Offset]. Encoded
+ *   values can be obtained by using the [packedValue] property of existing [Offset] instances.
  */
-@Suppress("NOTHING_TO_INLINE")
 @Immutable
 @kotlin.jvm.JvmInline
-value class Offset
-@PublishedApi
-internal constructor(@PublishedApi internal val packedValue: Long) {
+value class Offset(val packedValue: Long) {
     @Stable
     inline val x: Float
         get() = unpackFloat1(packedValue)
