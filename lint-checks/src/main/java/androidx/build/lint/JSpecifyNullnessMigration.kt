@@ -37,10 +37,10 @@ import org.jetbrains.uast.UMethod
 import org.jetbrains.uast.UParameter
 
 /**
- * Repositions nullness annotations on arrays to facilitate migrating the nullness annotations to
- * TYPE_USE. See the issue description in the companion object for more detail.
+ * Repositions nullness annotations to facilitate migrating the nullness annotations to JSpecify
+ * TYPE_USE annotations. See the issue description in the companion object for more detail.
  */
-class ArrayNullnessMigration : Detector(), Detector.UastScanner {
+class JSpecifyNullnessMigration : Detector(), Detector.UastScanner {
     override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
 
     override fun createUastHandler(context: JavaContext): UElementHandler {
@@ -142,7 +142,7 @@ class ArrayNullnessMigration : Detector(), Detector.UastScanner {
 
             val incident =
                 Incident(context)
-                    .message("Nullness annotation on array will apply to element")
+                    .message("Switch nullness annotation to JSpecify")
                     .issue(ISSUE)
                     .location(context.getLocation(annotated as UElement))
                     .scope(annotated)
@@ -159,24 +159,26 @@ class ArrayNullnessMigration : Detector(), Detector.UastScanner {
             )
         val ISSUE =
             Issue.create(
-                "ArrayMigration",
-                "Migrate arrays to type-use nullness annotations",
+                "JSpecifyNullness",
+                "Migrate nullness annotations to type-use position",
                 """
-                    When nullness annotations do not target TYPE_USE, the following definition means
-                    that the type of `arg` is nullable:
+                    Switches from AndroidX nullness annotations to JSpecify, which are type-use.
+                    Type-use annotations have different syntactic positions than non-type-use
+                    annotations in some cases.
+
+                    For instance, when nullness annotations do not target TYPE_USE, the following
+                    definition means that the type of `arg` is nullable:
                         @Nullable String[] arg
                     However, if the annotation targets TYPE_USE, it now applies to the component
                     type of the array, meaning that `arg`'s type is an array of nullable strings.
                     To retain the original meaning, the definition needs to be changed to this:
                         String @Nullable [] arg
-                    This check performs that migration to enable converting nullness annotations to
-                    target TYPE_USE.
                 """,
                 Category.CORRECTNESS,
                 5,
                 Severity.ERROR,
                 Implementation(
-                    ArrayNullnessMigration::class.java,
+                    JSpecifyNullnessMigration::class.java,
                     EnumSet.of(Scope.JAVA_FILE, Scope.TEST_SOURCES)
                 )
             )

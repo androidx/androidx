@@ -341,10 +341,10 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             disable.add("IllegalExperimentalApiUsage")
         }
 
-        // Only allow the ArrayMigration check to be run when opted-in, since this is meant to be
-        // run once per project when switching to type-use nullness annotations.
-        if (!project.migrateArrayAnnotations()) {
-            disable.add("ArrayMigration")
+        // Only allow the JSpecifyNullness check to be run when opted-in, while migrating projects
+        // to use JSpecify annotations.
+        if (!project.useJSpecifyAnnotations()) {
+            disable.add("JSpecifyNullness")
         }
 
         fatal.add("UastImplementation") // go/hide-uast-impl

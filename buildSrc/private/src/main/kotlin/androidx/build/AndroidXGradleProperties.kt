@@ -143,7 +143,7 @@ const val INCLUDE_OPTIONAL_PROJECTS = "androidx.includeOptionalProjects"
  * If true, enable the ArrayNullnessMigration lint check to transition to type-use nullness
  * annotations. Defaults to false.
  */
-const val MIGRATE_ARRAY_ANNOTATIONS = "androidx.migrateArrayAnnotations"
+const val USE_JSPECIFY_ANNOTATIONS = "androidx.useJSpecifyAnnotations"
 
 /** If true, yarn dependencies are fetched from an offline mirror */
 const val YARN_OFFLINE_MODE = "androidx.yarnOfflineMode"
@@ -186,7 +186,7 @@ val ALL_ANDROIDX_PROPERTIES =
         FilteredAnchorTask.PROP_TASK_NAME,
         FilteredAnchorTask.PROP_PATH_PREFIX,
         INCLUDE_OPTIONAL_PROJECTS,
-        MIGRATE_ARRAY_ANNOTATIONS,
+        USE_JSPECIFY_ANNOTATIONS,
         YARN_OFFLINE_MODE,
         FORCE_KOTLIN_2_0_TARGET,
         FORCE_BENCHMARK_AOT_COMPILATION,
@@ -289,10 +289,10 @@ fun Project.isCustomCompileSdkAllowed(): Boolean =
     findBooleanProperty(ALLOW_CUSTOM_COMPILE_SDK) ?: true
 
 /**
- * Whether to enable the ArrayNullnessMigration lint check for moving nullness annotations on arrays
- * when switching a project to type-use nullness annotations.
+ * Whether to enable the JSpecifyNullnessMigration lint check for moving nullness annotations when
+ * switching a project to the JSpecify type-use nullness annotations.
  */
-fun Project.migrateArrayAnnotations() = findBooleanProperty(MIGRATE_ARRAY_ANNOTATIONS) ?: false
+fun Project.useJSpecifyAnnotations() = findBooleanProperty(USE_JSPECIFY_ANNOTATIONS) ?: false
 
 fun Project.findBooleanProperty(propName: String) = booleanPropertyProvider(propName).get()
 
