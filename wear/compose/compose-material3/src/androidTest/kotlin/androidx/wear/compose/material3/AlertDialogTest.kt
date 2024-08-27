@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.dialog
+package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.background
@@ -39,17 +39,6 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.LocalContentColor
-import androidx.wear.compose.material3.LocalTextAlign
-import androidx.wear.compose.material3.LocalTextMaxLines
-import androidx.wear.compose.material3.LocalTextStyle
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.TEST_TAG
-import androidx.wear.compose.material3.TestImage
-import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.setContentWithTheme
-import androidx.wear.compose.material3.setContentWithThemeForSizeAssertions
 import junit.framework.TestCase.assertEquals
 import org.junit.Rule
 import org.junit.Test

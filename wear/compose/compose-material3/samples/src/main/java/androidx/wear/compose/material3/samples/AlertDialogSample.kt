@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.samples.dialog
+package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Box
@@ -31,12 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.AlertDialog
+import androidx.wear.compose.material3.AlertDialogDefaults
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.dialog.AlertDialog
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults
 
 @Sampled
 @Composable

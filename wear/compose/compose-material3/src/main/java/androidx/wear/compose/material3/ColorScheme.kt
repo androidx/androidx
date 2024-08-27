@@ -254,6 +254,11 @@ class ColorScheme(
     // Level Indicator
     internal var defaultLevelIndicatorColorsCached: LevelIndicatorColors? = null
 
+    // Confirmation
+    internal var defaultConfirmationColorsCached: ConfirmationColors? = null
+    internal var defaultSuccessConfirmationColorsCached: ConfirmationColors? = null
+    internal var defaultFailureConfirmationColorsCached: ConfirmationColors? = null
+
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
     internal var defaultDatePickerColorsCached: DatePickerColors? = null

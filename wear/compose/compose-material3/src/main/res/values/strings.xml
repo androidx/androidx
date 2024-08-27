@@ -36,4 +36,7 @@
     <string description="Lets the user know that this picker is to change the value of the year date unit. Appears on the DatePicker component, on top of the year picker. [CHAR_LIMIT=8]" name="wear_m3c_date_picker_year">Year</string>
     <string description="Content description of the confirm button of DatePicker and TimePicker components. It lets the user confirm the date or time selected. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_confirm_button_content_description">Confirm</string>
     <string description="Content description of the next button of DatePicker and TimePicker components. It lets the user to move to the next picker. [CHAR_LIMIT=NONE]" name="wear_m3c_picker_next_button_content_description">Next</string>
+
+    <string description="A message which is used to indicate that an action failed in a FailureConfirmation [CHAR_LIMIT=12]" name="wear_m3c_confirmation_failure_message">Failed</string>
+    <string description="A message which is used to indicate that an action succeeded in a SuccessConfirmation [CHAR_LIMIT=12]" name="wear_m3c_confirmation_success_message">Success</string>
 </resources>

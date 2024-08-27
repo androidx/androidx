@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.dialog
+package androidx.wear.compose.material3
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,25 +46,12 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
-import androidx.wear.compose.material3.Button
-import androidx.wear.compose.material3.ButtonDefaults
-import androidx.wear.compose.material3.EdgeButton
-import androidx.wear.compose.material3.FilledIconButton
-import androidx.wear.compose.material3.FilledTonalIconButton
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.LocalContentColor
-import androidx.wear.compose.material3.LocalTextAlign
-import androidx.wear.compose.material3.LocalTextMaxLines
-import androidx.wear.compose.material3.LocalTextStyle
-import androidx.wear.compose.material3.MaterialTheme
-import androidx.wear.compose.material3.PaddingDefaults
-import androidx.wear.compose.material3.ScreenScaffold
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.bottomSpacing
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.contentTopSpacing
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.iconBottomSpacing
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.textMessageTopSpacing
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.textPaddingFraction
-import androidx.wear.compose.material3.dialog.AlertDialogDefaults.titlePaddingFraction
+import androidx.wear.compose.material3.AlertDialogDefaults.bottomSpacing
+import androidx.wear.compose.material3.AlertDialogDefaults.contentTopSpacing
+import androidx.wear.compose.material3.AlertDialogDefaults.iconBottomSpacing
+import androidx.wear.compose.material3.AlertDialogDefaults.textMessageTopSpacing
+import androidx.wear.compose.material3.AlertDialogDefaults.textPaddingFraction
+import androidx.wear.compose.material3.AlertDialogDefaults.titlePaddingFraction
 import androidx.wear.compose.materialcore.isSmallScreen
 import androidx.wear.compose.materialcore.screenWidthDp
 
@@ -79,7 +66,7 @@ import androidx.wear.compose.materialcore.screenWidthDp
  *
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
- * @sample androidx.wear.compose.material3.samples.dialog.AlertDialogWithConfirmAndDismissSample
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
  * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
  *   right (typically also called by the [dismissButton]).
@@ -146,11 +133,11 @@ fun AlertDialog(
  *
  * Example of an [AlertDialog] with an icon, title, text and bottom [EdgeButton]:
  *
- * @sample androidx.wear.compose.material3.samples.dialog.AlertDialogWithBottomButtonSample
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithBottomButtonSample
  *
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
- * @sample androidx.wear.compose.material3.samples.dialog.AlertDialogWithContentGroupsSample
+ * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
  * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.

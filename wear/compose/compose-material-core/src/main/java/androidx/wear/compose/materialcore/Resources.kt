@@ -62,11 +62,11 @@ fun currentTimeMillis(): Long = System.currentTimeMillis()
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-fun screenHeightDp() = LocalContext.current.resources.configuration.screenHeightDp
+fun screenHeightDp() = LocalConfiguration.current.screenHeightDp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
-fun screenWidthDp() = LocalContext.current.resources.configuration.screenWidthDp
+fun screenWidthDp() = LocalConfiguration.current.screenWidthDp
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable

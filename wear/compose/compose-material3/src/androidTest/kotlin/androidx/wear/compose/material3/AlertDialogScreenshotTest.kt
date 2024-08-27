@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.dialog
+package androidx.wear.compose.material3
 
 import android.content.res.Configuration
 import android.os.Build
@@ -41,14 +41,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.lazy.ScalingLazyListScope
-import androidx.wear.compose.material3.FilledTonalButton
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
-import androidx.wear.compose.material3.ScreenSize
-import androidx.wear.compose.material3.TEST_TAG
-import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.goldenIdentifier
-import androidx.wear.compose.material3.setContentWithTheme
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
