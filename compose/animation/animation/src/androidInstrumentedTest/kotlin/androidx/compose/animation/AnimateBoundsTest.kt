@@ -60,6 +60,7 @@ import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -451,6 +452,7 @@ class AnimateBoundsTest {
             assertEquals(IntSize(itemBSizePx, itemBSizePx), boxSize)
         }
 
+    @Ignore("b/362340158 - Around 10% flaky on local tests")
     @Test
     fun animateBounds_scrollBehavior() =
         with(rule.density) {
