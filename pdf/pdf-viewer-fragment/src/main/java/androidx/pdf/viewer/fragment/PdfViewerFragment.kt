@@ -456,7 +456,6 @@ public open class PdfViewerFragment : Fragment() {
             contents,
             pdfLoaderCallbacks!!
         )
-        setAnnotationIntentResolvability()
     }
 
     private fun setAnnotationIntentResolvability() {
@@ -637,6 +636,7 @@ public open class PdfViewerFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
+        setAnnotationIntentResolvability()
         if (!documentLoaded) {
             return
         }
