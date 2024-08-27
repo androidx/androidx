@@ -57,10 +57,6 @@ abstract class AdIdManager internal constructor() {
                 BackCompatManager.getManager(context, "AdIdManager") {
                     AdIdManagerApi31Ext9Impl(context)
                 }
-            } else if (AdServicesInfo.extServicesVersionR() >= 11) {
-                BackCompatManager.getManager(context, "AdIdManager") {
-                    AdIdManagerApi30Ext11Impl(context)
-                }
             } else {
                 null
             }

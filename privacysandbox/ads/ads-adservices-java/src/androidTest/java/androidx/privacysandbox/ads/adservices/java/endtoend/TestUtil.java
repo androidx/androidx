@@ -115,17 +115,6 @@ public class TestUtil {
         }
     }
 
-    public void enableBackCompatOnR() {
-        runShellCommand("device_config put adservices adservice_enabled true");
-        runShellCommand("device_config put adservices enable_back_compat true");
-    }
-
-
-    public void disableBackCompatOnR() {
-        runShellCommand("device_config put adservices adservice_enabled false");
-        runShellCommand("device_config put adservices enable_back_compat false");
-    }
-
     public void enableBackCompatOnS() {
         runShellCommand("device_config put adservices enable_back_compat true");
         runShellCommand("device_config put adservices consent_source_of_truth 3");

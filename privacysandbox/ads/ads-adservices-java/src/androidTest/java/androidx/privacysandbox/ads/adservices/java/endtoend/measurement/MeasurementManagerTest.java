@@ -96,8 +96,6 @@ public class MeasurementManagerTest {
                 MeasurementManagerFutures.from(ApplicationProvider.getApplicationContext());
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
             mTestUtil.enableBackCompatOnS();
-        } else if (VersionCompatUtil.INSTANCE.isRWithMinExtServicesVersion(11)) {
-            mTestUtil.enableBackCompatOnR();
         }
 
         // Put in a short sleep to make sure the updated config propagates
@@ -115,8 +113,6 @@ public class MeasurementManagerTest {
         mTestUtil.overrideDisableMeasurementEnrollmentCheck("0");
         if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
             mTestUtil.disableBackCompatOnS();
-        } else if (VersionCompatUtil.INSTANCE.isRWithMinExtServicesVersion(11)) {
-            mTestUtil.disableBackCompatOnR();
         }
 
         // Cool-off rate limiter
@@ -129,8 +125,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         assertThat(
                         mMeasurementManager
@@ -146,8 +141,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         SourceRegistrationRequest request =
                 new SourceRegistrationRequest.Builder(
@@ -162,8 +156,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         assertThat(mMeasurementManager.registerTriggerAsync(TRIGGER_REGISTRATION_URI).get())
                 .isNotNull();
@@ -175,8 +168,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         WebSourceParams webSourceParams = new WebSourceParams(SOURCE_REGISTRATION_URI, false);
 
@@ -199,8 +191,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         WebTriggerParams webTriggerParams = new WebTriggerParams(TRIGGER_REGISTRATION_URI, false);
         WebTriggerRegistrationRequest webTriggerRegistrationRequest =
@@ -236,8 +227,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -258,8 +248,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         DeletionRequest deletionRequest =
                 new DeletionRequest.Builder(
@@ -283,8 +272,7 @@ public class MeasurementManagerTest {
         Assume.assumeTrue(
                 VersionCompatUtil.INSTANCE.isTestableVersion(
                         /* minAdServicesVersion= */ 5,
-                        /* minExtServicesVersionS= */ 9,
-                        /* minExtServicesVersionR= */ 11));
+                        /* minExtServicesVersionS= */ 9));
 
         int result = mMeasurementManager.getMeasurementApiStatusAsync().get();
         assertThat(result).isEqualTo(1);
