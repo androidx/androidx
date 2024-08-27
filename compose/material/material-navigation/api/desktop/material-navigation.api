@@ -1,0 +1,44 @@
+public final class androidx/compose/material/navigation/BottomSheetKt {
+	public static final fun ModalBottomSheetLayout-4erKP6g (Landroidx/compose/material/navigation/BottomSheetNavigator;Landroidx/compose/ui/Modifier;Landroidx/compose/ui/graphics/Shape;FJJJLkotlin/jvm/functions/Function2;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class androidx/compose/material/navigation/BottomSheetNavigator : androidx/navigation/Navigator {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/material/ModalBottomSheetState;)V
+	public fun createDestination ()Landroidx/compose/material/navigation/BottomSheetNavigator$Destination;
+	public synthetic fun createDestination ()Landroidx/navigation/NavDestination;
+	public final fun getNavigatorSheetState ()Landroidx/compose/material/navigation/BottomSheetNavigatorSheetState;
+	public fun navigate (Ljava/util/List;Landroidx/navigation/NavOptions;Landroidx/navigation/Navigator$Extras;)V
+	public fun onAttach (Landroidx/navigation/NavigatorState;)V
+	public fun popBackStack (Landroidx/navigation/NavBackStackEntry;Z)V
+}
+
+public final class androidx/compose/material/navigation/BottomSheetNavigator$Destination : androidx/navigation/NavDestination, androidx/navigation/FloatingWindow {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/material/navigation/BottomSheetNavigator;Lkotlin/jvm/functions/Function4;)V
+}
+
+public final class androidx/compose/material/navigation/BottomSheetNavigatorKt {
+	public static final fun rememberBottomSheetNavigator (Landroidx/compose/animation/core/AnimationSpec;Landroidx/compose/runtime/Composer;II)Landroidx/compose/material/navigation/BottomSheetNavigator;
+}
+
+public final class androidx/compose/material/navigation/BottomSheetNavigatorSheetState {
+	public static final field $stable I
+	public fun <init> (Landroidx/compose/material/ModalBottomSheetState;)V
+	public final fun getCurrentValue ()Landroidx/compose/material/ModalBottomSheetValue;
+	public final fun getTargetValue ()Landroidx/compose/material/ModalBottomSheetValue;
+	public final fun isVisible ()Z
+}
+
+public final class androidx/compose/material/navigation/ComposableSingletons$BottomSheetNavigator_jbKt {
+	public static final field INSTANCE Landroidx/compose/material/navigation/ComposableSingletons$BottomSheetNavigator_jbKt;
+	public static field lambda-1 Lkotlin/jvm/functions/Function4;
+	public fun <init> ()V
+	public final fun getLambda-1$material_navigation ()Lkotlin/jvm/functions/Function4;
+}
+
+public final class androidx/compose/material/navigation/NavGraphBuilderKt {
+	public static final fun bottomSheet (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function4;)V
+	public static synthetic fun bottomSheet$default (Landroidx/navigation/NavGraphBuilder;Ljava/lang/String;Ljava/util/List;Ljava/util/List;Lkotlin/jvm/functions/Function4;ILjava/lang/Object;)V
+}
+

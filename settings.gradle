@@ -168,6 +168,7 @@ includeProject(":compose:material:material-lint")
 includeProject(":compose:material:material-icons-core")
 includeProject(":compose:material:material-icons-core:material-icons-core-samples", "compose/material/material-icons-core/samples")
 includeProject(":compose:material:material-icons-extended")
+includeProject(":compose:material:material-navigation")
 includeProject(":compose:material:material-ripple")
 includeProject(":compose:material:material:icons:generator")
 // on an empty project it causes an error during sync in IDEA

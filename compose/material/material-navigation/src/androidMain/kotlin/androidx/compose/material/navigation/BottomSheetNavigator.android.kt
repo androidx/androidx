@@ -17,19 +17,15 @@
 package androidx.compose.material.navigation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material.ModalBottomSheetState
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.navigation.BottomSheetNavigator.Destination
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.util.fastForEach
@@ -43,45 +39,6 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.transform
-
-/**
- * The state of a [ModalBottomSheetLayout] that the [BottomSheetNavigator] drives
- *
- * @param sheetState The sheet state that is driven by the [BottomSheetNavigator]
- */
-public class BottomSheetNavigatorSheetState(private val sheetState: ModalBottomSheetState) {
-    /**
-     * @see ModalBottomSheetState.isVisible
-     */
-    public val isVisible: Boolean
-        get() = sheetState.isVisible
-
-    /**
-     * @see ModalBottomSheetState.currentValue
-     */
-    public val currentValue: ModalBottomSheetValue
-        get() = sheetState.currentValue
-
-    /**
-     * @see ModalBottomSheetState.targetValue
-     */
-    public val targetValue: ModalBottomSheetValue
-        get() = sheetState.targetValue
-}
-
-/**
- * Create and remember a [BottomSheetNavigator]
- */
-@Composable
-public fun rememberBottomSheetNavigator(
-    animationSpec: AnimationSpec<Float> = SpringSpec()
-): BottomSheetNavigator {
-    val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        animationSpec = animationSpec
-    )
-    return remember(sheetState) { BottomSheetNavigator(sheetState) }
-}
 
 /**
  * Navigator that drives a [ModalBottomSheetState] for use of [ModalBottomSheetLayout]s
@@ -103,8 +60,8 @@ public fun rememberBottomSheetNavigator(
  * drive the sheet state
  */
 @Navigator.Name("bottomSheet")
-public class BottomSheetNavigator(
-    internal val sheetState: ModalBottomSheetState
+public actual class BottomSheetNavigator actual constructor(
+    internal actual val sheetState: ModalBottomSheetState
 ) : Navigator<BottomSheetNavigator.Destination>() {
 
     private var attached by mutableStateOf(false)
@@ -126,7 +83,7 @@ public class BottomSheetNavigator(
      * composed before the Navigator is attached, so we specifically return an empty flow if we
      * aren't attached yet.
      */
-    internal val transitionsInProgress: StateFlow<Set<NavBackStackEntry>>
+    internal actual val transitionsInProgress: StateFlow<Set<NavBackStackEntry>>
         get() = if (attached) {
             state.transitionsInProgress
         } else {
@@ -136,14 +93,14 @@ public class BottomSheetNavigator(
     /**
      * Access properties of the [ModalBottomSheetLayout]'s [ModalBottomSheetState]
      */
-    public val navigatorSheetState: BottomSheetNavigatorSheetState =
+    public actual val navigatorSheetState: BottomSheetNavigatorSheetState =
         BottomSheetNavigatorSheetState(sheetState)
 
     /**
      * A [Composable] function that hosts the current sheet content. This should be set as
      * sheetContent of your [ModalBottomSheetLayout].
      */
-    internal val sheetContent: @Composable ColumnScope.() -> Unit = {
+    internal actual val sheetContent: @Composable ColumnScope.() -> Unit = {
         val saveableStateHolder = rememberSaveableStateHolder()
         val transitionsInProgressEntries by transitionsInProgress.collectAsState()
 
@@ -235,8 +192,8 @@ public class BottomSheetNavigator(
      * [NavDestination] specific to [BottomSheetNavigator]
      */
     @NavDestination.ClassType(Composable::class)
-    public class Destination(
+    public actual class Destination actual constructor(
         navigator: BottomSheetNavigator,
-        internal val content: @Composable ColumnScope.(NavBackStackEntry) -> Unit
+        internal actual val content: @Composable ColumnScope.(NavBackStackEntry) -> Unit
     ) : NavDestination(navigator), FloatingWindow
 }
