@@ -166,7 +166,7 @@ afterEvaluate {
     def installTask = tasks.findByPath(
             ":benchmark:integration-tests:macrobenchmark-target:installRelease")
     if (installTask != null) {
-        tasks.getByPath(":benchmark:benchmark-macro:connectedDebugAndroidTest")
+        tasks.getByPath(":benchmark:benchmark-macro:connectedReleaseAndroidTest")
                 .dependsOn(installTask)
     }
 }

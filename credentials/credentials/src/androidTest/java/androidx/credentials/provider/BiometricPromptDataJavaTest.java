@@ -41,7 +41,7 @@ import org.junit.runner.RunWith;
 public class BiometricPromptDataJavaTest {
 
     private static final BiometricPrompt.CryptoObject TEST_CRYPTO_OBJECT = BiometricTestUtils
-            .INSTANCE.createCryptoObject$credentials_debugAndroidTest();
+            .INSTANCE.createCryptoObject$credentials_releaseAndroidTest();
 
     private static final long DEFAULT_BUNDLE_LONG_FOR_CRYPTO_ID = 0L;
 

@@ -323,11 +323,11 @@ fun Project.addAppApkToTestConfigGeneration(androidXExtension: AndroidXExtension
         }
     }
 
-    // For library modules we only look at the build type debug. The target app project can be
+    // For library modules we only look at the build type release. The target app project can be
     // specified through the androidX extension, through: targetAppProjectForInstrumentationTest
     // and targetAppProjectVariantForInstrumentationTest.
     extensions.findByType(LibraryAndroidComponentsExtension::class.java)?.apply {
-        onVariants(selector().withBuildType("debug")) { variant ->
+        onVariants(selector().withBuildType("release")) { variant ->
             val targetAppProject =
                 androidXExtension.deviceTests.targetAppProject ?: return@onVariants
             val targetAppProjectVariant = androidXExtension.deviceTests.targetAppVariant
@@ -616,7 +616,7 @@ private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCol
     multiplatformExtension
         ?.targets
         ?.filterIsInstance<KotlinAndroidTarget>()
-        ?.mapNotNull { it.compilations.find { it.name == "debugAndroidTest" } }
+        ?.mapNotNull { it.compilations.find { it.name == "releaseAndroidTest" } }
         ?.flatMap { it.allKotlinSourceSets }
         ?.mapTo(testSourceFileCollections) { it.kotlin.sourceDirectories }
     return testSourceFileCollections

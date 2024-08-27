@@ -48,6 +48,7 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilati
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnJvmCompilation
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.dsl.PrivacySandboxSdkExtension
+import com.android.build.api.dsl.TestBuildType
 import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
@@ -822,11 +823,11 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     }
 
     private fun configureWithLibraryPlugin(project: Project, androidXExtension: AndroidXExtension) {
+        val buildTypeForTests = "release"
         project.extensions.getByType<LibraryExtension>().apply {
             publishing { singleVariant(DEFAULT_PUBLISH_CONFIG) }
 
             configureAndroidBaseOptions(project, androidXExtension)
-
             val debugSigningConfig = signingConfigs.getByName("debug")
             // Use a local debug keystore to avoid build server issues.
             debugSigningConfig.storeFile = project.getKeystore()
@@ -834,6 +835,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 // Sign all the builds (including release) with debug key
                 buildType.signingConfig = debugSigningConfig
             }
+            testBuildType = buildTypeForTests
             project.configureTestConfigGeneration(this)
             project.addAppApkToTestConfigGeneration(androidXExtension)
         }
@@ -853,10 +855,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
                 it.lint.targetSdk = project.defaultAndroidConfig.targetSdk
                 it.testOptions.targetSdk = project.defaultAndroidConfig.targetSdk
+                // Replace with a public API once available, see b/360392255
+                it.buildTypes.configureEach { buildType ->
+                    if (buildType.name == buildTypeForTests && !project.hasBenchmarkPlugin())
+                        (buildType as TestBuildType).isDebuggable = true
+                }
             }
-            beforeVariants(selector().withBuildType("release")) { variant ->
-                (variant as HasUnitTestBuilder).enableUnitTest = false
-            }
+            beforeVariants(selector().withBuildType("debug")) { variant -> variant.enable = false }
             beforeVariants(selector().all()) { variant ->
                 variant.androidTest.targetSdk = project.defaultAndroidConfig.targetSdk
             }
@@ -1093,9 +1098,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
 
-        project.configureFtlRunner(
+        val componentsExtension =
             project.extensions.getByType(AndroidComponentsExtension::class.java)
-        )
+        project.configureFtlRunner(componentsExtension)
+
+        // If a dependency is missing a debug variant, use release instead.
+        buildTypes.getByName("debug").matchingFallbacks.add("release")
 
         // AGP warns if we use project.buildDir (or subdirs) for CMake's generated
         // build files (ninja build files, CMakeCache.txt, etc.). Use a staging directory that
