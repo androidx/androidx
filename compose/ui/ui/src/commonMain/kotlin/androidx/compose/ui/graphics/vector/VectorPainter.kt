@@ -19,6 +19,7 @@ package androidx.compose.ui.graphics.vector
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ComposableOpenTarget
 import androidx.compose.runtime.Composition
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -142,7 +143,7 @@ fun rememberVectorPainter(
                 autoMirror = autoMirror
             )
             val compositionContext = rememberCompositionContext()
-            this.composition =
+            val composition =
                 remember(viewportWidth, viewportHeight, content) {
                     val curComp = this.composition
                     val next =
@@ -154,6 +155,8 @@ fun rememberVectorPainter(
                     next.setContent { content(viewport.width, viewport.height) }
                     next
                 }
+            this.composition = composition
+            DisposableEffect(this) { onDispose { composition.dispose() } }
         }
 }
 
