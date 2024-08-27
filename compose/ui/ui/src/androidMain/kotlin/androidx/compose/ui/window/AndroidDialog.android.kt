@@ -20,16 +20,13 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnLayoutChangeListener
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
-import android.widget.FrameLayout
 import androidx.activity.ComponentDialog
 import androidx.activity.addCallback
 import androidx.compose.runtime.Composable
@@ -60,11 +57,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
-import androidx.core.view.OnApplyWindowInsetsListener
-import androidx.core.view.ViewCompat
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsAnimationCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -83,19 +77,16 @@ import java.util.UUID
  * @property securePolicy Policy for setting [WindowManager.LayoutParams.FLAG_SECURE] on the
  *   dialog's window.
  * @property usePlatformDefaultWidth Whether the width of the dialog's content should be limited to
- *   the platform default, which is smaller than the screen width. It is recommended to use
- *   [decorFitsSystemWindows] set to `false` when [usePlatformDefaultWidth] is false to support
- *   using the entire screen and avoiding UI glitches on some devices when the IME animates in.
+ *   the platform default, which is smaller than the screen width.
  * @property decorFitsSystemWindows Sets [WindowCompat.setDecorFitsSystemWindows] value. Set to
  *   `false` to use WindowInsets. If `false`, the
  *   [soft input mode][WindowManager.LayoutParams.softInputMode] will be changed to
  *   [WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE] and `android:windowIsFloating` is set to
- *   `false` when [decorFitsSystemWindows] is false. When
- *   `targetSdk` >= [Build.VERSION_CODES.VANILLA_ICE_CREAM], [decorFitsSystemWindows] can only be
- *   `false` and this property doesn't have any effect.
+ *   `false` for Android [R][Build.VERSION_CODES.R] and earlier.
  */
 @Immutable
-actual class DialogProperties(
+actual class DialogProperties
+constructor(
     actual val dismissOnBackPress: Boolean = true,
     actual val dismissOnClickOutside: Boolean = true,
     val securePolicy: SecureFlagPolicy = SecureFlagPolicy.Inherit,
@@ -227,7 +218,6 @@ private class DialogLayout(context: Context, override val window: Window) :
     private var content: @Composable () -> Unit by mutableStateOf({})
 
     var usePlatformDefaultWidth = false
-    var decorFitsSystemWindows = false
 
     override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
         private set
@@ -239,15 +229,49 @@ private class DialogLayout(context: Context, override val window: Window) :
         createComposition()
     }
 
+    override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        if (usePlatformDefaultWidth) {
+            super.internalOnMeasure(widthMeasureSpec, heightMeasureSpec)
+        } else {
+            // usePlatformDefaultWidth false, so don't want to limit the dialog width to the Android
+            // platform default. Therefore, we create a new measure spec for width, which
+            // corresponds to the full screen width. We do the same for height, even if
+            // ViewRootImpl gives it to us from the first measure.
+            val displayWidthMeasureSpec =
+                MeasureSpec.makeMeasureSpec(displayWidth, MeasureSpec.AT_MOST)
+            val displayHeightMeasureSpec =
+                MeasureSpec.makeMeasureSpec(displayHeight, MeasureSpec.AT_MOST)
+            super.internalOnMeasure(displayWidthMeasureSpec, displayHeightMeasureSpec)
+        }
+    }
+
+    override fun internalOnLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.internalOnLayout(changed, left, top, right, bottom)
+        // Now set the content size as fixed layout params, such that ViewRootImpl knows
+        // the exact window size.
+        if (!usePlatformDefaultWidth) {
+            val child = getChildAt(0) ?: return
+            window.setLayout(child.measuredWidth, child.measuredHeight)
+        }
+    }
+
+    private val displayWidth: Int
+        get() {
+            val density = context.resources.displayMetrics.density
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
+        }
+
+    private val displayHeight: Int
+        get() {
+            val density = context.resources.displayMetrics.density
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
+        }
+
     @Composable
     override fun Content() {
         content()
     }
 }
-
-private fun adjustedDecorFitsSystemWindows(dialogProperties: DialogProperties, context: Context) =
-    dialogProperties.decorFitsSystemWindows &&
-        context.applicationInfo.targetSdkVersion < Build.VERSION_CODES.VANILLA_ICE_CREAM
 
 private class DialogWrapper(
     private var onDismissRequest: () -> Unit,
@@ -264,16 +288,16 @@ private class DialogWrapper(
          */
         ContextThemeWrapper(
             composeView.context,
-            if (adjustedDecorFitsSystemWindows(properties, composeView.context)) {
+            if (
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.S || properties.decorFitsSystemWindows
+            ) {
                 R.style.DialogWindowTheme
             } else {
                 R.style.FloatingDialogWindowTheme
             }
         )
     ),
-    ViewRootForInspector,
-    OnApplyWindowInsetsListener,
-    OnLayoutChangeListener {
+    ViewRootForInspector {
 
     private val dialogLayout: DialogLayout
 
@@ -284,12 +308,15 @@ private class DialogWrapper(
     override val subCompositionView: AbstractComposeView
         get() = dialogLayout
 
+    private val defaultSoftInputMode: Int
+
     init {
         val window = window ?: error("Dialog has no window")
+        defaultSoftInputMode =
+            window.attributes.softInputMode and WindowManager.LayoutParams.SOFT_INPUT_MASK_ADJUST
         window.requestFeature(Window.FEATURE_NO_TITLE)
         window.setBackgroundDrawableResource(android.R.color.transparent)
-        val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
-        WindowCompat.setDecorFitsSystemWindows(window, decorFitsSystemWindows)
+        WindowCompat.setDecorFitsSystemWindows(window, properties.decorFitsSystemWindows)
         dialogLayout =
             DialogLayout(context, window).apply {
                 // Set unique id for AbstractComposeView. This allows state restoration for the
@@ -309,8 +336,10 @@ private class DialogWrapper(
                         override fun getOutline(view: View, result: Outline) {
                             result.setRect(0, 0, view.width, view.height)
                             // We set alpha to 0 to hide the view's shadow and let the composable to
-                            // draw its own shadow. This still enables us to get the extra space
-                            // needed in the surface.
+                            // draw
+                            // its own shadow. This still enables us to get the extra space needed
+                            // in the
+                            // surface.
                             result.alpha = 0f
                         }
                     }
@@ -330,38 +359,7 @@ private class DialogWrapper(
 
         // Turn of all clipping so shadows can be drawn outside the window
         (window.decorView as? ViewGroup)?.disableClipping()
-        // Center the ComposeView in a FrameLayout
-        val frameLayout = FrameLayout(context)
-        frameLayout.addView(
-            dialogLayout,
-            FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-                .also { it.gravity = Gravity.CENTER }
-        )
-        frameLayout.setOnClickListener { onDismissRequest() }
-        ViewCompat.setOnApplyWindowInsetsListener(frameLayout, this)
-        ViewCompat.setWindowInsetsAnimationCallback(
-            frameLayout,
-            object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
-                override fun onProgress(
-                    insets: WindowInsetsCompat,
-                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
-                ): WindowInsetsCompat {
-                    return insets.inset(
-                        dialogLayout.left,
-                        dialogLayout.top,
-                        frameLayout.width - dialogLayout.right,
-                        frameLayout.height - dialogLayout.bottom
-                    )
-                }
-            }
-        )
-        dialogLayout.addOnLayoutChangeListener(this)
-        frameLayout.addOnLayoutChangeListener(this)
-
-        setContentView(frameLayout)
+        setContentView(dialogLayout)
         dialogLayout.setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
         dialogLayout.setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())
         dialogLayout.setViewTreeSavedStateRegistryOwner(
@@ -432,42 +430,21 @@ private class DialogWrapper(
         this.properties = properties
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
+        if (properties.usePlatformDefaultWidth && !dialogLayout.usePlatformDefaultWidth) {
+            // Undo fixed size in internalOnLayout, which would suppress size changes when
+            // usePlatformDefaultWidth is true.
+            window?.setLayout(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+        }
         dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
-        val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
-        dialogLayout.decorFitsSystemWindows = decorFitsSystemWindows
-        val window = window
-        if (window != null) {
-            val softInput =
-                when {
-                    decorFitsSystemWindows ->
-                        WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED
-                    Build.VERSION.SDK_INT < Build.VERSION_CODES.S ->
-                        @Suppress("DEPRECATION") WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-                    else -> WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
-                }
-            window.setSoftInputMode(softInput)
-            val attrs = window.attributes
-            val measurementWidth =
-                if (properties.usePlatformDefaultWidth) {
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                } else {
-                    WindowManager.LayoutParams.MATCH_PARENT
-                }
-            val measurementHeight =
-                if (properties.usePlatformDefaultWidth || decorFitsSystemWindows) {
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                } else {
-                    WindowManager.LayoutParams.MATCH_PARENT
-                }
-            if (
-                attrs.width != measurementWidth ||
-                    attrs.height != measurementHeight ||
-                    attrs.gravity != Gravity.CENTER
-            ) {
-                attrs.width = measurementWidth
-                attrs.height = measurementHeight
-                attrs.gravity = Gravity.CENTER
-                window.attributes = attrs
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+            if (properties.decorFitsSystemWindows) {
+                window?.setSoftInputMode(defaultSoftInputMode)
+            } else {
+                @Suppress("DEPRECATION")
+                window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
             }
         }
     }
@@ -488,28 +465,6 @@ private class DialogWrapper(
     override fun cancel() {
         // Prevents the dialog from dismissing itself
         return
-    }
-
-    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-        val left = dialogLayout.left
-        val top = dialogLayout.top
-        val right = v.width - dialogLayout.right
-        val bottom = v.height - dialogLayout.bottom
-        return insets.inset(left, top, right, bottom)
-    }
-
-    override fun onLayoutChange(
-        v: View,
-        left: Int,
-        top: Int,
-        right: Int,
-        bottom: Int,
-        oldLeft: Int,
-        oldTop: Int,
-        oldRight: Int,
-        oldBottom: Int
-    ) {
-        v.requestApplyInsets()
     }
 }
 
