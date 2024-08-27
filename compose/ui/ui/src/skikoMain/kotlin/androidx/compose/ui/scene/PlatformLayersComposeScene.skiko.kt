@@ -90,7 +90,7 @@ private class PlatformLayersComposeSceneImpl(
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
 ) {
-    private val mainOwner by lazy {
+    private val mainOwner: RootNodeOwner by lazy {
         RootNodeOwner(
             density = density,
             layoutDirection = layoutDirection,
@@ -128,6 +128,10 @@ private class PlatformLayersComposeSceneImpl(
 
     override val focusManager: ComposeSceneFocusManager = ComposeSceneFocusManager(
         focusOwner = { mainOwner.focusOwner }
+    )
+
+    override val dropTarget = ComposeSceneDropTarget(
+        activeDragAndDropManager = { mainOwner.dragAndDropManager }
     )
 
     init {

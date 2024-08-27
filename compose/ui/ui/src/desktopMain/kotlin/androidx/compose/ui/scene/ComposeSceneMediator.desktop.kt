@@ -25,11 +25,14 @@ import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
 import androidx.compose.ui.awt.isFocusGainedHandledBySwingPanel
 import androidx.compose.ui.awt.runOnEDTThread
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asComposeCanvas
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.key.internal
 import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.AwtCursor
@@ -330,6 +333,8 @@ internal class ComposeSceneMediator(
      */
     private var keyboardModifiersRequireUpdate = false
 
+    private val dragAndDropManager = AwtDragAndDropManager(container, getScene = { scene })
+
     init {
         // Transparency is used during redrawer creation that triggered by [addNotify], so
         // it must be set to correct value before adding to the hierarchy to handle cases
@@ -342,6 +347,10 @@ internal class ComposeSceneMediator(
         // Adding a listener after adding [invisibleComponent] and [contentComponent]
         // to react only on changes with [interopLayer].
         container.addContainerListener(containerListener)
+
+        // AwtDragAndDropManager support
+        container.transferHandler = dragAndDropManager.transferHandler
+        container.dropTarget = dragAndDropManager.dropTarget
 
         // It will be enabled dynamically. See DesktopPlatformComponent
         contentComponent.enableInputMethods(false)
@@ -465,6 +474,8 @@ internal class ComposeSceneMediator(
         container.removeContainerListener(containerListener)
         container.remove(contentComponent)
         container.remove(invisibleComponent)
+        container.transferHandler = null
+        container.dropTarget = null
 
         scene.close()
         skiaLayerComponent.dispose()
@@ -689,12 +700,18 @@ internal class ComposeSceneMediator(
             return true
         }
 
+        override fun startDrag(
+            transferData: DragAndDropTransferData,
+            decorationSize: Size,
+            drawDragDecoration: DrawScope.() -> Unit
+        ) = dragAndDropManager.startDrag(
+            transferData, decorationSize, drawDragDecoration
+        )
+
         override val rootForTestListener
             get() = this@ComposeSceneMediator.rootForTestListener
         override val semanticsOwnerListener
             get() = this@ComposeSceneMediator.semanticsOwnerListener
-
-        override fun createDragAndDropManager() = AwtDragAndDropManager(container)
     }
 
     private inner class DesktopPlatformComponent : PlatformComponent {

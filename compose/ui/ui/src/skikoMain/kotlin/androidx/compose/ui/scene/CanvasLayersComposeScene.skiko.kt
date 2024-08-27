@@ -150,6 +150,10 @@ private class CanvasLayersComposeSceneImpl(
         focusOwner = { focusedOwner.focusOwner }
     )
 
+    override val dropTarget = ComposeSceneDropTarget(
+        activeDragAndDropManager = { focusedOwner.dragAndDropManager }
+    )
+
     private val layers = mutableListOf<AttachedComposeSceneLayer>()
     private val _layersCopyCache = CopiedList {
         it.addAll(layers)

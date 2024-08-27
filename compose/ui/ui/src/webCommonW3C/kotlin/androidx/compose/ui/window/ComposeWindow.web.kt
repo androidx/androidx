@@ -22,8 +22,6 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.LocalSystemTheme
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.events.EventTargetListener
 import androidx.compose.ui.geometry.Offset
@@ -33,10 +31,8 @@ import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
-import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.toComposeEvent
 import androidx.compose.ui.input.pointer.BrowserCursor
-import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerIcon
@@ -49,7 +45,6 @@ import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.PlatformDragAndDropManager
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WebTextInputService
 import androidx.compose.ui.platform.WindowInfoImpl
@@ -218,27 +213,12 @@ internal class ComposeWindow(
             }
         }
 
-        override fun createDragAndDropManager(): PlatformDragAndDropManager {
-            return object : PlatformDragAndDropManager {
-                override val modifier: Modifier
-                    get() = Modifier
-
-                override fun drag(
-                    transferData: DragAndDropTransferData,
-                    decorationSize: Size,
-                    drawDragDecoration: DrawScope.() -> Unit
-                ): Boolean {
-                    TODO("Drag&drop isn't implemented")
-                }
-
-                override fun registerNodeInterest(node: DragAndDropModifierNode) {
-                    TODO("Drag&drop isn't implemented")
-                }
-
-                override fun isInterestedNode(node: DragAndDropModifierNode): Boolean {
-                    TODO("Drag&drop isn't implemented")
-                }
-            }
+        override fun startDrag(
+            transferData: DragAndDropTransferData,
+            decorationSize: Size,
+            drawDragDecoration: DrawScope.() -> Unit
+        ): Boolean {
+            TODO("Drag&drop isn't implemented")
         }
     }
 

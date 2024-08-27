@@ -21,8 +21,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -46,7 +44,6 @@ import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.LocalLayoutMargins
 import androidx.compose.ui.platform.LocalSafeArea
 import androidx.compose.ui.platform.PlatformContext
-import androidx.compose.ui.platform.PlatformDragAndDropManager
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.UIKitTextInputService
@@ -742,27 +739,12 @@ internal class ComposeSceneMediator(
                 positionOnScreen
             )
 
-        override fun createDragAndDropManager(): PlatformDragAndDropManager {
-            return object : PlatformDragAndDropManager {
-                override val modifier: Modifier
-                    get() = Modifier
-
-                override fun drag(
-                    transferData: DragAndDropTransferData,
-                    decorationSize: Size,
-                    drawDragDecoration: DrawScope.() -> Unit
-                ): Boolean {
-                    TODO("Drag&drop isn't implemented")
-                }
-
-                override fun registerNodeInterest(node: DragAndDropModifierNode) {
-                    TODO("Drag&drop isn't implemented")
-                }
-
-                override fun isInterestedNode(node: DragAndDropModifierNode): Boolean {
-                    TODO("Drag&drop isn't implemented")
-                }
-            }
+        override fun startDrag(
+            transferData: DragAndDropTransferData,
+            decorationSize: Size,
+            drawDragDecoration: DrawScope.() -> Unit
+        ): Boolean {
+            TODO("Drag&drop isn't implemented")
         }
 
         override val measureDrawLayerBounds get() = this@ComposeSceneMediator.measureDrawLayerBounds
