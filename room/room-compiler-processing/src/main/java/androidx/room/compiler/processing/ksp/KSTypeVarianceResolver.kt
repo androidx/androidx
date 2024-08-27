@@ -408,9 +408,9 @@ constructor(
         }
         val arguments =
             newTypeArguments
-                ?: newType.arguments.indices.map { i ->
+                ?: newType.innerArguments.indices.map { i ->
                     KSTypeArgumentWrapper(
-                        originalTypeArg = newType.arguments[i],
+                        originalTypeArg = newType.innerArguments[i],
                         typeParam = newType.declaration.typeParameters[i],
                         resolver = resolver,
                     )
@@ -451,7 +451,18 @@ constructor(
 
     fun isTypeParameter() = originalType.isTypeParameter()
 
-    fun unwrap() = newType.replace(arguments.map { it.unwrap() })
+    fun unwrap(): KSType {
+        val newArgs = arguments.map { it.unwrap() }
+        return newType.replace(
+            newType.arguments.mapIndexed { index, oldArg ->
+                if (index < newArgs.size) {
+                    newArgs[index]
+                } else {
+                    oldArg
+                }
+            }
+        )
+    }
 
     override fun toString() = buildString {
         if (originalType.annotations.toList().isNotEmpty()) {
