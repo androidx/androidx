@@ -86,6 +86,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     // This issue is only enabled when `-Pandroidx.useJSpecifyAnnotations=true`.
                     JSpecifyNullnessMigration.ISSUE,
                     TypeMirrorToString.ISSUE,
+                    BanNullMarked.ISSUE,
                 )
             }
     }
