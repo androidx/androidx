@@ -94,9 +94,9 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
     /** The alignment lines of this layout, inherited + intrinsic */
     private val alignmentLineMap: MutableMap<AlignmentLine, Int> = hashMapOf()
 
-    fun getLastCalculation(): Map<AlignmentLine, Int> = alignmentLineMap
+    fun getLastCalculation(): Map<out AlignmentLine, Int> = alignmentLineMap
 
-    protected abstract val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
+    protected abstract val NodeCoordinator.alignmentLinesMap: Map<out AlignmentLine, Int>
 
     protected abstract fun NodeCoordinator.getPositionFor(alignmentLine: AlignmentLine): Int
 
@@ -201,7 +201,7 @@ internal sealed class AlignmentLines(val alignmentLinesOwner: AlignmentLinesOwne
 internal class LayoutNodeAlignmentLines(alignmentLinesOwner: AlignmentLinesOwner) :
     AlignmentLines(alignmentLinesOwner) {
 
-    override val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
+    override val NodeCoordinator.alignmentLinesMap: Map<out AlignmentLine, Int>
         get() = measureResult.alignmentLines
 
     override fun NodeCoordinator.getPositionFor(alignmentLine: AlignmentLine): Int =
@@ -215,7 +215,7 @@ internal class LayoutNodeAlignmentLines(alignmentLinesOwner: AlignmentLinesOwner
 internal class LookaheadAlignmentLines(alignmentLinesOwner: AlignmentLinesOwner) :
     AlignmentLines(alignmentLinesOwner) {
 
-    override val NodeCoordinator.alignmentLinesMap: Map<AlignmentLine, Int>
+    override val NodeCoordinator.alignmentLinesMap: Map<out AlignmentLine, Int>
         get() = lookaheadDelegate!!.measureResult.alignmentLines
 
     override fun NodeCoordinator.getPositionFor(alignmentLine: AlignmentLine): Int =

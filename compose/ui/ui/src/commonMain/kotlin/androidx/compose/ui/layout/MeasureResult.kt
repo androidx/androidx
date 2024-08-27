@@ -19,7 +19,7 @@ interface MeasureResult {
      * Alignment lines that can be used by parents to align this layout. This only includes the
      * alignment lines of this layout and not children.
      */
-    val alignmentLines: Map<AlignmentLine, Int>
+    val alignmentLines: Map<out AlignmentLine, Int>
 
     /**
      * An optional lambda function used to create [Ruler]s for child layout. This may be
