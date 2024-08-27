@@ -611,7 +611,7 @@ class TextToggleButtonTest {
     private fun ComposeContentTestRule.verifyTextToggleButtonColors(
         status: Status,
         checked: Boolean,
-        colors: @Composable () -> ToggleButtonColors,
+        colors: @Composable () -> TextToggleButtonColors,
         containerColor: @Composable () -> Color,
         contentColor: @Composable () -> Color,
     ) {
