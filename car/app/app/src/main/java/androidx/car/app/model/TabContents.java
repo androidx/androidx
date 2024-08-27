@@ -92,11 +92,6 @@ public class TabContents implements Content {
         mTemplate = builder.mTemplate;
     }
 
-    @ExperimentalCarApi
-    TabContents(TabContents.Api8Builder builder) {
-        mTemplate = builder.mTemplate;
-    }
-
     /** Constructs an empty instance, used by serialization code. */
     private TabContents() {
         mTemplate = null;
@@ -131,7 +126,7 @@ public class TabContents implements Content {
          *     <li>{@code SearchTemplate}
          * </ul>
          *
-         * <p>From Car API 7 onward, the following templates types are supported as content in
+         * <p>From Car API 7 onward, the following template type is supported as content in
          * addition to all previously supported template types:
          * <ul>
          *     <li>{@code NavigationTemplate}
@@ -144,45 +139,45 @@ public class TabContents implements Content {
             TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
             mTemplate = template;
         }
-    }
-
-    /** A builder of {@link TabContents} which supports templates added in API 8. */
-    @ExperimentalCarApi
-    public static final class Api8Builder {
-        @NonNull
-        Template mTemplate;
 
         /**
-         * Constructs the {@link TabContents} defined by this builder.
-         */
-        @NonNull
-        public TabContents build() {
-            return new TabContents(this);
-        }
-
-        /**
-         * Creates a {@link TabContents.Api8Builder} instance using the given {@link Template} to
-         * display as contents.
+         * Creates a {@link TabContents.Builder} instance using the given {@link Template} to
+         * display as contents. Additional template types are enabled if enableApi8 is set to true.
          *
          * <p>There should be no title, Header {@link Action} or {@link ActionStrip} set on the
          * template. The host will ignore these.
          *
-         * <p>From Car API 8, the following template types are supported as content:
+         * <p>From Car API 6 onward, the following template types are supported as content:
          * <ul>
          *     <li>{@code ListTemplate}
          *     <li>{@code PaneTemplate}
          *     <li>{@code GridTemplate}
          *     <li>{@code MessageTemplate}
          *     <li>{@code SearchTemplate}
+         * </ul>
+         *
+         * <p>From Car API 7 onward, the following template type is supported as content in
+         * addition to all previously supported template types:
+         * <ul>
          *     <li>{@code NavigationTemplate}
+         * </ul>
+         *
+         * <p>From Car API 8 onward, the following template type is supported as content in
+         * addition to all previously supported template types:
+         * <ul>
          *     <li>{@code SectionedItemTemplate}
          * </ul>
          *
          * @throws NullPointerException     if {@code template} is null
          * @throws IllegalArgumentException if {@code template} does not meet the requirements
          */
-        public Api8Builder(@NonNull Template template) {
-            TabContentsConstraints.API_8.validateOrThrow(requireNonNull(template));
+        @ExperimentalCarApi
+        public Builder(@NonNull Template template, boolean enableApi8) {
+            if (enableApi8) {
+                TabContentsConstraints.API_8.validateOrThrow(requireNonNull(template));
+            } else {
+                TabContentsConstraints.API_7.validateOrThrow(requireNonNull(template));
+            }
             mTemplate = template;
         }
     }
