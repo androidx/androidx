@@ -79,74 +79,69 @@ class MonoSplineTest {
                 .trimIndent()
         assertEquals(expect, s)
     }
+}
 
-    private fun plotMonoSpline(
-        spline: MonoSpline,
-        splineNo: Int,
-        start: Float,
-        end: Float
-    ): String {
-        val count = 60
-        val x = FloatArray(count)
-        val y = FloatArray(count)
-        var c = 0
-        for (i in 0 until count) {
-            val t = start + (end - start) * i / (count - 1)
-            x[c] = t
-            y[c] = spline.getPos(t, splineNo)
-            c++
-        }
-        return textDraw(count, count / 4, x, y, false)
+private fun plotMonoSpline(spline: MonoSpline, splineNo: Int, start: Float, end: Float): String {
+    val count = 60
+    val x = FloatArray(count)
+    val y = FloatArray(count)
+    var c = 0
+    for (i in 0 until count) {
+        val t = start + (end - start) * i / (count - 1)
+        x[c] = t
+        y[c] = spline.getPos(t, splineNo)
+        c++
     }
+    return drawTextGraph(count, count / 4, x, y, false)
+}
 
-    private fun textDraw(
-        dimx: Int,
-        dimy: Int,
-        x: FloatArray,
-        y: FloatArray,
-        flip: Boolean
-    ): String {
-        var minX = x[0]
-        var maxX = x[0]
-        var minY = y[0]
-        var maxY = y[0]
-        var ret = ""
-        for (i in x.indices) {
-            minX = Math.min(minX, x[i])
-            maxX = Math.max(maxX, x[i])
-            minY = Math.min(minY, y[i])
-            maxY = Math.max(maxY, y[i])
-        }
-        val c = Array(dimy) { CharArray(dimx) }
-        for (i in 0 until dimy) {
-            Arrays.fill(c[i], ' ')
-        }
-        val dimx1 = dimx - 1
-        val dimy1 = dimy - 1
-        for (j in x.indices) {
-            val xp = (dimx1 * (x[j] - minX) / (maxX - minX)).toInt()
-            val yp = (dimy1 * (y[j] - minY) / (maxY - minY)).toInt()
-            c[if (flip) dimy - yp - 1 else yp][xp] = '*'
-        }
-        for (i in c.indices) {
-            var v: Float =
-                if (flip) {
-                    (minY - maxY) * (i / (c.size - 1.0f)) + maxY
-                } else {
-                    (maxY - minY) * (i / (c.size - 1.0f)) + minY
-                }
-            v = (v * 1000 + 0.5).toInt() / 1000f
-            ret +=
-                if (i % 5 == 0 || i == c.size - 1) {
-                    "|" + String(c[i]) + "| " + v + "\n"
-                } else {
-                    "|" + String(c[i]) + "|\n"
-                }
-        }
-        val minStr = ((minX * 1000 + 0.5).toInt() / 1000f).toString()
-        val maxStr = ((maxX * 1000 + 0.5).toInt() / 1000f).toString()
-        var s = minStr + String(CharArray(dimx) { ' ' })
-        s = s.substring(0, dimx - maxStr.length + 2) + maxStr + '\n'
-        return (ret + s).trimIndent()
+internal fun drawTextGraph(
+    dimx: Int,
+    dimy: Int,
+    x: FloatArray,
+    y: FloatArray,
+    flip: Boolean
+): String {
+    var minX = x[0]
+    var maxX = x[0]
+    var minY = y[0]
+    var maxY = y[0]
+    var ret = ""
+    for (i in x.indices) {
+        minX = Math.min(minX, x[i])
+        maxX = Math.max(maxX, x[i])
+        minY = Math.min(minY, y[i])
+        maxY = Math.max(maxY, y[i])
     }
+    val c = Array(dimy) { CharArray(dimx) }
+    for (i in 0 until dimy) {
+        Arrays.fill(c[i], ' ')
+    }
+    val dimx1 = dimx - 1
+    val dimy1 = dimy - 1
+    for (j in x.indices) {
+        val xp = (dimx1 * (x[j] - minX) / (maxX - minX)).toInt()
+        val yp = (dimy1 * (y[j] - minY) / (maxY - minY)).toInt()
+        c[if (flip) dimy - yp - 1 else yp][xp] = '*'
+    }
+    for (i in c.indices) {
+        var v: Float =
+            if (flip) {
+                (minY - maxY) * (i / (c.size - 1.0f)) + maxY
+            } else {
+                (maxY - minY) * (i / (c.size - 1.0f)) + minY
+            }
+        v = (v * 1000 + 0.5).toInt() / 1000f
+        ret +=
+            if (i % 5 == 0 || i == c.size - 1) {
+                "|" + String(c[i]) + "| " + v + "\n"
+            } else {
+                "|" + String(c[i]) + "|\n"
+            }
+    }
+    val minStr = ((minX * 1000 + 0.5).toInt() / 1000f).toString()
+    val maxStr = ((maxX * 1000 + 0.5).toInt() / 1000f).toString()
+    var s = minStr + String(CharArray(dimx) { ' ' })
+    s = s.substring(0, dimx - maxStr.length + 2) + maxStr + '\n'
+    return (ret + s).trimIndent()
 }

@@ -345,6 +345,185 @@ class ArcAnimationTest {
         assertNotEquals(animationA, animationB)
     }
 
+    @Test
+    fun testArcSplineGraph_overallCurve() {
+        val expectX =
+            """
+                |*******************                                         | 0.0
+                |                   ******                                   |
+                |                          *****                             |
+                |                               *****                        |
+                |                                    ***                     |
+                |                                       ***                  | 71.429
+                |                                          ***               |
+                |                                             ***            |
+                |                                                **          |
+                |                                                 * *        |
+                |                                                    **      | 142.857
+                |                                                      **    |
+                |                                                        **  |
+                |                                                          * |
+                |                                                           *| 200.0
+                0.0                                                        5.0
+            """
+                .trimIndent()
+        val expectY =
+            """
+                |****                                                        | 0.0
+                |    ***                                                     |
+                |       ****                                                 |
+                |           ***                                              |
+                |              ****                                          |
+                |                  ****                                      | 142.857
+                |                      ***                                   |
+                |                        * ***                               |
+                |                             ****                           |
+                |                                 ***                        |
+                |                                    ****                    | 285.714
+                |                                        *****               |
+                |                                             *****          |
+                |                                                 * ******** |
+                |                                                           *| 400.0
+                0.0                                                        5.0
+            """
+                .trimIndent()
+        assertArcSplineCurve(
+            segment = CurveSegment.All,
+            expectGraphX = expectX,
+            expectGraphY = expectY
+        )
+    }
+
+    @Test
+    fun testArcSplineGraph_startOfCurve() {
+        val expectX =
+            """
+                |****************                                            | 0.0
+                |                *******                                     |
+                |                       *****                                |
+                |                            ***                             |
+                |                                ****                        |
+                |                                    ***                     | 2.116
+                |                                       ***                  |
+                |                                          ***               |
+                |                                             ***            |
+                |                                                **          |
+                |                                                  ***       | 4.232
+                |                                                     **     |
+                |                                                       **   |
+                |                                                         ** |
+                |                                                           *| 5.925
+                0.0                                                        1.0
+            """
+                .trimIndent()
+        val expectY =
+            """
+                |*****                                                       | 0.0
+                |     ****                                                   |
+                |         ****                                               |
+                |             ****                                           |
+                |                 *****                                      |
+                |                      ****                                  | 34.515
+                |                          ****                              |
+                |                              * **                          |
+                |                                  ****                      |
+                |                                      *****                 |
+                |                                           ****             | 69.029
+                |                                               ****         |
+                |                                                   ****     |
+                |                                                       **** |
+                |                                                           *| 96.641
+                0.0                                                        1.0
+            """
+                .trimIndent()
+        assertArcSplineCurve(
+            segment = CurveSegment.Start,
+            expectGraphX = expectX,
+            expectGraphY = expectY
+        )
+    }
+
+    @Test
+    fun testArcSplineGraph_endOfCurve() {
+        val expectX =
+            """
+                |******                                                      | 113.9
+                |      ****                                                  |
+                |          ****                                              |
+                |              **** *                                        |
+                |                    ****                                    |
+                |                        ****                                | 144.65
+                |                            ***                             |
+                |                               *****                        |
+                |                                    * **                    |
+                |                                        ****                |
+                |                                            ****            | 175.4
+                |                                                * *         |
+                |                                                   ****     |
+                |                                                       ** **|
+                |                                                            | 200.0
+                4.0                                                        5.0
+            """
+                .trimIndent()
+        val expectY =
+            """
+                |***                                                         | 361.036
+                |   ***                                                      |
+                |      **                                                    |
+                |        ***                                                 |
+                |          ***                                               |
+                |             ***                                            | 374.952
+                |                ** *                                        |
+                |                    ***                                     |
+                |                       ***                                  |
+                |                          ****                              |
+                |                             ****                           | 388.868
+                |                                 **** *                     |
+                |                                       ******               |
+                |                                             **** ******* * |
+                |                                                           *| 400.0
+                4.0                                                        5.0
+            """
+                .trimIndent()
+        assertArcSplineCurve(
+            segment = CurveSegment.End,
+            expectGraphX = expectX,
+            expectGraphY = expectY
+        )
+    }
+
+    private fun assertArcSplineCurve(
+        segment: CurveSegment,
+        expectGraphX: String,
+        expectGraphY: String
+    ) {
+        val startTime = 0f
+        val endTime = 5f
+        val arcSpline =
+            ArcSpline(
+                arcModes = intArrayOf(ArcSplineArcBelow),
+                timePoints = floatArrayOf(startTime, endTime),
+                y = arrayOf(floatArrayOf(0f, 0f), floatArrayOf(200f, 400f))
+            )
+        val arcSplineX =
+            plot2DArcSpline(
+                spline = arcSpline,
+                dimensionToPlot = 0,
+                start = endTime * segment.startPercent,
+                end = endTime * segment.endPercent
+            )
+        assertEquals("Graph on X dimension not equals", expectGraphX, arcSplineX)
+
+        val arcSplineY =
+            plot2DArcSpline(
+                spline = arcSpline,
+                dimensionToPlot = 1,
+                start = endTime * segment.startPercent,
+                end = endTime * segment.endPercent
+            )
+        assertEquals("Graph on Y dimension not equals", expectGraphY, arcSplineY)
+    }
+
     private inline fun <reified V : AnimationVector> VectorizedDurationBasedAnimationSpec<V>
         .valueAt(timePercent: Float): V =
         this.getValueFromNanos(
@@ -377,4 +556,32 @@ class ArcAnimationTest {
             ArcAnimationSpec<FloatArray>(mode = mode, durationMillis = timeMillis, easing = easing)
         return spec.vectorize(createFloatArrayConverter())
     }
+}
+
+private enum class CurveSegment(val startPercent: Float, val endPercent: Float) {
+    All(0f, 1f),
+    Start(0f, 1f / 5f),
+    End(4f / 5f, 1f)
+}
+
+/** Plot an [ArcSpline] under the assumption that it has 2 dimensions in values. */
+private fun plot2DArcSpline(
+    spline: ArcSpline,
+    dimensionToPlot: Int,
+    start: Float,
+    end: Float
+): String {
+    val count = 60
+    val x = FloatArray(count)
+    val y = FloatArray(count)
+    var c = 0
+    val output = FloatArray(2)
+    for (i in 0 until count) {
+        val t = start + (end - start) * i / (count - 1)
+        x[c] = t
+        spline.getPos(t, output)
+        y[c] = output[dimensionToPlot]
+        c++
+    }
+    return drawTextGraph(count, count / 4, x, y, false)
 }
