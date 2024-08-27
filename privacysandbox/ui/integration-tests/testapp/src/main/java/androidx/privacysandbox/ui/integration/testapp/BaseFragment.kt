@@ -17,8 +17,11 @@
 package androidx.privacysandbox.ui.integration.testapp
 
 import android.app.Activity
+import android.graphics.Color
+import android.graphics.Typeface
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
@@ -57,6 +60,10 @@ abstract class BaseFragment : Fragment() {
             }
             sdkApi = ISdkApi.Stub.asInterface(loadedSdk.getInterface())
         }
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        getSandboxedSdkViews().forEach { it.addStateChangedListener() }
     }
 
     /** Returns a handle to the already loaded SDK. */
@@ -119,6 +126,8 @@ abstract class BaseFragment : Fragment() {
                 val parent = view.parent as ViewGroup
                 val index = parent.indexOfChild(view)
                 val textView = TextView(requireActivity())
+                textView.setTypeface(null, Typeface.BOLD_ITALIC)
+                textView.setTextColor(Color.RED)
                 textView.text = state.throwable.message
 
                 requireActivity().runOnUiThread {

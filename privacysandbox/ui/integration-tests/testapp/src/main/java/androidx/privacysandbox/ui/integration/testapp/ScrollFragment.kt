@@ -61,7 +61,6 @@ class ScrollFragment : BaseFragment() {
     }
 
     private fun loadBottomBannerAd() {
-        bottomBannerView.addStateChangedListener()
         bottomBannerView.layoutParams =
             inflatedView.findViewById<LinearLayout>(R.id.bottom_banner_container).layoutParams
         requireActivity().runOnUiThread {

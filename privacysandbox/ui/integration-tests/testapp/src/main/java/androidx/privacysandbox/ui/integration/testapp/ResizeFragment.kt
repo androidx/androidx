@@ -67,7 +67,6 @@ class ResizeFragment : BaseFragment() {
     }
 
     private fun loadResizableBannerAd() {
-        resizableBannerView.addStateChangedListener()
         loadBannerAd(
             currentAdType,
             currentMediationOption,
