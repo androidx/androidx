@@ -53,4 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"फ़ाइल नहीं खोली जा सकी. क्या आपके पास इसकी अनुमति नहीं है?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF दस्तावेज़ के लिए पेज लोड नहीं हो रहा है"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF दस्तावेज़ को प्रोसेस करने के लिए, ज़रूरत के मुताबिक डेटा नहीं है"</string>
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF फ़ाइल नहीं खोली जा सकी"</string>
 </resources>

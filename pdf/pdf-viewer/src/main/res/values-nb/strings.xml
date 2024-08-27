@@ -53,4 +53,6 @@
     <string name="file_error" msgid="4003885928556884091">"Kunne ikke åpne filen. Kan det være et problem med tillatelser?"</string>
     <string name="page_broken" msgid="2968770793669433462">"Siden er ødelagt for PDF-dokumentet"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Det er utilstrekkelige data for behandling av PDF-dokumentet"</string>
+    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
+    <skip />
 </resources>

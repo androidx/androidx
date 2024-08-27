@@ -53,4 +53,6 @@
     <string name="file_error" msgid="4003885928556884091">"ফাইল খোলা যায়নি। অনুমতি সংক্রান্ত সমস্যার কারণে এটি হতে পারে?"</string>
     <string name="page_broken" msgid="2968770793669433462">"পিডিএফ ডকুমেন্টের ক্ষেত্রে পৃষ্ঠা ভেঙে গেছে"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"পিডিএফ ডকুমেন্ট প্রসেস করার জন্য যথেষ্ট ডেটা নেই"</string>
+    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
+    <skip />
 </resources>
