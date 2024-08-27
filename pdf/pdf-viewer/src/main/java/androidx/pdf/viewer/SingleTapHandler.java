@@ -71,9 +71,9 @@ public class SingleTapHandler {
         if (mIsAnnotationIntentResolvable) {
             if (mFloatingActionButton.getVisibility() == View.GONE
                     && mFindInFileView.getVisibility() == GONE) {
-                mFloatingActionButton.setVisibility(View.VISIBLE);
+                mFloatingActionButton.show();
             } else {
-                mFloatingActionButton.setVisibility(View.GONE);
+                mFloatingActionButton.hide();
             }
         }
 

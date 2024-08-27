@@ -16,7 +16,6 @@
 
 package androidx.pdf.viewer;
 
-import android.animation.ValueAnimator;
 import android.graphics.Rect;
 import android.os.Handler;
 import android.os.Looper;
@@ -45,7 +44,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
     private final SelectionActionMode mSelectionActionMode;
     private final ObservableValue<ViewState> mViewState;
 
-    private static final int FAB_ANIMATION_DURATION = 200;
     private boolean mIsPageScrollingUp;
 
     public ZoomScrollValueObserver(@Nullable ZoomView zoomView,
@@ -88,7 +86,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
 
             if (!isAnnotationButtonVisible() && position.scrollY == 0
                     && mFindInFileView.getVisibility() == View.GONE) {
-                editFabExpandAnimation();
+                mAnnotationButton.show();
             } else if (isAnnotationButtonVisible() && mIsPageScrollingUp) {
                 clearAnnotationHandler();
                 return;
@@ -98,16 +96,7 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                     @Override
                     public void run() {
                         if (position.scrollY != 0) {
-                            mAnnotationButton.animate()
-                                    .alpha(0.0f)
-                                    .setDuration(FAB_ANIMATION_DURATION)
-                                    .withEndAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            mAnnotationButton.setVisibility(View.GONE);
-                                            mAnnotationButton.setAlpha(1.0f);
-                                        }
-                                    });
+                            mAnnotationButton.hide();
                         }
                     }
                 });
@@ -124,25 +113,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
 
     private boolean isAnnotationButtonVisible() {
         return mAnnotationButton.getVisibility() == View.VISIBLE;
-    }
-
-    private void editFabExpandAnimation() {
-        mAnnotationButton.setScaleX(0.0f);
-        mAnnotationButton.setScaleY(0.0f);
-        ValueAnimator scaleAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        scaleAnimator.setDuration(FAB_ANIMATION_DURATION);
-        scaleAnimator.addUpdateListener(
-                new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(@NonNull ValueAnimator animation) {
-                        float scale = (float) animation.getAnimatedValue();
-                        mAnnotationButton.setScaleX(scale);
-                        mAnnotationButton.setScaleY(scale);
-                        mAnnotationButton.setAlpha(scale);
-                    }
-                });
-        scaleAnimator.start();
-        mAnnotationButton.setVisibility(View.VISIBLE);
     }
 
     /** Exposing a function to clear the handler when PDFViewer Fragment is destroyed. */

@@ -295,7 +295,7 @@ public open class PdfViewerFragment : Fragment() {
                     }
                     annotationButton?.let { button ->
                         if ((savedInstanceState == null) && isAnnotationIntentResolvable) {
-                            button.visibility = View.VISIBLE
+                            button.show()
                         }
                     }
                 },
@@ -484,7 +484,7 @@ public open class PdfViewerFragment : Fragment() {
                     isAnnotationIntentResolvable &&
                         state.getBoolean(KEY_ANNOTATION_BUTTON_VISIBILITY)
                 ) {
-                    annotationButton?.visibility = View.VISIBLE
+                    annotationButton?.show()
                 }
             }
         }
@@ -645,11 +645,7 @@ public open class PdfViewerFragment : Fragment() {
                 annotationButton?.visibility != View.VISIBLE &&
                 findInFileView?.visibility != View.VISIBLE
         ) {
-            annotationButton?.post {
-                annotationButton?.visibility = View.VISIBLE
-                annotationButton?.alpha = 0f
-                annotationButton?.animate()?.alpha(1f)?.setDuration(200)?.start()
-            }
+            annotationButton?.post { annotationButton?.show() }
         }
     }
 
@@ -765,7 +761,7 @@ public open class PdfViewerFragment : Fragment() {
             onLoadDocumentError(e)
         }
         if (localUri != null && localUri != fileUri) {
-            annotationButton?.visibility = View.GONE
+            annotationButton?.hide()
         }
         localUri = fileUri
     }
