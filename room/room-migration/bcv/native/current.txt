@@ -337,9 +337,6 @@ open class androidx.room.migration.bundle/EntityBundle : androidx.room.migration
 }
 
 sealed class androidx.room.migration.bundle/BaseEntityBundle { // androidx.room.migration.bundle/BaseEntityBundle|null[0]
-    constructor <init>() // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(){}[0]
-    constructor <init>(kotlin/Int, kotlinx.serialization.internal/SerializationConstructorMarker?) // androidx.room.migration.bundle/BaseEntityBundle.<init>|<init>(kotlin.Int;kotlinx.serialization.internal.SerializationConstructorMarker?){}[0]
-
     abstract val createSql // androidx.room.migration.bundle/BaseEntityBundle.createSql|{}createSql[0]
         abstract fun <get-createSql>(): kotlin/String // androidx.room.migration.bundle/BaseEntityBundle.createSql.<get-createSql>|<get-createSql>(){}[0]
     abstract val fields // androidx.room.migration.bundle/BaseEntityBundle.fields|{}fields[0]

@@ -185,11 +185,7 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
 
             compile.pluginClasspath.from(kotlinPluginProvider.get())
 
-            // todo(b/291587160): enable when Compose compiler 2.0.20 is merged
-            // compile.enableFeatureFlag(ComposeFeatureFlag.StrongSkipping)
-            // compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
-            compile.addPluginOption(ComposeCompileOptions.StrongSkipping, "true")
-            compile.addPluginOption(ComposeCompileOptions.NonSkippingGroupOptimization, "true")
+            compile.enableFeatureFlag(ComposeFeatureFlag.OptimizeNonSkippingGroups)
             if (shouldPublish) {
                 compile.addPluginOption(ComposeCompileOptions.SourceOption, "true")
             }

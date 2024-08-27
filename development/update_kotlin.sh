@@ -2,14 +2,12 @@
 set -e
 
 KOTLIN_VERSION="$1"
+KSP_VERSION="$2"
 
-ALLOW_JETBRAINS_DEV=""
-for arg in "$@"
-do
-    if [ "$arg" == "--allow-jetbrains-dev" ]; then
-      ALLOW_JETBRAINS_DEV="--allow-jetbrains-dev"
-    fi
-done
+if [[ $# -eq 0 ]] ; then
+    echo "Usage ./development/update_kotlin.sh <kotlin_version> [<ksp_version>]"
+    exit 1
+fi
 
 # Download maven artifacts
 ARTIFACTS_TO_DOWNLOAD="org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION,"
@@ -38,7 +36,39 @@ ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERS
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:macos-x86_64@tar.gz,"
 ARTIFACTS_TO_DOWNLOAD+="org.jetbrains.kotlin:kotlin-native-prebuilt:$KOTLIN_VERSION:macos-aarch64@tar.gz,"
 
-./development/importMaven/importMaven.sh "$ALLOW_JETBRAINS_DEV" "$ARTIFACTS_TO_DOWNLOAD"
+if [ "$KSP_VERSION" ]; then
+    ARTIFACTS_TO_DOWNLOAD+="com.google.devtools.ksp:symbol-processing:$KSP_VERSION,"
+    ARTIFACTS_TO_DOWNLOAD+="com.google.devtools.ksp:symbol-processing-api:$KSP_VERSION,"
+    ARTIFACTS_TO_DOWNLOAD+="com.google.devtools.ksp:symbol-processing-cmdline:$KSP_VERSION,"
+    ARTIFACTS_TO_DOWNLOAD+="com.google.devtools.ksp:symbol-processing-gradle-plugin:$KSP_VERSION,"
+    ARTIFACTS_TO_DOWNLOAD+="com.google.devtools.ksp:symbol-processing-aa-embeddable:$KSP_VERSION,"
+fi
 
- ./development/importMaven/importMaven.sh import-konan-binaries --konan-compiler-version "$KOTLIN_VERSION"
+./development/importMaven/importMaven.sh "$ARTIFACTS_TO_DOWNLOAD"
 
+# symlink native compiler prebuilt archives from prebuilts/androidx/external to prebuilts/androidx/konan
+# to make KonanPrebuiltsSetup.kt work.
+rm -fr "../../prebuilts/androidx/konan/nativeCompilerPrebuilts/releases"
+
+REAL_NATIVE_PREBUILT_DIR="../../../../../external/org/jetbrains/kotlin/kotlin-native-prebuilt/$KOTLIN_VERSION/"
+
+LINUX_DIR="../../prebuilts/androidx/konan/nativeCompilerPrebuilts/releases/$KOTLIN_VERSION/linux-x86_64"
+mkdir -p "$LINUX_DIR"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-linux-x86_64.tar.gz" \
+    "$LINUX_DIR/kotlin-native-prebuilt-linux-x86_64-$KOTLIN_VERSION.tar.gz"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-linux-x86_64.tar.gz.asc" \
+    "$LINUX_DIR/kotlin-native-prebuilt-linux-x86_64-$KOTLIN_VERSION.tar.gz.asc"
+
+MAC_ARM_DIR="../../prebuilts/androidx/konan/nativeCompilerPrebuilts/releases/$KOTLIN_VERSION/macos-aarch64"
+mkdir -p "$MAC_ARM_DIR"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-aarch64.tar.gz" \
+    "$MAC_ARM_DIR/kotlin-native-prebuilt-macos-aarch64-$KOTLIN_VERSION.tar.gz"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-aarch64.tar.gz.asc" \
+    "$MAC_ARM_DIR/kotlin-native-prebuilt-macos-aarch64-$KOTLIN_VERSION.tar.gz.asc"
+
+MAC_X86_DIR="../../prebuilts/androidx/konan/nativeCompilerPrebuilts/releases/$KOTLIN_VERSION/macos-x86_64"
+mkdir -p "$MAC_X86_DIR"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-x86_64.tar.gz" \
+    "$MAC_X86_DIR/kotlin-native-prebuilt-macos-x86_64-$KOTLIN_VERSION.tar.gz"
+ln -s -f "$REAL_NATIVE_PREBUILT_DIR/kotlin-native-prebuilt-$KOTLIN_VERSION-macos-x86_64.tar.gz.asc" \
+    "$MAC_X86_DIR/kotlin-native-prebuilt-macos-x86_64-$KOTLIN_VERSION.tar.gz.asc"
