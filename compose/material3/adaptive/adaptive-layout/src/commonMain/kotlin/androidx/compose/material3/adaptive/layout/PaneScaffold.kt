@@ -192,5 +192,6 @@ private class AnimatedPaneNode : ParentDataModifierNode, Modifier.Node() {
 
 internal data class PaneScaffoldParentData(
     var preferredWidth: Float? = null,
+    var paneMargins: PaneMargins = PaneMargins.Unspecified,
     var isAnimatedPane: Boolean = false
 )
