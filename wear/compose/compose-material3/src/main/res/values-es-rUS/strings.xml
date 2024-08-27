@@ -17,32 +17,32 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"Stunda"</string>
-    <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"Minūte"</string>
-    <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"Sekunde"</string>
+    <string name="wear_m3c_time_picker_hour" msgid="5670838450714030035">"Hora"</string>
+    <string name="wear_m3c_time_picker_minute" msgid="2847700380677127030">"Minuto"</string>
+    <string name="wear_m3c_time_picker_second" msgid="5551916170669814925">"Segundo"</string>
     <plurals name="wear_m3c_time_picker_hours_content_description" formatted="false" msgid="7688673698789346225">
-      <item quantity="zero">%d stundu</item>
-      <item quantity="one">%d stunda</item>
-      <item quantity="other">%d stundas</item>
+      <item quantity="many">%d de horas</item>
+      <item quantity="other">%d horas</item>
+      <item quantity="one">%d hora</item>
     </plurals>
     <plurals name="wear_m3c_time_picker_minutes_content_description" formatted="false" msgid="8268405448590438607">
-      <item quantity="zero">%d minūšu</item>
-      <item quantity="one">%d minūte</item>
-      <item quantity="other">%d minūtes</item>
+      <item quantity="many">%d de minutos</item>
+      <item quantity="other">%d minutos</item>
+      <item quantity="one">%d minuto</item>
     </plurals>
     <plurals name="wear_m3c_time_picker_seconds_content_description" formatted="false" msgid="1073969431850983434">
-      <item quantity="zero">%d sekunžu</item>
-      <item quantity="one">%d sekunde</item>
-      <item quantity="other">%d sekundes</item>
+      <item quantity="many">%d de segundos</item>
+      <item quantity="other">%d segundos</item>
+      <item quantity="one">%d segundo</item>
     </plurals>
-    <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Periods"</string>
+    <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Período"</string>
     <!-- no translation found for wear_m3c_date_picker_day (8932770593644830235) -->
     <skip />
     <!-- no translation found for wear_m3c_date_picker_month (5962969526377479136) -->
     <skip />
     <!-- no translation found for wear_m3c_date_picker_year (4697690064312147449) -->
     <skip />
-    <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Apstiprināt"</string>
+    <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Confirmar"</string>
     <!-- no translation found for wear_m3c_picker_next_button_content_description (3346011303652897029) -->
     <skip />
 </resources>

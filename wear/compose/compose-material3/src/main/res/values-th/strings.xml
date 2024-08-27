@@ -33,5 +33,9 @@
       <item quantity="one">%d วินาที</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"ระยะเวลา"</string>
+    <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"วัน"</string>
+    <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"เดือน"</string>
+    <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"ปี"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"ยืนยัน"</string>
+    <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"ถัดไป"</string>
 </resources>
