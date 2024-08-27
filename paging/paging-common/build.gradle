@@ -27,9 +27,9 @@ import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.konan.target.Family
 
+
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
@@ -39,7 +39,14 @@ androidXMultiplatform {
     ios()
     watchos()
     tvos()
-    android()
+    androidLibrary {
+        namespace = "androidx.paging.common"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+    }
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -149,8 +156,4 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
     samples(project(":paging:paging-samples"))
-}
-
-android {
-    namespace "androidx.paging.common"
 }
