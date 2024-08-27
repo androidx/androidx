@@ -154,7 +154,7 @@ fun WindowStateScreenPreview() {
                 activityDisplayBounds = Rect(0, 0, 960, 2142),
             ),
         )
-    DemoTheme { WindowStateScreen(viewModel = WindowStateViewModel(windowStates)) }
+    DemoTheme { WindowStateScreen(viewModel = viewModel { WindowStateViewModel(windowStates) }) }
 }
 
 /**
