@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -46,6 +48,7 @@ androidx {
     type = LibraryType.SAMPLES
     inceptionYear = "2022"
     description = "Contains the sample code for the Material 3 Window Size Class APIs"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

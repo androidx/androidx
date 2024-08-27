@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -117,6 +119,7 @@ androidx {
     metalavaK2UastEnabled = false
     samples(project(":compose:animation:animation:animation-samples"))
     // samples(project(":compose:animation:animation-core:animation-core-samples")) TODO(b/318840087)
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

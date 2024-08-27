@@ -21,8 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -48,6 +49,7 @@ dependencies {
 androidx {
     name = "Compose RxJava 2 integration"
     type = LibraryType.PUBLISHED_LIBRARY_ONLY_USED_BY_KOTLIN_CONSUMERS
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2020"
     description = "Compose integration with RxJava 2"
     legacyDisableKotlinStrictApiMode = true

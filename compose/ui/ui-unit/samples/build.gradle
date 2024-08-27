@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -48,6 +50,7 @@ androidx {
     type = LibraryType.SAMPLES
     inceptionYear = "2019"
     description = "Contains the sample code for the Androidx Compose UI Simple Unit Classes"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

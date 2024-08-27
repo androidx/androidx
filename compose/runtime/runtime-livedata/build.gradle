@@ -21,8 +21,9 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -54,6 +55,7 @@ androidx {
     description = "Compose integration with LiveData"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:runtime:runtime-livedata:runtime-livedata-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

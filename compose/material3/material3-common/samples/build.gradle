@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -49,6 +51,7 @@ androidx {
     type = LibraryType.SAMPLES
     inceptionYear = "2024"
     description = "Contains the sample code for the AndroidX Compose Material3-common components."
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {
