@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION") // Suppress for imports of WindowWidthSizeClass
+
 package androidx.compose.material3.adaptive.navigationsuite
 
 import androidx.compose.foundation.interaction.Interaction
@@ -407,6 +409,7 @@ object NavigationSuiteScaffoldDefaults {
      * @param adaptiveInfo the provided [WindowAdaptiveInfo]
      * @see NavigationSuiteScaffold
      */
+    @Suppress("DEPRECATION") // WindowWidthSizeClass deprecated
     fun calculateFromAdaptiveInfo(adaptiveInfo: WindowAdaptiveInfo): NavigationSuiteType {
         return with(adaptiveInfo) {
             if (

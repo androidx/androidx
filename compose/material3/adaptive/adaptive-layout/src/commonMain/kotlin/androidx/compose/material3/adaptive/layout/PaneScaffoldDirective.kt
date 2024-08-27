@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATED") // Deprecated import WindowWidthSizeClass.
+
 package androidx.compose.material3.adaptive.layout
 
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
@@ -27,7 +29,6 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.window.core.layout.WindowWidthSizeClass
 
 /**
  * Calculates the recommended [PaneScaffoldDirective] from a given [WindowAdaptiveInfo]. Use this
@@ -44,6 +45,7 @@ import androidx.window.core.layout.WindowWidthSizeClass
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 @ExperimentalMaterial3AdaptiveApi
+@Suppress("DEPRECATION") // WindowWidthSizeClass is deprecated
 fun calculatePaneScaffoldDirective(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
@@ -51,11 +53,11 @@ fun calculatePaneScaffoldDirective(
     val maxHorizontalPartitions: Int
     val horizontalPartitionSpacerSize: Dp
     when (windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass) {
-        WindowWidthSizeClass.COMPACT -> {
+        androidx.window.core.layout.WindowWidthSizeClass.COMPACT -> {
             maxHorizontalPartitions = 1
             horizontalPartitionSpacerSize = 0.dp
         }
-        WindowWidthSizeClass.MEDIUM -> {
+        androidx.window.core.layout.WindowWidthSizeClass.MEDIUM -> {
             maxHorizontalPartitions = 1
             horizontalPartitionSpacerSize = 0.dp
         }
@@ -108,12 +110,14 @@ fun calculatePaneScaffoldDirective(
  * @return an [PaneScaffoldDirective] to be used to decide adaptive layout states.
  */
 @ExperimentalMaterial3AdaptiveApi
+@Suppress("DEPRECATION") // WindowWidthSizeClass is deprecated
 fun calculatePaneScaffoldDirectiveWithTwoPanesOnMediumWidth(
     windowAdaptiveInfo: WindowAdaptiveInfo,
     verticalHingePolicy: HingePolicy = HingePolicy.AvoidSeparating
 ): PaneScaffoldDirective {
     val isMediumWidth =
-        windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.MEDIUM
+        windowAdaptiveInfo.windowSizeClass.windowWidthSizeClass ==
+            androidx.window.core.layout.WindowWidthSizeClass.MEDIUM
     return with(calculatePaneScaffoldDirective(windowAdaptiveInfo, verticalHingePolicy)) {
         copy(
             maxHorizontalPartitions = if (isMediumWidth) 2 else maxHorizontalPartitions,

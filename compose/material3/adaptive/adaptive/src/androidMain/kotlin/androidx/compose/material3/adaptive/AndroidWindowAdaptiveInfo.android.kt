@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.map
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
+@Suppress("DEPRECATION") // WindowSizeClass#compute is deprecated
 actual fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo {
     val windowSize = with(LocalDensity.current) { currentWindowSize().toSize().toDpSize() }
     return WindowAdaptiveInfo(

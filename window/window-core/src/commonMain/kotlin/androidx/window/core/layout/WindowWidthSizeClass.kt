@@ -24,7 +24,10 @@ import kotlin.jvm.JvmField
  * type. It is possible to have resizeable windows in different device types. The viewport might
  * change from a [COMPACT] all the way to an [EXPANDED] size class.
  */
+@Suppress("DEPRECATION")
+@Deprecated("WindowWidthSizeClass will not be developed further, use WindowSizeClass instead.")
 class WindowWidthSizeClass private constructor(private val rawValue: Int) {
+
     override fun toString(): String {
         val name =
             when (this) {
@@ -52,19 +55,25 @@ class WindowWidthSizeClass private constructor(private val rawValue: Int) {
 
     companion object {
         /** A bucket to represent a compact width window, typical for a phone in portrait. */
-        @JvmField val COMPACT: WindowWidthSizeClass = WindowWidthSizeClass(0)
+        @Deprecated("WindowWidthSizeClass not be developed further.")
+        @JvmField
+        val COMPACT: WindowWidthSizeClass = WindowWidthSizeClass(0)
 
         /**
          * A bucket to represent a medium width window, typical for a phone in landscape or a
          * tablet.
          */
-        @JvmField val MEDIUM: WindowWidthSizeClass = WindowWidthSizeClass(1)
+        @Deprecated("WindowWidthSizeClass not be developed further.")
+        @JvmField
+        val MEDIUM: WindowWidthSizeClass = WindowWidthSizeClass(1)
 
         /**
          * A bucket to represent an expanded width window, typical for a large tablet or desktop
          * form-factor.
          */
-        @JvmField val EXPANDED: WindowWidthSizeClass = WindowWidthSizeClass(2)
+        @Deprecated("WindowWidthSizeClass not be developed further.")
+        @JvmField
+        val EXPANDED: WindowWidthSizeClass = WindowWidthSizeClass(2)
 
         /**
          * Returns a recommended [WindowWidthSizeClass] for the width of a window given the width in
@@ -74,6 +83,7 @@ class WindowWidthSizeClass private constructor(private val rawValue: Int) {
          * @return A recommended size class for the width
          * @throws IllegalArgumentException if the width is negative
          */
+        @Deprecated("WindowWidthSizeClass not be developed further.")
         internal fun compute(dpWidth: Float): WindowWidthSizeClass {
             require(dpWidth >= 0) { "Width must be positive, received $dpWidth" }
             return when {

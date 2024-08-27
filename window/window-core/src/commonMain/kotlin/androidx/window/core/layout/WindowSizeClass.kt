@@ -16,30 +16,28 @@
 
 package androidx.window.core.layout
 
-import androidx.window.core.ExperimentalWindowCoreApi
+import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic
 
 /**
- * [WindowSizeClass] represents breakpoints for a viewport. The recommended width and height break
- * points are presented through [windowWidthSizeClass] and [windowHeightSizeClass]. Designers should
- * design around the different combinations of width and height buckets. Developers should use the
- * different buckets to specify the layouts. Ideally apps will work well in each bucket and by
- * extension work well across multiple devices. If two devices are in similar buckets they should
- * behave similarly.
+ * [WindowSizeClass] represents breakpoints for a viewport. Designers should design around the
+ * different combinations of width and height buckets. Developers should use the different buckets
+ * to specify the layouts. Ideally apps will work well in each bucket and by extension work well
+ * across multiple devices. If two devices are in similar buckets they should behave similarly.
  *
  * This class is meant to be a common definition that can be shared across different device types.
- * Application developers can use WindowSizeClass to have standard window buckets and design the UI
- * around those buckets. Library developers can use these buckets to create different UI with
+ * Application developers can use [WindowSizeClass] to have standard window buckets and design the
+ * UI around those buckets. Library developers can use these buckets to create different UI with
  * respect to each bucket. This will help with consistency across multiple device types.
  *
  * A library developer use-case can be creating some navigation UI library. For a size class with
- * the [WindowWidthSizeClass.EXPANDED] width it might be more reasonable to have a side navigation.
- * For a [WindowWidthSizeClass.COMPACT] width, a bottom navigation might be a better fit.
+ * the [WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND] width it might be more reasonable to have a
+ * side navigation.
  *
  * An application use-case can be applied for apps that use a list-detail pattern. The app can use
- * the [WindowWidthSizeClass.MEDIUM] to determine if there is enough space to show the list and the
- * detail side by side. If all apps follow this guidance then it will present a very consistent user
- * experience.
+ * the [WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND] to determine if there is enough space to show
+ * the list and the detail side by side. If all apps follow this guidance then it will present a
+ * very consistent user experience.
  *
  * In some cases developers or UI systems may decide to create their own break points. A developer
  * might optimize for a window that is smaller than the supported break points or larger. A UI
@@ -50,13 +48,58 @@ import kotlin.jvm.JvmStatic
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
-class WindowSizeClass
-private constructor(
+class WindowSizeClass(
+    /** Returns the lower bound for the width of the size class in dp. */
+    val minWidthDp: Int,
+    /** Returns the lower bound for the height of the size class in dp. */
+    val minHeightDp: Int
+) {
+
+    /** A convenience constructor that will truncate to ints. */
+    constructor(widthDp: Float, heightDp: Float) : this(widthDp.toInt(), heightDp.toInt())
+
+    init {
+        require(minWidthDp >= 0) {
+            "Expected minWidthDp to be at least 0, minWidthDp: $minWidthDp."
+        }
+        require(minHeightDp >= 0) {
+            "Expected minHeightDp to be at least 0, minHeightDp: $minHeightDp."
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Use either isWidthAtLeast or isAtLeast to check matching bounds.")
     /** Returns the [WindowWidthSizeClass] that corresponds to the widthDp of the window. */
-    val windowWidthSizeClass: WindowWidthSizeClass,
+    val windowWidthSizeClass: WindowWidthSizeClass
+        get() = WindowWidthSizeClass.compute(minWidthDp.toFloat())
+
+    @Suppress("DEPRECATION")
+    @Deprecated("Use either isHeightAtLeast or isAtLeast to check matching bounds.")
     /** Returns the [WindowHeightSizeClass] that corresponds to the heightDp of the window. */
     val windowHeightSizeClass: WindowHeightSizeClass
-) {
+        get() = WindowHeightSizeClass.compute(minHeightDp.toFloat())
+
+    /**
+     * Returns `true` when [widthDp] is greater than or equal to [minWidthDp], `false` otherwise.
+     */
+    fun isWidthAtLeast(widthDp: Int): Boolean {
+        return widthDp >= minWidthDp
+    }
+
+    /**
+     * Returns `true` when [heightDp] is greater than or equal to [minHeightDp], `false` otherwise.
+     */
+    fun isHeightAtLeast(heightDp: Int): Boolean {
+        return heightDp >= minHeightDp
+    }
+
+    /**
+     * Returns `true` when [widthDp] is greater than or equal to [minWidthDp] and [heightDp] is
+     * greater than or equal to [minHeightDp], `false` otherwise.
+     */
+    fun isAtLeast(widthDp: Int, heightDp: Int): Boolean {
+        return isWidthAtLeast(widthDp) && isHeightAtLeast(heightDp)
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -64,25 +107,49 @@ private constructor(
 
         other as WindowSizeClass
 
-        if (windowWidthSizeClass != other.windowWidthSizeClass) return false
-        if (windowHeightSizeClass != other.windowHeightSizeClass) return false
+        if (minWidthDp != other.minWidthDp) return false
+        if (minHeightDp != other.minHeightDp) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = windowWidthSizeClass.hashCode()
-        result = 31 * result + windowHeightSizeClass.hashCode()
+        var result = minWidthDp
+        result = 31 * result + minHeightDp
         return result
     }
 
     override fun toString(): String {
-        return "WindowSizeClass {" +
-            "windowWidthSizeClass=$windowWidthSizeClass, " +
-            "windowHeightSizeClass=$windowHeightSizeClass }"
+        return "WindowSizeClass(minWidthDp=$minWidthDp, minHeightDp=$minHeightDp)"
     }
 
     companion object {
+        /** A lower bound for a size class with Medium width in dp. */
+        const val WIDTH_DP_MEDIUM_LOWER_BOUND = 600
+
+        /** A lower bound for a size class with Expanded width in dp. */
+        const val WIDTH_DP_EXPANDED_LOWER_BOUND = 840
+
+        /** A lower bound for a size class with Medium height in dp. */
+        const val HEIGHT_DP_MEDIUM_LOWER_BOUND = 480
+
+        /** A lower bound for a size class with Expanded height in dp. */
+        const val HEIGHT_DP_EXPANDED_LOWER_BOUND = 900
+
+        private val WIDTH_DP_BREAKPOINTS_V1 =
+            listOf(WIDTH_DP_MEDIUM_LOWER_BOUND, WIDTH_DP_EXPANDED_LOWER_BOUND)
+
+        private val HEIGHT_DP_BREAKPOINTS_V1 =
+            listOf(HEIGHT_DP_MEDIUM_LOWER_BOUND, HEIGHT_DP_EXPANDED_LOWER_BOUND)
+
+        @JvmField
+        val BREAKPOINTS_V1 =
+            WIDTH_DP_BREAKPOINTS_V1.flatMap { widthBp ->
+                    HEIGHT_DP_BREAKPOINTS_V1.map { heightBp ->
+                        WindowSizeClass(minWidthDp = widthBp, minHeightDp = heightBp)
+                    }
+                }
+                .toSet()
 
         /**
          * Computes the recommended [WindowSizeClass] for the given width and height in DP.
@@ -93,28 +160,21 @@ private constructor(
          * @throws IllegalArgumentException if [dpWidth] or [dpHeight] is negative.
          */
         @JvmStatic
+        @Deprecated("Use the constructor instead.")
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
-            return WindowSizeClass(
-                WindowWidthSizeClass.compute(dpWidth),
-                WindowHeightSizeClass.compute(dpHeight)
-            )
-        }
-
-        /**
-         * Computes the [WindowSizeClass] for the given width and height in pixels with density.
-         *
-         * @param widthPx width of a window in PX.
-         * @param heightPx height of a window in PX.
-         * @param density density of the display where the window is shown.
-         * @return [WindowSizeClass] that is recommended for the given dimensions.
-         * @throws IllegalArgumentException if [widthPx], [heightPx], or [density] is negative.
-         */
-        @JvmStatic
-        @ExperimentalWindowCoreApi
-        fun compute(widthPx: Int, heightPx: Int, density: Float): WindowSizeClass {
-            val widthDp = widthPx / density
-            val heightDp = heightPx / density
-            return compute(widthDp, heightDp)
+            val widthDp =
+                when {
+                    dpWidth >= WIDTH_DP_EXPANDED_LOWER_BOUND -> WIDTH_DP_EXPANDED_LOWER_BOUND
+                    dpWidth >= WIDTH_DP_MEDIUM_LOWER_BOUND -> WIDTH_DP_MEDIUM_LOWER_BOUND
+                    else -> 0
+                }
+            val heightDp =
+                when {
+                    dpHeight >= HEIGHT_DP_EXPANDED_LOWER_BOUND -> HEIGHT_DP_EXPANDED_LOWER_BOUND
+                    dpHeight >= HEIGHT_DP_MEDIUM_LOWER_BOUND -> HEIGHT_DP_MEDIUM_LOWER_BOUND
+                    else -> 0
+                }
+            return WindowSizeClass(widthDp, heightDp)
         }
     }
 }
