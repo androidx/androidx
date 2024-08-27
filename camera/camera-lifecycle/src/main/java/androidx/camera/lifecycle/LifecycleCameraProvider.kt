@@ -15,11 +15,15 @@
  */
 package androidx.camera.lifecycle
 
+import android.content.Context
 import android.content.pm.PackageManager
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraProvider
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.CompositionSettings
 import androidx.camera.core.ConcurrentCamera
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
@@ -28,21 +32,27 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.futures.Futures
+import androidx.concurrent.futures.await
+import androidx.core.util.Preconditions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
+import com.google.common.util.concurrent.ListenableFuture
 
 /**
- * Provides access to a camera which has has its opening and closing controlled by a
- * [LifecycleOwner].
+ * Provides access to a camera which has its opening and closing controlled by a [LifecycleOwner].
  */
-internal interface LifecycleCameraProvider : CameraProvider {
+// TODO: Remove the annotation when LifecycleCameraProvider is ready to be public.
+@RestrictTo(Scope.LIBRARY_GROUP)
+public interface LifecycleCameraProvider : CameraProvider {
     /**
      * Returns `true` if the [UseCase] is bound to a lifecycle. Otherwise returns `false`.
      *
      * After binding a use case, use cases remain bound until the lifecycle reaches a
      * [Lifecycle.State.DESTROYED] state or if is unbound by calls to [unbind] or [unbindAll].
      */
-    fun isBound(useCase: UseCase): Boolean
+    public fun isBound(useCase: UseCase): Boolean
 
     /**
      * Unbinds all specified use cases from the lifecycle provider.
@@ -57,8 +67,9 @@ internal interface LifecycleCameraProvider : CameraProvider {
      *
      * @param useCases The collection of use cases to remove.
      * @throws IllegalStateException If not called on main thread.
+     * @throws UnsupportedOperationException If called in concurrent mode.
      */
-    fun unbind(vararg useCases: UseCase?)
+    public fun unbind(vararg useCases: UseCase?): Unit
 
     /**
      * Unbinds all use cases from the lifecycle provider and removes them from CameraX.
@@ -67,7 +78,7 @@ internal interface LifecycleCameraProvider : CameraProvider {
      *
      * @throws IllegalStateException If not called on main thread.
      */
-    fun unbindAll()
+    public fun unbindAll(): Unit
 
     /**
      * Binds the collection of [UseCase] to a [LifecycleOwner].
@@ -124,7 +135,7 @@ internal interface LifecycleCameraProvider : CameraProvider {
      *   camera to be used for the given use cases.
      * @throws UnsupportedOperationException If the camera is configured in concurrent mode.
      */
-    fun bindToLifecycle(
+    public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
         vararg useCases: UseCase?
@@ -142,7 +153,7 @@ internal interface LifecycleCameraProvider : CameraProvider {
      *
      * @throws UnsupportedOperationException If the camera is configured in concurrent mode.
      */
-    fun bindToLifecycle(
+    public fun bindToLifecycle(
         lifecycleOwner: LifecycleOwner,
         cameraSelector: CameraSelector,
         useCaseGroup: UseCaseGroup
@@ -169,8 +180,9 @@ internal interface LifecycleCameraProvider : CameraProvider {
      *
      * If the concurrent logical cameras are binding the same preview and video capture use cases,
      * the concurrent cameras video recording will be supported. The concurrent camera preview
-     * stream will be shared with video capture and record the concurrent cameras as a whole. The
-     * [CompositionSettings] can be used to configure the position of each camera stream.
+     * stream will be shared with video capture and record the concurrent cameras streams as a
+     * composited stream. The [CompositionSettings] can be used to configure the position of each
+     * camera stream and different layouts can be built. See [CompositionSettings] for more details.
      *
      * If we want to open concurrent physical cameras, which are two front cameras or two back
      * cameras, the device needs to support physical cameras and the capability could be checked via
@@ -206,5 +218,48 @@ internal interface LifecycleCameraProvider : CameraProvider {
      * @see CameraInfo.isLogicalMultiCameraSupported
      * @see CameraInfo.getPhysicalCameraInfos
      */
-    fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera
+    public fun bindToLifecycle(singleCameraConfigs: List<SingleCameraConfig?>): ConcurrentCamera
+
+    public companion object {
+        /**
+         * Creates a lifecycle camera provider instance.
+         *
+         * @param context The Application context.
+         * @param cameraXConfig The configuration options to configure the lifecycle camera
+         *   provider. If not set, the default configuration will be used.
+         * @return The lifecycle camera provider instance.
+         */
+        @JvmOverloads
+        @JvmStatic
+        public suspend fun createInstance(
+            context: Context,
+            cameraXConfig: CameraXConfig? = null,
+        ): LifecycleCameraProvider {
+            return createInstanceAsync(context, cameraXConfig).await()
+        }
+
+        /**
+         * Creates a lifecycle camera provider instance asynchronously.
+         *
+         * @param context The Application context.
+         * @param cameraXConfig The configuration options to configure the lifecycle camera
+         *   provider. If not set, the default configuration will be used.
+         * @return A [ListenableFuture] that will be completed when the lifecycle camera provider
+         *   instance is initialized.
+         */
+        @JvmOverloads
+        @JvmStatic
+        public fun createInstanceAsync(
+            context: Context,
+            cameraXConfig: CameraXConfig? = null,
+        ): ListenableFuture<LifecycleCameraProvider> {
+            Preconditions.checkNotNull(context)
+            val lifecycleCameraProvider = LifecycleCameraProviderImpl()
+            return Futures.transform(
+                lifecycleCameraProvider.initAsync(context, cameraXConfig),
+                { lifecycleCameraProvider },
+                CameraXExecutors.directExecutor()
+            )
+        }
+    }
 }
