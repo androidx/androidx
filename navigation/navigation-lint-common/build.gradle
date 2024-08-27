@@ -31,6 +31,8 @@ plugins {
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
+    compileOnly(libs.androidLintTests)
+    compileOnly(libs.junit)
 }
 
 androidx {
