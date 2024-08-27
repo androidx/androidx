@@ -33,5 +33,13 @@
       <item quantity="one">%d sekund</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Periood"</string>
+    <!-- no translation found for wear_m3c_date_picker_day (8932770593644830235) -->
+    <skip />
+    <!-- no translation found for wear_m3c_date_picker_month (5962969526377479136) -->
+    <skip />
+    <!-- no translation found for wear_m3c_date_picker_year (4697690064312147449) -->
+    <skip />
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Kinnita"</string>
+    <!-- no translation found for wear_m3c_picker_next_button_content_description (3346011303652897029) -->
+    <skip />
 </resources>
