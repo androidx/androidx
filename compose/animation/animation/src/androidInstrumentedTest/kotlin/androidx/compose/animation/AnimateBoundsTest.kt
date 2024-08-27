@@ -51,7 +51,6 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.lerp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.lerp
@@ -60,7 +59,6 @@ import androidx.test.filters.MediumTest
 import kotlin.math.roundToInt
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -138,8 +136,9 @@ class AnimateBoundsTest {
     @Test
     fun animateSize() =
         with(rule.density) {
+            val frameTime = 16 // milliseconds
             val frames = 14 // Even number to reliable test at half duration
-            val durationMillis = frames * 16
+            val durationMillis = frames * frameTime
             val rootSizePx = 400
             val boxSizeSmallPx = rootSizePx * 0.25f
             val boxSizeLargePx = rootSizePx * 0.5f
@@ -180,14 +179,14 @@ class AnimateBoundsTest {
             rule.mainClock.autoAdvance = false
             isExpanded = true
             rule.waitForIdle()
-            rule.mainClock.advanceTimeByFrame()
-            rule.mainClock.advanceTimeByFrame()
 
-            // 1-frame latency. TODO: Can we fix this?
-            rule.mainClock.advanceTimeByFrame()
+            // Wait until first animated frame, for test stability
+            do {
+                rule.mainClock.advanceTimeByFrame()
+            } while (expectedSmallSize.round() == boxSize)
 
-            // Advance to approx. the middle of the animation
-            rule.mainClock.advanceTimeBy(durationMillis / 2L)
+            // Advance to approx. the middle of the animation (minus the first animated frame)
+            rule.mainClock.advanceTimeBy(durationMillis / 2L - frameTime)
 
             val expectedMidIntSize = (expectedLargeSize + expectedSmallSize).times(0.5f).round()
             assertEquals(expectedMidIntSize, boxSize)
@@ -452,7 +451,6 @@ class AnimateBoundsTest {
             assertEquals(IntSize(itemBSizePx, itemBSizePx), boxSize)
         }
 
-    @Ignore("b/362340158 - Around 10% flaky on local tests")
     @Test
     fun animateBounds_scrollBehavior() =
         with(rule.density) {
@@ -503,6 +501,7 @@ class AnimateBoundsTest {
             rule.mainClock.autoAdvance = false
 
             runBlocking { scrollState.scrollBy(itemSizePx) }
+            rule.waitForIdle()
 
             // Let animations play for the first frame
             rule.mainClock.advanceTimeByFrame()
@@ -521,16 +520,12 @@ class AnimateBoundsTest {
             rule.waitForIdle()
             rule.mainClock.autoAdvance = false
 
-            // Not sure why, but we need to run this scroll within a runOnIdle to complete the test
-            // consistently across devices.
-            rule.runOnIdle {
-                runBlocking {
-                    // Scroll back into starting position
-                    scrollState.scrollBy(-itemSizePx)
-                }
+            runBlocking {
+                // Scroll back into starting position
+                scrollState.scrollBy(-itemSizePx)
             }
+            rule.waitForIdle()
 
-            rule.mainClock.advanceTimeByFrame()
             rule.mainClock.advanceTimeByFrame()
 
             // Position should correspond to the exaggerated keyframe offset.
