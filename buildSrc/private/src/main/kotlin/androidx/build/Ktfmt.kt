@@ -44,7 +44,6 @@ import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.intellij.lang.annotations.Language
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun Project.configureKtfmt() {
     tasks.register("ktFormat", KtfmtFormatTask::class.java)
@@ -52,12 +51,6 @@ fun Project.configureKtfmt() {
     val ktCheckTask =
         tasks.register("ktCheck", KtfmtCheckTask::class.java) { task ->
             task.cacheEvenIfNoOutputs()
-            // Workaround for https://github.com/gradle/gradle/issues/29205
-            // Our ktfmt tasks declare "src" as an input, while our KotlinCompile tasks use
-            // something like src/main/java as an input
-            // Currently Gradle can sometimes get confused when loading a parent and child directory
-            // at the same time, so we ask Gradle to avoid running both tasks in parallel
-            task.mustRunAfter(project.tasks.withType(KotlinCompile::class.java))
         }
 
     // afterEvaluate because Gradle's default "check" task doesn't exist yet
