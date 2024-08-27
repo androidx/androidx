@@ -33,7 +33,11 @@ import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
 
 /** Catches simple class/interface name reference */
-fun UExpression.isClassReference(): Pair<Boolean, String?> {
+fun UExpression.isClassReference(
+    checkClass: Boolean = true,
+    checkInterface: Boolean = true,
+    checkCompanion: Boolean = true
+): Pair<Boolean, String?> {
     /**
      * True if:
      * 1. reference to object (i.e. val myStart = TestStart(), startDest = myStart)
@@ -66,9 +70,10 @@ fun UExpression.isClassReference(): Pair<Boolean, String?> {
             }
                 as? KtClassOrObjectSymbol ?: return false to null
 
-        (symbol.classKind.isClass ||
-            symbol.classKind == KtClassKind.INTERFACE ||
-            symbol.classKind == KtClassKind.COMPANION_OBJECT) to symbol.name?.asString()
+        ((checkClass && symbol.classKind.isClass) ||
+            (checkInterface && symbol.classKind == KtClassKind.INTERFACE) ||
+            (checkCompanion && symbol.classKind == KtClassKind.COMPANION_OBJECT)) to
+            symbol.name?.asString()
     }
 }
 
