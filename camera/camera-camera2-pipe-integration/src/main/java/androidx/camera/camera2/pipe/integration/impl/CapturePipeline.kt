@@ -49,6 +49,7 @@ import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
+import androidx.camera.camera2.pipe.integration.compat.workaround.Lock3ABehaviorWhenCaptureImage
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlash
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
 import androidx.camera.camera2.pipe.integration.compat.workaround.shouldStopRepeatingBeforeCapture
@@ -110,6 +111,7 @@ constructor(
     private val threads: UseCaseThreads,
     private val requestListener: ComboRequestListener,
     private val useTorchAsFlash: UseTorchAsFlash,
+    private val lock3ABehaviorWhenCaptureImage: Lock3ABehaviorWhenCaptureImage,
     cameraProperties: CameraProperties,
     private val useCaseCameraState: UseCaseCameraState,
     useCaseGraphConfig: UseCaseGraphConfig,
@@ -378,10 +380,16 @@ constructor(
         graph
             .acquireSession()
             .use {
+                val (aeLockBehavior, afLockBehavior, awbLockBehavior) =
+                    lock3ABehaviorWhenCaptureImage.getLock3ABehaviors(
+                        defaultAeBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                        defaultAfBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                        defaultAwbBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                    )
                 it.lock3A(
-                    aeLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                    afLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
-                    awbLockBehavior = Lock3ABehavior.AFTER_CURRENT_SCAN,
+                    aeLockBehavior = aeLockBehavior,
+                    afLockBehavior = afLockBehavior,
+                    awbLockBehavior = awbLockBehavior,
                     convergedTimeLimitNs = convergedTimeLimitNs,
                     lockedTimeLimitNs = CHECK_3A_TIMEOUT_IN_NS
                 )
