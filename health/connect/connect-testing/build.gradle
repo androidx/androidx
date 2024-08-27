@@ -47,8 +47,7 @@ android {
     }
     namespace "androidx.health.connect.testing"
     testOptions.unitTests.includeAndroidResources = true
-    compileSdk = 34
-    compileSdkExtension = 10
+    compileSdk = 35
 }
 
 androidx {

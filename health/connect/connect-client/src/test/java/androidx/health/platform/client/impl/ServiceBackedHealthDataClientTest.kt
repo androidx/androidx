@@ -186,7 +186,7 @@ class ServiceBackedHealthDataClientTest {
         val packageInfo = PackageInfo()
         packageInfo.packageName = packageName
         packageInfo.applicationInfo = ApplicationInfo()
-        packageInfo.applicationInfo.enabled = enabled
+        packageInfo.applicationInfo!!.enabled = enabled
         val packageManager = context.packageManager
         shadowOf(packageManager).installPackage(packageInfo)
     }

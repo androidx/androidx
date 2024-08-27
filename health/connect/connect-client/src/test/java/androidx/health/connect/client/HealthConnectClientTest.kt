@@ -312,7 +312,7 @@ class HealthConnectClientTest {
         @Suppress("Deprecation")
         packageInfo.versionCode = versionCode
         packageInfo.applicationInfo = ApplicationInfo()
-        packageInfo.applicationInfo.enabled = enabled
+        packageInfo.applicationInfo!!.enabled = enabled
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).installPackage(packageInfo)
     }

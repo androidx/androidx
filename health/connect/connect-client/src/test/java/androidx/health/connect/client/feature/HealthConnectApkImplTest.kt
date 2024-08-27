@@ -121,7 +121,7 @@ class HealthConnectApkImplTest {
         @Suppress("Deprecation")
         packageInfo.versionCode = versionCode
         packageInfo.applicationInfo = ApplicationInfo()
-        packageInfo.applicationInfo.enabled = true
+        packageInfo.applicationInfo!!.enabled = true
         val packageManager = context.packageManager
         Shadows.shadowOf(packageManager).installPackage(packageInfo)
     }

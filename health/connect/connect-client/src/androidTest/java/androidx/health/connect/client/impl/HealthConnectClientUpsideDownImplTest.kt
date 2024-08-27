@@ -95,7 +95,7 @@ class HealthConnectClientUpsideDownImplTest {
                 context.packageName,
                 PackageManager.PackageInfoFlags.of(PackageManager.GET_PERMISSIONS.toLong())
             )
-            .requestedPermissions
+            .requestedPermissions!!
             .filter { it.startsWith(PERMISSION_PREFIX) }
             .toTypedArray()
 

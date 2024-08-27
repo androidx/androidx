@@ -51,6 +51,7 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    compileSdk = 35
 }
 
 tasks.withType(KotlinCompile).configureEach {
