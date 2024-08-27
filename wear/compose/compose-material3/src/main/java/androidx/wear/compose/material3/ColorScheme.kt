@@ -259,6 +259,9 @@ class ColorScheme(
     internal var defaultSuccessConfirmationColorsCached: ConfirmationColors? = null
     internal var defaultFailureConfirmationColorsCached: ConfirmationColors? = null
 
+    // Open on Phone dialog
+    internal var mDefaultOpenOnPhoneDialogColorsCached: OpenOnPhoneDialogColors? = null
+
     // Picker
     internal var defaultTimePickerColorsCached: TimePickerColors? = null
     internal var defaultDatePickerColorsCached: DatePickerColors? = null
