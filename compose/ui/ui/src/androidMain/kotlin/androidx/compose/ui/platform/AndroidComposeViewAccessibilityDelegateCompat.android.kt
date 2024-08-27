@@ -268,7 +268,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     // flaky, so we use this callback to test accessibility events.
     @VisibleForTesting
     internal var onSendAccessibilityEvent: (AccessibilityEvent) -> Boolean = {
-        trace("sendAccessibilityEvent") { view.parent.requestSendAccessibilityEvent(view, it) }
+        view.parent.requestSendAccessibilityEvent(view, it)
     }
 
     private val accessibilityManager: AccessibilityManager =
@@ -367,12 +367,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         get() {
             if (currentSemanticsNodesInvalidated) { // first instance of retrieving all nodes
                 currentSemanticsNodesInvalidated = false
-                field =
-                    trace("generateCurrentSemanticsNodes") {
-                        view.semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap()
-                    }
+                field = view.semanticsOwner.getAllUncoveredSemanticsNodesToIntObjectMap()
                 if (isEnabled) {
-                    trace("setTraversalValues") { setTraversalValues() }
+                    setTraversalValues()
                 }
             }
             return field
@@ -497,43 +494,32 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     }
 
     private fun createNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
-        trace("checkIfDestroyed") {
-            if (
-                view.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState ==
-                    Lifecycle.State.DESTROYED
-            ) {
-                return null
-            }
+        if (
+            view.viewTreeOwners?.lifecycleOwner?.lifecycle?.currentState ==
+                Lifecycle.State.DESTROYED
+        ) {
+            return null
         }
-        val info: AccessibilityNodeInfoCompat =
-            trace("createAccessibilityNodeInfoObject") { AccessibilityNodeInfoCompat.obtain() }
-        val semanticsNodeWithAdjustedBounds =
-            trace("calculateNodeWithAdjustedBounds") { currentSemanticsNodes[virtualViewId] }
-                ?: return null
+        val info: AccessibilityNodeInfoCompat = AccessibilityNodeInfoCompat.obtain()
+        val semanticsNodeWithAdjustedBounds = currentSemanticsNodes[virtualViewId] ?: return null
         val semanticsNode: SemanticsNode = semanticsNodeWithAdjustedBounds.semanticsNode
-        trace("setParentForAccessibility") {
-            if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
-                info.setParent(view.getParentForAccessibility() as? View)
-            } else {
-                var parentId =
-                    checkPreconditionNotNull(semanticsNode.parent?.id) {
-                        "semanticsNode $virtualViewId has null parent"
-                    }
-                if (parentId == view.semanticsOwner.unmergedRootSemanticsNode.id) {
-                    parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
+        if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {
+            info.setParent(view.getParentForAccessibility() as? View)
+        } else {
+            var parentId =
+                checkPreconditionNotNull(semanticsNode.parent?.id) {
+                    "semanticsNode $virtualViewId has null parent"
                 }
-                info.setParent(view, parentId)
+            if (parentId == view.semanticsOwner.unmergedRootSemanticsNode.id) {
+                parentId = AccessibilityNodeProviderCompat.HOST_VIEW_ID
             }
+            info.setParent(view, parentId)
         }
         info.setSource(view, virtualViewId)
 
-        trace("setBoundsInScreen") {
-            info.setBoundsInScreen(boundsInScreen(semanticsNodeWithAdjustedBounds))
-        }
+        info.setBoundsInScreen(boundsInScreen(semanticsNodeWithAdjustedBounds))
 
-        trace("populateAccessibilityNodeInfoProperties") {
-            populateAccessibilityNodeInfoProperties(virtualViewId, info, semanticsNode)
-        }
+        populateAccessibilityNodeInfoProperties(virtualViewId, info, semanticsNode)
 
         return info
     }
@@ -1570,14 +1556,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
     @Suppress("DEPRECATION")
     @VisibleForTesting
     private fun createEvent(virtualViewId: Int, eventType: Int): AccessibilityEvent {
-        val event: AccessibilityEvent =
-            trace("obtainAccessibilityEvent") { AccessibilityEvent.obtain(eventType) }
+        val event: AccessibilityEvent = AccessibilityEvent.obtain(eventType)
         event.isEnabled = true
         event.className = ClassName
 
         // Don't allow the client to override these properties.
-        trace("event.packageName") { event.packageName = view.context.packageName }
-        trace("event.setSource") { event.setSource(view, virtualViewId) }
+        event.packageName = view.context.packageName
+        event.setSource(view, virtualViewId)
 
         if (isEnabled) {
             // populate additional information from the node
@@ -2261,15 +2246,11 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 if (isEnabled) {
                     for (i in subtreeChangedLayoutNodes.indices) {
                         val layoutNode = subtreeChangedLayoutNodes.valueAt(i)
-                        trace("sendSubtreeChangeAccessibilityEvents") {
-                            sendSubtreeChangeAccessibilityEvents(
-                                layoutNode,
-                                subtreeChangedSemanticsNodesIds
-                            )
-                        }
-                        trace("sendTypeViewScrolledAccessibilityEvent") {
-                            sendTypeViewScrolledAccessibilityEvent(layoutNode)
-                        }
+                        sendSubtreeChangeAccessibilityEvents(
+                            layoutNode,
+                            subtreeChangedSemanticsNodesIds
+                        )
+                        sendTypeViewScrolledAccessibilityEvent(layoutNode)
                     }
                     subtreeChangedSemanticsNodesIds.clear()
                     // When the bounds of layout nodes change, we will not always get semantics
@@ -2369,22 +2350,19 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         // When we finally send the event, make sure it is an accessibility-focusable node.
-        val id =
-            trace("GetSemanticsNode") {
-                var semanticsNode =
-                    if (layoutNode.nodes.has(Nodes.Semantics)) layoutNode
-                    else layoutNode.findClosestParentNode { it.nodes.has(Nodes.Semantics) }
+        var semanticsNode =
+            if (layoutNode.nodes.has(Nodes.Semantics)) layoutNode
+            else layoutNode.findClosestParentNode { it.nodes.has(Nodes.Semantics) }
 
-                val config = semanticsNode?.collapsedSemantics ?: return
-                if (!config.isMergingSemanticsOfDescendants) {
-                    semanticsNode
-                        .findClosestParentNode {
-                            it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
-                        }
-                        ?.let { semanticsNode = it }
+        val config = semanticsNode?.collapsedSemantics ?: return
+        if (!config.isMergingSemanticsOfDescendants) {
+            semanticsNode
+                .findClosestParentNode {
+                    it.collapsedSemantics?.isMergingSemanticsOfDescendants == true
                 }
-                semanticsNode?.semanticsId ?: return
-            }
+                ?.let { semanticsNode = it }
+        }
+        val id = semanticsNode?.semanticsId ?: return
 
         if (!subtreeChangedSemanticsNodesIds.add(id)) {
             return
@@ -3175,11 +3153,9 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private inner class ComposeAccessibilityNodeProvider : AccessibilityNodeProviderCompat() {
         override fun createAccessibilityNodeInfo(virtualViewId: Int): AccessibilityNodeInfoCompat? {
-            return trace("createAccessibilityNodeInfo") {
-                createNodeInfo(virtualViewId).also {
-                    if (sendingFocusAffectingEvent && virtualViewId == focusedVirtualViewId) {
-                        currentlyFocusedANI = it
-                    }
+            return createNodeInfo(virtualViewId).also {
+                if (sendingFocusAffectingEvent && virtualViewId == focusedVirtualViewId) {
+                    currentlyFocusedANI = it
                 }
             }
         }
