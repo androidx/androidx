@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
-    api("androidx.compose.ui:ui-tooling-preview:1.7.0-rc01")
+    api("androidx.compose.ui:ui-tooling-preview:1.7.0")
 
     implementation(libs.kotlinStdlib)
     implementation("androidx.wear:wear-tooling-preview:1.0.0")
