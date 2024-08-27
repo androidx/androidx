@@ -53,4 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"ఫైల్‌ను తెరవడం విఫలమైంది. అనుమతికి సంబంధించిన సమస్య కావచ్చా?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF డాక్యుమెంట్‌కు సంబంధించి పేజీ బ్రేక్ అయింది"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF డాక్యుమెంట్‌ను ప్రాసెస్ చేయడానికి డేటా తగినంత లేదు"</string>
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ఫైల్‌ను తెరవడం సాధ్యపడదు"</string>
 </resources>

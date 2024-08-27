@@ -53,4 +53,6 @@
     <string name="file_error" msgid="4003885928556884091">"Kon nie die lêer oopmaak nie. Moontlike toestemmingkwessie?"</string>
     <string name="page_broken" msgid="2968770793669433462">"Bladsy is vir die PDF-dokument gebreek"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Onvoldoende data om die PDF-dokument te verwerk"</string>
+    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
+    <skip />
 </resources>

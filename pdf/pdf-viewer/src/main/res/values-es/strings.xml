@@ -42,12 +42,9 @@
     <string name="desc_page_range" msgid="5286496438609641577">"páginas <xliff:g id="FIRST">%1$d</xliff:g> a <xliff:g id="LAST">%2$d</xliff:g> de <xliff:g id="TOTAL">%3$d</xliff:g>"</string>
     <string name="desc_image_alt_text" msgid="7700601988820586333">"Imagen: <xliff:g id="ALT_TEXT">%1$s</xliff:g>"</string>
     <string name="hint_find" msgid="5385388836603550565">"Buscar en el archivo"</string>
-    <!-- no translation found for previous_button_description (1169511027880317546) -->
-    <skip />
-    <!-- no translation found for next_button_description (4702699322249103693) -->
-    <skip />
-    <!-- no translation found for close_button_description (7379823906921067675) -->
-    <skip />
+    <string name="previous_button_description" msgid="1169511027880317546">"Anterior"</string>
+    <string name="next_button_description" msgid="4702699322249103693">"Siguiente"</string>
+    <string name="close_button_description" msgid="7379823906921067675">"Cerrar"</string>
     <string name="message_match_status" msgid="6288242289981639727">"<xliff:g id="POSITION">%1$d</xliff:g>/<xliff:g id="TOTAL">%2$d</xliff:g>"</string>
     <string name="action_edit" msgid="5882082700509010966">"Editar archivo"</string>
     <string name="password_not_entered" msgid="8875370870743585303">"Introduce la contraseña para desbloquear"</string>
@@ -56,4 +53,6 @@
     <string name="file_error" msgid="4003885928556884091">"No se ha podido abrir el archivo. ¿Puede que se deba a un problema de permisos?"</string>
     <string name="page_broken" msgid="2968770793669433462">"La página no funciona para el documento PDF"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"Datos insuficientes para procesar el documento PDF"</string>
+    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
+    <skip />
 </resources>

@@ -53,4 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"Fayl ochilmadi. Ruxsat bilan muammo bormi?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF hujjat sahifasi yaroqsiz"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF hujjatni qayta ishlash uchun kerakli axborotlar yetarli emas"</string>
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF fayk ochilmadi"</string>
 </resources>
