@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.compose.ui.unit
 
@@ -181,12 +181,25 @@ fun lerp(start: Dp, stop: Dp, fraction: Float): Dp {
 // -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 /** Constructs a [DpOffset] from [x] and [y] position [Dp] values. */
-@Stable fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
+@Stable inline fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
 
-/** A two-dimensional offset using [Dp] for units */
+/**
+ * A two-dimensional offset using [Dp] for units.
+ *
+ * To create a [DpOffset], call the top-level function that accepts an x/y pair of coordinates:
+ * ```
+ * val offset = DpOffset(x, y)
+ * ```
+ *
+ * The primary constructor of [DpOffset] is intended to be used with the [packedValue] property to
+ * allow storing offsets in arrays or collections of primitives without boxing.
+ *
+ * @param packedValue [Long] value encoding the [x] and [y] components of the [DpOffset]. Encoded
+ *   values can be obtained by using the [packedValue] property of existing [DpOffset] instances.
+ */
 @Immutable
 @JvmInline
-value class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
+value class DpOffset(val packedValue: Long) {
     /** The horizontal aspect of the offset in [Dp] */
     @Stable
     val x: Dp

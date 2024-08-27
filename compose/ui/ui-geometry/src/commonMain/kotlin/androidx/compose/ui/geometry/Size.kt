@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
 
 package androidx.compose.ui.geometry
 
@@ -36,10 +36,22 @@ import kotlin.math.min
  * Holds a 2D floating-point size.
  *
  * You can think of this as an [Offset] from the origin.
+ *
+ * To create a [Size], call the top-level function that accepts a width/height pair of dimensions:
+ * ```
+ * val size = Size(width, height)
+ * ```
+ *
+ * The primary constructor of [Size] is intended to be used with the [packedValue] property to allow
+ * storing sizes in arrays or collections of primitives without boxing.
+ *
+ * @param packedValue [Long] value encoding the [width] and [height] components of the [Size].
+ *   Encoded values can be obtained by using the [packedValue] property of existing [Size]
+ *   instances.
  */
 @Immutable
 @kotlin.jvm.JvmInline
-value class Size @PublishedApi internal constructor(@PublishedApi internal val packedValue: Long) {
+value class Size(val packedValue: Long) {
     @Stable
     inline val width: Float
         get() = unpackFloat1(packedValue)
@@ -57,7 +69,6 @@ value class Size @PublishedApi internal constructor(@PublishedApi internal val p
         Size(packFloats(width, height))
 
     companion object {
-
         /** An empty size, one with a zero width and a zero height. */
         @Stable val Zero = Size(0x0L)
 
