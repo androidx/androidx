@@ -16,15 +16,6 @@
 
 package androidx.compose.ui
 
-@JsFun("x => { try { Object.getPrototypeOf(x) } catch(e) { return true; }; return false; }")
-private external fun isNotJs(x: JsAny): Boolean
-
-@JsFun("(a, b) => Object.getPrototypeOf(a).constructor == Object.getPrototypeOf(b).constructor")
-private external fun areObjectsOfSameTypeJsImpl(a: JsAny, b: JsAny): Boolean
-
-
 internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
     return a === b || a::class == b::class
 }
-
-internal actual fun getCurrentThreadId(): Long = 0

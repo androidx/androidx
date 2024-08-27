@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui
 
-internal actual fun Any.nativeClass(): Any = this::class
-
-internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
-    val className = name ?: "<object>"
-    return "$className@${obj.hashCode()}"
-}
+internal actual fun getCurrentThreadId(): Long = 0

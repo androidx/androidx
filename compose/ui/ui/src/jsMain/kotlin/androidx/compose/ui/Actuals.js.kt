@@ -21,5 +21,3 @@ internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
         "Object.getPrototypeOf(a).constructor == Object.getPrototypeOf(b).constructor"
     )) as Boolean
 }
-
-internal actual fun getCurrentThreadId(): Long = 0
