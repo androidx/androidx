@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
+//noinspection BanConcurrentHashMap
 import java.util.concurrent.ConcurrentHashMap
 
 /**

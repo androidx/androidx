@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,35 +14,38 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core
+package androidx.datastore.testapp
 
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.okio.OkioSerializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite
-import java.io.InputStream
-import java.io.OutputStream
+import okio.BufferedSink
+import okio.BufferedSource
 
-/** Serializer for using DataStore with protos. */
-internal class ProtoSerializer<T : MessageLite>(
+/** OkioSerializer for using DataStore with protos. */
+internal class ProtoOkioSerializer<T : MessageLite>(
     /** The default proto of this type, obtained via {@code T.getDefaultInstance()} */
     override val defaultValue: T,
     /**
      * Set the extensionRegistryLite to use when deserializing T. If no extension registry is
      * necessary, use {@code ExtensionRegistryLite.getEmptyRegistry()}.
      */
-    private val extensionRegistryLite: ExtensionRegistryLite
-) : Serializer<T> {
-
+    private val extensionRegistryLite: ExtensionRegistryLite =
+        ExtensionRegistryLite.getEmptyRegistry()
+) : OkioSerializer<T> {
     @Suppress("UNCHECKED_CAST")
-    override suspend fun readFrom(input: InputStream): T {
+    override suspend fun readFrom(source: BufferedSource): T {
         try {
-            return defaultValue.parserForType.parseFrom(input, extensionRegistryLite) as T
+            return defaultValue.parserForType.parseFrom(source.inputStream(), extensionRegistryLite)
+                as T
         } catch (invalidProtocolBufferException: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", invalidProtocolBufferException)
         }
     }
 
-    override suspend fun writeTo(t: T, output: OutputStream) {
-        t.writeTo(output)
+    override suspend fun writeTo(t: T, sink: BufferedSink) {
+        t.writeTo(sink.outputStream())
     }
 }

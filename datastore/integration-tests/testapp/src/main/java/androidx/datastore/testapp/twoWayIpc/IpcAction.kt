@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.twoWayIpc
+package androidx.datastore.testapp.twoWayIpc
 
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
 
@@ -25,4 +26,4 @@ internal abstract class IpcAction<T : Parcelable> : Parcelable {
 }
 
 /** Utility object for [IpcAction]s that do not return a value. */
-@Parcelize object IpcUnit : Parcelable
+@SuppressLint("BanParcelableUsage") @Parcelize object IpcUnit : Parcelable

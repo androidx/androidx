@@ -14,24 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.datastore.core.multiprocess.ipcActions
+// Parcelize object is testing internal implementation of datastore-core library
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
+package androidx.datastore.testapp.multiprocess.ipcActions
+
+import android.annotation.SuppressLint
 import android.os.Parcelable
 import androidx.datastore.core.CorruptionHandler
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreImpl
 import androidx.datastore.core.FileStorage
 import androidx.datastore.core.MultiProcessCoordinator
-import androidx.datastore.core.ProtoOkioSerializer
-import androidx.datastore.core.ProtoSerializer
 import androidx.datastore.core.Serializer
 import androidx.datastore.core.handlers.NoOpCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
 import androidx.datastore.core.okio.OkioStorage
-import androidx.datastore.core.twoWayIpc.CompositeServiceSubjectModel
-import androidx.datastore.core.twoWayIpc.IpcAction
-import androidx.datastore.core.twoWayIpc.SubjectReadWriteProperty
-import androidx.datastore.core.twoWayIpc.TwoWayIpcSubject
+import androidx.datastore.testapp.ProtoOkioSerializer
+import androidx.datastore.testapp.ProtoSerializer
+import androidx.datastore.testapp.twoWayIpc.CompositeServiceSubjectModel
+import androidx.datastore.testapp.twoWayIpc.IpcAction
+import androidx.datastore.testapp.twoWayIpc.SubjectReadWriteProperty
+import androidx.datastore.testapp.twoWayIpc.TwoWayIpcSubject
 import androidx.datastore.testing.TestMessageProto.FooProto
 import com.google.protobuf.ExtensionRegistryLite
 import java.io.File
@@ -117,6 +121,7 @@ private fun createDatastore(
     )
 }
 
+@SuppressLint("BanParcelableUsage")
 @Parcelize
 private class CreateDatastoreAction(
     private val filePath: String,
