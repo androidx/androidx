@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.core
+package androidx.camera.integration.core.fakecamera
 
 import android.content.ContentValues
 import android.content.Context
@@ -23,7 +23,6 @@ import android.provider.MediaStore
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.integration.core.util.getFakeConfigCameraProvider
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -32,16 +31,15 @@ import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
 import androidx.camera.testing.impl.fakes.FakeOnImageSavedCallback
 import androidx.test.core.app.ApplicationProvider
-import androidx.testutils.MainDispatcherRule
+import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
@@ -49,21 +47,18 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import org.robolectric.ParameterizedRobolectricTestRunner
-import org.robolectric.annotation.Config
-import org.robolectric.annotation.internal.DoNotInstrument
+import org.junit.runners.Parameterized
 
-@RunWith(ParameterizedRobolectricTestRunner::class)
-@DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+/**
+ * Tests using a fake camera instead of real camera by replacing the camera-camera2 layer with
+ * camera-testing layer.
+ *
+ * They are aimed to ensure that integration between camera-core and camera-testing work seamlessly.
+ */
+@RunWith(Parameterized::class)
 class ImageCaptureTest(
     @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
-    private val testScope = TestScope()
-    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-
-    @get:Rule val mainDispatcherRule = MainDispatcherRule(testDispatcher)
-
     @get:Rule
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
@@ -75,22 +70,22 @@ class ImageCaptureTest(
     private lateinit var imageCapture: ImageCapture
 
     @Before
-    fun setup() {
+    fun setup() = runBlocking {
         cameraProvider = getFakeConfigCameraProvider(context)
         imageCapture = bindImageCapture()
     }
 
     @After
-    fun tearDown() {
+    fun tearDown() = runBlocking {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+            withContext(Dispatchers.Main) { cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS] }
         }
     }
 
-    // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
-    // need to be reflected there too
+    // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
+    // reflected there too
     @Test
-    fun canSubmitTakePictureRequest(): Unit = runTest {
+    fun canSubmitTakePictureRequest(): Unit = runBlocking {
         val countDownLatch = CountDownLatch(1)
         cameraControl.setOnNewCaptureRequestListener { countDownLatch.countDown() }
 
@@ -99,22 +94,22 @@ class ImageCaptureTest(
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
 
-    // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
-    // need to be reflected there too
+    // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
+    // reflected there too
     @Ignore("b/318314454")
     @Test
-    fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runTest {
+    fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runBlocking {
         val callback = FakeOnImageCapturedCallback()
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
         callback.results.first().image.toBitmap()
     }
 
-    // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
-    // need to be reflected there too
+    // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
+    // reflected there too
     @Ignore("b/318314454")
     @Test
-    fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runTest {
+    fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val saveLocation = temporaryFolder.newFile()
         val previousLength = saveLocation.length()
         val callback = FakeOnImageSavedCallback()
@@ -133,7 +128,8 @@ class ImageCaptureTest(
     // need to be reflected there too
     @Ignore("b/318314454")
     @Test
-    fun canFindFakeImageUri_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
+    fun canFindImage_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
+        val initialCount = getMediaStoreCameraXImageCount()
         val callback = FakeOnImageSavedCallback()
         imageCapture.takePicture(
             createMediaStoreOutputOptions(),
@@ -141,17 +137,20 @@ class ImageCaptureTest(
             callback
         )
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-        assertThat(callback.results.first().savedUri).isNotNull()
+        assertThat(getMediaStoreCameraXImageCount()).isEqualTo(initialCount + 1)
     }
 
-    private fun bindImageCapture(): ImageCapture {
+    private suspend fun bindImageCapture(): ImageCapture {
         val imageCapture = ImageCapture.Builder().build()
 
-        cameraProvider.bindToLifecycle(
-            FakeLifecycleOwner().apply { startAndResume() },
-            CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-            imageCapture
-        )
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                FakeLifecycleOwner().apply { startAndResume() },
+                CameraSelector.Builder().requireLensFacing(lensFacing).build(),
+                imageCapture
+            )
+        }
+
         camera =
             when (lensFacing) {
                 CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
@@ -161,6 +160,26 @@ class ImageCaptureTest(
         cameraControl = camera.cameraControl as FakeCameraControl
 
         return imageCapture
+    }
+
+    private fun getFakeConfigCameraProvider(context: Context): ProcessCameraProvider {
+        var cameraProvider: ProcessCameraProvider? = null
+        val latch = CountDownLatch(1)
+        ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+        ProcessCameraProvider.getInstance(context)
+            .addListener(
+                {
+                    cameraProvider = ProcessCameraProvider.getInstance(context).get()
+                    latch.countDown()
+                },
+                CameraXExecutors.directExecutor()
+            )
+
+        Truth.assertWithMessage("ProcessCameraProvider.getInstance timed out!")
+            .that(latch.await(5, TimeUnit.SECONDS))
+            .isTrue()
+
+        return cameraProvider!!
     }
 
     private fun createMediaStoreOutputOptions(): ImageCapture.OutputFileOptions {
@@ -187,11 +206,30 @@ class ImageCaptureTest(
             .build()
     }
 
+    private fun getMediaStoreCameraXImageCount(): Int {
+        val projection = arrayOf(MediaStore.Images.Media._ID, MediaStore.Images.Media.DISPLAY_NAME)
+        val selection = "${MediaStore.Images.Media.DISPLAY_NAME} LIKE ?"
+        val selectionArgs = arrayOf("$FILENAME_PREFIX%")
+
+        val query =
+            ApplicationProvider.getApplicationContext<Context>()
+                .contentResolver
+                .query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    projection,
+                    selection,
+                    selectionArgs,
+                    null
+                )
+
+        return query?.use { cursor -> cursor.count } ?: 0
+    }
+
     companion object {
         private const val FILENAME_PREFIX = "cameraXPhoto"
 
         @JvmStatic
-        @ParameterizedRobolectricTestRunner.Parameters(name = "LensFacing = {0}")
+        @Parameterized.Parameters(name = "LensFacing = {0}")
         fun data() =
             listOf(
                 arrayOf(CameraSelector.LENS_FACING_BACK),

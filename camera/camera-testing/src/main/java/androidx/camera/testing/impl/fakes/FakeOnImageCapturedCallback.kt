@@ -25,14 +25,25 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.impl.utils.Exif
 import com.google.common.truth.Truth
 import java.io.ByteArrayInputStream
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.withTimeoutOrNull
 
-private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
+/**
+ * A fake implementation of the [ImageCapture.OnImageCapturedCallback] that is used for test.
+ *
+ * @param captureCount Number of captures to wait for.
+ * @property closeImageOnSuccess Whether to close images immediately on [onCaptureSuccess]
+ *   callbacks. This is true by default. If set to false, it is the user's responsibility to close
+ *   the images.
+ */
+public class FakeOnImageCapturedCallback(
+    captureCount: Int = 1,
+    private val closeImageOnSuccess: Boolean = true
+) : ImageCapture.OnImageCapturedCallback() {
+    public data class CapturedImage(val image: ImageProxy, val properties: ImageProperties)
 
-/** A fake implementation of the [ImageCapture.OnImageCapturedCallback] and used for test. */
-public class FakeImageCaptureCallback(captureCount: Int = 1) :
-    ImageCapture.OnImageCapturedCallback() {
     /** Data class of various image properties which are tested. */
     public data class ImageProperties(
         val size: Size? = null,
@@ -43,20 +54,34 @@ public class FakeImageCaptureCallback(captureCount: Int = 1) :
     )
 
     private val latch = CountdownDeferred(captureCount)
-    public val results: MutableList<ImageProperties> = mutableListOf()
+
+    /**
+     * List of [CapturedImage] obtained in [onCaptureSuccess] callback.
+     *
+     * If [closeImageOnSuccess] is true, the [CapturedImage.image] will be closed as soon as
+     * `onCaptureSuccess` is invoked. Otherwise, it will be the user's responsibility to close the
+     * images.
+     */
+    public val results: MutableList<CapturedImage> = mutableListOf()
     public val errors: MutableList<ImageCaptureException> = mutableListOf()
 
     override fun onCaptureSuccess(image: ImageProxy) {
         results.add(
-            ImageProperties(
-                size = Size(image.width, image.height),
-                format = image.format,
-                rotationDegrees = image.imageInfo.rotationDegrees,
-                cropRect = image.cropRect,
-                exif = getExif(image),
+            CapturedImage(
+                image = image,
+                properties =
+                    ImageProperties(
+                        size = Size(image.width, image.height),
+                        format = image.format,
+                        rotationDegrees = image.imageInfo.rotationDegrees,
+                        cropRect = image.cropRect,
+                        exif = getExif(image),
+                    )
             )
         )
-        image.close()
+        if (closeImageOnSuccess) {
+            image.close()
+        }
         latch.countDown()
     }
 
@@ -76,12 +101,12 @@ public class FakeImageCaptureCallback(captureCount: Int = 1) :
         return null
     }
 
-    public suspend fun awaitCaptures(timeout: Long = CAPTURE_TIMEOUT) {
+    public suspend fun awaitCaptures(timeout: Duration = CAPTURE_TIMEOUT) {
         Truth.assertThat(withTimeoutOrNull(timeout) { latch.await() }).isNotNull()
     }
 
     public suspend fun awaitCapturesAndAssert(
-        timeout: Long = CAPTURE_TIMEOUT,
+        timeout: Duration = CAPTURE_TIMEOUT,
         capturedImagesCount: Int = 0,
         errorsCount: Int = 0
     ) {
@@ -109,5 +134,9 @@ public class FakeImageCaptureCallback(captureCount: Int = 1) :
         suspend fun await() {
             deferredItems.forEach { it.await() }
         }
+    }
+
+    public companion object {
+        private val CAPTURE_TIMEOUT = 15.seconds
     }
 }
