@@ -19,7 +19,6 @@ package androidx.compose.material3.adaptive.layout
 import androidx.compose.animation.core.AnimationVector
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TwoWayConverter
 import androidx.compose.animation.core.VectorizedFiniteAnimationSpec
 import androidx.compose.animation.core.VisibilityThreshold
@@ -32,6 +31,69 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEachIndexed
+
+/**
+ * Calculates the default [ThreePaneMotion] of [ListDetailPaneScaffold] according to the given
+ * [ThreePaneScaffoldState]'s current and target values.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun ThreePaneScaffoldState.calculateListDetailPaneScaffoldMotion(): ThreePaneMotion =
+    calculateThreePaneMotion(ListDetailPaneScaffoldDefaults.PaneOrder)
+
+/**
+ * Calculates the default [ThreePaneMotion] of [ListDetailPaneScaffold] according to the target and
+ * the previously remembered [ThreePaneScaffoldValue].
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun calculateListDetailPaneScaffoldMotion(
+    targetScaffoldValue: ThreePaneScaffoldValue
+): ThreePaneMotion =
+    calculateThreePaneMotion(targetScaffoldValue, ListDetailPaneScaffoldDefaults.PaneOrder)
+
+/**
+ * Calculates the default [ThreePaneMotion] of [SupportingPaneScaffold] according to the given
+ * [ThreePaneScaffoldState]'s current and target values.
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun ThreePaneScaffoldState.calculateSupportingPaneScaffoldMotion(): ThreePaneMotion =
+    calculateThreePaneMotion(SupportingPaneScaffoldDefaults.PaneOrder)
+
+/**
+ * Calculates the default [ThreePaneMotion] of [SupportingPaneScaffold] according to the target and
+ * the previously remembered [ThreePaneScaffoldValue].
+ */
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+fun calculateSupportingPaneScaffoldMotion(
+    targetScaffoldValue: ThreePaneScaffoldValue
+): ThreePaneMotion =
+    calculateThreePaneMotion(targetScaffoldValue, SupportingPaneScaffoldDefaults.PaneOrder)
+
+@ExperimentalMaterial3AdaptiveApi
+@Composable
+internal fun ThreePaneScaffoldState.calculateThreePaneMotion(
+    paneOrder: ThreePaneScaffoldHorizontalOrder
+): ThreePaneMotion {
+    class ThreePaneMotionHolder(var value: ThreePaneMotion)
+
+    val resultHolder = remember { ThreePaneMotionHolder(ThreePaneMotion.NoMotion) }
+    if (currentState != targetState) {
+        // Only update motions when the state changes to prevent unnecessary recomposition at the
+        // end of state transitions.
+        val ltrPaneOrder = paneOrder.toLtrOrder(LocalLayoutDirection.current)
+        val paneMotions = calculatePaneMotion(currentState, targetState, ltrPaneOrder)
+        resultHolder.value =
+            ThreePaneMotion(
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Primary)],
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Secondary)],
+                paneMotions[ltrPaneOrder.indexOf(ThreePaneScaffoldRole.Tertiary)]
+            )
+    }
+    return resultHolder.value
+}
 
 @ExperimentalMaterial3AdaptiveApi
 @Composable
@@ -59,12 +121,28 @@ internal fun calculateThreePaneMotion(
     return threePaneMotion
 }
 
+/**
+ * The class that provides motion settings for three pane scaffolds like [ListDetailPaneScaffold]
+ * and [SupportingPaneScaffold].
+ *
+ * @param primaryPaneMotion the specified [PaneMotion] of the primary pane, i.e.,
+ *   [ListDetailPaneScaffoldRole.Detail] or [SupportingPaneScaffoldRole.Main].
+ * @param secondaryPaneMotion the specified [PaneMotion] of the secondary pane, i.e.,
+ *   [ListDetailPaneScaffoldRole.List] or [SupportingPaneScaffoldRole.Supporting].
+ * @param tertiaryPaneMotion the specified [PaneMotion] of the tertiary pane, i.e.,
+ *   [ListDetailPaneScaffoldRole.Extra] or [SupportingPaneScaffoldRole.Extra].
+ * @param sizeAnimationSpec the specified [FiniteAnimationSpec] when animating pane size changes.
+ * @param positionAnimationSpec the specified [FiniteAnimationSpec] when animating pane position
+ *   changes.
+ * @param delayedPositionAnimationSpec the specified [FiniteAnimationSpec] when animating pane
+ *   position changes with a delay to emphasize entering panes.
+ */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
-internal class ThreePaneMotion(
-    val primaryPaneMotion: PaneMotion,
-    val secondaryPaneMotion: PaneMotion,
-    val tertiaryPaneMotion: PaneMotion,
+class ThreePaneMotion(
+    internal val primaryPaneMotion: PaneMotion,
+    internal val secondaryPaneMotion: PaneMotion,
+    internal val tertiaryPaneMotion: PaneMotion,
     val sizeAnimationSpec: FiniteAnimationSpec<IntSize> =
         ThreePaneMotionDefaults.PaneSizeAnimationSpec,
     val positionAnimationSpec: FiniteAnimationSpec<IntOffset> =
@@ -72,6 +150,22 @@ internal class ThreePaneMotion(
     val delayedPositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
         ThreePaneMotionDefaults.PanePositionAnimationSpecDelayed
 ) {
+    /**
+     * Makes a copy of [ThreePaneMotion] with override values.
+     *
+     * @param primaryPaneMotion the specified [PaneMotion] of the primary pane, i.e.,
+     *   [ListDetailPaneScaffoldRole.Detail] or [SupportingPaneScaffoldRole.Main].
+     * @param secondaryPaneMotion the specified [PaneMotion] of the secondary pane, i.e.,
+     *   [ListDetailPaneScaffoldRole.List] or [SupportingPaneScaffoldRole.Supporting].
+     * @param tertiaryPaneMotion the specified [PaneMotion] of the tertiary pane, i.e.,
+     *   [ListDetailPaneScaffoldRole.Extra] or [SupportingPaneScaffoldRole.Extra].
+     * @param sizeAnimationSpec the specified [FiniteAnimationSpec] when animating pane size
+     *   changes.
+     * @param positionAnimationSpec the specified [FiniteAnimationSpec] when animating pane position
+     *   changes.
+     * @param delayedPositionAnimationSpec the specified [FiniteAnimationSpec] when animating pane
+     *   position changes with a delay to emphasize entering panes.
+     */
     fun copy(
         primaryPaneMotion: PaneMotion = this.primaryPaneMotion,
         secondaryPaneMotion: PaneMotion = this.secondaryPaneMotion,
@@ -90,6 +184,12 @@ internal class ThreePaneMotion(
             delayedPositionAnimationSpec
         )
 
+    /**
+     * Gets the specified [PaneMotion] of a given pane role.
+     *
+     * @param role the specified role of the pane, see [ListDetailPaneScaffoldRole] and
+     *   [SupportingPaneScaffoldRole].
+     */
     operator fun get(role: ThreePaneScaffoldRole): PaneMotion =
         when (role) {
             ThreePaneScaffoldRole.Primary -> primaryPaneMotion
@@ -131,6 +231,16 @@ internal class ThreePaneMotion(
 
     internal fun toPaneMotionList(ltrOrder: ThreePaneScaffoldHorizontalOrder): List<PaneMotion> =
         listOf(this[ltrOrder.firstPane], this[ltrOrder.secondPane], this[ltrOrder.thirdPane])
+
+    companion object {
+        /** A default [ThreePaneMotion] instance that specifies no motions. */
+        val NoMotion =
+            ThreePaneMotion(
+                DefaultPaneMotion.NoMotion,
+                DefaultPaneMotion.NoMotion,
+                DefaultPaneMotion.NoMotion
+            )
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -250,18 +360,23 @@ private class DelayedVectorizedSpringSpec<V : AnimationVector>(
     }
 }
 
+/** The default settings of three pane motions. */
 @ExperimentalMaterial3AdaptiveApi
-internal object ThreePaneMotionDefaults {
-    // TODO(conradchen): open this to public when we support motion customization
-    val PanePositionAnimationSpec: SpringSpec<IntOffset> =
+object ThreePaneMotionDefaults {
+    /** The default [FiniteAnimationSpec] of pane position animations. */
+    val PanePositionAnimationSpec: FiniteAnimationSpec<IntOffset> =
         spring(
             dampingRatio = 0.8f,
             stiffness = 600f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
 
-    // TODO(conradchen): open this to public when we support motion customization
-    val PanePositionAnimationSpecDelayed: DelayedSpringSpec<IntOffset> =
+    /**
+     * The default [FiniteAnimationSpec] of pane position animations with a delay. It's by default
+     * used in the case when an enter pane will intersect with exit panes, we delay the entering
+     * animation to emphasize the entering transition.
+     */
+    val PanePositionAnimationSpecDelayed: FiniteAnimationSpec<IntOffset> =
         DelayedSpringSpec(
             dampingRatio = 0.8f,
             stiffness = 600f,
@@ -269,8 +384,8 @@ internal object ThreePaneMotionDefaults {
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
 
-    // TODO(conradchen): open this to public when we support motion customization
-    val PaneSizeAnimationSpec: SpringSpec<IntSize> =
+    /** The default [FiniteAnimationSpec] of pane size animations. */
+    val PaneSizeAnimationSpec: FiniteAnimationSpec<IntSize> =
         spring(
             dampingRatio = 0.8f,
             stiffness = 600f,
