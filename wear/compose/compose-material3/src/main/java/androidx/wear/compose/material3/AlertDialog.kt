@@ -338,7 +338,7 @@ private fun AlertDialogImpl(
     alertButtonsParams: AlertButtonsParams,
     content: (ScalingLazyListScope.() -> Unit)?
 ) {
-    val state = rememberScalingLazyListState()
+    val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
 
     Dialog(
         showDialog = show,
