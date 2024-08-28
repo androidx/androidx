@@ -1804,13 +1804,9 @@ package androidx.car.app.model {
     field public static final String CONTENT_ID = "TAB_CONTENTS_CONTENT_ID";
   }
 
-  @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public static final class TabContents.Api8Builder {
-    ctor public TabContents.Api8Builder(androidx.car.app.model.Template);
-    method public androidx.car.app.model.TabContents build();
-  }
-
   public static final class TabContents.Builder {
     ctor public TabContents.Builder(androidx.car.app.model.Template);
+    ctor @SuppressCompatibility @androidx.car.app.annotations.ExperimentalCarApi public TabContents.Builder(androidx.car.app.model.Template, boolean);
     method public androidx.car.app.model.TabContents build();
   }
 

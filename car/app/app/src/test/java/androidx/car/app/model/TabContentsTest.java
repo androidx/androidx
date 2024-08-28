@@ -106,7 +106,7 @@ public class TabContentsTest {
                         new Header.Builder().setTitle("title").build()
                 ).build();
 
-        TabContents tabContents = new TabContents.Api8Builder(template).build();
+        TabContents tabContents = new TabContents.Builder(template, /* enableApi8= */ true).build();
 
         assertEquals(template, tabContents.getTemplate());
     }
