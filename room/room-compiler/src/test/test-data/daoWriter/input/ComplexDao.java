@@ -16,6 +16,7 @@
 
 package foo.bar;
 import androidx.lifecycle.LiveData;
+import androidx.paging.PagingSource;
 import androidx.room.*;
 import androidx.sqlite.db.SupportSQLiteQuery;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -85,4 +86,7 @@ abstract class ComplexDao {
 
     @RawQuery(observedEntities = User.class)
     abstract public User getUserViaRawQuery(SupportSQLiteQuery rawQuery);
+
+    @Query("SELECT * FROM Child1 ORDER BY id ASC")
+    abstract public PagingSource<Integer, Child1> loadItems();
 }

@@ -53,16 +53,19 @@ internal class JavaFunSpec(override val name: String, internal val actual: Metho
             name: String,
             annotations: List<XAnnotationSpec>
         ) = apply {
+            val paramSpec = ParameterSpec.builder(typeName.java, name, Modifier.FINAL)
             actual.addParameter(
-                ParameterSpec.builder(typeName.java, name, Modifier.FINAL)
-                    .apply {
-                        if (typeName.nullability == XNullability.NULLABLE) {
-                            addAnnotation(NULLABLE_ANNOTATION)
-                        } else if (typeName.nullability == XNullability.NONNULL) {
-                            addAnnotation(NONNULL_ANNOTATION)
-                        }
-                    }
-                    .build()
+                // Adding nullability annotation to primitive parameters is redundant as
+                // primitives can never be null.
+                if (typeName.isPrimitive) {
+                    paramSpec.build()
+                } else {
+                    when (typeName.nullability) {
+                        XNullability.NULLABLE -> paramSpec.addAnnotation(NULLABLE_ANNOTATION)
+                        XNullability.NONNULL -> paramSpec.addAnnotation(NONNULL_ANNOTATION)
+                        else -> paramSpec
+                    }.build()
+                }
             )
             // TODO(b/247247439): Add other annotations
         }
