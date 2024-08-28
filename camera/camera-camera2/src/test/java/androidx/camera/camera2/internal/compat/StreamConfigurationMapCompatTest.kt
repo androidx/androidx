@@ -100,4 +100,22 @@ class StreamConfigurationMapCompatTest {
         assertThat(streamConfigurationMapCompat.getHighResolutionOutputSizes(ImageFormat.JPEG))
             .isNull()
     }
+
+    @Test
+    fun getOutputFormats_notThrowingNullPointerException() {
+        val cameraId = "0"
+        val compat =
+            StreamConfigurationMapCompat.toStreamConfigurationMapCompat(
+                StreamConfigurationMapBuilder.newBuilder().build(),
+                OutputSizesCorrector(cameraId)
+            )
+
+        // b/361590210: check the workaround for NullPointerException issue (on API 23+) of
+        // StreamConfigurationMap provided by Robolectric is applied.
+        if (Build.VERSION.SDK_INT >= 23) {
+            assertThat(compat.getOutputFormats()).isNull()
+        } else {
+            assertThat(compat.getOutputFormats()).isNotNull()
+        }
+    }
 }

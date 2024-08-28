@@ -24,10 +24,13 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
 
 class StreamConfigurationMapCompatBaseImpl
         implements StreamConfigurationMapCompat.StreamConfigurationMapCompatImpl {
+
+    private static final String TAG = "StreamConfigurationMapCompatBaseImpl";
 
     final StreamConfigurationMap mStreamConfigurationMap;
 
@@ -38,7 +41,14 @@ class StreamConfigurationMapCompatBaseImpl
     @Nullable
     @Override
     public int[] getOutputFormats() {
-        return mStreamConfigurationMap.getOutputFormats();
+        // b/361590210: try-catch to workaround the NullPointerException issue when using
+        // StreamConfigurationMap provided by Robolectric.
+        try {
+            return mStreamConfigurationMap.getOutputFormats();
+        } catch (NullPointerException e) {
+            Logger.e(TAG, "Failed to get output formats from StreamConfigurationMap", e);
+            return null;
+        }
     }
 
     @Nullable

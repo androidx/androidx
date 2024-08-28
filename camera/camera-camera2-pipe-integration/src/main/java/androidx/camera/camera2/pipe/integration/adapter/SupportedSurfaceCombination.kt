@@ -129,10 +129,10 @@ public class SupportedSurfaceCombination(
 
         if (dynamicRangeResolver.is10BitDynamicRangeSupported()) {
             generate10BitSupportedCombinationList()
+        }
 
-            if (isUltraHdrSupported()) {
-                generateUltraHdrSupportedCombinationList()
-            }
+        if (isUltraHdrSupported()) {
+            generateUltraHdrSupportedCombinationList()
         }
 
         if (isPreviewStabilizationSupported) {
@@ -194,7 +194,12 @@ public class SupportedSurfaceCombination(
             return featureSettingsToSupportedCombinationsMap[featureSettings]!!
         }
         var supportedSurfaceCombinations: MutableList<SurfaceCombination> = mutableListOf()
-        if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_8_BIT) {
+        if (featureSettings.isUltraHdrOn) {
+            // For Ultra HDR output, only the default camera mode is currently supported.
+            if (featureSettings.cameraMode == CameraMode.DEFAULT) {
+                supportedSurfaceCombinations.addAll(surfaceCombinationsUltraHdr)
+            }
+        } else if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_8_BIT) {
             when (featureSettings.cameraMode) {
                 CameraMode.CONCURRENT_CAMERA ->
                     supportedSurfaceCombinations = concurrentSurfaceCombinations
@@ -213,11 +218,7 @@ public class SupportedSurfaceCombination(
         } else if (featureSettings.requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
             // For 10-bit outputs, only the default camera mode is currently supported.
             if (featureSettings.cameraMode == CameraMode.DEFAULT) {
-                if (featureSettings.isUltraHdrOn) {
-                    supportedSurfaceCombinations.addAll(surfaceCombinationsUltraHdr)
-                } else {
-                    supportedSurfaceCombinations.addAll(surfaceCombinations10Bit)
-                }
+                supportedSurfaceCombinations.addAll(surfaceCombinations10Bit)
             }
         }
         featureSettingsToSupportedCombinationsMap[featureSettings] = supportedSurfaceCombinations
@@ -393,6 +394,11 @@ public class SupportedSurfaceCombination(
         isPreviewStabilizationOn: Boolean,
         isUltraHdrOn: Boolean
     ): FeatureSettings {
+        require(!(cameraMode != CameraMode.DEFAULT && isUltraHdrOn)) {
+            "Camera device Id is $cameraId. Ultra HDR is not " +
+                "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
+        }
+
         val requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges)
         require(
             !(cameraMode != CameraMode.DEFAULT &&
