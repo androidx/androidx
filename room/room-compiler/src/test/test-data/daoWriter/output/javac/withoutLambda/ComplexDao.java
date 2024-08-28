@@ -4,8 +4,11 @@ import android.database.Cursor;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
+import androidx.paging.PagingSource;
 import androidx.room.RoomDatabase;
+import androidx.room.RoomRawQuery;
 import androidx.room.guava.GuavaRoom;
+import androidx.room.paging.LimitOffsetPagingSource;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.SQLiteStatementUtil;
@@ -687,6 +690,51 @@ public final class ComplexDao_Impl extends ComplexDao {
         }
       }
     });
+  }
+
+  @Override
+  public PagingSource<Integer, Child1> loadItems() {
+    final String _sql = "SELECT * FROM Child1 ORDER BY id ASC";
+    final RoomRawQuery _rawQuery = new RoomRawQuery(_sql);
+    return new LimitOffsetPagingSource<Child1>(_rawQuery, __db, "Child1") {
+      @Override
+      @NonNull
+      protected List<Child1> convertRows(@NonNull final SQLiteStatement statement,
+              final int itemCount) {
+        _rawQuery.getBindingFunction().invoke(statement);
+        final int _cursorIndexOfId = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "id");
+        final int _cursorIndexOfName = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "name");
+        final int _cursorIndexOfSerial = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "serial");
+        final int _cursorIndexOfCode = SQLiteStatementUtil.getColumnIndexOrThrow(statement, "code");
+        final List<Child1> _result = new ArrayList<Child1>();
+        while (statement.step()) {
+          final Child1 _item;
+          final int _tmpId;
+          _tmpId = (int) (statement.getLong(_cursorIndexOfId));
+          final String _tmpName;
+          if (statement.isNull(_cursorIndexOfName)) {
+            _tmpName = null;
+          } else {
+            _tmpName = statement.getText(_cursorIndexOfName);
+          }
+          final Info _tmpInfo;
+          if (!(statement.isNull(_cursorIndexOfSerial) && statement.isNull(_cursorIndexOfCode))) {
+            _tmpInfo = new Info();
+            _tmpInfo.serial = (int) (statement.getLong(_cursorIndexOfSerial));
+            if (statement.isNull(_cursorIndexOfCode)) {
+              _tmpInfo.code = null;
+            } else {
+              _tmpInfo.code = statement.getText(_cursorIndexOfCode);
+            }
+          } else {
+            _tmpInfo = null;
+          }
+          _item = new Child1(_tmpId,_tmpName,_tmpInfo);
+          _result.add(_item);
+        }
+        return _result;
+      }
+    };
   }
 
   @Override
