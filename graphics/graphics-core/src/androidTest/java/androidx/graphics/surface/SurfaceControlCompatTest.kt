@@ -77,9 +77,7 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlCompatBuilder_parent() {
         val callbackLatch = CountDownLatch(1)
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         try {
             scenario.onActivity {
@@ -97,7 +95,7 @@ class SurfaceControlCompatTest {
 
                 it.addSurface(it.getSurfaceView(), callback)
             }
-            scenario.moveToState(Lifecycle.State.RESUMED)
+
             assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
         } catch (e: java.lang.IllegalArgumentException) {
             fail()
@@ -110,9 +108,7 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlCompatBuilder_parentSurfaceControl() {
         val callbackLatch = CountDownLatch(1)
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         try {
             scenario.onActivity {
@@ -136,7 +132,6 @@ class SurfaceControlCompatTest {
 
                 it.addSurface(it.getSurfaceView(), callback)
             }
-            scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
         } catch (e: java.lang.IllegalArgumentException) {
             fail()
@@ -170,9 +165,7 @@ class SurfaceControlCompatTest {
     fun testSurfaceTransactionOnCommitCallback() {
         val listener = TransactionOnCommitListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         try {
             scenario.onActivity {
@@ -180,7 +173,6 @@ class SurfaceControlCompatTest {
                     .addTransactionCommittedListener(executor!!, listener)
                     .commit()
             }
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener.mLatch.await(3, TimeUnit.SECONDS)
             assertEquals(0, listener.mLatch.count)
@@ -197,9 +189,7 @@ class SurfaceControlCompatTest {
         val listener = TransactionOnCommitListener()
         val listener2 = TransactionOnCommitListener()
 
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
 
         try {
             scenario.onActivity {
@@ -208,8 +198,6 @@ class SurfaceControlCompatTest {
                     .addTransactionCommittedListener(executor!!, listener2)
                     .commit()
             }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
 
             listener.mLatch.await(3, TimeUnit.SECONDS)
             listener2.mLatch.await(3, TimeUnit.SECONDS)
@@ -228,9 +216,7 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_valid() {
         val callbackLatch = CountDownLatch(1)
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
         try {
             scenario.onActivity {
                 val callback =
@@ -250,7 +236,6 @@ class SurfaceControlCompatTest {
                 it.addSurface(it.mSurfaceView, callback)
             }
 
-            scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
         } catch (e: java.lang.IllegalArgumentException) {
             fail()
@@ -263,9 +248,7 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_validNotValid() {
         val callbackLatch = CountDownLatch(1)
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
         try {
             scenario.onActivity {
                 val callback =
@@ -287,8 +270,6 @@ class SurfaceControlCompatTest {
 
                 it.addSurface(it.mSurfaceView, callback)
             }
-
-            scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
         } catch (e: java.lang.IllegalArgumentException) {
             fail()
@@ -301,9 +282,7 @@ class SurfaceControlCompatTest {
     @Test
     fun testSurfaceControlIsValid_multipleReleases() {
         val callbackLatch = CountDownLatch(1)
-        val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
+        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
         try {
             scenario.onActivity {
                 val callback =
@@ -327,7 +306,6 @@ class SurfaceControlCompatTest {
                 it.addSurface(it.mSurfaceView, callback)
             }
 
-            scenario.moveToState(Lifecycle.State.RESUMED)
             assertTrue(callbackLatch.await(3000, TimeUnit.MILLISECONDS))
         } catch (e: java.lang.IllegalArgumentException) {
             fail()
@@ -1220,41 +1198,37 @@ class SurfaceControlCompatTest {
         var scCompat: SurfaceControlCompat? = null
         var surfaceView: SurfaceView? = null
         val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    it.setDestroyCallback { destroyLatch.countDown() }
-                    surfaceView = it.mSurfaceView
-                    val callback =
-                        object : SurfaceHolderCallback() {
-                            override fun surfaceCreated(sh: SurfaceHolder) {
-                                scCompat =
-                                    SurfaceControlCompat.Builder()
-                                        .setParent(it.getSurfaceView())
-                                        .setName("SurfaceControlCompatTest")
-                                        .build()
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+                it.setDestroyCallback { destroyLatch.countDown() }
+                surfaceView = it.mSurfaceView
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            scCompat =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.getSurfaceView())
+                                    .setName("SurfaceControlCompatTest")
+                                    .build()
 
-                                // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
-                                val buffer =
-                                    SurfaceControlUtils.getSolidBuffer(
-                                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                                        Color.BLUE
-                                    )
+                            // Buffer colorspace is RGBA, so Color.BLUE will be visually Red
+                            val buffer =
+                                SurfaceControlUtils.getSolidBuffer(
+                                    SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                                    SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                                    Color.BLUE
+                                )
 
-                                SurfaceControlCompat.Transaction()
-                                    .addTransactionCommittedListener(executor!!, listener)
-                                    .setBuffer(scCompat!!, buffer)
-                                    .setVisibility(scCompat!!, true)
-                                    .setCrop(scCompat!!, Rect(20, 30, 90, 60))
-                                    .commit()
-                            }
+                            SurfaceControlCompat.Transaction()
+                                .addTransactionCommittedListener(executor!!, listener)
+                                .setBuffer(scCompat!!, buffer)
+                                .setVisibility(scCompat!!, true)
+                                .setCrop(scCompat!!, Rect(20, 30, 90, 60))
+                                .commit()
                         }
+                    }
 
-                    it.addSurface(it.mSurfaceView, callback)
-                }
-
-        scenario.moveToState(Lifecycle.State.RESUMED)
+                it.addSurface(it.mSurfaceView, callback)
+            }
 
         assertTrue(listener.mLatch.await(3000, TimeUnit.MILLISECONDS))
 
@@ -1568,49 +1542,43 @@ class SurfaceControlCompatTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testClearFrameRate() {
-        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
-            .onActivity {
-                val callback =
-                    object : SurfaceHolderCallback() {
-                        override fun surfaceCreated(sh: SurfaceHolder) {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+            val callback =
+                object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
 
-                            val surfaceControl =
-                                SurfaceControlCompat.Builder()
-                                    .setName("testSurfaceControl")
-                                    .setParent(it.mSurfaceView)
-                                    .build()
-                            SurfaceControlCompat.Transaction()
-                                .clearFrameRate(surfaceControl)
-                                .commit()
-                        }
+                        val surfaceControl =
+                            SurfaceControlCompat.Builder()
+                                .setName("testSurfaceControl")
+                                .setParent(it.mSurfaceView)
+                                .build()
+                        SurfaceControlCompat.Transaction().clearFrameRate(surfaceControl).commit()
                     }
+                }
 
-                it.addSurface(it.mSurfaceView, callback)
-            }
+            it.addSurface(it.mSurfaceView, callback)
+        }
     }
 
     private fun testFrameRate(frameRate: Float, compatibility: Int, strategy: Int) {
-        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(Lifecycle.State.CREATED)
-            .onActivity {
-                val callback =
-                    object : SurfaceHolderCallback() {
-                        override fun surfaceCreated(sh: SurfaceHolder) {
+        ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+            val callback =
+                object : SurfaceHolderCallback() {
+                    override fun surfaceCreated(sh: SurfaceHolder) {
 
-                            val surfaceControl =
-                                SurfaceControlCompat.Builder()
-                                    .setName("testSurfaceControl")
-                                    .setParent(it.mSurfaceView)
-                                    .build()
-                            SurfaceControlCompat.Transaction()
-                                .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
-                                .commit()
-                        }
+                        val surfaceControl =
+                            SurfaceControlCompat.Builder()
+                                .setName("testSurfaceControl")
+                                .setParent(it.mSurfaceView)
+                                .build()
+                        SurfaceControlCompat.Transaction()
+                            .setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+                            .commit()
                     }
+                }
 
-                it.addSurface(it.mSurfaceView, callback)
-            }
+            it.addSurface(it.mSurfaceView, callback)
+        }
     }
 
     @SuppressLint("NewApi")
@@ -1653,86 +1621,84 @@ class SurfaceControlCompatTest {
     fun testSetExtendedRangeBrightness() {
         val destroyLatch = CountDownLatch(1)
         val scenario =
-            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-                .moveToState(Lifecycle.State.CREATED)
-                .onActivity {
-                    it.setDestroyCallback { destroyLatch.countDown() }
-                    val display = it.display
-                    assertNotNull(display)
-                    if (display!!.isHdrSdrRatioAvailable) {
-                        assertEquals(1.0f, display.hdrSdrRatio, .0001f)
-                    }
+            ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java).onActivity {
+                it.setDestroyCallback { destroyLatch.countDown() }
+                val display = it.display
+                assertNotNull(display)
+                if (display!!.isHdrSdrRatioAvailable) {
+                    assertEquals(1.0f, display.hdrSdrRatio, .0001f)
+                }
 
-                    it.window.attributes.screenBrightness = 0.01f
-                    val hdrReady = CountDownLatch(1)
-                    val listenerErrors = arrayOfNulls<Exception>(1)
-                    if (display.isHdrSdrRatioAvailable) {
-                        display.registerHdrSdrRatioChangedListener(
-                            executor!!,
-                            object : Consumer<Display?> {
-                                var mIsRegistered = true
+                it.window.attributes.screenBrightness = 0.01f
+                val hdrReady = CountDownLatch(1)
+                val listenerErrors = arrayOfNulls<Exception>(1)
+                if (display.isHdrSdrRatioAvailable) {
+                    display.registerHdrSdrRatioChangedListener(
+                        executor!!,
+                        object : Consumer<Display?> {
+                            var mIsRegistered = true
 
-                                override fun accept(updatedDisplay: Display?) {
-                                    try {
-                                        assertEquals(display.displayId, updatedDisplay!!.displayId)
-                                        assertTrue(mIsRegistered)
-                                        if (display.hdrSdrRatio > 2f) {
-                                            hdrReady.countDown()
-                                            display.unregisterHdrSdrRatioChangedListener(this)
-                                            mIsRegistered = false
-                                        }
-                                    } catch (e: Exception) {
-                                        synchronized(it) {
-                                            listenerErrors[0] = e
-                                            hdrReady.countDown()
-                                        }
+                            override fun accept(updatedDisplay: Display?) {
+                                try {
+                                    assertEquals(display.displayId, updatedDisplay!!.displayId)
+                                    assertTrue(mIsRegistered)
+                                    if (display.hdrSdrRatio > 2f) {
+                                        hdrReady.countDown()
+                                        display.unregisterHdrSdrRatioChangedListener(this)
+                                        mIsRegistered = false
+                                    }
+                                } catch (e: Exception) {
+                                    synchronized(it) {
+                                        listenerErrors[0] = e
+                                        hdrReady.countDown()
                                     }
                                 }
                             }
+                        }
+                    )
+                } else {
+                    assertThrows(IllegalStateException::class.java) {
+                        display.registerHdrSdrRatioChangedListener(
+                            executor!!,
+                            Consumer { _: Display? -> }
                         )
-                    } else {
-                        assertThrows(IllegalStateException::class.java) {
-                            display.registerHdrSdrRatioChangedListener(
-                                executor!!,
-                                Consumer { _: Display? -> }
-                            )
+                    }
+                }
+                val extendedDataspace =
+                    DataSpace.pack(
+                        DataSpace.STANDARD_BT709,
+                        DataSpace.TRANSFER_SRGB,
+                        DataSpace.RANGE_EXTENDED
+                    )
+                val buffer =
+                    getSolidBuffer(
+                        SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
+                        SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
+                        Color.RED
+                    )
+                val callback =
+                    object : SurfaceHolderCallback() {
+                        override fun surfaceCreated(sh: SurfaceHolder) {
+                            val scCompat =
+                                SurfaceControlCompat.Builder()
+                                    .setParent(it.getSurfaceView())
+                                    .setName("SurfaceControlCompatTest")
+                                    .build()
+
+                            SurfaceControlCompat.Transaction()
+                                .setBuffer(scCompat, buffer)
+                                .setDataSpace(scCompat, extendedDataspace)
+                                .setExtendedRangeBrightness(scCompat, 1.0f, 3.0f)
+                                .setVisibility(scCompat, true)
+                                .commit()
                         }
                     }
-                    val extendedDataspace =
-                        DataSpace.pack(
-                            DataSpace.STANDARD_BT709,
-                            DataSpace.TRANSFER_SRGB,
-                            DataSpace.RANGE_EXTENDED
-                        )
-                    val buffer =
-                        getSolidBuffer(
-                            SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                            SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT,
-                            Color.RED
-                        )
-                    val callback =
-                        object : SurfaceHolderCallback() {
-                            override fun surfaceCreated(sh: SurfaceHolder) {
-                                val scCompat =
-                                    SurfaceControlCompat.Builder()
-                                        .setParent(it.getSurfaceView())
-                                        .setName("SurfaceControlCompatTest")
-                                        .build()
 
-                                SurfaceControlCompat.Transaction()
-                                    .setBuffer(scCompat, buffer)
-                                    .setDataSpace(scCompat, extendedDataspace)
-                                    .setExtendedRangeBrightness(scCompat, 1.0f, 3.0f)
-                                    .setVisibility(scCompat, true)
-                                    .commit()
-                            }
-                        }
-
-                    it.addSurface(it.mSurfaceView, callback)
-                }
+                it.addSurface(it.mSurfaceView, callback)
+            }
 
         try {
-            scenario.moveToState(Lifecycle.State.RESUMED).onActivity {
+            scenario.onActivity {
                 SurfaceControlUtils.validateOutput(it.window) { bitmap ->
                     val coord = intArrayOf(0, 0)
                     it.mSurfaceView.getLocationInWindow(coord)

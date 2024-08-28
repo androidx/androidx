@@ -530,12 +530,13 @@ class SurfaceControlCompat internal constructor(internal val scImpl: SurfaceCont
             @ChangeFrameRateStrategy changeFrameRateStrategy: Int
         ): Transaction {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                mImpl.setFrameRate(
-                    surfaceControl.scImpl,
-                    frameRate,
-                    compatibility,
-                    changeFrameRateStrategy
-                )
+                val strategy =
+                    when (changeFrameRateStrategy) {
+                        CHANGE_FRAME_RATE_ALWAYS -> changeFrameRateStrategy
+                        CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS -> changeFrameRateStrategy
+                        else -> CHANGE_FRAME_RATE_ONLY_IF_SEAMLESS
+                    }
+                mImpl.setFrameRate(surfaceControl.scImpl, frameRate, compatibility, strategy)
             }
             return this
         }
