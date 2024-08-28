@@ -742,6 +742,7 @@ includeProject(":hilt:integration-tests:hilt-testapp-worker", "hilt/integration-
 includeProject(":ink:ink-brush", [BuildType.MAIN])
 includeProject(":ink:ink-geometry", [BuildType.MAIN])
 includeProject(":ink:ink-nativeloader", [BuildType.MAIN])
+includeProject(":ink:ink-strokes", [BuildType.MAIN])
 includeProject(":input:input-motionprediction", [BuildType.MAIN])
 includeProject(":inspection:inspection", [BuildType.MAIN, BuildType.COMPOSE])
 includeProject(":inspection:inspection-gradle-plugin", [BuildType.MAIN])

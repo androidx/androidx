@@ -68,12 +68,12 @@ public fun Brush.Builder.setAndroidColor(color: AndroidColor): Brush.Builder =
 @JvmSynthetic
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
-public fun Brush.Companion.withAndroidColor(
+public fun Brush.Companion.createWithAndroidColor(
     family: BrushFamily,
     color: AndroidColor,
     size: Float,
     epsilon: Float,
-): Brush = BrushUtil.makeBrushWithAndroidColor(family, color, size, epsilon)
+): Brush = BrushUtil.createWithAndroidColor(family, color, size, epsilon)
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public object BrushUtil {
@@ -109,7 +109,7 @@ public object BrushUtil {
     @JvmStatic
     @CheckResult
     @RequiresApi(Build.VERSION_CODES.O)
-    public fun makeBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
+    public fun createBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
         Brush.Builder().setAndroidColor(color)
 
     /**
@@ -120,7 +120,7 @@ public object BrushUtil {
     @JvmStatic
     @CheckResult
     @RequiresApi(Build.VERSION_CODES.O)
-    public fun makeBrushWithAndroidColor(
+    public fun createWithAndroidColor(
         family: BrushFamily,
         color: AndroidColor,
         size: Float,

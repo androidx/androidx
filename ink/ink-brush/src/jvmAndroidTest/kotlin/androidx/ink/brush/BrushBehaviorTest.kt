@@ -425,7 +425,12 @@ class BrushBehaviorTest {
 
     @Test
     fun dampingSourceConstants_areDistinct() {
-        val list = listOf<BrushBehavior.DampingSource>(BrushBehavior.DampingSource.TIME_IN_SECONDS)
+        val list =
+            listOf<BrushBehavior.DampingSource>(
+                BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS,
+                BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE,
+                BrushBehavior.DampingSource.TIME_IN_SECONDS,
+            )
         assertThat(list.toSet()).hasSize(list.size)
     }
 
@@ -433,6 +438,11 @@ class BrushBehaviorTest {
     fun dampingSourceHashCode_withIdenticalValues_match() {
         assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.hashCode())
             .isEqualTo(BrushBehavior.DampingSource.TIME_IN_SECONDS.hashCode())
+
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.hashCode())
+            .isNotEqualTo(
+                BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE.hashCode()
+            )
     }
 
     @Test
@@ -440,11 +450,17 @@ class BrushBehaviorTest {
         assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS)
             .isEqualTo(BrushBehavior.DampingSource.TIME_IN_SECONDS)
 
+        assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS)
+            .isNotEqualTo(BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE)
         assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS).isNotEqualTo(null)
     }
 
     @Test
     fun dampingSourceToString_returnsCorrectString() {
+        assertThat(BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS.toString())
+            .isEqualTo("BrushBehavior.DampingSource.DISTANCE_IN_CENTIMETERS")
+        assertThat(BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE.toString())
+            .isEqualTo("BrushBehavior.DampingSource.DISTANCE_IN_MULTIPLES_OF_BRUSH_SIZE")
         assertThat(BrushBehavior.DampingSource.TIME_IN_SECONDS.toString())
             .isEqualTo("BrushBehavior.DampingSource.TIME_IN_SECONDS")
     }
@@ -1174,27 +1190,25 @@ class BrushBehaviorTest {
     fun brushBehaviorToString_returnsReasonableString() {
         assertThat(
                 BrushBehavior(
-                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                        target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                        sourceValueRangeLowerBound = 0.0f,
-                        sourceValueRangeUpperBound = 1.0f,
-                        targetModifierRangeLowerBound = 1.0f,
-                        targetModifierRangeUpperBound = 1.75f,
-                        sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                        responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                        responseTimeMillis = 1L,
-                        enabledToolTypes = setOf(InputToolType.STYLUS),
+                        listOf(
+                            BrushBehavior.TargetNode(
+                                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
+                                targetModifierRangeLowerBound = 1.0f,
+                                targetModifierRangeUpperBound = 1.75f,
+                                input =
+                                    BrushBehavior.SourceNode(
+                                        source = BrushBehavior.Source.NORMALIZED_PRESSURE,
+                                        sourceValueRangeLowerBound = 0.0f,
+                                        sourceValueRangeUpperBound = 1.0f,
+                                    ),
+                            )
+                        )
                     )
                     .toString()
             )
             .isEqualTo(
-                "BrushBehavior(source=BrushBehavior.Source.NORMALIZED_PRESSURE, " +
-                    "target=BrushBehavior.Target.WIDTH_MULTIPLIER, " +
-                    "sourceOutOfRangeBehavior=BrushBehavior.OutOfRange.CLAMP, " +
-                    "sourceValueRangeLowerBound=0.0, sourceValueRangeUpperBound=1.0, " +
-                    "targetModifierRangeLowerBound=1.0, targetModifierRangeUpperBound=1.75, " +
-                    "responseCurve=EasingFunction.Predefined.EASE_IN_OUT, responseTimeMillis=1, " +
-                    "enabledToolTypes=[InputToolType.STYLUS], isFallbackFor=null)"
+                "BrushBehavior([TargetNode(WIDTH_MULTIPLIER, 1.0, 1.75, " +
+                    "SourceNode(NORMALIZED_PRESSURE, 0.0, 1.0, CLAMP))])"
             )
     }
 

@@ -50,6 +50,8 @@ androidXMultiplatform {
         implementation(libs.junit)
         implementation(libs.kotlinTest)
         implementation(libs.truth)
+        implementation(project(":ink:ink-brush"))
+        implementation(project(":ink:ink-strokes"))
       }
     }
 
@@ -58,7 +60,9 @@ androidXMultiplatform {
     }
 
     jvmTest {
-      dependsOn(jvmAndroidTest)
+      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
+      //   in a JVM environment in addition to on Android emulators, once the
+      //   mysterious SIGSEGV is resolved.
     }
 
     androidMain {

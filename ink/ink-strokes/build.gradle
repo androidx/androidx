@@ -14,47 +14,35 @@
  * limitations under the License.
  */
 
-/**
- * This file was created using the `create_project.py` script located in the
- * `<AndroidX root>/development/project-creator` directory.
- *
- * Please use that script when creating a new project, rather than copying an existing project and
- * modifying its settings.
- */
-
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
 plugins {
-    id("AndroidXPlugin")
+  id("AndroidXPlugin")
+  id("com.android.library")
 }
 
 androidXMultiplatform {
   jvm()
-  androidLibrary {
-    namespace = "androidx.ink.brush"
-    withAndroidTestOnDeviceBuilder {
-      it.compilationName = "instrumentedTest"
-      it.defaultSourceSetName = "androidInstrumentedTest"
-      it.sourceSetTreeName = "test"
-    }
-  }
+  android()
 
   defaultPlatform(PlatformIdentifier.JVM)
 
   sourceSets {
-    commonMain {}
+    commonMain {
+      dependencies {
+        api(libs.kotlinStdlib)
 
-    commonTest {}
+        implementation("androidx.annotation:annotation:1.8.0")
+      }
+    }
 
     jvmAndroidMain {
       dependsOn(commonMain)
       dependencies {
-        implementation(libs.kotlinStdlib)
-        api(libs.androidx.annotation)
-        implementation(project(":collection:collection"))
-        implementation(project(":ink:ink-geometry"))
         implementation(project(":ink:ink-nativeloader"))
+        implementation(project(":ink:ink-geometry"))
+        implementation(project(":ink:ink-brush"))
       }
     }
 
@@ -64,7 +52,19 @@ androidXMultiplatform {
         implementation(libs.junit)
         implementation(libs.kotlinTest)
         implementation(libs.truth)
+        implementation(project(":ink:ink-geometry"))
+        implementation(project(":ink:ink-brush"))
       }
+    }
+
+    jvmMain {
+      dependsOn(jvmAndroidMain)
+    }
+
+    jvmTest {
+      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
+      //   in a JVM environment in addition to on Android emulators, once the
+      //   mysterious SIGSEGV is resolved.
     }
 
     androidMain {
@@ -82,23 +82,16 @@ androidXMultiplatform {
         implementation(libs.truth)
       }
     }
-
-    jvmMain {
-      dependsOn(jvmAndroidMain)
-    }
-
-    jvmTest {
-      // TODO: b/362697089 - add `dependsOn(jvmAndroidTest)` to run the tests
-      //   in a JVM environment in addition to on Android emulators, once the
-      //   mysterious SIGSEGV is resolved.
-    }
   }
 }
 
+android {
+  namespace = "androidx.ink.strokes"
+}
+
 androidx {
-    name = "Ink Brush"
+    name = "Ink Strokes"
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
-    description = "Define brushes for freehand input."
-    metalavaK2UastEnabled = false
+    description = "Create beautiful strokes"
 }

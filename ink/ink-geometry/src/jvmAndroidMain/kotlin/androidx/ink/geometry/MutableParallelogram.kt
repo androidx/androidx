@@ -66,10 +66,11 @@ private constructor(
 
     public constructor() : this(MutableVec(), 0f, 0f, Angle.ZERO, 0f)
 
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
+
     // TODO: b/355248266 - @UsedByNative("parallelogram_jni_helper.cc") must go in Proguard config
     // file instead.
-    private fun setCenterDimensionsRotationAndShear(
+    public fun setCenterDimensionsRotationAndShear(
         centerX: Float,
         centerY: Float,
         width: Float,

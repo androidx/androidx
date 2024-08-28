@@ -35,7 +35,7 @@ public abstract class EasingFunction private constructor() {
     public class Predefined private constructor(@JvmField internal val value: Int) :
         EasingFunction() {
 
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (value) {
                 0 -> "LINEAR"
                 1 -> "EASE"
@@ -264,7 +264,7 @@ public abstract class EasingFunction private constructor() {
     public class StepPosition private constructor(@JvmField internal val value: Int) :
         EasingFunction() {
 
-        public fun toSimpleString(): String =
+        internal fun toSimpleString(): String =
             when (value) {
                 0 -> "JUMP_END"
                 1 -> "JUMP_START"

@@ -16,7 +16,11 @@
 
 package androidx.ink.geometry
 
+import androidx.ink.brush.Brush
+import androidx.ink.brush.StockBrushes
 import androidx.ink.geometry.Intersection.intersects
+import androidx.ink.strokes.Stroke
+import androidx.ink.strokes.testing.buildStrokeInputBatchFromPoints
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -267,6 +271,26 @@ class IntersectionTest {
         assertThat(rect.intersects(interiorPoint)).isTrue()
     }
 
+    /**
+     * Verifies that [intersects] calls the correct JNI method for [PartitionedMesh] and [Point].
+     *
+     * For this test, the [PartitionedMesh] consists of triangulation of a straight line [Stroke]
+     * from (10, 3) to (20, 5), consisting of 126 triangles. `intersectingPoint` intersects with at
+     * least one of those triangles, while `nonIntersectingPoint` does not intersect with any
+     * triangle.
+     */
+    @Test
+    fun intersects_forPointAndPartitionedMesh_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingPoint = MutableVec(15f, 4f)
+        val nonIntersectingPoint = ImmutableVec(100f, 200f)
+
+        assertThat(mesh.intersects(intersectingPoint, SCALE_TRANSFORM)).isTrue()
+        assertThat(mesh.intersects(nonIntersectingPoint, SCALE_TRANSFORM)).isFalse()
+        assertThat(intersectingPoint.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
+        assertThat(nonIntersectingPoint.intersects(mesh, AffineTransform.IDENTITY)).isFalse()
+    }
+
     @Test
     fun intersects_whenPointBoxDoesNotIntersect_returnsFalse() {
         val rect = ImmutableBox.fromTwoPoints(ImmutableVec(-1f, 3.2f), ImmutableVec(7f, 11.8f))
@@ -452,6 +476,28 @@ class IntersectionTest {
         assertThat(segment.intersects(farParallelogram)).isFalse()
         assertThat(closeParallelogram.intersects(segment)).isFalse()
         assertThat(farParallelogram.intersects(segment)).isFalse()
+    }
+
+    /**
+     * Verifies that [intersects] calls the correct JNI method for [PartitionedMesh] and [Segment].
+     *
+     * For this test, the [PartitionedMesh] consists of triangulation of a straight line [Stroke]
+     * from (10, 3) to (20, 5), consisting of 126 triangles. `intersectingSegment` intersects with
+     * at least one of those triangles, while `nonIntersectingSegment` does not intersect with any
+     * triangle.
+     */
+    @Test
+    fun intersects_forSegmentAndPartitionedMesh_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingSegment =
+            ImmutableSegment(start = ImmutableVec(14f, 3f), end = ImmutableVec(16f, 5f))
+        val nonIntersectingSegment =
+            ImmutableSegment(start = ImmutableVec(100f, 200f), end = ImmutableVec(300f, 400f))
+
+        assertThat(mesh.intersects(intersectingSegment, SCALE_TRANSFORM)).isTrue()
+        assertThat(mesh.intersects(nonIntersectingSegment, SCALE_TRANSFORM)).isFalse()
+        assertThat(intersectingSegment.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
+        assertThat(nonIntersectingSegment.intersects(mesh, AffineTransform.IDENTITY)).isFalse()
     }
 
     @Test
@@ -648,6 +694,36 @@ class IntersectionTest {
         assertThat(farParallelogram.intersects(triangle)).isFalse()
     }
 
+    /**
+     * Verifies that [intersects] calls the correct JNI method for [PartitionedMesh] and [Triangle].
+     *
+     * For this test, the [PartitionedMesh] consists of triangulation of a straight line [Stroke]
+     * from (10, 3) to (20, 5), consisting of 126 triangles. `intersectingTriangle` intersects with
+     * at least one of those triangles, while `nonIntersectingTriangle` does not intersect with any
+     * triangle.
+     */
+    @Test
+    fun intersects_forTriangleAndPartitionedMesh_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingTriangle =
+            ImmutableTriangle(
+                p0 = ImmutableVec(0f, 1f),
+                p1 = ImmutableVec(10f, 3f),
+                p2 = ImmutableVec(5f, 20f),
+            )
+        val nonIntersectingTriangle =
+            ImmutableTriangle(
+                p0 = ImmutableVec(100f, 200f),
+                p1 = ImmutableVec(300f, 400f),
+                p2 = ImmutableVec(200f, 600f),
+            )
+
+        assertThat(mesh.intersects(intersectingTriangle, AffineTransform.IDENTITY)).isTrue()
+        assertThat(mesh.intersects(nonIntersectingTriangle, SCALE_TRANSFORM)).isFalse()
+        assertThat(intersectingTriangle.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
+        assertThat(nonIntersectingTriangle.intersects(mesh, SCALE_TRANSFORM)).isFalse()
+    }
+
     @Test
     fun intersects_forEqualBoxs_returnsTrue() {
         val rect1 = ImmutableBox.fromTwoPoints(ImmutableVec(0f, 1f), ImmutableVec(31.6f, 10f))
@@ -750,6 +826,31 @@ class IntersectionTest {
         assertThat(farParallelogram.intersects(rect)).isFalse()
     }
 
+    /**
+     * Verifies that [intersects] calls the correct JNI method for [PartitionedMesh] and [Box].
+     *
+     * For this test, the [PartitionedMesh] consists of triangulation of a straight line [Stroke]
+     * from (10, 3) to (20, 5), consisting of 126 triangles. `intersectingBox` intersects with at
+     * least one of those triangles, while `nonIntersectingBox` does not intersect with any
+     * triangle.
+     */
+    @Test
+    fun intersects_forBoxAndPartitionedMesh_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingBox =
+            ImmutableBox.fromTwoPoints(ImmutableVec(15f, 4f), ImmutableVec(20f, 5f))
+        val nonIntersectingBox =
+            ImmutableBox.fromTwoPoints(ImmutableVec(100f, 200f), ImmutableVec(300f, 400f))
+
+        assertThat(mesh.intersects(intersectingBox, AffineTransform.IDENTITY)).isTrue()
+        assertThat(mesh.intersects(nonIntersectingBox, AffineTransform.IDENTITY)).isFalse()
+        assertThat(mesh.intersects(nonIntersectingBox, SCALE_TRANSFORM)).isFalse()
+        assertThat(intersectingBox.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
+        assertThat(nonIntersectingBox.intersects(mesh, AffineTransform.IDENTITY)).isFalse()
+        assertThat(nonIntersectingBox.intersects(mesh, AffineTransform.IDENTITY)).isFalse()
+        assertThat(nonIntersectingBox.intersects(mesh, SCALE_TRANSFORM)).isFalse()
+    }
+
     @Test
     fun intersects_forEqualsParallelograms_returnsTrue() {
         val parallelogram1 =
@@ -848,7 +949,120 @@ class IntersectionTest {
         assertThat(farParallelogram.intersects(parallelogram)).isFalse()
     }
 
+    /**
+     * Verifies that [intersects] calls the correct JNI method for [PartitionedMesh] and
+     * [Parallelogram].
+     *
+     * For this test, the [PartitionedMesh] consists of triangulation of a straight line [Stroke]
+     * from (10, 3) to (20, 5), consisting of 126 triangles. `intersectingParallelogram` intersects
+     * with at least one of those triangles, while `nonIntersectingParallelogram` does not intersect
+     * with any triangle.
+     */
+    @Test
+    fun intersects_forParallelogramAndPartitionedMesh_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingParallelogram =
+            ImmutableParallelogram.fromCenterAndDimensions(
+                center = ImmutableVec(15f, 4f),
+                width = 3f,
+                height = 2f,
+            )
+        val nonIntersectingParallelogram =
+            ImmutableParallelogram.fromCenterDimensionsRotationAndShear(
+                center = ImmutableVec(100f, 200f),
+                width = 300f,
+                height = 400f,
+                rotation = Angle.QUARTER_TURN_RADIANS,
+                shearFactor = 1f,
+            )
+
+        assertThat(mesh.intersects(intersectingParallelogram, AffineTransform.IDENTITY)).isTrue()
+        assertThat(mesh.intersects(nonIntersectingParallelogram, AffineTransform.IDENTITY))
+            .isFalse()
+        assertThat(mesh.intersects(nonIntersectingParallelogram, SCALE_TRANSFORM)).isFalse()
+        assertThat(intersectingParallelogram.intersects(mesh, AffineTransform.IDENTITY)).isTrue()
+        assertThat(nonIntersectingParallelogram.intersects(mesh, AffineTransform.IDENTITY))
+            .isFalse()
+        assertThat(nonIntersectingParallelogram.intersects(mesh, SCALE_TRANSFORM)).isFalse()
+    }
+
+    /**
+     * Verifies that [intersects] calls the correct JNI method for two [PartitionedMesh]s.
+     *
+     * For this test, `mesh` consists of triangulation of a straight line [Stroke] from (10, 3) to
+     * (20, 5), consisting of 126 triangles. `intersectingShape` consists of triangulation of a
+     * straight line [Stroke] from (14, 3) to (14, 5), and intersects with at least one of these
+     * triangles. `nonIntersectingShape` consists of triangulation of a straight line [Stroke] from
+     * (100, 3) to (200, 5), and does not intersect with any triangle.
+     */
+    @Test
+    fun intersects_forTwoPartitionedMeshes_callsJniAndReturnsBool() {
+        val mesh = buildTestStrokeShape()
+        val intersectingShape =
+            Stroke(
+                    TEST_BRUSH,
+                    buildStrokeInputBatchFromPoints(floatArrayOf(14f, 3f, 14f, 5f)).asImmutable(),
+                )
+                .shape
+        val nonIntersectingShape =
+            Stroke(
+                    TEST_BRUSH,
+                    buildStrokeInputBatchFromPoints(floatArrayOf(100f, 3f, 200f, 5f)).asImmutable(),
+                )
+                .shape
+
+        assertThat(
+                mesh.intersects(
+                    intersectingShape,
+                    AffineTransform.IDENTITY,
+                    AffineTransform.IDENTITY
+                )
+            )
+            .isTrue()
+        assertThat(
+                mesh.intersects(
+                    nonIntersectingShape,
+                    AffineTransform.IDENTITY,
+                    AffineTransform.IDENTITY
+                )
+            )
+            .isFalse()
+        assertThat(
+                intersectingShape.intersects(
+                    mesh,
+                    AffineTransform.IDENTITY,
+                    AffineTransform.IDENTITY
+                )
+            )
+            .isTrue()
+        assertThat(
+                nonIntersectingShape.intersects(
+                    mesh,
+                    AffineTransform.IDENTITY,
+                    AffineTransform.IDENTITY
+                )
+            )
+            .isFalse()
+        assertThat(nonIntersectingShape.intersects(mesh, AffineTransform.IDENTITY, SCALE_TRANSFORM))
+            .isFalse()
+        assertThat(nonIntersectingShape.intersects(mesh, SCALE_TRANSFORM, AffineTransform.IDENTITY))
+            .isFalse()
+        assertThat(nonIntersectingShape.intersects(mesh, SCALE_TRANSFORM, SCALE_TRANSFORM))
+            .isFalse()
+    }
+
+    private fun buildTestStrokeShape(): PartitionedMesh {
+        return Stroke(
+                TEST_BRUSH,
+                buildStrokeInputBatchFromPoints(floatArrayOf(10f, 3f, 20f, 5f)).asImmutable(),
+            )
+            .shape
+    }
+
     companion object {
         private val SCALE_TRANSFORM = ImmutableAffineTransform(2f, 0f, 0f, 0f, 5f, 0f)
+
+        private val TEST_BRUSH =
+            Brush(family = StockBrushes.markerLatest, size = 10f, epsilon = 0.1f)
     }
 }

@@ -205,6 +205,7 @@ dependencies {
     kmpDocs(project(":ink:ink-brush"))
     kmpDocs(project(":ink:ink-geometry"))
     kmpDocs(project(":ink:ink-nativeloader"))
+    kmpDocs(project(":ink:ink-strokes"))
     docs(project(":input:input-motionprediction"))
     docs(project(":interpolator:interpolator"))
     docs(project(":javascriptengine:javascriptengine"))

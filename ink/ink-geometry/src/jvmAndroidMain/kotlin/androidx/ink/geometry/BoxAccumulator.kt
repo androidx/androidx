@@ -72,23 +72,16 @@ public class BoxAccumulator {
      */
     public fun isEmpty(): Boolean = !hasBounds
 
-    /**
-     * Populates this [BoxAccumulator] with the same values contained in [input].
-     *
-     * @return `this`
-     */
+    /** Populates this [BoxAccumulator] with the same values contained in [input]. */
     public fun populateFrom(input: BoxAccumulator): BoxAccumulator {
         reset().add(input)
         return this
     }
 
-    /**
-     * Reset this object to have no bounds.
-     *
-     * @return `this`
-     */
+    /** Reset this object to have no bounds. Returns the same instance to chain function calls. */
     // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
     // instead.
+
     public fun reset(): BoxAccumulator {
         hasBounds = false
         _bounds.setXBounds(Float.NaN, Float.NaN).setYBounds(Float.NaN, Float.NaN)
@@ -119,8 +112,7 @@ public class BoxAccumulator {
     }
 
     /**
-     * Expands the accumulated bounding box (if necessary) such that it also contains [point]. If
-     * [point] is null, this is a no-op.
+     * Expands the accumulated bounding box (if necessary) such that it also contains [point].
      *
      * @return `this`
      */
@@ -139,8 +131,7 @@ public class BoxAccumulator {
     }
 
     /**
-     * Expands the accumulated bounding box (if necessary) such that it also contains [segment]. If
-     * [segment] is null, this is a no-op.
+     * Expands the accumulated bounding box (if necessary) such that it also contains [segment].
      *
      * @return `this`
      */
@@ -161,8 +152,7 @@ public class BoxAccumulator {
     }
 
     /**
-     * Expands the accumulated bounding box (if necessary) such that it also contains [triangle]. If
-     * [triangle] is null, this is a no-op.
+     * Expands the accumulated bounding box (if necessary) such that it also contains [triangle].
      *
      * @return `this`
      */
@@ -209,7 +199,7 @@ public class BoxAccumulator {
 
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains
-     * [parallelogram]. If [parallelogram] is null, this is a no-op.
+     * [parallelogram].
      *
      * @return `this`
      */
@@ -233,7 +223,7 @@ public class BoxAccumulator {
 
     /**
      * Expands the accumulated bounding box (if necessary) such that it also contains [mesh]. If
-     * [mesh] is null or empty, this is a no-op.
+     * [mesh] is empty, this is a no-op.
      *
      * @return `this`
      */
@@ -260,6 +250,7 @@ public class BoxAccumulator {
      */
     // TODO: b/355248266 - @UsedByNative("envelope_jni_helper.cc") must go in Proguard config file
     // instead.
+
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun overwriteFrom(x1: Float, y1: Float, x2: Float, y2: Float): BoxAccumulator {
         hasBounds = true
