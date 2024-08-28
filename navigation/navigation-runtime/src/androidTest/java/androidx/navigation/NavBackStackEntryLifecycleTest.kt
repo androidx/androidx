@@ -23,7 +23,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.test.FloatingTestNavigator
 import androidx.navigation.test.R
+import androidx.navigation.test.SupportingFloatingTestNavigator
+import androidx.navigation.test.SupportingTestNavigator
 import androidx.navigation.test.dialog
+import androidx.navigation.test.supportingDialog
+import androidx.navigation.test.supportingPane
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -164,6 +168,79 @@ class NavBackStackEntryLifecycleTest {
     }
 
     /**
+     * Test that navigating from a sibling to a SupportingPane sibling leaves the previous
+     * destination resumed.
+     */
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithSupportingPane() {
+        val navController = createNavController()
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "start"
+            ) {
+                test("start")
+                test("second")
+                supportingPane("supportingPane")
+            }
+        navController.graph = navGraph
+
+        val graphBackStackEntry = navController.getBackStackEntry("graph")
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val startBackStackEntry = navController.getBackStackEntry("start")
+        assertWithMessage("The start destination should be resumed")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("second")
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should be created when not visible")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        val secondBackStackEntry = navController.getBackStackEntry("second")
+        assertWithMessage("The second destination should be resumed")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("supportingPane")
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should still be in created")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertWithMessage("The second destination should be resumed when a SupportingPane is open")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val supportingPaneBackStackEntry = navController.getBackStackEntry("supportingPane")
+        assertWithMessage("The supporting pane destination should be resumed")
+            .that(supportingPaneBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.popBackStack()
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should still be in created")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.CREATED)
+        assertWithMessage("The second destination should be resumed after pop")
+            .that(secondBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The popped destination should be destroyed")
+            .that(supportingPaneBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    /**
      * Test that navigating from a sibling to a FloatingWindow sibling leaves the previous
      * destination started.
      */
@@ -224,6 +301,78 @@ class NavBackStackEntryLifecycleTest {
             .isEqualTo(Lifecycle.State.DESTROYED)
     }
 
+    /**
+     * Test that navigating from a sibling + SupportingPane sibling to a dialog leaves both started.
+     */
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithSupportingPaneAndDialog() {
+        val navController = createNavController()
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "start"
+            ) {
+                test("start")
+                supportingPane("supportingPane")
+                dialog("dialog")
+            }
+        navController.graph = navGraph
+
+        val graphBackStackEntry = navController.getBackStackEntry("graph")
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val startBackStackEntry = navController.getBackStackEntry("start")
+        assertWithMessage("The start destination should be resumed")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("supportingPane")
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should be resumed when a SupportingPane is open")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        val supportingPaneBackStackEntry = navController.getBackStackEntry("supportingPane")
+        assertWithMessage("The supporting pane destination should be resumed")
+            .that(supportingPaneBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("dialog")
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should be started under a dialog")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        assertWithMessage("The supporting pane destination should be started under a dialog")
+            .that(supportingPaneBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.STARTED)
+        val dialogBackStackEntry = navController.getBackStackEntry("dialog")
+        assertWithMessage("The dialog destination should be resumed")
+            .that(dialogBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.popBackStack()
+
+        assertWithMessage("The parent graph should be resumed when its child is resumed")
+            .that(graphBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The start destination should still be resumed after pop")
+            .that(startBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The supporting pane destination should be resumed after pop")
+            .that(supportingPaneBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.RESUMED)
+        assertWithMessage("The popped destination should be destroyed")
+            .that(dialogBackStackEntry.lifecycle.currentState)
+            .isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
     /** Test that all visible floating windows underneath the top one are marked started. */
     @UiThreadTest
     @Test
@@ -264,6 +413,53 @@ class NavBackStackEntryLifecycleTest {
         assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(midDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val topDialogEntry = navController.getBackStackEntry("topDialog")
+        assertThat(topDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    /**
+     * Test that all visible floating windows underneath the top one are marked started unless a
+     * SupportingPane+FloatingWindow destination is above a FloatingWindow.
+     */
+    @UiThreadTest
+    @Test
+    fun testLifecycleWithSupportingDialogs() {
+        val navController = createNavController()
+        val navGraph =
+            navController.navigatorProvider.navigation(
+                route = "graph",
+                startDestination = "start"
+            ) {
+                test("start")
+                supportingDialog("bottomDialog")
+                dialog("midDialog")
+                supportingDialog("topDialog")
+            }
+        navController.graph = navGraph
+
+        val graphEntry = navController.getBackStackEntry("graph")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val startEntry = navController.getBackStackEntry("start")
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("bottomDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val bottomDialogEntry = navController.getBackStackEntry("bottomDialog")
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("midDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        val midDialogEntry = navController.getBackStackEntry("midDialog")
+        assertThat(midDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navController.navigate("topDialog")
+        assertThat(graphEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(startEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(bottomDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(midDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
         val topDialogEntry = navController.getBackStackEntry("topDialog")
         assertThat(topDialogEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
     }
@@ -1386,7 +1582,9 @@ class NavBackStackEntryLifecycleTest {
     ): NavController {
         val navController = NavHostController(ApplicationProvider.getApplicationContext())
         navController.navigatorProvider.addNavigator(TestNavigator())
+        navController.navigatorProvider.addNavigator(SupportingTestNavigator())
         navController.navigatorProvider.addNavigator(FloatingTestNavigator())
+        navController.navigatorProvider.addNavigator(SupportingFloatingTestNavigator())
         navController.setLifecycleOwner(lifecycleOwner)
         return navController
     }

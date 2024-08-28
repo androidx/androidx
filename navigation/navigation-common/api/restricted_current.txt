@@ -590,5 +590,8 @@ package androidx.navigation {
     method public static inline <reified T> T toRoute(androidx.lifecycle.SavedStateHandle, optional java.util.Map<kotlin.reflect.KType,androidx.navigation.NavType<? extends java.lang.Object?>> typeMap);
   }
 
+  public interface SupportingPane {
+  }
+
 }
 
