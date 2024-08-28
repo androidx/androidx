@@ -3,6 +3,11 @@ attr activityName
 attr alwaysExpand
 attr animationBackgroundColor
 attr clearTop
+attr dividerColor
+attr dividerType
+attr dividerWidthDp
+attr dragRangeMaxRatio
+attr dragRangeMinRatio
 attr finishPrimaryWithPlaceholder
 attr finishPrimaryWithSecondary
 attr finishSecondaryWithPrimary
