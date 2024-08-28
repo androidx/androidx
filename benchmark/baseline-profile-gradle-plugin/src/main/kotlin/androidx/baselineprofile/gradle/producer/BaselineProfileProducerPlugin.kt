@@ -79,16 +79,16 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) :
     private val baselineProfileExtension = BaselineProfileProducerExtension.register(project)
     private val configurationManager = ConfigurationManager(project)
     private val shouldSkipGeneration by lazy {
-        project.properties.containsKey(PROP_SKIP_GENERATION)
+        project.providers.gradleProperty(PROP_SKIP_GENERATION).isPresent
     }
     private val forceOnlyConnectedDevices: Boolean by lazy {
-        project.properties.containsKey(PROP_FORCE_ONLY_CONNECTED_DEVICES)
+        project.providers.gradleProperty(PROP_FORCE_ONLY_CONNECTED_DEVICES).isPresent
     }
     private val addEnabledRulesInstrumentationArgument by lazy {
-        !project.properties.containsKey(PROP_DONT_DISABLE_RULES)
+        !project.providers.gradleProperty(PROP_DONT_DISABLE_RULES).isPresent
     }
     private val addTargetPackageNameInstrumentationArgument by lazy {
-        !project.properties.containsKey(PROP_SEND_TARGET_PACKAGE_NAME)
+        !project.providers.gradleProperty(PROP_SEND_TARGET_PACKAGE_NAME).isPresent
     }
 
     // This maps all the extended build types to the original ones. Note that release does not

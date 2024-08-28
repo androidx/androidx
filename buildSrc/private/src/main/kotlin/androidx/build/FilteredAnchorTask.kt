@@ -62,7 +62,10 @@ abstract class FilteredAnchorTask : DefaultTask() {
  * match the requested path prefix and task name.
  */
 internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) {
-    if (hasProperty(PROP_PATH_PREFIX) && hasProperty(PROP_TASK_NAME)) {
+    if (
+        providers.gradleProperty(PROP_PATH_PREFIX).isPresent &&
+            providers.gradleProperty(PROP_TASK_NAME).isPresent
+    ) {
         val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(",")
         if (pathPrefixes.any { pathPrefix -> relativePathForFiltering().startsWith(pathPrefix) }) {
             val taskName = properties[PROP_TASK_NAME] as String
@@ -84,7 +87,10 @@ internal fun Project.addFilterableTasks(vararg taskProviders: TaskProvider<*>?) 
  * -Pandroidx.taskName=checkApi -Pandroidx.pathPrefix=core/core/
  */
 internal fun Project.maybeRegisterFilterableTask() {
-    if (hasProperty(PROP_TASK_NAME) && hasProperty(PROP_PATH_PREFIX)) {
+    if (
+        providers.gradleProperty(PROP_TASK_NAME).isPresent &&
+            providers.gradleProperty(PROP_PATH_PREFIX).isPresent
+    ) {
         tasks.register(GLOBAL_TASK_NAME, FilteredAnchorTask::class.java) { task ->
             task.pathPrefix = properties[PROP_PATH_PREFIX] as String
             task.taskName = properties[PROP_TASK_NAME] as String

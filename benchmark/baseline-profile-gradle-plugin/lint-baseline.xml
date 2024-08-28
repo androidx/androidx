@@ -4,69 +4,6 @@
     <issue
         id="GradleProjectIsolation"
         message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        project.properties[&quot;androidx.benchmark.test.maxagpversion&quot;]?.let { str ->"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/AgpPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        it in project.properties &amp;&amp; project.properties[it].toString().toBoolean()"
-        errorLine2="                      ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/AgpPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        it in project.properties &amp;&amp; project.properties[it].toString().toBoolean()"
-        errorLine2="                                            ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/utils/AgpPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        project.properties.containsKey(PROP_SKIP_GENERATION)"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/producer/BaselineProfileProducerPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        project.properties.containsKey(PROP_FORCE_ONLY_CONNECTED_DEVICES)"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/producer/BaselineProfileProducerPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        !project.properties.containsKey(PROP_DONT_DISABLE_RULES)"
-        errorLine2="                 ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/producer/BaselineProfileProducerPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        !project.properties.containsKey(PROP_SEND_TARGET_PACKAGE_NAME)"
-        errorLine2="                 ~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/androidx/baselineprofile/gradle/producer/BaselineProfileProducerPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
         errorLine1="                    project.properties.filterKeys { k ->"
         errorLine2="                            ~~~~~~~~~~">
         <location

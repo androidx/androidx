@@ -51,8 +51,9 @@ internal abstract class AgpPlugin(
 
     // Properties that can be specified by cmd line using -P<property_name> when invoking gradle.
     val testMaxAgpVersion by lazy {
-        project.properties["androidx.benchmark.test.maxagpversion"]?.let { str ->
-            val parts = str.toString().split(".").map { it.toInt() }
+        project.providers.gradleProperty("androidx.benchmark.test.maxagpversion").orNull?.let { str
+            ->
+            val parts = str.split(".").map { it.toInt() }
             return@lazy AndroidPluginVersion(parts[0], parts[1], parts[2])
         } ?: return@lazy null
     }

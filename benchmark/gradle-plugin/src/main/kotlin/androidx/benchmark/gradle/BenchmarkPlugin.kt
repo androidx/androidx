@@ -101,14 +101,19 @@ class BenchmarkPlugin : Plugin<Project> {
         extension.buildTypes.named(testBuildType).configure { it.isDefault = true }
 
         if (
-            !project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
+            !project.providers.gradleProperty("android.injected.invoked.from.ide").isPresent &&
                 !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
         ) {
             // NOTE: This argument is checked by ResultWriter to enable CI reports.
             defaultConfig.testInstrumentationRunnerArguments["androidx.benchmark.output.enable"] =
                 "true"
 
-            if (!project.findProperty(ADDITIONAL_TEST_OUTPUT_KEY).toString().toBoolean()) {
+            if (
+                !project.providers
+                    .gradleProperty(ADDITIONAL_TEST_OUTPUT_KEY)
+                    .getOrElse("false")
+                    .toBoolean()
+            ) {
                 defaultConfig.testInstrumentationRunnerArguments["no-isolated-storage"] = "1"
             }
         }
@@ -119,7 +124,9 @@ class BenchmarkPlugin : Plugin<Project> {
             project.rootProject.tasks.register("lockClocks", LockClocksTask::class.java).configure {
                 it.adbPath.set(adbPathProvider)
                 it.coresArg.set(
-                    project.findProperty("androidx.benchmark.lockClocks.cores")?.toString() ?: ""
+                    project.providers
+                        .gradleProperty("androidx.benchmark.lockClocks.cores")
+                        .orElse("")
                 )
             }
         }
@@ -159,7 +166,12 @@ class BenchmarkPlugin : Plugin<Project> {
                     project.layout.buildDirectory.dir(
                         "outputs/connected_android_test_additional_output"
                     )
-                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
+                if (
+                    !project.providers
+                        .gradleProperty(ADDITIONAL_TEST_OUTPUT_KEY)
+                        .getOrElse("false")
+                        .toBoolean()
+                ) {
                     // Only enable pulling benchmark data through this plugin on older versions of
                     // AGP that do not yet enable this flag.
                     project.tasks

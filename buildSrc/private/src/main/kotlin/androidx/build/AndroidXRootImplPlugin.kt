@@ -61,7 +61,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
 
         // If we're running inside Studio, validate the Android Gradle Plugin version.
         val expectedAgpVersion = System.getenv("EXPECTED_AGP_VERSION")
-        if (properties.containsKey("android.injected.invoked.from.ide")) {
+        if (providers.gradleProperty("android.injected.invoked.from.ide").isPresent) {
             if (expectedAgpVersion != ANDROID_GRADLE_PLUGIN_VERSION) {
                 throw GradleException(
                     """

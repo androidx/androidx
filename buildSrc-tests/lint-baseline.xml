@@ -148,15 +148,6 @@
     <issue
         id="GradleProjectIsolation"
         message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="        if (properties.containsKey(&quot;android.injected.invoked.from.ide&quot;)) {"
-        errorLine2="            ~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXRootImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
         errorLine1="        val pathPrefixes = (properties[PROP_PATH_PREFIX] as String).split(&quot;,&quot;)"
         errorLine2="                            ~~~~~~~~~~">
         <location
@@ -382,8 +373,8 @@
     <issue
         id="WithPluginClasspathUsage"
         message="Avoid usage of GradleRunner#withPluginClasspath, which is broken. Instead use something like https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
-        errorLine1="            .withPluginClasspath()"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="                .withPluginClasspath()"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/build/buildInfo/CreateLibraryBuildInfoFileTaskTest.kt"/>
     </issue>
