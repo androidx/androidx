@@ -327,6 +327,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
 
             val ourPercent = OurPercentCache
             val lastIndex = ourPercent.size - 1
+            val lastIndexFloat = lastIndex.toFloat()
             val lut = lut
 
             for (i in 1..lastIndex) {
@@ -351,7 +352,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
                 val pos = i / lutLastIndex
                 val index = binarySearch(ourPercent, pos)
                 if (index >= 0) {
-                    lut[i] = index / lutLastIndex
+                    lut[i] = index / lastIndexFloat
                 } else if (index == -1) {
                     lut[i] = 0f
                 } else {
@@ -359,7 +360,7 @@ internal class ArcSpline(arcModes: IntArray, timePoints: FloatArray, y: Array<Fl
                     val p2 = -index - 1
                     val ans =
                         (p1 + (pos - ourPercent[p1]) / (ourPercent[p2] - ourPercent[p1])) /
-                            lastIndex
+                            lastIndexFloat
                     lut[i] = ans
                 }
             }
