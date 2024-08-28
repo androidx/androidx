@@ -140,6 +140,7 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                     Replacement(NAMED_DOMAIN_OBJECT_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
                 "findByName" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "findByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
+                "findProject" to Replacement(PROJECT, null, PROJECT_ISOLATION_ISSUE),
                 "findProperty" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "hasProperty" to
@@ -151,8 +152,10 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "getAt" to Replacement(TASK_COLLECTION, "named", EAGER_CONFIGURATION_ISSUE),
                 "getByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "getByName" to Replacement(TASK_CONTAINER, "named", EAGER_CONFIGURATION_ISSUE),
+                "getParent" to Replacement(PROJECT, null, PROJECT_ISOLATION_ISSUE),
                 "getProperties" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "getRootProject" to Replacement(PROJECT, null, PROJECT_ISOLATION_ISSUE),
                 "matching" to Replacement(TASK_COLLECTION, null, EAGER_CONFIGURATION_ISSUE),
                 "replace" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "remove" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),

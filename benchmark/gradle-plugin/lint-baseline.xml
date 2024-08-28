@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Avoid using method getRootProject"
+        errorLine1="        if (!project.rootProject.tasks.exists(&quot;lockClocks&quot;)) {"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Avoid using method getRootProject"
+        errorLine1="            project.rootProject.tasks.register(&quot;lockClocks&quot;, LockClocksTask::class.java).configure {"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Avoid using method getRootProject"
+        errorLine1="        if (!project.rootProject.tasks.exists(&quot;unlockClocks&quot;)) {"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Avoid using method getRootProject"
+        errorLine1="            project.rootProject.tasks"
+        errorLine2="                    ~~~~~~~~~~~">
+        <location
+            file="src/main/kotlin/androidx/benchmark/gradle/BenchmarkPlugin.kt"/>
+    </issue>
+
+</issues>
