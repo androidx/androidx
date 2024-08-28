@@ -640,6 +640,10 @@ public open class PdfViewerFragment : Fragment() {
         if (!documentLoaded) {
             return
         }
+        setAnnotationIntentResolvability()
+        if (!isAnnotationIntentResolvable && annotationButton?.visibility == View.VISIBLE) {
+            annotationButton?.post { annotationButton?.hide() }
+        }
         if (
             isAnnotationIntentResolvable &&
                 annotationButton?.visibility != View.VISIBLE &&
