@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.MacrobenchmarkScope
@@ -81,7 +81,7 @@ class BaselineProfile {
             packageName = PACKAGE_NAME,
             profileBlock = {
                 val intent = Intent()
-                intent.action = ACTION
+                intent.action = BASELINE_ACTIVITY
                 startActivityAndWait(intent)
                 testDestination(description = BUTTONS)
                 testDestination(description = CARDS)
@@ -163,8 +163,7 @@ class BaselineProfile {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val ACTION =
-            "androidx.wear.compose.integration.macrobenchmark.target.BASELINE_ACTIVITY"
+        private const val BASELINE_ACTIVITY = "${PACKAGE_NAME}.BASELINE_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

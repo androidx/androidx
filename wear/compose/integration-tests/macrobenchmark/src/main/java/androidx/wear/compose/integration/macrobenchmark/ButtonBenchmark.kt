@@ -23,9 +23,6 @@ import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
 import androidx.testutils.createCompilationParams
-import androidx.wear.compose.integration.macrobenchmark.test.disableChargingExperience
-import androidx.wear.compose.integration.macrobenchmark.test.enableChargingExperience
-import androidx.wear.compose.integration.macrobenchmark.test.numberedContentDescription
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
@@ -76,8 +73,7 @@ class ButtonBenchmark(private val compilationMode: CompilationMode) {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val BUTTON_ACTIVITY =
-            "androidx.wear.compose.integration.macrobenchmark.target.BUTTON_ACTIVITY"
+        private const val BUTTON_ACTIVITY = "${PACKAGE_NAME}.BUTTON_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

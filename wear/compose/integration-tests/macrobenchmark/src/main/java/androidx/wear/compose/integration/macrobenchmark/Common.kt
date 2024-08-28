@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
