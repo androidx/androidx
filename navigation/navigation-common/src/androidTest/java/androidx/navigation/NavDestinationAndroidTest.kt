@@ -68,7 +68,7 @@ class NavDestinationAndroidTest {
         destination.id = 1
         assertThat(destination.route).isEqualTo("route")
         assertThat(destination.id).isEqualTo(1)
-        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isTrue()
+        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isFalse()
 
         destination.route = null
         assertThat(destination.route).isNull()

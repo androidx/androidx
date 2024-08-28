@@ -313,9 +313,9 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/graph can't be used to open destination " +
-                    "NavGraph(0xa22391e1) startDestination=0x0.\n" +
-                    "Following required arguments are missing: [intArg]"
+                "Cannot set route \"graph\" for destination " +
+                    "NavGraph(0x0) startDestination=0x0. Following required " +
+                    "arguments are missing: [intArg]"
             )
     }
 
@@ -339,9 +339,9 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/graph/{intArg} can't be used to " +
-                    "open destination NavGraph(0xf9423909) startDestination=0x0.\n" +
-                    "Following required arguments are missing: [longArg]"
+                "Cannot set route \"graph/{intArg}\" for destination " +
+                    "NavGraph(0x0) startDestination=0x0. Following required " +
+                    "arguments are missing: [longArg]"
             )
     }
 
@@ -365,9 +365,9 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/graph can't be used to open " +
-                    "destination NavGraph(0xa22391e1) startDestination=0x0.\n" +
-                    "Following required arguments are missing: [intArg, longArg]"
+                "Cannot set route \"graph\" for destination NavGraph(0x0) " +
+                    "startDestination=0x0. Following required arguments " +
+                    "are missing: [intArg, longArg]"
             )
     }
 
@@ -389,9 +389,8 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/dest1 can't be used to open " +
-                    "destination Destination(0xa1f3a662).\n" +
-                    "Following required arguments are missing: [intArg]"
+                "Cannot set route \"dest1\" for destination " +
+                    "Destination(0x0). Following required arguments are missing: [intArg]"
             )
     }
 
@@ -420,9 +419,9 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/dest1/{intArg} can't be used to " +
-                    "open destination Destination(0x994aa5a8).\n" +
-                    "Following required arguments are missing: [longArg]"
+                "Cannot set route \"dest1/{intArg}\" for " +
+                    "destination Destination(0x0). Following required " +
+                    "arguments are missing: [longArg]"
             )
     }
 
@@ -448,9 +447,7 @@ class NavControllerTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/dest can't be used to open " +
-                    "destination Destination(0x78d64faf).\n" +
-                    "Following required arguments are missing: [intArg, longArg]"
+                "Cannot set route \"dest\" for destination Destination(0x0). Following required arguments are missing: [intArg, longArg]"
             )
     }
 

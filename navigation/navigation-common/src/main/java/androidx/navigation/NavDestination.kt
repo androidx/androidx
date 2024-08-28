@@ -223,11 +223,21 @@ public open class NavDestination(
                 id = 0
             } else {
                 require(route.isNotBlank()) { "Cannot have an empty route" }
-                val internalRoute = createRoute(route)
-                id = internalRoute.hashCode()
-                addDeepLink(internalRoute)
+
+                // make sure the route contains all required arguments
+                val tempRoute = createRoute(route)
+                val tempDeepLink = NavDeepLink.Builder().setUriPattern(tempRoute).build()
+                val missingRequiredArguments =
+                    _arguments.missingRequiredArguments { key ->
+                        key !in tempDeepLink.argumentsNames
+                    }
+                require(missingRequiredArguments.isEmpty()) {
+                    "Cannot set route \"$route\" for destination $this. " +
+                        "Following required arguments are missing: $missingRequiredArguments"
+                }
+
+                id = tempRoute.hashCode()
             }
-            deepLinks.remove(deepLinks.firstOrNull { it.uriPattern == createRoute(field) })
             field = route
         }
 
