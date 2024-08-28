@@ -1,3 +1,3 @@
 // Baseline format: 1.0
-AddedClass: androidx.car.app.mediaextensions.MediaIntentExtras:
-    Added class androidx.car.app.mediaextensions.MediaIntentExtras
+AddedField: androidx.car.app.mediaextensions.MediaBrowserExtras#KEY_ROOT_HINT_MEDIA_HOST_VERSION:
+    Added field androidx.car.app.mediaextensions.MediaBrowserExtras.KEY_ROOT_HINT_MEDIA_HOST_VERSION
