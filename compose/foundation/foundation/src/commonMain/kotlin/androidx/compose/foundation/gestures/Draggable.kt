@@ -48,7 +48,6 @@ import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
-import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
@@ -463,23 +462,27 @@ internal abstract class DragGestureNode(
             // re-create tracker when pointer input block restarts. This lazily creates the tracker
             // only when it is need.
             val velocityTracker = VelocityTracker()
-            val onDragStart: (change: PointerInputChange, initialDelta: Offset) -> Unit =
-                { startEvent, initialDelta ->
-                    if (canDrag.invoke(startEvent)) {
+
+            val onDragStart:
+                (
+                    down: PointerInputChange,
+                    slopTriggerChange: PointerInputChange,
+                    postSlopOffset: Offset
+                ) -> Unit =
+                { down, slopTriggerChange, postSlopOffset ->
+                    if (canDrag.invoke(down)) {
                         if (!isListeningForEvents) {
                             if (channel == null) {
                                 channel = Channel(capacity = Channel.UNLIMITED)
                             }
                             startListeningForEvents()
                         }
-                        val overSlopOffset = initialDelta
-                        val xSign = sign(startEvent.position.x)
-                        val ySign = sign(startEvent.position.y)
-                        val adjustedStart =
-                            startEvent.position -
-                                Offset(overSlopOffset.x * xSign, overSlopOffset.y * ySign)
-
-                        channel?.trySend(DragStarted(adjustedStart))
+                        velocityTracker.addPointerInputChange(down)
+                        val dragStartedOffset = slopTriggerChange.position - postSlopOffset
+                        // the drag start event offset is the down event + touch slop value
+                        // or in this case the event that triggered the touch slop minus
+                        // the post slop offset
+                        channel?.trySend(DragStarted(dragStartedOffset))
                     }
                 }
 
