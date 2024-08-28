@@ -25,6 +25,7 @@ import androidx.compose.runtime.ControlledComposition
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.MovableContentState
 import androidx.compose.runtime.MovableContentStateReference
+import androidx.compose.runtime.RecomposeScopeImpl
 import androidx.compose.runtime.RememberManager
 import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.SlotTable
@@ -40,6 +41,7 @@ import androidx.compose.runtime.changelist.Operation.Downs
 import androidx.compose.runtime.changelist.Operation.EndCompositionScope
 import androidx.compose.runtime.changelist.Operation.EndCurrentGroup
 import androidx.compose.runtime.changelist.Operation.EndMovableContentPlacement
+import androidx.compose.runtime.changelist.Operation.EndResumingScope
 import androidx.compose.runtime.changelist.Operation.EnsureGroupStarted
 import androidx.compose.runtime.changelist.Operation.EnsureRootGroupStarted
 import androidx.compose.runtime.changelist.Operation.InsertSlots
@@ -48,11 +50,13 @@ import androidx.compose.runtime.changelist.Operation.MoveCurrentGroup
 import androidx.compose.runtime.changelist.Operation.MoveNode
 import androidx.compose.runtime.changelist.Operation.ReleaseMovableGroupAtCurrent
 import androidx.compose.runtime.changelist.Operation.Remember
+import androidx.compose.runtime.changelist.Operation.RememberPausingScope
 import androidx.compose.runtime.changelist.Operation.RemoveCurrentGroup
 import androidx.compose.runtime.changelist.Operation.RemoveNode
 import androidx.compose.runtime.changelist.Operation.ResetSlots
 import androidx.compose.runtime.changelist.Operation.SideEffect
 import androidx.compose.runtime.changelist.Operation.SkipToEndOfCurrentGroup
+import androidx.compose.runtime.changelist.Operation.StartResumingScope
 import androidx.compose.runtime.changelist.Operation.TrimParentValues
 import androidx.compose.runtime.changelist.Operation.UpdateAnchoredValue
 import androidx.compose.runtime.changelist.Operation.UpdateAuxData
@@ -85,6 +89,18 @@ internal class ChangeList : OperationsDebugStringFormattable() {
 
     fun pushRemember(value: RememberObserver) {
         operations.push(Remember) { setObject(Remember.Value, value) }
+    }
+
+    fun pushRememberPausingScope(scope: RecomposeScopeImpl) {
+        operations.push(RememberPausingScope) { setObject(RememberPausingScope.Scope, scope) }
+    }
+
+    fun pushStartResumingScope(scope: RecomposeScopeImpl) {
+        operations.push(StartResumingScope) { setObject(StartResumingScope.Scope, scope) }
+    }
+
+    fun pushEndResumingScope(scope: RecomposeScopeImpl) {
+        operations.push(EndResumingScope) { setObject(EndResumingScope.Scope, scope) }
     }
 
     fun pushUpdateValue(value: Any?, groupSlotIndex: Int) {

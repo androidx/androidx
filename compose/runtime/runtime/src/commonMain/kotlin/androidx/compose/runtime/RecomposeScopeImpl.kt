@@ -55,13 +55,16 @@ internal fun updateChangedFlags(flags: Int): Int {
         ((lowBits shl 1) and highBits))
 }
 
-private const val UsedFlag = 0x01
-private const val DefaultsInScopeFlag = 0x02
-private const val DefaultsInvalidFlag = 0x04
-private const val RequiresRecomposeFlag = 0x08
-private const val SkippedFlag = 0x10
-private const val RereadingFlag = 0x20
-private const val ForcedRecomposeFlag = 0x40
+private const val UsedFlag = 0x001
+private const val DefaultsInScopeFlag = 0x002
+private const val DefaultsInvalidFlag = 0x004
+private const val RequiresRecomposeFlag = 0x008
+private const val SkippedFlag = 0x010
+private const val RereadingFlag = 0x020
+private const val ForcedRecomposeFlag = 0x040
+private const val ForceReusing = 0x080
+private const val Paused = 0x100
+private const val Resuming = 0x200
 
 internal interface RecomposeScopeOwner {
     fun invalidate(scope: RecomposeScopeImpl, instance: Any?): InvalidationResult
@@ -110,11 +113,51 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
     var used: Boolean
         get() = flags and UsedFlag != 0
         set(value) {
-            if (value) {
-                flags = flags or UsedFlag
-            } else {
-                flags = flags and UsedFlag.inv()
-            }
+            flags =
+                if (value) {
+                    flags or UsedFlag
+                } else {
+                    flags and UsedFlag.inv()
+                }
+        }
+
+    /**
+     * Used to force a scope to the reusing state when a composition is paused while reusing
+     * content.
+     */
+    var reusing: Boolean
+        get() = flags and ForceReusing != 0
+        set(value) {
+            flags =
+                if (value) {
+                    flags or ForceReusing
+                } else {
+                    flags and ForceReusing.inv()
+                }
+        }
+
+    /** Used to flag a scope as paused for pausable compositions */
+    var paused: Boolean
+        get() = flags and Paused != 0
+        set(value) {
+            flags =
+                if (value) {
+                    flags or Paused
+                } else {
+                    flags and Paused.inv()
+                }
+        }
+
+    /** Used to flag a scope as paused for pausable compositions */
+    var resuming: Boolean
+        get() = flags and Resuming != 0
+        set(value) {
+            flags =
+                if (value) {
+                    flags or Resuming
+                } else {
+                    flags and Resuming.inv()
+                }
         }
 
     /**
@@ -299,7 +342,9 @@ internal class RecomposeScopeImpl(owner: RecomposeScopeOwner?) : ScopeUpdateScop
     }
 
     fun scopeSkipped() {
-        skipped = true
+        if (!reusing) {
+            skipped = true
+        }
     }
 
     /**

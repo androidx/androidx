@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.ScatterSet
 import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.tooling.CompositionData
 import kotlin.coroutines.CoroutineContext
@@ -51,6 +52,20 @@ abstract class CompositionContext internal constructor() {
         composition: ControlledComposition,
         content: @Composable () -> Unit
     )
+
+    internal abstract fun composeInitialPaused(
+        composition: ControlledComposition,
+        shouldPause: () -> Boolean,
+        content: @Composable () -> Unit
+    ): ScatterSet<RecomposeScopeImpl>
+
+    internal abstract fun recomposePaused(
+        composition: ControlledComposition,
+        shouldPause: () -> Boolean,
+        invalidScopes: ScatterSet<RecomposeScopeImpl>
+    ): ScatterSet<RecomposeScopeImpl>
+
+    internal abstract fun reportPausedScope(scope: RecomposeScopeImpl)
 
     internal abstract fun invalidate(composition: ControlledComposition)
 

@@ -101,6 +101,15 @@ internal interface RememberManager {
         priority: Int,
         endRelativeAfter: Int
     )
+
+    /** The restart scope is pausing */
+    fun rememberPausingScope(scope: RecomposeScopeImpl)
+
+    /** The restart scope is resuming */
+    fun startResumingScope(scope: RecomposeScopeImpl)
+
+    /** The restart scope is finished resuming */
+    fun endResumingScope(scope: RecomposeScopeImpl)
 }
 
 /**
@@ -1355,6 +1364,9 @@ internal class ComposerImpl(
     private val changeListWriter = ComposerChangeListWriter(this, changes)
     private var insertAnchor: Anchor = insertTable.read { it.anchor(0) }
     private var insertFixups = FixupList()
+
+    private var pausable: Boolean = false
+    private var shouldPauseCallback: (() -> Boolean)? = null
 
     override val applyCoroutineContext: CoroutineContext
         @TestOnly get() = parentContext.effectCoroutineContext
@@ -2726,7 +2738,10 @@ internal class ComposerImpl(
                 providerCache = null
 
                 // Invoke the scope's composition function
+                val shouldRestartReusing = !reusing && firstInRange.scope.reusing
+                if (shouldRestartReusing) reusing = true
                 firstInRange.scope.compose(this)
+                if (shouldRestartReusing) reusing = false
 
                 // We could have moved out of a provider so the provider cache is invalid.
                 providerCache = null
@@ -3038,8 +3053,34 @@ internal class ComposerImpl(
     }
 
     @ComposeCompilerApi
-    @Suppress("UNUSED")
     override fun shouldExecute(parametersChanged: Boolean, flags: Int): Boolean {
+        // We only want to pause when we are not resuming and only when inserting new content or
+        // when reusing content. This 0 bit of `flags` is only 1 if this function was restarted by
+        // the restart lambda. The other bits of this flags are currently all 0's and are reserved
+        // for future use.
+        if (((flags and 1) == 0) && (inserting || reusing)) {
+            val callback = shouldPauseCallback ?: return true
+            val scope = currentRecomposeScope ?: return true
+            val pausing = callback()
+            if (pausing) {
+                scope.used = true
+                // Force the composer back into the reusing state when this scope restarts.
+                scope.reusing = reusing
+                scope.paused = true
+                // Remember a place-holder object to ensure all remembers are sent in the correct
+                // order. The remember manager will record the remember callback for the resumed
+                // content into a place-holder to ensure that, when the remember callbacks are
+                // dispatched, the callbacks for the resumed content are dispatched in the same
+                // order they would have been had the content not paused.
+                changeListWriter.rememberPausingScope(scope)
+                parentContext.reportPausedScope(scope)
+                return false
+            }
+            return true
+        }
+
+        // Otherwise we should execute the function if the parameters have changed or when
+        // skipping is disabled.
         return parametersChanged || !skipping
     }
 
@@ -3118,6 +3159,11 @@ internal class ComposerImpl(
                     }
             invalidateStack.push(scope)
             scope.start(compositionToken)
+            if (scope.paused) {
+                scope.paused = false
+                scope.resuming = true
+                changeListWriter.startResumingScope(scope)
+            }
         }
     }
 
@@ -3133,8 +3179,16 @@ internal class ComposerImpl(
         // exception stack unwinding that might have not called the doneJoin/endRestartGroup in the
         // the correct order.
         val scope = if (invalidateStack.isNotEmpty()) invalidateStack.pop() else null
-        scope?.requiresRecompose = false
-        scope?.end(compositionToken)?.let { changeListWriter.endCompositionScope(it, composition) }
+        if (scope != null) {
+            scope.requiresRecompose = false
+            scope.end(compositionToken)?.let {
+                changeListWriter.endCompositionScope(it, composition)
+            }
+            if (scope.resuming) {
+                scope.resuming = false
+                changeListWriter.endResumingScope(scope)
+            }
+        }
         val result =
             if (scope != null && !scope.skipped && (scope.used || forceRecomposeScopes)) {
                 if (scope.anchor == null) {
@@ -3438,10 +3492,16 @@ internal class ComposerImpl(
      */
     internal fun composeContent(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
-        content: @Composable () -> Unit
+        content: @Composable () -> Unit,
+        shouldPause: (() -> Boolean)?
     ) {
         runtimeCheck(changes.isEmpty()) { "Expected applyChanges() to have been called" }
-        doCompose(invalidationsRequested, content)
+        this.shouldPauseCallback = shouldPause
+        try {
+            doCompose(invalidationsRequested, content)
+        } finally {
+            this.shouldPauseCallback = null
+        }
     }
 
     internal fun prepareCompose(block: () -> Unit) {
@@ -3460,6 +3520,7 @@ internal class ComposerImpl(
      */
     internal fun recompose(
         invalidationsRequested: ScopeMap<RecomposeScopeImpl, Any>,
+        shouldPause: (() -> Boolean)?
     ): Boolean {
         runtimeCheck(changes.isEmpty()) { "Expected applyChanges() to have been called" }
         // even if invalidationsRequested is empty we still need to recompose if the Composer has
@@ -3467,7 +3528,12 @@ internal class ComposerImpl(
         // there were a change for a state which was used by the child composition. such changes
         // will be tracked and added into `invalidations` list.
         if (invalidationsRequested.size > 0 || invalidations.isNotEmpty() || forciblyRecompose) {
-            doCompose(invalidationsRequested, null)
+            shouldPauseCallback = shouldPause
+            try {
+                doCompose(invalidationsRequested, null)
+            } finally {
+                shouldPauseCallback = null
+            }
             return changes.isNotEmpty()
         }
         return false
@@ -3786,6 +3852,10 @@ internal class ComposerImpl(
             parentContext.unregisterComposition(composition)
         }
 
+        override fun reportPausedScope(scope: RecomposeScopeImpl) {
+            parentContext.reportPausedScope(scope)
+        }
+
         override val effectCoroutineContext: CoroutineContext
             get() = parentContext.effectCoroutineContext
 
@@ -3801,6 +3871,20 @@ internal class ComposerImpl(
         ) {
             parentContext.composeInitial(composition, content)
         }
+
+        override fun composeInitialPaused(
+            composition: ControlledComposition,
+            shouldPause: () -> Boolean,
+            content: @Composable () -> Unit
+        ): ScatterSet<RecomposeScopeImpl> =
+            parentContext.composeInitialPaused(composition, shouldPause, content)
+
+        override fun recomposePaused(
+            composition: ControlledComposition,
+            shouldPause: () -> Boolean,
+            invalidScopes: ScatterSet<RecomposeScopeImpl>
+        ): ScatterSet<RecomposeScopeImpl> =
+            parentContext.recomposePaused(composition, shouldPause, invalidScopes)
 
         override fun invalidate(composition: ControlledComposition) {
             // Invalidate ourselves with our parent before we invalidate a child composer.

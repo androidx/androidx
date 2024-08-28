@@ -4800,16 +4800,16 @@ private val jim_reports_to_sally = Report("Jim", "Sally")
 private val rob_reports_to_alice = Report("Rob", "Alice")
 private val clark_reports_to_lois = Report("Clark", "Lois")
 
-private interface Counted {
+internal interface Counted {
     val count: Int
 }
 
-private interface Ordered {
+internal interface Ordered {
     val rememberOrder: Int
     val forgetOrder: Int
 }
 
-private interface Named {
+internal interface Named {
     val name: String
 }
 

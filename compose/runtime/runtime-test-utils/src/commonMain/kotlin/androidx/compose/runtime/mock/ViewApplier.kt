@@ -20,6 +20,8 @@ import androidx.compose.runtime.AbstractApplier
 
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER")
 class ViewApplier(root: View) : AbstractApplier<View>(root) {
+    var called = false
+
     var onBeginChangesCalled = 0
         private set
 
@@ -28,29 +30,53 @@ class ViewApplier(root: View) : AbstractApplier<View>(root) {
 
     override fun insertTopDown(index: Int, instance: View) {
         // Ignored as the tree is built bottom-up.
+        called = true
     }
 
     override fun insertBottomUp(index: Int, instance: View) {
         current.addAt(index, instance)
+        called = true
     }
 
     override fun remove(index: Int, count: Int) {
         current.removeAt(index, count)
+        called = true
     }
 
     override fun move(from: Int, to: Int, count: Int) {
         current.moveAt(from, to, count)
+        called = true
     }
 
     override fun onClear() {
         root.removeAllChildren()
+        called = true
     }
 
     override fun onBeginChanges() {
         onBeginChangesCalled++
+        called = true
     }
 
     override fun onEndChanges() {
         onEndChangesCalled++
+        called = true
+    }
+
+    override var current: View
+        get() = super.current.also { if (it != root) called = true }
+        set(value) {
+            super.current = value
+            called = true
+        }
+
+    override fun down(node: View) {
+        super.down(node)
+        called = true
+    }
+
+    override fun up() {
+        super.up()
+        called = true
     }
 }

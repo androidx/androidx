@@ -18,7 +18,6 @@ package androidx.compose.runtime.changelist
 
 import androidx.compose.runtime.Anchor
 import androidx.compose.runtime.Applier
-import androidx.compose.runtime.ComposeNodeLifecycleCallback
 import androidx.compose.runtime.Composition
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.ControlledComposition
@@ -168,6 +167,66 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             rememberManager: RememberManager
         ) {
             rememberManager.remembering(getObject(Value))
+        }
+    }
+
+    object RememberPausingScope : Operation(objects = 1) {
+        inline val Scope
+            get() = ObjectParameter<RecomposeScopeImpl>(0)
+
+        override fun objectParamName(parameter: ObjectParameter<*>): String =
+            when (parameter) {
+                Scope -> "scope"
+                else -> super.objectParamName(parameter)
+            }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val scope = getObject(Scope)
+            rememberManager.rememberPausingScope(scope)
+        }
+    }
+
+    object StartResumingScope : Operation(objects = 1) {
+        inline val Scope
+            get() = ObjectParameter<RecomposeScopeImpl>(0)
+
+        override fun objectParamName(parameter: ObjectParameter<*>): String =
+            when (parameter) {
+                Scope -> "scope"
+                else -> super.objectParamName(parameter)
+            }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val scope = getObject(Scope)
+            rememberManager.startResumingScope(scope)
+        }
+    }
+
+    object EndResumingScope : Operation(objects = 1) {
+        inline val Scope
+            get() = ObjectParameter<RecomposeScopeImpl>(0)
+
+        override fun objectParamName(parameter: ObjectParameter<*>): String =
+            when (parameter) {
+                Scope -> "scope"
+                else -> super.objectParamName(parameter)
+            }
+
+        override fun OperationArgContainer.execute(
+            applier: Applier<*>,
+            slots: SlotWriter,
+            rememberManager: RememberManager
+        ) {
+            val scope = getObject(Scope)
+            rememberManager.endResumingScope(scope)
         }
     }
 
@@ -467,7 +526,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
             slots: SlotWriter,
             rememberManager: RememberManager
         ) {
-            (applier.current as ComposeNodeLifecycleCallback).onReuse()
+            applier.reuse()
         }
     }
 
@@ -492,7 +551,7 @@ internal sealed class Operation(val ints: Int = 0, val objects: Int = 0) {
         ) {
             val value = getObject(Value)
             val block = getObject(Block)
-            applier.current.block(value)
+            applier.apply(block, value)
         }
     }
 
