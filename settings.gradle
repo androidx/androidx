@@ -632,6 +632,7 @@ includeProject(":core:core-graphics-integration-tests:core-graphics-integration-
 includeProject(":core:core-role", [BuildType.MAIN])
 includeProject(":core:core-telecom", [BuildType.MAIN])
 includeProject(":core:core-telecom:integration-tests:testapp", [BuildType.MAIN])
+includeProject(":core:core-telecom:integration-tests:testicsapp", [BuildType.MAIN])
 includeProject(":core:haptics:haptics", [BuildType.MAIN])
 includeProject(":core:haptics:haptics-samples", "core/haptics/haptics/samples", [BuildType.MAIN])
 includeProject(":core:haptics:haptics-demos", "core/haptics/haptics/integration-tests/demos", [BuildType.MAIN])

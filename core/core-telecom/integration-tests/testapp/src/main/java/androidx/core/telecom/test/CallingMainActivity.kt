@@ -27,6 +27,8 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.extensions.RaiseHandState
+import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -34,6 +36,9 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 @RequiresApi(34)
@@ -65,6 +70,22 @@ class CallingMainActivity : Activity() {
         mCallsManager = CallsManager(this)
         mCallCount = 0
 
+        val raiseHandCheckBox = findViewById<CheckBox>(R.id.RaiseHandCheckbox)
+        val kickParticipantCheckBox = findViewById<CheckBox>(R.id.KickPartCheckbox)
+        val participantCheckBox = findViewById<CheckBox>(R.id.ParticipantsCheckbox)
+
+        participantCheckBox.setOnCheckedChangeListener { _, isChecked ->
+            if (!isChecked) {
+                raiseHandCheckBox.isEnabled = false
+                raiseHandCheckBox.isChecked = false
+                kickParticipantCheckBox.isEnabled = false
+                kickParticipantCheckBox.isChecked = false
+            } else {
+                raiseHandCheckBox.isEnabled = true
+                kickParticipantCheckBox.isEnabled = true
+            }
+        }
+
         val registerPhoneAccountButton = findViewById<Button>(R.id.registerButton)
         registerPhoneAccountButton.setOnClickListener { mScope.launch { registerPhoneAccount() } }
 
@@ -75,12 +96,26 @@ class CallingMainActivity : Activity() {
 
         val addOutgoingCallButton = findViewById<Button>(R.id.addOutgoingCall)
         addOutgoingCallButton.setOnClickListener {
-            mScope.launch { addCallWithAttributes(Utilities.OUTGOING_CALL_ATTRIBUTES) }
+            mScope.launch {
+                addCallWithAttributes(
+                    Utilities.OUTGOING_CALL_ATTRIBUTES,
+                    participantCheckBox.isChecked,
+                    raiseHandCheckBox.isChecked,
+                    kickParticipantCheckBox.isChecked
+                )
+            }
         }
 
         val addIncomingCallButton = findViewById<Button>(R.id.addIncomingCall)
         addIncomingCallButton.setOnClickListener {
-            mScope.launch { addCallWithAttributes(Utilities.INCOMING_CALL_ATTRIBUTES) }
+            mScope.launch {
+                addCallWithAttributes(
+                    Utilities.INCOMING_CALL_ATTRIBUTES,
+                    participantCheckBox.isChecked,
+                    raiseHandCheckBox.isChecked,
+                    kickParticipantCheckBox.isChecked
+                )
+            }
         }
 
         // setup the adapters which hold the endpoint and call rows
@@ -124,7 +159,12 @@ class CallingMainActivity : Activity() {
         mCallsManager?.registerAppWithTelecom(capabilities)
     }
 
-    private suspend fun addCallWithAttributes(attributes: CallAttributesCompat) {
+    private suspend fun addCallWithAttributes(
+        attributes: CallAttributesCompat,
+        isParticipantsEnabled: Boolean,
+        isRaiseHandEnabled: Boolean,
+        isKickParticipantEnabled: Boolean
+    ) {
         Log.i(TAG, "addCallWithAttributes: attributes=$attributes")
         val callObject = VoipCall()
 
@@ -132,36 +172,17 @@ class CallingMainActivity : Activity() {
             val handler = CoroutineExceptionHandler { _, exception ->
                 Log.i(TAG, "CoroutineExceptionHandler: handling e=$exception")
             }
-
             CoroutineScope(Dispatchers.Default).launch(handler) {
                 try {
-                    attributes.preferredStartingCallEndpoint =
-                        mPreCallEndpointAdapter.mSelectedCallEndpoint
-                    mCallsManager!!.addCall(
-                        attributes,
-                        callObject.mOnAnswerLambda,
-                        callObject.mOnDisconnectLambda,
-                        callObject.mOnSetActiveLambda,
-                        callObject.mOnSetInActiveLambda,
-                    ) {
-                        mPreCallEndpointAdapter.mSelectedCallEndpoint = null
-                        // inject client control interface into the VoIP call object
-                        callObject.setCallId(getCallId().toString())
-                        callObject.setCallControl(this)
-
-                        // Collect updates
-                        launch {
-                            currentCallEndpoint.collect { callObject.onCallEndpointChanged(it) }
-                        }
-
-                        launch {
-                            availableEndpoints.collect {
-                                callObject.onAvailableCallEndpointsChanged(it)
-                            }
-                        }
-
-                        launch { isMuted.collect { callObject.onMuteStateChanged(it) } }
-                        addCallRow(callObject)
+                    if (isParticipantsEnabled) {
+                        addCallWithExtensions(
+                            attributes,
+                            callObject,
+                            isRaiseHandEnabled,
+                            isKickParticipantEnabled
+                        )
+                    } else {
+                        addCall(attributes, callObject)
                     }
                 } catch (e: Exception) {
                     logException(e, "addCallWithAttributes: catch inner")
@@ -171,6 +192,108 @@ class CallingMainActivity : Activity() {
             }
         } catch (e: Exception) {
             logException(e, "addCallWithAttributes: catch outer")
+        }
+    }
+
+    private suspend fun addCall(attributes: CallAttributesCompat, callObject: VoipCall) {
+        mCallsManager!!.addCall(
+            attributes,
+            callObject.mOnAnswerLambda,
+            callObject.mOnDisconnectLambda,
+            callObject.mOnSetActiveLambda,
+            callObject.mOnSetInActiveLambda,
+        ) {
+            mPreCallEndpointAdapter.mSelectedCallEndpoint = null
+            // inject client control interface into the VoIP call object
+            callObject.setCallId(getCallId().toString())
+            callObject.setCallControl(this)
+
+            // Collect updates
+            launch { currentCallEndpoint.collect { callObject.onCallEndpointChanged(it) } }
+
+            launch { availableEndpoints.collect { callObject.onAvailableCallEndpointsChanged(it) } }
+
+            launch { isMuted.collect { callObject.onMuteStateChanged(it) } }
+            addCallRow(callObject)
+        }
+    }
+
+    @OptIn(ExperimentalAppActions::class)
+    private suspend fun addCallWithExtensions(
+        attributes: CallAttributesCompat,
+        callObject: VoipCall,
+        isRaiseHandEnabled: Boolean = false,
+        isKickParticipantEnabled: Boolean = false
+    ) {
+        mCallsManager!!.addCallWithExtensions(
+            attributes,
+            callObject.mOnAnswerLambda,
+            callObject.mOnDisconnectLambda,
+            callObject.mOnSetActiveLambda,
+            callObject.mOnSetInActiveLambda,
+        ) {
+            val participants = ParticipantsExtensionManager()
+            val participantExtension =
+                addParticipantExtension(
+                    initialParticipants =
+                        participants.participants.value.map { it.toParticipant() }.toSet()
+                )
+            var raiseHandState: RaiseHandState? = null
+            if (isRaiseHandEnabled) {
+                raiseHandState =
+                    participantExtension.addRaiseHandSupport {
+                        participants.onRaisedHandStateChanged(it)
+                    }
+            }
+            if (isKickParticipantEnabled) {
+                participantExtension.addKickParticipantSupport {
+                    participants.onKickParticipant(it)
+                }
+            }
+            onCall {
+                mPreCallEndpointAdapter.mSelectedCallEndpoint = null
+                // inject client control interface into the VoIP call object
+                callObject.setCallId(getCallId().toString())
+                callObject.setCallControl(this)
+                callObject.setParticipantControl(
+                    ParticipantControl(
+                        onParticipantAdded = participants::addParticipant,
+                        onParticipantRemoved = participants::removeParticipant
+                    )
+                )
+                addCallRow(callObject)
+
+                // Collect updates
+                participants.participants
+                    .onEach {
+                        participantExtension.updateParticipants(
+                            it.map { p -> p.toParticipant() }.toSet()
+                        )
+                        participantExtension.updateActiveParticipant(
+                            it.firstOrNull { p -> p.isActive }?.toParticipant()
+                        )
+                        raiseHandState?.updateRaisedHands(
+                            it.filter { p -> p.isHandRaised }.map { p -> p.toParticipant() }
+                        )
+                        callObject.onParticipantsChanged(it)
+                    }
+                    .launchIn(this)
+
+                launch {
+                    while (true) {
+                        delay(1000)
+                        participants.changeParticipantStates()
+                    }
+                }
+
+                launch { currentCallEndpoint.collect { callObject.onCallEndpointChanged(it) } }
+
+                launch {
+                    availableEndpoints.collect { callObject.onAvailableCallEndpointsChanged(it) }
+                }
+
+                launch { isMuted.collect { callObject.onMuteStateChanged(it) } }
+            }
         }
     }
 

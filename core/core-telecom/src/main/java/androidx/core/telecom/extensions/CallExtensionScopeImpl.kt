@@ -40,7 +40,6 @@ import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.util.ExperimentalAppActions
 import java.util.Collections
 import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 import kotlin.math.min
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
@@ -269,7 +268,14 @@ internal class CallExtensionScopeImpl(
         try {
             when (type) {
                 CAPABILITY_EXCHANGE -> initializeExtensions(extensions)
-                else -> Log.w(TAG, "connectExtensions: unexpected type: $type")
+                else -> {
+                    Log.w(
+                        TAG,
+                        "connectExtensions: unexpected type: $type. Proceeding with " +
+                            "no extension support"
+                    )
+                    initializeExtensions(null)
+                }
             }
             invokeDelegate()
             waitForDestroy()
@@ -338,7 +344,7 @@ internal class CallExtensionScopeImpl(
      * @return the remote capabilities and Binder interface used to communicate with the remote
      */
     private suspend fun registerWithRemoteService(): CapabilityExchangeResult? =
-        suspendCoroutine { continuation ->
+        suspendCancellableCoroutine { continuation ->
             val binder =
                 object : ICapabilityExchange.Stub() {
                     override fun beginExchange(
