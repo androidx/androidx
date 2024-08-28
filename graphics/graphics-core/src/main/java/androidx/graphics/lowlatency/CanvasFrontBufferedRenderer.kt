@@ -70,12 +70,14 @@ class CanvasFrontBufferedRenderer<T>
 @JvmOverloads
 constructor(
     surfaceView: SurfaceView,
-    private val callback: Callback<T>,
+    callback: Callback<T>,
     @HardwareBufferFormat val bufferFormat: Int = HardwareBuffer.RGBA_8888
 ) {
 
     /** Target SurfaceView for rendering */
     private var mSurfaceView: SurfaceView? = null
+
+    private var mCallback: Callback<T>? = null
 
     /**
      * Executor used to deliver callbacks for rendering as well as issuing surface control
@@ -185,6 +187,7 @@ constructor(
 
     init {
         mSurfaceView = surfaceView
+        mCallback = callback
         surfaceView.holder.addCallback(mHolderCallback)
         with(surfaceView.holder) {
             if (surface != null && surface.isValid) {
@@ -253,7 +256,7 @@ constructor(
                                     }
                                     canvas.drawColor(Color.BLACK, BlendMode.CLEAR)
                                 }
-                                callback.onDrawFrontBufferedLayer(canvas, width, height, param)
+                                mCallback?.onDrawFrontBufferedLayer(canvas, width, height, param)
                             }
 
                             @SuppressLint("WrongConstant")
@@ -293,7 +296,7 @@ constructor(
                                             transformHint
                                         )
                                     }
-                                    callback.onFrontBufferedLayerRenderComplete(
+                                    mCallback?.onFrontBufferedLayerRenderComplete(
                                         frontBufferSurfaceControl,
                                         transaction
                                     )
@@ -460,7 +463,7 @@ constructor(
             if (transform != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                 transaction.setBufferTransform(parentSurfaceControl, transform)
             }
-            callback.onMultiBufferedLayerRenderComplete(
+            mCallback?.onMultiBufferedLayerRenderComplete(
                 frontBufferSurfaceControl,
                 parentSurfaceControl,
                 transaction
@@ -566,7 +569,7 @@ constructor(
                     with(multiBufferedRenderer) {
                         mMultiBufferedRenderNode?.let { renderNode ->
                             val canvas = renderNode.beginRecording()
-                            callback.onDrawMultiBufferedLayer(canvas, width, height, params)
+                            mCallback?.onDrawMultiBufferedLayer(canvas, width, height, params)
                             renderNode.endRecording()
                         }
 
@@ -671,6 +674,7 @@ constructor(
             mSurfaceView?.holder?.removeCallback(mHolderCallback)
             mSurfaceView = null
             releaseInternal(cancelPending) {
+                mCallback = null
                 onReleaseComplete?.invoke()
                 mHandlerThread.quit()
             }
