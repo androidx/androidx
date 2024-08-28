@@ -40,17 +40,19 @@ class SdkApi(private val sdkContext: Context) : ISdkApi.Stub() {
         waitInsideOnDraw: Boolean,
         drawViewability: Boolean
     ): Bundle {
-        val isMediation =
-            (mediationOption == MediationOption.SDK_RUNTIME_MEDIATEE ||
-                mediationOption == MediationOption.IN_APP_MEDIATEE)
+        val isMediation = mediationOption != MediationOption.NON_MEDIATED
         val isAppOwnedMediation = (mediationOption == MediationOption.IN_APP_MEDIATEE)
         if (isMediation) {
-            return maybeGetMediateeBannerAdBundle(
-                isAppOwnedMediation,
-                adType,
-                waitInsideOnDraw,
-                drawViewability
-            )
+            val mediateeBundle =
+                maybeGetMediateeBannerAdBundle(
+                    isAppOwnedMediation,
+                    adType,
+                    waitInsideOnDraw,
+                    drawViewability
+                )
+            return if (mediationOption == MediationOption.SDK_RUNTIME_MEDIATEE_WITH_OVERLAY) {
+                testAdapters.OverlaidAd(mediateeBundle).toCoreLibInfo(sdkContext)
+            } else mediateeBundle
         }
         val adapter: SandboxedUiAdapter =
             when (adType) {

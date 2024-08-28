@@ -26,6 +26,7 @@ android {
     defaultConfig {
         applicationId "androidx.privacysandbox.ui.integration.testsdkprovider"
         minSdk 33
+        compileSdk 35
     }
 
     buildTypes {

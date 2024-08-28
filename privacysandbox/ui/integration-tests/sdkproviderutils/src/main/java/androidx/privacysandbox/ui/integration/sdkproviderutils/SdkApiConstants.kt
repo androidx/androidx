@@ -32,7 +32,8 @@ class SdkApiConstants {
             companion object {
                 const val NON_MEDIATED = 0
                 const val SDK_RUNTIME_MEDIATEE = 1
-                const val IN_APP_MEDIATEE = 2
+                const val SDK_RUNTIME_MEDIATEE_WITH_OVERLAY = 2
+                const val IN_APP_MEDIATEE = 3
             }
         }
     }
