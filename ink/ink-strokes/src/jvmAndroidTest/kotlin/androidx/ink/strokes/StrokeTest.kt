@@ -68,7 +68,7 @@ class StrokeTest {
         // Create a [ModeledShape] with render group.
         val inputs = makeTestInputs()
         val shape = Stroke(buildTestBrush(), inputs).shape
-        assertThat(shape.renderGroupCount).isEqualTo(1)
+        assertThat(shape.getRenderGroupCount()).isEqualTo(1)
 
         // Create a brush with two brush coats.
         val coat = BrushCoat(BrushTip(), BrushPaint())

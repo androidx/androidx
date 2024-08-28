@@ -31,35 +31,35 @@ import org.junit.runners.JUnit4
 class PartitionedMeshTest {
 
     @Test
-    fun bounds_shouldBeEmpty() {
+    fun computeBoundingBox_shouldBeEmpty() {
         val partitionedMesh = PartitionedMesh()
 
-        assertThat(partitionedMesh.bounds).isNull()
+        assertThat(partitionedMesh.computeBoundingBox()).isNull()
     }
 
     @Test
-    fun renderGroupCount_whenEmptyShape_shouldBeZero() {
+    fun getRenderGroupCount_whenEmptyShape_shouldBeZero() {
         val partitionedMesh = PartitionedMesh()
 
-        assertThat(partitionedMesh.renderGroupCount).isEqualTo(0)
+        assertThat(partitionedMesh.getRenderGroupCount()).isEqualTo(0)
     }
 
     @Test
-    fun outlineCount_whenEmptyShape_shouldThrow() {
+    fun getOutlineCount_whenEmptyShape_shouldThrow() {
         val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(-1) }
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(0) }
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineCount(1) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(-1) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineCount(1) }
     }
 
     @Test
-    fun outlineVertexCount_whenEmptyShape_shouldThrow() {
+    fun getOutlineVertexCount_whenEmptyShape_shouldThrow() {
         val partitionedMesh = PartitionedMesh()
 
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(-1, 0) }
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(0, 0) }
-        assertFailsWith<IllegalArgumentException> { partitionedMesh.outlineVertexCount(1, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(-1, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(0, 0) }
+        assertFailsWith<IllegalArgumentException> { partitionedMesh.getOutlineVertexCount(1, 0) }
     }
 
     @Test
@@ -92,14 +92,14 @@ class PartitionedMeshTest {
     fun populateOutlinePosition_withStrokeShape_shouldBeWithinBounds() {
         val shape = buildTestStrokeShape()
 
-        assertThat(shape.renderGroupCount).isEqualTo(1)
-        assertThat(shape.outlineCount(0)).isEqualTo(1)
-        assertThat(shape.outlineVertexCount(0, 0)).isGreaterThan(2)
+        assertThat(shape.getRenderGroupCount()).isEqualTo(1)
+        assertThat(shape.getOutlineCount(0)).isEqualTo(1)
+        assertThat(shape.getOutlineVertexCount(0, 0)).isGreaterThan(2)
 
-        val bounds = assertNotNull(shape.bounds)
+        val bounds = assertNotNull(shape.computeBoundingBox())
 
         val p = MutableVec()
-        for (outlineVertexIndex in 0 until shape.outlineVertexCount(0, 0)) {
+        for (outlineVertexIndex in 0 until shape.getOutlineVertexCount(0, 0)) {
             shape.populateOutlinePosition(groupIndex = 0, outlineIndex = 0, outlineVertexIndex, p)
             assertThat(p.x).isAtLeast(bounds.xMin)
             assertThat(p.y).isAtLeast(bounds.yMin)
@@ -124,7 +124,7 @@ class PartitionedMeshTest {
     @Test
     fun meshFormat_forTestShape_isEquivalentToMeshFormatOfFirstMesh() {
         val partitionedMesh = buildTestStrokeShape()
-        assertThat(partitionedMesh.renderGroupCount).isEqualTo(1)
+        assertThat(partitionedMesh.getRenderGroupCount()).isEqualTo(1)
         val shapeFormat = partitionedMesh.renderGroupFormat(0)
         val meshes = partitionedMesh.renderGroupMeshes(0)
         assertThat(meshes).isNotEmpty()
@@ -152,9 +152,9 @@ class PartitionedMeshTest {
                 p2 = ImmutableVec(100f, 700f),
             )
 
-        assertThat(partitionedMesh.coverage(intersectingTriangle)).isGreaterThan(0f)
-        assertThat(partitionedMesh.coverage(externalTriangle)).isEqualTo(0f)
-        assertThat(partitionedMesh.coverage(externalTriangle, SCALE_TRANSFORM)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(intersectingTriangle)).isGreaterThan(0f)
+        assertThat(partitionedMesh.computeCoverage(externalTriangle)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(externalTriangle, SCALE_TRANSFORM)).isEqualTo(0f)
     }
 
     /**
@@ -169,9 +169,9 @@ class PartitionedMeshTest {
         val externalBox =
             ImmutableBox.fromTwoPoints(ImmutableVec(100f, 200f), ImmutableVec(300f, 400f))
 
-        assertThat(partitionedMesh.coverage(intersectingBox)).isGreaterThan(0f)
-        assertThat(partitionedMesh.coverage(externalBox)).isEqualTo(0f)
-        assertThat(partitionedMesh.coverage(externalBox, SCALE_TRANSFORM)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(intersectingBox)).isGreaterThan(0f)
+        assertThat(partitionedMesh.computeCoverage(externalBox)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(externalBox, SCALE_TRANSFORM)).isEqualTo(0f)
     }
 
     /**
@@ -196,9 +196,10 @@ class PartitionedMeshTest {
                 shearFactor = 2f,
             )
 
-        assertThat(partitionedMesh.coverage(intersectingParallelogram)).isGreaterThan(0f)
-        assertThat(partitionedMesh.coverage(externalParallelogram)).isEqualTo(0f)
-        assertThat(partitionedMesh.coverage(externalParallelogram, SCALE_TRANSFORM)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(intersectingParallelogram)).isGreaterThan(0f)
+        assertThat(partitionedMesh.computeCoverage(externalParallelogram)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(externalParallelogram, SCALE_TRANSFORM))
+            .isEqualTo(0f)
     }
 
     /**
@@ -221,9 +222,9 @@ class PartitionedMeshTest {
                 )
                 .shape
 
-        assertThat(partitionedMesh.coverage(intersectingShape)).isGreaterThan(0f)
-        assertThat(partitionedMesh.coverage(externalShape)).isEqualTo(0f)
-        assertThat(partitionedMesh.coverage(externalShape, SCALE_TRANSFORM)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(intersectingShape)).isGreaterThan(0f)
+        assertThat(partitionedMesh.computeCoverage(externalShape)).isEqualTo(0f)
+        assertThat(partitionedMesh.computeCoverage(externalShape, SCALE_TRANSFORM)).isEqualTo(0f)
     }
 
     /**
@@ -246,9 +247,11 @@ class PartitionedMeshTest {
                 p2 = ImmutableVec(100f, 700f),
             )
 
-        assertThat(partitionedMesh.coverageIsGreaterThan(intersectingTriangle, 0f)).isTrue()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalTriangle, 0f)).isFalse()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalTriangle, 0f, SCALE_TRANSFORM))
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(intersectingTriangle, 0f)).isTrue()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalTriangle, 0f)).isFalse()
+        assertThat(
+                partitionedMesh.computeCoverageIsGreaterThan(externalTriangle, 0f, SCALE_TRANSFORM)
+            )
             .isFalse()
     }
 
@@ -270,9 +273,9 @@ class PartitionedMeshTest {
         val externalBox =
             ImmutableBox.fromTwoPoints(ImmutableVec(100f, 200f), ImmutableVec(300f, 400f))
 
-        assertThat(partitionedMesh.coverageIsGreaterThan(intersectingBox, 0f)).isTrue()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalBox, 0f)).isFalse()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalBox, 0f, SCALE_TRANSFORM))
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(intersectingBox, 0f)).isTrue()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalBox, 0f)).isFalse()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalBox, 0f, SCALE_TRANSFORM))
             .isFalse()
     }
 
@@ -298,10 +301,16 @@ class PartitionedMeshTest {
                 shearFactor = 2f,
             )
 
-        assertThat(partitionedMesh.coverageIsGreaterThan(intersectingParallelogram, 0f)).isTrue()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalParallelogram, 0f)).isFalse()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(intersectingParallelogram, 0f))
+            .isTrue()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalParallelogram, 0f))
+            .isFalse()
         assertThat(
-                partitionedMesh.coverageIsGreaterThan(externalParallelogram, 0f, SCALE_TRANSFORM)
+                partitionedMesh.computeCoverageIsGreaterThan(
+                    externalParallelogram,
+                    0f,
+                    SCALE_TRANSFORM
+                )
             )
             .isFalse()
     }
@@ -333,9 +342,9 @@ class PartitionedMeshTest {
                 )
                 .shape
 
-        assertThat(partitionedMesh.coverageIsGreaterThan(intersectingShape, 0f)).isTrue()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalShape, 0f)).isFalse()
-        assertThat(partitionedMesh.coverageIsGreaterThan(externalShape, 0f, SCALE_TRANSFORM))
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(intersectingShape, 0f)).isTrue()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalShape, 0f)).isFalse()
+        assertThat(partitionedMesh.computeCoverageIsGreaterThan(externalShape, 0f, SCALE_TRANSFORM))
             .isFalse()
     }
 
@@ -360,7 +369,7 @@ class PartitionedMeshTest {
             )
         assertThat(partitionedMesh.isSpatialIndexInitialized()).isFalse()
 
-        assertThat(partitionedMesh.coverage(triangle)).isNotNaN()
+        assertThat(partitionedMesh.computeCoverage(triangle)).isNotNaN()
 
         assertThat(partitionedMesh.isSpatialIndexInitialized()).isTrue()
     }
