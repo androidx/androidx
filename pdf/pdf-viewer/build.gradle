@@ -21,7 +21,6 @@ plugins {
     id("com.android.library")
     id("androidx.stableaidl")
     id("kotlin-android")
-    id ("kotlin-parcelize")
 }
 
 dependencies {

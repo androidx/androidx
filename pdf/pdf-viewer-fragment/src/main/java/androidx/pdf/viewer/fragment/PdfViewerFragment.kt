@@ -494,11 +494,8 @@ public open class PdfViewerFragment : Fragment() {
         savedState?.let { state ->
             if (isFileRestoring) {
                 state.containsKey(KEY_LAYOUT_REACH).let {
-                    val layoutReach = state.getInt(KEY_LAYOUT_REACH, -1)
-                    if (layoutReach != -1) {
-                        layoutHandler?.pageLayoutReach = layoutReach
-                        layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
-                    }
+                    val layoutReach = state.getInt(KEY_LAYOUT_REACH)
+                    layoutHandler?.setInitialPageLayoutReachWithMax(layoutReach)
                 }
 
                 // Restore page selection from saved state if it exists
@@ -584,7 +581,6 @@ public open class PdfViewerFragment : Fragment() {
         pdfLoaderCallbacks?.pdfLoader = pdfLoader
 
         layoutHandler = LayoutHandler(pdfLoader)
-        paginatedView?.model?.size?.let { layoutHandler!!.pageLayoutReach = it }
 
         val updatedSelectionModel = PdfSelectionModel(pdfLoader)
         updateSelectionModel(updatedSelectionModel)
@@ -658,7 +654,9 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     private fun destroyContentModel() {
+
         pdfLoader?.cancelAll()
+
         paginationModel = null
 
         selectionHandles?.destroy()

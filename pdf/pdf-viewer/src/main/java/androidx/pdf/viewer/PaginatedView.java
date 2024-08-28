@@ -18,8 +18,6 @@ package androidx.pdf.viewer;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
@@ -29,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
-import androidx.core.os.ParcelCompat;
 import androidx.pdf.ViewState;
 import androidx.pdf.data.Range;
 import androidx.pdf.util.PaginationUtils;
@@ -169,22 +166,6 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
         for (int i = 0; i < count; i++) {
             layoutChild(i);
         }
-    }
-
-    @Nullable
-    @Override
-    protected Parcelable onSaveInstanceState() {
-        Parcelable superState = super.onSaveInstanceState();
-        return new SavedState(superState, mModel);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Parcelable state) {
-        SavedState savedState = (SavedState) state;
-        super.onRestoreInstanceState(((SavedState) state).getSuperState());
-        mModel = savedState.mModel;
-        mPageRangeHandler = new PageRangeHandler(mModel);
-        requestLayout();
     }
 
     /**
@@ -540,25 +521,5 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     public boolean isConfigurationChanged() {
         return mIsConfigurationChanged;
-    }
-
-    static class SavedState extends View.BaseSavedState {
-        final PaginationModel mModel;
-
-        SavedState(Parcelable superState, PaginationModel model) {
-            super(superState);
-            mModel = model;
-        }
-
-        SavedState(Parcel source, ClassLoader loader) {
-            super(source);
-            mModel = ParcelCompat.readParcelable(source, loader, PaginationModel.class);
-        }
-
-        @Override
-        public void writeToParcel(Parcel out, int flags) {
-            super.writeToParcel(out, flags);
-            out.writeParcelable(mModel, flags);
-        }
     }
 }
