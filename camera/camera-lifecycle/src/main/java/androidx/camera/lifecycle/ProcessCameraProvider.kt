@@ -114,9 +114,8 @@ private constructor(private val lifecycleCameraProvider: LifecycleCameraProvider
         return lifecycleCameraProvider.getCameraInfo(cameraSelector)
     }
 
-    // TODO: Remove the annotation when LifecycleCameraProvider is ready to be public.
     @VisibleForTesting
-    override fun shutdownAsync(): ListenableFuture<Void> {
+    public fun shutdownAsync(): ListenableFuture<Void> {
         return lifecycleCameraProvider.shutdownAsync()
     }
 

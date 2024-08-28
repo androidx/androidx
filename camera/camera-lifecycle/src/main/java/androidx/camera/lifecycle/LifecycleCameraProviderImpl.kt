@@ -143,7 +143,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
             }
         }
 
-    override fun shutdownAsync(): ListenableFuture<Void> {
+    internal fun shutdownAsync(): ListenableFuture<Void> {
         Threads.runOnMainSync {
             unbindAll()
             lifecycleCameraRepository.clear()
