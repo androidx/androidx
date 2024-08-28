@@ -290,7 +290,7 @@ public sealed class DoubleList(initialCapacity: Int) {
      */
     public operator fun get(@IntRange(from = 0) index: Int): Double {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         return content[index]
     }
@@ -301,7 +301,7 @@ public sealed class DoubleList(initialCapacity: Int) {
      */
     public fun elementAt(@IntRange(from = 0) index: Int): Double {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         return content[index]
     }
@@ -576,7 +576,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
      */
     public fun add(@IntRange(from = 0) index: Int, element: Double) {
         if (index !in 0.._size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         ensureCapacity(_size + 1)
         val content = content
@@ -777,7 +777,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
      */
     public fun removeAt(@IntRange(from = 0) index: Int): Double {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         val content = content
         val item = content[index]
@@ -801,10 +801,10 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
      */
     public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
         if (start !in 0.._size || end !in 0.._size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         if (end < start) {
-            throwIllegalArgumentException("")
+            throwIllegalArgumentException("The end index must be < start index")
         }
         if (end != start) {
             if (end < _size) {
@@ -861,7 +861,7 @@ public class MutableDoubleList(initialCapacity: Int = 16) : DoubleList(initialCa
      */
     public operator fun set(@IntRange(from = 0) index: Int, element: Double): Double {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         val content = content
         val old = content[index]
