@@ -70,7 +70,7 @@ internal class LifecycleCameraProviderImpl : LifecycleCameraProvider {
     @GuardedBy("mLock") private var cameraXConfigProvider: CameraXConfig.Provider? = null
     @GuardedBy("mLock") private var cameraXInitializeFuture: ListenableFuture<Void>? = null
     @GuardedBy("mLock") private var cameraXShutdownFuture = Futures.immediateFuture<Void>(null)
-    private val lifecycleCameraRepository = LifecycleCameraRepository()
+    private val lifecycleCameraRepository = LifecycleCameraRepository.getInstance()
     private var cameraX: CameraX? = null
     private var context: Context? = null
     @GuardedBy("mLock")
