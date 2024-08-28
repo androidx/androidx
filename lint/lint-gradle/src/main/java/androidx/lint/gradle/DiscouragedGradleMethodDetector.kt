@@ -142,6 +142,8 @@ class DiscouragedGradleMethodDetector : Detector(), Detector.UastScanner {
                 "findByPath" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
                 "findProperty" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
+                "hasProperty" to
+                    Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "property" to
                     Replacement(PROJECT, "providers.gradleProperty", PROJECT_ISOLATION_ISSUE),
                 "iterator" to Replacement(TASK_CONTAINER, null, EAGER_CONFIGURATION_ISSUE),
