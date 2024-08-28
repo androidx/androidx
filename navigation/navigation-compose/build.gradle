@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -68,6 +70,7 @@ androidx {
     legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

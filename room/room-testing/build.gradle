@@ -22,6 +22,8 @@
  * modifying its settings.
  */
 
+
+import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.LibraryType
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -97,4 +99,5 @@ androidx {
     description = "Android Room Testing"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

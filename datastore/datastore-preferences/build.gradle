@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 
@@ -98,4 +100,5 @@ androidx {
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
     legacyDisableKotlinStrictApiMode = true
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

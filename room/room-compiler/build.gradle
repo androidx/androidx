@@ -23,6 +23,7 @@
  */
 
 import androidx.build.BuildOnServerKt
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -240,4 +241,5 @@ androidx {
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

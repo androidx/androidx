@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -45,6 +47,7 @@ androidx {
     mavenVersion = LibraryVersions.COMPOSE
     inceptionYear = "2024"
     description = "Samples for Compose Material integration with Navigation"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
 android {

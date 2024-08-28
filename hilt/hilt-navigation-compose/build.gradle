@@ -21,6 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
+
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 
 plugins {
@@ -78,4 +80,5 @@ androidx {
     description = "Navigation Compose Hilt Integration"
     legacyDisableKotlinStrictApiMode = true
     samples(projectOrArtifact(":hilt:hilt-navigation-compose-samples"))
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

@@ -21,7 +21,8 @@
  * Please use that script when creating a new project, rather than copying an existing project and
  * modifying its settings.
  */
-import androidx.build.*
+import androidx.build.KotlinTarget
+import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
@@ -85,4 +86,5 @@ androidx {
     type = LibraryType.GRADLE_PLUGIN
     inceptionYear = "2022"
     description = "Stable AIDL Gradle Plugin"
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
