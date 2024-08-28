@@ -259,9 +259,7 @@ public class PdfLoaderCallbacksImpl(
 
     override fun setPageDimensions(pageNum: Int, dimensions: Dimensions) {
         if (viewState.get() != ViewState.NO_VIEW) {
-
             paginatedView.model.addPage(pageNum, dimensions)
-
             layoutHandler!!.pageLayoutReach = paginatedView.model.size
 
             if (
