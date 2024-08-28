@@ -66,6 +66,7 @@ import androidx.pdf.widget.FastScrollView
 import androidx.pdf.widget.ZoomView
 import androidx.pdf.widget.ZoomView.ZoomScroll
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import java.io.IOException
 import kotlinx.coroutines.launch
 
 /**
@@ -298,7 +299,7 @@ public open class PdfViewerFragment : Fragment() {
                         }
                     }
                 },
-                onDocumentLoadFailure = { thrown -> onLoadDocumentError(thrown) }
+                onDocumentLoadFailure = { thrown -> showLoadingErrorView(thrown) }
             )
 
         setUpEditFab()
@@ -630,7 +631,7 @@ public open class PdfViewerFragment : Fragment() {
                 // app that owns it has been killed by the system. We will still recover,
                 // but log this.
                 viewState.set(ViewState.ERROR)
-                onLoadDocumentError(e)
+                showLoadingErrorView(e)
             }
         }
     }
@@ -737,6 +738,13 @@ public open class PdfViewerFragment : Fragment() {
         )
     }
 
+    private fun showLoadingErrorView(error: Throwable) {
+        context?.resources?.getString(R.string.error_cannot_open_pdf)?.let {
+            loadingView?.showErrorView(it)
+        }
+        onLoadDocumentError(error)
+    }
+
     private fun loadFile(fileUri: Uri) {
         Preconditions.checkNotNull(fileUri)
         Preconditions.checkArgument(
@@ -759,8 +767,13 @@ public open class PdfViewerFragment : Fragment() {
         try {
             validateFileUri(fileUri)
             fetchFile(fileUri)
-        } catch (e: SecurityException) {
-            onLoadDocumentError(e)
+        } catch (error: Exception) {
+            when (error) {
+                is IOException,
+                is SecurityException,
+                is NullPointerException -> showLoadingErrorView(error)
+                else -> throw error
+            }
         }
         if (localUri != null && localUri != fileUri) {
             annotationButton?.hide()
@@ -787,7 +800,7 @@ public open class PdfViewerFragment : Fragment() {
                 }
 
                 override fun failed(thrown: Throwable) {
-                    onLoadDocumentError(thrown)
+                    showLoadingErrorView(thrown)
                 }
 
                 override fun progress(progress: Float) {}
