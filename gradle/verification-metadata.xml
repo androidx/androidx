@@ -121,6 +121,7 @@
          <trusted-key id="1F47744C9B6E14F2049C2857F1F111AF65925306" group="io.github.classgraph"/>
          <trusted-key id="1FA37FBE4453C1073E7EF61D6449005F96BC97A3" group="de.undercouch"/>
          <trusted-key id="20723A6399BC060154283B37CFAE163B64AC9189" group="org.jetbrains.skiko"/>
+         <trusted-key id="217BFC8CA98788CB33198A8E7FAC222BF1FC0C12" group="net.thauvin.erik.urlencoder"/>
          <trusted-key id="22B79F456B06F4E75B8B579DB57BD58EF6D0A713" group="com.google.protobuf"/>
          <trusted-key id="24D04176586361FDA94EE0315F7786DF73E61F56" group="com.google.devtools.ksp"/>
          <trusted-key id="26063B04869F7D235CCC057447586A1B75EF0DE5" group="com.squareup.wire"/>
@@ -310,6 +311,7 @@
          <trusted-key id="7FE5E98DF3A5C0DC34663AB7C1ADD37CA0069309" group="org.spdx" name="spdx-gradle-plugin"/>
          <trusted-key id="808D78B17A5A2D7C3668E31FBFFC9B54721244AD" group="org.apache.commons"/>
          <trusted-key id="80F6D6B0D90C6747753344CAB5A9E81B565E89E0" group="org.tomlj"/>
+         <trusted-key id="8247F88933C2D56F830AF73436AB7ACFFF2027B1" group="it.krzeminski"/>
          <trusted-key id="8254180BFC943B816E0B5E2E5E2F2B3D474EFE6B" group="it.unimi.dsi"/>
          <trusted-key id="82C9EC0E52C47A936A849E0113D979595E6D01E1" group="org.apache.maven.shared" name="maven-shared-utils"/>
          <trusted-key id="82F833963889D7ED06F1E4DC6525FD70CC303655" group="org.codehaus.mojo"/>
