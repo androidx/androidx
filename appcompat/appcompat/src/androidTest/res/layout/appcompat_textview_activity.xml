@@ -387,6 +387,14 @@
             app:fontVariationSettings="'wght' 200"/>
 
         <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/textview_fontVariation_textView_2"
+            android:text="B"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/variable_font"
+            app:fontVariationSettings="'wght' 200"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/textview_fontVariation_textAppearance"
             android:text="A"
             android:layout_width="match_parent"
