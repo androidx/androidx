@@ -19,6 +19,7 @@
     <application>
         <activity
             android:name="androidx.pdf.TestActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:theme="@style/Theme.Material3.DynamicColors.DayNight"/>
     </application>
 </manifest>

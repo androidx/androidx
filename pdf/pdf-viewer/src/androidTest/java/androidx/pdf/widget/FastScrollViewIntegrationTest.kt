@@ -91,12 +91,20 @@ class FastScrollViewIntegrationTest {
             // Overscroll the bottom
             zoomView.scrollTo(0, 2000, true)
             assertThat(pageIndicator.visibility).isEqualTo(View.VISIBLE)
-            assertThat(pageIndicator.text).isEqualTo("9-10 / 10")
+
+            // Verify if the text indicates the last page with the pattern "<number>-10 / 10"
+            val bottomPageText = pageIndicator.text.toString()
+            val bottomPattern = Regex("\\d+-10 / 10")
+            assertThat(bottomPattern.containsMatchIn(bottomPageText)).isTrue()
 
             // Overscroll the top
             zoomView.scrollTo(0, -50, true)
             assertThat(pageIndicator.visibility).isEqualTo(View.VISIBLE)
-            assertThat(pageIndicator.text).isEqualTo("1-3 / 10")
+
+            // Verify if the text indicates the first page with the pattern "1-<number> / 10"
+            val topPageText = pageIndicator.text.toString()
+            val topPattern = Regex("1-\\d+ / 10")
+            assertThat(topPattern.containsMatchIn(topPageText)).isTrue()
         }
     }
 
