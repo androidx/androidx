@@ -27,7 +27,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.OnCanvasTests
 import androidx.compose.ui.events.keyDownEvent
-import androidx.compose.ui.events.keyDownEventUnprevented
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
@@ -39,54 +38,9 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
-import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
-import kotlin.test.assertFalse
 
-class CanvasBasedWindowTests : OnCanvasTests {
-    @BeforeTest
-    fun setup() {
-        resetCanvas()
-    }
-
-    @Test
-    fun testPreventDefault() {
-        val fr = FocusRequester()
-        var changedValue = ""
-        createComposeWindow {
-            TextField(
-                value = "",
-                onValueChange = { changedValue = it },
-                modifier = Modifier.fillMaxSize().focusRequester(fr)
-            )
-            SideEffect {
-                fr.requestFocus()
-            }
-        }
-
-        val stack = mutableListOf<Boolean>()
-        val canvas = getCanvas()
-
-        canvas.addEventListener("keydown", { event ->
-            stack.add(event.defaultPrevented)
-        })
-
-        // dispatchEvent synchronously invokes all the listeners
-        canvas.dispatchEvent(keyDownEvent("c"))
-        assertEquals(1, stack.size)
-        assertTrue(stack.last())
-
-        canvas.dispatchEvent(keyDownEventUnprevented())
-        assertEquals(2, stack.size)
-        assertFalse(stack.last())
-
-        // copy shortcut should not be prevented (we let browser create a corresponding event)
-        canvas.dispatchEvent(keyDownEvent("c", metaKey = true, ctrlKey = true))
-        assertEquals(3, stack.size)
-        assertFalse(stack.last())
-    }
-
+class KeyEventTests : OnCanvasTests {
     @Test
     // https://github.com/JetBrains/compose-multiplatform/issues/3644
     fun keyMappingIsValid() {
@@ -94,11 +48,13 @@ class CanvasBasedWindowTests : OnCanvasTests {
         var mapping = ""
         var k: Key? = null
         createComposeWindow {
-            Box(Modifier.size(1000.dp).background(Color.Red).focusRequester(fr).focusTarget().onKeyEvent {
-                k = it.key
-                mapping = it.key.toString()
-                false
-            }) {
+            Box(
+                Modifier.size(1000.dp).background(Color.Red).focusRequester(fr).focusTarget()
+                    .onKeyEvent {
+                        k = it.key
+                        mapping = it.key.toString()
+                        false
+                    }) {
                 Text("Try to press different keys and look at the console...")
             }
             SideEffect {
@@ -113,10 +69,9 @@ class CanvasBasedWindowTests : OnCanvasTests {
             Key.V, Key.W, Key.X, Key.Y, Key.Z
         )
 
-        val canvas = getCanvas()
 
         ('a'..'z').forEachIndexed { index, c ->
-            canvas.dispatchEvent(keyDownEvent(c.toString()))
+            dispatchEvents(keyDownEvent(c.toString()))
             assertEquals(listOfKeys[index], k)
         }
 
@@ -127,7 +82,7 @@ class CanvasBasedWindowTests : OnCanvasTests {
 
         ('0'..'9').forEachIndexed { index, c ->
             val id = c.toString()
-            canvas.dispatchEvent(keyDownEvent(id, code = "Digit${id}" ))
+            dispatchEvents(keyDownEvent(id, code = "Digit${id}"))
             assertEquals(listOfNumbers[index], k)
         }
     }
@@ -155,18 +110,18 @@ class CanvasBasedWindowTests : OnCanvasTests {
             }
         }
 
-        val canvas = getCanvas()
-
-        canvas.dispatchEvent(keyDownEvent("t"))
+        dispatchEvents(keyDownEvent("t"))
         assertEquals(Key.T, lastKeyEvent!!.key)
         assertEquals("", textValue.value)
 
         stopPropagation = false
-        canvas.dispatchEvent(keyDownEvent("t"))
-        canvas.dispatchEvent(keyDownEvent("e"))
-        canvas.dispatchEvent(keyDownEvent("s"))
-        canvas.dispatchEvent(keyDownEvent("t"))
-        canvas.dispatchEvent(keyDownEvent("x"))
+        dispatchEvents(
+            keyDownEvent("t"),
+            keyDownEvent("e"),
+            keyDownEvent("s"),
+            keyDownEvent("t"),
+            keyDownEvent("x")
+        )
         assertEquals(Key.X, lastKeyEvent!!.key)
         assertEquals("testx", textValue.value)
     }

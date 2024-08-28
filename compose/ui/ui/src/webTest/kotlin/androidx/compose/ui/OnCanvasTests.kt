@@ -25,6 +25,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLCanvasElement
+import org.w3c.dom.events.Event
 
 /**
  * An interface with helper functions to initialise the tests
@@ -35,7 +36,7 @@ private const val canvasId: String = "canvasApp"
 internal interface OnCanvasTests {
     fun getCanvas() = document.getElementById(canvasId) as HTMLCanvasElement
 
-    fun resetCanvas(): HTMLCanvasElement {
+    private fun resetCanvas() {
         /** TODO: [kotlin.test.AfterTest] is fixed only in kotlin 2.0
         see https://youtrack.jetbrains.com/issue/KT-61888
          */
@@ -46,11 +47,18 @@ internal interface OnCanvasTests {
         canvas.setAttribute("tabindex", "0")
 
         document.body!!.appendChild(canvas)
-        return canvas
     }
 
     fun createComposeWindow(content: @Composable () -> Unit) {
+        resetCanvas()
         CanvasBasedWindow(canvasElementId = canvasId, content = content)
+    }
+
+    fun dispatchEvents(vararg events: Any) {
+        val canvas = getCanvas()
+        for (event in events) {
+            canvas.dispatchEvent(event as Event)
+        }
     }
 }
 

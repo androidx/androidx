@@ -23,17 +23,11 @@ import androidx.compose.ui.layout.FirstBaseline
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import kotlin.math.abs
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 
 class TextTests : OnCanvasTests {
-
-    @BeforeTest
-    fun setup() {
-        resetCanvas()
-    }
 
     companion object {
         private fun assertApproximatelyEqual(
