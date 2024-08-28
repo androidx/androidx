@@ -18,7 +18,6 @@ package androidx.camera.core
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.lifecycle.LifecycleOwner
-import com.google.common.util.concurrent.ListenableFuture
 
 /**
  * A [CameraProvider] provides basic access to a set of cameras such as querying for camera
@@ -92,12 +91,4 @@ public interface CameraProvider {
     public fun getCameraInfo(cameraSelector: CameraSelector): CameraInfo {
         throw UnsupportedOperationException("The camera provider is not implemented properly.")
     }
-
-    /**
-     * Shuts down the camera provider.
-     *
-     * @return A [ListenableFuture] representing the shutdown status. Cancellation of this future is
-     *   a no-op.
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP) public fun shutdownAsync(): ListenableFuture<Void>
 }
