@@ -100,5 +100,4 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2024"
     description = "Define brushes for freehand input."
-    metalavaK2UastEnabled = false
 }
