@@ -21,8 +21,8 @@ import android.os.CancellationSignal
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.credentials.ClearCredentialRequestTypes
 import androidx.credentials.ClearCredentialStateRequest
+import androidx.credentials.ClearCredentialStateRequest.Companion.TYPE_CLEAR_RESTORE_CREDENTIAL
 import androidx.credentials.CreateCredentialRequest
 import androidx.credentials.CreateCredentialResponse
 import androidx.credentials.CreatePasswordRequest
@@ -202,7 +202,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         if (cancellationReviewer(cancellationSignal)) {
             return
         }
-        if (request.requestType == ClearCredentialRequestTypes.CLEAR_RESTORE_CREDENTIAL) {
+        if (request.requestType == TYPE_CLEAR_RESTORE_CREDENTIAL) {
             if (!isAvailableOnDevice(MIN_GMS_APK_VERSION_RESTORE_CRED)) {
                 cancellationReviewerWithCallback(cancellationSignal) {
                     executor.execute {
