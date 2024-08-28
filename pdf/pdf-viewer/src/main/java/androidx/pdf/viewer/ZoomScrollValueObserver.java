@@ -73,15 +73,22 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
                 || position == null || mPaginatedView.getPaginationModel().getSize() == 0) {
             return;
         }
-        // Stop showing context menu if there is any change in zoom or scroll, resume only when
-        // the new position is stable
-        mSelectionActionMode.stopActionMode();
+
         mZoomView.loadPageAssets(mLayoutHandler, mViewState);
 
         if (oldPosition.scrollY > position.scrollY) {
             mIsPageScrollingUp = true;
         } else if (oldPosition.scrollY < position.scrollY) {
             mIsPageScrollingUp = false;
+        }
+
+        // Stop showing context menu if there is any change in zoom or scroll, resume only when
+        // the new position is stable
+        if (mPaginatedView.getSelectionModel().selection().get() != null) {
+            mSelectionActionMode.stopActionMode();
+            if (position.stable) {
+                setUpContextMenu();
+            }
         }
 
         if (mIsAnnotationIntentResolvable && !mPaginatedView.isConfigurationChanged()) {
@@ -115,10 +122,6 @@ public class ZoomScrollValueObserver implements ObservableValue.ValueObserver<Zo
         } else if (mPaginatedView.isConfigurationChanged()
                 && position.scrollY != oldPosition.scrollY) {
             mPaginatedView.setConfigurationChanged(false);
-        }
-
-        if (mPaginatedView.getSelectionModel().selection().get() != null && position.stable) {
-            setUpContextMenu();
         }
     }
 
