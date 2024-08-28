@@ -159,7 +159,7 @@ public class WriterBase implements AutoCloseable {
      *
      * @throws IllegalStateException if called more than once.
      */
-    public void start() {
+    void start() {
         checkStarted(false);
         mStarted = true;
         mEncoder.start();
@@ -176,7 +176,7 @@ public class WriterBase implements AutoCloseable {
      *
      * @throws IllegalStateException if not started or not configured to use buffer input.
      */
-    public void addYuvBuffer(int format, @NonNull byte[] data) {
+    void addYuvBuffer(int format, @NonNull byte[] data) {
         checkStartedAndMode(INPUT_MODE_BUFFER);
         synchronized (this) {
             if (mEncoder != null) {
@@ -192,7 +192,7 @@ public class WriterBase implements AutoCloseable {
      *
      * @throws IllegalStateException if called after start or not configured to use surface input.
      */
-    public @NonNull Surface getInputSurface() {
+    @NonNull Surface getInputSurface() {
         checkStarted(false);
         checkMode(INPUT_MODE_SURFACE);
         return mEncoder.getInputSurface();
@@ -212,7 +212,7 @@ public class WriterBase implements AutoCloseable {
      *
      * @throws IllegalStateException if not started or not configured to use surface input.
      */
-    public void setInputEndOfStreamTimestamp(@IntRange(from = 0) long timestampNs) {
+    void setInputEndOfStreamTimestamp(@IntRange(from = 0) long timestampNs) {
         checkStartedAndMode(INPUT_MODE_SURFACE);
         synchronized (this) {
             if (mEncoder != null) {
@@ -227,7 +227,7 @@ public class WriterBase implements AutoCloseable {
      * @param bitmap the bitmap to be added to the file.
      * @throws IllegalStateException if not started or not configured to use bitmap input.
      */
-    public void addBitmap(@NonNull Bitmap bitmap) {
+    void addBitmap(@NonNull Bitmap bitmap) {
         checkStartedAndMode(INPUT_MODE_BITMAP);
         synchronized (this) {
             if (mEncoder != null) {
@@ -246,7 +246,7 @@ public class WriterBase implements AutoCloseable {
      * @param offset offset of the Exif data block within exifData.
      * @param length length of the Exif data block.
      */
-    public void addExifData(int imageIndex, @NonNull byte[] exifData, int offset, int length) {
+    void addExifData(int imageIndex, @NonNull byte[] exifData, int offset, int length) {
         checkStarted(true);
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(length);
@@ -298,7 +298,7 @@ public class WriterBase implements AutoCloseable {
      *                   particular, {@link TimeoutException} is thrown when timed out, and {@link
      *                   MediaCodec.CodecException} is thrown when encountered codec error.
      */
-    public void stop(@IntRange(from = 0) long timeoutMs) throws Exception {
+    void stop(@IntRange(from = 0) long timeoutMs) throws Exception {
         checkStarted(true);
         synchronized (this) {
             if (mEncoder != null) {
