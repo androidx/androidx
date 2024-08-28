@@ -326,7 +326,8 @@ object ConfirmationDefaults {
      */
     @OptIn(ExperimentalAnimationGraphicsApi::class)
     val SuccessIcon: @Composable BoxScope.() -> Unit = {
-        val animation = AnimatedImageVector.animatedVectorResource(R.drawable.check_animation)
+        val animation =
+            AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_check_animation)
         var atEnd by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             delay(FailureIconDelay)
@@ -345,7 +346,8 @@ object ConfirmationDefaults {
      */
     @OptIn(ExperimentalAnimationGraphicsApi::class)
     val FailureIcon: @Composable BoxScope.() -> Unit = {
-        val animation = AnimatedImageVector.animatedVectorResource(R.drawable.failure_animation)
+        val animation =
+            AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_failure_animation)
         var atEnd by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             delay(FailureIconDelay)

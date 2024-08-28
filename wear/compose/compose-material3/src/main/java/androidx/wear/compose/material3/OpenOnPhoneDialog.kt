@@ -165,7 +165,7 @@ object OpenOnPhoneDialogDefaults {
     @OptIn(ExperimentalAnimationGraphicsApi::class)
     val Icon: @Composable BoxScope.() -> Unit = {
         val animation =
-            AnimatedImageVector.animatedVectorResource(R.drawable.open_on_phone_animation)
+            AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_open_on_phone_animation)
         var atEnd by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
             delay(IconDelay)
