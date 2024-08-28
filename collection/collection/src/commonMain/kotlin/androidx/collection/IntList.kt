@@ -288,7 +288,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public operator fun get(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         return content[index]
     }
@@ -299,7 +299,7 @@ public sealed class IntList(initialCapacity: Int) {
      */
     public fun elementAt(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         return content[index]
     }
@@ -570,7 +570,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun add(@IntRange(from = 0) index: Int, element: Int) {
         if (index !in 0.._size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         ensureCapacity(_size + 1)
         val content = content
@@ -768,7 +768,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun removeAt(@IntRange(from = 0) index: Int): Int {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         val content = content
         val item = content[index]
@@ -792,10 +792,10 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public fun removeRange(@IntRange(from = 0) start: Int, @IntRange(from = 0) end: Int) {
         if (start !in 0.._size || end !in 0.._size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         if (end < start) {
-            throwIllegalArgumentException("")
+            throwIllegalArgumentException("The end index must be < start index")
         }
         if (end != start) {
             if (end < _size) {
@@ -852,7 +852,7 @@ public class MutableIntList(initialCapacity: Int = 16) : IntList(initialCapacity
      */
     public operator fun set(@IntRange(from = 0) index: Int, element: Int): Int {
         if (index !in 0 until _size) {
-            throwIndexOutOfBoundsException("")
+            throwIndexOutOfBoundsException("Index must be between 0 and size")
         }
         val content = content
         val old = content[index]
