@@ -236,10 +236,22 @@ public open class NavDestination(
                         "Following required arguments are missing: $missingRequiredArguments"
                 }
 
+                routeDeepLink = lazy { NavDeepLink.Builder().setUriPattern(tempRoute).build() }
                 id = tempRoute.hashCode()
             }
             field = route
         }
+
+    /**
+     * This destination's unique route as a NavDeepLink.
+     *
+     * This deeplink must be kept private and segregated from the explicitly added public deeplinks
+     * to ensure that external users cannot deeplink into this destination with this routeDeepLink.
+     *
+     * This value is reassigned a new lazy value every time [route] is updated to ensure that any
+     * initialized lazy value is overwritten with the latest value.
+     */
+    private var routeDeepLink: Lazy<NavDeepLink>? = null
 
     public open val displayName: String
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) get() = idName ?: id.toString()
@@ -356,26 +368,28 @@ public open class NavDestination(
     }
 
     /**
-     * Determines if this NavDestination has a deep link of this route.
+     * Determines if this NavDestination's route matches the requested route.
      *
      * @param [route] The route to match against this [NavDestination.route]
      * @return The matching [DeepLinkMatch], or null if no match was found.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public fun matchDeepLink(route: String): DeepLinkMatch? {
-        val request = NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build()
-        val matchingDeepLink =
-            if (this is NavGraph) {
-                matchDeepLinkComprehensive(
-                    request,
-                    searchChildren = false,
-                    searchParent = false,
-                    lastVisited = this
-                )
-            } else {
-                matchDeepLink(request)
-            }
-        return matchingDeepLink
+    public fun matchRoute(route: String): DeepLinkMatch? {
+        val routeDeepLink = this.routeDeepLink?.value ?: return null
+
+        val uri = createRoute(route).toUri()
+
+        // includes matching args for path, query, and fragment
+        val matchingArguments = routeDeepLink.getMatchingArguments(uri, _arguments) ?: return null
+        val matchingPathSegments = routeDeepLink.calculateMatchingPathSegments(uri)
+        return DeepLinkMatch(
+            this,
+            matchingArguments,
+            routeDeepLink.isExactDeepLink,
+            matchingPathSegments,
+            false,
+            -1
+        )
     }
 
     /**
@@ -491,7 +505,7 @@ public open class NavDestination(
 
         // if no match based on routePattern, this means route contains filled in args or query
         // params
-        val matchingDeepLink = matchDeepLink(route)
+        val matchingDeepLink = matchRoute(route)
 
         // if no matchingDeepLink or mismatching destination, return false directly
         if (this != matchingDeepLink?.destination) return false
