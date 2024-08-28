@@ -34,7 +34,7 @@ import androidx.compose.ui.platform.DefaultUiApplier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 
-private val NoOp: Any.() -> Unit = {}
+internal val NoOp: Any.() -> Unit = {}
 
 /**
  * Base class for any concrete implementation of [InteropViewHolder] that holds a specific type
@@ -45,18 +45,14 @@ internal abstract class TypedInteropViewHolder<T : InteropView>(
     interopContainer: InteropContainer,
     group: InteropViewGroup,
     compositeKeyHash: Int,
-    measurePolicy: MeasurePolicy,
-    isInteractive: Boolean,
-    platformModifier: Modifier
+    measurePolicy: MeasurePolicy
 ) : InteropViewHolder(
     interopContainer,
     group,
     compositeKeyHash,
-    measurePolicy,
-    isInteractive,
-    platformModifier
+    measurePolicy
 ) {
-    protected val typedInteropView = factory()
+    val typedInteropView = factory()
 
     override fun getInteropView(): InteropView? {
         return typedInteropView
@@ -128,7 +124,7 @@ internal fun <T : InteropView> InteropView(
     modifier: Modifier,
     onReset: ((T) -> Unit)? = null,
     onRelease: (T) -> Unit = NoOp,
-    update: (T) -> Unit = NoOp
+    update: (T) -> Unit = NoOp,
 ) {
     val compositeKeyHash = currentCompositeKeyHash
     val materializedModifier = currentComposer.materialize(modifier)
@@ -147,6 +143,7 @@ internal fun <T : InteropView> InteropView(
                     density,
                     compositeKeyHash
                 )
+
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }
             }
@@ -161,6 +158,7 @@ internal fun <T : InteropView> InteropView(
                     density,
                     compositeKeyHash
                 )
+
                 set(onReset) { requireViewFactoryHolder<T>().resetBlock = it }
                 set(update) { requireViewFactoryHolder<T>().updateBlock = it }
                 set(onRelease) { requireViewFactoryHolder<T>().releaseBlock = it }

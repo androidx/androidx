@@ -153,6 +153,14 @@ internal class SwingInteropContainer(
     override fun contains(holder: InteropViewHolder): Boolean =
         interopComponents.contains(holder.group)
 
+    override fun holderOfView(view: InteropView): InteropViewHolder? {
+        val component = view as Component
+        val group = checkNotNull(component.parent) {
+            "InteropView is assumed to be added to its group for its entire lifetime"
+        }
+        return interopComponents[group]
+    }
+
     override fun place(holder: InteropViewHolder) {
         val group = holder.group
 

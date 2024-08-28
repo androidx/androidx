@@ -19,6 +19,7 @@ package androidx.compose.ui.unit
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.isSpecified
 
 /**
@@ -65,4 +66,12 @@ internal fun DpRect.toRect(density: Density): Rect = with(density) {
         offset = DpOffset(left, top).toOffset(density),
         size = size.toSize()
     )
+}
+
+/**
+ * Convert a [Size] to a [DpSize]
+ */
+@Stable
+internal fun Size.toDpSize(density: Density): DpSize = with(density) {
+    DpSize(width.toDp(), height.toDp())
 }

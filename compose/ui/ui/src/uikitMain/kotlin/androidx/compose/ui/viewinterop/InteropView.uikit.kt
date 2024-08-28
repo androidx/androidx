@@ -46,12 +46,12 @@ internal actual typealias InteropViewGroup = UIView
  * accessibility container to allow proper traversal of a Compose semantics tree containing
  * interop views.
  *
- * @param areTouchesDelayed indicates whether the touches are allowed to be delayed by Compose
- * in attempt to intercept touches, or should get delivered to the interop view immediately without
- * Compose being aware of them.
+ * @param interactionMode The interaction mode that should be applied to the wrapping view. Or null.
+ *
+ * @see UIKitInteropInteractionMode
  */
 internal class InteropWrappingView(
-    val areTouchesDelayed: Boolean
+    var interactionMode: UIKitInteropInteractionMode?
 ) : CMPInteropWrappingView(frame = CGRectZero.readValue()) {
     var actualAccessibilityContainer: Any? = null
 

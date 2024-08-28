@@ -47,6 +47,8 @@ internal interface InteropContainer {
 
     fun contains(holder: InteropViewHolder): Boolean
 
+    fun holderOfView(view: InteropView): InteropViewHolder?
+
     /**
      * Calculates the proper index for the interop view in the container and issues a request to
      * update the view hierarchy.

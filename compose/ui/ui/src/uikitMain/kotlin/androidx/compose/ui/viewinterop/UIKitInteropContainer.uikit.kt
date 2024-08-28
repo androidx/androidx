@@ -46,6 +46,9 @@ internal class UIKitInteropContainer(
     override fun contains(holder: InteropViewHolder): Boolean =
         interopViews.contains(holder.getInteropView())
 
+    override fun holderOfView(view: InteropView): InteropViewHolder? =
+        interopViews[view]
+
     fun groupForInteropView(interopView: InteropView): InteropViewGroup? {
         val holder = interopViews[interopView] ?: return null
         return holder.group
@@ -102,6 +105,7 @@ internal class UIKitInteropContainer(
         val interopView = requireNotNull(holder.getInteropView())
 
         interopViews.remove(interopView)
+
         if (interopViews.isEmpty()) {
             transaction.state = UIKitInteropState.ENDED
             snapshotObserver.stop()

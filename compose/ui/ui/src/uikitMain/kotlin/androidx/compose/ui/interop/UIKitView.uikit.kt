@@ -17,26 +17,23 @@
 package androidx.compose.ui.interop
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.currentCompositeKeyHash
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.isUnspecified
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.uikit.toUIColor
-import androidx.compose.ui.viewinterop.InteropView
-import androidx.compose.ui.viewinterop.InteropWrappingView
-import androidx.compose.ui.viewinterop.LocalInteropContainer
-import androidx.compose.ui.viewinterop.UIKitInteropViewControllerHolder
-import androidx.compose.ui.viewinterop.UIKitInteropViewHolder
+import androidx.compose.ui.viewinterop.NoOp
+import androidx.compose.ui.viewinterop.UIKitInteropInteractionMode
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
 import platform.UIKit.UIView
 import platform.UIKit.UIViewController
+import androidx.compose.ui.viewinterop.UIKitView as UIKitView2
+import androidx.compose.ui.viewinterop.UIKitViewController as UIKitViewController2
+import androidx.compose.ui.semantics.semantics
 
-private val STUB_CALLBACK_WITH_RECEIVER: Any.() -> Unit = {}
 private val DefaultViewResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.setFrame(rect) }
 private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Unit =
     { rect -> this.view.setFrame(rect) }
@@ -69,43 +66,55 @@ private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Un
  *
  * @see Modifier.semantics
  */
+@Deprecated(
+    message = "This function was deprecated in favor of newer API",
+    replaceWith = ReplaceWith("UIKitView(factory = factory, modifier = modifier, update = update, onRelease = onRelease, properties = UIKitInteropProperties(isInteractive = interactive, isNativeAccessibilityEnabled = accessibilityEnabled))",
+        "androidx.compose.ui.viewinterop.UIKitView", "androidx.compose.ui.viewinterop.UIKitInteropProperties")
+)
 @Composable
 fun <T : UIView> UIKitView(
     factory: () -> T,
     modifier: Modifier,
-    update: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    update: (T) -> Unit = NoOp,
     background: Color = Color.Unspecified,
-    onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    onRelease: (T) -> Unit = NoOp,
     onResize: (view: T, rect: CValue<CGRect>) -> Unit = DefaultViewResize,
     interactive: Boolean = true,
     accessibilityEnabled: Boolean = true
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
-    val interopContainer = LocalInteropContainer.current
+    // Despite the name, onResize actually contains the logic for default resizing strategy.
+    // Since this strategy is already implied, changes to this argument can't be processed in a
+    // sane manner
+    if (onResize != DefaultViewResize) {
+        println("WARNING: custom `onResize` is not supported in deprecated [UIKitView], it will do nothing. If you need to perform changes based on latest calculated size - override `UIView.layoutSubviews`")
+    }
 
     val backgroundColor by remember(background) { mutableStateOf(background.toUIColor()) }
 
-    InteropView(
-        factory = {
-            UIKitInteropViewHolder(
-                factory = factory,
-                interopContainer = interopContainer,
-                group = InteropWrappingView(areTouchesDelayed = true),
-                isInteractive = interactive,
-                isNativeAccessibilityEnabled = accessibilityEnabled,
-                compositeKeyHash = compositeKeyHash,
-                resize = onResize
-            )
-        },
-        modifier = modifier,
-        onReset = null,
-        onRelease = onRelease,
-        update = {
-            backgroundColor?.let { color ->
-                it.backgroundColor = color
-            }
-            update(it)
+    val interactionMode =
+        if (interactive) {
+            UIKitInteropInteractionMode.Cooperative()
+        } else {
+            null
         }
+
+    val updateWithBackground = { it: T ->
+        backgroundColor?.let { color ->
+            it.backgroundColor = color
+        }
+        update(it)
+    }
+
+    UIKitView2(
+        factory,
+        modifier,
+        update = updateWithBackground,
+        onRelease,
+        onReset = null,
+        properties = UIKitInteropProperties(
+            interactionMode = interactionMode,
+            isNativeAccessibilityEnabled = accessibilityEnabled
+        )
     )
 }
 
@@ -139,44 +148,54 @@ fun <T : UIView> UIKitView(
  *
  * @see Modifier.semantics
  */
+@Deprecated(
+    message = "This function was deprecated in favor of newer API",
+    replaceWith = ReplaceWith("UIKitViewController(factory = factory, modifier = modifier, update = update, onRelease = onRelease, properties = UIKitInteropProperties(isInteractive = interactive, isNativeAccessibilityEnabled = accessibilityEnabled))",
+        "androidx.compose.ui.viewinterop.UIKitViewController", "androidx.compose.ui.viewinterop.UIKitInteropProperties")
+)
 @Composable
 fun <T : UIViewController> UIKitViewController(
     factory: () -> T,
     modifier: Modifier,
-    update: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    update: (T) -> Unit = NoOp,
     background: Color = Color.Unspecified,
-    onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    onRelease: (T) -> Unit = NoOp,
     onResize: (viewController: T, rect: CValue<CGRect>) -> Unit = DefaultViewControllerResize,
     interactive: Boolean = true,
     accessibilityEnabled: Boolean = true
 ) {
-    val compositeKeyHash = currentCompositeKeyHash
-    val interopContainer = LocalInteropContainer.current
-    val parentViewController = LocalUIViewController.current
+    // Despite the name, onResize actually contains the logic for default resizing strategy.
+    // Since this strategy is already implied, changes to this argument can't be processed in a
+    // sane manner
+    if (onResize != DefaultViewControllerResize) {
+        println("WARNING: custom `onResize` is not supported in deprecated [UIKitViewController], it will do nothing. If you need to perform changes based on latest calculated size - override `UIViewController.viewDidLayoutSubviews`")
+    }
 
     val backgroundColor by remember(background) { mutableStateOf(background.toUIColor()) }
 
-    InteropView(
-        factory = {
-            UIKitInteropViewControllerHolder(
-                factory = factory,
-                parentViewController = parentViewController,
-                interopContainer = interopContainer,
-                group = InteropWrappingView(areTouchesDelayed = true),
-                isInteractive = interactive,
-                isNativeAccessibilityEnabled = accessibilityEnabled,
-                compositeKeyHash = compositeKeyHash,
-                resize = onResize
-            )
-        },
-        modifier = modifier,
-        onReset = null,
-        onRelease = onRelease,
-        update = {
-            backgroundColor?.let { color ->
-                it.view.backgroundColor = color
-            }
-            update(it)
+    val interactionMode =
+        if (interactive) {
+            UIKitInteropInteractionMode.Cooperative()
+        } else {
+            null
         }
+
+    val updateWithBackground = { it: T ->
+        backgroundColor?.let { color ->
+            it.view.backgroundColor = color
+        }
+        update(it)
+    }
+
+    UIKitViewController2(
+        factory,
+        modifier,
+        update = updateWithBackground,
+        onRelease,
+        onReset = null,
+        properties = UIKitInteropProperties(
+            interactionMode = interactionMode,
+            isNativeAccessibilityEnabled = accessibilityEnabled
+        )
     )
 }

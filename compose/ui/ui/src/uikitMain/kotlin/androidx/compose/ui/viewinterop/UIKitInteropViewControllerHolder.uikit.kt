@@ -28,29 +28,24 @@ internal class UIKitInteropViewControllerHolder<T : UIViewController>(
     factory: () -> T,
     interopContainer: InteropContainer,
     private val parentViewController: UIViewController,
-    group: InteropWrappingView,
-    isInteractive: Boolean,
-    isNativeAccessibilityEnabled: Boolean,
+    properties: UIKitInteropProperties,
     compositeKeyHash: Int,
-    // TODO: deprecate after new API arrives https://youtrack.jetbrains.com/issue/CMP-5719/iOS-revisit-UIKit-interop-API
-    val resize: (T, rect: CValue<CGRect>) -> Unit
 ) : UIKitInteropElementHolder<T>(
-    factory = factory,
-    interopContainer = interopContainer,
-    group = group,
-    isInteractive = isInteractive,
-    isNativeAccessibilityEnabled = isNativeAccessibilityEnabled,
-    compositeKeyHash = compositeKeyHash,
+    factory,
+    interopContainer,
+    properties,
+    compositeKeyHash
 ) {
     init {
         // Group will be placed to hierarchy in [InteropContainer.placeInteropView]
         group.addSubview(typedInteropView.view)
     }
 
-    override fun setUserComponentFrame(rect: CValue<CGRect>) {
-        // TODO: deprecate after new API arrives https://youtrack.jetbrains.com/issue/CMP-5719/iOS-revisit-UIKit-interop-API
-        resize(typedInteropView, rect)
-    }
+    override var userComponentCGRect: CValue<CGRect>
+        get() = typedInteropView.view.frame
+        set(value) {
+            typedInteropView.view.setFrame(value)
+        }
 
     override fun insertInteropView(root: InteropViewGroup, index: Int) {
         parentViewController.addChildViewController(typedInteropView)

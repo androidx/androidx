@@ -90,7 +90,7 @@ public fun <T : Component> SwingPanel(
         factory = {
             interopViewHolder
         },
-        modifier = modifier,
+        modifier,
         update = {
             it.background = background.toAwtColor()
             update(it)

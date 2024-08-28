@@ -171,6 +171,8 @@ internal class WindowTestScope(
             for (recomposerInfo in Recomposer.runningRecomposers.value - initialRecomposers) {
                 recomposerInfo.state.takeWhile { it > Recomposer.State.Idle }.collect()
             }
+
+            awaitEDT()
         }
 
         exceptionHandler.throwIfCaught()

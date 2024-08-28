@@ -65,7 +65,7 @@
     [self.handler onFailure];
 }
 
-- (void)scheduleFailure {
+- (void)scheduleFailure:(NSTimeInterval)failureDelay {
     __weak typeof(self) weakSelf = self;
     dispatch_block_t dispatchBlock = dispatch_block_create(0, ^{
         [weakSelf fail];
@@ -75,11 +75,6 @@
         dispatch_block_cancel(_scheduledFailureBlock);
     }
     _scheduledFailureBlock = dispatchBlock;
-    
-    // 150ms is a timer delay for notifying a handler that the gesture was failed to recognize.
-    // `handler` implementtion is responsible for cancelling this via calling `cancelFailure` and transitioning
-    // this gesture recognizer to a proper state.
-    double failureDelay = 0.15;
     
     dispatch_time_t dispatchTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(failureDelay * NSEC_PER_SEC));
 

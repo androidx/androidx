@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (weak, nonatomic) id <CMPGestureRecognizerHandler> handler;
 
 - (void)cancelFailure;
-- (void)scheduleFailure;
+- (void)scheduleFailure:(NSTimeInterval)failureDelay;
 
 @end
 

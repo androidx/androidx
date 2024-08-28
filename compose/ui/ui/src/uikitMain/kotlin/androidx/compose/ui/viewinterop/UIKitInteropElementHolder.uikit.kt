@@ -31,18 +31,19 @@ import androidx.compose.ui.unit.toDpRect
 import androidx.compose.ui.unit.toRect
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGRect
+import platform.CoreGraphics.CGRectIntersection
+import platform.CoreGraphics.CGRectIsEmpty
 
 internal abstract class UIKitInteropElementHolder<T : InteropView>(
     factory: () -> T,
     interopContainer: InteropContainer,
-    group: InteropWrappingView,
-    isInteractive: Boolean,
-    isNativeAccessibilityEnabled: Boolean,
-    compositeKeyHash: Int,
+    private val interopWrappingView: InteropWrappingView,
+    properties: UIKitInteropProperties,
+    compositeKeyHash: Int
 ) : TypedInteropViewHolder<T>(
     factory = factory,
     interopContainer = interopContainer,
-    group = group,
+    group = interopWrappingView,
     compositeKeyHash = compositeKeyHash,
     measurePolicy = MeasurePolicy { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {
@@ -51,22 +52,44 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
             //  and autolayout system if possible
             //  https://youtrack.jetbrains.com/issue/CMP-5873/iOS-investigate-intrinsic-sizing-of-interop-elements
         }
-    },
-    isInteractive = isInteractive,
-    platformModifier = Modifier
-        // Make the canvas transparent in that area to make the interop view behind visible
-        .drawBehind {
-            drawRect(
-                color = Color.Transparent,
-                blendMode = BlendMode.Clear
-            )
-        }
-        .nativeAccessibility(isNativeAccessibilityEnabled, group)
+    }
 ) {
+    constructor(
+        factory: () -> T,
+        interopContainer: InteropContainer,
+        properties: UIKitInteropProperties,
+        compositeKeyHash: Int,
+    ) : this(
+        factory,
+        interopContainer,
+        interopWrappingView = InteropWrappingView(
+            interactionMode = null
+        ),
+        properties,
+        compositeKeyHash
+    )
 
     private var currentUnclippedRect: IntRect? = null
     private var currentClippedRect: IntRect? = null
     private var currentUserComponentRect: IntRect? = null
+
+    var properties = properties
+        set(value) {
+            if (field != value) {
+                field = value
+                onPropertiesChanged()
+            }
+        }
+
+    /**
+     * Immediate frame of underlying user component. Can be different from
+     * [currentUserComponentRect] due to scheduling.
+     */
+    protected abstract var userComponentCGRect: CValue<CGRect>
+
+    init {
+        onPropertiesChanged()
+    }
 
     override fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates) {
         val rootCoordinates = layoutCoordinates.findRootCoordinates()
@@ -114,17 +137,18 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
 
             // update the user component frame only if it changes
             if (userComponentRect != currentUserComponentRect) {
-                currentUserComponentRect = userComponentRect
-
-                val userComponentFrame =
+                // Schedule frame update
+                val newUserComponentCGRect =
                     userComponentRect
                         .toRect()
                         .toDpRect(density)
                         .asCGRect()
 
                 container.scheduleUpdate {
-                    setUserComponentFrame(userComponentFrame)
+                    userComponentCGRect = newUserComponentCGRect
                 }
+
+                currentUserComponentRect = userComponentRect
             }
         }
 
@@ -132,9 +156,6 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
         currentClippedRect = clippedRect
 
     }
-
-    abstract fun setUserComponentFrame(rect: CValue<CGRect>)
-
 
     override fun dispatchToView(pointerEvent: PointerEvent) {
         // No-op, we can't dispatch events to UIView or UIViewController directly, see
@@ -146,5 +167,33 @@ internal abstract class UIKitInteropElementHolder<T : InteropView>(
      */
     override fun changeInteropViewIndex(root: InteropViewGroup, index: Int) {
         root.insertSubview(view = group, atIndex = index.toLong())
+    }
+
+    /**
+     * Check that [group] doesn't entirely clip a child view with a [cgRect]
+     */
+    private fun isVisible(cgRect: CValue<CGRect>): Boolean =
+        CGRectIsEmpty(
+            CGRectIntersection(cgRect, group.bounds)
+        ).not()
+
+    private fun onPropertiesChanged() {
+        interopWrappingView.interactionMode = properties.interactionMode
+
+        platformModifier = Modifier
+            .pointerInteropFilter(
+                isInteractive = properties.isInteractive,
+                this
+            )
+            .drawBehind {
+                drawRect(
+                    color = Color.Transparent,
+                    blendMode = BlendMode.Clear
+                )
+            }
+            .nativeAccessibility(
+                isEnabled = properties.isNativeAccessibilityEnabled,
+                interopWrappingView
+            )
     }
 }

@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,21 +29,71 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.interop.UIKitView
-import androidx.compose.ui.interop.UIKitViewController
+import androidx.compose.ui.viewinterop.UIKitView
+import androidx.compose.ui.viewinterop.UIKitViewController
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.UIKitInteropProperties
 import kotlinx.cinterop.ObjCAction
 import kotlinx.cinterop.objcPtr
 import kotlinx.cinterop.readValue
+import kotlinx.coroutines.delay
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
 import platform.Foundation.NSSelectorFromString
 import platform.MapKit.MKMapView
-import platform.UIKit.*
+import platform.UIKit.NSTextAlignmentCenter
+import platform.UIKit.UIColor
+import platform.UIKit.UIControlEventEditingChanged
+import platform.UIKit.UIEvent
+import platform.UIKit.UILabel
+import platform.UIKit.UITextField
+import platform.UIKit.UIView
+import platform.UIKit.UIViewController
 
-private class TouchReactingView: UIView(frame = CGRectZero.readValue()) {
+private class BlueViewController : UIViewController(nibName = null, bundle = null) {
+    val label = UILabel()
+
+    override fun loadView() {
+        setView(label)
+    }
+
+    override fun viewDidLoad() {
+        super.viewDidLoad()
+
+        label.textAlignment = NSTextAlignmentCenter
+        label.textColor = UIColor.whiteColor
+        label.backgroundColor = UIColor.blueColor
+    }
+
+    override fun viewWillAppear(animated: Boolean) {
+        super.viewWillAppear(animated)
+
+        println("viewWillAppear animated=$animated")
+    }
+
+    override fun viewDidAppear(animated: Boolean) {
+        super.viewDidAppear(animated)
+
+        println("viewDidAppear animated=$animated")
+    }
+
+    override fun viewDidDisappear(animated: Boolean) {
+        super.viewDidDisappear(animated)
+
+        println("viewDidDisappear animated=$animated")
+    }
+
+    override fun viewWillDisappear(animated: Boolean) {
+        super.viewWillDisappear(animated)
+
+        println("viewWillDisappear animated=$animated")
+    }
+}
+
+private class TouchReactingView : UIView(frame = CGRectZero.readValue()) {
     init {
         setUserInteractionEnabled(true)
 
@@ -73,14 +124,26 @@ private class TouchReactingView: UIView(frame = CGRectZero.readValue()) {
     }
 }
 
-val UIKitInteropExample = Screen.Example("UIKitInterop") {
+@OptIn(ExperimentalComposeUiApi::class)
+val InteropExample = Screen.Example("Interop") {
     var text by remember { mutableStateOf("Type something") }
     var updatedValue by remember { mutableStateOf(null as Offset?) }
 
+
     LazyColumn(Modifier.fillMaxSize()) {
         item {
+            var temp by remember { mutableStateOf(0) }
+
+            LaunchedEffect(Unit) {
+                while (true) {
+                    temp += 1
+                    delay(1000)
+                }
+            }
+
             UIKitView(
                 factory = {
+                    println("Factory called $temp")
                     MKMapView()
                 },
                 modifier = Modifier.fillMaxWidth().height(200.dp),
@@ -89,56 +152,18 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
                 }
             )
         }
-
         item {
             UIKitViewController(
                 factory = {
-                    object : UIViewController(nibName = null, bundle = null) {
-                        val label = UILabel()
-
-                        override fun loadView() {
-                            setView(label)
-                        }
-
-                        override fun viewDidLoad() {
-                            super.viewDidLoad()
-
-                            label.textAlignment = NSTextAlignmentCenter
-                            label.textColor = UIColor.whiteColor
-                            label.backgroundColor = UIColor.blueColor
-                        }
-
-                        override fun viewWillAppear(animated: Boolean) {
-                            super.viewWillAppear(animated)
-
-                            println("viewWillAppear animated=$animated")
-                        }
-
-                        override fun viewDidAppear(animated: Boolean) {
-                            super.viewDidAppear(animated)
-
-                            println("viewDidAppear animated=$animated")
-                        }
-
-                        override fun viewDidDisappear(animated: Boolean) {
-                            super.viewDidDisappear(animated)
-
-                            println("viewDidDisappear animated=$animated")
-                        }
-
-                        override fun viewWillDisappear(animated: Boolean) {
-                            super.viewWillDisappear(animated)
-
-                            println("viewWillDisappear animated=$animated")
-                        }
-                    }
+                    BlueViewController()
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(100.dp)
                     .onGloballyPositioned { coordinates ->
                         val rootCoordinates = coordinates.findRootCoordinates()
-                        val box = coordinates.localBoundingBoxOf(rootCoordinates, clipBounds = false)
+                        val box =
+                            rootCoordinates.localBoundingBoxOf(coordinates, clipBounds = false)
                         updatedValue = box.topLeft
                     },
                 update = { viewController ->
@@ -146,7 +171,10 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
                         viewController.label.text = "${it.x}, ${it.y}"
                     }
                 },
-                interactive = false
+                properties = UIKitInteropProperties(
+                    interactionMode = null,
+                    isNativeAccessibilityEnabled = false
+                )
             )
         }
         items(100) { index ->
@@ -160,13 +188,21 @@ val UIKitInteropExample = Screen.Example("UIKitInterop") {
                         label
                     },
                     modifier = Modifier.fillMaxWidth().height(40.dp),
-                    interactive = false
+                    properties = UIKitInteropProperties(
+                        interactionMode = null
+                    )
                 )
-                2 -> TextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth())
-                3 -> ComposeUITextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth().height(40.dp))
-                4 -> UIKitView(
+
+                2 -> UIKitView(
                     factory = { TouchReactingView() },
                     modifier = Modifier.fillMaxWidth().height(40.dp),
+                )
+
+                3 -> TextField(text, onValueChange = { text = it }, Modifier.fillMaxWidth())
+                4 -> ComposeUITextField(
+                    text,
+                    onValueChange = { text = it },
+                    Modifier.fillMaxWidth().height(40.dp)
                 )
             }
         }
@@ -201,8 +237,59 @@ private fun ComposeUITextField(value: String, onValueChange: (String) -> Unit, m
         },
         modifier = modifier,
         update = { textField ->
-            println("Update called for UITextField(0x${textField.objcPtr().toLong().toString(16)}, value = $value")
+            println(
+                "Update called for UITextField(0x${
+                    textField.objcPtr().toLong().toString(16)
+                }, value = $value"
+            )
             textField.text = value
         }
     )
+}
+
+val ReusableMapsExample = Screen.Example("Reusable maps") {
+    var allocations: Int by remember { mutableStateOf(0) }
+    var allocationsCounter by remember { mutableStateOf(0) }
+
+    Column(Modifier.fillMaxSize()) {
+        Text("Maps allocated: $allocations")
+        LazyColumn(Modifier.fillMaxSize()) {
+            items(100) { index ->
+                UIKitView(
+                    factory = {
+                        val view = object : MKMapView(frame = CGRectZero.readValue()) {
+                            var index = 0
+
+                            override fun didMoveToWindow() {
+                                super.didMoveToWindow()
+
+                                if (window != null) {
+                                    println("MKMapView appeared, tag = $tag, index = ${this.index}")
+                                } else {
+                                    println("MKMapView disappeared, tag = $tag, index = ${this.index}")
+                                }
+                            }
+                        }.apply {
+                            tag = allocationsCounter.toLong()
+                        }
+                        allocations += 1
+                        allocationsCounter += 1
+
+                        view
+                    },
+                    modifier = Modifier.fillMaxWidth().height(200.dp),
+                    update = {
+                        println("Update called for tag = ${it.tag}, index = $index")
+                    },
+                    onReset = {
+                        it.index = index
+                        println("Reset called for tag = ${it.tag}, index = $index")
+                    },
+                    onRelease = {
+                        allocations -= 1
+                    }
+                )
+            }
+        }
+    }
 }

@@ -53,16 +53,7 @@ internal class SwingInteropViewHolder<T : Component>(
     compositeKeyHash,
     MeasurePolicy { _, constraints ->
         layout(constraints.minWidth, constraints.minHeight) {}
-    },
-    isInteractive = true,
-    platformModifier = Modifier
-        .drawBehind {
-            // Clear interop area to make visible the component under our canvas.
-            drawRect(
-                color = Color.Transparent,
-                blendMode = BlendMode.Clear
-            )
-        }
+    }
 ), ClipRectangle {
     private var clipBounds: IntRect? = null
 
@@ -85,6 +76,16 @@ internal class SwingInteropViewHolder<T : Component>(
 
     init {
         group.add(typedInteropView)
+
+        platformModifier = Modifier
+            .pointerInteropFilter(this)
+            .drawBehind {
+                // Clear interop area to make visible the component under our canvas.
+                drawRect(
+                    color = Color.Transparent,
+                    blendMode = BlendMode.Clear
+                )
+            }
     }
 
     override fun layoutAccordingTo(layoutCoordinates: LayoutCoordinates) {
