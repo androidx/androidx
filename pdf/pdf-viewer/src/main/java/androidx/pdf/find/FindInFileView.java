@@ -206,7 +206,7 @@ public class FindInFileView extends LinearLayout {
         if (visibility) {
             this.setVisibility(VISIBLE);
             if (mAnnotationButton != null && mAnnotationButton.getVisibility() == VISIBLE) {
-                mAnnotationButton.setVisibility(GONE);
+                mAnnotationButton.hide();
             }
             setupFindInFileBtn();
         } else {
@@ -233,7 +233,7 @@ public class FindInFileView extends LinearLayout {
             mQueryBox.setText("");
             parentLayout.setVisibility(GONE);
             if (mIsAnnotationIntentResolvable) {
-                mAnnotationButton.setVisibility(VISIBLE);
+                mAnnotationButton.show();
             }
         });
     }
