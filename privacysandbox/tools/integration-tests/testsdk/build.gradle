@@ -88,6 +88,8 @@ dependencies {
     ksp(project(":privacysandbox:tools:tools-apicompiler"))
     implementation(project(":privacysandbox:tools:tools"))
     implementation(project(":privacysandbox:sdkruntime:sdkruntime-provider"))
+    implementation(project(":privacysandbox:ui:ui-core"))
+    implementation(project(":privacysandbox:ui:ui-provider"))
 
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesCore)

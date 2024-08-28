@@ -17,14 +17,20 @@
 package androidx.privacysandbox.tools.integration.testapp
 
 import androidx.privacysandbox.tools.integration.testsdk.MySdk
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.hasChildCount
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.resume
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.test.runTest
+import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -38,6 +44,8 @@ class MainActivityTest {
 
     @Before fun setUp() = runBlocking { getActivity().loadSdk() }
 
+    @After fun tearDown() = runTest { scenarioRule.scenario.close() }
+
     @Test
     fun loadSdk_works() = runTest {
         val sdk = getActivity().sdk
@@ -50,6 +58,16 @@ class MainActivityTest {
         val sum = getSdk().doSum(5, 6)
 
         assertThat(sum).isEqualTo(11)
+    }
+
+    @Test
+    fun remoteRendering_works(): Unit = runTest {
+        onView(withId(R.id.sandboxedSdkView)).check(matches(hasChildCount(0)))
+
+        getActivity().renderAd()
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
+
+        onView(withId(R.id.sandboxedSdkView)).check(matches(hasChildCount(1)))
     }
 
     private suspend fun getActivity(): MainActivity = suspendCancellableCoroutine {
