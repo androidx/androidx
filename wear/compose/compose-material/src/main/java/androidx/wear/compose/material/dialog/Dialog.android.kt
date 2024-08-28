@@ -233,18 +233,17 @@ private fun Dialog(
                     transitionState.targetState = DialogVisibility.Hide
                 }
             }
-
-            LaunchedEffect(transitionState.currentState) {
-                if (
-                    pendingOnDismissCall &&
-                        transitionState.currentState == DialogVisibility.Hide &&
-                        transitionState.isIdle
-                ) {
-                    // After the outro animation, leave the dialog & reset alpha/scale transitions.
-                    onDismissRequest()
-                    pendingOnDismissCall = false
-                }
-            }
+        }
+    }
+    LaunchedEffect(transitionState.currentState) {
+        if (
+            pendingOnDismissCall &&
+                transitionState.currentState == DialogVisibility.Hide &&
+                transitionState.isIdle
+        ) {
+            // After the outro animation, leave the dialog & reset alpha/scale transitions.
+            onDismissRequest()
+            pendingOnDismissCall = false
         }
     }
 }
