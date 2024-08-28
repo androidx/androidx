@@ -185,7 +185,7 @@ public abstract class PasswordDialog extends DialogFragment {
     public void onStart() {
         super.onStart();
         mTextDefaultColor = getResources().getColor(R.color.pdf_viewer_color_on_surface);
-        mTextErrorColor = getResources().getColor(R.color.pdf_viewer_color_on_error);
+        mTextErrorColor = getResources().getColor(R.color.pdf_viewer_color_error);
         mBlueColor = getResources().getColor(R.color.pdf_viewer_color_primary);
 
         EditText textField = (EditText) getDialog().findViewById(R.id.password);

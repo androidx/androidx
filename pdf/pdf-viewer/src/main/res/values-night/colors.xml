@@ -17,5 +17,5 @@
 <resources>
     <color name="pdf_viewer_color_primary">@color/m3_sys_color_dark_primary</color>
     <color name="pdf_viewer_color_on_surface">@color/m3_sys_color_dark_on_surface</color>
-    <color name="pdf_viewer_color_on_error">@color/m3_sys_color_dark_on_error</color>
+    <color name="pdf_viewer_color_error">@color/m3_sys_color_dark_error</color>
 </resources>
