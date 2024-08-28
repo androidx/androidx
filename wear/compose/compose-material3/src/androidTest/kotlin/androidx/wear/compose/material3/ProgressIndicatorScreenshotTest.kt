@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material3
 
+import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -27,12 +28,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -60,7 +63,7 @@ class ProgressIndicatorScreenshotTest {
     @get:Rule val testName = TestName()
 
     @Test
-    fun progress_indicator_fullscreen() = verifyScreenshot {
+    fun progress_indicator_fullscreen() = verifyProgressIndicatorScreenshot {
         CircularProgressIndicator(
             progress = { 0.25f },
             modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
@@ -70,7 +73,19 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
-    fun progress_indicator_custom_color() = verifyScreenshot {
+    fun progress_indicator_fullscreen_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            CircularProgressIndicator(
+                progress = { 0.25f },
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+            )
+        }
+    }
+
+    @Test
+    fun progress_indicator_custom_color() = verifyProgressIndicatorScreenshot {
         CircularProgressIndicator(
             progress = { 0.75f },
             modifier = Modifier.size(200.dp).testTag(TEST_TAG),
@@ -85,7 +100,24 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
-    fun progress_indicator_wrapping_media_button() = verifyScreenshot {
+    fun progress_indicator_custom_color_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            CircularProgressIndicator(
+                progress = { 0.75f },
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        indicatorColor = Color.Green,
+                        trackColor = Color.Red.copy(alpha = 0.5f)
+                    )
+            )
+        }
+    }
+
+    @Test
+    fun progress_indicator_wrapping_media_button() = verifyProgressIndicatorScreenshot {
         val progressPadding = 4.dp
         Box(
             modifier =
@@ -110,7 +142,34 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
-    fun progress_indicator_overflow() = verifyScreenshot {
+    fun progress_indicator_wrapping_media_button_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            val progressPadding = 4.dp
+            Box(
+                modifier =
+                    Modifier.size(IconButtonDefaults.DefaultButtonSize + progressPadding)
+                        .testTag(TEST_TAG)
+            ) {
+                CircularProgressIndicator(progress = { 0.75f }, strokeWidth = progressPadding)
+                IconButton(
+                    modifier =
+                        Modifier.align(Alignment.Center)
+                            .padding(progressPadding)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceContainer),
+                    onClick = {}
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PlayArrow,
+                        contentDescription = "Play/pause button icon"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun progress_indicator_overflow() = verifyProgressIndicatorScreenshot {
         CircularProgressIndicator(
             progress = { 0.2f },
             modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
@@ -130,7 +189,53 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
-    fun segmented_progress_indicator_with_progress() = verifyScreenshot {
+    fun progress_indicator_overflow_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            CircularProgressIndicator(
+                progress = { 0.2f },
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+                colors =
+                    ProgressIndicatorDefaults.colors(
+                        trackBrush =
+                            Brush.linearGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.surfaceContainer,
+                                    MaterialTheme.colorScheme.primary
+                                )
+                            )
+                    )
+            )
+        }
+    }
+
+    @Test
+    fun progress_indicator_disabled() = verifyProgressIndicatorScreenshot {
+        CircularProgressIndicator(
+            progress = { 0.75f },
+            modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+            startAngle = 120f,
+            endAngle = 60f,
+            enabled = false,
+        )
+    }
+
+    @Test
+    fun progress_indicator_disabled_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            CircularProgressIndicator(
+                progress = { 0.75f },
+                modifier = Modifier.size(200.dp).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+                enabled = false,
+            )
+        }
+    }
+
+    @Test
+    fun segmented_progress_indicator_with_progress() = verifyProgressIndicatorScreenshot {
         SegmentedCircularProgressIndicator(
             progress = { 0.5f },
             segmentCount = 5,
@@ -141,7 +246,46 @@ class ProgressIndicatorScreenshotTest {
     }
 
     @Test
-    fun segmented_progress_indicator_on_off() = verifyScreenshot {
+    fun segmented_progress_indicator_with_progress_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            SegmentedCircularProgressIndicator(
+                progress = { 0.5f },
+                segmentCount = 5,
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+            )
+        }
+    }
+
+    @Test
+    fun segmented_progress_indicator_with_progress_disabled() = verifyProgressIndicatorScreenshot {
+        SegmentedCircularProgressIndicator(
+            progress = { 0.5f },
+            segmentCount = 5,
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+            startAngle = 120f,
+            endAngle = 60f,
+            enabled = false,
+        )
+    }
+
+    @Test
+    fun segmented_progress_indicator_with_progress_disabled_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            SegmentedCircularProgressIndicator(
+                progress = { 0.5f },
+                segmentCount = 5,
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+                enabled = false,
+            )
+        }
+    }
+
+    @Test
+    fun segmented_progress_indicator_on_off() = verifyProgressIndicatorScreenshot {
         SegmentedCircularProgressIndicator(
             segmentCount = 6,
             completed = { it % 2 == 0 },
@@ -151,12 +295,67 @@ class ProgressIndicatorScreenshotTest {
         )
     }
 
-    private fun verifyScreenshot(content: @Composable () -> Unit) {
-        rule.setContentWithTheme {
+    @Test
+    fun segmented_progress_indicator_on_off_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            SegmentedCircularProgressIndicator(
+                segmentCount = 6,
+                completed = { it % 2 == 0 },
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+            )
+        }
+    }
+
+    @Test
+    fun segmented_progress_indicator_on_off_disabled() = verifyProgressIndicatorScreenshot {
+        SegmentedCircularProgressIndicator(
+            segmentCount = 6,
+            completed = { it % 2 == 0 },
+            modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+            startAngle = 120f,
+            endAngle = 60f,
+            enabled = false,
+        )
+    }
+
+    @Test
+    fun segmented_progress_indicator_on_off_disabled_large_screen() {
+        verifyProgressIndicatorScreenshot(isLargeScreen = true) {
+            SegmentedCircularProgressIndicator(
+                segmentCount = 6,
+                completed = { it % 2 == 0 },
+                modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
+                startAngle = 120f,
+                endAngle = 60f,
+                enabled = false,
+            )
+        }
+    }
+
+    private fun verifyProgressIndicatorScreenshot(
+        isLargeScreen: Boolean = false,
+        content: @Composable () -> Unit
+    ) {
+        val screenSizeDp = if (isLargeScreen) SCREEN_SIZE_LARGE else SCREEN_SIZE_SMALL
+
+        rule.setContentWithTheme(modifier = Modifier.background(Color.Black)) {
+            val originalConfiguration = LocalConfiguration.current
+            val fixedScreenSizeConfiguration =
+                remember(originalConfiguration) {
+                    Configuration(originalConfiguration).apply {
+                        screenWidthDp = screenSizeDp
+                        screenHeightDp = screenSizeDp
+                    }
+                }
+
             CompositionLocalProvider(
                 LocalLayoutDirection provides LayoutDirection.Ltr,
-                content = content
-            )
+                LocalConfiguration provides fixedScreenSizeConfiguration
+            ) {
+                Box(modifier = Modifier.size(screenSizeDp.dp).background(Color.Black)) { content() }
+            }
         }
 
         rule

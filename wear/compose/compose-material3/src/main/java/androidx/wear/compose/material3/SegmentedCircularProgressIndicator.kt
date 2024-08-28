@@ -47,7 +47,7 @@ import kotlin.math.min
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
  *   represent 6 o'clock and 9 o'clock respectively. Default is 270 degrees
- *   [ProgressIndicatorDefaults.StartAngle] (top of the screen).
+ *   [CircularProgressIndicatorDefaults.StartAngle] (top of the screen).
  * @param endAngle The ending position of the progress arc, measured clockwise in degrees (0 to 360)
  *   from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180 represent 6
  *   o'clock and 9 o'clock respectively. By default equal to [startAngle].
@@ -55,17 +55,21 @@ import kotlin.math.min
  *   color for this progress indicator in different states.
  * @param strokeWidth The stroke width for the progress indicator.
  * @param gapSize The size of the gap between segments (in Dp).
+ * @param enabled controls the enabled state. Although this component is not clickable, it can be
+ *   contained within a clickable component. When enabled is `false`, this component will appear
+ *   visually disabled.
  */
 @Composable
 fun SegmentedCircularProgressIndicator(
     @IntRange(from = 1) segmentCount: Int,
     progress: () -> Float,
     modifier: Modifier = Modifier,
-    startAngle: Float = ProgressIndicatorDefaults.StartAngle,
+    startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
-    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
-    gapSize: Dp = ProgressIndicatorDefaults.gapSize(strokeWidth),
+    strokeWidth: Dp = CircularProgressIndicatorDefaults.largeStrokeWidth,
+    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
+    enabled: Boolean = true,
 ) =
     SegmentedCircularProgressIndicatorImpl(
         segmentParams = SegmentParams.Progress(progress),
@@ -76,6 +80,7 @@ fun SegmentedCircularProgressIndicator(
         colors = colors,
         strokeWidth = strokeWidth,
         gapSize = gapSize,
+        enabled = enabled,
     )
 
 /**
@@ -96,7 +101,7 @@ fun SegmentedCircularProgressIndicator(
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
  *   represent 6 o'clock and 9 o'clock respectively. Default is 270 degrees
- *   [ProgressIndicatorDefaults.StartAngle] (top of the screen).
+ *   [CircularProgressIndicatorDefaults.StartAngle] (top of the screen).
  * @param endAngle The ending position of the progress arc, measured clockwise in degrees (0 to 360)
  *   from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180 represent 6
  *   o'clock and 9 o'clock respectively. By default equal to [startAngle].
@@ -104,17 +109,21 @@ fun SegmentedCircularProgressIndicator(
  *   color for this progress indicator in different states.
  * @param strokeWidth The stroke width for the progress indicator.
  * @param gapSize The size of the gap between segments (in Dp).
+ * @param enabled controls the enabled state. Although this component is not clickable, it can be
+ *   contained within a clickable component. When enabled is `false`, this component will appear
+ *   visually disabled.
  */
 @Composable
 fun SegmentedCircularProgressIndicator(
     @IntRange(from = 1) segmentCount: Int,
     completed: (segmentIndex: Int) -> Boolean,
     modifier: Modifier = Modifier,
-    startAngle: Float = ProgressIndicatorDefaults.StartAngle,
+    startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
-    strokeWidth: Dp = ProgressIndicatorDefaults.StrokeWidth,
-    gapSize: Dp = ProgressIndicatorDefaults.gapSize(strokeWidth),
+    strokeWidth: Dp = CircularProgressIndicatorDefaults.largeStrokeWidth,
+    gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
+    enabled: Boolean = true,
 ) =
     SegmentedCircularProgressIndicatorImpl(
         segmentParams = SegmentParams.Completed(completed),
@@ -125,6 +134,7 @@ fun SegmentedCircularProgressIndicator(
         colors = colors,
         strokeWidth = strokeWidth,
         gapSize = gapSize,
+        enabled = enabled,
     )
 
 @Composable
@@ -137,6 +147,7 @@ private fun SegmentedCircularProgressIndicatorImpl(
     colors: ProgressIndicatorColors,
     strokeWidth: Dp,
     gapSize: Dp,
+    enabled: Boolean,
 ) {
     Spacer(
         modifier
@@ -163,8 +174,9 @@ private fun SegmentedCircularProgressIndicatorImpl(
                         when (segmentParams) {
                             is SegmentParams.Completed -> {
                                 val color =
-                                    if (segmentParams.completed(segment)) colors.indicatorBrush
-                                    else colors.trackBrush
+                                    if (segmentParams.completed(segment))
+                                        colors.indicatorBrush(enabled)
+                                    else colors.trackBrush(enabled)
 
                                 drawIndicatorSegment(
                                     startAngle = segmentStartAngle,
@@ -183,7 +195,7 @@ private fun SegmentedCircularProgressIndicatorImpl(
                                         startAngle = segmentStartAngle,
                                         sweep = segmentSweepAngle,
                                         gapSweep = 0f, // Overlay, no gap
-                                        brush = colors.trackBrush,
+                                        brush = colors.trackBrush(enabled),
                                         stroke = stroke
                                     )
                                 }
@@ -196,7 +208,7 @@ private fun SegmentedCircularProgressIndicatorImpl(
                                         startAngle = segmentStartAngle,
                                         sweep = progressSweepAngle,
                                         gapSweep = 0f, // Overlay, no gap
-                                        brush = colors.indicatorBrush,
+                                        brush = colors.indicatorBrush(enabled),
                                         stroke = stroke
                                     )
                                 }

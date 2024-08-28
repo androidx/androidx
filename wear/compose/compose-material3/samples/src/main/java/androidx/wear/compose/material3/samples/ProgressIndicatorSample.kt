@@ -40,6 +40,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.CircularProgressIndicator
+import androidx.wear.compose.material3.CircularProgressIndicatorDefaults
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.IconButton
 import androidx.wear.compose.material3.IconButtonDefaults
@@ -53,7 +54,7 @@ fun FullScreenProgressIndicatorSample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
-                .padding(ProgressIndicatorDefaults.FullScreenPadding)
+                .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                 .fillMaxSize()
     ) {
         CircularProgressIndicator(
@@ -64,7 +65,7 @@ fun FullScreenProgressIndicatorSample() {
                 ProgressIndicatorDefaults.colors(
                     indicatorColor = Color.Green,
                     trackColor = Color.Green.copy(alpha = 0.5f)
-                ),
+                )
         )
     }
 }
@@ -114,7 +115,7 @@ fun OverflowProgressIndicatorSample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
-                .padding(ProgressIndicatorDefaults.FullScreenPadding)
+                .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                 .fillMaxSize()
     ) {
         CircularProgressIndicator(
@@ -144,7 +145,8 @@ fun SmallValuesProgressIndicatorSample() {
         CircularProgressIndicator(
             // Small progress values like 2% will be rounded up to at least the stroke width.
             progress = { 0.02f },
-            modifier = Modifier.fillMaxSize().padding(ProgressIndicatorDefaults.FullScreenPadding),
+            modifier =
+                Modifier.fillMaxSize().padding(CircularProgressIndicatorDefaults.FullScreenPadding),
             startAngle = 120f,
             endAngle = 60f,
             strokeWidth = 10.dp,
@@ -163,7 +165,7 @@ fun SegmentedProgressIndicatorSample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
-                .padding(ProgressIndicatorDefaults.FullScreenPadding)
+                .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                 .fillMaxSize()
     ) {
         SegmentedCircularProgressIndicator(
@@ -184,7 +186,7 @@ fun SegmentedProgressIndicatorOnOffSample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
-                .padding(ProgressIndicatorDefaults.FullScreenPadding)
+                .padding(CircularProgressIndicatorDefaults.FullScreenPadding)
                 .fillMaxSize()
     ) {
         SegmentedCircularProgressIndicator(
