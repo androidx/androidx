@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -220,6 +221,41 @@ class VectorTest {
             assertEquals(Color.White.toArgb(), getPixel(5, size - 5))
             assertEquals(Color.Red.toArgb(), getPixel(size - 5, 5))
         }
+    }
+
+    @Test
+    fun testVectorDisposal() {
+        val composeVector = mutableStateOf(true)
+        var initCount = 0
+        var disposeCount = 0
+        val disposeLatch = CountDownLatch(1)
+        rule.setContent {
+            if (composeVector.value) {
+                rememberVectorPainter(
+                    defaultWidth = 16.dp,
+                    defaultHeight = 16.dp,
+                    viewportWidth = 16f,
+                    viewportHeight = 16f,
+                    autoMirror = false,
+                ) { _, _ ->
+                    DisposableEffect(Unit) {
+                        initCount++
+                        onDispose {
+                            disposeCount++
+                            disposeLatch.countDown()
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+
+        composeVector.value = false
+
+        rule.waitForIdle()
+
+        assertTrue(disposeLatch.await(3000, TimeUnit.MILLISECONDS))
+        assertEquals(initCount, disposeCount)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
