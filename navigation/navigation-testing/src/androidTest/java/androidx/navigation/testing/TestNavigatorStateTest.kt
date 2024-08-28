@@ -27,6 +27,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination
 import androidx.navigation.NavOptions
 import androidx.navigation.Navigator
+import androidx.navigation.SupportingPane
 import androidx.navigation.navOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -86,6 +87,26 @@ class TestNavigatorStateTest {
     }
 
     @Test
+    fun testSupportingPaneLifecycle() {
+        val navigator = SupportingPaneTestNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navigator.popBackStack(secondEntry, false)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+    }
+
+    @Test
     fun testWithTransitionLifecycle() {
         val navigator = TestTransitionNavigator()
         navigator.onAttach(state)
@@ -120,6 +141,58 @@ class TestNavigatorStateTest {
         val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
         navigator.navigate(listOf(restoredSecondEntry), null, null)
         assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+
+        state.markTransitionComplete(firstEntry)
+        state.markTransitionComplete(restoredSecondEntry)
+        assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+    }
+
+    @Test
+    fun testWithSupportingPaneTransitionLifecycle() {
+        val navigator = SupportingPaneTestTransitionNavigator()
+        navigator.onAttach(state)
+        val firstEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        navigator.navigate(listOf(firstEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        state.markTransitionComplete(firstEntry)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        val secondEntry = state.createBackStackEntry(navigator.createDestination(), null)
+        navigator.navigate(listOf(secondEntry), null, null)
+        // Both are started because they are SupportingPane destinations
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
+
+        state.markTransitionComplete(secondEntry)
+        // Even though the secondEntry has completed its transition, the firstEntry
+        // hasn't completed its transition, so it shouldn't be resumed yet
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        state.markTransitionComplete(firstEntry)
+        // Both are resumed because they are SupportingPane destinations that have finished
+        // their transitions
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+
+        navigator.popBackStack(secondEntry, true)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
+
+        state.markTransitionComplete(firstEntry)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        state.markTransitionComplete(secondEntry)
+        assertThat(secondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.DESTROYED)
+
+        val restoredSecondEntry = state.restoreBackStackEntry(secondEntry)
+        navigator.navigate(listOf(restoredSecondEntry), null, null)
+        assertThat(firstEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(restoredSecondEntry.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         assertThat(state.transitionsInProgress.value.contains(firstEntry)).isTrue()
 
@@ -361,6 +434,35 @@ class TestNavigatorStateTest {
 
     internal class FloatingTestDestination(navigator: Navigator<out NavDestination>) :
         NavDestination(navigator), FloatingWindow
+
+    @Navigator.Name("test")
+    internal class SupportingPaneTestNavigator : Navigator<SupportingPaneTestDestination>() {
+        override fun createDestination(): SupportingPaneTestDestination =
+            SupportingPaneTestDestination(this)
+    }
+
+    @Navigator.Name("test")
+    internal class SupportingPaneTestTransitionNavigator :
+        Navigator<SupportingPaneTestDestination>() {
+
+        override fun createDestination(): SupportingPaneTestDestination =
+            SupportingPaneTestDestination(this)
+
+        override fun navigate(
+            entries: List<NavBackStackEntry>,
+            navOptions: NavOptions?,
+            navigatorExtras: Extras?
+        ) {
+            entries.forEach { entry -> state.pushWithTransition(entry) }
+        }
+
+        override fun popBackStack(popUpTo: NavBackStackEntry, savedState: Boolean) {
+            state.popWithTransition(popUpTo, savedState)
+        }
+    }
+
+    internal class SupportingPaneTestDestination(navigator: Navigator<out NavDestination>) :
+        NavDestination(navigator), SupportingPane
 
     class TestViewModel : ViewModel() {
         var wasCleared = false
