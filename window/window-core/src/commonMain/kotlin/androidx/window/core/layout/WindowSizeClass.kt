@@ -80,25 +80,28 @@ class WindowSizeClass(
         get() = WindowHeightSizeClass.compute(minHeightDp.toFloat())
 
     /**
-     * Returns `true` when [widthDp] is greater than or equal to [minWidthDp], `false` otherwise.
+     * Returns `true` when [minWidthDp] is greater than or equal to [widthBreakpointDp], `false`
+     * otherwise.
      */
-    fun isWidthAtLeast(widthDp: Int): Boolean {
-        return widthDp >= minWidthDp
+    fun isWidthAtLeastBreakpoint(widthBreakpointDp: Int): Boolean {
+        return minWidthDp >= widthBreakpointDp
     }
 
     /**
-     * Returns `true` when [heightDp] is greater than or equal to [minHeightDp], `false` otherwise.
+     * Returns `true` when [minHeightDp] is greater than or equal to [heightBreakpointDp], `false`
+     * otherwise.
      */
-    fun isHeightAtLeast(heightDp: Int): Boolean {
-        return heightDp >= minHeightDp
+    fun isHeightAtLeastBreakpoint(heightBreakpointDp: Int): Boolean {
+        return minHeightDp >= heightBreakpointDp
     }
 
     /**
-     * Returns `true` when [widthDp] is greater than or equal to [minWidthDp] and [heightDp] is
-     * greater than or equal to [minHeightDp], `false` otherwise.
+     * Returns `true` when [widthBreakpointDp] is greater than or equal to [minWidthDp] and
+     * [heightBreakpointDp] is greater than or equal to [minHeightDp], `false` otherwise.
      */
-    fun isAtLeast(widthDp: Int, heightDp: Int): Boolean {
-        return isWidthAtLeast(widthDp) && isHeightAtLeast(heightDp)
+    fun isAtLeastBreakpoint(widthBreakpointDp: Int, heightBreakpointDp: Int): Boolean {
+        return isWidthAtLeastBreakpoint(widthBreakpointDp) &&
+            isHeightAtLeastBreakpoint(heightBreakpointDp)
     }
 
     override fun equals(other: Any?): Boolean {
