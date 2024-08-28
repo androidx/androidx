@@ -380,8 +380,14 @@ fun ModalNavigationDrawer(
             modifier =
                 Modifier.offset {
                         drawerState.currentOffset.let { offset ->
-                            if (offset.isNaN()) IntOffset.Zero
-                            else IntOffset(offset.roundToInt(), 0)
+                            val offsetX =
+                                when {
+                                    !offset.isNaN() -> offset.roundToInt()
+                                    // If offset is NaN, set offset based on open/closed state
+                                    drawerState.isOpen -> 0
+                                    else -> -DrawerDefaults.MaximumDrawerWidth.roundToPx()
+                                }
+                            IntOffset(offsetX, 0)
                         }
                     }
                     .semantics {
