@@ -16,6 +16,8 @@
 
 package androidx.core.view.accessibility;
 
+import static androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.UNDEFINED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
@@ -53,6 +55,44 @@ public class AccessibilityNodeInfoCompatTest {
     }
 
     @Test
+    public void testCollectionInfoBuilder_withDefaultValues() {
+        AccessibilityNodeInfoCompat.CollectionInfoCompat info =
+                new AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder()
+                        .setRowCount(4)
+                        .setColumnCount(1)
+                        .setHierarchical(false)
+                        .setSelectionMode(1)
+                        .build();
+        assertThat(info.getRowCount()).isEqualTo(4);
+        assertThat(info.getColumnCount()).isEqualTo(1);
+        assertThat(info.isHierarchical()).isFalse();
+        assertThat(info.getSelectionMode()).isEqualTo(1);
+        assertThat(info.getItemCount()).isEqualTo(UNDEFINED);
+        assertThat(info.getImportantForAccessibilityItemCount()).isEqualTo(UNDEFINED);
+    }
+
+    @Test
+    public void testCollectionInfoBuilder_withRealValues() {
+        AccessibilityNodeInfoCompat.CollectionInfoCompat info =
+                new AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder()
+                        .setRowCount(4)
+                        .setColumnCount(1)
+                        .setHierarchical(false)
+                        .setSelectionMode(1)
+                        .setItemCount(4)
+                        .setImportantForAccessibilityItemCount(3)
+                        .build();
+        assertThat(info.getRowCount()).isEqualTo(4);
+        assertThat(info.getColumnCount()).isEqualTo(1);
+        assertThat(info.isHierarchical()).isFalse();
+        assertThat(info.getSelectionMode()).isEqualTo(1);
+        if (Build.VERSION.SDK_INT >= 35) {
+            assertThat(info.getItemCount()).isEqualTo(4);
+            assertThat(info.getImportantForAccessibilityItemCount()).isEqualTo(3);
+        }
+    }
+
+    @Test
     public void testSetCollectionItemInfoIsNullable() {
         AccessibilityNodeInfoCompat accessibilityNodeInfoCompat = obtainedWrappedNodeCompat();
         accessibilityNodeInfoCompat.setCollectionItemInfo(null);
@@ -75,7 +115,7 @@ public class AccessibilityNodeInfoCompatTest {
     }
 
     @Test
-    public void testSetCollectionInfoCompatBuilder_withRealValues() {
+    public void testSetCollectionItemInfoCompatBuilder_withRealValues() {
         AccessibilityNodeInfoCompat.CollectionItemInfoCompat collectionItemInfoCompat =
                 new AccessibilityNodeInfoCompat.CollectionItemInfoCompat.Builder()
                         .setColumnIndex(2)

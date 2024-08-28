@@ -962,6 +962,14 @@ public class AccessibilityNodeInfoCompat {
         /** Selection mode where multiple items may be selected. */
         public static final int SELECTION_MODE_MULTIPLE = 2;
 
+        /**
+         * Constant to denote a missing collection count.
+         *
+         * This should be used for {@code mItemCount} and
+         * {@code mImportantForAccessibilityItemCount} when values for those fields are not known.
+         */
+        public static final int UNDEFINED = AccessibilityNodeInfo.CollectionInfo.UNDEFINED;
+
         final Object mInfo;
 
         /**
@@ -1043,6 +1051,135 @@ public class AccessibilityNodeInfoCompat {
          */
         public int getSelectionMode() {
             return ((AccessibilityNodeInfo.CollectionInfo) mInfo).getSelectionMode();
+        }
+
+        /**
+         * Gets the number of items in the collection.
+         *
+         * @return The count of items, which may be {@code UNDEFINED} if the count is not known.
+         */
+        public int getItemCount() {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.getItemCount(mInfo);
+            }
+            return UNDEFINED;
+        }
+
+        /**
+         * Gets the number of items in the collection considered important for accessibility.
+         *
+         * @return The count of items important for accessibility, which may be {@code UNDEFINED}
+         * if the count is not known.
+         */
+        public int getImportantForAccessibilityItemCount() {
+            if (Build.VERSION.SDK_INT >= 35) {
+                return Api35Impl.getImportantForAccessibilityItemCount(mInfo);
+            }
+            return UNDEFINED;
+        }
+
+        /**
+         * Class for building {@link CollectionInfoCompat} objects.
+         */
+        public static final class Builder {
+            private int mRowCount = 0;
+            private int mColumnCount = 0;
+            private boolean mHierarchical = false;
+            private int mSelectionMode;
+            private int mItemCount = AccessibilityNodeInfo.CollectionInfo.UNDEFINED;
+            private int mImportantForAccessibilityItemCount =
+                    AccessibilityNodeInfo.CollectionInfo.UNDEFINED;
+
+            /**
+             * Creates a new Builder.
+             */
+            public Builder() {
+            }
+
+            /**
+             * Sets the row count.
+             * @param rowCount The number of rows in the collection.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setRowCount(int rowCount) {
+                mRowCount = rowCount;
+                return this;
+            }
+
+            /**
+             * Sets the column count.
+             * @param columnCount The number of columns in the collection.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setColumnCount(int columnCount) {
+                mColumnCount = columnCount;
+                return this;
+            }
+            /**
+             * Sets whether the collection is hierarchical.
+             * @param hierarchical Whether the collection is hierarchical.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setHierarchical(boolean hierarchical) {
+                mHierarchical = hierarchical;
+                return this;
+            }
+
+            /**
+             * Sets the selection mode.
+             * @param selectionMode The selection mode.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setSelectionMode(int selectionMode) {
+                mSelectionMode = selectionMode;
+                return this;
+            }
+
+            /**
+             * Sets the number of items in the collection. Can be optionally set for ViewGroups with
+             * clear row and column semantics; should be set for all other clients.
+             *
+             * @param itemCount The number of items in the collection. This should be set to
+             *                  {@code UNDEFINED} if the item count is not known.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setItemCount(int itemCount) {
+                mItemCount = itemCount;
+                return this;
+            }
+
+            /**
+             * Sets the number of views considered important for accessibility.
+             * @param importantForAccessibilityItemCount The number of items important for
+             *                                            accessibility.
+             * @return This builder.
+             */
+            @NonNull
+            public CollectionInfoCompat.Builder setImportantForAccessibilityItemCount(
+                    int importantForAccessibilityItemCount) {
+                mImportantForAccessibilityItemCount = importantForAccessibilityItemCount;
+                return this;
+            }
+
+            /**
+             * Creates a new {@link CollectionInfoCompat} instance.
+             */
+            @NonNull
+            public CollectionInfoCompat build() {
+                if (Build.VERSION.SDK_INT >= 35) {
+                    return Api35Impl.buildCollectionInfoCompat(mRowCount, mColumnCount,
+                            mHierarchical, mSelectionMode, mItemCount,
+                            mImportantForAccessibilityItemCount);
+                }
+
+                return CollectionInfoCompat.obtain(mRowCount, mColumnCount, mHierarchical,
+                        mSelectionMode);
+            }
         }
     }
 
@@ -5208,6 +5345,35 @@ public class AccessibilityNodeInfoCompat {
 
         public static AccessibilityNodeInfo.AccessibilityAction getActionScrollInDirection() {
             return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION;
+        }
+    }
+
+    @RequiresApi(35)
+    private static class Api35Impl {
+        private Api35Impl() {
+            // This class is non instantiable.
+        }
+
+        public static int getItemCount(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info).getItemCount();
+        }
+
+        public static int getImportantForAccessibilityItemCount(Object info) {
+            return ((AccessibilityNodeInfo.CollectionInfo) info)
+                    .getImportantForAccessibilityItemCount();
+        }
+
+        public static CollectionInfoCompat buildCollectionInfoCompat(int rowCount, int columnCount,
+                boolean hierarchical, int selectionMode, int itemCount,
+                int importantForAccessibilityItemCount) {
+            return new CollectionInfoCompat.Builder()
+                    .setRowCount(rowCount)
+                    .setColumnCount(columnCount)
+                    .setHierarchical(hierarchical)
+                    .setSelectionMode(selectionMode)
+                    .setItemCount(itemCount)
+                    .setImportantForAccessibilityItemCount(importantForAccessibilityItemCount)
+                    .build();
         }
     }
 }
