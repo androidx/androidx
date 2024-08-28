@@ -23,7 +23,7 @@ internal val NAV_CONTROLLER =
     bytecodeStub(
         "NavController.kt",
         "androidx/navigation",
-        0x40e8c1a8,
+        0xe2eb4ee4,
         """
 package androidx.navigation
 
@@ -36,6 +36,17 @@ open class NavController {
     fun navigate(route: String) {}
 
     fun <T : Any> navigate(route: T) {}
+
+    inline fun <reified T: Any> popBackStack(
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ) {}
+
+    fun <T : Any> popBackStack(
+        route: T,
+        inclusive: Boolean,
+        saveState: Boolean = false
+    ) {}
 }
 
 inline fun NavController.createGraph(
@@ -46,48 +57,58 @@ inline fun NavController.createGraph(
         """
 META-INF/main.kotlin_module:
 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMuQSTsxLKcrPTKnQy0ssy0xPLMnM
-zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5d4l3CJcnEn5+fqpVYk5hbkpAqx
-haSChJUYtBgAOMX57WIAAAA=
+zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5d4l3CJc/HCtZSkFpcIsYWkgiSU
+GLQYABRWGrdkAAAA
 """,
         """
 androidx/navigation/NavController.class:
-H4sIAAAAAAAA/41SW28SQRT+ZoFl2dIW0NYWW7UXLW21Sxt9kaaJNjFug2gs
-4aVPA2zowDKb7A6kj/wW/4FPGh9M46M/ynhmIb1qdJM99++bc2bOz1/fvgN4
-jj2GFS7bYSDaZ47kQ9HhSgTSqfHhYSBVGPi+F6bBGHJdPuSOz2XHed/sei2V
-RoLB3BdSqAOGRGmzkUUKpo0k0gxJdSoihrXqP9krDNYk5xGu5G42GFKhF7lt
-BuYyzJWql2cfq1DITkXXrFWDsON0PdUMuZCRw6UMVHxA5NQCVRv4fkUzBQPl
-WcgzPOgFyhfS6Q77jpDKCyX3HVdqxki0ojTu0GGtU6/Vm8A/8JD3PSpk2Lja
-xPgCKn9qK4s5zNu4i3sMhdsFN6aZEOlplvbrL29nDkr1epwu3M4x5KuTid55
-ire54hQz+sMEPS3TIqMF6BZ7FD8T2iuT1d5lCM9HS7axYNhG7nxkG5Y26LeS
-pC36Z6z5hfPRnlFmr1M/PpmUPFrOJYpGOblqWeejXGqLUntmziwab8cF6aOZ
-cQFFLdKZKz5VlW19Mu2b7qdO+3RtCXZ6it7+MGjTCsxWhfRqg37TC+u86Xt6
-+KDF/QYPhfYnwfWPA6lE33PlUESCQhev9epyERgyx6IjuRqEBLGPg0HY8t4I
-jV+c4Btj9BUQVmDQFusvSd3SUpPcJs/RvZNObX2B9ZkMA09JmnHQxDOS2XEB
-MrBJ5zEVRzT4RVxP498EWjFwfpycALU1jRmSmmKWcpqiQlpXpbcLha9YuE5k
-EvCSKH1BlCaKRcrvaFv3n5s0VkTif1izf2VdorwTV9+/zm6gHMst7JKuUnSZ
-ruTBCRIuHrp45NINr5KJNRfreHwCFuEJNk4wFcGOUIpgRtomYzNCPkIxwnTs
-ln4DameR7LoEAAA=
+H4sIAAAAAAAA/41VW1MjRRQ+PZPLMAQYssslWcBhiRJg2WFx1wth0QV3JcjF
+EsQSnppkCA2TmdRcIk8WT/4HX/0HvriWVim1D/vgb/C3WJ7uaUMCoYSCPqf7
+fOfrc+vhr39++wMAnsI6gUnqVn2PVc8tlzZZjYbMc61t2lzz3ND3HMf200AI
+GKe0SS2HujVr5+jUroRpUAmklpnLwhUCanFmPwNJSOmQgDSBRHjCAgJTm//L
+XiKgSZuNfsXyzD6BpG8H5SoBUiYwVNy8uns39JlbK3HM1Kbn16xTOzzyKXMD
+i7quF4oLAmvbC7cjxylxJi8KbQ0GCUyceaHDXOu0WbeYG9q+Sx2r7HLGgFWC
+NNzDyyonduVMun9JfVq3EUhguj2IuAClbmFlYAiGdbgPIwSyNwHXspFEPJux
+5b2lm5aV4t6eMGdv2ghkGl5jlVbOdkNcMNXiwQHHPriFKrYOFljhuNDp2cPc
+ihMFrIkdIAe4D2jTRhvvyP12aKFqH9PICQmUindo7cFBuXu201enX7tB1Gh4
+fmhXdxq2L2henlfsBlfS8B6Bb3YjNJgV6jiB+R0LT0wZhUn9WlS33TAwsfVm
+i8dkrsnnzwwRYIePzOPIrXC6JbM9GQ2KfGQHdJiGWSxfIZ7ZkS4diks3cXuP
+YsDWXYrSjb1rmTIwDvM6KLCAXduUw7tlh7RKQ4rtV+pNFV8x4UsPXwC7h91U
+zhnfoZdSfULg78uLoq6MKrpiXF7oisYV/NMSKDX865dnvVxqw6OXF4vKAllN
+vvkphcCNcUPNKwuJh5p2eWEkZ9G0mDJSeWU9BqQ3+mMAnmooe9r2iFrQNyyj
+9xYClBk09S1qGobBNUE5sDEtXXThMkqk0zXw+psfNJ7jIhGZ7+FHqqPSj89w
+ThNrXhWneGCTufZ2VD+y/T165Nj8RXk4UfvUZ3wvDwtfRW7I6nbZbbKA4VHr
+E/Di6uuC72OX1VwaRj669IlZ2qINSaHvepFfsV8xvslJvv2YrY0EJrGxCd40
+0DB6/HLi+inuLJ4LyuTsa9B+RkWBF7imxGEKVnHNxADoAR3lIPSKE+78TOCx
+HNcdNeE4HBulI9f6oB9XTjGANk5RQslR6bls9lcY7SRKoeMVUbpFlEaKHNrX
+uM7jN2RgeVDvwpq5lXUM7Z8J9IMOdmMQX8eEjPkLPOO1VNWVTmYFGTjzLJoV
+3JuYLn8bausOFRvxUJRIhSnUFHnbO0YPFOBdWddztCZR5nOJt9D3O0x/m515
+DXN/jie//xGS6vP4XhVe4oo3DaRFBFkRVD/+SzBgBGWuLZpcWzR5eCSjybei
+yctoeJrzsog7cmRuKeJIi7xbEbk2KSi5xslVmepjUdheVbYNf0Tulsx9AwlT
+KM1csiP3oURaJL8yOzc2/gs8icP5rwKaCCzO7x52dhhGUSrwSqA+gc9RHuIN
+i1jX9w9BLcPTMjwrwwfwIarwURk+hiUEBDg6y4dgBKAH8DyAVAC9QlkJYDCA
+fAB9You/4/iohDIVwPy/6dF9DeMIAAA=
 """,
         """
 androidx/navigation/NavControllerKt.class:
-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
+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
 """
     )
 
