@@ -95,6 +95,7 @@ val WearMaterial3Demos =
             Material3DemoCategory("Time Text", TimeTextDemos),
             ComposableDemo("Card") { CardDemo() },
             ComposableDemo("Animated Shape Buttons") { AnimatedShapeButtonDemo() },
+            ComposableDemo("Animated Shape Toggle Buttons") { AnimatedShapeToggleButtonDemo() },
             ComposableDemo("Text Toggle Button") { TextToggleButtonDemo() },
             ComposableDemo("Icon Toggle Button") { IconToggleButtonDemo() },
             ComposableDemo("Checkbox Button") { CheckboxButtonDemo() },

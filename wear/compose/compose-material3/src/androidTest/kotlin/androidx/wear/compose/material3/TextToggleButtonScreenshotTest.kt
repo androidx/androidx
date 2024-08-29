@@ -17,9 +17,14 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.dp
@@ -27,6 +32,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -82,17 +88,83 @@ class TextToggleButtonScreenshotTest {
             content = { sampleTextToggleButton(modifier = Modifier.offset(10.dp)) }
         )
 
+    @Ignore("TODO: b/345199060 work out how to show pressed state in test")
+    @Test
+    fun animatedTextToggleButtonPressed() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = {
+                val interactionSource = remember {
+                    MutableInteractionSource().apply {
+                        tryEmit(PressInteraction.Press(Offset(0f, 0f)))
+                    }
+                }
+                sampleTextToggleButton(
+                    checked = false,
+                    shape =
+                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                            interactionSource = interactionSource,
+                            checked = false
+                        ),
+                    interactionSource = interactionSource
+                )
+            }
+        )
+
+    @Test
+    fun animatedTextToggleButtonChecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = {
+                val interactionSource = remember { MutableInteractionSource() }
+                sampleTextToggleButton(
+                    checked = true,
+                    shape =
+                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                            interactionSource = interactionSource,
+                            checked = true
+                        ),
+                    interactionSource = interactionSource
+                )
+            }
+        )
+
+    @Test
+    fun animatedTextToggleButtonUnchecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = {
+                val interactionSource = remember { MutableInteractionSource() }
+                sampleTextToggleButton(
+                    checked = false,
+                    shape =
+                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                            interactionSource = interactionSource,
+                            checked = false
+                        ),
+                    interactionSource = interactionSource
+                )
+            }
+        )
+
     @Composable
     private fun sampleTextToggleButton(
         enabled: Boolean = true,
         checked: Boolean = true,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        shape: Shape = TextButtonDefaults.shape,
+        interactionSource: MutableInteractionSource? = null
     ) {
         TextToggleButton(
             checked = checked,
             onCheckedChange = {},
             enabled = enabled,
-            modifier = modifier.testTag(TEST_TAG)
+            modifier = modifier.testTag(TEST_TAG),
+            shape = shape,
+            interactionSource = interactionSource
         ) {
             Text(text = if (checked) "ON" else "OFF")
         }

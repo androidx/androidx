@@ -17,18 +17,33 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.PressInteraction
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
+import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
@@ -84,17 +99,95 @@ class IconToggleButtonScreenshotTest {
             content = { sampleIconToggleButton(modifier = Modifier.offset(10.dp)) }
         )
 
+    @Ignore("TODO: b/345199060 work out how to show pressed state in test")
+    @Test
+    fun animatedIconToggleButtonPressed() {
+        rule.setContentWithTheme {
+            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                Box(
+                    modifier =
+                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+                ) {
+                    val interactionSource = remember {
+                        MutableInteractionSource().apply {
+                            tryEmit(PressInteraction.Press(Offset(0f, 0f)))
+                        }
+                    }
+                    sampleIconToggleButton(
+                        checked = false,
+                        shape =
+                            IconToggleButtonDefaults.animatedToggleButtonShape(
+                                interactionSource = interactionSource,
+                                checked = false
+                            ),
+                        interactionSource = interactionSource
+                    )
+                }
+            }
+        }
+
+        rule.mainClock.autoAdvance = false
+        rule.mainClock.advanceTimeBy(500)
+
+        rule
+            .onNodeWithTag(TEST_TAG)
+            .captureToImage()
+            .assertAgainstGolden(rule = screenshotRule, goldenIdentifier = testName.methodName)
+    }
+
+    @Test
+    fun animatedIconToggleButtonChecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = {
+                val interactionSource = remember { MutableInteractionSource() }
+                sampleIconToggleButton(
+                    checked = true,
+                    shape =
+                        IconToggleButtonDefaults.animatedToggleButtonShape(
+                            interactionSource = interactionSource,
+                            checked = true
+                        ),
+                    interactionSource = interactionSource
+                )
+            }
+        )
+
+    @Test
+    fun animatedIconToggleButtonUnchecked() =
+        rule.verifyScreenshot(
+            methodName = testName.methodName,
+            screenshotRule = screenshotRule,
+            content = {
+                val interactionSource = remember { MutableInteractionSource() }
+                sampleIconToggleButton(
+                    checked = false,
+                    shape =
+                        IconToggleButtonDefaults.animatedToggleButtonShape(
+                            interactionSource = interactionSource,
+                            checked = false
+                        ),
+                    interactionSource = interactionSource
+                )
+            }
+        )
+
     @Composable
     private fun sampleIconToggleButton(
         enabled: Boolean = true,
         checked: Boolean = true,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        shape: Shape = TextButtonDefaults.shape,
+        interactionSource: MutableInteractionSource? = null
     ) {
         IconToggleButton(
             checked = checked,
             onCheckedChange = {},
             enabled = enabled,
-            modifier = modifier.testTag(TEST_TAG)
+            modifier = modifier.testTag(TEST_TAG),
+            shape = shape,
+            interactionSource = interactionSource
         ) {
             Icon(imageVector = Icons.Outlined.Star, contentDescription = "Favourite")
         }
