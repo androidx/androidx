@@ -98,7 +98,7 @@ class TestSavedStateHandleBuilder {
         val handle = SavedStateHandle(TestClass("null"))
         assertThat(handle.contains("arg")).isTrue()
         val arg = handle.get<String>("arg")
-        assertThat(arg).isNull()
+        assertThat(arg).isEqualTo("null")
     }
 
     @Test

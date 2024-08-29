@@ -111,6 +111,9 @@ class NavTypeConverterTest {
         val descriptor = serializer<String>().descriptor
         val kType = typeOf<String>()
         assertThat(descriptor.matchKType(kType)).isTrue()
+
+        val nullable = serializer<String?>().descriptor
+        assertThat(nullable.matchKType(kType)).isFalse()
     }
 
     @Test
@@ -645,7 +648,7 @@ class NavTypeConverterTest {
         val longType = serializer<Long>().descriptor.getNavType()
         assertThat(longType).isEqualTo(NavType.LongType)
 
-        val stringType = serializer<String>().descriptor.getNavType()
+        val stringType = serializer<String?>().descriptor.getNavType()
         assertThat(stringType).isEqualTo(NavType.StringType)
     }
 

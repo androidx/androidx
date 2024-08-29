@@ -4691,6 +4691,33 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectNonNullableString() {
+        @Serializable @SerialName("test") class TestClass(val arg: String)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass("null")) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNotNull()
+        assertThat(route.arg).isEqualTo("null")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullableString() {
+        @Serializable @SerialName("test") class TestClass(val arg: String?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass("null")) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectQueryNullString() {
         @Serializable @SerialName("test") class TestClass(val arg: String? = null)
 
@@ -4700,6 +4727,74 @@ class NavControllerRouteTest {
         assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
         val route = navController.currentBackStackEntry?.toRoute<TestClass>()
         assertThat(route!!.arg).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringArrayNullLiteral() {
+        @Serializable @SerialName("test") class TestClass(val arg: Array<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(arrayOf())) { test<TestClass>() }
+
+        navController.navigate(TestClass(arrayOf("one", "null")))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg.first()).isEqualTo("one")
+        assertThat(arg.last()).isEqualTo("null")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringArrayNullableNullLiteral() {
+        @Serializable @SerialName("test") class TestClass(val arg: Array<String>?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+
+        navController.navigate(TestClass(arrayOf("one", "null")))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg!!.first()).isEqualTo("one")
+        assertThat(arg.last()).isEqualTo("null")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListNullLiteral() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf())) { test<TestClass>() }
+
+        navController.navigate(TestClass(listOf("one", "null")))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg.first()).isEqualTo("one")
+        assertThat(arg.last()).isEqualTo("null")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringListNullableNullLiteral() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String>?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+
+        navController.navigate(TestClass(listOf("one", "null")))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg!!.first()).isEqualTo("one")
+        assertThat(arg.last()).isEqualTo("null")
     }
 
     @UiThreadTest
