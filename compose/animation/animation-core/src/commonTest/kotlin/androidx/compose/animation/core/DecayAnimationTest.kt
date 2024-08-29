@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,13 @@
 
 package androidx.compose.animation.core
 
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.math.abs
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 const val epsilon = 0.00001f
 
-@RunWith(JUnit4::class)
 class DecayAnimationTest {
 
     @Test
@@ -47,7 +45,7 @@ class DecayAnimationTest {
 
             if (!finished) {
                 // Before the animation finishes, absolute velocity is above the threshold
-                assertTrue(Math.abs(velocity) >= 2.0f)
+                assertTrue(abs(velocity) >= 2.0f)
                 assertEquals(value, animWrapper.getValueFromNanos(playTimeNanos), epsilon)
                 assertEquals(
                     velocity,
@@ -57,7 +55,7 @@ class DecayAnimationTest {
                 assertTrue(playTimeNanos < finishTimeNanos)
             } else {
                 // When the animation is finished, expect absolute velocity < threshold
-                assertTrue(Math.abs(velocity) < 2.0f)
+                assertTrue(abs(velocity) < 2.0f)
 
                 // Once the animation is finished, the value should not change any more
                 assertEquals(finishValue, animWrapper.getValueFromNanos(playTimeNanos), epsilon)

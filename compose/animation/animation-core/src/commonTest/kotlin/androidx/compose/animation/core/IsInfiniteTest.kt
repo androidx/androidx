@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 
 package androidx.compose.animation.core
 
-import com.google.common.truth.Truth.assertThat
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.kruth.assertThat
+import kotlin.test.Test
 
-@RunWith(JUnit4::class)
 class IsInfiniteTest {
     @Test
     fun testTweenIsFinite() {

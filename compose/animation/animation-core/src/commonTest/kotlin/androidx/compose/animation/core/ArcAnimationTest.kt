@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,17 +19,14 @@ package androidx.compose.animation.core
 import androidx.compose.animation.core.ArcMode.Companion.ArcAbove
 import androidx.compose.animation.core.ArcMode.Companion.ArcBelow
 import androidx.compose.animation.core.ArcMode.Companion.ArcLinear
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNotEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 /** Mostly tests some mathematical assumptions about arcs. */
 @Suppress("JoinDeclarationAndAssignment") // Looks kinda messy
 @OptIn(ExperimentalAnimationSpecApi::class)
-@RunWith(JUnit4::class)
 class ArcAnimationTest {
     // Animation parameters used in all tests
     private val timeMillis = 1000
@@ -512,7 +509,7 @@ class ArcAnimationTest {
                 start = endTime * segment.startPercent,
                 end = endTime * segment.endPercent
             )
-        assertEquals("Graph on X dimension not equals", expectGraphX, arcSplineX)
+        assertEquals(expectGraphX, arcSplineX, message = "Graph on X dimension not equals")
 
         val arcSplineY =
             plot2DArcSpline(
@@ -521,7 +518,7 @@ class ArcAnimationTest {
                 start = endTime * segment.startPercent,
                 end = endTime * segment.endPercent
             )
-        assertEquals("Graph on Y dimension not equals", expectGraphY, arcSplineY)
+        assertEquals(expectGraphY, arcSplineY, message = "Graph on Y dimension not equals")
     }
 
     private inline fun <reified V : AnimationVector> VectorizedDurationBasedAnimationSpec<V>

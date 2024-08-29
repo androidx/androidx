@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,12 @@ import androidx.compose.animation.core.ArcMode.Companion.ArcAbove
 import androidx.compose.animation.core.ArcMode.Companion.ArcBelow
 import androidx.compose.animation.core.ArcMode.Companion.ArcLinear
 import androidx.compose.ui.geometry.Offset
-import junit.framework.TestCase.assertEquals
-import org.junit.Assert.assertTrue
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @Suppress("JoinDeclarationAndAssignment") // Looks kinda messy
 @OptIn(ExperimentalAnimationSpecApi::class)
-@RunWith(JUnit4::class)
 class KeyframeArcAnimationTest {
     private val timeMillis = 3000
     private val initialValue = 0f
