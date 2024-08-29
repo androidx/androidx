@@ -48,7 +48,7 @@ sed -i "s/androidLint = \".*/androidLint = \"$LINT_VERSION\"/g" gradle/libs.vers
 sed -i "s/androidStudio = .*/androidStudio = \"$STUDIO_VERSION\"/g" gradle/libs.versions.toml
 
 # update settings.gradle
-sed -i "s/com.android.settings:com.android.settings.gradle.plugin:.*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION\")/g" settings.gradle
+sed -i "s/com.android.settings:com.android.settings.gradle.plugin:[0-9a-z\.\-]*/com.android.settings:com.android.settings.gradle.plugin:$AGP_VERSION\")/g" settings.gradle
 
 # Pull all UTP artifacts for ADT version
 ADT_VERSION=${3:-$LINT_VERSION}
