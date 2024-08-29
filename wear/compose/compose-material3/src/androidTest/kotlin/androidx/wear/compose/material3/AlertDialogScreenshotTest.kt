@@ -64,12 +64,12 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = false,
-            showText = false,
             showContent = false,
             showTwoButtons = false,
             scrollToBottom = false,
             screenSize = screenSize,
-            titleText = "Network error"
+            titleText = "Network error",
+            messageText = null
         )
 
     @Test
@@ -78,12 +78,12 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = false,
-            showText = false,
             showContent = false,
             showTwoButtons = true,
             scrollToBottom = false,
             screenSize = screenSize,
-            titleText = "Network error"
+            titleText = "Network error",
+            messageText = null
         )
 
     @Test
@@ -92,11 +92,11 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = false,
-            showText = false,
             showContent = false,
             showTwoButtons = false,
             scrollToBottom = false,
             screenSize = screenSize,
+            messageText = null,
         )
 
     @Test
@@ -105,11 +105,11 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = false,
-            showText = false,
             showContent = false,
             showTwoButtons = true,
             scrollToBottom = false,
-            screenSize = screenSize
+            screenSize = screenSize,
+            messageText = null
         )
 
     @Test
@@ -118,11 +118,11 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = false,
             showContent = false,
             showTwoButtons = false,
             scrollToBottom = false,
-            screenSize = screenSize
+            screenSize = screenSize,
+            messageText = null
         )
     }
 
@@ -132,11 +132,11 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = false,
             showContent = false,
             showTwoButtons = true,
             scrollToBottom = false,
-            screenSize = screenSize
+            screenSize = screenSize,
+            messageText = null
         )
     }
 
@@ -146,7 +146,6 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = true,
             showContent = false,
             showTwoButtons = false,
             scrollToBottom = false,
@@ -162,7 +161,6 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = true,
             showContent = true,
             showTwoButtons = false,
             scrollToBottom = false,
@@ -178,7 +176,6 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = true,
             showContent = true,
             showTwoButtons = false,
             scrollToBottom = true,
@@ -194,7 +191,6 @@ class AlertDialogScreenshotTest {
             testName = testName,
             screenshotRule = screenshotRule,
             showIcon = true,
-            showText = true,
             showContent = true,
             showTwoButtons = true,
             scrollToBottom = true,
@@ -202,15 +198,43 @@ class AlertDialogScreenshotTest {
         )
     }
 
+    @Test
+    fun alert_title_longMessageText_bottomButton(@TestParameter screenSize: ScreenSize) {
+        rule.verifyAlertDialogScreenshot(
+            testName = testName,
+            screenshotRule = screenshotRule,
+            showIcon = false,
+            showContent = false,
+            showTwoButtons = false,
+            scrollToBottom = false,
+            screenSize = screenSize,
+            messageText = longMessageText
+        )
+    }
+
+    @Test
+    fun alert_title_longMessageText_confirmDismissButtons(@TestParameter screenSize: ScreenSize) {
+        rule.verifyAlertDialogScreenshot(
+            testName = testName,
+            screenshotRule = screenshotRule,
+            showIcon = false,
+            showContent = false,
+            showTwoButtons = true,
+            scrollToBottom = false,
+            screenSize = screenSize,
+            messageText = longMessageText
+        )
+    }
+
     private fun ComposeContentTestRule.verifyAlertDialogScreenshot(
         testName: TestName,
         screenshotRule: AndroidXScreenshotTestRule,
         showIcon: Boolean,
-        showText: Boolean,
         showContent: Boolean,
         showTwoButtons: Boolean,
         scrollToBottom: Boolean,
         screenSize: ScreenSize,
+        messageText: String? = "Your battery is low. Turn on battery saver.",
         titleText: String = "Mobile network is not currently available"
     ) {
         setContentWithTheme() {
@@ -239,8 +263,8 @@ class AlertDialogScreenshotTest {
                         } else null,
                     showTwoButtons = showTwoButtons,
                     text =
-                        if (showText) {
-                            { Text("Your battery is low. Turn on battery saver.") }
+                        if (messageText != null) {
+                            { Text(messageText) }
                         } else null,
                     content =
                         if (showContent) {
@@ -308,3 +332,6 @@ private fun AlertDialogHelper(
         )
     }
 }
+
+internal const val longMessageText =
+    "Allow Map to access your location even when you're not using the app? Your location is used to automatically map places to activities."
