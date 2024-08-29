@@ -27,9 +27,11 @@ import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
@@ -106,12 +108,47 @@ class ImageCaptureExtTest {
     }
 
     @Test
+    fun takePicture_inMemory_imageProxyIsNotDeliveredClosed(): Unit = runTest {
+        // Arrange
+        val imageProxy = FakeImageProxy(FakeImageInfo())
+        val fakeTakePictureManager = FakeAppConfig.getTakePictureManager()!!
+        fakeTakePictureManager.enqueueImageProxy(imageProxy)
+
+        // Arrange & Act.
+        val takePictureAsync = MainScope().async { imageCapture.takePicture() }
+
+        // Assert.
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        assertThat(takePictureAsync.await()).isEqualTo(imageProxy)
+        assertThat(imageProxy.isClosed).isFalse()
+    }
+
+    @Test
     fun takePicture_inMemory_canCancel(): Unit = runTest {
         // Arrange & Act.
         val takePictureAsync = MainScope().async { imageCapture.takePicture() }
 
         // Assert: cancel() should complete the coroutine.
         takePictureAsync.cancel()
+    }
+
+    @Test
+    fun takePicture_inMemory_cancelClosesUndeliveredImage(): Unit = runTest {
+        // Arrange
+        val imageProxy = FakeImageProxy(FakeImageInfo())
+        FakeAppConfig.getTakePictureManager()!!.disableAutoComplete = true
+
+        // Arrange & Act.
+        val takePictureAsync = MainScope().async { imageCapture.takePicture() }
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        val imageCaptureCallback = imageCapture.getTakePictureRequest()?.inMemoryCallback
+        takePictureAsync.cancel()
+        Shadows.shadowOf(Looper.getMainLooper()).idle()
+        imageCaptureCallback?.onCaptureSuccess(imageProxy)
+
+        // Assert.
+        assertThrows<CancellationException> { takePictureAsync.await() }
+        assertThat(imageProxy.isClosed).isTrue()
     }
 
     @Test
