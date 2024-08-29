@@ -68,6 +68,25 @@ class OpenOnPhoneDialogTest {
     }
 
     @Test
+    fun calls_onDismissRequest_when_openOnPhone_becomes_hidden() {
+        val show = mutableStateOf(true)
+        var dismissed = false
+
+        rule.setContentWithTheme {
+            OpenOnPhoneDialog(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissed = true },
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+
+        rule.waitForIdle()
+        assert(dismissed)
+    }
+
+    @Test
     fun hides_openOnPhone_when_show_false() {
         rule.setContentWithTheme {
             OpenOnPhoneDialog(

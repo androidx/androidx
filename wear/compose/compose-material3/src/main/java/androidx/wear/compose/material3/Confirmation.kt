@@ -70,9 +70,12 @@ import kotlinx.coroutines.delay
  * Example of a [Confirmation] with an icon and a curved text content:
  *
  * @sample androidx.wear.compose.material3.samples.ConfirmationSample
- * @param show A boolean indicating whether the confirmation should be displayed.
+ * @param show A boolean indicating whether the confirmation should be displayed. When set to true
+ *   an 'intro' animation is triggered and the confirmation is displayed. Subsequently, when set to
+ *   false an 'outro' animation is triggered, then [onDismissRequest] is called and confirmation
+ *   becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right, when the [durationMillis] has passed or by other dismiss action.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog.
  * @param modifier Modifier to be applied to the confirmation content.
@@ -120,9 +123,12 @@ fun Confirmation(
  * Example of a [Confirmation] with an icon and a text which fits into 3 lines:
  *
  * @sample androidx.wear.compose.material3.samples.LongTextConfirmationSample
- * @param show A boolean indicating whether the confirmation should be displayed.
+ * @param show A boolean indicating whether the confirmation should be displayed. When set to true
+ *   an 'intro' animation is triggered and the confirmation is displayed. Subsequently, when set to
+ *   false an 'outro' animation is triggered, then [onDismissRequest] is called and confirmation
+ *   becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right, when the [durationMillis] has passed or by other dismiss action.
  * @param text A slot for displaying text below the icon. It should not exceed 3 lines.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param colors A [ConfirmationColors] object for customizing the colors used in this
@@ -210,9 +216,12 @@ fun Confirmation(
  * Example of a [SuccessConfirmation] usage:
  *
  * @sample androidx.wear.compose.material3.samples.SuccessConfirmationSample
- * @param show A boolean indicating whether the confirmation should be displayed.
+ * @param show A boolean indicating whether the confirmation should be displayed. When set to true
+ *   an 'intro' animation is triggered and the confirmation is displayed. Subsequently, when set to
+ *   false an 'outro' animation is triggered, then [onDismissRequest] is called and confirmation
+ *   becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right, when the [durationMillis] has passed or by other dismiss action.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. Defaults to a localized success message.
@@ -259,9 +268,12 @@ fun SuccessConfirmation(
  * Example of a [FailureConfirmation] usage:
  *
  * @sample androidx.wear.compose.material3.samples.FailureConfirmationSample
- * @param show A boolean indicating whether the confirmation should be displayed.
+ * @param show A boolean indicating whether the confirmation should be displayed. When set to true
+ *   an 'intro' animation is triggered and the confirmation is displayed. Subsequently, when set to
+ *   false an 'outro' animation is triggered, then [onDismissRequest] is called and confirmation
+ *   becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right, when the [durationMillis] has passed or by other dismiss action.
  * @param modifier Modifier to be applied to the confirmation content.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. Defaults to a localized failure message.

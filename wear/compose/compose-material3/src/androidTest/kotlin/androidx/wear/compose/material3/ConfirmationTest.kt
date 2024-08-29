@@ -212,6 +212,86 @@ class ConfirmationTest {
     }
 
     @Test
+    fun calls_onDismissRequest_when_confirmationLinearText_becomes_hidden() {
+        val show = mutableStateOf(true)
+        var dismissed = false
+
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissed = true },
+                text = {},
+                show = show.value
+            ) {}
+        }
+        rule.waitForIdle()
+        show.value = false
+
+        rule.waitForIdle()
+        assert(dismissed)
+    }
+
+    @Test
+    fun calls_onDismissRequest_when_confirmationCurvedText_becomes_hidden() {
+        val show = mutableStateOf(true)
+        var dismissed = false
+
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissed = true },
+                curvedText = {},
+                show = show.value
+            ) {}
+        }
+        rule.waitForIdle()
+        show.value = false
+
+        rule.waitForIdle()
+        assert(dismissed)
+    }
+
+    @Test
+    fun calls_onDismissRequest_when_successConfirmation_becomes_hidden() {
+        val show = mutableStateOf(true)
+        var dismissed = false
+
+        rule.setContentWithTheme {
+            SuccessConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissed = true },
+                curvedText = {},
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+
+        rule.waitForIdle()
+        assert(dismissed)
+    }
+
+    @Test
+    fun calls_onDismissRequest_when_failureConfirmation_becomes_hidden() {
+        val show = mutableStateOf(true)
+        var dismissed = false
+
+        rule.setContentWithTheme {
+            FailureConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissed = true },
+                curvedText = {},
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+
+        rule.waitForIdle()
+        assert(dismissed)
+    }
+
+    @Test
     fun confirmation_displays_icon_with_linearText() {
         rule.setContentWithTheme {
             Confirmation(
