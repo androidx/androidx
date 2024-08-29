@@ -111,10 +111,6 @@ androidx {
     samples(project(":compose:material3:adaptive:adaptive-samples"))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
 // Screenshot tests related setup
 android {
     compileSdk 35
