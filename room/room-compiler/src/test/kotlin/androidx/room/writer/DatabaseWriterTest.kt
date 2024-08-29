@@ -156,7 +156,9 @@ private fun singleDb(
                 COMMON.LIVE_DATA,
                 COMMON.COMPUTABLE_LIVE_DATA,
                 COMMON.GUAVA_ROOM,
-                COMMON.LISTENABLE_FUTURE
+                COMMON.LISTENABLE_FUTURE,
+                COMMON.PAGING_SOURCE,
+                COMMON.LIMIT_OFFSET_PAGING_SOURCE
             )
         )
     runProcessorTestWithK1(
