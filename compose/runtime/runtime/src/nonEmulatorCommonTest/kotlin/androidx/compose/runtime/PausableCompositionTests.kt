@@ -16,7 +16,6 @@
 
 package androidx.compose.runtime
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.mock.EmptyApplier
 import androidx.compose.runtime.mock.Linear
 import androidx.compose.runtime.mock.MockViewValidator
@@ -283,7 +282,7 @@ class PausableCompositionTests {
         )
     }
 
-    @SuppressLint("ListIterator")
+    @Suppress("ListIterator")
     @Test
     fun pausable_testRemember_RememberForgetOrder() = compositionTest {
         var order = 0
