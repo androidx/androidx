@@ -104,6 +104,7 @@ class PoolingContainerFragment : BaseFragment() {
                 } catch (e: Exception) {
                     Log.w(TAG, "Ad not loaded $e")
                 }
+                childSandboxedSdkView.addStateChangedListener()
                 sandboxedSdkViewSet.add(childSandboxedSdkView)
             }
         }
