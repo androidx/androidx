@@ -2338,20 +2338,20 @@ package androidx.compose.ui.layout {
   }
 
   public interface MeasureResult {
-    method public java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> getAlignmentLines();
+    method public java.util.Map<? extends androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> getAlignmentLines();
     method public int getHeight();
     method public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? getRulers();
     method public int getWidth();
     method public void placeChildren();
-    property public abstract java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines;
+    property public abstract java.util.Map<? extends androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines;
     property public abstract int height;
     property public default kotlin.jvm.functions.Function1<androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers;
     property public abstract int width;
   }
 
   @androidx.compose.ui.layout.MeasureScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
-    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
-    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<? extends androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
+    method public default androidx.compose.ui.layout.MeasureResult layout(int width, int height, optional java.util.Map<? extends androidx.compose.ui.layout.AlignmentLine,java.lang.Integer> alignmentLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.RulerScope,kotlin.Unit>? rulers, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.Placeable.PlacementScope,kotlin.Unit> placementBlock);
   }
 
   @kotlin.DslMarker public @interface MeasureScopeMarker {

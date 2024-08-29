@@ -950,7 +950,7 @@ internal class LayoutNodeLayoutDelegate(
             return true
         }
 
-        override fun calculateAlignmentLines(): Map<AlignmentLine, Int> {
+        override fun calculateAlignmentLines(): Map<out AlignmentLine, Int> {
             if (!duringAlignmentLinesQuery) {
                 // Mark alignments used by modifier
                 if (layoutState == LayoutState.Measuring) {
@@ -1278,7 +1278,7 @@ internal class LayoutNodeLayoutDelegate(
             }
         }
 
-        override fun calculateAlignmentLines(): Map<AlignmentLine, Int> {
+        override fun calculateAlignmentLines(): Map<out AlignmentLine, Int> {
             if (!duringAlignmentLinesQuery) {
                 if (layoutState == LayoutState.LookaheadMeasuring) {
                     // Mark alignments used by modifier
@@ -1894,7 +1894,7 @@ internal interface AlignmentLinesOwner : Measurable {
     fun layoutChildren()
 
     /** Recalculate the alignment lines if dirty, and layout children as needed. */
-    fun calculateAlignmentLines(): Map<AlignmentLine, Int>
+    fun calculateAlignmentLines(): Map<out AlignmentLine, Int>
 
     /**
      * Parent [AlignmentLinesOwner]. This will be the AlignmentLinesOwner for the same pass but for

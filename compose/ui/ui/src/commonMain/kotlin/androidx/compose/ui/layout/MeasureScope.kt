@@ -47,7 +47,7 @@ interface MeasureScope : IntrinsicMeasureScope {
     fun layout(
         width: Int,
         height: Int,
-        alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
+        alignmentLines: Map<out AlignmentLine, Int> = emptyMap(),
         placementBlock: Placeable.PlacementScope.() -> Unit
     ) = layout(width, height, alignmentLines, null, placementBlock)
 
@@ -69,7 +69,7 @@ interface MeasureScope : IntrinsicMeasureScope {
     fun layout(
         width: Int,
         height: Int,
-        alignmentLines: Map<AlignmentLine, Int> = emptyMap(),
+        alignmentLines: Map<out AlignmentLine, Int> = emptyMap(),
         rulers: (RulerScope.() -> Unit)? = null,
         placementBlock: Placeable.PlacementScope.() -> Unit
     ): MeasureResult {

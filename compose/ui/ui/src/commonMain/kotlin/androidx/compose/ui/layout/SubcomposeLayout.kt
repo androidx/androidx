@@ -911,7 +911,7 @@ internal class LayoutNodeSubcompositionsState(
         override fun layout(
             width: Int,
             height: Int,
-            alignmentLines: Map<AlignmentLine, Int>,
+            alignmentLines: Map<out AlignmentLine, Int>,
             rulers: (RulerScope.() -> Unit)?,
             placementBlock: Placeable.PlacementScope.() -> Unit
         ): MeasureResult {
@@ -923,7 +923,7 @@ internal class LayoutNodeSubcompositionsState(
                 override val height: Int
                     get() = height
 
-                override val alignmentLines: Map<AlignmentLine, Int>
+                override val alignmentLines: Map<out AlignmentLine, Int>
                     get() = alignmentLines
 
                 override val rulers: (RulerScope.() -> Unit)?
