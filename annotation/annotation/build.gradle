@@ -42,7 +42,7 @@ androidXMultiplatform {
         wasmJsMain {
             dependsOn(nonJvmMain)
             dependencies {
-                api(libs.kotlinStdlibJs)
+                implementation(libs.kotlinStdlibJs)
             }
         }
 
