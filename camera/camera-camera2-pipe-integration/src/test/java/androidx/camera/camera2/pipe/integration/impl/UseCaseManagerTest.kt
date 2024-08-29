@@ -228,6 +228,67 @@ class UseCaseManagerTest {
     }
 
     @Test
+    fun meteringRepeatingEnabled_whenPreviewEnabledWithNoSurfaceProvider() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val preview = createPreview(/* withSurfaceProvider= */ false)
+        val imageCapture = createImageCapture()
+        useCaseManager.attach(listOf(preview, imageCapture))
+
+        // Act
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageCapture)
+
+        // Assert
+        val enabledUseCaseClasses =
+            useCaseManager.getRunningUseCasesForTest().map { it::class.java }
+        assertThat(enabledUseCaseClasses)
+            .containsExactly(
+                Preview::class.java,
+                ImageCapture::class.java,
+                MeteringRepeating::class.java
+            )
+    }
+
+    @Test
+    fun meteringRepeatingNotEnabled_whenImageAnalysisAndPreviewWithNoSurfaceProvider() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val preview = createPreview(/* withSurfaceProvider= */ false)
+        val imageAnalysis =
+            ImageAnalysis.Builder().build().apply {
+                setAnalyzer(useCaseThreads.backgroundExecutor) { image -> image.close() }
+            }
+        useCaseManager.attach(listOf(preview, imageAnalysis))
+
+        // Act
+        useCaseManager.activate(preview)
+        useCaseManager.activate(imageAnalysis)
+
+        // Assert
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
+        assertThat(enabledUseCases).containsExactly(preview, imageAnalysis)
+    }
+
+    @Test
+    fun meteringRepeatingNotEnabled_whenOnlyPreviewWithNoSurfaceProvider() = runTest {
+        // Arrange
+        initializeUseCaseThreads(this)
+        val useCaseManager = createUseCaseManager()
+        val preview = createPreview(/* withSurfaceProvider= */ false)
+        useCaseManager.attach(listOf(preview))
+
+        // Act
+        useCaseManager.activate(preview)
+
+        // Assert
+        val enabledUseCases = useCaseManager.getRunningUseCasesForTest()
+        assertThat(enabledUseCases).containsExactly(preview)
+    }
+
+    @Test
     fun meteringRepeatingEnabled_whenOnlyImageCaptureEnabled() = runTest {
         // Arrange
         initializeUseCaseThreads(this)
@@ -736,16 +797,18 @@ class UseCaseManagerTest {
                 useCaseList.add(it)
             }
 
-    private fun createPreview(): Preview =
+    private fun createPreview(withSurfaceProvider: Boolean = true): Preview =
         Preview.Builder()
             .setCaptureOptionUnpacker(CameraUseCaseAdapter.DefaultCaptureOptionsUnpacker.INSTANCE)
             .setSessionOptionUnpacker(CameraUseCaseAdapter.DefaultSessionOptionsUnpacker)
             .build()
             .apply {
-                setSurfaceProvider(
-                    CameraXExecutors.mainThreadExecutor(),
-                    SurfaceTextureProvider.createSurfaceTextureProvider()
-                )
+                if (withSurfaceProvider) {
+                    setSurfaceProvider(
+                        CameraXExecutors.mainThreadExecutor(),
+                        SurfaceTextureProvider.createSurfaceTextureProvider()
+                    )
+                }
             }
             .also {
                 it.simulateActivation()
