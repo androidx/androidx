@@ -25,9 +25,17 @@ import android.widget.Button
 import android.widget.CheckBox
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
+import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
+import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_INCOMING
+import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_OUTGOING
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallsManager
 import androidx.core.telecom.extensions.RaiseHandState
+import androidx.core.telecom.test.Utilities.Companion.ALL_CALL_CAPABILITIES
+import androidx.core.telecom.test.Utilities.Companion.INCOMING_NAME
+import androidx.core.telecom.test.Utilities.Companion.INCOMING_URI
+import androidx.core.telecom.test.Utilities.Companion.OUTGOING_NAME
+import androidx.core.telecom.test.Utilities.Companion.OUTGOING_URI
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.core.view.WindowCompat
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -98,7 +106,14 @@ class CallingMainActivity : Activity() {
         addOutgoingCallButton.setOnClickListener {
             mScope.launch {
                 addCallWithAttributes(
-                    Utilities.OUTGOING_CALL_ATTRIBUTES,
+                    CallAttributesCompat(
+                        OUTGOING_NAME,
+                        OUTGOING_URI,
+                        DIRECTION_OUTGOING,
+                        CALL_TYPE_VIDEO_CALL,
+                        ALL_CALL_CAPABILITIES,
+                        mPreCallEndpointAdapter.mSelectedCallEndpoint
+                    ),
                     participantCheckBox.isChecked,
                     raiseHandCheckBox.isChecked,
                     kickParticipantCheckBox.isChecked
@@ -110,7 +125,14 @@ class CallingMainActivity : Activity() {
         addIncomingCallButton.setOnClickListener {
             mScope.launch {
                 addCallWithAttributes(
-                    Utilities.INCOMING_CALL_ATTRIBUTES,
+                    CallAttributesCompat(
+                        INCOMING_NAME,
+                        INCOMING_URI,
+                        DIRECTION_INCOMING,
+                        CALL_TYPE_VIDEO_CALL,
+                        ALL_CALL_CAPABILITIES,
+                        mPreCallEndpointAdapter.mSelectedCallEndpoint
+                    ),
                     participantCheckBox.isChecked,
                     raiseHandCheckBox.isChecked,
                     kickParticipantCheckBox.isChecked

@@ -33,6 +33,9 @@ import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.utils.Utils
 import androidx.core.telecom.test.utils.BaseTelecomTest
 import androidx.core.telecom.test.utils.TestUtils
+import androidx.core.telecom.test.utils.TestUtils.ALL_CALL_CAPABILITIES
+import androidx.core.telecom.test.utils.TestUtils.OUTGOING_NAME
+import androidx.core.telecom.test.utils.TestUtils.TEST_PHONE_NUMBER_8985
 import androidx.core.telecom.util.ExperimentalAppActions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -273,9 +276,15 @@ class CallsManagerTest : BaseTelecomTest() {
                 initialEndpoints.find { it.type == CallEndpointCompat.TYPE_EARPIECE }
             if (initialEndpoints.size > 1 && earpieceEndpoint != null) {
                 Log.i(TAG, "found 2 endpoints, including TYPE_EARPIECE")
-                TestUtils.OUTGOING_CALL_ATTRIBUTES.preferredStartingCallEndpoint = earpieceEndpoint
                 mCallsManager.addCall(
-                    TestUtils.OUTGOING_CALL_ATTRIBUTES,
+                    CallAttributesCompat(
+                        OUTGOING_NAME,
+                        TEST_PHONE_NUMBER_8985,
+                        CallAttributesCompat.DIRECTION_OUTGOING,
+                        CallAttributesCompat.CALL_TYPE_AUDIO_CALL,
+                        ALL_CALL_CAPABILITIES,
+                        earpieceEndpoint
+                    ),
                     TestUtils.mOnAnswerLambda,
                     TestUtils.mOnDisconnectLambda,
                     TestUtils.mOnSetActiveLambda,
