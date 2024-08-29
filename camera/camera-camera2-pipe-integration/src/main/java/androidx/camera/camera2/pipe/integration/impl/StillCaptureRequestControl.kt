@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
-import androidx.camera.camera2.pipe.integration.adapter.propagateOnceTo
+import androidx.camera.camera2.pipe.integration.adapter.propagateCompletion
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -197,7 +197,7 @@ constructor(
                     }
                 }
             } else {
-                propagateOnceTo(submittedRequest.result, cause)
+                propagateCompletion(submittedRequest.result, cause)
             }
         }
     }

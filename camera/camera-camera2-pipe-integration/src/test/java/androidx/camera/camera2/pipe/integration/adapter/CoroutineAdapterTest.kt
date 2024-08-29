@@ -46,11 +46,42 @@ class CoroutineAdapterTest {
     }
 
     @Test
+    fun propagateTransformedCompleteResult(): Unit = runBlocking {
+        // Arrange.
+        val resultValue = 123
+        val resultValueTransformed = resultValue.toString()
+
+        val sourceDeferred = CompletableDeferred<Int>()
+        val resultDeferred = CompletableDeferred<String>()
+        sourceDeferred.propagateTo(resultDeferred) { res -> res.toString() }
+
+        // Act.
+        sourceDeferred.complete(resultValue)
+
+        // Assert.
+        assertThat(resultDeferred.await()).isEqualTo(resultValueTransformed)
+    }
+
+    @Test
     fun propagateCancelResult() {
         // Arrange.
         val sourceDeferred = CompletableDeferred<Unit>()
         val resultDeferred = CompletableDeferred<Unit>()
         sourceDeferred.propagateTo(resultDeferred)
+
+        // Act.
+        sourceDeferred.cancel()
+
+        // Assert.
+        assertThat(resultDeferred.isCancelled).isTrue()
+    }
+
+    @Test
+    fun propagateCancelResult_whenTransformFunctionIsUsed() {
+        // Arrange.
+        val sourceDeferred = CompletableDeferred<Unit>()
+        val resultDeferred = CompletableDeferred<Unit>()
+        sourceDeferred.propagateTo(resultDeferred) { res -> res.toString() }
 
         // Act.
         sourceDeferred.cancel()
@@ -66,6 +97,22 @@ class CoroutineAdapterTest {
         val sourceDeferred = CompletableDeferred<Unit>()
         val resultDeferred = CompletableDeferred<Unit>()
         sourceDeferred.propagateTo(resultDeferred)
+        val testThrowable = Throwable()
+
+        // Act.
+        sourceDeferred.completeExceptionally(testThrowable)
+
+        // Assert.
+        assertThat(resultDeferred.getCompletionExceptionOrNull()).isSameInstanceAs(testThrowable)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun propagateExceptionResult_whenTransformFunctionIsUsed() {
+        // Arrange.
+        val sourceDeferred = CompletableDeferred<Unit>()
+        val resultDeferred = CompletableDeferred<Unit>()
+        sourceDeferred.propagateTo(resultDeferred) { res -> res.toString() }
         val testThrowable = Throwable()
 
         // Act.
