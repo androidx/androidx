@@ -176,7 +176,7 @@ constructor(
                 ControllerState.ERROR ->
                     if (
                         cameraStatus is CameraStatus.CameraAvailable &&
-                            lastCameraError == CameraError.ERROR_CAMERA_DEVICE
+                            lastCameraError != CameraError.ERROR_GRAPH_CONFIG
                     ) {
                         shouldRestart = true
                     }
