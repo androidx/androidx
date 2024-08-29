@@ -1683,7 +1683,7 @@ public open class NavController(
             return null
         }
         // if not matched by routePattern, try matching with route args
-        if (_graph!!.route == route || _graph!!.matchDeepLink(route) != null) {
+        if (_graph!!.route == route || _graph!!.matchRoute(route) != null) {
             return _graph
         }
         return backQueue.getTopGraph().findNode(route)
@@ -2150,7 +2150,7 @@ public open class NavController(
             backStackMap.values.removeAll { it == backStackId }
             val backStackState = backStackStates.remove(backStackId)
 
-            val matchingDeepLink = matchingDestination.matchDeepLink(route)
+            val matchingDeepLink = matchingDestination.matchRoute(route)
             // check if the topmost NavBackStackEntryState contains the arguments in this
             // matchingDeepLink. If not, we didn't find the correct stack.
             val isCorrectStack =
@@ -2424,11 +2424,35 @@ public open class NavController(
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null
     ) {
-        navigate(
-            NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
-            navOptions,
-            navigatorExtras
-        )
+        requireNotNull(_graph) {
+            "Cannot navigate to $route. Navigation graph has not been set for " +
+                "NavController $this."
+        }
+        val currGraph = backQueue.getTopGraph()
+        val deepLinkMatch =
+            currGraph.matchRouteComprehensive(
+                route,
+                searchChildren = true,
+                searchParent = true,
+                lastVisited = currGraph
+            )
+        if (deepLinkMatch != null) {
+            val destination = deepLinkMatch.destination
+            val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()
+            val node = deepLinkMatch.destination
+            val intent =
+                Intent().apply {
+                    setDataAndType(createRoute(destination.route).toUri(), null)
+                    action = null
+                }
+            args.putParcelable(KEY_DEEP_LINK_INTENT, intent)
+            navigate(node, args, navOptions, navigatorExtras)
+        } else {
+            throw IllegalArgumentException(
+                "Navigation destination that matches route $route cannot be found in the " +
+                    "navigation graph $_graph"
+            )
+        }
     }
 
     /**
@@ -2470,12 +2494,7 @@ public open class NavController(
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null
     ) {
-        val finalRoute = generateRouteFilled(route)
-        navigate(
-            NavDeepLinkRequest.Builder.fromUri(createRoute(finalRoute).toUri()).build(),
-            navOptions,
-            navigatorExtras
-        )
+        navigate(generateRouteFilled(route), navOptions, navigatorExtras)
     }
 
     /**

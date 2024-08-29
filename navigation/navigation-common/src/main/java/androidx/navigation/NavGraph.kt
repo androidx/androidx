@@ -65,6 +65,50 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
     }
 
     /**
+     * Matches route with all children and parents recursively.
+     *
+     * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun matchRouteComprehensive(
+        route: String,
+        searchChildren: Boolean,
+        searchParent: Boolean,
+        lastVisited: NavDestination
+    ): DeepLinkMatch? {
+        // First try to match with this graph's route
+        val bestMatch = matchRoute(route)
+        // If searchChildren is true, search through all child destinations for a matching route
+        val bestChildMatch =
+            if (searchChildren) {
+                mapNotNull { child ->
+                        when (child) {
+                            lastVisited -> null
+                            is NavGraph ->
+                                child.matchRouteComprehensive(
+                                    route,
+                                    searchChildren = true,
+                                    searchParent = false,
+                                    lastVisited = this
+                                )
+                            else -> child.matchRoute(route)
+                        }
+                    }
+                    .maxOrNull()
+            } else null
+
+        // If searchParent is true, search through all parents (and their children) destinations
+        // for a matching route
+        val bestParentMatch =
+            parent?.let {
+                if (searchParent && it != lastVisited)
+                    it.matchRouteComprehensive(route, searchChildren, true, this)
+                else null
+            }
+        return listOfNotNull(bestMatch, bestChildMatch, bestParentMatch).maxOrNull()
+    }
+
+    /**
      * Matches deeplink with all children and parents recursively.
      *
      * Does not revisit graphs (whether it's a child or parent) if it has already been visited.
@@ -262,7 +306,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
             nodes.valueIterator().asSequence().firstOrNull {
                 // first try matching with routePattern
                 // if not found with routePattern, try matching with route args
-                it.route.equals(route) || it.matchDeepLink(route) != null
+                it.route.equals(route) || it.matchRoute(route) != null
             }
 
         // Search the parent for the NavDestination if it is not a child of this navigation graph

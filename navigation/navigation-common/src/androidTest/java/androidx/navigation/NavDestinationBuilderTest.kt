@@ -168,9 +168,7 @@ class NavDestinationTest {
             }
         assertThat(expected.message)
             .isEqualTo(
-                "Deep link android-app://androidx.navigation/route can't be used to " +
-                    "open destination NavDestination(0xa2bd82dc).\n" +
-                    "Following required arguments are missing: [intArg]"
+                "Cannot set route \"route\" for destination NavDestination(0x0). Following required arguments are missing: [intArg]"
             )
     }
 

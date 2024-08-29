@@ -84,7 +84,7 @@ public open class NavGraphNavigator(private val navigatorProvider: NavigatorProv
             )
         }
         if (startRoute != null && startRoute != startDestination.route) {
-            val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
+            val matchingArgs = startDestination.matchRoute(startRoute)?.matchingArgs
             if (matchingArgs != null && !matchingArgs.isEmpty) {
                 val bundle = Bundle()
                 // we need to add args from startRoute, but it should not override existing args

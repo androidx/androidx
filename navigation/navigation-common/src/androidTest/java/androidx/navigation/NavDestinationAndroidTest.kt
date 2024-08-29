@@ -68,7 +68,7 @@ class NavDestinationAndroidTest {
         destination.id = 1
         assertThat(destination.route).isEqualTo("route")
         assertThat(destination.id).isEqualTo(1)
-        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isTrue()
+        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isFalse()
 
         destination.route = null
         assertThat(destination.route).isNull()
@@ -681,5 +681,45 @@ class NavDestinationAndroidTest {
         destination.id = 0
 
         assertThat(destination.hasRoute<TestClass>()).isFalse()
+    }
+
+    @Test
+    fun routeNotAddedToDeepLink() {
+        val destination = NoOpNavigator().createDestination()
+        assertThat(destination.route).isNull()
+
+        destination.route = "route"
+        assertThat(destination.route).isEqualTo("route")
+        assertThat(destination.hasDeepLink(createRoute("route").toUri())).isFalse()
+    }
+
+    @Test
+    fun matchRoute() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.route = "route"
+        assertThat(destination.route).isEqualTo("route")
+
+        val match = destination.matchRoute("route")
+        assertThat(match).isNotNull()
+        assertThat(match!!.destination).isEqualTo(destination)
+    }
+
+    @Test
+    fun matchRouteAfterSetNewRoute() {
+        val destination = NoOpNavigator().createDestination()
+
+        destination.route = "route"
+        assertThat(destination.route).isEqualTo("route")
+
+        val match = destination.matchRoute("route")
+        assertThat(match).isNotNull()
+        assertThat(match!!.destination).isEqualTo(destination)
+
+        destination.route = "newRoute"
+        assertThat(destination.route).isEqualTo("newRoute")
+        val match2 = destination.matchRoute("newRoute")
+        assertThat(match2).isNotNull()
+        assertThat(match2!!.destination).isEqualTo(destination)
     }
 }
