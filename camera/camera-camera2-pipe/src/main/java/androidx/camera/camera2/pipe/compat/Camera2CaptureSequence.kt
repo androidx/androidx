@@ -184,6 +184,15 @@ internal class Camera2CaptureSequence(
         Debug.traceStop() // onCaptureCompleted
     }
 
+    override fun onCaptureProcessProgressed(captureRequest: CaptureRequest, progress: Int) {
+        Debug.traceStart { "onCaptureProcessProgressed" }
+        // Load the request and throw if we are not able to find an associated request. Under
+        // normal circumstances this should never happen.
+        val request = readRequestMetadata(captureRequest)
+        invokeOnRequest(request) { it.onCaptureProgress(request, progress) }
+        Debug.traceStop()
+    }
+
     override fun onCaptureFailed(
         captureSession: CameraCaptureSession,
         captureRequest: CaptureRequest,

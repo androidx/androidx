@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe
 
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
+import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.view.Surface
@@ -105,6 +107,25 @@ public class Request(
             frameNumber: FrameNumber,
             captureResult: FrameMetadata
         ) {}
+
+        /**
+         * This event provides clients with an estimate of the post-processing progress of a capture
+         * which could take significantly more time relative to the rest of the
+         * [CameraExtensionSession.capture] sequence. The callback will be triggered only by
+         * extensions that return true from calls
+         * [CameraExtensionCharacteristics.isCaptureProcessProgressAvailable]. If support for this
+         * callback is present, then clients will be notified at least once with progress value 100.
+         * The callback will be triggered only for still capture requests
+         * [CameraExtensionSession.capture] and is not supported for repeating requests
+         * [CameraExtensionSession.setRepeatingRequest].
+         *
+         * @param requestMetadata the data about the camera2 request that was sent to the camera.
+         * @param progress the value indicating the current post-processing progress (between 0 and
+         *   100 inclusive)
+         * @see
+         *   android.hardware.camera2.CameraExtensionSession.ExtensionCaptureCallback.onCaptureProcessProgressed
+         */
+        public fun onCaptureProgress(requestMetadata: RequestMetadata, progress: Int) {}
 
         /**
          * This event indicates that all of the metadata associated with this frame has been
