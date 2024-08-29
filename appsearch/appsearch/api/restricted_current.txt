@@ -851,6 +851,17 @@ package androidx.appsearch.ast {
     method public default java.util.List<androidx.appsearch.ast.Node!> getChildren();
   }
 
+  @SuppressCompatibility @androidx.appsearch.app.ExperimentalAppSearchApi public final class TextNode implements androidx.appsearch.ast.Node {
+    ctor public TextNode(androidx.appsearch.ast.TextNode);
+    ctor public TextNode(String);
+    method public String getValue();
+    method public boolean isPrefix();
+    method public boolean isVerbatim();
+    method public void setPrefix(boolean);
+    method public void setValue(String);
+    method public void setVerbatim(boolean);
+  }
+
 }
 
 package androidx.appsearch.exceptions {
