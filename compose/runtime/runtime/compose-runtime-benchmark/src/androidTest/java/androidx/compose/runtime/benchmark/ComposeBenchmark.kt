@@ -17,6 +17,7 @@
 package androidx.compose.runtime.benchmark
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
@@ -30,8 +31,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -236,6 +242,21 @@ class ComposeBenchmark : ComposeBenchmarkBase() {
     fun benchmark_f_compose_Rect_100() = runBlockingTestWithFrameClock {
         measureComposeFocused { repeat(100) { Rect() } }
     }
+
+    @UiThreadTest
+    @Test
+    fun benchmark_g_group_eliding_focused_1000() = runBlockingTestWithFrameClock {
+        measureCompose { repeat(1000) { MyLayout { SimpleText("Value: $it") } } }
+    }
+}
+
+@Composable
+fun MyLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
+    Layout(content = content, measurePolicy = EmptyMeasurePolicy, modifier = modifier)
+}
+
+internal val EmptyMeasurePolicy = MeasurePolicy { _, constraints ->
+    layout(constraints.minWidth, constraints.minHeight) {}
 }
 
 class ColorModel(color: Color = Color.Black) {
@@ -251,6 +272,12 @@ private val defaultModifier = Modifier.background(Color.Yellow)
 @Composable
 private fun Rect() {
     Column(defaultModifier) {}
+}
+
+@Composable
+private fun SimpleText(text: String) {
+    val measurer = rememberTextMeasurer()
+    Box(modifier = Modifier.drawBehind { drawText(measurer, text) })
 }
 
 @Composable
