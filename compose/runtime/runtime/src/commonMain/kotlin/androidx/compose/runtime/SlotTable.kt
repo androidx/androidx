@@ -18,6 +18,7 @@ package androidx.compose.runtime
 
 import androidx.collection.MutableIntObjectMap
 import androidx.collection.MutableIntSet
+import androidx.collection.MutableObjectList
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastFilterIndexed
 import androidx.compose.runtime.snapshots.fastForEach
@@ -1290,6 +1291,12 @@ internal class SlotWriter(
     /** This a count of the [nodeCount] of the explicitly started groups. */
     private val nodeCountStack = IntStack()
 
+    /**
+     * Deferred slot writes for open groups to avoid thrashing the slot table when slots are added
+     * to parent group which already has children.
+     */
+    private var deferredSlotWrites: MutableIntObjectMap<MutableObjectList<Any?>>? = null
+
     /** The current group that will be started by [startGroup] or skipped by [skipGroup] */
     var currentGroup = 0
         private set
@@ -1439,6 +1446,19 @@ internal class SlotWriter(
      * being inserted.
      */
     fun update(value: Any?): Any? {
+        if (insertCount > 0 && currentSlot != slotsGapStart) {
+            // Defer write as doing it now would thrash the slot table.
+            val deferred =
+                (deferredSlotWrites ?: MutableIntObjectMap())
+                    .also { deferredSlotWrites = it }
+                    .getOrPut(parent) { MutableObjectList() }
+            deferred.add(value)
+            return Composer.Empty
+        }
+        return rawUpdate(value)
+    }
+
+    private fun rawUpdate(value: Any?): Any? {
         val result = skip()
         set(value)
         return result
@@ -1664,7 +1684,7 @@ internal class SlotWriter(
         groups.dataIndex(groupIndexToAddress(groupIndex + groupSize(groupIndex)))
 
     private val currentGroupSlotIndex: Int
-        get() = currentSlot - slotsStartIndex(parent)
+        get() = currentSlot - slotsStartIndex(parent) + (deferredSlotWrites?.get(parent)?.size ?: 0)
 
     /**
      * Advance [currentGroup] by [amount]. The [currentGroup] group cannot be advanced outside the
@@ -1850,6 +1870,14 @@ internal class SlotWriter(
         val newGroupSize = currentGroup - groupIndex
         val isNode = groups.isNode(groupAddress)
         if (inserting) {
+            // Check for deferred slot writes
+            val deferredSlotWrites = deferredSlotWrites
+            deferredSlotWrites?.get(groupIndex)?.let {
+                it.forEach { value -> rawUpdate(value) }
+                deferredSlotWrites.remove(groupIndex)
+            }
+
+            // Close the group
             groups.updateGroupSize(groupAddress, newGroupSize)
             groups.updateNodeCount(groupAddress, newNodes)
             nodeCount = nodeCountStack.pop() + if (isNode) 1 else newNodes

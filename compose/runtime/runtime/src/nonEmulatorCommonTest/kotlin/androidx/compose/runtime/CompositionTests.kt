@@ -4608,6 +4608,19 @@ class CompositionTests {
         revalidate()
     }
 
+    @Test // regression test for b/362291064
+    fun avoidsThrashingTheSlotTable() = compositionTest {
+        val count = 100
+        var data by mutableIntStateOf(0)
+        compose { repeat(count) { Linear { Text("Value: $it, data: $data") } } }
+
+        validate { repeat(count) { Linear { Text("Value: $it, data: $data") } } }
+
+        data++
+        advance()
+        revalidate()
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch { channel.consumeEach { Snapshot.sendApplyNotifications() } }
