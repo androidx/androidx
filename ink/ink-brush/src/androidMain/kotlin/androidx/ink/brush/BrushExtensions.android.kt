@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+@file:JvmName("BrushUtil")
 
 package androidx.ink.brush
 
@@ -22,17 +22,20 @@ import android.graphics.Color as AndroidColor
 import android.os.Build
 import androidx.annotation.CheckResult
 import androidx.annotation.RequiresApi
-import androidx.annotation.RestrictTo
 
 /**
  * The brush color as an [android.graphics.Color] instance, which can express colors in several
  * different color spaces. sRGB and Display P3 are supported; a color in any other color space will
  * be converted to Display P3.
+ *
+ * Unless an instance of [android.graphics.Color] is actually needed, prefer to use
+ * [Brush.colorLong] to get the color without causing an allocation, especially in
+ * performance-sensitive code. [Brush.colorLong] is fully compatible with the [Long] representation
+ * of [android.graphics.Color].
  */
-@JvmSynthetic
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
-public fun Brush.getAndroidColor(): AndroidColor = BrushUtil.getAndroidColor(this)
+public fun Brush.createAndroidColor(): AndroidColor = AndroidColor.valueOf(colorLong)
 
 /**
  * Creates a copy of `this` [Brush] and allows named properties to be altered while keeping the rest
@@ -40,7 +43,6 @@ public fun Brush.getAndroidColor(): AndroidColor = BrushUtil.getAndroidColor(thi
  * several different color spaces. sRGB and Display P3 are supported; a color in any other color
  * space will be converted to Display P3.
  */
-@JvmSynthetic
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
 public fun Brush.copyWithAndroidColor(
@@ -53,19 +55,53 @@ public fun Brush.copyWithAndroidColor(
 /**
  * Set the color on a [Brush.Builder] as an [android.graphics.Color] instance. sRGB and Display P3
  * are supported; a color in any other color space will be converted to Display P3.
+ *
+ * Java callers should prefer [toBuilderWithAndroidColor] or [createBrushBuilderWithAndroidColor] as
+ * a more fluent API.
  */
-@JvmSynthetic
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
 public fun Brush.Builder.setAndroidColor(color: AndroidColor): Brush.Builder =
     setColorLong(color.pack())
 
 /**
+ * Returns a [Brush.Builder] with values set equivalent to the [Brush] and the color specified by an
+ * [android.graphics.Color] instance, which can encode several different color spaces. sRGB and
+ * Display P3 are supported; a color in any other color space will be converted to Display P3. Java
+ * developers, use the returned builder to build a copy of a Brush. Kotlin developers, see
+ * [copyWithAndroidColor] method.
+ *
+ * In Kotlin, calling this is equivalent to calling [Brush.toBuilder] followed by
+ * [Brush.Builder.setAndroidColor]. For Java callers, this function allows more fluent call
+ * chaining.
+ */
+@CheckResult
+@RequiresApi(Build.VERSION_CODES.O)
+public fun Brush.toBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
+    toBuilder().setAndroidColor(color)
+
+/**
+ * Returns a new, blank [Brush.Builder] with the color specified by an [android.graphics.Color]
+ * instance, which can encode several different color spaces. sRGB and Display P3 are supported; a
+ * color in any other color space will be converted to Display P3.
+ *
+ * In Kotlin, calling this is equivalent to calling [Brush.builder] followed by
+ * [Brush.Builder.setAndroidColor]. For Java callers, this function allows more fluent call
+ * chaining.
+ */
+@JvmName("createBuilderWithAndroidColor")
+@CheckResult
+@RequiresApi(Build.VERSION_CODES.O)
+public fun createBrushBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
+    Brush.Builder().setAndroidColor(color)
+
+/**
  * Returns a new [Brush] with the color specified by an [android.graphics.Color] instance, which can
  * encode several different color spaces. sRGB and Display P3 are supported; a color in any other
  * color space will be converted to Display P3.
+ *
+ * Java callers should prefer `BrushUtil.createWithAndroidColor` ([createBrushWithAndroidColor]).
  */
-@JvmSynthetic
 @CheckResult
 @RequiresApi(Build.VERSION_CODES.O)
 public fun Brush.Companion.createWithAndroidColor(
@@ -73,57 +109,21 @@ public fun Brush.Companion.createWithAndroidColor(
     color: AndroidColor,
     size: Float,
     epsilon: Float,
-): Brush = BrushUtil.createWithAndroidColor(family, color, size, epsilon)
+): Brush = createWithColorLong(family, color.pack(), size, epsilon)
 
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-public object BrushUtil {
-
-    /**
-     * The brush color as an [android.graphics.Color] instance, which can express colors in several
-     * different color spaces. sRGB and Display P3 are supported; a color in any other color space
-     * will be converted to Display P3.
-     */
-    @JvmStatic
-    @CheckResult
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun getAndroidColor(brush: Brush): AndroidColor = AndroidColor.valueOf(brush.colorLong)
-
-    /**
-     * Returns a [Brush.Builder] with values set equivalent to [brush] and the color specified by an
-     * [android.graphics.Color] instance, which can encode several different color spaces. sRGB and
-     * Display P3 are supported; a color in any other color space will be converted to Display P3.
-     * Java developers, use the returned builder to build a copy of a Brush. Kotlin developers, see
-     * [copyWithAndroidColor] method.
-     */
-    @JvmStatic
-    @CheckResult
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun toBuilderWithAndroidColor(brush: Brush, color: AndroidColor): Brush.Builder =
-        brush.toBuilder().setAndroidColor(color)
-
-    /**
-     * Returns a new [Brush.Builder] with the color specified by an [android.graphics.Color]
-     * instance, which can encode several different color spaces. sRGB and Display P3 are supported;
-     * a color in any other color space will be converted to Display P3.
-     */
-    @JvmStatic
-    @CheckResult
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun createBuilderWithAndroidColor(color: AndroidColor): Brush.Builder =
-        Brush.Builder().setAndroidColor(color)
-
-    /**
-     * Returns a new [Brush] with the color specified by an [android.graphics.Color] instance, which
-     * can encode several different color spaces. sRGB and Display P3 are supported; a color in any
-     * other color space will be converted to Display P3.
-     */
-    @JvmStatic
-    @CheckResult
-    @RequiresApi(Build.VERSION_CODES.O)
-    public fun createWithAndroidColor(
-        family: BrushFamily,
-        color: AndroidColor,
-        size: Float,
-        epsilon: Float,
-    ): Brush = Brush.createWithColorLong(family, color.pack(), size, epsilon)
-}
+/**
+ * Returns a new [Brush] with the color specified by an [android.graphics.Color] instance, which can
+ * encode several different color spaces. sRGB and Display P3 are supported; a color in any other
+ * color space will be converted to Display P3.
+ *
+ * Kotlin callers should prefer [Brush.Companion.createWithAndroidColor].
+ */
+@JvmName("createWithAndroidColor")
+@CheckResult
+@RequiresApi(Build.VERSION_CODES.O)
+public fun createBrushWithAndroidColor(
+    family: BrushFamily,
+    color: AndroidColor,
+    size: Float,
+    epsilon: Float,
+): Brush = Brush.createWithAndroidColor(family, color, size, epsilon)
