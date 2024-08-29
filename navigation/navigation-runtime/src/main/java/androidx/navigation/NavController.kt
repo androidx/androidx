@@ -2424,11 +2424,35 @@ public open class NavController(
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null
     ) {
-        navigate(
-            NavDeepLinkRequest.Builder.fromUri(createRoute(route).toUri()).build(),
-            navOptions,
-            navigatorExtras
-        )
+        requireNotNull(_graph) {
+            "Cannot navigate to $route. Navigation graph has not been set for " +
+                "NavController $this."
+        }
+        val currGraph = backQueue.getTopGraph()
+        val deepLinkMatch =
+            currGraph.matchRouteComprehensive(
+                route,
+                searchChildren = true,
+                searchParent = true,
+                lastVisited = currGraph
+            )
+        if (deepLinkMatch != null) {
+            val destination = deepLinkMatch.destination
+            val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()
+            val node = deepLinkMatch.destination
+            val intent =
+                Intent().apply {
+                    setDataAndType(createRoute(destination.route).toUri(), null)
+                    action = null
+                }
+            args.putParcelable(KEY_DEEP_LINK_INTENT, intent)
+            navigate(node, args, navOptions, navigatorExtras)
+        } else {
+            throw IllegalArgumentException(
+                "Navigation destination that matches route $route cannot be found in the " +
+                    "navigation graph $_graph"
+            )
+        }
     }
 
     /**
@@ -2470,12 +2494,7 @@ public open class NavController(
         navOptions: NavOptions? = null,
         navigatorExtras: Navigator.Extras? = null
     ) {
-        val finalRoute = generateRouteFilled(route)
-        navigate(
-            NavDeepLinkRequest.Builder.fromUri(createRoute(finalRoute).toUri()).build(),
-            navOptions,
-            navigatorExtras
-        )
+        navigate(generateRouteFilled(route), navOptions, navigatorExtras)
     }
 
     /**
