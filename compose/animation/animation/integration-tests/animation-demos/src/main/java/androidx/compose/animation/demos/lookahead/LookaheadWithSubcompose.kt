@@ -55,13 +55,15 @@ fun LookaheadWithSubcompose() {
                 Text(if (shouldAnimate) "Stop animating bounds" else "Animate bounds")
             }
             SubcomposeLayout(
-                Modifier.background(colors[3]).conditionallyAnimateBounds(shouldAnimate)
+                Modifier.background(colors[3])
+                    .conditionallyAnimateBounds(this@LookaheadScope, shouldAnimate)
             ) {
                 val constraints = it.copy(minWidth = 0)
                 val placeable =
                     subcompose(0) {
                             Box(
                                 Modifier.conditionallyAnimateBounds(
+                                        this@LookaheadScope,
                                         shouldAnimate,
                                         Modifier.width(if (isWide) 150.dp else 70.dp)
                                             .requiredHeight(400.dp)
@@ -75,6 +77,7 @@ fun LookaheadWithSubcompose() {
                     subcompose(1) {
                             Box(
                                 Modifier.conditionallyAnimateBounds(
+                                        this@LookaheadScope,
                                         shouldAnimate,
                                         Modifier.width(if (isWide) 150.dp else 70.dp)
                                             .requiredHeight(400.dp)
@@ -91,6 +94,7 @@ fun LookaheadWithSubcompose() {
                                 Box(
                                     Modifier.width(totalWidth.toDp())
                                         .conditionallyAnimateBounds(
+                                            this@LookaheadScope,
                                             shouldAnimate,
                                             Modifier.height(if (isWide) 150.dp else 70.dp)
                                         )
@@ -108,12 +112,12 @@ fun LookaheadWithSubcompose() {
     }
 }
 
-context(LookaheadScope)
 @OptIn(ExperimentalSharedTransitionApi::class)
 private fun Modifier.conditionallyAnimateBounds(
+    lookaheadScope: LookaheadScope,
     shouldAnimate: Boolean,
     modifier: Modifier = Modifier
-) = if (shouldAnimate) this.animateBounds(this@LookaheadScope, modifier) else this.then(modifier)
+) = if (shouldAnimate) this.animateBounds(lookaheadScope, modifier) else this.then(modifier)
 
 private val colors =
     listOf(Color(0xffff6f69), Color(0xffffcc5c), Color(0xff2a9d84), Color(0xff264653))

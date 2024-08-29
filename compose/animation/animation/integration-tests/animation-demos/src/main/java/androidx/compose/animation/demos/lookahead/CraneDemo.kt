@@ -70,7 +70,10 @@ fun CraneDemo() {
     val avatar = remember {
         movableContentWithReceiverOf<SceneScope> {
             Box(
-                Modifier.sharedElementBasedOnProgress(progressProvider)
+                Modifier.sharedElementBasedOnProgress(
+                        this@movableContentWithReceiverOf,
+                        progressProvider
+                    )
                     .background(Color(0xffff6f69), RoundedCornerShape(20))
                     .fillMaxSize()
             )
@@ -81,7 +84,10 @@ fun CraneDemo() {
         movableContentWithReceiverOf<SceneScope, @Composable () -> Unit> { child ->
             Surface(
                 modifier =
-                    Modifier.sharedElementBasedOnProgress(progressProvider)
+                    Modifier.sharedElementBasedOnProgress(
+                            this@movableContentWithReceiverOf,
+                            progressProvider
+                        )
                         .background(Color(0xfffdedac)),
                 color = Color(0xfffdedac),
                 shape = RoundedCornerShape(10.dp)
@@ -166,44 +172,53 @@ interface ProgressProvider<T> {
     val progress: Float
 }
 
-context(LookaheadScope)
 @SuppressLint("PrimitiveInCollection")
-fun <T> Modifier.sharedElementBasedOnProgress(provider: ProgressProvider<T>) = composed {
-    val sizeMap = remember { mutableMapOf<T, IntSize>() }
-    val offsetMap = remember { mutableMapOf<T, Offset>() }
-    val calculateSize: (IntSize) -> IntSize = {
-        sizeMap[provider.targetState] = it
-        val (width, height) =
-            lerp(
-                sizeMap[provider.initialState]!!.toSize(),
-                sizeMap[provider.targetState]!!.toSize(),
-                provider.progress
-            )
-        IntSize(width.roundToInt(), height.roundToInt())
-    }
-
-    val calculateOffset: Placeable.PlacementScope.(ApproachMeasureScope) -> IntOffset = {
-        with(it) {
-            coordinates?.let {
-                offsetMap[provider.targetState] =
-                    lookaheadScopeCoordinates.localLookaheadPositionOf(it)
-                val lerpedOffset =
+fun <T> Modifier.sharedElementBasedOnProgress(
+    lookaheadScope: LookaheadScope,
+    provider: ProgressProvider<T>
+) =
+    with(lookaheadScope) {
+        composed {
+            val sizeMap = remember { mutableMapOf<T, IntSize>() }
+            val offsetMap = remember { mutableMapOf<T, Offset>() }
+            val calculateSize: (IntSize) -> IntSize = {
+                sizeMap[provider.targetState] = it
+                val (width, height) =
                     lerp(
-                        offsetMap[provider.initialState]!!,
-                        offsetMap[provider.targetState]!!,
+                        sizeMap[provider.initialState]!!.toSize(),
+                        sizeMap[provider.targetState]!!.toSize(),
                         provider.progress
                     )
-                val currentOffset = lookaheadScopeCoordinates.localPositionOf(it, Offset.Zero)
-                (lerpedOffset - currentOffset).round()
-            } ?: IntOffset(0, 0)
+                IntSize(width.roundToInt(), height.roundToInt())
+            }
+
+            val calculateOffset: Placeable.PlacementScope.(ApproachMeasureScope) -> IntOffset = {
+                with(it) {
+                    coordinates?.let {
+                        offsetMap[provider.targetState] =
+                            lookaheadScopeCoordinates.localLookaheadPositionOf(it)
+                        val lerpedOffset =
+                            lerp(
+                                offsetMap[provider.initialState]!!,
+                                offsetMap[provider.targetState]!!,
+                                provider.progress
+                            )
+                        val currentOffset =
+                            lookaheadScopeCoordinates.localPositionOf(
+                                it,
+                                androidx.compose.ui.geometry.Offset.Zero
+                            )
+                        (lerpedOffset - currentOffset).round()
+                    } ?: IntOffset(0, 0)
+                }
+            }
+            this.approachLayout({ provider.progress != 1f }) { measurable, _ ->
+                val (width, height) = calculateSize(lookaheadSize)
+                val animatedConstraints = androidx.compose.ui.unit.Constraints.fixed(width, height)
+                val placeable = measurable.measure(animatedConstraints)
+                layout(placeable.width, placeable.height) {
+                    placeable.place(calculateOffset(this@approachLayout))
+                }
+            }
         }
     }
-    this.approachLayout({ provider.progress != 1f }) { measurable, _ ->
-        val (width, height) = calculateSize(lookaheadSize)
-        val animatedConstraints = Constraints.fixed(width, height)
-        val placeable = measurable.measure(animatedConstraints)
-        layout(placeable.width, placeable.height) {
-            placeable.place(calculateOffset(this@approachLayout))
-        }
-    }
-}

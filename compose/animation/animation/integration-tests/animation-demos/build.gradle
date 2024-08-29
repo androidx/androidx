@@ -36,10 +36,6 @@ dependencies {
     debugImplementation(project(":compose:ui:ui-tooling"))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
 android {
     compileSdk 35
     namespace "androidx.compose.animation.demos"
