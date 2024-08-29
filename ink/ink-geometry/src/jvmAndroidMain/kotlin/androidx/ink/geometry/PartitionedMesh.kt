@@ -25,23 +25,22 @@ import androidx.ink.geometry.internal.threadLocal
 import androidx.ink.nativeloader.NativeLoader
 
 /**
- * An immutable† complex shape expressed as a set of triangles. This is used to represent the shape
- * of a stroke or other complex objects see [MeshCreation]. The mesh may be divided into multiple
- * partitions, which enables certain brush effects (e.g. "multi-coat"), and allows ink to create
- * strokes requiring greater than 216 triangles (which must be rendered in multiple passes).
+ * An immutable** complex shape expressed as a set of triangles. This is used to represent the shape
+ * of a stroke or other complex objects. The mesh may be divided into multiple partitions, which
+ * enables certain brush effects (e.g. "multi-coat"), and allows strokes to be created using greater
+ * than 2^16 triangles (which must be rendered in multiple passes).
  *
- * A PartitionedMesh may optionally have one or more "outlines", which are polylines that traverse
+ * A [PartitionedMesh] may optionally have one or more "outlines", which are polylines that traverse
  * some or all of the vertices in the mesh; these are used for path-based rendering of strokes. This
  * supports disjoint meshes such as dashed lines.
  *
- * PartitionedMesh provides fast intersection and coverage testing by use of an internal spatial
+ * [PartitionedMesh] provides fast intersection and coverage testing by use of an internal spatial
  * index.
  *
- * † PartitionedMesh is technically not immutable, as the spatial index is lazily instantiated;
+ * ** [PartitionedMesh] is technically not immutable, as the spatial index is lazily instantiated;
  * however, from the perspective of a caller, its properties do not change over the course of its
  * lifetime. The entire object is thread-safe.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class PartitionedMesh
 /** Only for use within the ink library. Constructs a [PartitionedMesh] from native pointer. */
@@ -73,42 +72,53 @@ public constructor(
     @VisibleForTesting internal constructor() : this(ModeledShapeNative.alloc())
 
     /**
-     * The number of render groups in this mesh. Each outline in the [PartitionedMesh] belongs to
-     * exactly one render group, which are numbered in z-order: the group with index zero should be
-     * rendered on bottom; the group with the highest index should be rendered on top.
+     * Returns the number of render groups in this mesh. Each outline in the [PartitionedMesh]
+     * belongs to exactly one render group, which are numbered in z-order: the group with index zero
+     * should be rendered on bottom; the group with the highest index should be rendered on top.
      */
     @IntRange(from = 0)
-    public val renderGroupCount: Int =
+    public fun getRenderGroupCount(): Int =
         ModeledShapeNative.getRenderGroupCount(nativeAddress).also { check(it >= 0) }
 
     /** The [Mesh] objects that make up this shape. */
     private val meshesByGroup: List<List<Mesh>> = buildList {
-        for (groupIndex in 0 until renderGroupCount) {
+        for (groupIndex in 0 until getRenderGroupCount()) {
             val nativeAddressesOfMeshes =
                 ModeledShapeNative.getNativeAddressesOfMeshes(nativeAddress, groupIndex)
             add(nativeAddressesOfMeshes.map(::Mesh))
         }
     }
 
+    private var _bounds: Box? = null
+
     /**
-     * The minimum bounding box of the [PartitionedMesh]. This will be null if the [PartitionedMesh]
-     * is empty.
+     * Returns the minimum bounding box of the [PartitionedMesh]. This will be null if the
+     * [PartitionedMesh] is empty.
      */
-    public val bounds: Box? = run {
+    public fun computeBoundingBox(): Box? {
+        // If we've already computed the bounding box, re-use it -- it won't change over the
+        // lifetime of
+        // this object.
+        if (_bounds != null) return _bounds
+
+        // If we have no meshes, then the bounding box is null.
+        if (meshesByGroup.isEmpty()) return null
+
         val envelope = BoxAccumulator()
         for (meshes in meshesByGroup) {
             for (mesh in meshes) {
                 envelope.add(mesh.bounds)
             }
         }
-        envelope.box
+        _bounds = envelope.box
+        return envelope.box
     }
 
     /** Returns the [MeshFormat] used for each [Mesh] in the specified render group. */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun renderGroupFormat(@IntRange(from = 0) groupIndex: Int): MeshFormat {
-        require(groupIndex >= 0 && groupIndex < renderGroupCount) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${renderGroupCount}"
+        require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
+            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
         }
         return MeshFormat(ModeledShapeNative.getRenderGroupFormat(nativeAddress, groupIndex))
     }
@@ -119,51 +129,51 @@ public constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
     public fun renderGroupMeshes(@IntRange(from = 0) groupIndex: Int): List<Mesh> {
-        require(groupIndex >= 0 && groupIndex < renderGroupCount) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${renderGroupCount}"
+        require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
+            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
         }
         return meshesByGroup[groupIndex]
     }
 
-    /** The number of outlines that comprise this shape. */
+    /** Returns the number of outlines that comprise this shape. */
     @IntRange(from = 0)
-    public fun outlineCount(@IntRange(from = 0) groupIndex: Int): Int {
-        require(groupIndex >= 0 && groupIndex < renderGroupCount) {
-            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${renderGroupCount}"
+    public fun getOutlineCount(@IntRange(from = 0) groupIndex: Int): Int {
+        require(groupIndex >= 0 && groupIndex < getRenderGroupCount()) {
+            "groupIndex=$groupIndex must be between 0 and renderGroupCount=${getRenderGroupCount()}"
         }
         return ModeledShapeNative.getOutlineCount(nativeAddress, groupIndex).also { check(it >= 0) }
     }
 
     /**
-     * The number of vertices that are in the outline at index [outlineIndex], and within the render
-     * group at [groupIndex].
+     * Returns the number of vertices that are in the outline at index [outlineIndex], and within
+     * the render group at [groupIndex].
      */
     @IntRange(from = 0)
-    public fun outlineVertexCount(
+    public fun getOutlineVertexCount(
         @IntRange(from = 0) groupIndex: Int,
         @IntRange(from = 0) outlineIndex: Int,
     ): Int {
-        require(outlineIndex >= 0 && outlineIndex < outlineCount(groupIndex)) {
-            "outlineIndex=$outlineIndex must be between 0 and outlineCount=${outlineCount(groupIndex)}"
+        require(outlineIndex >= 0 && outlineIndex < getOutlineCount(groupIndex)) {
+            "outlineIndex=$outlineIndex must be between 0 and outlineCount=${getOutlineCount(groupIndex)}"
         }
         return ModeledShapeNative.getOutlineVertexCount(nativeAddress, groupIndex, outlineIndex)
             .also { check(it >= 0) }
     }
 
     /**
-     * Retrieve the outline vertex position from the outline at index [outlineIndex] (which can be
-     * up to, but not including, [outlineCount]), and the vertex from within that outline at index
-     * [outlineVertexIndex] (which can be up to, but not including, the result of calling
-     * [outlineVertexCount] with [outlineIndex]). The resulting x/y position of that outline vertex
-     * will be put into [outPosition], which can be pre-allocated and reused to avoid allocations.
+     * Populates [outPosition] with the position of the outline vertex at [outlineVertexIndex] in
+     * the outline at [outlineIndex] in the render group at [groupIndex], and returns [outPosition].
+     * [groupIndex] must be less than [getRenderGroupCount], [outlineIndex] must be less
+     * [getOutlineVertexCount] for [groupIndex], and [outlineVertexIndex] must be less than
+     * [getOutlineVertexCount] for [groupIndex] and [outlineIndex].
      */
     public fun populateOutlinePosition(
         @IntRange(from = 0) groupIndex: Int,
         @IntRange(from = 0) outlineIndex: Int,
         @IntRange(from = 0) outlineVertexIndex: Int,
         outPosition: MutableVec,
-    ) {
-        val outlineVertexCount = outlineVertexCount(groupIndex, outlineIndex)
+    ): MutableVec {
+        val outlineVertexCount = getOutlineVertexCount(groupIndex, outlineIndex)
         require(outlineVertexIndex >= 0 && outlineVertexIndex < outlineVertexCount) {
             "outlineVertexIndex=$outlineVertexIndex must be between 0 and " +
                 "outlineVertexCount($outlineVertexIndex)=$outlineVertexCount"
@@ -178,6 +188,7 @@ public constructor(
         val (meshIndex, meshVertexIndex) = scratchIntArray
         val mesh = meshesByGroup[groupIndex][meshIndex]
         mesh.fillPosition(meshVertexIndex, outPosition)
+        return outPosition
     }
 
     /**
@@ -187,18 +198,18 @@ public constructor(
      * triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
      * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
      * loops back over itself) are counted individually. Note that, if any triangles have negative
-     * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
-     * value of their area will be used instead.
+     * area (due to winding, see [Triangle.computeSignedArea]), the absolute value of their area
+     * will be used instead.
      *
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [triangleToThis] contains the transform that maps from [triangle]'s
-     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
-     * [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to
+     * [AffineTransform.IDENTITY].
      */
     @JvmOverloads
     @FloatRange(from = 0.0, to = 1.0)
-    public fun coverage(
+    public fun computeCoverage(
         triangle: Triangle,
         triangleToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
@@ -225,17 +236,20 @@ public constructor(
      * [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space. Triangles in the
      * [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that loops back over
      * itself) are counted individually. Note that, if any triangles have negative area (due to
-     * winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute value of their
-     * area will be used instead.
+     * winding, see [Triangle.computeSignedArea]), the absolute value of their area will be used
+     * instead.
      *
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [boxToThis] contains the transform that maps from [box]'s coordinate space
-     * to this [PartitionedMesh]'s coordinate space, which defaults to the [IDENTITY].
+     * to this [PartitionedMesh]'s coordinate space, which defaults to [AffineTransform.IDENTITY].
      */
     @JvmOverloads
     @FloatRange(from = 0.0, to = 1.0)
-    public fun coverage(box: Box, boxToThis: AffineTransform = AffineTransform.IDENTITY): Float =
+    public fun computeCoverage(
+        box: Box,
+        boxToThis: AffineTransform = AffineTransform.IDENTITY
+    ): Float =
         ModeledShapeNative.modeledShapeBoxCoverage(
             nativeAddress = nativeAddress,
             boxXMin = box.xMin,
@@ -257,18 +271,18 @@ public constructor(
      * of all triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
      * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
      * loops back over itself) are counted individually. Note that, if any triangles have negative
-     * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
-     * value of their area will be used instead.
+     * area (due to winding, see [Triangle.computeSignedArea]), the absolute value of their area
+     * will be used instead.
      *
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [parallelogramToThis] contains the transform that maps from
      * [parallelogram]'s coordinate space to this [PartitionedMesh]'s coordinate space, which
-     * defaults to the [IDENTITY].
+     * defaults to [AffineTransform.IDENTITY].
      */
     @JvmOverloads
     @FloatRange(from = 0.0, to = 1.0)
-    public fun coverage(
+    public fun computeCoverage(
         parallelogram: Parallelogram,
         parallelogramToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
@@ -295,18 +309,18 @@ public constructor(
      * triangles in the [PartitionedMesh], all in the [PartitionedMesh]'s coordinate space.
      * Triangles in the [PartitionedMesh] that overlap each other (e.g. in the case of a stroke that
      * loops back over itself) are counted individually. Note that, if any triangles have negative
-     * area (due to winding, see [com.google.inputmethod.ink.Triangle.signedArea]), the absolute
-     * value of their area will be used instead.t
+     * area (due to winding, see [Triangle.computeSignedArea]), the absolute value of their area
+     * will be used instead.
      *
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [otherShapeToThis] contains the transform that maps from [other]'s
-     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
-     * [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to
+     * [AffineTransform.IDENTITY].
      */
     @JvmOverloads
     @FloatRange(from = 0.0, to = 1.0)
-    public fun coverage(
+    public fun computeCoverage(
         other: PartitionedMesh,
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
     ): Float =
@@ -327,7 +341,7 @@ public constructor(
      *
      * This is equivalent to:
      * ```
-     * this.coverage(triangle, triangleToThis) > coverageThreshold
+     * computeCoverage(triangle, triangleToThis) > coverageThreshold
      * ```
      *
      * but may be faster.
@@ -335,11 +349,11 @@ public constructor(
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [triangleToThis] contains the transform that maps from [triangle]'s
-     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
-     * [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to
+     * [AffineTransform.IDENTITY].
      */
     @JvmOverloads
-    public fun coverageIsGreaterThan(
+    public fun computeCoverageIsGreaterThan(
         triangle: Triangle,
         coverageThreshold: Float,
         triangleToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -375,10 +389,10 @@ public constructor(
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [boxToThis] contains the transform that maps from [box]'s coordinate space
-     * to this [PartitionedMesh]'s coordinate space, which defaults to the [IDENTITY].
+     * to this [PartitionedMesh]'s coordinate space, which defaults to [AffineTransform.IDENTITY].
      */
     @JvmOverloads
-    public fun coverageIsGreaterThan(
+    public fun computeCoverageIsGreaterThan(
         box: Box,
         coverageThreshold: Float,
         boxToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -413,10 +427,10 @@ public constructor(
      *
      * Optional argument [parallelogramToThis] contains the transform that maps from
      * [parallelogram]'s coordinate space to this [PartitionedMesh]'s coordinate space, which
-     * defaults to the [IDENTITY].
+     * defaults to [AffineTransform.IDENTITY].
      */
     @JvmOverloads
-    public fun coverageIsGreaterThan(
+    public fun computeCoverageIsGreaterThan(
         parallelogram: Parallelogram,
         coverageThreshold: Float,
         parallelogramToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -452,11 +466,11 @@ public constructor(
      * On an empty [PartitionedMesh], this will always return 0.
      *
      * Optional argument [otherShapeToThis] contains the transform that maps from [other]'s
-     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to the
-     * [IDENTITY].
+     * coordinate space to this [PartitionedMesh]'s coordinate space, which defaults to
+     * [AffineTransform.IDENTITY].
      */
     @JvmOverloads
-    public fun coverageIsGreaterThan(
+    public fun computeCoverageIsGreaterThan(
         other: PartitionedMesh,
         coverageThreshold: Float,
         otherShapeToThis: AffineTransform = AffineTransform.IDENTITY,
@@ -488,7 +502,7 @@ public constructor(
 
     override fun toString(): String {
         val address = java.lang.Long.toHexString(nativeAddress)
-        return "PartitionedMesh(bounds=$bounds, meshesByGroup=$meshesByGroup, nativeAddress=$address)"
+        return "PartitionedMesh(bounds=${computeBoundingBox()}, meshesByGroup=$meshesByGroup, nativeAddress=$address)"
     }
 
     protected fun finalize() {

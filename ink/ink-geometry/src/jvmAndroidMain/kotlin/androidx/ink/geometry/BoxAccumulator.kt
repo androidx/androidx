@@ -227,8 +227,7 @@ public class BoxAccumulator {
      *
      * @return `this`
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
-    public fun add(mesh: PartitionedMesh): BoxAccumulator = this.add(mesh.bounds)
+    public fun add(mesh: PartitionedMesh): BoxAccumulator = this.add(mesh.computeBoundingBox())
 
     /**
      * Compares this [BoxAccumulator] with [other], and returns true if either: Both this and

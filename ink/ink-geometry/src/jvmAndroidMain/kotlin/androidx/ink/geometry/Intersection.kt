@@ -16,7 +16,6 @@
 
 package androidx.ink.geometry
 
-import androidx.annotation.RestrictTo
 import androidx.ink.nativeloader.NativeLoader
 
 /**
@@ -116,7 +115,6 @@ public object Intersection {
      * intersection of the point in [mesh]’s object coordinates.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun Vec.intersects(mesh: PartitionedMesh, meshToPoint: AffineTransform): Boolean {
         return nativeMeshVecIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
@@ -218,7 +216,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun Segment.intersects(mesh: PartitionedMesh, meshToSegment: AffineTransform): Boolean {
         return nativeMeshSegmentIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
@@ -311,7 +308,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun Triangle.intersects(
         mesh: PartitionedMesh,
         meshToTriangle: AffineTransform
@@ -382,7 +378,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun Box.intersects(mesh: PartitionedMesh, meshToBox: AffineTransform): Boolean {
         return nativeMeshBoxIntersects(
             nativeMeshAddress = mesh.getNativeAddress(),
@@ -436,7 +431,6 @@ public object Intersection {
      * checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun Parallelogram.intersects(
         mesh: PartitionedMesh,
         meshToParallelogram: AffineTransform,
@@ -467,7 +461,6 @@ public object Intersection {
      * coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(
         other: PartitionedMesh,
         thisToCommonTransForm: AffineTransform,
@@ -566,7 +559,6 @@ public object Intersection {
      * intersection of the point in [mesh]’s object coordinates.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(point: Vec, meshToPoint: AffineTransform): Boolean =
         point.intersects(this, meshToPoint)
 
@@ -578,7 +570,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(
         segment: Segment,
         meshToSegment: AffineTransform
@@ -592,7 +583,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(
         triangle: Triangle,
         meshToTriangle: AffineTransform,
@@ -606,7 +596,6 @@ public object Intersection {
      * coordinate space to the coordinate space that the intersection should be checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(box: Box, meshToBox: AffineTransform): Boolean =
         box.intersects(this, meshToBox)
 
@@ -619,7 +608,6 @@ public object Intersection {
      * checked in.
      */
     @JvmStatic
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun PartitionedMesh.intersects(
         parallelogram: Parallelogram,
         meshToParallelogram: AffineTransform,
