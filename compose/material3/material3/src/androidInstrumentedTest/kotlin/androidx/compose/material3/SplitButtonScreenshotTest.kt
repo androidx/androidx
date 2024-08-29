@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTouchInput
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
@@ -53,6 +54,8 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
 
     private val wrap = Modifier.wrapContentSize(Alignment.Center)
     private val wrapperTestTag = "splitButtonWrapper"
+    private val leadingButtonTag = "leadingButton"
+    private val trailingButtonTag = "trailingButton"
 
     @Test
     fun splitButton() {
@@ -323,11 +326,102 @@ class SplitButtonScreenshotTest(private val scheme: ColorSchemeWrapper) {
         assertAgainstGolden("splitButton_textLeadingButton_${scheme.name}")
     }
 
+    @Test
+    fun splitButton_leadingButton_pressed() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                SplitButton(
+                    leadingButton = {
+                        SplitButtonDefaults.LeadingButton(
+                            onClick = { /* Do Nothing */ },
+                            modifier = Modifier.testTag(leadingButtonTag),
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
+                    },
+                    trailingButton = {
+                        SplitButtonDefaults.TrailingButton(
+                            onClick = {},
+                            checked = false,
+                        ) {
+                            Icon(
+                                Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Localized description",
+                                Modifier.size(SplitButtonDefaults.TrailingIconSize)
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        assertPressed(leadingButtonTag, "splitButton_leadingButton_pressed_${scheme.name}")
+    }
+
+    @Test
+    fun splitButton_trailingButton_pressed() {
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) {
+                SplitButton(
+                    leadingButton = {
+                        SplitButtonDefaults.LeadingButton(
+                            onClick = { /* Do Nothing */ },
+                        ) {
+                            Icon(
+                                Icons.Filled.Edit,
+                                modifier = Modifier.size(SplitButtonDefaults.LeadingIconSize),
+                                contentDescription = "Localized description",
+                            )
+                            Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                            Text("My Button")
+                        }
+                    },
+                    trailingButton = {
+                        SplitButtonDefaults.TrailingButton(
+                            onClick = {},
+                            checked = false,
+                            modifier = Modifier.testTag(trailingButtonTag),
+                        ) {
+                            Icon(
+                                Icons.Outlined.KeyboardArrowDown,
+                                contentDescription = "Localized description",
+                                Modifier.size(SplitButtonDefaults.TrailingIconSize)
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        assertPressed(trailingButtonTag, "splitButton_trailingButton_pressed_${scheme.name}")
+    }
+
     private fun assertAgainstGolden(goldenName: String) {
         rule
             .onNodeWithTag(wrapperTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, goldenName)
+    }
+
+    private fun assertPressed(tag: String, goldenName: String) {
+        rule.mainClock.autoAdvance = false
+        rule.onNodeWithTag(tag).performTouchInput { down(center) }
+
+        rule.mainClock.advanceTimeByFrame()
+        rule.waitForIdle() // Wait for measure
+        rule.mainClock.advanceTimeBy(milliseconds = 200)
+
+        // Ripples are drawn on the RenderThread, not the main (UI) thread, so we can't wait for
+        // synchronization. Instead just wait until after the ripples are finished animating.
+        Thread.sleep(300)
+
+        assertAgainstGolden(goldenName)
     }
 
     // Provide the ColorScheme and their name parameter in a ColorSchemeWrapper.
