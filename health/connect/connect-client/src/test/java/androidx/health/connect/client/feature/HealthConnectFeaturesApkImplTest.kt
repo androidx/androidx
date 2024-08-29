@@ -69,7 +69,7 @@ private val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
 @OptIn(ExperimentalFeatureAvailabilityApi::class)
 @RunWith(AndroidJUnit4::class)
 @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
-class HealthConnectApkImplTest {
+class HealthConnectFeaturesApkImplTest {
 
     private val context: Context = ApplicationProvider.getApplicationContext()
 
