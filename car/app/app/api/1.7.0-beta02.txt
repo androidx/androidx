@@ -900,6 +900,7 @@ package androidx.car.app.mediaextensions {
     field public static final String KEY_HINT_VIEW_MAX_ITEMS_WHILE_RESTRICTED = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_ITEMS_WHILE_RESTRICTED";
     field public static final String KEY_HINT_VIEW_MAX_LIST_ITEMS_COUNT_PER_ROW = "androidx.car.app.mediaextensions.KEY_HINT_VIEW_MAX_LIST_ITEMS_COUNT_PER_ROW";
     field public static final String KEY_ROOT_HINT_MAX_QUEUE_ITEMS_WHILE_RESTRICTED = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MAX_QUEUE_ITEMS_WHILE_RESTRICTED";
+    field public static final String KEY_ROOT_HINT_MEDIA_HOST_VERSION = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MEDIA_HOST_VERSION";
     field public static final String KEY_ROOT_HINT_MEDIA_SESSION_API = "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MEDIA_SESSION_API";
   }
 

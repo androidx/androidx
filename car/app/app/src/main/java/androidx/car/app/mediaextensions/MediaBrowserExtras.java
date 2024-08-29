@@ -37,6 +37,17 @@ public final class MediaBrowserExtras {
 
     /**
      * {@link Bundle} key used in the rootHints bundle passed to
+     * {@link androidx.media.MediaBrowserServiceCompat#onGetRoot(String, int, Bundle)}
+     * to indicate the version of the caller. Note that this should only be used for analytics and
+     * is different than {@link #KEY_ROOT_HINT_MEDIA_SESSION_API}.
+     *
+     * <p>TYPE: string - the version info.
+     */
+    public static final String KEY_ROOT_HINT_MEDIA_HOST_VERSION =
+            "androidx.car.app.mediaextensions.KEY_ROOT_HINT_MEDIA_HOST_VERSION";
+
+    /**
+     * {@link Bundle} key used in the rootHints bundle passed to
      * {@link androidx.media.MediaBrowserServiceCompat#onGetRoot(String, int, Bundle)} to indicate
      * which version of the media api is used by the caller
      *
