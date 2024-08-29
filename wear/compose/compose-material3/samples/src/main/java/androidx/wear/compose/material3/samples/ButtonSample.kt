@@ -21,9 +21,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonDefaults
@@ -66,7 +66,7 @@ fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
@@ -111,7 +111,7 @@ fun FilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
@@ -141,7 +141,7 @@ fun FilledVariantButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
@@ -186,7 +186,7 @@ fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
@@ -231,7 +231,7 @@ fun ChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         secondaryLabel = { Text("Secondary label") },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.IconSize)
             )
@@ -247,7 +247,7 @@ fun CompactButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
         onClick = { /* Do something */ },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.SmallIconSize)
             )
@@ -281,7 +281,7 @@ fun FilledTonalCompactButtonSample(modifier: Modifier = Modifier.fillMaxWidth())
         onClick = { /* Do something */ },
         icon = {
             Icon(
-                Icons.Filled.Favorite,
+                painter = painterResource(R.drawable.ic_favorite_rounded),
                 contentDescription = "Favorite icon",
                 modifier = Modifier.size(ButtonDefaults.SmallIconSize)
             )
