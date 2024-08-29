@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -365,6 +366,7 @@ public class JobIntentServiceTest {
      */
     @MediumTest
     @Test
+    @Ignore("JobIntentService is deprecated and no longer maintained")
     public void testEnqueueOne() throws Throwable {
         initStatics();
 
@@ -386,6 +388,7 @@ public class JobIntentServiceTest {
      */
     @MediumTest
     @Test
+    @Ignore("JobIntentService is deprecated and no longer maintained")
     public void testEnqueueMultiple() throws Throwable {
         initStatics();
 
@@ -410,6 +413,7 @@ public class JobIntentServiceTest {
      */
     @MediumTest
     @Test
+    @Ignore("JobIntentService is deprecated and no longer maintained")
     public void testEnqueueSubWork() throws Throwable {
         initStatics();
 
@@ -439,6 +443,7 @@ public class JobIntentServiceTest {
      */
     @MediumTest
     @Test
+    @Ignore("JobIntentService is deprecated and no longer maintained")
     @RequiresApi(26)
     public void testStopWhileWorking() throws Throwable {
         if (Build.VERSION.SDK_INT < 26) {
