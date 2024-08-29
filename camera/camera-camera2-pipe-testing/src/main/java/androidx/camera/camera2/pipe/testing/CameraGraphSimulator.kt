@@ -34,10 +34,8 @@ import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestFailure
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.media.ImageSource
-import kotlin.collections.removeFirst as removeFirstKt
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.withTimeout
 
 /**
  * This class creates a [CameraPipe] and [CameraGraph] instance using a [FakeCameraBackend].
@@ -166,7 +164,7 @@ internal constructor(
         }
     }
 
-    public suspend fun simulateNextFrame(
+    public fun simulateNextFrame(
         advanceClockByNanos: Long = 33_366_666 // (2_000_000_000 / (60  / 1.001))
     ): FrameSimulator =
         generateNextFrame().also {
@@ -174,7 +172,7 @@ internal constructor(
             it.simulateStarted(clockNanos)
         }
 
-    private suspend fun generateNextFrame(): FrameSimulator {
+    private fun generateNextFrame(): FrameSimulator {
         val captureSequenceProcessor = cameraController.currentCaptureSequenceProcessor
         check(captureSequenceProcessor != null) {
             "simulateCameraStarted() must be called before frames can be created!"
@@ -183,16 +181,19 @@ internal constructor(
         // This checks the pending frame queue and polls for the next request. If no request is
         // available it will suspend until the next interaction with the request processor.
         if (pendingFrameQueue.isEmpty()) {
-            val requestSequence =
-                withTimeout(timeMillis = 250) { captureSequenceProcessor.nextRequestSequence() }
+            val captureSequence = captureSequenceProcessor.nextCaptureSequence()
+            checkNotNull(captureSequence) {
+                "Failed to simulate a CaptureSequence from $captureSequenceProcessor! Make sure " +
+                    "Requests have been submitted or that the repeating Request has been set."
+            }
 
             // Each sequence is processed as a group, and if a sequence contains multiple requests
             // the list of requests is processed in order before polling the next sequence.
-            for (request in requestSequence.captureRequestList) {
-                pendingFrameQueue.add(FrameSimulator(request, requestSequence))
+            for (request in captureSequence.captureRequestList) {
+                pendingFrameQueue.add(FrameSimulator(request, captureSequence))
             }
         }
-        return pendingFrameQueue.removeFirstKt()
+        return pendingFrameQueue.removeAt(0)
     }
 
     /** Utility function to simulate the production of a [FakeImage]s for one or more streams. */

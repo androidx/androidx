@@ -31,22 +31,30 @@ import org.robolectric.annotation.Config
 class FakeCameraDevicesTest {
     private val EXTERNAL_BACKEND_ID =
         CameraBackendId("androidx.camera.camera2.pipe.testing.FakeCameraDevicesTest")
-    private val metadata1 =
+    private val frontMetadata =
         FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
+            cameraId = FakeCameraIds.next(),
+            characteristics =
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_FRONT)
         )
-    private val metadata2 =
+    private val backMetadata =
         FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
+            cameraId = FakeCameraIds.next(),
+            characteristics =
+                mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_BACK)
         )
-    private val metadata3 =
+    private val extMetadata =
         FakeCameraMetadata(
-            mapOf(CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL)
+            cameraId = FakeCameraIds.next(),
+            characteristics =
+                mapOf(
+                    CameraCharacteristics.LENS_FACING to CameraCharacteristics.LENS_FACING_EXTERNAL
+                )
         )
     private val cameraMetadataMap =
         mapOf(
-            FAKE_CAMERA_BACKEND_ID to listOf(metadata1, metadata2),
-            EXTERNAL_BACKEND_ID to listOf(metadata3)
+            FAKE_CAMERA_BACKEND_ID to listOf(frontMetadata, backMetadata),
+            EXTERNAL_BACKEND_ID to listOf(extMetadata)
         )
 
     @Test
@@ -63,11 +71,13 @@ class FakeCameraDevicesTest {
             )
         val devices = cameraDevices.getCameraIds()
         assertThat(devices)
-            .containsExactlyElementsIn(listOf(metadata1.camera, metadata2.camera))
+            .containsExactlyElementsIn(listOf(frontMetadata.camera, backMetadata.camera))
             .inOrder()
 
-        assertThat(cameraDevices.getCameraMetadata(metadata1.camera)).isSameInstanceAs(metadata1)
-        assertThat(cameraDevices.getCameraMetadata(metadata2.camera)).isSameInstanceAs(metadata2)
+        assertThat(cameraDevices.getCameraMetadata(frontMetadata.camera))
+            .isSameInstanceAs(frontMetadata)
+        assertThat(cameraDevices.getCameraMetadata(backMetadata.camera))
+            .isSameInstanceAs(backMetadata)
     }
 
     @Test
@@ -86,13 +96,13 @@ class FakeCameraDevicesTest {
         assertThat(devices)
             .containsExactlyElementsIn(
                 listOf(
-                    metadata3.camera,
+                    extMetadata.camera,
                 )
             )
             .inOrder()
 
-        assertThat(cameraDevices.getCameraMetadata(metadata3.camera)).isNull()
-        assertThat(cameraDevices.getCameraMetadata(metadata3.camera, EXTERNAL_BACKEND_ID))
-            .isSameInstanceAs(metadata3)
+        assertThat(cameraDevices.getCameraMetadata(extMetadata.camera)).isNull()
+        assertThat(cameraDevices.getCameraMetadata(extMetadata.camera, EXTERNAL_BACKEND_ID))
+            .isSameInstanceAs(extMetadata)
     }
 }

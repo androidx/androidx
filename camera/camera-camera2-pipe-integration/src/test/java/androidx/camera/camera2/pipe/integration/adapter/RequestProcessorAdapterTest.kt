@@ -168,6 +168,8 @@ class RequestProcessorAdapterTest {
         val callback: RequestProcessor.Callback = mock()
 
         requestProcessorAdapter!!.setRepeating(requestToSet, callback)
+        advanceUntilIdle()
+
         val frame = cameraGraphSimulator!!.simulateNextFrame()
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)
@@ -209,6 +211,8 @@ class RequestProcessorAdapterTest {
         val callback: RequestProcessor.Callback = mock()
 
         requestProcessorAdapter!!.submit(mutableListOf(requestToSubmit), callback)
+        advanceUntilIdle()
+
         val frame = cameraGraphSimulator!!.simulateNextFrame()
         val request = frame.request
         assertThat(request.streams.size).isEqualTo(1)

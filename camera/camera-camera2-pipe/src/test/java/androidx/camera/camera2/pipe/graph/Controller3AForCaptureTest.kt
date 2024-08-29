@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestNumber
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
@@ -477,14 +478,20 @@ class Controller3AForCaptureTest {
         assertThat(result3A.status).isEqualTo(Result3A.Status.OK)
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
-        // call. There should be a request to cancel AF and AE precapture metering.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        // call. There should be a request to cancel AF and AE precapture metering
+        val event1 = captureSequenceProcessor.nextEvent()
         if (cancelAf) {
-            assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+            assertThat(event1.requiredParameters)
+                .containsEntry(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+                )
         }
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL)
+        assertThat(event1.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_CANCEL
+            )
     }
 
     private fun testUnlock3APostCaptureAndroidLAndBelow(cancelAf: Boolean = true) = runTest {
@@ -509,31 +516,37 @@ class Controller3AForCaptureTest {
 
         // We now check if the correct sequence of requests were submitted by unlock3APostCapture
         // call. There should be a request to cancel AF and lock ae.
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
+        val event1 = captureSequenceProcessor.nextEvent()
         if (cancelAf) {
-            assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER])
-                .isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_CANCEL)
+            assertThat(event1.requiredParameters)
+                .containsEntry(
+                    CaptureRequest.CONTROL_AF_TRIGGER,
+                    CaptureRequest.CONTROL_AF_TRIGGER_CANCEL
+                )
         }
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(true)
+
+        assertThat(event1.requiredParameters).containsEntry(CaptureRequest.CONTROL_AE_LOCK, true)
 
         // Then another request to unlock ae.
-        val request2 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request2!!.requiredParameters[CaptureRequest.CONTROL_AE_LOCK]).isEqualTo(false)
+        val captureSequence2 = captureSequenceProcessor.nextEvent()
+        assertThat(captureSequence2.requiredParameters)
+            .containsEntry(CaptureRequest.CONTROL_AE_LOCK, false)
     }
 
-    private suspend fun assertCorrectCaptureSequenceInLock3AForCapture(
-        isAfTriggered: Boolean = true
-    ) {
-        val request1 = captureSequenceProcessor.nextEvent().requestSequence
-        assertThat(request1!!.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).apply {
+    private fun assertCorrectCaptureSequenceInLock3AForCapture(isAfTriggered: Boolean = true) {
+        val event1 = captureSequenceProcessor.nextEvent()
+        assertThat(event1.requiredParameters[CaptureRequest.CONTROL_AF_TRIGGER]).apply {
             if (isAfTriggered) {
                 isEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_START)
             } else {
                 isNotEqualTo(CaptureRequest.CONTROL_AF_TRIGGER_IDLE)
             }
         }
-        assertThat(request1.requiredParameters[CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER])
-            .isEqualTo(CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START)
+        assertThat(event1.requiredParameters)
+            .containsEntry(
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER,
+                CaptureRequest.CONTROL_AE_PRECAPTURE_TRIGGER_START
+            )
     }
 
     companion object {

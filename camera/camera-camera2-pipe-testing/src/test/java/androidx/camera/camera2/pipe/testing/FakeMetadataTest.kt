@@ -62,7 +62,6 @@ class CameraMetadataTest {
             )
 
         assertThat(metadata1).isNotEqualTo(metadata2)
-        assertThat(metadata1.camera).isNotEqualTo(metadata2.camera)
     }
 
     @Test

@@ -27,12 +27,6 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
 import kotlin.reflect.KClass
-import kotlinx.atomicfu.atomic
-
-private val fakeCameraIds = atomic(0)
-
-internal fun nextFakeCameraId(): CameraId =
-    CameraId("FakeCamera-${fakeCameraIds.incrementAndGet()}")
 
 /** Utility class for interacting with objects that require pre-populated Metadata. */
 public open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) :
@@ -56,7 +50,7 @@ public open class FakeMetadata(private val metadata: Map<Metadata.Key<*>, Any?> 
 public class FakeCameraMetadata(
     private val characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
     metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
-    cameraId: CameraId = nextFakeCameraId(),
+    cameraId: CameraId = FakeCameraIds.default,
     override val keys: Set<CameraCharacteristics.Key<*>> = emptySet(),
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet(),
     override val resultKeys: Set<CaptureResult.Key<*>> = emptySet(),

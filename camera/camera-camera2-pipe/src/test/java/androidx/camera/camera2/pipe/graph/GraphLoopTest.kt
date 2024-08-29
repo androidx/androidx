@@ -17,21 +17,25 @@
 package androidx.camera.camera2.pipe.graph
 
 import android.os.Build
-import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraphId
-import androidx.camera.camera2.pipe.CameraId
-import androidx.camera.camera2.pipe.CaptureSequence
-import androidx.camera.camera2.pipe.CaptureSequenceProcessor
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.camera2.pipe.testing.FakeCaptureSequence
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.defaultParameters
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isAbort
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isCapture
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isClose
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isRejected
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isRepeating
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.isStopRepeating
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requests
+import androidx.camera.camera2.pipe.testing.FakeCaptureSequenceProcessor.Companion.requiredParameters
 import androidx.camera.camera2.pipe.testing.FakeMetadata.Companion.TEST_KEY
 import androidx.camera.camera2.pipe.testing.FakeSurfaces
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
@@ -73,8 +77,10 @@ class GraphLoopTest {
             stream2 to fakeSurfaces.createFakeSurface()
         )
 
-    private val csp1 = SimpleCSP(fakeCameraId, surfaceMap)
-    private val csp2 = SimpleCSP(fakeCameraId, surfaceMap)
+    private val csp1 =
+        FakeCaptureSequenceProcessor(fakeCameraId).also { it.surfaceMap = surfaceMap }
+    private val csp2 =
+        FakeCaptureSequenceProcessor(fakeCameraId).also { it.surfaceMap = surfaceMap }
 
     private val grp1 = GraphRequestProcessor.from(csp1)
     private val grp2 = GraphRequestProcessor.from(csp2)
@@ -823,90 +829,32 @@ class GraphLoopTest {
             assertThat(csp2.events[0].isClose).isTrue()
         }
 
-    private val SimpleCSP.SimpleCSPEvent.requests: List<Request>
-        get() = (this as SimpleCSP.Submit).captureSequence.captureRequestList
+    @Test
+    fun settingRepeatingRequestWhenRequestsAreRejectedDoesNotAttemptMultipleRepeatingRequests() =
+        testScope.runTest {
+            // Arrange
+            csp1.rejectSubmit = true
+            graphLoop.requestProcessor = grp1
+            graphLoop.repeatingRequest = request1
+            advanceUntilIdle()
 
-    private val SimpleCSP.SimpleCSPEvent.requiredParameters: Map<*, Any?>
-        get() = (this as SimpleCSP.Submit).captureSequence.requiredParameters
+            assertThat(csp1.events.size).isEqualTo(1)
+            assertThat(csp1.events[0].isRejected).isTrue()
+            assertThat(csp1.events[0].requests).containsExactly(request1)
 
-    private val SimpleCSP.SimpleCSPEvent.defaultParameters: Map<*, Any?>
-        get() = (this as SimpleCSP.Submit).captureSequence.defaultParameters
+            graphLoop.repeatingRequest = request2
+            advanceUntilIdle()
 
-    private val SimpleCSP.SimpleCSPEvent.isRepeating: Boolean
-        get() = (this as? SimpleCSP.Submit)?.captureSequence?.repeating ?: false
+            assertThat(csp1.events.size).isEqualTo(2)
+            assertThat(csp1.events[1].isRejected).isTrue()
+            assertThat(csp1.events[1].requests).containsExactly(request2)
 
-    private val SimpleCSP.SimpleCSPEvent.isCapture: Boolean
-        get() = (this as? SimpleCSP.Submit)?.captureSequence?.repeating == false
+            csp1.rejectSubmit = false
+            graphLoop.invalidate()
+            advanceUntilIdle()
 
-    private val SimpleCSP.SimpleCSPEvent.isAbort: Boolean
-        get() = this is SimpleCSP.AbortCaptures
-
-    private val SimpleCSP.SimpleCSPEvent.isStopRepeating: Boolean
-        get() = this is SimpleCSP.StopRepeating
-
-    private val SimpleCSP.SimpleCSPEvent.isClose: Boolean
-        get() = this is SimpleCSP.Close
-
-    internal class SimpleCSP(
-        private val cameraId: CameraId,
-        private val surfaceMap: Map<StreamId, Surface>
-    ) : CaptureSequenceProcessor<Request, FakeCaptureSequence> {
-        val events = mutableListOf<SimpleCSPEvent>()
-        var throwOnBuild = false
-        private var closed = false
-        private val sequenceIds = atomic(0)
-
-        override fun build(
-            isRepeating: Boolean,
-            requests: List<Request>,
-            defaultParameters: Map<*, Any?>,
-            requiredParameters: Map<*, Any?>,
-            listeners: List<Request.Listener>,
-            sequenceListener: CaptureSequence.CaptureSequenceListener
-        ): FakeCaptureSequence? {
-            if (closed) return null
-            if (throwOnBuild) throw RuntimeException("Test Exception")
-            return FakeCaptureSequence.create(
-                cameraId = cameraId,
-                repeating = isRepeating,
-                requests = requests,
-                surfaceMap = surfaceMap,
-                defaultParameters = defaultParameters,
-                requiredParameters = requiredParameters,
-                listeners = listeners,
-                sequenceListener = sequenceListener
-            )
+            assertThat(csp1.events.size).isEqualTo(3)
+            assertThat(csp1.events[2].isRepeating).isTrue()
+            assertThat(csp1.events[2].requests).containsExactly(request2)
         }
-
-        override fun abortCaptures() {
-            events.add(AbortCaptures)
-        }
-
-        override fun stopRepeating() {
-            events.add(StopRepeating)
-        }
-
-        override suspend fun shutdown() {
-            closed = true
-            events.add(Close)
-        }
-
-        override fun submit(captureSequence: FakeCaptureSequence): Int? {
-            if (!closed) {
-                events.add(Submit(captureSequence))
-                return sequenceIds.incrementAndGet()
-            }
-            return null
-        }
-
-        sealed class SimpleCSPEvent
-
-        object Close : SimpleCSPEvent()
-
-        object StopRepeating : SimpleCSPEvent()
-
-        object AbortCaptures : SimpleCSPEvent()
-
-        data class Submit(val captureSequence: FakeCaptureSequence) : SimpleCSPEvent()
-    }
 }
