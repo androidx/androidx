@@ -112,7 +112,7 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         return fileOptions
     }
 
-    internal override fun getCropRect(): Rect {
+    override fun getCropRect(): Rect {
         return Rect(0, 0, 640, 480)
     }
 
@@ -120,11 +120,11 @@ class FakeTakePictureRequest() : TakePictureRequest() {
         return Matrix()
     }
 
-    internal override fun getRotationDegrees(): Int {
+    override fun getRotationDegrees(): Int {
         return ROTATION_DEGREES
     }
 
-    internal override fun getJpegQuality(): Int {
+    override fun getJpegQuality(): Int {
         return JPEG_QUALITY
     }
 

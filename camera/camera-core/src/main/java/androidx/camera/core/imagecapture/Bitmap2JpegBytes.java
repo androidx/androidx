@@ -24,6 +24,7 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
@@ -37,7 +38,8 @@ import java.io.ByteArrayOutputStream;
  *
  * <p>The {@link Bitmap} will be recycled and should not be used after the processing.
  */
-class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>> {
 
     @NonNull
     @Override
@@ -79,16 +81,16 @@ class Bitmap2JpegBytes implements Operation<Bitmap2JpegBytes.In, Packet<byte[]>>
      * Input of {@link Bitmap2JpegBytes} processor.
      */
     @AutoValue
-    abstract static class In {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract static class In {
 
         abstract Packet<Bitmap> getPacket();
 
         abstract int getJpegQuality();
 
         @NonNull
-        static In of(@NonNull Packet<Bitmap> imagePacket, int jpegQuality) {
+        public static In of(@NonNull Packet<Bitmap> imagePacket, int jpegQuality) {
             return new AutoValue_Bitmap2JpegBytes_In(imagePacket, jpegQuality);
         }
     }
 }
-

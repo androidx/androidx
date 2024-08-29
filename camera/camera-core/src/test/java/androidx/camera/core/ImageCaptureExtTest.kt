@@ -28,7 +28,6 @@ import androidx.camera.testing.impl.fakes.FakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
-import java.io.File
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.MainScope
@@ -36,7 +35,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows
@@ -47,9 +48,14 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureExtTest {
+    @get:Rule
+    val temporaryFolder =
+        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
+
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private val fakeOutputFileOptions =
-        ImageCapture.OutputFileOptions.Builder(File("fake_path")).build()
+    private val fakeOutputFileOptions by lazy {
+        ImageCapture.OutputFileOptions.Builder(temporaryFolder.newFile("fake_path")).build()
+    }
     private lateinit var cameraProvider: ProcessCameraProvider
     private lateinit var imageCapture: ImageCapture
 
@@ -88,12 +94,11 @@ class ImageCaptureExtTest {
     fun takePicture_inMemory_canGetImage(): Unit = runTest {
         // Arrange
         val imageProxy = FakeImageProxy(FakeImageInfo())
+        val fakeTakePictureManager = FakeAppConfig.getTakePictureManager()!!
+        fakeTakePictureManager.enqueueImageProxy(imageProxy)
 
         // Arrange & Act.
         val takePictureAsync = MainScope().async { imageCapture.takePicture() }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-        val imageCaptureCallback = imageCapture.getTakePictureRequest()?.inMemoryCallback
-        imageCaptureCallback?.onCaptureSuccess(imageProxy)
 
         // Assert.
         Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -135,6 +140,7 @@ class ImageCaptureExtTest {
         var callbackCalled = false
         val progress = 100
         var resultProgress = 0
+        FakeAppConfig.getTakePictureManager()!!.disableAutoComplete = true
 
         // Act.
         val takePictureAsync =
@@ -163,6 +169,7 @@ class ImageCaptureExtTest {
         var callbackCalled = false
         val bitmap = Bitmap.createBitmap(800, 600, Bitmap.Config.ARGB_8888)
         lateinit var resultBitmap: Bitmap
+        FakeAppConfig.getTakePictureManager()!!.disableAutoComplete = true
 
         // Act.
         val takePictureAsync =
@@ -189,15 +196,14 @@ class ImageCaptureExtTest {
     fun takePicture_onDisk_canGetResult(): Unit = runTest {
         // Arrange
         val outputFileResults = ImageCapture.OutputFileResults(null)
+        val fakeTakePictureManager = FakeAppConfig.getTakePictureManager()!!
+        fakeTakePictureManager.enqueueOutputFileResults(outputFileResults)
 
         // Arrange & Act.
         val takePictureAsync =
             MainScope().async {
                 imageCapture.takePicture(outputFileOptions = fakeOutputFileOptions)
             }
-        Shadows.shadowOf(Looper.getMainLooper()).idle()
-        val imageCaptureCallback = imageCapture.getTakePictureRequest()?.onDiskCallback
-        imageCaptureCallback?.onImageSaved(outputFileResults)
 
         // Assert.
         Shadows.shadowOf(Looper.getMainLooper()).idle()
@@ -245,6 +251,7 @@ class ImageCaptureExtTest {
         var callbackCalled = false
         val progress = 100
         var resultProgress = 0
+        FakeAppConfig.getTakePictureManager()!!.disableAutoComplete = true
 
         // Act.
         val takePictureAsync =
@@ -274,6 +281,7 @@ class ImageCaptureExtTest {
         var callbackCalled = false
         val bitmap = Bitmap.createBitmap(800, 600, Bitmap.Config.ARGB_8888)
         lateinit var resultBitmap: Bitmap
+        FakeAppConfig.getTakePictureManager()!!.disableAutoComplete = true
 
         // Act.
         val takePictureAsync =

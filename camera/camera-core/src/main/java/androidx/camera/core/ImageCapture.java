@@ -1312,7 +1312,8 @@ public final class ImageCapture extends UseCase {
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
-            mTakePictureManager = new TakePictureManager(mImageCaptureControl);
+            mTakePictureManager = getCurrentConfig().getTakePictureManagerProvider().newInstance(
+                    mImageCaptureControl);
         }
         mTakePictureManager.setImagePipeline(mImagePipeline);
 
