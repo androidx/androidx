@@ -16,8 +16,11 @@
 
 package androidx.pdf.viewer;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -57,7 +60,8 @@ import java.util.Set;
  * pages are added
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-public class PaginationModel {
+@SuppressLint("BanParcelableUsage")
+public class PaginationModel implements Parcelable {
     /**
      * The spacing added before and after each page (the actual space between 2 consecutive pages is
      * twice this distance), in pixels.
@@ -86,6 +90,28 @@ public class PaginationModel {
     public PaginationModel(@NonNull Context context) {
         mPageSpacingPx = PaginationUtils.getPageSpacingInPixels(context);
     }
+
+    protected PaginationModel(@NonNull Parcel in) {
+        mPageSpacingPx = in.readInt();
+        mMaxPages = in.readInt();
+        mPages = in.createTypedArray(Dimensions.CREATOR);
+        mPageStops = in.createIntArray();
+        mSize = in.readInt();
+        mEstimatedPageHeight = in.readFloat();
+        mAccumulatedPageSize = in.readInt();
+    }
+
+    public static final Creator<PaginationModel> CREATOR = new Creator<PaginationModel>() {
+        @Override
+        public PaginationModel createFromParcel(Parcel in) {
+            return new PaginationModel(in);
+        }
+
+        @Override
+        public PaginationModel[] newArray(int size) {
+            return new PaginationModel[size];
+        }
+    };
 
     /**
      * Initializes the model.
@@ -264,7 +290,6 @@ public class PaginationModel {
     }
 
 
-
     /**
      * Returns the location of the page in the model.
      *
@@ -277,7 +302,7 @@ public class PaginationModel {
      *       maximizes the portion of that view that is visible on the screen
      * </ul>
      *
-     * @param pageNum - index of requested page
+     * @param pageNum  - index of requested page
      * @param viewArea - the current viewport in content coordinates
      * @return - coordinates of the page within this model
      */
@@ -390,5 +415,21 @@ public class PaginationModel {
     protected void finalize() throws Throwable {
         mObservers.clear();
         super.finalize();
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(mPageSpacingPx);
+        dest.writeInt(mMaxPages);
+        dest.writeTypedArray(mPages, flags);
+        dest.writeIntArray(mPageStops);
+        dest.writeInt(mSize);
+        dest.writeFloat(mEstimatedPageHeight);
+        dest.writeInt(mAccumulatedPageSize);
     }
 }
