@@ -72,9 +72,11 @@ import kotlinx.coroutines.delay
  * Example of an [OpenOnPhoneDialog] usage:
  *
  * @sample androidx.wear.compose.material3.samples.OpenOnPhoneDialogSample
- * @param show A boolean indicating whether the dialog should be displayed.
+ * @param show A boolean indicating whether the dialog should be displayed. When set to true an
+ *   'intro' animation is triggered and the dialog is displayed. Subsequently, when set to false an
+ *   'outro' animation is triggered, then [onDismissRequest] is called and dialog becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed - either by
- *   swiping right or when the [durationMillis] has passed.
+ *   swiping right, when the [durationMillis] has passed or by other dismiss action.
  * @param modifier Modifier to be applied to the dialog content.
  * @param curvedText A slot for displaying curved text content which will be shown along the bottom
  *   edge of the dialog. Defaults to a localized open on phone message.

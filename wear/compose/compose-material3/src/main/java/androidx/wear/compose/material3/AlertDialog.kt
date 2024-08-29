@@ -67,9 +67,11 @@ import androidx.wear.compose.materialcore.screenWidthDp
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
- * @param show A boolean indicating whether the dialog should be displayed.
+ * @param show A boolean indicating whether the dialog should be displayed. When set to true an
+ *   'intro' animation is triggered and the dialog is displayed. Subsequently, when set to false an
+ *   'outro' animation is triggered, then [onDismissRequest] is called and dialog becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
- *   right (typically also called by the [dismissButton]).
+ *   right (typically also called by the [dismissButton]) or by other dismiss action.
  * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy. It's recommended to use
  *   [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
@@ -138,7 +140,9 @@ fun AlertDialog(
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
- * @param show A boolean indicating whether the dialog should be displayed.
+ * @param show A boolean indicating whether the dialog should be displayed. When set to true an
+ *   'intro' animation is triggered and the dialog is displayed. Subsequently, when set to false an
+ *   'outro' animation is triggered, then [onDismissRequest] is called and dialog becomes hidden.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.
  * @param bottomButton A slot for a [EdgeButton] indicating positive sentiment. Clicking the button
