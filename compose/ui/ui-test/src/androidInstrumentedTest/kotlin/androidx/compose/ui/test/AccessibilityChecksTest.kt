@@ -111,7 +111,7 @@ class AccessibilityChecksTest {
     @Composable
     private fun BoxWithMissingContentDescription() {
         Box(
-            Modifier.size(20.dp).semantics {
+            Modifier.size(48.dp).semantics {
                 // The SemanticsModifier will make this node importantForAccessibility
                 // Having no content description is now a violation
                 this.contentDescription = ""
