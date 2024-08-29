@@ -660,30 +660,19 @@ internal abstract class NodeCoordinator(
                 else {
                     distanceInMinimumTouchTarget(pointerPosition, minimumTouchTargetSize)
                 }
-
-            if (
+            val isHitInMinimumTouchTargetBetter =
                 distanceFromEdge.fastIsFinite() &&
                     hitTestResult.isHitInMinimumTouchTargetBetter(distanceFromEdge, isInLayer)
-            ) {
-                // Hit closer than existing handlers, so just record it
-                head.hitNear(
-                    hitTestSource,
-                    pointerPosition,
-                    hitTestResult,
-                    isTouchEvent,
-                    isInLayer,
-                    distanceFromEdge
-                )
-            } else {
-                head.speculativeHit(
-                    hitTestSource,
-                    pointerPosition,
-                    hitTestResult,
-                    isTouchEvent,
-                    isInLayer,
-                    distanceFromEdge
-                )
-            }
+
+            head.outOfBoundsHit(
+                hitTestSource,
+                pointerPosition,
+                hitTestResult,
+                isTouchEvent,
+                isInLayer,
+                distanceFromEdge,
+                isHitInMinimumTouchTargetBetter
+            )
         }
     }
 
@@ -708,6 +697,70 @@ internal abstract class NodeCoordinator(
     }
 
     /**
+     * The pointer lands outside the node's bounds. There are three cases we have to handle:
+     * 1. hitNear: if the nodes is smaller than the minimumTouchTargetSize, it's touch bounds will
+     *    be expanded to the minimal touch target size.
+     * 2. hitExpandedTouchBounds: if the nodes has a expanded touch bounds.
+     * 3. speculativeHit: if the hit misses this node, but its child can still get the pointer
+     *    event.
+     *
+     * The complication is when touch bounds overlaps, there are 3 possibilities:
+     * 1. hit in this node's expanded touch bounds or minimum touch target bounds overlaps with a
+     *    direct hit in the other node. The node with direct hit will get the event.
+     * 2. hit in this node's expanded touch bounds overlaps with other node's expanded touch bounds.
+     *    Both nodes will get the event.
+     * 3. hit in this node's expanded touch bounds overlaps with the other node's minimum touch
+     *    touch bounds. The node with expanded touch bounds will get the event.
+     *
+     * The logic to handle the hit priority is implemented in [HitTestResult.speculativeHit] and
+     * [HitTestResult.hitExpandedTouchBounds].
+     */
+    private fun Modifier.Node?.outOfBoundsHit(
+        hitTestSource: HitTestSource,
+        pointerPosition: Offset,
+        hitTestResult: HitTestResult,
+        isTouchEvent: Boolean,
+        isInLayer: Boolean,
+        distanceFromEdge: Float,
+        isHitInMinimumTouchTargetBetter: Boolean
+    ) {
+        if (this == null) {
+            hitTestChild(hitTestSource, pointerPosition, hitTestResult, isTouchEvent, isInLayer)
+        } else if (isTouchEvent && isInExpandedTouchBounds(pointerPosition)) {
+            hitTestResult.hitExpandedTouchBounds(this, isInLayer) {
+                nextUntil(hitTestSource.entityType(), Nodes.Layout)
+                    .outOfBoundsHit(
+                        hitTestSource,
+                        pointerPosition,
+                        hitTestResult,
+                        isTouchEvent,
+                        isInLayer,
+                        distanceFromEdge,
+                        isHitInMinimumTouchTargetBetter
+                    )
+            }
+        } else if (isHitInMinimumTouchTargetBetter) {
+            hitNear(
+                hitTestSource,
+                pointerPosition,
+                hitTestResult,
+                isTouchEvent,
+                isInLayer,
+                distanceFromEdge
+            )
+        } else {
+            speculativeHit(
+                hitTestSource,
+                pointerPosition,
+                hitTestResult,
+                isTouchEvent,
+                isInLayer,
+                distanceFromEdge
+            )
+        }
+    }
+
+    /**
      * The [NodeCoordinator] had a hit [distanceFromEdge] from the bounds and it is within the
      * minimum touch target distance, so it should be recorded as such in the [hitTestResult].
      */
@@ -725,13 +778,14 @@ internal abstract class NodeCoordinator(
             // Hit closer than existing handlers, so just record it
             hitTestResult.hitInMinimumTouchTarget(this, distanceFromEdge, isInLayer) {
                 nextUntil(hitTestSource.entityType(), Nodes.Layout)
-                    .hitNear(
+                    .outOfBoundsHit(
                         hitTestSource,
                         pointerPosition,
                         hitTestResult,
                         isTouchEvent,
                         isInLayer,
-                        distanceFromEdge
+                        distanceFromEdge,
+                        isHitInMinimumTouchTargetBetter = true
                     )
             }
         }
@@ -756,26 +810,48 @@ internal abstract class NodeCoordinator(
             // hits in the children
             hitTestResult.speculativeHit(this, distanceFromEdge, isInLayer) {
                 nextUntil(hitTestSource.entityType(), Nodes.Layout)
-                    .speculativeHit(
+                    .outOfBoundsHit(
                         hitTestSource,
                         pointerPosition,
                         hitTestResult,
                         isTouchEvent,
                         isInLayer,
-                        distanceFromEdge
+                        distanceFromEdge,
+                        isHitInMinimumTouchTargetBetter = false
                     )
             }
         } else {
             nextUntil(hitTestSource.entityType(), Nodes.Layout)
-                .speculativeHit(
+                .outOfBoundsHit(
                     hitTestSource,
                     pointerPosition,
                     hitTestResult,
                     isTouchEvent,
                     isInLayer,
-                    distanceFromEdge
+                    distanceFromEdge,
+                    isHitInMinimumTouchTargetBetter = false
                 )
         }
+    }
+
+    /**
+     * Helper method to check if the pointer is inside the node's expanded touch bounds. This only
+     * applies to pointer input modifier nodes whose [PointerInputModifierNode.touchBoundsExpansion]
+     * is not null.
+     */
+    private fun Modifier.Node?.isInExpandedTouchBounds(pointerPosition: Offset): Boolean {
+        if (this == null) {
+            return false
+        }
+        dispatchForKind(Nodes.PointerInput) {
+            // We only check for the node itself or the first delegate PointerInputModifierNode.
+            val expansion = it.touchBoundsExpansion
+            return pointerPosition.x >= -expansion.computeLeft(layoutDirection) &&
+                pointerPosition.x < measuredWidth + expansion.computeRight(layoutDirection) &&
+                pointerPosition.y >= -expansion.top &&
+                pointerPosition.y < measuredHeight + expansion.bottom
+        }
+        return false
     }
 
     /** Do a [hitTest] on the children of this [NodeCoordinator]. */

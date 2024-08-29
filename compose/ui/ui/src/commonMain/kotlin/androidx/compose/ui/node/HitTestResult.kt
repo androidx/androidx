@@ -18,7 +18,7 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.util.unpackFloat1
-import androidx.compose.ui.util.unpackInt2
+import kotlin.math.min
 import kotlin.math.sign
 
 /**
@@ -34,7 +34,7 @@ import kotlin.math.sign
 internal class HitTestResult : List<Modifier.Node> {
     private var values = arrayOfNulls<Any>(16)
     // contains DistanceAndInLayer
-    private var distanceFromEdgeAndInLayer = LongArray(16)
+    private var distanceFromEdgeAndFlags = LongArray(16)
     private var hitDepth = -1
 
     override var size: Int = 0
@@ -46,7 +46,7 @@ internal class HitTestResult : List<Modifier.Node> {
      */
     fun hasHit(): Boolean {
         val distance = findBestHitDistance()
-        return distance.distance < 0f && distance.isInLayer
+        return distance.distance < 0f && distance.isInLayer && !distance.isInExpandedBounds
     }
 
     /**
@@ -72,15 +72,15 @@ internal class HitTestResult : List<Modifier.Node> {
         if (hitDepth == lastIndex) {
             return true
         }
-        val distanceAndInLayer = DistanceAndInLayer(distanceFromEdge, isInLayer)
+        val distanceAndFlags = DistanceAndFlags(distanceFromEdge, isInLayer)
         val bestDistance = findBestHitDistance()
-        return bestDistance > distanceAndInLayer
+        return bestDistance > distanceAndFlags
     }
 
-    private fun findBestHitDistance(): DistanceAndInLayer {
-        var bestDistance = DistanceAndInLayer(Float.POSITIVE_INFINITY, false)
+    private fun findBestHitDistance(): DistanceAndFlags {
+        var bestDistance = DistanceAndFlags(Float.POSITIVE_INFINITY, false)
         for (i in hitDepth + 1..lastIndex) {
-            val distance = DistanceAndInLayer(distanceFromEdgeAndInLayer[i])
+            val distance = DistanceAndFlags(distanceFromEdgeAndFlags[i])
             bestDistance = if (distance < bestDistance) distance else bestDistance
             if (bestDistance.distance < 0f && bestDistance.isInLayer) {
                 return bestDistance
@@ -97,6 +97,13 @@ internal class HitTestResult : List<Modifier.Node> {
         hitInMinimumTouchTarget(node, -1f, isInLayer, childHitTest)
     }
 
+    inline fun hitInMinimumTouchTarget(
+        node: Modifier.Node,
+        distanceFromEdge: Float,
+        isInLayer: Boolean,
+        childHitTest: () -> Unit
+    ) = hitInMinimumTouchTarget(node, distanceFromEdge, isInLayer, false, childHitTest)
+
     /**
      * Records [node] as a hit with [distanceFromEdge] distance, replacing any existing record. Runs
      * [childHitTest] to do further hit testing for children.
@@ -105,17 +112,64 @@ internal class HitTestResult : List<Modifier.Node> {
         node: Modifier.Node,
         distanceFromEdge: Float,
         isInLayer: Boolean,
+        isInExpandedBounds: Boolean,
         childHitTest: () -> Unit
     ) {
         val startDepth = hitDepth
         hitDepth++
         ensureContainerSize()
         values[hitDepth] = node
-        distanceFromEdgeAndInLayer[hitDepth] =
-            DistanceAndInLayer(distanceFromEdge, isInLayer).packedValue
+        distanceFromEdgeAndFlags[hitDepth] =
+            DistanceAndFlags(distanceFromEdge, isInLayer, isInExpandedBounds).packedValue
         resizeToHitDepth()
         childHitTest()
         hitDepth = startDepth
+    }
+
+    /**
+     * Records a hit in an expanded touch bound. It's similar to a speculative hit, except that if
+     * the previous hit is also in expanded touch, it'll share the pointer.
+     */
+    fun hitExpandedTouchBounds(node: Modifier.Node, isInLayer: Boolean, childHitTest: () -> Unit) {
+        if (hitDepth == lastIndex) {
+            // No hit test on siblings yet, simply record hit on this node.
+            hitInMinimumTouchTarget(node, 0f, isInLayer, isInExpandedBounds = true, childHitTest)
+            return
+        }
+
+        val previousDistance = findBestHitDistance()
+        val previousHitDepth = hitDepth
+
+        if (previousDistance.isInExpandedBounds) {
+            // Previous hits was in expanded bounds. Share the pointer unless the childHitTest has
+            // a direct hit.
+            // Accept the previous hit result for now, and shuffle the array only when we have a
+            // direct hit.
+            hitDepth = lastIndex
+            hitInMinimumTouchTarget(node, 0f, isInLayer, isInExpandedBounds = true, childHitTest)
+            val newDistance = findBestHitDistance()
+            if (newDistance.distance < 0) {
+                // Have a direct hit, remove the previous hit result.
+                val startIndex = previousHitDepth + 1
+                val endIndex = hitDepth + 1
+                removeNodesInRange(startIndex, endIndex)
+                // Discard the remainder of the hits
+                hitDepth = previousHitDepth + size - endIndex
+            } else {
+                // No direct hit, and we only hit the expanded bounds of this node.
+                // Accept the new hit result.
+                hitDepth = lastIndex
+            }
+            resizeToHitDepth()
+            hitDepth = previousHitDepth
+        } else if (previousDistance.distance > 0) {
+            // Previous hit is out of expanded bounds, clear the previous hit and record a hit for
+            // this node.
+            hitInMinimumTouchTarget(node, 0f, isInLayer, isInExpandedBounds = true, childHitTest)
+        }
+        // If previous hit is a direct hit on sibling, do nothing.
+        // This case should never happen, because when a node gets a direct hit, siblingHitTest will
+        // stop the hit test for other children.
     }
 
     /**
@@ -135,38 +189,76 @@ internal class HitTestResult : List<Modifier.Node> {
             if (hitDepth + 1 == lastIndex) {
                 // Discard the hit because there were no child hits.
                 resizeToHitDepth()
+            } else if (findBestHitDistance().isInExpandedBounds) {
+                // A parent can't intercept the event if child is at its expanded touch bounds.
+                // Remove this node at hitDepth + 1 from the hit path.
+                // Note: We don't need to check whether this node intercepts child events,
+                // because speculativeHit() is only called when
+                // node.interceptOutOfBoundsChildEvents() returns true.
+                removeNodeAtDepth(hitDepth + 1)
             }
             return
         }
 
-        // We have to tack the speculation to the end of the array
+        // We have to track the speculation to the end of the array
         val previousDistance = findBestHitDistance()
         val previousHitDepth = hitDepth
         hitDepth = lastIndex
 
         hitInMinimumTouchTarget(node, distanceFromEdge, isInLayer, childHitTest)
-        if (hitDepth + 1 < lastIndex && previousDistance > findBestHitDistance()) {
-            // This was a successful hit, so we should move this to the previous hit depth
-            val fromIndex = hitDepth + 1
-            val toIndex = previousHitDepth + 1
-            values.copyInto(
-                destination = values,
-                destinationOffset = toIndex,
-                startIndex = fromIndex,
-                endIndex = size
-            )
-            distanceFromEdgeAndInLayer.copyInto(
-                destination = distanceFromEdgeAndInLayer,
-                destinationOffset = toIndex,
-                startIndex = fromIndex,
-                endIndex = size
-            )
+        val newBestDistance = findBestHitDistance()
+        if (hitDepth + 1 < lastIndex && previousDistance > newBestDistance) {
+            // This was a successful hit, so we should remove the previous hit from the hit path.
+            val startIndex = previousHitDepth + 1
+            val endIndex =
+                if (newBestDistance.isInExpandedBounds) {
+                    // If the new hit is in expanded touch bounds, this node can't intercept the
+                    // event. We'll remove this node as well.
+                    hitDepth + 2
+                } else {
+                    hitDepth + 1
+                }
+            removeNodesInRange(startIndex, endIndex)
 
             // Discard the remainder of the hits
-            hitDepth = previousHitDepth + size - hitDepth - 1
+            hitDepth = previousHitDepth + size - endIndex
         }
         resizeToHitDepth()
         hitDepth = previousHitDepth
+    }
+
+    /**
+     * Util method to remove a node at the given depth. The given depth must be in the range of [0,
+     * size).
+     */
+    private fun removeNodeAtDepth(depth: Int) {
+        if (depth < lastIndex) {
+            removeNodesInRange(depth, depth + 1)
+        }
+        values[lastIndex] = null
+        size = lastIndex
+    }
+
+    /**
+     * Util method to remove nodes at the given depth range. It only updates the [values] and
+     * [distanceFromEdgeAndFlags], the caller must update the [hitDepth] and [size] accordingly.
+     */
+    private fun removeNodesInRange(startDepth: Int, endDepth: Int) {
+        if (startDepth >= endDepth) {
+            return
+        }
+        values.copyInto(
+            destination = values,
+            destinationOffset = startDepth,
+            startIndex = endDepth,
+            endIndex = size
+        )
+        distanceFromEdgeAndFlags.copyInto(
+            destination = distanceFromEdgeAndFlags,
+            destinationOffset = startDepth,
+            startIndex = endDepth,
+            endIndex = size
+        )
     }
 
     /**
@@ -183,7 +275,7 @@ internal class HitTestResult : List<Modifier.Node> {
         if (hitDepth >= values.size) {
             val newSize = values.size + 16
             values = values.copyOf(newSize)
-            distanceFromEdgeAndInLayer = distanceFromEdgeAndInLayer.copyOf(newSize)
+            distanceFromEdgeAndFlags = distanceFromEdgeAndFlags.copyOf(newSize)
         }
     }
 
@@ -307,27 +399,46 @@ internal class HitTestResult : List<Modifier.Node> {
     }
 }
 
+private const val IS_IN_LAYER: Long = 1L
+private const val IS_IN_EXPANDED_BOUNDS: Long = 1 shl 1
+
 @kotlin.jvm.JvmInline
-internal value class DistanceAndInLayer(val packedValue: Long) {
+internal value class DistanceAndFlags(val packedValue: Long) {
     val distance: Float
         get() = unpackFloat1(packedValue)
 
     val isInLayer: Boolean
-        get() = unpackInt2(packedValue) != 0
+        get() = (packedValue and IS_IN_LAYER) != 0L
 
-    operator fun compareTo(other: DistanceAndInLayer): Int {
+    val isInExpandedBounds: Boolean
+        get() = (packedValue and IS_IN_EXPANDED_BOUNDS) != 0L
+
+    operator fun compareTo(other: DistanceAndFlags): Int {
         val thisIsInLayer = isInLayer
         val otherIsInLayer = other.isInLayer
         if (thisIsInLayer != otherIsInLayer) {
             return if (thisIsInLayer) -1 else 1
         }
-        val distanceDiff = this.distance - other.distance
-        return sign(distanceDiff).toInt()
+        val distanceDiff = sign(this.distance - other.distance).toInt()
+        // One has a direct hit, use distance for comparison.
+        if (min(this.distance, other.distance) < 0f) {
+            return distanceDiff
+        }
+        // Both are out of bounds hit, the one in the expanded touch bounds wins.
+        if (this.isInExpandedBounds != other.isInExpandedBounds) {
+            return if (this.isInExpandedBounds) -1 else 1
+        }
+        return distanceDiff
     }
 }
 
-private fun DistanceAndInLayer(distance: Float, isInLayer: Boolean): DistanceAndInLayer {
+private fun DistanceAndFlags(
+    distance: Float,
+    isInLayer: Boolean,
+    isInExpandedBounds: Boolean = false
+): DistanceAndFlags {
     val v1 = distance.toRawBits().toLong()
-    val v2 = if (isInLayer) 1L else 0L
-    return DistanceAndInLayer(v1.shl(32) or (v2 and 0xFFFFFFFF))
+    var v2 = if (isInLayer) IS_IN_LAYER else 0L
+    v2 = v2 or if (isInExpandedBounds) IS_IN_EXPANDED_BOUNDS else 0L
+    return DistanceAndFlags(v1.shl(32) or (v2 and 0xFFFFFFFF))
 }
