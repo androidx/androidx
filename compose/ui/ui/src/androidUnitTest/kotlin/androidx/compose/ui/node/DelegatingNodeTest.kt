@@ -209,14 +209,14 @@ class DelegatingNodeTest {
             layout(d)
         }
         val recorder = Recorder()
-        x.visitSubtree(Nodes.Draw, recorder)
+        x.visitSubtree(Nodes.Draw, block = recorder)
         assertThat(recorder.recorded)
             .isEqualTo(
                 listOf(
                     a.wrapped,
                     b,
-                    d,
                     c.wrapped,
+                    d,
                 )
             )
     }

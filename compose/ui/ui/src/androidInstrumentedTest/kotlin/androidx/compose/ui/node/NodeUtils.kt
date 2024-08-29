@@ -16,7 +16,10 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.InspectorInfo
 
 /**
@@ -38,3 +41,30 @@ private data class ElementOf<T : Modifier.Node>(val factory: () -> T) : Modifier
         name = "testNode"
     }
 }
+
+@Composable
+internal fun ReverseMeasureLayout(modifier: Modifier, vararg contents: @Composable () -> Unit) =
+    SubcomposeLayout(modifier) { constraints ->
+        var layoutWidth = constraints.minWidth
+        var layoutHeight = constraints.minHeight
+        val subcomposes = mutableListOf<List<Placeable>>()
+
+        // Measure in reverse order
+        contents.reversed().forEachIndexed { index, content ->
+            subcomposes.add(
+                0,
+                subcompose(index, content).map {
+                    it.measure(constraints).also { placeable ->
+                        layoutWidth = maxOf(layoutWidth, placeable.width)
+                        layoutHeight = maxOf(layoutHeight, placeable.height)
+                    }
+                }
+            )
+        }
+
+        layout(layoutWidth, layoutHeight) {
+
+            // But place in direct order - it sets direct draw order
+            subcomposes.forEach { placeables -> placeables.forEach { it.place(0, 0) } }
+        }
+    }

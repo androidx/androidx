@@ -19,6 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -132,6 +133,58 @@ class ModifierNodeVisitSubtreeIfTest {
         assertThat(visitedChildren)
             .containsExactly(node2, node3, node4, node7, node8, node5, node6, node9, node10)
             .inOrder()
+    }
+
+    @Test
+    fun visitsItemsAcrossLayoutNodesInDrawOrder_zIndex() {
+        // Arrange.
+        abstract class TrackedNode : Modifier.Node()
+        val (node, child1, child2, child3) = List(5) { object : TrackedNode() {} }
+        val visitedChildren = mutableListOf<Modifier.Node>()
+        rule.setContent {
+            Box(Modifier.elementOf(node)) {
+                Box(Modifier.elementOf(child1).zIndex(10f))
+                Box(Modifier.elementOf(child2).zIndex(-10f))
+                Box(Modifier.elementOf(child3))
+            }
+        }
+
+        // Act.
+        rule.runOnIdle {
+            node.visitSubtreeIf(Nodes.Any, zOrder = true) {
+                @Suppress("KotlinConstantConditions") if (it is TrackedNode) visitedChildren.add(it)
+                true
+            }
+        }
+
+        // Assert.
+        assertThat(visitedChildren).containsExactly(child2, child3, child1).inOrder()
+    }
+
+    @Test
+    fun visitsItemsAcrossLayoutNodesInDrawOrder_subcompose() {
+        // Arrange.
+        val (node, child1, child2, child3) = List(5) { object : Modifier.Node() {} }
+        val visitedChildren = mutableListOf<Modifier.Node>()
+        rule.setContent {
+            ReverseMeasureLayout(
+                Modifier.elementOf(node),
+                { Box(Modifier.elementOf(child1)) },
+                { Box(Modifier.elementOf(child2)) },
+                { Box(Modifier.elementOf(child3)) }
+            )
+        }
+
+        // Act.
+        rule.runOnIdle {
+            node.visitSubtreeIf(Nodes.Any, zOrder = true) {
+                visitedChildren.add(it)
+                true
+            }
+        }
+
+        // Assert.
+        assertThat(visitedChildren).containsExactly(child1, child2, child3).inOrder()
     }
 
     @Ignore("b/278765590")
