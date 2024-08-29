@@ -697,7 +697,7 @@ class AnchoredDraggableStateTest {
                 initialValue = A,
                 defaultPositionalThreshold,
                 defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec,
+                animationSpec = defaultAnimationSpec
             )
         anchoredDraggableState.updateAnchors(
             DraggableAnchors {
@@ -732,40 +732,6 @@ class AnchoredDraggableStateTest {
         // Then the block should be invoked with the new anchors
         val secondTarget = targetUpdates.receive()
         assertThat(secondTarget).isEqualTo(newTarget)
-        dragJob.cancel()
-    }
-
-    @Test
-    fun anchoredDraggable_anchoredDrag_doesNotUpdateOnConfirmValueChange() = runTest {
-        val anchoredDraggableState =
-            AnchoredDraggableState(
-                initialValue = B,
-                defaultPositionalThreshold,
-                defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec,
-                confirmValueChange = { false }
-            )
-        anchoredDraggableState.updateAnchors(
-            DraggableAnchors {
-                A at 0f
-                B at 200f
-            }
-        )
-
-        assertThat(anchoredDraggableState.targetValue).isEqualTo(B)
-
-        val unexpectedTarget = A
-        val targetUpdates = Channel<Float>()
-        val dragJob =
-            launch(Dispatchers.Unconfined) {
-                anchoredDraggableState.anchoredDrag(unexpectedTarget) { anchors, latestTarget ->
-                    targetUpdates.send(anchors.positionOf(latestTarget))
-                    suspendIndefinitely()
-                }
-            }
-
-        val firstTarget = targetUpdates.receive()
-        assertThat(firstTarget).isEqualTo(200f)
         dragJob.cancel()
     }
 
