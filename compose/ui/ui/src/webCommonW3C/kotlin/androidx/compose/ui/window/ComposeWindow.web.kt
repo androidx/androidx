@@ -38,7 +38,6 @@ import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.composeButton
 import androidx.compose.ui.input.pointer.composeButtons
-import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.DefaultInputModeManager
 import androidx.compose.ui.platform.LocalInternalViewModelStoreOwner
 import androidx.compose.ui.platform.PlatformContext
@@ -228,11 +227,6 @@ internal class ComposeWindow(
         invalidate = skiaLayer::needRedraw,
     )
 
-    private val layer = ComposeLayer(
-        layer = skiaLayer,
-        scene = scene
-    )
-
     private val systemThemeObserver = getSystemThemeObserver()
 
     override val lifecycle = LifecycleRegistry(this)
@@ -331,7 +325,7 @@ internal class ComposeWindow(
 
         scene.density = density
 
-        layer.setContent {
+        scene.setContent {
             CompositionLocalProvider(
                 LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
                 LocalLifecycleOwner provides this,
@@ -366,9 +360,9 @@ internal class ComposeWindow(
 
         _windowInfo.containerSize = IntSize(width, height)
 
-        layer.layer.attachTo(canvas)
-        layer.setSize(width, height)
-        layer.layer.needRedraw()
+        skiaLayer.attachTo(canvas)
+        scene.size = IntSize(width, height)
+        skiaLayer.needRedraw()
     }
 
     // TODO: need to call .dispose() on window close.
@@ -378,7 +372,7 @@ internal class ComposeWindow(
         viewModelStore.clear()
 
         scene.close()
-        layer.dispose()
+        skiaLayer.detach()
 
         systemThemeObserver.dispose()
         state.dispose()
