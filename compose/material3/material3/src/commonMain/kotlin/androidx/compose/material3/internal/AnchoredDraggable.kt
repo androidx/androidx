@@ -565,7 +565,7 @@ internal class AnchoredDraggableState<T>(
         if (anchors.hasAnchorFor(targetValue)) {
             try {
                 dragMutex.mutate(dragPriority) {
-                    dragTarget = if (confirmValueChange(targetValue)) targetValue else currentValue
+                    dragTarget = targetValue
                     restartable(inputs = { anchors to this@AnchoredDraggableState.targetValue }) {
                         (latestAnchors, latestTarget) ->
                         anchoredDragScope.block(latestAnchors, latestTarget)
