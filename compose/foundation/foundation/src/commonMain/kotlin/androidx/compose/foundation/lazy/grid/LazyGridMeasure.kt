@@ -390,8 +390,15 @@ internal fun measureLazyGrid(
             consumedScroll = consumedScroll,
             measureResult =
                 layout(layoutWidth, layoutHeight) {
-                    positionedItems.fastForEach { it.place(this) }
-                    stickingItems.fastForEach { it.place(this) }
+                    // Tagging as motion frame of reference placement, meaning the placement
+                    // contains scrolling. This allows the consumer of this placement offset to
+                    // differentiate this offset vs. offsets from structural changes. Generally
+                    // speaking, this signals a preference to directly apply changes rather than
+                    // animating, to avoid a chasing effect to scrolling.
+                    withMotionFrameOfReferencePlacement {
+                        positionedItems.fastForEach { it.place(this) }
+                        stickingItems.fastForEach { it.place(this) }
+                    }
                     // we attach it during the placement so LazyGridState can trigger re-placement
                     placementScopeInvalidator.attachToScope()
                 },

@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
@@ -40,6 +41,7 @@ import androidx.compose.material3.internal.Strings
 import androidx.compose.material3.internal.getString
 import androidx.compose.material3.tokens.SheetBottomTokens
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -84,9 +86,11 @@ import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.coerceAtMost
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.width
 import androidx.compose.ui.zIndex
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -96,6 +100,8 @@ import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import junit.framework.TestCase
+import junit.framework.TestCase.assertEquals
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -902,5 +908,122 @@ class BottomSheetScaffoldTest {
         val expectedSnackbarBottomOffset =
             with(density!!) { rule.rootHeight().toPx() - peekHeight.toPx() - snackbarSize!!.height }
         assertThat(snackbarBottomOffset).isWithin(1f).of(expectedSnackbarBottomOffset)
+    }
+
+    @Test
+    fun bottomSheetScaffold_bottomSheetOffsetTaggedAsMotionFrameOfReference() {
+        var offset by mutableStateOf(IntOffset(0, 0))
+        val offsets =
+            listOf(
+                IntOffset(0, 0),
+                IntOffset(5, 20),
+                IntOffset(25, 0),
+                IntOffset(100, 10),
+            )
+        var sheetCoords: LayoutCoordinates? = null
+        var rootCoords: LayoutCoordinates? = null
+        val state = SheetState(false, density = Density(1f))
+        var sheetValue by mutableStateOf(SheetValue.Hidden)
+        rule.setContent {
+            Box(Modifier.onGloballyPositioned { rootCoords = it }.offset { offset }) {
+                LaunchedEffect(sheetValue) {
+                    if (sheetValue == SheetValue.Hidden) {
+                        state.hide()
+                    } else if (sheetValue == SheetValue.PartiallyExpanded) {
+                        state.partialExpand()
+                    } else {
+                        state.expand()
+                    }
+                }
+                BottomSheetScaffold(
+                    sheetContent = {
+                        Box(Modifier.fillMaxSize().onGloballyPositioned { sheetCoords = it })
+                    },
+                    scaffoldState =
+                        BottomSheetScaffoldState(state, remember { SnackbarHostState() })
+                ) {
+                    Box(Modifier.fillMaxSize())
+                }
+            }
+        }
+
+        SheetValue.values().forEach {
+            sheetValue = it
+            rule.waitForIdle()
+
+            repeat(4) {
+                offset = offsets[it]
+                rule.runOnIdle {
+                    val excludeOffset =
+                        rootCoords!!
+                            .localPositionOf(sheetCoords!!, includeMotionFrameOfReference = false)
+                            .round()
+                    val includeSheetOffset =
+                        rootCoords!!
+                            .localPositionOf(sheetCoords!!, includeMotionFrameOfReference = true)
+                            .round()
+                    assertEquals(
+                        includeSheetOffset - IntOffset(0, state.requireOffset().roundToInt()),
+                        excludeOffset
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun modalBottomSheet_bottomSheetOffsetTaggedAsMotionFrameOfReference() {
+        var offset by mutableStateOf(IntOffset(0, 0))
+        val offsets =
+            listOf(
+                IntOffset(0, 0),
+                IntOffset(5, 20),
+                IntOffset(25, 0),
+                IntOffset(100, 10),
+            )
+        var sheetCoords: LayoutCoordinates? = null
+        val state = SheetState(false, density = Density(1f))
+        var sheetValue by mutableStateOf(SheetValue.Hidden)
+        rule.setContent {
+            LaunchedEffect(sheetValue) {
+                if (sheetValue == SheetValue.Hidden) {
+                    state.hide()
+                } else if (sheetValue == SheetValue.PartiallyExpanded) {
+                    state.partialExpand()
+                } else {
+                    state.expand()
+                }
+            }
+            ModalBottomSheet({}, sheetState = state) {
+                Box(Modifier.fillMaxSize().onGloballyPositioned { sheetCoords = it })
+            }
+        }
+
+        fun LayoutCoordinates.root(): LayoutCoordinates =
+            if (parentLayoutCoordinates != null) parentLayoutCoordinates!!.root() else this
+
+        SheetValue.values().forEach {
+            sheetValue = it
+            rule.waitForIdle()
+            val rootCoords = sheetCoords!!.root()
+
+            repeat(4) {
+                offset = offsets[it]
+                rule.runOnIdle {
+                    val excludeOffset =
+                        rootCoords
+                            .localPositionOf(sheetCoords!!, includeMotionFrameOfReference = false)
+                            .round()
+                    val includeSheetOffset =
+                        rootCoords
+                            .localPositionOf(sheetCoords!!, includeMotionFrameOfReference = true)
+                            .round()
+                    assertEquals(
+                        includeSheetOffset - IntOffset(0, state.requireOffset().roundToInt()),
+                        excludeOffset
+                    )
+                }
+            }
+        }
     }
 }
