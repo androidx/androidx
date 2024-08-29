@@ -40,7 +40,7 @@ public final class HintConstants {
      * should be <code>{@value #AUTOFILL_HINT_EMAIL_ADDRESS}</code>).
      *
      * <p>See {@link android.view.View#setAutofillHints(String...)} for more info about autofill
-     * hints.3
+     * hints.
      */
     public static final String AUTOFILL_HINT_EMAIL_ADDRESS = "emailAddress";
 
