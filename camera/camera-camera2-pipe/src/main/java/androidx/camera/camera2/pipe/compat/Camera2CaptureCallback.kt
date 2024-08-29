@@ -46,6 +46,8 @@ internal interface Camera2CaptureCallback {
         frameNumber: FrameNumber
     )
 
+    fun onCaptureProcessProgressed(captureRequest: CaptureRequest, progress: Int)
+
     fun onCaptureFailed(captureRequest: CaptureRequest, frameNumber: FrameNumber)
 
     fun onCaptureSequenceCompleted(captureSequenceId: Int, captureFrameNumber: Long)
