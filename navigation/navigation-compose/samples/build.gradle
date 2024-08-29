@@ -57,10 +57,6 @@ androidx {
     kotlinTarget = KotlinTarget.KOTLIN_2_0
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
 android {
     compileSdk 35
     namespace "androidx.navigation.compose.samples"
