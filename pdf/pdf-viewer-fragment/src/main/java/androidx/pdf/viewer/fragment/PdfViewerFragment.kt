@@ -18,11 +18,13 @@ package androidx.pdf.viewer.fragment
 
 import android.app.Activity
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.core.os.BundleCompat
 import androidx.core.view.WindowInsetsCompat
@@ -236,7 +238,6 @@ public open class PdfViewerFragment : Fragment() {
     ): View? {
         super.onCreateView(inflater, container, savedInstanceState)
         this.container = container
-
         if (!hasContents && delayedContentsAvailable == null) {
             if (savedInstanceState != null) {
                 restoreContents(savedInstanceState)
@@ -363,20 +364,25 @@ public open class PdfViewerFragment : Fragment() {
 
     /** Adjusts the [FindInFileView] to be displayed on top of the keyboard. */
     private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView, activity: Activity) {
-        val screenHeight = activity.resources.displayMetrics.heightPixels
+        val containerLocation = IntArray(2)
+        container!!.getLocationInWindow(containerLocation)
+
+        val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val screenHeight = windowManager.currentWindowMetrics.bounds.height()
+
         val imeInsets =
             activity.window.decorView.rootWindowInsets.getInsets(WindowInsetsCompat.Type.ime())
 
-        var menuMargin = 0
         val keyboardTop = screenHeight - imeInsets.bottom
-        if (container!!.bottom >= keyboardTop) {
-            menuMargin = container!!.bottom - keyboardTop
-        }
+        val absoluteContainerBottom = container!!.height + containerLocation[1]
 
+        var menuMargin = 0
+        if (absoluteContainerBottom >= keyboardTop) {
+            menuMargin = absoluteContainerBottom - keyboardTop
+        }
         findInFileView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             bottomMargin = menuMargin
         }
-
         isSearchMenuAdjusted = true
     }
 
