@@ -19,7 +19,6 @@ package androidx.navigation
 import androidx.core.bundle.Bundle
 import androidx.lifecycle.Lifecycle
 
-// TODO: Make @Serializable
 internal data class NavBackStackEntryState(
     val id: String,
     val destinationId: Int,
@@ -48,5 +47,33 @@ internal data class NavBackStackEntryState(
             id,
             savedState
         )
+    }
+
+    fun toBundle(): Bundle = Bundle().apply {
+        putString(KEY_ID, id)
+        putInt(KEY_DESTINATION_ID, destinationId)
+        putBundle(KEY_ARGS, args)
+        putBundle(KEY_SAVED_STATE, savedState)
+    }
+
+    companion object {
+        private const val KEY_ID = "NavBackStackEntryState.id"
+        private const val KEY_DESTINATION_ID = "NavBackStackEntryState.destinationId"
+        private const val KEY_ARGS = "NavBackStackEntryState.args"
+        private const val KEY_SAVED_STATE = "NavBackStackEntryState.savedState"
+
+        fun fromBundle(bundle: Bundle?): NavBackStackEntryState? {
+            if (bundle == null) return null
+            val id = bundle.getString(KEY_ID) ?: return null
+            val destinationId = bundle.getInt(KEY_DESTINATION_ID)
+            val args = bundle.getBundle(KEY_ARGS) ?: return null
+            val savedState = bundle.getBundle(KEY_SAVED_STATE) ?: return null
+            return NavBackStackEntryState(
+                id = id,
+                destinationId = destinationId,
+                args = args,
+                savedState = savedState
+            )
+        }
     }
 }

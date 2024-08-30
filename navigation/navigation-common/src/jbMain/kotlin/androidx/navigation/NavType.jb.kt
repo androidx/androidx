@@ -581,7 +581,8 @@ public actual abstract class NavType<T> actual constructor(
                     get() = "string[]"
 
                 override fun put(bundle: Bundle, key: String, value: Array<String>?) {
-                    bundle.putStringArray(key, value)
+                    @Suppress("UNCHECKED_CAST")
+                    bundle.putStringArray(key, value as Array<String?>?)
                 }
 
                 @Suppress("UNCHECKED_CAST", "DEPRECATION")

@@ -878,8 +878,46 @@ public actual open class NavController {
 
     @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
-        // TODO read navigatorStateToRestore
-        // TODO read backStackToRestore
+        navigatorStateToRestore?.let { navigatorStateToRestore ->
+            val navigatorNames = navigatorStateToRestore.getStringArray(
+                KEY_NAVIGATOR_STATE_NAMES
+            )
+            if (navigatorNames != null) {
+                for (name in navigatorNames) {
+                    val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name!!)
+                    val bundle = navigatorStateToRestore.getBundle(name)
+                    if (bundle != null) {
+                        navigator.onRestoreState(bundle)
+                    }
+                }
+            }
+        }
+        backStackToRestore?.let { backStackToRestore ->
+            for (state in backStackToRestore) {
+                val node = findDestination(state.destinationId)
+                if (node == null) {
+                    val dest = NavDestination.getDisplayName(
+                        state.destinationId
+                    )
+                    throw IllegalStateException(
+                        "Restoring the Navigation back stack failed: destination $dest cannot be " +
+                            "found from the current destination $currentDestination"
+                    )
+                }
+                val entry = state.instantiate(node, hostLifecycleState, viewModel)
+                val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
+                val navigatorBackStack = navigatorState.getOrPut(navigator) {
+                    NavControllerNavigatorState(navigator)
+                }
+                backQueue.add(entry)
+                navigatorBackStack.addInternal(entry)
+                val parent = entry.destination.parent
+                if (parent != null) {
+                    linkChildToParent(entry, getBackStackEntry(parent.id))
+                }
+            }
+            this.backStackToRestore = null
+        }
 
         // Mark all Navigators as attached
         _navigatorProvider.navigators.values
@@ -1408,7 +1446,7 @@ public actual open class NavController {
     @CallSuper
     public actual open fun saveState(): Bundle? {
         var b: Bundle? = null
-        val navigatorNames = ArrayList<String>()
+        val navigatorNames = ArrayList<String?>()
         val navigatorState = Bundle()
         for ((name, value) in _navigatorProvider.navigators) {
             val savedState = value.onSaveState()
@@ -1422,51 +1460,46 @@ public actual open class NavController {
             navigatorState.putStringArrayList(KEY_NAVIGATOR_STATE_NAMES, navigatorNames)
             b.putBundle(KEY_NAVIGATOR_STATE, navigatorState)
         }
-        /* TODO: NavBackStackEntryState is not serializable yet
         if (backQueue.isNotEmpty()) {
             if (b == null) {
                 b = Bundle()
             }
-            val backStack = arrayOfNulls<Parcelable>(backQueue.size)
+            val backStack = arrayOfNulls<Bundle>(backQueue.size)
             var index = 0
             for (backStackEntry in this.backQueue) {
-                backStack[index++] = NavBackStackEntryState(backStackEntry)
+                backStack[index++] = NavBackStackEntryState(backStackEntry).toBundle()
             }
-            b.putParcelableArray(KEY_BACK_STACK, backStack)
+            b.putBundleArray(KEY_BACK_STACK, backStack)
         }
-        */
         if (backStackMap.isNotEmpty()) {
             if (b == null) {
                 b = Bundle()
             }
             val backStackDestIds = IntArray(backStackMap.size)
-            val backStackIds = ArrayList<String>()
+            val backStackIds = ArrayList<String?>()
             var index = 0
             for ((destId, id) in backStackMap) {
                 backStackDestIds[index++] = destId
                 backStackIds += id
-                    ?: "" // TODO: KMP Bundle doesn't allow nulls here
             }
             b.putIntArray(KEY_BACK_STACK_DEST_IDS, backStackDestIds)
             b.putStringArrayList(KEY_BACK_STACK_IDS, backStackIds)
         }
-        /* TODO: NavBackStackEntryState is not serializable yet
         if (backStackStates.isNotEmpty()) {
             if (b == null) {
                 b = Bundle()
             }
-            val backStackStateIds = ArrayList<String>()
+            val backStackStateIds = ArrayList<String?>()
             for ((id, backStackStates) in backStackStates) {
                 backStackStateIds += id
-                val states = arrayOfNulls<Parcelable>(backStackStates.size)
+                val states = arrayOfNulls<Bundle>(backStackStates.size)
                 backStackStates.forEachIndexed { stateIndex, backStackState ->
-                    states[stateIndex] = backStackState
+                    states[stateIndex] = backStackState.toBundle()
                 }
-                b.putParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
+                b.putBundleArray(KEY_BACK_STACK_STATES_PREFIX + id, states)
             }
             b.putStringArrayList(KEY_BACK_STACK_STATES_IDS, backStackStateIds)
         }
-        */
         if (deepLinkHandled) {
             if (b == null) {
                 b = Bundle()
@@ -1482,31 +1515,29 @@ public actual open class NavController {
             return
         }
         navigatorStateToRestore = navState.getBundle(KEY_NAVIGATOR_STATE)
-        // TODO: NavBackStackEntryState is not serializable yet
-        // backStackToRestore = navState.getParcelableArray(KEY_BACK_STACK)
+        backStackToRestore = navState.getBundleArray(KEY_BACK_STACK)
+            ?.mapNotNull { NavBackStackEntryState.fromBundle(it) }
         backStackStates.clear()
         val backStackDestIds = navState.getIntArray(KEY_BACK_STACK_DEST_IDS)
         val backStackIds = navState.getStringArrayList(KEY_BACK_STACK_IDS)
         if (backStackDestIds != null && backStackIds != null) {
             backStackDestIds.forEachIndexed { index, id ->
                 backStackMap[id] = backStackIds[index]
-                    .ifEmpty { null } // TODO: KMP Bundle doesn't allow nulls here
             }
         }
-        /* TODO: NavBackStackEntryState is not serializable yet
         val backStackStateIds = navState.getStringArrayList(KEY_BACK_STACK_STATES_IDS)
-        backStackStateIds?.forEach { id ->
-            val backStackState = navState.getParcelableArray(KEY_BACK_STACK_STATES_PREFIX + id)
+        backStackStateIds?.filterNotNull()?.forEach { id ->
+            val backStackState = navState.getBundleArray(KEY_BACK_STACK_STATES_PREFIX + id)
+                ?.mapNotNull { NavBackStackEntryState.fromBundle(it) }
             if (backStackState != null) {
                 backStackStates[id] =
                     ArrayDeque<NavBackStackEntryState>(backStackState.size).apply {
-                        for (parcelable in backStackState) {
-                            add(parcelable as NavBackStackEntryState)
+                        for (i in backStackState) {
+                            add(i)
                         }
                     }
             }
         }
-        */
         deepLinkHandled = navState.getBoolean(KEY_DEEP_LINK_HANDLED)
     }
 
