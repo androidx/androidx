@@ -30,7 +30,7 @@ android {
 
 dependencies {
     implementation(project(":core:core-ktx"))
-    implementation(projectOrArtifact(":appcompat:appcompat"))
+    implementation(project(":appcompat:appcompat"))
     implementation("androidx.annotation:annotation:1.8.1")
     compileOnly(project(":annotation:annotation-sampled"))
 }

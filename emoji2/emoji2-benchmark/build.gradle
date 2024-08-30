@@ -49,7 +49,7 @@ android {
 dependencies {
     androidTestImplementation(project(":emoji2:emoji2"))
     androidTestImplementation(project(":emoji2:emoji2-bundled"))
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

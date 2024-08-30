@@ -34,9 +34,9 @@ BundleInsideHelper.forInsideLintJar(project)
 dependencies {
     compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
-    bundleInside(projectOrArtifact(":compose:lint:common"))
+    bundleInside(project(":compose:lint:common"))
 
-    testImplementation(projectOrArtifact(":compose:lint:common-test"))
+    testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)

@@ -41,7 +41,7 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+                api(project(":lifecycle:lifecycle-runtime"))
                 api("androidx.annotation:annotation:1.8.1")
                 api(project(":compose:runtime:runtime"))
             }
@@ -54,14 +54,14 @@ androidXMultiplatform {
                 // `lifecycle-runtime-compose` also updates `lifecycle-runtime-ktx`
                 // in cases where our constraints fail (e.g., internally in AndroidX
                 // when using project dependencies).
-                api(projectOrArtifact(":lifecycle:lifecycle-runtime-ktx"))
+                api(project(":lifecycle:lifecycle-runtime-ktx"))
             }
         }
 
         androidInstrumentedTest {
             dependencies {
-                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
-                implementation(projectOrArtifact(":compose:ui:ui-test"))
+                implementation(project(":lifecycle:lifecycle-runtime-testing"))
+                implementation(project(":compose:ui:ui-test"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)

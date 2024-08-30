@@ -50,7 +50,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(project(":internal-testutils-paging"))
     androidTestImplementation(project(":paging:paging-testing"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)

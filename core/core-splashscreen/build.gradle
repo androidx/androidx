@@ -45,7 +45,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(projectOrArtifact(":appcompat:appcompat"))
+    androidTestImplementation(project(":appcompat:appcompat"))
     androidTestImplementation(project(":test:screenshot:screenshot"))
 }
 

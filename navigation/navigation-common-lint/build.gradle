@@ -35,7 +35,7 @@ BundleInsideHelper.forInsideLintJar(project)
 dependencies {
     compileOnly(libs.kotlinStdlib)
     compileOnly(libs.androidLintApi)
-    bundleInside(projectOrArtifact(":navigation:navigation-lint-common"))
+    bundleInside(project(":navigation:navigation-lint-common"))
 
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
