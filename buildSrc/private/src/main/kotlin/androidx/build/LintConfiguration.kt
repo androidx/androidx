@@ -267,11 +267,7 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
             // Disable classfile-based checks because lint cannot find the class files for
             // multiplatform projects and `SourceSet.java.classesDirectory` is not configurable.
             // This is not ideal, but it's better than having no lint checks at all.
-            // These should be re-enabled (b/363305780)
-            disable.add("ObsoleteSampledAnnotation")
-            disable.add("UnresolvedSampleLink")
-            disable.add("MultipleSampledFunctions")
-            disable.add("InvalidSamplesLocation")
+            disable.add("LintError")
         }
 
         // Disable a check that's only relevant for apps that ship to Play Store. (b/299278101)
