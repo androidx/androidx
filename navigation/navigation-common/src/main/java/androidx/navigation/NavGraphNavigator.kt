@@ -83,14 +83,31 @@ public open class NavGraphNavigator(private val navigatorProvider: NavigatorProv
                 "navigation destination $dest is not a direct child of this NavGraph"
             )
         }
-        if (startRoute != null && startRoute != startDestination.route) {
-            val matchingArgs = startDestination.matchRoute(startRoute)?.matchingArgs
-            if (matchingArgs != null && !matchingArgs.isEmpty) {
-                val bundle = Bundle()
-                // we need to add args from startRoute, but it should not override existing args
-                bundle.putAll(matchingArgs)
-                args?.let { bundle.putAll(args) }
-                args = bundle
+        if (startRoute != null) {
+            // If startRoute contains only placeholders, we fallback to default arg values.
+            // This is to maintain existing behavior of using default value for startDestination
+            // while also adding support for args declared in startRoute.
+            if (startRoute != startDestination.route) {
+                val matchingArgs = startDestination.matchRoute(startRoute)?.matchingArgs
+                if (matchingArgs != null && !matchingArgs.isEmpty) {
+                    val bundle = Bundle()
+                    // we need to add args from startRoute, but it should not override existing args
+                    bundle.putAll(matchingArgs)
+                    args?.let { bundle.putAll(args) }
+                    args = bundle
+                }
+            }
+            // by this point, the bundle should contain all arguments that don't have
+            // default values (regardless of whether the actual default value is known or not).
+            if (startDestination.arguments.isNotEmpty()) {
+                val missingRequiredArgs =
+                    startDestination.arguments.missingRequiredArguments { key ->
+                        if (args == null) true else !args.containsKey(key)
+                    }
+                require(missingRequiredArgs.isEmpty()) {
+                    "Cannot navigate to startDestination $startDestination. " +
+                        "Missing required arguments [$missingRequiredArgs]"
+                }
             }
         }
 

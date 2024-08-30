@@ -1871,8 +1871,12 @@ class NavControllerTest {
 
         val nestedId = ("android-app://androidx.navigation/nested/{longArg}").hashCode()
 
-        val expected = assertFailsWith<NullPointerException> { navController.navigate(nestedId) }
-        assertThat(expected.message).isEqualTo("null cannot be cast to non-null type kotlin.Long")
+        val expected =
+            assertFailsWith<IllegalArgumentException> { navController.navigate(nestedId) }
+        assertThat(expected.message)
+            .isEqualTo(
+                "Cannot navigate to startDestination Destination(0x893cce52) route=dest2/{longArg}. Missing required arguments [[longArg]]"
+            )
     }
 
     @UiThreadTest

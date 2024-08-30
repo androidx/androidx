@@ -286,11 +286,18 @@ class NavControllerRouteTest {
         @Serializable @SerialName("test") class TestClass(val arg: Int)
 
         val navController = createNavController()
-        navController.graph =
-            navController.createGraph(startDestination = TestClass::class) { test<TestClass>() }
-        assertThat(navController.currentDestination?.route).isEqualTo("test/{arg}")
-        assertThat(navController.currentDestination?.id)
-            .isEqualTo(serializer<TestClass>().generateHashCode())
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                navController.graph =
+                    navController.createGraph(startDestination = TestClass::class) {
+                        test<TestClass>()
+                    }
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot navigate to startDestination Destination(0x693c804) " +
+                    "route=test/{arg}. Missing required arguments [[arg]]"
+            )
     }
 
     @UiThreadTest
@@ -421,6 +428,30 @@ class NavControllerRouteTest {
         val actual = entry.arguments!!.getString("arg")
         val expected = "myArg"
         assertThat(actual).isEqualTo(expected)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testStartDestinationMissingRequiredArg() {
+        val navController = createNavController()
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                navController.graph =
+                    navController.createGraph(
+                        route = "graph",
+                        startDestination = "start_test/{arg}"
+                    ) {
+                        test("start_test/{arg}") {
+                            // does not have default value to fallback to
+                            argument("arg") { type = NavType.IntType }
+                        }
+                    }
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot navigate to startDestination Destination(0x67775af) " +
+                    "route=start_test/{arg}. Missing required arguments [[arg]]"
+            )
     }
 
     @UiThreadTest
@@ -1968,7 +1999,7 @@ class NavControllerRouteTest {
         navController.graph =
             createNavController().createGraph(
                 route = "nav_root",
-                startDestination = "start_test?{arg}"
+                startDestination = "start_test?myArg"
             ) {
                 test("start_test?{arg}") { argument("arg") { type = NavType.StringType } }
             }
@@ -1991,7 +2022,7 @@ class NavControllerRouteTest {
         navController.graph =
             createNavController().createGraph(
                 route = "nav_root",
-                startDestination = "start_test?opt={arg}"
+                startDestination = "start_test?opt=myArg"
             ) {
                 test("start_test?opt={arg}") { argument("arg") { type = NavType.StringType } }
             }
