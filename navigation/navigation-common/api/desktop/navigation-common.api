@@ -434,6 +434,10 @@ public final class androidx/navigation/PopUpToBuilder {
 	public final fun setSaveState (Z)V
 }
 
+public final class androidx/navigation/SavedStateHandleKt {
+	public static final fun internalToRoute (Landroidx/lifecycle/SavedStateHandle;Lkotlin/reflect/KClass;Ljava/util/Map;)Ljava/lang/Object;
+}
+
 public final class androidx/navigation/serialization/RouteDeserializerKt {
 	public static final fun decodeArguments (Lkotlinx/serialization/KSerializer;Landroidx/core/bundle/Bundle;Ljava/util/Map;)Ljava/lang/Object;
 	public static final fun decodeArguments (Lkotlinx/serialization/KSerializer;Landroidx/lifecycle/SavedStateHandle;Ljava/util/Map;)Ljava/lang/Object;
