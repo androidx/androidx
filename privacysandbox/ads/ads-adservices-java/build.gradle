@@ -53,8 +53,8 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":internal-testutils-truth"))
 
-    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.dexmakerMockitoInline)
     androidTestImplementation(libs.dexmakerMockitoInlineExtended)
 }
 

@@ -43,8 +43,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore4)
+    androidTestImplementation(libs.dexmakerMockito)
 }
 
 androidx {

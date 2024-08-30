@@ -46,9 +46,8 @@ dependencies {
     androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
     androidTestImplementation(libs.espressoIdlingResource)
     androidTestImplementation(libs.espressoWeb, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
 }
 
 // We want to publish a release apk of this project for webkit team's use
