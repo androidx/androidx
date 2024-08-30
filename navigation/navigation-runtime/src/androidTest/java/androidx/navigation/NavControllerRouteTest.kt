@@ -1320,6 +1320,31 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectDouble() {
+        @Serializable class TestClass(val arg: Double = 11.11)
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = "start") {
+                test("start")
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("start")
+
+        // passed in arg
+        navController.navigate(TestClass(11E123))
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isEqualTo(11E123)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+
+        // use default
+        navController.navigate(TestClass())
+        assertThat(navController.currentDestination?.hasRoute(TestClass::class)).isTrue()
+        assertThat(navController.currentBackStackEntry?.toRoute<TestClass>()?.arg).isEqualTo(11.11)
+        assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectNullableInt() {
         @Serializable class TestClass(val arg: Int? = 10)
         val navController = createNavController()

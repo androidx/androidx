@@ -74,6 +74,19 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     }
 
     @Test
+    fun decodeDouble() {
+        @Serializable class TestClass(val arg: Double)
+
+        val values = mapOf("arg" to 11E123)
+        val result =
+            decode<TestClass>(
+                values,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleType })
+            )
+        assertThat(result.arg).isEqualTo(11E123)
+    }
+
+    @Test
     fun decodeLong() {
         @Serializable class TestClass(val arg: Long)
 
