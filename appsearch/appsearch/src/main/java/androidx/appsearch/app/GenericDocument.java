@@ -36,6 +36,7 @@ import androidx.appsearch.flags.Flags;
 import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.appsearch.safeparcel.PropertyParcel;
 import androidx.appsearch.util.IndentingStringBuilder;
+import androidx.core.os.ParcelCompat;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Array;
@@ -190,9 +191,11 @@ public class GenericDocument {
     @NonNull
     public static GenericDocument createFromParcel(@NonNull Parcel parcel) {
         Objects.requireNonNull(parcel);
-        return new GenericDocument(
-                parcel.readParcelable(
-                        GenericDocumentParcel.class.getClassLoader(), GenericDocumentParcel.class));
+        GenericDocumentParcel documentParcel =
+                ParcelCompat.readParcelable(
+                        parcel, GenericDocumentParcel.class.getClassLoader(),
+                        GenericDocumentParcel.class);
+        return new GenericDocument(documentParcel);
     }
 
     /**
