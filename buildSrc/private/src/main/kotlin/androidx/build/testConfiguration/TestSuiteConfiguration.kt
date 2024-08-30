@@ -23,7 +23,6 @@ import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.deviceTestsForEachCompat
 import androidx.build.getFileInTestConfigDirectory
 import androidx.build.getPrivacySandboxFilesDirectory
-import androidx.build.getSupportRootFolder
 import androidx.build.hasBenchmarkPlugin
 import androidx.build.isMacrobenchmark
 import androidx.build.isPresubmitBuild
@@ -192,14 +191,7 @@ private fun Project.registerGenerateTestConfigurationTask(
     rootProject.tasks
         .findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!
         .dependsOn(generateTestConfigurationTask)
-    rootProject.tasks.named<ModuleInfoGenerator>("createModuleInfo").configure {
-        it.testModules.add(
-            TestModule(
-                name = xmlName,
-                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
-            )
-        )
-    }
+    addToModuleInfo(testName = xmlName)
 }
 
 /**
@@ -414,41 +406,30 @@ private fun Project.createOrUpdateMediaTestConfigurationGenerationTask(
         }Tests$variantName.json"
     }
 
-    fun ModuleInfoGenerator.addTestModule(clientToT: Boolean, serviceToT: Boolean) {
+    fun Project.addTestModule(clientToT: Boolean, serviceToT: Boolean) {
         // We don't test the combination of previous versions of service and client as that is not
         // useful data. We always want at least one tip of tree project.
         if (!clientToT && !serviceToT) return
-        testModules.add(
-            TestModule(
-                name =
-                    getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true),
-                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
-            )
+        addToModuleInfo(
+            testName =
+                getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = true)
         )
-        testModules.add(
-            TestModule(
-                name =
-                    getJsonName(
-                        clientToT = clientToT,
-                        serviceToT = serviceToT,
-                        clientTests = false
-                    ),
-                path = listOf(projectDir.toRelativeString(getSupportRootFolder()))
-            )
+        addToModuleInfo(
+            testName =
+                getJsonName(clientToT = clientToT, serviceToT = serviceToT, clientTests = false)
         )
     }
     val isClient = this.name.contains("client")
     val isPrevious = this.name.contains("previous")
 
-    rootProject.tasks.named<ModuleInfoGenerator>("createModuleInfo").configure {
-        if (isClient) {
-            it.addTestModule(clientToT = !isPrevious, serviceToT = false)
-            it.addTestModule(clientToT = !isPrevious, serviceToT = true)
-        } else {
-            it.addTestModule(clientToT = true, serviceToT = !isPrevious)
-            it.addTestModule(clientToT = false, serviceToT = !isPrevious)
-        }
+    if (isClient) {
+        addTestModule(clientToT = !isPrevious, serviceToT = false)
+        addTestModule(clientToT = !isPrevious, serviceToT = true)
+    } else {
+        addTestModule(clientToT = true, serviceToT = !isPrevious)
+        addTestModule(clientToT = false, serviceToT = !isPrevious)
     }
+
     mediaTask.configure {
         if (isClient) {
             if (isPrevious) {

@@ -219,15 +219,6 @@
 
     <issue
         id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="        project.rootProject.tasks.named(&quot;createModuleInfo&quot;).configure {"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXImplPlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
         message="Avoid using method findProject"
         errorLine1="                    allProjectsExist || findProject(otherGradlePath) != null"
         errorLine2="                                        ~~~~~~~~~~~">
@@ -481,6 +472,15 @@
     <issue
         id="GradleProjectIsolation"
         message="Avoid using method getRootProject"
+        errorLine1="    rootProject.tasks.named(CREATE_MODULE_INFO).configure {"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/OwnersService.kt"/>
+    </issue>
+
+    <issue
+        id="GradleProjectIsolation"
+        message="Avoid using method getRootProject"
         errorLine1="        project.rootProject.gradle.sharedServices.registerIfAbsent("
         errorLine2="                ~~~~~~~~~~~">
         <location
@@ -570,15 +570,6 @@
 
     <issue
         id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="    rootProject.tasks.named&lt;ModuleInfoGenerator>(&quot;createModuleInfo&quot;).configure {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
         message="Avoid using method getParent"
         errorLine1="    val parentProject = project.parent!!"
         errorLine2="                                ~~~~~~">
@@ -591,15 +582,6 @@
         message="Avoid using method getRootProject"
         errorLine1="        project.rootProject.tasks.findByName(FINALIZE_TEST_CONFIGS_WITH_APKS_TASK)!!.dependsOn(task)"
         errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="    rootProject.tasks.named&lt;ModuleInfoGenerator>(&quot;createModuleInfo&quot;).configure {"
-        errorLine2="    ~~~~~~~~~~~">
         <location
             file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/testConfiguration/TestSuiteConfiguration.kt"/>
     </issue>
