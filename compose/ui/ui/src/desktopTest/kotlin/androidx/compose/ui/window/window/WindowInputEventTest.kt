@@ -490,42 +490,6 @@ class WindowInputEventTest {
         assertThat(deltas.all { it == Offset(0f, 1f) }).isTrue()
     }
 
-    @Test
-    fun `catch only the first scroll event in one frame`() = runApplicationTest {
-        lateinit var window: ComposeWindow
-
-        val deltas = mutableListOf<Offset>()
-
-        launchTestApplication {
-            Window(
-                onCloseRequest = ::exitApplication,
-                state = rememberWindowState(width = 200.dp, height = 100.dp)
-            ) {
-                window = this.window
-
-                Box(
-                    Modifier
-                        .fillMaxSize()
-                        .onFirstPointerEvent(PointerEventType.Scroll) {
-                            deltas.add(it.changes.first().scrollDelta)
-                        }
-                )
-            }
-        }
-
-        awaitIdle()
-        assertThat(deltas.size).isEqualTo(0)
-
-        val eventCount = 500
-
-        repeat(eventCount) {
-            window.sendMouseWheelEvent(100, 50, WHEEL_UNIT_SCROLL, wheelRotation = 1.0)
-        }
-        awaitIdle()
-        assertThat(deltas.size).isEqualTo(1)
-        assertThat(deltas.first()).isEqualTo(Offset(0f, 1f))
-    }
-
     @Test(timeout = 5000)
     fun `receive buttons and modifiers`() = runApplicationTest {
         lateinit var window: ComposeWindow

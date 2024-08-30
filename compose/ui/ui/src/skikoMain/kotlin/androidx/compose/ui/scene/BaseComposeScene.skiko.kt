@@ -40,8 +40,8 @@ import androidx.compose.ui.node.SnapshotInvalidationTracker
 import androidx.compose.ui.platform.GlobalSnapshotManager
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.util.trace
-import kotlin.coroutines.CoroutineContext
 import kotlin.concurrent.Volatile
+import kotlin.coroutines.CoroutineContext
 
 /**
  * BaseComposeScene is an internal abstract class that implements the ComposeScene interface.
@@ -89,6 +89,7 @@ internal abstract class BaseComposeScene(
             snapshotInvalidationTracker.sendAndPerformSnapshotChanges()
             snapshotInvalidationTracker.performSnapshotChangesSynchronously(block)
         } finally {
+            snapshotInvalidationTracker.sendAndPerformSnapshotChanges()
             isInvalidationDisabled = false
         }.also {
             updateInvalidations()
@@ -205,6 +206,7 @@ internal abstract class BaseComposeScene(
             nativeEvent = nativeEvent,
             button = button
         )
+        recomposer.performScheduledEffects()
     }
 
     // TODO(demin): return Boolean (when it is consumed)
@@ -229,10 +231,13 @@ internal abstract class BaseComposeScene(
             nativeEvent = nativeEvent,
             button = button
         )
+        recomposer.performScheduledEffects()
     }
 
     override fun sendKeyEvent(keyEvent: KeyEvent): Boolean = postponeInvalidation("BaseComposeScene:sendKeyEvent") {
-        inputHandler.onKeyEvent(keyEvent)
+        inputHandler.onKeyEvent(keyEvent).also {
+            recomposer.performScheduledEffects()
+        }
     }
 
     private fun doMeasureAndLayout() {

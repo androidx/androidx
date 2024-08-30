@@ -17,13 +17,18 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.focusable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
@@ -31,9 +36,18 @@ import androidx.compose.runtime.withFrameMillis
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.InternalKeyEvent
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.onPointerEvent
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.scene.BaseComposeScene
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -41,10 +55,13 @@ import androidx.compose.ui.test.InternalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performMouseInput
 import androidx.compose.ui.test.runInternalSkikoComposeUiTest
+import androidx.compose.ui.touch
 import androidx.compose.ui.unit.dp
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -321,5 +338,166 @@ class RenderPhasesTest {
             expected = listOf("measure.0", "layout.0", "measure.1", "layout.1", "draw.1"),
             actual = events
         )
+    }
+
+    @Test
+    fun dragPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        val scrollState = ScrollState(0)
+        setContent {
+            Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        assertFalse(scene.hasInvalidations())
+        assertEquals(0, scrollState.value)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Press,
+            pointers = listOf(
+                touch(50f, 50f, pressed = true)
+            )
+        )
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Move,
+            pointers = listOf(
+                touch(50f, 10f, pressed = true)
+            )
+        )
+        assertTrue(scene.hasInvalidations())
+        assertNotEquals(0, scrollState.value)
+    }
+
+    @Test
+    fun scrollPointerEventHandlesScrollUpdatesSynchronously() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        val scrollState = ScrollState(0)
+        setContent {
+            Box(modifier = Modifier.size(100.dp).verticalScroll(scrollState)) {
+                Box(Modifier.size(200.dp))
+            }
+        }
+
+        assertFalse(scene.hasInvalidations())
+        assertEquals(0, scrollState.value)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset(50f, 50f),
+            scrollDelta = Offset(0f, 40f)
+        )
+
+        assertTrue(scene.hasInvalidations())
+        assertNotEquals(0, scrollState.value)
+    }
+
+    @Test
+    fun pointerPressEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        var pointerHandledAfterDelay by mutableStateOf(false)
+        setContent {
+            val coroutineScope = rememberCoroutineScope()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            awaitPointerEvent()
+                            coroutineScope.launch {
+                                pointerHandledAfterDelay = true
+                            }
+                        }
+                    }
+            )
+        }
+
+        assertFalse(pointerHandledAfterDelay)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Press,
+            pointers = listOf(
+                touch(50f, 50f, pressed = true)
+            )
+        )
+
+        assertTrue(pointerHandledAfterDelay)
+    }
+
+    @Test
+    fun pointerScrollEventProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        var pointerHandledAfterDelay by mutableStateOf(false)
+        setContent {
+            val coroutineScope = rememberCoroutineScope()
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            awaitPointerEvent()
+                            coroutineScope.launch {
+                                pointerHandledAfterDelay = true
+                            }
+                        }
+                    }
+            )
+        }
+
+        assertFalse(pointerHandledAfterDelay)
+
+        scene.sendPointerEvent(
+            eventType = PointerEventType.Scroll,
+            position = Offset(50f, 50f),
+            scrollDelta = Offset(0f, 40f)
+        )
+
+        assertTrue(pointerHandledAfterDelay)
+    }
+
+    @Test
+    fun keyEventsProcessesScheduledCoroutines() = runInternalSkikoComposeUiTest(
+        coroutineDispatcher = StandardTestDispatcher()
+    ) {
+        var keyHandledAfterDelay by mutableStateOf(false)
+        setContent {
+            val coroutineScope = rememberCoroutineScope()
+            val focusRequester = remember { FocusRequester() }
+            val interactionSource = remember { MutableInteractionSource() }
+            Box(
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .focusable(interactionSource = interactionSource)
+                    .onKeyEvent { keyEvent: KeyEvent ->
+                        coroutineScope.launch {
+                            keyHandledAfterDelay = true
+                        }
+                        true
+                    }
+            )
+            LaunchedEffect(Unit) {
+                focusRequester.requestFocus()
+            }
+        }
+
+        assertFalse(keyHandledAfterDelay)
+
+        scene.sendKeyEvent(
+            KeyEvent(
+                nativeKeyEvent = InternalKeyEvent(
+                    key = Key.A,
+                    type = KeyEventType.KeyDown,
+                    codePoint = 0,
+                    modifiers = EmptyPointerKeyboardModifiers(),
+                    nativeEvent = null
+                )
+            )
+        )
+
+        assertTrue(keyHandledAfterDelay)
     }
 }
