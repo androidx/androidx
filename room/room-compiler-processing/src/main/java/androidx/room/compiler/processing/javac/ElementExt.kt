@@ -25,6 +25,7 @@ import javax.lang.model.element.Element
 import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
+import javax.lang.model.type.ExecutableType
 import javax.lang.model.util.Types
 import kotlin.coroutines.Continuation
 
@@ -42,14 +43,24 @@ private fun Element.hasAnyOf(annotations: Array<String>) =
     }
 
 internal val Element.nullability: XNullability
-    get() =
-        if (asType().kind.isPrimitive || hasAnyOf(NONNULL_ANNOTATIONS)) {
+    get() {
+        // Get the type of the element: if this is a method, use the return type instead of the full
+        // method type since the return is what determines nullability.
+        val asType =
+            asType().let {
+                when (it) {
+                    is ExecutableType -> it.returnType
+                    else -> it
+                }
+            }
+        return if (asType.kind.isPrimitive || hasAnyOf(NONNULL_ANNOTATIONS)) {
             XNullability.NONNULL
         } else if (hasAnyOf(NULLABLE_ANNOTATIONS)) {
             XNullability.NULLABLE
         } else {
             XNullability.UNKNOWN
         }
+    }
 
 internal fun Element.requireEnclosingType(env: JavacProcessingEnv): JavacTypeElement {
     return checkNotNull(enclosingType(env)) { "Cannot find required enclosing type for $this" }
