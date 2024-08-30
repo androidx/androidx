@@ -495,11 +495,21 @@ internal class TextFieldDecoratorModifierNode(
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false
         }
-        setText { newText ->
-            if (!editable) return@setText false
+        if (editable) {
+            setText { newText ->
+                if (!editable) return@setText false
 
-            textFieldState.replaceAll(newText)
-            true
+                textFieldState.replaceAll(newText)
+                true
+            }
+            insertTextAtCursor { newText ->
+                if (!editable) return@insertTextAtCursor false
+
+                // Finish composing text first because when the field is focused the IME
+                // might set composition.
+                textFieldState.replaceSelectedText(newText, clearComposition = true)
+                true
+            }
         }
         @Suppress("NAME_SHADOWING")
         setSelection { start, end, relativeToOriginal ->
@@ -540,14 +550,6 @@ internal class TextFieldDecoratorModifierNode(
                 textFieldState.selectCharsIn(selectionRange)
             }
             return@setSelection true
-        }
-        insertTextAtCursor { newText ->
-            if (!editable) return@insertTextAtCursor false
-
-            // Finish composing text first because when the field is focused the IME
-            // might set composition.
-            textFieldState.replaceSelectedText(newText, clearComposition = true)
-            true
         }
 
         val effectiveImeAction = keyboardOptions.imeActionOrDefault

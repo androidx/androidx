@@ -47,7 +47,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasPerformImeAction
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -1009,7 +1009,7 @@ class TextFieldCursorHandleTest : FocusedWindowTest {
     }
 
     private fun focusAndWait() {
-        rule.onNode(hasSetTextAction()).requestFocus()
+        rule.onNode(hasPerformImeAction()).requestFocus()
     }
 
     private fun swipeToLeft(swipeDistance: Float, durationMillis: Long = 1000) =

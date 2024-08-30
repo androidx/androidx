@@ -119,6 +119,15 @@ class VelocityTrackerTest {
         assertThat(tracker.calculateVelocity()).isEqualTo(Velocity.Zero)
     }
 
+    @Test // b/355160589
+    fun calculateVelocity_twoPoints_sameTimeStamp_returnsZero() {
+        val tracker = VelocityTracker()
+        tracker.addPosition(1000L, Offset(100f, 0f))
+        tracker.addPosition(1000L, Offset(200f, 0f))
+        tracker.addPosition(1000L, Offset(300f, 0f))
+        assertThat(tracker.calculateVelocity()).isEqualTo(Velocity.Zero)
+    }
+
     @Test
     fun resetTracking_resetsTracking() {
         val tracker = VelocityTracker()

@@ -457,7 +457,9 @@ class Recomposer(
                     if (_state.value <= State.ShuttingDown) return@run
                 }
             }
-            snapshotInvalidations = MutableScatterSet()
+            synchronized(stateLock) {
+                snapshotInvalidations = MutableScatterSet()
+            }
             complete = true
         } finally {
             if (!complete) {
@@ -480,17 +482,22 @@ class Recomposer(
     private inline fun recordComposerModifications(
         onEachInvalidComposition: (ControlledComposition) -> Unit
     ) {
-        val changes = snapshotInvalidations.wrapIntoSet()
+        val changes = synchronized(stateLock) {
+            snapshotInvalidations.also {
+                if (it.isNotEmpty()) snapshotInvalidations = MutableScatterSet()
+            }
+        }.wrapIntoSet()
         if (changes.isNotEmpty()) {
             knownCompositions.fastForEach { composition ->
                 composition.recordModificationsOf(changes)
             }
-            snapshotInvalidations = MutableScatterSet()
         }
         compositionInvalidations.forEach(onEachInvalidComposition)
         compositionInvalidations.clear()
-        if (deriveStateLocked() != null) {
-            error("called outside of runRecomposeAndApplyChanges")
+        synchronized(stateLock) {
+            if (deriveStateLocked() != null) {
+                error("called outside of runRecomposeAndApplyChanges")
+            }
         }
     }
 
@@ -1019,6 +1026,7 @@ class Recomposer(
             val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
                 synchronized(stateLock) {
                     if (_state.value >= State.Idle) {
+                        val snapshotInvalidations = snapshotInvalidations
                         changed.fastForEach {
                             if (
                                 it is StateObjectImpl &&
