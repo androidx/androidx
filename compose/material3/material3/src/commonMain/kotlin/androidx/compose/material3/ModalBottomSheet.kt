@@ -62,9 +62,11 @@ import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.dismiss
 import androidx.compose.ui.semantics.expand
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -164,11 +166,11 @@ fun ModalBottomSheet(
         },
         predictiveBackProgress = predictiveBackProgress,
     ) {
-        Box(modifier = Modifier.fillMaxSize().imePadding()) {
+        Box(modifier = Modifier.fillMaxSize().imePadding().semantics { isTraversalGroup = true }) {
             Scrim(
                 color = scrimColor,
                 onDismissRequest = animateToDismiss,
-                visible = sheetState.targetValue != Hidden
+                visible = sheetState.targetValue != Hidden,
             )
             ModalBottomSheetContent(
                 predictiveBackProgress,
@@ -265,7 +267,10 @@ internal fun BoxScope.ModalBottomSheetContent(
                     startDragImmediately = sheetState.anchoredDraggableState.isAnimationRunning,
                     onDragStopped = { settleToDismiss(it) }
                 )
-                .semantics { paneTitle = bottomSheetPaneTitle }
+                .semantics {
+                    paneTitle = bottomSheetPaneTitle
+                    traversalIndex = 0f
+                }
                 .graphicsLayer {
                     val sheetOffset = sheetState.anchoredDraggableState.offset
                     val sheetHeight = size.height
@@ -409,6 +414,7 @@ private fun Scrim(color: Color, onDismissRequest: () -> Unit, visible: Boolean) 
             if (visible) {
                 Modifier.pointerInput(onDismissRequest) { detectTapGestures { onDismissRequest() } }
                     .semantics(mergeDescendants = true) {
+                        traversalIndex = 1f
                         contentDescription = closeSheet
                         onClick {
                             onDismissRequest()

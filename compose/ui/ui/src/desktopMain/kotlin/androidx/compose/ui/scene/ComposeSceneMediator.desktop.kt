@@ -20,6 +20,8 @@ import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.SessionMutex
 import androidx.compose.ui.awt.AwtEventListener
 import androidx.compose.ui.awt.AwtEventListeners
 import androidx.compose.ui.awt.OnlyValidPrimaryMouseButtonFilter
@@ -48,6 +50,8 @@ import androidx.compose.ui.platform.DesktopTextInputService
 import androidx.compose.ui.platform.EmptyViewConfiguration
 import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.PlatformTextInputMethodRequest
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -55,7 +59,6 @@ import androidx.compose.ui.platform.a11y.AccessibilityController
 import androidx.compose.ui.platform.a11y.ComposeSceneAccessible
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -90,6 +93,8 @@ import javax.swing.JComponent
 import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
@@ -682,7 +687,18 @@ internal class ComposeSceneMediator(
 
         override val measureDrawLayerBounds: Boolean = this@ComposeSceneMediator.measureDrawLayerBounds
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()
-        override val textInputService: PlatformTextInputService = this@ComposeSceneMediator.textInputService
+        override val textInputService = this@ComposeSceneMediator.textInputService
+
+        private val textInputSessionMutex = SessionMutex<DesktopTextInputSession>()
+
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ): Nothing = textInputSessionMutex.withSessionCancellingPrevious(
+            sessionInitializer = {
+                DesktopTextInputSession(coroutineScope = it)
+            },
+            session = session
+        )
 
         override fun setPointerIcon(pointerIcon: PointerIcon) {
             contentComponent.cursor =
@@ -739,6 +755,35 @@ internal class ComposeSceneMediator(
         override val density: Density
             get() = contentComponent.density
     }
+
+    @OptIn(InternalComposeUiApi::class)
+    private inner class DesktopTextInputSession(
+        coroutineScope: CoroutineScope,
+    ) : PlatformTextInputSessionScope, CoroutineScope by coroutineScope {
+
+        private val innerSessionMutex = SessionMutex<Nothing?>()
+
+        override suspend fun startInputMethod(
+            request: PlatformTextInputMethodRequest
+        ): Nothing = innerSessionMutex.withSessionCancellingPrevious(
+            // This session has no data, just init/dispose tasks.
+            sessionInitializer = { null }
+        ) {
+            (suspendCancellableCoroutine<Nothing> { continuation ->
+                textInputService.startInput(
+                    value = request.state,
+                    imeOptions = request.imeOptions,
+                    onEditCommand = request.onEditCommand,
+                    onImeActionPerformed = request.onImeAction ?: {}
+                )
+
+                continuation.invokeOnCancellation {
+                    textInputService.stopInput()
+                }
+            })
+        }
+    }
+
 
     private class InvisibleComponent : Component() {
         fun requestFocusTemporary(): Boolean {

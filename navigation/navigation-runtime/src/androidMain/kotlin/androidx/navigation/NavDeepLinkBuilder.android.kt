@@ -19,6 +19,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
+import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Bundle
 import androidx.annotation.IdRes
@@ -51,9 +52,13 @@ import androidx.navigation.NavDestination.Companion.createRoute
 public class NavDeepLinkBuilder(private val context: Context) {
     private class DeepLinkDestination constructor(val destinationId: Int, val arguments: Bundle?)
 
+    private val activity: Activity? =
+        generateSequence(context) { (it as? ContextWrapper)?.baseContext }
+            .mapNotNull { it as? Activity }
+            .firstOrNull()
     private val intent: Intent =
-        if (context is Activity) {
-                Intent(context, context.javaClass)
+        if (activity != null) {
+                Intent(context, activity.javaClass)
             } else {
                 val launchIntent =
                     context.packageManager.getLaunchIntentForPackage(context.packageName)

@@ -32,13 +32,13 @@ internal class Recreator(
         source.lifecycle.removeObserver(this)
         val bundle: Bundle = owner.savedStateRegistry
             .consumeRestoredStateForKey(COMPONENT_KEY) ?: return
-        val classes: MutableList<String> = bundle.getStringArrayList(CLASSES_KEY)
+        val classes = bundle.getStringArrayList(CLASSES_KEY)
             ?: throw IllegalStateException(
                 "Bundle with restored state for the component " +
                     "\"$COMPONENT_KEY\" must contain list of strings by the key " +
                     "\"$CLASSES_KEY\""
             )
-        for (className: String in classes) {
+        for (className in classes.filterNotNull()) {
             reflectiveNew(className)
         }
     }

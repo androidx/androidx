@@ -137,7 +137,7 @@ internal class UIKitTextInputService(
         currentImeActionHandler = onImeActionPerformed
 
         attachIntermediateTextInputView()
-        textUIView?.input = createSkikoInput(value)
+        textUIView?.input = createSkikoInput()
         textUIView?.inputTraits = getUITextInputTraits(imeOptions)
 
         showSoftwareKeyboard()
@@ -248,9 +248,7 @@ internal class UIKitTextInputService(
     private fun sendEditCommand(vararg commands: EditCommand) {
         val commandList = commands.toList()
         _tempCurrentInputSession?.apply(commandList)
-        currentInput?.let { input ->
-            input.onEditCommand(commandList)
-        }
+        currentInput?.onEditCommand?.invoke(commandList)
     }
 
     private fun getCursorPos(): Int? {
@@ -360,7 +358,7 @@ internal class UIKitTextInputService(
         textUIView = null
     }
 
-    private fun createSkikoInput(value: TextFieldValue) = object : IOSSkikoInput {
+    private fun createSkikoInput() = object : IOSSkikoInput {
 
         private var floatingCursorTranslation : Offset? = null
 

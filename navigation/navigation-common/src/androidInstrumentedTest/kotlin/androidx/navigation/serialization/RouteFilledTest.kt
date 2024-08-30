@@ -346,6 +346,40 @@ class RouteFilledTest {
     }
 
     @Test
+    fun enumType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val arg: TestEnum, val arg2: TestEnum)
+
+        val clazz = TestClass(TestEnum.ONE, TestEnum.TWO)
+        assertThatRouteFilledFrom(
+                clazz,
+                listOf(
+                    enumArgument("arg", TestEnum::class.java),
+                    enumArgument("arg2", TestEnum::class.java)
+                )
+            )
+            .isEqualTo("$PATH_SERIAL_NAME/ONE/TWO")
+    }
+
+    @Test
+    fun enumNullableType() {
+        @Serializable
+        @SerialName(PATH_SERIAL_NAME)
+        class TestClass(val arg: TestEnum?, val arg2: TestEnum?)
+
+        val clazz = TestClass(TestEnum.ONE, null)
+        assertThatRouteFilledFrom(
+                clazz,
+                listOf(
+                    enumArgument("arg", TestEnum::class.java),
+                    enumArgument("arg2", TestEnum::class.java)
+                )
+            )
+            .isEqualTo("$PATH_SERIAL_NAME/ONE/null")
+    }
+
+    @Test
     fun customParamType() {
         @Serializable class CustomType
 
@@ -779,7 +813,7 @@ private interface TestInterface
 
 private fun nullableIntArgument(name: String, hasDefaultValue: Boolean = false) =
     navArgument(name) {
-        type = NullableIntType
+        type = InternalNavType.IntNullableType
         nullable = true
         unknownDefaultValuePresent = hasDefaultValue
     }
@@ -791,30 +825,8 @@ private fun intArrayArgument(name: String, hasDefaultValue: Boolean = false) =
         unknownDefaultValuePresent = hasDefaultValue
     }
 
-private val NullableIntType: NavType<Int?> =
-    object : NavType<Int?>(true) {
-        override val name: String
-            get() = "nullable_integer"
-
-        override fun put(bundle: Bundle, key: String, value: Int?) {
-            value?.let { bundle.putInt(key, value) }
-        }
-
-        @Suppress("DEPRECATION")
-        override fun get(bundle: Bundle, key: String): Int? {
-            val value = bundle[key]
-            return value?.let { it as Int }
-        }
-
-        override fun parseValue(value: String): Int? {
-            return if (value == "null") {
-                null
-            } else if (value.startsWith("0x")) {
-                value.substring(2).toInt(16)
-            } else {
-                value.toInt()
-            }
-        }
-
-        override fun serializeAsValue(value: Int?): String = value?.toString() ?: "null"
-    }
+@Serializable
+private enum class TestEnum {
+    ONE,
+    TWO
+}

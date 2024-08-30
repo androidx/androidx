@@ -203,9 +203,8 @@ public actual abstract class NavType<T> actual constructor(
                             }
                         val isArray = type.endsWith("[]")
                         if (isArray) className = className.substring(0, className.length - 2)
-                        return requireNotNull(
-                            parseSerializableOrParcelableType(className, isArray)
-                        ) {
+                        val clazz = Class.forName(className)
+                        return requireNotNull(parseSerializableOrParcelableType(clazz, isArray)) {
                             "$className is not Serializable or Parcelable."
                         }
                     } catch (e: ClassNotFoundException) {
@@ -218,11 +217,10 @@ public actual abstract class NavType<T> actual constructor(
 
         @Suppress("UNCHECKED_CAST")
         internal fun parseSerializableOrParcelableType(
-            className: String,
+            clazz: Class<*>,
             isArray: Boolean
-        ): NavType<*>? {
-            val clazz = Class.forName(className)
-            return when {
+        ): NavType<*>? =
+            when {
                 Parcelable::class.java.isAssignableFrom(clazz) -> {
                     if (isArray) {
                         ParcelableArrayType(clazz as Class<Parcelable>)
@@ -236,12 +234,11 @@ public actual abstract class NavType<T> actual constructor(
                     if (isArray) {
                         SerializableArrayType(clazz as Class<Serializable>)
                     } else {
-                        return SerializableType(clazz as Class<Serializable>)
+                        SerializableType(clazz as Class<Serializable>)
                     }
                 }
                 else -> null
             }
-        }
 
         @Suppress("UNCHECKED_CAST") // needed for cast to NavType<Any>
         @JvmStatic

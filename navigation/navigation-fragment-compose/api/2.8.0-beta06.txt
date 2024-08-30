@@ -1,0 +1,37 @@
+// Signature format: 4.0
+package androidx.navigation.fragment.compose {
+
+  public final class ComposableFragment extends androidx.fragment.app.Fragment {
+    method public static androidx.navigation.fragment.compose.ComposableFragment ComposableFragment(String fullyQualifiedName);
+    field public static final androidx.navigation.fragment.compose.ComposableFragment.Companion Companion;
+  }
+
+  public static final class ComposableFragment.Companion {
+    method public androidx.navigation.fragment.compose.ComposableFragment ComposableFragment(String fullyQualifiedName);
+  }
+
+  @androidx.navigation.Navigator.Name("composable") public final class ComposableFragmentNavigator extends androidx.navigation.Navigator<androidx.navigation.fragment.FragmentNavigator.Destination> {
+    ctor public ComposableFragmentNavigator(androidx.navigation.fragment.FragmentNavigator fragmentNavigator);
+    ctor public ComposableFragmentNavigator(androidx.navigation.NavigatorProvider provider);
+    method public androidx.navigation.fragment.FragmentNavigator.Destination createDestination();
+  }
+
+  public class ComposableNavHostFragment extends androidx.navigation.fragment.NavHostFragment {
+    ctor public ComposableNavHostFragment();
+    method public static final androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId);
+    method public static final androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+    field public static final androidx.navigation.fragment.compose.ComposableNavHostFragment.Companion Companion;
+  }
+
+  public static final class ComposableNavHostFragment.Companion {
+    method public androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId);
+    method public androidx.navigation.fragment.compose.ComposableNavHostFragment create(@NavigationRes int graphResId, optional android.os.Bundle? startDestinationArgs);
+  }
+
+  public final class LocalFragmentKt {
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> getLocalFragment();
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.fragment.app.Fragment> LocalFragment;
+  }
+
+}
+

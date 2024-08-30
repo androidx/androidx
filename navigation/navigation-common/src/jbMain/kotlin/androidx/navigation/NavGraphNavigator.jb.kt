@@ -65,7 +65,7 @@ public actual open class NavGraphNavigator actual constructor(
                 "navigation destination $dest is not a direct child of this NavGraph"
             )
         }
-        if (startRoute != null) {
+        if (startRoute != null && startRoute != startDestination.route) {
             val matchingArgs = startDestination.matchDeepLink(startRoute)?.matchingArgs
             if (matchingArgs != null && !matchingArgs.isEmpty()) {
                 val bundle = Bundle()

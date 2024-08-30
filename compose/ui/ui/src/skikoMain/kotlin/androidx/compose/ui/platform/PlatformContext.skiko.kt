@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputModeManager
@@ -38,12 +39,17 @@ import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.CanvasLayersComposeScene
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.text.input.TextInputSession
 import kotlin.reflect.KProperty
+import kotlinx.coroutines.awaitCancellation
 
 /**
  * Platform context that provides platform-specific bindings.
@@ -107,6 +113,13 @@ interface PlatformContext {
     val viewConfiguration: ViewConfiguration get() = EmptyViewConfiguration
     val inputModeManager: InputModeManager
     val textInputService: PlatformTextInputService get() = EmptyPlatformTextInputService
+
+    suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing {
+        awaitCancellation()
+    }
+
     val textToolbar: TextToolbar get() = EmptyTextToolbar
     fun setPointerIcon(pointerIcon: PointerIcon) = Unit
 
@@ -273,3 +286,4 @@ internal class DelegateRootForTestListener : PlatformContext.RootForTestListener
         }
     }
 }
+

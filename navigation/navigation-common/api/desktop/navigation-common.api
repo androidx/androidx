@@ -212,6 +212,7 @@ public class androidx/navigation/NavGraph : androidx/navigation/NavDestination, 
 	public fun hashCode ()I
 	public final fun iterator ()Ljava/util/Iterator;
 	public fun matchDeepLink (Ljava/lang/String;)Landroidx/navigation/NavDestination$DeepLinkMatch;
+	public final fun matchDeepLinkComprehensive (Ljava/lang/String;ZZLandroidx/navigation/NavDestination;)Landroidx/navigation/NavDestination$DeepLinkMatch;
 	public final fun remove (Landroidx/navigation/NavDestination;)V
 	public final fun setStartDestination (I)V
 	public final fun setStartDestination (Ljava/lang/Object;)V

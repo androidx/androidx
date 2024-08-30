@@ -3299,6 +3299,8 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun requestFocus ()Z
 	public fun setPointerIcon (Landroidx/compose/ui/input/pointer/PointerIcon;)V
 	public fun startDrag-12SF9DM (Landroidx/compose/ui/draganddrop/DragAndDropTransferData;JLkotlin/jvm/functions/Function1;)Z
+	public fun textInputSession (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
+	public static synthetic fun textInputSession$suspendImpl (Landroidx/compose/ui/platform/PlatformContext;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
 
 public final class androidx/compose/ui/platform/PlatformContext$Companion {
@@ -3360,6 +3362,10 @@ public abstract interface class androidx/compose/ui/platform/PlatformTextInputIn
 }
 
 public abstract interface class androidx/compose/ui/platform/PlatformTextInputMethodRequest {
+	public abstract fun getImeOptions ()Landroidx/compose/ui/text/input/ImeOptions;
+	public abstract fun getOnEditCommand ()Lkotlin/jvm/functions/Function1;
+	public abstract fun getOnImeAction ()Lkotlin/jvm/functions/Function1;
+	public abstract fun getState ()Landroidx/compose/ui/text/input/TextFieldValue;
 }
 
 public abstract interface class androidx/compose/ui/platform/PlatformTextInputModifierNode : androidx/compose/ui/node/DelegatableNode {

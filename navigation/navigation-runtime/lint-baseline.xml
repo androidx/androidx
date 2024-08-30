@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        backQueue.removeLastKt()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        var leafDestinationId = deepLinkIds.removeLastKt()"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="        deepLinkArgs?.removeLastKt()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirstKt()"
+        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="                val started = nextStarted.removeFirstKt()"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="            val oldEntry = backQueue.removeLastKt()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/navigation/NavController.kt"/>
+    </issue>
+
+</issues>

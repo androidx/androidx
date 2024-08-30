@@ -41,8 +41,9 @@ expect class Bundle() {
     fun putDouble(key: String?, value: Double)
     fun putString(key: String?, value: String?)
     fun putCharSequence(key: String?, value: CharSequence?)
-    fun putIntegerArrayList(key: String?, value: ArrayList<Int>?)
-    fun putStringArrayList(key: String?, value: ArrayList<String>?)
+    fun putBundle(key: String?, value: Bundle?)
+    fun putIntegerArrayList(key: String?, value: ArrayList<Int?>?)
+    fun putStringArrayList(key: String?, value: ArrayList<String?>?)
     fun putBooleanArray(key: String?, value: BooleanArray?)
     fun putByteArray(key: String?, value: ByteArray?)
     fun putShortArray(key: String?, value: ShortArray?)
@@ -51,9 +52,8 @@ expect class Bundle() {
     fun putLongArray(key: String?, value: LongArray?)
     fun putFloatArray(key: String?, value: FloatArray?)
     fun putDoubleArray(key: String?, value: DoubleArray?)
-    fun putStringArray(key: String?, value: Array<String>?)
-    fun putCharSequenceArray(key: String?, value: Array<CharSequence>?)
-    fun putBundle(key: String?, value: Bundle?)
+    fun putStringArray(key: String?, value: Array<String?>?)
+    fun putCharSequenceArray(key: String?, value: Array<CharSequence?>?)
 
     fun getBoolean(key: String?): Boolean
     fun getBoolean(key: String?, defaultValue: Boolean): Boolean
@@ -75,8 +75,9 @@ expect class Bundle() {
     fun getString(key: String?, defaultValue: String): String
     fun getCharSequence(key: String?): CharSequence?
     fun getCharSequence(key: String?, defaultValue: CharSequence): CharSequence
-    fun getIntegerArrayList(key: String?): ArrayList<Int>?
-    fun getStringArrayList(key: String?): ArrayList<String>?
+    fun getBundle(key: String?): Bundle?
+    fun getIntegerArrayList(key: String?): ArrayList<Int?>?
+    fun getStringArrayList(key: String?): ArrayList<String?>?
     fun getBooleanArray(key: String?): BooleanArray?
     fun getByteArray(key: String?): ByteArray?
     fun getShortArray(key: String?): ShortArray?
@@ -85,9 +86,8 @@ expect class Bundle() {
     fun getLongArray(key: String?): LongArray?
     fun getFloatArray(key: String?): FloatArray?
     fun getDoubleArray(key: String?): DoubleArray?
-    fun getStringArray(key: String?): Array<String>?
-    fun getCharSequenceArray(key: String?): Array<CharSequence>?
-    fun getBundle(key: String?): Bundle?
+    fun getStringArray(key: String?): Array<String?>?
+    fun getCharSequenceArray(key: String?): Array<CharSequence?>?
 
     @Deprecated("Use the type-safe specific APIs depending on the type of the item to be retrieved")
     operator fun get(key: String?): Any?
@@ -95,5 +95,7 @@ expect class Bundle() {
 
 /**
  * Returns a new [Bundle] with the given key/value pairs as elements.
+ *
+ * @throws IllegalArgumentException When a value is not a supported type of [Bundle].
  */
 expect fun bundleOf(vararg pairs: Pair<String, Any?>): Bundle

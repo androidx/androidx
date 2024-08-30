@@ -19,7 +19,10 @@ package androidx.compose.material3
 import android.content.ComponentCallbacks2
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Build
 import android.os.Build.VERSION.SDK_INT
+import android.os.Bundle
+import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.ScrollState
@@ -35,6 +38,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.internal.Strings
+import androidx.compose.material3.internal.getString
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
@@ -53,6 +58,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.SemanticsMatcher
@@ -65,6 +71,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onParent
 import androidx.compose.ui.test.performClick
@@ -82,6 +89,7 @@ import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
@@ -1115,4 +1123,31 @@ class ModalBottomSheetTest {
         // Size entirely filled by padding provided by WindowInsetPadding
         rule.onNodeWithTag(sheetTag).onParent().assertHeightIsEqualTo(sheetHeight)
     }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun modalBottomSheet_assertSheetContentIsReadBeforeScrim() {
+        lateinit var composeView: View
+        var closeSheet = ""
+        rule.setContent {
+            closeSheet = getString(Strings.CloseSheet)
+            ModalBottomSheet(onDismissRequest = {}, modifier = Modifier.testTag(sheetTag)) {
+                composeView = LocalView.current
+                Box(Modifier.fillMaxWidth().height(sheetHeight))
+            }
+        }
+
+        val scrimViewId = rule.onNodeWithContentDescription(closeSheet).fetchSemanticsNode().id
+        val sheetViewId = rule.onNodeWithTag(sheetTag).fetchSemanticsNode().id
+
+        rule.runOnUiThread {
+            val accessibilityNodeProvider = composeView.accessibilityNodeProvider
+            val sheetViewANI = accessibilityNodeProvider.createAccessibilityNodeInfo(sheetViewId)
+            // Ensure that sheet A11y info is read before scrim view.
+            assertThat(sheetViewANI?.extras?.traversalBefore).isAtMost(scrimViewId)
+        }
+    }
+
+    private val Bundle.traversalBefore: Int
+        get() = getInt("android.view.accessibility.extra.EXTRA_DATA_TEST_TRAVERSALBEFORE_VAL")
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.ui.keyboard
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
