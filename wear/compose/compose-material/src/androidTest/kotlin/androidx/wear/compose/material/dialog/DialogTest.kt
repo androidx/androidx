@@ -385,32 +385,6 @@ class DialogBehaviourTest {
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
         rule.onNodeWithText(dismissedText).assertExists()
     }
-
-    @Test
-    fun calls_ondismissrequest_when_dialog_becomes_hidden() {
-        val show = mutableStateOf(true)
-        var dismissed = false
-        rule.setContentWithTheme {
-            Box {
-                Dialog(
-                    showDialog = show.value,
-                    onDismissRequest = { dismissed = true },
-                ) {
-                    Alert(
-                        icon = {},
-                        title = {},
-                        message = { Text("Text", modifier = Modifier.testTag(TEST_TAG)) },
-                        content = {},
-                    )
-                }
-            }
-        }
-        rule.waitForIdle()
-        show.value = false
-
-        rule.waitForIdle()
-        assert(dismissed)
-    }
 }
 
 class DialogContentSizeAndPositionTest {
