@@ -45,8 +45,8 @@ class StreamConfigurationMapCompatBaseImpl
         // StreamConfigurationMap provided by Robolectric.
         try {
             return mStreamConfigurationMap.getOutputFormats();
-        } catch (NullPointerException e) {
-            Logger.e(TAG, "Failed to get output formats from StreamConfigurationMap", e);
+        } catch (NullPointerException | IllegalArgumentException e) {
+            Logger.w(TAG, "Failed to get output formats from StreamConfigurationMap", e);
             return null;
         }
     }
