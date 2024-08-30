@@ -25,9 +25,12 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -35,13 +38,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.gesture.MotionEvent
 import androidx.compose.ui.gesture.PointerProperties
 import androidx.compose.ui.input.pointer.PointerCoords
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -386,6 +394,42 @@ class DialogTest {
 
         assertThat(dismissed).isTrue()
         assertThat(clicked).isFalse()
+    }
+
+    @Test
+    fun dialogInsetsWhenDecorFitsSystemWindows() {
+        var top = -1
+        var bottom = -1
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            Dialog(onDismissRequest = {}) {
+                val density = LocalDensity.current
+                val insets = WindowInsets.safeContent
+                Box(
+                    Modifier.fillMaxSize().onPlaced {
+                        top = insets.getTop(density)
+                        bottom = insets.getBottom(density)
+                    }
+                ) {
+                    TextField(
+                        "Hello World",
+                        onValueChange = {},
+                        Modifier.align(Alignment.BottomStart).focusRequester(focusRequester)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(top).isEqualTo(0)
+            assertThat(bottom).isEqualTo(0)
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(top).isEqualTo(0)
+            assertThat(bottom).isEqualTo(0)
+        }
     }
 
     private fun setupDialogTest(
