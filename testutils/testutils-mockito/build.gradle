@@ -30,7 +30,7 @@ plugins {
 }
 
 dependencies {
-    api(libs.mockitoCore, excludes.bytebuddy)
+    api(libs.mockitoCore)
 
     implementation(libs.kotlinStdlib)
 }

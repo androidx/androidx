@@ -16,10 +16,6 @@
 // Add ext.libs for library versions
 def excludes = [:]
 
-excludes.bytebuddy = {
-    exclude group: "net.bytebuddy"
-}
-
 excludes.espresso = {
     exclude group: "androidx.annotation"
     exclude group: "androidx.appcompat"

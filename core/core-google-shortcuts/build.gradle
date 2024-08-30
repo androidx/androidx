@@ -42,8 +42,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIntents)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.junit)
 }

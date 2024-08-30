@@ -27,8 +27,8 @@ dependencies {
     })
     androidTestImplementation(libs.espressoCore, excludes.espresso)
     androidTestImplementation(libs.bundles.espressoContrib, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.coordinatorlayout", module: "coordinatorlayout"
     })

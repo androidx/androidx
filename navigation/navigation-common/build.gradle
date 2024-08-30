@@ -67,8 +67,8 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.kotlinStdlib)
 
     lintPublish(project(':navigation:navigation-common-lint'))

@@ -70,8 +70,8 @@ dependencies {
     }
     androidTestImplementation(project(":camera:camera-camera2-pipe-integration"))
     androidTestImplementation(project(":internal-testutils-truth"))
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
 }
 android {
