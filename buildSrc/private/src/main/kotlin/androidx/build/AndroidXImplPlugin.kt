@@ -34,9 +34,8 @@ import androidx.build.resources.configurePublicResourcesStub
 import androidx.build.sbom.configureSbomPublishing
 import androidx.build.sbom.validateAllArchiveInputsRecognized
 import androidx.build.studio.StudioTask
-import androidx.build.testConfiguration.ModuleInfoGenerator
-import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
+import androidx.build.testConfiguration.addToModuleInfo
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import androidx.build.uptodatedness.TaskUpToDateValidator
 import androidx.build.uptodatedness.cacheEvenIfNoOutputs
@@ -306,16 +305,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         val xmlReportDestDir = project.getHostTestResultDirectory()
         val testName = "${project.path}:${task.name}"
-        project.rootProject.tasks.named("createModuleInfo").configure {
-            it as ModuleInfoGenerator
-            it.testModules.add(
-                TestModule(
-                    name = testName,
-                    path =
-                        listOf(project.projectDir.toRelativeString(project.getSupportRootFolder()))
-                )
-            )
-        }
+        project.addToModuleInfo(testName)
         val archiveName = "$testName.zip"
         if (project.isDisplayTestOutput()) {
             // Enable tracing to see results in command line
