@@ -53,6 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"ফাইলটো খুলিব পৰা নগ’ল। সম্ভাব্য অনুমতি সম্পৰ্কীয় সমস্যা?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF নথিৰ বাবে পৃষ্ঠাখন বিসংগতিপূৰ্ণ"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF নথিখন প্ৰক্ৰিয়াকৰণ কৰিবলৈ অপৰ্যাপ্ত ডেটা"</string>
-    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
-    <skip />
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ফাইল খুলিব নোৱাৰি"</string>
 </resources>

@@ -53,6 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"파일을 열 수 없습니다. 권한 문제가 있을 수 있나요?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF 문서의 페이지가 손상되었습니다."</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF 문서 처리를 위한 데이터가 부족합니다."</string>
-    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
-    <skip />
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF 파일을 열 수 없음"</string>
 </resources>

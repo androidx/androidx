@@ -53,6 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"ଫାଇଲ ଖୋଲିବାରେ ବିଫଳ ହୋଇଛି। ସମ୍ଭାବ୍ୟ ଅନୁମତି ସମସ୍ୟା ଅଛି?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF ଡକ୍ୟୁମେଣ୍ଟ ପାଇଁ ପୃଷ୍ଠା ବିଭାଜିତ ହୋଇଛି"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF ଡକ୍ୟୁମେଣ୍ଟ ପ୍ରକ୍ରିୟାକରଣ ପାଇଁ ପର୍ଯ୍ୟାପ୍ତ ଡାଟା ନାହିଁ"</string>
-    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
-    <skip />
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ଫାଇଲକୁ ଖୋଲାଯାଇପାରିବ ନାହିଁ"</string>
 </resources>
