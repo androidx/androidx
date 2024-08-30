@@ -438,6 +438,12 @@
             app:drawableTint="#800000ff"
             app:drawableTintMode="src_over"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/text_view_text_font_weight"
+            android:layout_width="match_parent"
+            android:textFontWeight="900"
+            android:text="textFontWeight900"
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
 </ScrollView>
