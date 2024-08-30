@@ -360,6 +360,7 @@ internal class ComposeWindow(
 
         _windowInfo.containerSize = IntSize(width, height)
 
+        // TODO: Align with Container/Mediator architecture
         skiaLayer.attachTo(canvas)
         scene.size = IntSize(width, height)
         skiaLayer.needRedraw()
