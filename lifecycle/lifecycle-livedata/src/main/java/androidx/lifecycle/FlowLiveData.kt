@@ -109,6 +109,7 @@ public fun <T> LiveData<T>.asFlow(): Flow<T> = callbackFlow {
     }
 
     try {
+        withContext(Dispatchers.Main.immediate) { observeForever(observer) }
         awaitCancellation()
     } finally {
         withContext(Dispatchers.Main.immediate + NonCancellable) {

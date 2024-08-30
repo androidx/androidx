@@ -77,6 +77,10 @@ kotlin {
         jbMain.dependsOn(commonMain)
         nativeMain.dependsOn(jbMain)
 
+        webMain.dependsOn(jbMain)
+        jsMain.dependsOn(webMain)
+        wasmJsMain.dependsOn(webMain)
+
         targets.all { target ->
             if (target.platformType !in [KotlinPlatformType.androidJvm, KotlinPlatformType.common]) {
                 target.compilations["main"].defaultSourceSet {

@@ -14,10 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.compose
+package androidx.lifecycle.viewmodel
 
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import kotlin.reflect.KClass
 
-/** The CompositionLocal containing the current [LifecycleOwner]. */
-public expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
+internal actual fun <VM : ViewModel> createViewModel(
+    factory: ViewModelProvider.Factory,
+    modelClass: KClass<VM>,
+    extras: CreationExtras
+): VM = factory.create(modelClass, extras)

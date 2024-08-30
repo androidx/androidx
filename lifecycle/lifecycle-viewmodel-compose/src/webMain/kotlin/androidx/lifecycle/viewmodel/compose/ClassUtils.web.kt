@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.lifecycle.compose
+package androidx.lifecycle.viewmodel.compose
 
-import androidx.compose.runtime.ProvidableCompositionLocal
-import androidx.lifecycle.LifecycleOwner
+import kotlin.reflect.KClass
 
-/** The CompositionLocal containing the current [LifecycleOwner]. */
-public expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
+internal actual val <T : Any> KClass<T>.canonicalName: String?
+    get() = simpleName // `qualifiedName` reflection API is not supported yet in JavaScript

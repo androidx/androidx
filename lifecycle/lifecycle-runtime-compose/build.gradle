@@ -68,6 +68,20 @@ kotlin {
                 implementation(libs.kotlinStdlib)
             }
         }
+
+        nonAndroidMain.dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        jsMain.dependsOn(nonAndroidMain)
+        wasmJsMain.dependsOn(nonAndroidMain)
+
+        targets.all { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
+            }
+        }
     }
 }
 
