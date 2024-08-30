@@ -39,8 +39,8 @@ androidXMultiplatform {
     sourceSets {
         commonMain {
             dependencies {
-                api(projectOrArtifact(":lifecycle:lifecycle-common"))
-                api(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
+                api(project(":lifecycle:lifecycle-common"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
                 api("androidx.annotation:annotation:1.8.1")
                 api("androidx.compose.runtime:runtime:1.6.0")
                 implementation(libs.kotlinStdlib)
@@ -54,20 +54,20 @@ androidXMultiplatform {
         androidMain {
             dependsOn(commonMain)
             dependencies {
-                api(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
+                api(project(":lifecycle:lifecycle-viewmodel-savedstate"))
                 api("androidx.compose.ui:ui:1.6.0")
                 // Converting `lifecycle-viewmodel-compose` to KMP and including a transitive
                 // dependency on `lifecycle-livedata-core` triggered a Gradle bug. Adding the
                 // `livedata` dependency directly works around the issue.
                 // See https://github.com/gradle/gradle/issues/14220 for details.
-                compileOnly(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
+                compileOnly(project(":lifecycle:lifecycle-livedata-core"))
             }
         }
 
         androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
-                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":compose:test-utils"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
@@ -80,10 +80,10 @@ androidXMultiplatform {
                 // Outside of androidx this is resolved via constraint added to lifecycle-common,
                 // but it doesn't work in androidx.
                 // See aosp/1804059
-                implementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
-                implementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-                implementation(projectOrArtifact(":activity:activity-compose"))
-                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+                implementation(project(":lifecycle:lifecycle-common-java8"))
+                implementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+                implementation(project(":activity:activity-compose"))
+                implementation(project(":lifecycle:lifecycle-runtime-testing"))
             }
         }
     }
@@ -100,7 +100,7 @@ androidx {
     description = "Compose integration with Lifecycle ViewModel"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
-    samples(projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
+    samples(project(":lifecycle:lifecycle-viewmodel-compose:lifecycle-viewmodel-compose-samples"))
 }
 
 android {

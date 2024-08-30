@@ -37,7 +37,7 @@ androidXMultiplatform {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(libs.kotlinCoroutinesCore)
-                implementation(projectOrArtifact(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui"))
             }
         }
 
@@ -74,11 +74,11 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
-                implementation(projectOrArtifact(":compose:ui:ui"))
-                implementation(projectOrArtifact(":compose:material:material"))
-                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":compose:test-utils"))
-                implementation(projectOrArtifact(":activity:activity-compose"))
+                implementation(project(":activity:activity-compose"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testRules)
                 implementation(libs.testRunner)

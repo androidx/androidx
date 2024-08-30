@@ -24,17 +24,17 @@ plugins {
 dependencies {
 
     implementation("androidx.arch.core:core-runtime:2.2.0")
-    implementation(projectOrArtifact(":room:room-ktx"))
-    implementation(projectOrArtifact(":room:room-rxjava2"))
-    implementation(projectOrArtifact(":room:room-paging"))
+    implementation(project(":room:room-ktx"))
+    implementation(project(":room:room-rxjava2"))
+    implementation(project(":room:room-paging"))
 
     implementation(project(":paging:paging-common-ktx"))
     implementation(project(":paging:paging-runtime"))
     implementation(project(":paging:paging-rxjava2"))
 
-    ksp(projectOrArtifact(":room:room-compiler"))
+    ksp(project(":room:room-compiler"))
 
-    implementation(projectOrArtifact(":recyclerview:recyclerview"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation("androidx.fragment:fragment-ktx:1.3.0")
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation(libs.kotlinStdlib)

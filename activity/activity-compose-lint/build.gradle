@@ -34,13 +34,13 @@ BundleInsideHelper.forInsideLintJar(project)
 dependencies {
     compileOnly(libs.androidLintMinApi)
     compileOnly(libs.kotlinStdlib)
-    bundleInside(projectOrArtifact(":compose:lint:common"))
+    bundleInside(project(":compose:lint:common"))
     compileOnly(libs.intellijCore)
     compileOnly(libs.uast)
     compileOnly(libs.intellijKotlinCompiler)
 
 
-    testImplementation(projectOrArtifact(":compose:lint:common-test"))
+    testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)
     testRuntimeOnly(libs.kotlinReflect)
     testImplementation(libs.kotlinStdlibJdk8)

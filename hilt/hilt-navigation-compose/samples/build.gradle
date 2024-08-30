@@ -37,7 +37,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation(projectOrArtifact(":hilt:hilt-navigation-compose"))
+    implementation(project(":hilt:hilt-navigation-compose"))
 }
 
 androidx {

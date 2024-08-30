@@ -15,7 +15,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.8.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.0.0")
-    implementation(projectOrArtifact(":core:core"))
+    implementation(project(":core:core"))
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
 

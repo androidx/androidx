@@ -36,30 +36,30 @@ dependencies {
     api("androidx.compose.runtime:runtime-saveable:1.7.0-rc01")
     api("androidx.compose.ui:ui:1.7.0-rc01")
     api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
+    api(project(":navigation:navigation-runtime-ktx"))
     implementation(libs.kotlinSerializationCore)
 
-    androidTestImplementation(projectOrArtifact(":compose:material:material"))
+    androidTestImplementation(project(":compose:material:material"))
     androidTestImplementation project(":compose:test-utils")
-    androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
-    androidTestImplementation(projectOrArtifact(":navigation:navigation-testing"))
-    androidTestImplementation(projectOrArtifact(":internal-testutils-navigation"), {
+    androidTestImplementation project(":compose:ui:ui-tooling")
+    androidTestImplementation(project(":navigation:navigation-testing"))
+    androidTestImplementation(project(":internal-testutils-navigation"), {
         exclude group: "androidx.navigation", module: "navigation-common"
     })
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common-java8"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-livedata-core"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel"))
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-viewmodel-savedstate"))
-    androidTestImplementation(projectOrArtifact(":activity:activity-ktx"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":lifecycle:lifecycle-common"))
+    androidTestImplementation(project(":lifecycle:lifecycle-common-java8"))
+    androidTestImplementation(project(":lifecycle:lifecycle-livedata-core"))
+    androidTestImplementation(project(":lifecycle:lifecycle-viewmodel"))
+    androidTestImplementation(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    androidTestImplementation(project(":activity:activity-ktx"))
     androidTestImplementation("androidx.collection:collection-ktx:1.4.2")
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
 
-    lintChecks(projectOrArtifact(":navigation:navigation-compose-lint"))
-    lintPublish(projectOrArtifact(":navigation:navigation-compose-lint"))
+    lintChecks(project(":navigation:navigation-compose-lint"))
+    lintPublish(project(":navigation:navigation-compose-lint"))
 }
 
 androidx {
@@ -68,7 +68,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with Navigation"
     legacyDisableKotlinStrictApiMode = true
-    samples(projectOrArtifact(":navigation:navigation-compose:navigation-compose-samples"))
+    samples(project(":navigation:navigation-compose:navigation-compose-samples"))
     legacyDisableKotlinStrictApiMode = true
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

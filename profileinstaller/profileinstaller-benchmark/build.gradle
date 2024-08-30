@@ -32,7 +32,7 @@ plugins {
 
 dependencies {
     androidTestImplementation(project(":profileinstaller:profileinstaller"))
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)

@@ -31,9 +31,9 @@ plugins {
 }
 
 dependencies {
-    api(projectOrArtifact(":navigation:navigation-common"))
+    api(project(":navigation:navigation-common"))
 
-    testImplementation(projectOrArtifact(":navigation:navigation-testing"))
+    testImplementation(project(":navigation:navigation-testing"))
     testImplementation("androidx.arch.core:core-testing:2.1.0")
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)

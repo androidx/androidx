@@ -107,7 +107,7 @@ androidXMultiplatform {
                 implementation(project(':compose:foundation:foundation'))
                 implementation("androidx.compose.material:material-icons-core:1.6.8")
                 implementation(project(":test:screenshot:screenshot"))
-                implementation(projectOrArtifact(":core:core"))
+                implementation(project(":core:core"))
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)

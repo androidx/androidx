@@ -28,15 +28,15 @@ android {
 
 dependencies {
 
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui"))
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
-    androidTestImplementation(projectOrArtifact(":compose:foundation:foundation"))
-    androidTestImplementation(projectOrArtifact(":compose:foundation:foundation-layout"))
-    androidTestImplementation(projectOrArtifact(":compose:material:material"))
-    androidTestImplementation(projectOrArtifact(":compose:runtime:runtime"))
-    androidTestImplementation(projectOrArtifact(":compose:runtime:runtime-saveable"))
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-text"))
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-util"))
+    androidTestImplementation(project(":compose:ui:ui"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:foundation:foundation"))
+    androidTestImplementation(project(":compose:foundation:foundation-layout"))
+    androidTestImplementation(project(":compose:material:material"))
+    androidTestImplementation(project(":compose:runtime:runtime"))
+    androidTestImplementation(project(":compose:runtime:runtime-saveable"))
+    androidTestImplementation(project(":compose:ui:ui-text"))
+    androidTestImplementation(project(":compose:ui:ui-util"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(project(":compose:benchmark-utils"))
 
@@ -48,9 +48,9 @@ dependencies {
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinReflect)
     androidTestImplementation(libs.kotlinCoroutinesTest)
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation("androidx.activity:activity:1.2.0")
-    androidTestImplementation(projectOrArtifact(":activity:activity-compose"))
+    androidTestImplementation(project(":activity:activity-compose"))
     // old version of common-java8 conflicts with newer version, because both have
     // DefaultLifecycleEventObserver.
     // Outside of androidx this is resolved via constraint added to lifecycle-common,
