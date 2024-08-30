@@ -50,6 +50,17 @@ public abstract interface class androidx/lifecycle/ViewModelProvider$Factory {
 	public fun create (Lkotlin/reflect/KClass;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModel;
 }
 
+public class androidx/lifecycle/ViewModelProvider$NewInstanceFactory : androidx/lifecycle/ViewModelProvider$Factory {
+	public static final field Companion Landroidx/lifecycle/ViewModelProvider$NewInstanceFactory$Companion;
+	public fun <init> ()V
+	public fun create (Lkotlin/reflect/KClass;Landroidx/lifecycle/viewmodel/CreationExtras;)Landroidx/lifecycle/ViewModel;
+	public static final fun getInstance ()Landroidx/lifecycle/ViewModelProvider$NewInstanceFactory;
+}
+
+public final class androidx/lifecycle/ViewModelProvider$NewInstanceFactory$Companion {
+	public final fun getInstance ()Landroidx/lifecycle/ViewModelProvider$NewInstanceFactory;
+}
+
 public class androidx/lifecycle/ViewModelProvider$OnRequeryFactory {
 	public fun <init> ()V
 	public fun onRequery (Landroidx/lifecycle/ViewModel;)V
