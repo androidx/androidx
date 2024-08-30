@@ -127,10 +127,6 @@ androidx {
     samples(project(":compose:animation:animation:animation-samples"))
 }
 
-tasks.withType(KotlinCompile).configureEach {
-    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
-}
-
 android {
     compileSdk 35
     namespace "androidx.compose.animation"

@@ -106,6 +106,9 @@ class SceneScope internal constructor(lookaheadScope: LookaheadScope) :
                     layout(placeable.width, placeable.height) {
                         val (x, y) =
                             offsetAnimation.updateTargetBasedOnCoordinates(
+                                this@SceneScope,
+                                this@layout,
+                                this@with,
                                 spring(stiffness = Spring.StiffnessMediumLow),
                             )
                         coordinates?.let {
@@ -153,25 +156,32 @@ fun Modifier.animateSizeAndSkipToFinalLayout() = composed {
         }
 }
 
-context(LookaheadScope, Placeable.PlacementScope, CoroutineScope)
 @OptIn(ExperimentalAnimatableApi::class)
 internal fun DeferredTargetAnimation<IntOffset, AnimationVector2D>.updateTargetBasedOnCoordinates(
+    lookaheadScope: LookaheadScope,
+    placementScope: Placeable.PlacementScope,
+    coroutineScope: CoroutineScope,
     animationSpec: FiniteAnimationSpec<IntOffset>,
 ): IntOffset {
-    coordinates?.let { coordinates ->
-        with(this@PlacementScope) {
-            val targetOffset = lookaheadScopeCoordinates.localLookaheadPositionOf(coordinates)
-            val animOffset =
-                updateTarget(
-                    targetOffset.round(),
-                    this@CoroutineScope,
-                    animationSpec,
-                )
-            val current =
-                lookaheadScopeCoordinates.localPositionOf(coordinates, Offset.Zero).round()
-            return (animOffset - current)
+    with(lookaheadScope) {
+        with(placementScope) {
+            coordinates?.let { coordinates ->
+                with(placementScope) {
+                    val targetOffset =
+                        lookaheadScopeCoordinates.localLookaheadPositionOf(coordinates)
+                    val animOffset =
+                        updateTarget(
+                            targetOffset.round(),
+                            coroutineScope,
+                            animationSpec,
+                        )
+                    val current =
+                        lookaheadScopeCoordinates.localPositionOf(coordinates, Offset.Zero).round()
+                    return (animOffset - current)
+                }
+            }
+
+            return IntOffset.Zero
         }
     }
-
-    return IntOffset.Zero
 }

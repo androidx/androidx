@@ -90,180 +90,208 @@ fun ContainerTransformDemo(model: MyModel = remember { MyModel().apply { selecte
         ) {
             // TODO: Double check on container transform scrolling
             if (it != null) {
-                DetailView(model = model, selected = it, model.items[6])
+                DetailView(
+                    this@AnimatedContent,
+                    this@SharedTransitionLayout,
+                    model = model,
+                    selected = it,
+                    model.items[6]
+                )
             } else {
-                GridView(model = model)
+                GridView(this@AnimatedContent, this@SharedTransitionLayout, model = model)
             }
         }
     }
 }
 
-context(SharedTransitionScope, AnimatedVisibilityScope)
 @Composable
-fun Details(kitty: Kitty) {
-    Column(
-        Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
-            .fillMaxHeight()
-            .wrapContentHeight(Alignment.Top)
-            .fillMaxWidth()
-            .background(Color.White)
-            .padding(start = 10.dp, end = 10.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Column {
-                Spacer(Modifier.size(20.dp))
-                Text(
-                    kitty.name,
-                    fontSize = 25.sp,
-                    modifier =
-                        Modifier.padding(start = 10.dp)
-                            .sharedBounds(
-                                rememberSharedContentState(key = kitty.name + kitty.id),
-                                this@AnimatedVisibilityScope
-                            )
-                )
-                Text(
-                    kitty.breed,
-                    fontSize = 22.sp,
-                    color = Color.Gray,
-                    modifier =
-                        Modifier.padding(start = 10.dp)
-                            .sharedBounds(
-                                rememberSharedContentState(key = kitty.breed + kitty.id),
-                                this@AnimatedVisibilityScope
-                            )
+fun Details(
+    sharedTransitionScope: SharedTransitionScope,
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    kitty: Kitty
+) {
+    with(sharedTransitionScope) {
+        Column(
+            Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp)
+                .fillMaxHeight()
+                .wrapContentHeight(Alignment.Top)
+                .fillMaxWidth()
+                .background(Color.White)
+                .padding(start = 10.dp, end = 10.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column {
+                    Spacer(Modifier.size(20.dp))
+                    Text(
+                        kitty.name,
+                        fontSize = 25.sp,
+                        modifier =
+                            Modifier.padding(start = 10.dp)
+                                .sharedBounds(
+                                    rememberSharedContentState(key = kitty.name + kitty.id),
+                                    animatedVisibilityScope
+                                )
+                    )
+                    Text(
+                        kitty.breed,
+                        fontSize = 22.sp,
+                        color = Color.Gray,
+                        modifier =
+                            Modifier.padding(start = 10.dp)
+                                .sharedBounds(
+                                    rememberSharedContentState(key = kitty.breed + kitty.id),
+                                    animatedVisibilityScope
+                                )
+                    )
+                    Spacer(Modifier.size(10.dp))
+                }
+                Spacer(Modifier.weight(1f))
+                Icon(
+                    Icons.Outlined.Favorite,
+                    contentDescription = null,
+                    Modifier.background(Color(0xffffddee), CircleShape).padding(10.dp)
                 )
                 Spacer(Modifier.size(10.dp))
             }
-            Spacer(Modifier.weight(1f))
-            Icon(
-                Icons.Outlined.Favorite,
-                contentDescription = null,
-                Modifier.background(Color(0xffffddee), CircleShape).padding(10.dp)
+            Box(
+                modifier =
+                    Modifier.padding(bottom = 10.dp)
+                        .height(2.dp)
+                        .fillMaxWidth()
+                        .background(Color(0xffeeeeee))
             )
-            Spacer(Modifier.size(10.dp))
+            Text(
+                text =
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
+                        " mollis efficitur. Maecenas sit amet urna eu urna blandit suscipit efficitur" +
+                        " eget mauris. Nullam eget aliquet ligula. Nunc id euismod elit. Morbi aliquam" +
+                        " enim eros, eget consequat dolor consequat id. Quisque elementum faucibus" +
+                        " congue. Curabitur mollis aliquet turpis, ut pellentesque justo eleifend nec.\n" +
+                        "\n" +
+                        "Suspendisse ac consequat turpis, euismod lacinia quam. Nulla lacinia tellus" +
+                        " eu felis tristique ultricies. Vivamus et ultricies dolor. Orci varius" +
+                        " natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." +
+                        " Ut gravida porttitor arcu elementum elementum. Phasellus ultrices vel turpis" +
+                        " volutpat mollis. Vivamus leo diam, placerat quis leo efficitur, ultrices" +
+                        " placerat ex. Nullam mollis et metus ac ultricies. Ut ligula metus, congue" +
+                        " gravida metus in, vestibulum posuere velit. Sed et ex nisl. Fusce tempor" +
+                        " odio eget sapien pellentesque, sed cursus velit fringilla. Nullam odio" +
+                        " ipsum, eleifend non consectetur vitae, congue id libero. Etiam tincidunt" +
+                        " mauris at urna dictum ornare.\n" +
+                        "\n" +
+                        "Etiam at facilisis ex. Sed quis arcu diam. Quisque semper pharetra leo eget" +
+                        " fermentum. Nulla dapibus eget mi id porta. Nunc quis sodales nulla, eget" +
+                        " commodo sem. Donec lacus enim, pharetra non risus nec, eleifend ultrices" +
+                        " augue. Donec sit amet orci porttitor, auctor mauris et, facilisis dolor." +
+                        " Nullam mattis luctus orci at pulvinar.\n" +
+                        "\n" +
+                        "Sed accumsan est massa, ut aliquam nulla dignissim id. Suspendisse in urna" +
+                        " condimentum, convallis purus at, molestie nisi. In hac habitasse platea" +
+                        " dictumst. Pellentesque id justo quam. Cras iaculis tellus libero, eu" +
+                        " feugiat ex pharetra eget. Nunc ultrices, magna ut gravida egestas, mauris" +
+                        " justo blandit sapien, eget congue nisi felis congue diam. Mauris at felis" +
+                        " vitae erat porta auctor. Pellentesque iaculis sem metus. Phasellus quam" +
+                        " neque, congue at est eget, sodales interdum justo. Aenean a pharetra dui." +
+                        " Morbi odio nibh, hendrerit vulputate odio eget, sollicitudin egestas ex." +
+                        " Fusce nisl ex, fermentum a ultrices id, rhoncus vitae urna. Aliquam quis" +
+                        " lobortis turpis.\n" +
+                        "\n",
+                color = Color.Gray,
+                fontSize = 15.sp,
+            )
         }
-        Box(
-            modifier =
-                Modifier.padding(bottom = 10.dp)
-                    .height(2.dp)
-                    .fillMaxWidth()
-                    .background(Color(0xffeeeeee))
-        )
-        Text(
-            text =
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent fringilla" +
-                    " mollis efficitur. Maecenas sit amet urna eu urna blandit suscipit efficitur" +
-                    " eget mauris. Nullam eget aliquet ligula. Nunc id euismod elit. Morbi aliquam" +
-                    " enim eros, eget consequat dolor consequat id. Quisque elementum faucibus" +
-                    " congue. Curabitur mollis aliquet turpis, ut pellentesque justo eleifend nec.\n" +
-                    "\n" +
-                    "Suspendisse ac consequat turpis, euismod lacinia quam. Nulla lacinia tellus" +
-                    " eu felis tristique ultricies. Vivamus et ultricies dolor. Orci varius" +
-                    " natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus." +
-                    " Ut gravida porttitor arcu elementum elementum. Phasellus ultrices vel turpis" +
-                    " volutpat mollis. Vivamus leo diam, placerat quis leo efficitur, ultrices" +
-                    " placerat ex. Nullam mollis et metus ac ultricies. Ut ligula metus, congue" +
-                    " gravida metus in, vestibulum posuere velit. Sed et ex nisl. Fusce tempor" +
-                    " odio eget sapien pellentesque, sed cursus velit fringilla. Nullam odio" +
-                    " ipsum, eleifend non consectetur vitae, congue id libero. Etiam tincidunt" +
-                    " mauris at urna dictum ornare.\n" +
-                    "\n" +
-                    "Etiam at facilisis ex. Sed quis arcu diam. Quisque semper pharetra leo eget" +
-                    " fermentum. Nulla dapibus eget mi id porta. Nunc quis sodales nulla, eget" +
-                    " commodo sem. Donec lacus enim, pharetra non risus nec, eleifend ultrices" +
-                    " augue. Donec sit amet orci porttitor, auctor mauris et, facilisis dolor." +
-                    " Nullam mattis luctus orci at pulvinar.\n" +
-                    "\n" +
-                    "Sed accumsan est massa, ut aliquam nulla dignissim id. Suspendisse in urna" +
-                    " condimentum, convallis purus at, molestie nisi. In hac habitasse platea" +
-                    " dictumst. Pellentesque id justo quam. Cras iaculis tellus libero, eu" +
-                    " feugiat ex pharetra eget. Nunc ultrices, magna ut gravida egestas, mauris" +
-                    " justo blandit sapien, eget congue nisi felis congue diam. Mauris at felis" +
-                    " vitae erat porta auctor. Pellentesque iaculis sem metus. Phasellus quam" +
-                    " neque, congue at est eget, sodales interdum justo. Aenean a pharetra dui." +
-                    " Morbi odio nibh, hendrerit vulputate odio eget, sollicitudin egestas ex." +
-                    " Fusce nisl ex, fermentum a ultrices id, rhoncus vitae urna. Aliquam quis" +
-                    " lobortis turpis.\n" +
-                    "\n",
-            color = Color.Gray,
-            fontSize = 15.sp,
-        )
     }
 }
 
-context(AnimatedVisibilityScope, SharedTransitionScope)
-@Suppress("UNUSED_PARAMETER")
 @Composable
-fun DetailView(model: MyModel, selected: Kitty, next: Kitty?) {
-    Column(
-        Modifier.clickable(
-                interactionSource = remember { MutableInteractionSource() },
-                indication = null
-            ) {
-                model.selected = null
-            }
-            .sharedBounds(
-                rememberSharedContentState(key = "container + ${selected.id}"),
-                this@AnimatedVisibilityScope,
-                fadeIn(),
-                fadeOut(),
-                resizeMode = ScaleToBounds(ContentScale.Crop),
-                clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp)),
-            )
-    ) {
-        Row(Modifier.fillMaxHeight(0.5f)) {
-            Image(
-                painter = painterResource(selected.photoResId),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier =
-                    Modifier.padding(10.dp)
-                        .sharedElement(
-                            rememberSharedContentState(key = selected.id),
-                            this@AnimatedVisibilityScope,
-                            placeHolderSize = animatedSize
-                        )
-                        .fillMaxHeight()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(20.dp))
-            )
-            if (next != null) {
+fun DetailView(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
+    model: MyModel,
+    selected: Kitty,
+    next: Kitty?
+) {
+    with(sharedTransitionScope) {
+        Column(
+            Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) {
+                    model.selected = null
+                }
+                .sharedBounds(
+                    rememberSharedContentState(key = "container + ${selected.id}"),
+                    animatedVisibilityScope,
+                    fadeIn(),
+                    fadeOut(),
+                    resizeMode = ScaleToBounds(ContentScale.Crop),
+                    clipInOverlayDuringTransition = OverlayClip(RoundedCornerShape(20.dp)),
+                )
+        ) {
+            Row(Modifier.fillMaxHeight(0.5f)) {
                 Image(
-                    painter = painterResource(next.photoResId),
+                    painter = painterResource(selected.photoResId),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier =
-                        Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
-                            .fillMaxWidth()
+                        Modifier.padding(10.dp)
+                            .sharedElement(
+                                rememberSharedContentState(key = selected.id),
+                                animatedVisibilityScope,
+                                placeHolderSize = animatedSize
+                            )
                             .fillMaxHeight()
+                            .aspectRatio(1f)
                             .clip(RoundedCornerShape(20.dp))
-                            .blur(10.dp)
                 )
+                if (next != null) {
+                    Image(
+                        painter = painterResource(next.photoResId),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier =
+                            Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)
+                                .fillMaxWidth()
+                                .fillMaxHeight()
+                                .clip(RoundedCornerShape(20.dp))
+                                .blur(10.dp)
+                    )
+                }
             }
+            Details(sharedTransitionScope, animatedVisibilityScope, kitty = selected)
         }
-        Details(kitty = selected)
     }
 }
 
-context(AnimatedVisibilityScope, SharedTransitionScope)
 @Composable
-fun GridView(model: MyModel) {
-    Box(Modifier.background(lessVibrantPurple)) {
-        Box(
-            Modifier.padding(20.dp)
-                .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 2f)
-                .animateEnterExit(fadeIn(), fadeOut())
-        ) {
-            SearchBar()
-        }
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            contentPadding = PaddingValues(top = 90.dp)
-        ) {
-            items(6) {
-                Box(modifier = Modifier.clickable { model.selected = model.items[it] }) {
-                    KittyItem(model.items[it])
+fun GridView(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
+    model: MyModel
+) {
+    with(animatedVisibilityScope) {
+        with(sharedTransitionScope) {
+            Box(Modifier.background(lessVibrantPurple)) {
+                Box(
+                    Modifier.padding(20.dp)
+                        .renderInSharedTransitionScopeOverlay(zIndexInOverlay = 2f)
+                        .animateEnterExit(fadeIn(), fadeOut())
+                ) {
+                    SearchBar()
+                }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(2),
+                    contentPadding = PaddingValues(top = 90.dp)
+                ) {
+                    items(6) {
+                        Box(modifier = Modifier.clickable { model.selected = model.items[it] }) {
+                            KittyItem(
+                                animatedVisibilityScope,
+                                sharedTransitionScope,
+                                model.items[it]
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -284,54 +312,59 @@ class MyModel {
     var selected: Kitty? by mutableStateOf(null)
 }
 
-context(AnimatedVisibilityScope, SharedTransitionScope)
 @Composable
-fun KittyItem(kitty: Kitty) {
-    Column(
-        Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
-            .sharedBounds(
-                rememberSharedContentState(key = "container + ${kitty.id}"),
-                this@AnimatedVisibilityScope,
+fun KittyItem(
+    animatedVisibilityScope: AnimatedVisibilityScope,
+    sharedTransitionScope: SharedTransitionScope,
+    kitty: Kitty
+) {
+    with(sharedTransitionScope) {
+        Column(
+            Modifier.padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+                .sharedBounds(
+                    rememberSharedContentState(key = "container + ${kitty.id}"),
+                    animatedVisibilityScope,
+                )
+                .background(Color.White, RoundedCornerShape(20.dp))
+        ) {
+            Image(
+                painter = painterResource(kitty.photoResId),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier =
+                    Modifier.sharedElement(
+                            rememberSharedContentState(key = kitty.id),
+                            animatedVisibilityScope,
+                            placeHolderSize = animatedSize
+                        )
+                        .aspectRatio(1f)
+                        .clip(RoundedCornerShape(20.dp))
             )
-            .background(Color.White, RoundedCornerShape(20.dp))
-    ) {
-        Image(
-            painter = painterResource(kitty.photoResId),
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier =
-                Modifier.sharedElement(
-                        rememberSharedContentState(key = kitty.id),
-                        this@AnimatedVisibilityScope,
-                        placeHolderSize = animatedSize
-                    )
-                    .aspectRatio(1f)
-                    .clip(RoundedCornerShape(20.dp))
-        )
-        Spacer(Modifier.size(10.dp))
-        Text(
-            kitty.name,
-            fontSize = 18.sp,
-            modifier =
-                Modifier.padding(start = 10.dp)
-                    .sharedBounds(
-                        rememberSharedContentState(key = kitty.name + kitty.id),
-                        this@AnimatedVisibilityScope
-                    )
-        )
-        Spacer(Modifier.size(5.dp))
-        Text(
-            kitty.breed,
-            fontSize = 15.sp,
-            color = Color.Gray,
-            modifier =
-                Modifier.padding(start = 10.dp)
-                    .sharedBounds(
-                        rememberSharedContentState(key = kitty.breed + kitty.id),
-                        this@AnimatedVisibilityScope
-                    )
-        )
-        Spacer(Modifier.size(10.dp))
+            Spacer(Modifier.size(10.dp))
+            Text(
+                kitty.name,
+                fontSize = 18.sp,
+                modifier =
+                    Modifier.padding(start = 10.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = kitty.name + kitty.id),
+                            animatedVisibilityScope
+                        )
+            )
+            Spacer(Modifier.size(5.dp))
+            Text(
+                kitty.breed,
+                fontSize = 15.sp,
+                color = Color.Gray,
+                modifier =
+                    Modifier.padding(start = 10.dp)
+                        .sharedBounds(
+                            rememberSharedContentState(key = kitty.breed + kitty.id),
+                            animatedVisibilityScope
+                        )
+            )
+            Spacer(Modifier.size(10.dp))
+        }
     }
 }
 
