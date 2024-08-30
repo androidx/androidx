@@ -35,7 +35,7 @@ dependencies {
     compileOnly(project(":annotation:annotation-sampled"))
 
     implementation(libs.kotlinStdlib)
-    implementation projectOrArtifact(":lifecycle:lifecycle-runtime-compose")
+    implementation project(":lifecycle:lifecycle-runtime-compose")
     implementation "androidx.compose.material:material:1.0.1"
 }
 

@@ -29,7 +29,7 @@ dependencies {
     implementation(project(":appcompat:appcompat"))
     implementation(libs.constraintLayout)
     implementation(libs.guavaAndroid)
-    implementation(projectOrArtifact(":recyclerview:recyclerview"))
+    implementation(project(":recyclerview:recyclerview"))
     implementation(libs.material)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.6.1")

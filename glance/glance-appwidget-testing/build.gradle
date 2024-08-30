@@ -69,5 +69,5 @@ androidx {
     inceptionYear = "2023"
     description = "This library provides APIs for developers to use for testing their appWidget specific Glance composables."
     legacyDisableKotlinStrictApiMode = true
-    samples(projectOrArtifact(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
+    samples(project(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
 }

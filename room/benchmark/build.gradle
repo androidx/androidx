@@ -37,7 +37,7 @@ dependencies {
     kspAndroidTest project(":room:room-compiler")
     androidTestImplementation(project(":room:room-rxjava2"))
     androidTestImplementation("androidx.arch.core:core-runtime:2.2.0")
-    androidTestImplementation(projectOrArtifact(":benchmark:benchmark-junit4"))
+    androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(libs.rxjava2)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

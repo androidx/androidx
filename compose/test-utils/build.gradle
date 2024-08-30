@@ -38,10 +38,10 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
-                implementation(projectOrArtifact(":compose:runtime:runtime"))
-                implementation(projectOrArtifact(":compose:ui:ui-unit"))
-                implementation(projectOrArtifact(":compose:ui:ui-graphics"))
-                implementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-graphics"))
+                implementation(project(":compose:ui:ui-test-junit4"))
             }
         }
         androidMain.dependencies {
@@ -49,11 +49,11 @@ androidXMultiplatform {
             // workaround for https://github.com/gradle/gradle/issues/8489
             implementation("androidx.lifecycle:lifecycle-common:2.6.1")
             implementation "androidx.activity:activity-compose:1.3.1"
-            api(projectOrArtifact(":compose:ui:ui-test-junit4"))
+            api(project(":compose:ui:ui-test-junit4"))
             api(project(":test:screenshot:screenshot"))
             // This has stub APIs for access to legacy Android APIs, so we don't want
             // any dependency on this module.
-            compileOnly(projectOrArtifact(":compose:ui:ui-android-stubs"))
+            compileOnly(project(":compose:ui:ui-android-stubs"))
             implementation(libs.testCore)
             implementation(libs.testRules)
         }
@@ -86,7 +86,7 @@ androidXMultiplatform {
             dependsOn(commonTest)
             dependencies {
                 implementation(libs.truth)
-                implementation(projectOrArtifact(":compose:material:material"))
+                implementation(project(":compose:material:material"))
             }
         }
 

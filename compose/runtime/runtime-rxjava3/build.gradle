@@ -38,7 +38,7 @@ dependencies {
     api(project(":compose:runtime:runtime"))
     api(libs.rxjava3)
 
-    androidTestImplementation(projectOrArtifact(":compose:ui:ui-test-junit4"))
+    androidTestImplementation(project(":compose:ui:ui-test-junit4"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
@@ -51,7 +51,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with RxJava 3"
     legacyDisableKotlinStrictApiMode = true
-    samples(projectOrArtifact(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
+    samples(project(":compose:runtime:runtime-rxjava3:runtime-rxjava3-samples"))
 }
 
 android {

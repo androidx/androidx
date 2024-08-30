@@ -33,17 +33,17 @@ plugins {
 dependencies {
     api("androidx.activity:activity:1.2.0")
     api(project(":compose:test-utils"))
-    api(projectOrArtifact(":benchmark:benchmark-junit4"))
+    api(project(":benchmark:benchmark-junit4"))
 
     implementation(libs.kotlinStdlibCommon)
-    implementation(projectOrArtifact(":compose:runtime:runtime"))
-    implementation(projectOrArtifact(":compose:ui:ui"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
     implementation(project(":tracing:tracing-ktx"))
     implementation(libs.testRules)
 
     // This has stub APIs for access to legacy Android APIs, so we don't want
     // any dependency on this module.
-    compileOnly(projectOrArtifact(":compose:ui:ui-android-stubs"))
+    compileOnly(project(":compose:ui:ui-android-stubs"))
 }
 
 tasks.withType(KotlinCompile).configureEach {
