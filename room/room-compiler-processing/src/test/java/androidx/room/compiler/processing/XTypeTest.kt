@@ -543,24 +543,115 @@ class XTypeTest {
     }
 
     @Test
-    fun errorTypeForSuper() {
-        val missingTypeRef =
+    fun errorTypeForSuperJava() {
+        val missingSuperClassType =
             Source.java(
                 "foo.bar.Baz",
                 """
                 package foo.bar;
                 public class Baz extends IDontExist {
-                    NotExistingType foo() {
-                        throw new RuntimeException("Stub");
-                    }
                 }
             """
                     .trimIndent()
             )
-        runProcessorTest(sources = listOf(missingTypeRef)) {
+        runProcessorTest(sources = listOf(missingSuperClassType)) {
+            it.assertCompilationResult { compilationDidFail() }
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             assertThat(element.superClass?.isError()).isTrue()
+            assertThat(element.superInterfaces).isEmpty()
+        }
+
+        val missingSuperInterfaceType =
+            Source.java(
+                "foo.bar.Baz",
+                """
+                package foo.bar;
+                public class Baz implements IDontExist {
+                }
+            """
+                    .trimIndent()
+            )
+        runProcessorTest(sources = listOf(missingSuperInterfaceType)) {
             it.assertCompilationResult { compilationDidFail() }
+            val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
+            if (it.isKsp) { // Due to https://github.com/google/ksp/issues/1443
+                assertThat(element.superClass?.isError()).isTrue()
+                assertThat(element.superInterfaces).isEmpty()
+            } else {
+                assertThat(element.superClass?.isError()).isFalse()
+                assertThat(element.superInterfaces).isNotEmpty()
+                assertThat(element.superInterfaces.single().isError()).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun errorTypeForSuperKotlin() {
+        val src =
+            Source.kotlin(
+                "Subject.kt",
+                """
+                package test
+    
+                interface SubjectInterface : MissingType
+                class SubjectClassOne : MissingType
+                class SubjectClassTwo : MissingType()
+                class SubjectClassThree : ValidSuperClass(), MissingType
+                class SubjectClassFour : ValidSuperInterface, MissingType
+    
+                abstract class ValidSuperClass
+                interface ValidSuperInterface
+                """
+                    .trimIndent()
+            )
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments =
+                listOf("-P", "plugin:org.jetbrains.kotlin.kapt3:correctErrorTypes=true")
+        ) { invocation ->
+            invocation.assertCompilationResult { compilationDidFail() }
+            invocation.processingEnv.requireTypeElement("test.SubjectInterface").let {
+                assertThat(it.superInterfaces).isNotEmpty()
+                assertThat(it.superInterfaces.first().isError()).isTrue()
+                assertThat(it.superClass).isNull() // interfaces has no super class
+            }
+            invocation.processingEnv.requireTypeElement("test.SubjectClassOne").let {
+                assertThat(it.superInterfaces).isNotEmpty()
+                assertThat(it.superInterfaces.first().isError()).isTrue()
+                assertThat(it.superClass).isNotNull()
+                assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("test.SubjectClassTwo").let {
+                if (invocation.isKsp) {
+                    // In KSP regardless of the parenthesis in the super type, they are always
+                    // classified as class declarations.
+                    assertThat(it.superInterfaces).isNotEmpty()
+                    assertThat(it.superInterfaces.first().isError()).isTrue()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+                } else {
+                    // In KAPT depending if the super type has a parenthesis or not, indicating
+                    // it is a super class not a super interface, then the stub will correctly
+                    // put the reference in 'extends' vs 'implements'.
+                    assertThat(it.superInterfaces).isEmpty()
+                    assertThat(it.superClass).isNotNull()
+                    assertThat(it.superClass!!.isError()).isTrue()
+                }
+            }
+            invocation.processingEnv.requireTypeElement("test.SubjectClassThree").let {
+                assertThat(it.superInterfaces).isNotEmpty()
+                assertThat(it.superInterfaces.first().isError()).isTrue()
+                assertThat(it.superClass).isNotNull()
+                assertThat(it.superClass!!.asTypeName())
+                    .isEqualTo(XClassName.get("test", "ValidSuperClass"))
+            }
+            invocation.processingEnv.requireTypeElement("test.SubjectClassFour").let {
+                assertThat(it.superInterfaces).isNotEmpty()
+                assertThat(it.superInterfaces[0].isError()).isFalse()
+                assertThat(it.superInterfaces[1].isError()).isTrue()
+                assertThat(it.superClass).isNotNull()
+                assertThat(it.superClass!!.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
         }
     }
 
