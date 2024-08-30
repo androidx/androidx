@@ -21,6 +21,7 @@ import androidx.room.compiler.processing.javac.kotlin.typeNameFromJvmSignature
 import androidx.room.compiler.processing.tryBox
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.outerType
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
@@ -158,28 +159,52 @@ private fun KSType.asJTypeName(
     resolver: Resolver,
     typeResolutionContext: TypeResolutionContext,
 ): JTypeName {
-    return if (declaration is KSTypeAlias) {
-        replaceTypeAliases(resolver).asJTypeName(resolver, typeResolutionContext)
-    } else if (
-        this.arguments.isNotEmpty() &&
+    if (declaration is KSTypeAlias) {
+        return replaceTypeAliases(resolver).asJTypeName(resolver, typeResolutionContext)
+    }
+    val typeName = declaration.asJTypeName(resolver, typeResolutionContext)
+    val isJavaPrimitiveOrVoid = typeName.tryBox() !== typeName
+    if (
+        !isTypeParameter() &&
             !resolver.isJavaRawType(this) &&
             // Excluding generic value classes used directly otherwise we may generate something
             // like `Object<String>`.
-            !(declaration.isValueClass() && declaration.isUsedDirectly(typeResolutionContext))
+            !(declaration.isValueClass() && declaration.isUsedDirectly(typeResolutionContext)) &&
+            !isJavaPrimitiveOrVoid
     ) {
         val args: Array<JTypeName> =
-            this.arguments
+            this.innerArguments
                 .map { typeArg -> typeArg.asJTypeName(resolver, typeResolutionContext) }
                 .map { it.tryBox() }
                 .toTypedArray()
 
-        when (val typeName = declaration.asJTypeName(resolver, typeResolutionContext).tryBox()) {
-            is JArrayTypeName -> JArrayTypeName.of(args.single())
-            is JClassName -> JParameterizedTypeName.get(typeName, *args)
+        when (typeName) {
+            is JArrayTypeName -> {
+                return if (args.isEmpty()) {
+                    // e.g. IntArray
+                    typeName
+                } else {
+                    JArrayTypeName.of(args.single())
+                }
+            }
+            is JClassName -> {
+                val outerType = this.outerType
+                if (outerType != null) {
+                    val outerTypeName = outerType.asJTypeName(resolver, typeResolutionContext)
+                    if (outerTypeName is JParameterizedTypeName) {
+                        return outerTypeName.nestedClass(typeName.simpleName(), args.toList())
+                    }
+                }
+                return if (args.isEmpty()) {
+                    typeName
+                } else {
+                    JParameterizedTypeName.get(typeName, *args)
+                }
+            }
             else -> error("Unexpected type name for KSType: $typeName")
         }
     } else {
-        this.declaration.asJTypeName(resolver, typeResolutionContext)
+        return typeName
     }
 }
 

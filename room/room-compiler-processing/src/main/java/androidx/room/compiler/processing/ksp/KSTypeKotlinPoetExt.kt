@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.util.ISSUE_TRACKER_LINK
 import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.outerType
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.google.devtools.ksp.symbol.KSName
@@ -32,6 +33,7 @@ import com.squareup.kotlinpoet.ANY
 import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.KClassName
+import com.squareup.kotlinpoet.javapoet.KParameterizedTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KWildcardTypeName
@@ -128,24 +130,38 @@ private fun KSType.asKTypeName(
     resolver: Resolver,
     typeArgumentTypeLookup: KTypeArgumentTypeLookup
 ): KTypeName {
-    return if (declaration is KSTypeAlias) {
-        replaceTypeAliases(resolver).asKTypeName(resolver, typeArgumentTypeLookup)
-    } else
-        if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
-                val args: List<KTypeName> =
-                    this.arguments.map { typeArg ->
-                        typeArg.asKTypeName(
-                            resolver = resolver,
-                            typeArgumentTypeLookup = typeArgumentTypeLookup
-                        )
-                    }
-                val typeName = declaration.asKTypeName(resolver, typeArgumentTypeLookup)
-                check(typeName is KClassName) { "Unexpected type name for KSType: $typeName" }
-                typeName.parameterizedBy(args)
-            } else {
-                this.declaration.asKTypeName(resolver, typeArgumentTypeLookup)
+    if (declaration is KSTypeAlias) {
+        return replaceTypeAliases(resolver).asKTypeName(resolver, typeArgumentTypeLookup)
+    }
+    fun resolveTypeName(): KTypeName {
+        val typeName = declaration.asKTypeName(resolver, typeArgumentTypeLookup)
+        if (!isTypeParameter() && !resolver.isJavaRawType(this)) {
+            check(typeName is KClassName) { "Unexpected type name for KSType: $typeName" }
+            val args: List<KTypeName> =
+                this.innerArguments.map { typeArg ->
+                    typeArg.asKTypeName(
+                        resolver = resolver,
+                        typeArgumentTypeLookup = typeArgumentTypeLookup
+                    )
+                }
+            val outerType = this.outerType
+            if (outerType != null) {
+                val outerTypeName = outerType.asKTypeName(resolver, typeArgumentTypeLookup)
+                if (outerTypeName is KParameterizedTypeName) {
+                    return outerTypeName.nestedClass(typeName.simpleName, args)
+                }
             }
-            .copy(nullable = isMarkedNullable || nullability == Nullability.PLATFORM)
+            return if (args.isEmpty()) {
+                typeName
+            } else {
+                typeName.parameterizedBy(args)
+            }
+        } else {
+            return typeName
+        }
+    }
+    return resolveTypeName()
+        .copy(nullable = isMarkedNullable || nullability == Nullability.PLATFORM)
 }
 
 /** See [KTypeVariableNameFactory.newInstance] */
