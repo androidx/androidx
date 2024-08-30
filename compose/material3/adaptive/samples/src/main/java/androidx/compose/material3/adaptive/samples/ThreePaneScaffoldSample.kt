@@ -378,6 +378,8 @@ fun ListDetailPaneScaffoldWithNavigationSample() {
 private val PaneExpansionAnchors =
     listOf(
         PaneExpansionAnchor.Proportion(0f),
+        PaneExpansionAnchor.Proportion(0.25f),
         PaneExpansionAnchor.Proportion(0.5f),
+        PaneExpansionAnchor.Proportion(0.75f),
         PaneExpansionAnchor.Proportion(1f),
     )
