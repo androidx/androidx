@@ -23,7 +23,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.os.Build
 import android.os.CancellationSignal
 import android.os.Looper
 import android.util.Log
@@ -496,21 +495,14 @@ actual abstract class RoomDatabase {
         assertNotSuspendingTransaction()
         runBlocking {
             connectionManager.useConnection(isReadOnly = false) { connection ->
-                val supportsDeferForeignKeys = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
-                if (hasForeignKeys && !supportsDeferForeignKeys) {
-                    connection.execSQL("PRAGMA foreign_keys = FALSE")
-                }
                 if (!connection.inTransaction()) {
                     invalidationTracker.sync()
                 }
                 connection.withTransaction(Transactor.SQLiteTransactionType.IMMEDIATE) {
-                    if (hasForeignKeys && supportsDeferForeignKeys) {
+                    if (hasForeignKeys) {
                         execSQL("PRAGMA defer_foreign_keys = TRUE")
                     }
                     tableNames.forEach { tableName -> execSQL("DELETE FROM `$tableName`") }
-                }
-                if (hasForeignKeys && !supportsDeferForeignKeys) {
-                    connection.execSQL("PRAGMA foreign_keys = TRUE")
                 }
                 if (!connection.inTransaction()) {
                     connection.execSQL("PRAGMA wal_checkpoint(FULL)")

@@ -15,7 +15,6 @@
  */
 package androidx.room.util
 
-import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo.SQLiteTypeAffinity
@@ -206,14 +205,4 @@ actual constructor(
 
         actual override fun toString() = toStringCommon()
     }
-}
-
-/** Checks if the primary key match. */
-internal actual fun TableInfo.Column.equalsInPrimaryKey(other: TableInfo.Column): Boolean {
-    if (Build.VERSION.SDK_INT >= 20) {
-        if (primaryKeyPosition != other.primaryKeyPosition) return false
-    } else {
-        if (isPrimaryKey != other.isPrimaryKey) return false
-    }
-    return true
 }
