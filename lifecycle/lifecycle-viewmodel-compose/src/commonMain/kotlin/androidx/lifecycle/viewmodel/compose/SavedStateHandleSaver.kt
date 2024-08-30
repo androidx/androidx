@@ -119,7 +119,7 @@ fun <T : Any> SavedStateHandle.saveable(
     init: () -> T,
 ): PropertyDelegateProvider<Any?, ReadOnlyProperty<Any?, T>> =
     PropertyDelegateProvider { thisRef, property ->
-        val classNamePrefix = if (thisRef != null) thisRef::class.qualifiedName + "." else ""
+        val classNamePrefix = if (thisRef != null) thisRef::class.canonicalName + "." else ""
         val value = saveable(
             key = classNamePrefix + property.name,
             saver = saver,
@@ -158,7 +158,7 @@ fun <T : Any, M : MutableState<T>> SavedStateHandle.saveable(
     init: () -> M,
 ): PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> =
     PropertyDelegateProvider<Any?, ReadWriteProperty<Any?, T>> { thisRef, property ->
-        val classNamePrefix = if (thisRef != null) thisRef::class.qualifiedName + "." else ""
+        val classNamePrefix = if (thisRef != null) thisRef::class.canonicalName + "." else ""
         val mutableState = saveable(
             key = classNamePrefix + property.name,
             stateSaver = stateSaver,
