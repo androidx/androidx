@@ -693,6 +693,8 @@ private class PaneMeasurable(
             data.preferredWidth!!.toInt()
         }
 
+    val margins: PaneMargins = data.paneMargins
+
     val isAnimatedPane = data.isAnimatedPane
 
     var measuredWidth = 0
