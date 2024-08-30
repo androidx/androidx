@@ -432,6 +432,7 @@ package androidx.work {
     field public static final int STOP_REASON_CONSTRAINT_STORAGE_NOT_LOW = 9; // 0x9
     field public static final int STOP_REASON_DEVICE_STATE = 4; // 0x4
     field public static final int STOP_REASON_ESTIMATED_APP_LAUNCH_TIME_CHANGED = 15; // 0xf
+    field public static final int STOP_REASON_FOREGROUND_SERVICE_TIMEOUT = -128; // 0xffffff80
     field public static final int STOP_REASON_NOT_STOPPED = -256; // 0xffffff00
     field public static final int STOP_REASON_PREEMPT = 2; // 0x2
     field public static final int STOP_REASON_QUOTA = 10; // 0xa
