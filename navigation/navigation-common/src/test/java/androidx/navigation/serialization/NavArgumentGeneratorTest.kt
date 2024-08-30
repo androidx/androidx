@@ -137,6 +137,20 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToDoubleNullable() {
+        @Serializable class TestClass(val arg: Double?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleNullableType
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToFloat() {
         @Serializable class TestClass(val arg: Float)
 
