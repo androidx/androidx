@@ -27,7 +27,7 @@ import org.junit.Test
 class RxJava2QueryTest : TestDatabaseTest() {
 
     @Test
-    fun observeBooksById() {
+    fun observeBooksByIdFlowable() {
         booksDao.addAuthors(TestUtil.AUTHOR_1)
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
@@ -36,6 +36,38 @@ class RxJava2QueryTest : TestDatabaseTest() {
             .test()
             .also { drain() }
             .assertValue { book -> book == TestUtil.BOOK_1 }
+    }
+
+    @Test
+    fun observeBooksByIdFlowable_noBook() {
+        booksDao
+            .getBookFlowable(TestUtil.BOOK_1.bookId)
+            .test()
+            .also { drain() }
+            .assertNoErrors()
+            .assertNoValues()
+    }
+
+    @Test
+    fun observeBooksByIdObservable() {
+        booksDao.addAuthors(TestUtil.AUTHOR_1)
+        booksDao.addPublishers(TestUtil.PUBLISHER)
+        booksDao.addBooks(TestUtil.BOOK_1)
+        booksDao
+            .getBookObservable(TestUtil.BOOK_1.bookId)
+            .test()
+            .also { drain() }
+            .assertValue { book -> book == TestUtil.BOOK_1 }
+    }
+
+    @Test
+    fun observeBooksById_noBook() {
+        booksDao
+            .getBookObservable(TestUtil.BOOK_1.bookId)
+            .test()
+            .also { drain() }
+            .assertNoErrors()
+            .assertNoValues()
     }
 
     @Test
@@ -76,10 +108,9 @@ class RxJava2QueryTest : TestDatabaseTest() {
         booksDao.addPublishers(TestUtil.PUBLISHER)
         booksDao.addBooks(TestUtil.BOOK_1)
 
-        var expected =
+        val expected =
             BookWithPublisher(TestUtil.BOOK_1.bookId, TestUtil.BOOK_1.title, TestUtil.PUBLISHER)
-        var expectedList = ArrayList<BookWithPublisher>()
-        expectedList.add(expected)
+        val expectedList = listOf(expected)
         booksDao.getBooksWithPublisherFlowable().test().also { drain() }.assertValue(expectedList)
     }
 
