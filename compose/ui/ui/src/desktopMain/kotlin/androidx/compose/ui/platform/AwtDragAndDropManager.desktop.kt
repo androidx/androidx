@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.CanvasDrawScope
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.toAwtImage
-import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.scene.ComposeSceneDragAndDropTarget
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
@@ -47,6 +47,7 @@ import java.awt.dnd.DropTargetDragEvent
 import java.awt.dnd.DropTargetDropEvent
 import java.awt.dnd.DropTargetEvent
 import java.awt.dnd.DropTargetListener
+import java.awt.event.InputEvent
 import java.awt.event.MouseEvent
 import java.awt.image.BufferedImage
 import javax.swing.JComponent
@@ -81,10 +82,8 @@ internal fun DragAndDropTransferAction.Companion.fromAwtAction(
  */
 internal class AwtDragAndDropManager(
     private val rootContainer: JComponent,
-    private val getScene: () -> ComposeScene
-) {
-    private val scene get() = getScene()
-
+    private val dragAndDropTarget: () -> ComposeSceneDragAndDropTarget
+) : PlatformDragAndDropManager {
     private val density: Density
         get() = rootContainer.density
 
@@ -99,7 +98,33 @@ internal class AwtDragAndDropManager(
         )
     }
 
-    fun startDrag(
+    override val isRequestDragAndDropTransferSupported: Boolean
+        get() = true
+
+    override fun requestDragAndDropTransfer(source: PlatformDragAndDropSource, offset: Offset) {
+        var isTransferStarted = false
+        val startTransferScope = object : PlatformDragAndDropSource.StartTransferScope {
+            override fun startDragAndDropTransfer(
+                transferData: DragAndDropTransferData,
+                decorationSize: Size,
+                drawDragDecoration: DrawScope.() -> Unit
+            ): Boolean {
+                isTransferStarted = startDrag(
+                    transferData = transferData,
+                    decorationSize = decorationSize,
+                    drawDragDecoration = drawDragDecoration
+                )
+                return isTransferStarted
+            }
+        }
+        with(source) {
+            startTransferScope.startDragAndDropTransfer(offset) {
+                isTransferStarted
+            }
+        }
+    }
+
+    private fun startDrag(
         transferData: DragAndDropTransferData,
         decorationSize: Size,
         drawDragDecoration: DrawScope.() -> Unit
@@ -152,40 +177,61 @@ internal class AwtDragAndDropManager(
      */
     private val dropTargetListener = object : DropTargetListener {
         override fun dragEnter(dtde: DropTargetDragEvent) {
+            val event = DragAndDropEvent(dtde)
+            val dragAndDropTarget = dragAndDropTarget()
+
             // There's no drag-start event in AWT, so start in dragEnter, and stop in dragExit
-            val accepted = scene.dropTarget.onEntered(DragAndDropEvent(dtde))
-            if (!accepted) {
+            val acceptedTransfer = dragAndDropTarget.acceptDragAndDropTransfer(event)
+            if (acceptedTransfer) {
+                dragAndDropTarget.onStarted(event)
+                dragAndDropTarget.onEntered(event)
+            } else {
                 dtde.rejectDrag()
             }
         }
 
         override fun dragExit(dte: DropTargetEvent) {
-            scene.dropTarget.onExited(DragAndDropEvent(dte))
+            val event = DragAndDropEvent(dte)
+            val dragAndDropTarget = dragAndDropTarget()
+            dragAndDropTarget.onExited(event)
+            dragAndDropTarget.onEnded(event)
         }
 
         override fun dragOver(dtde: DropTargetDragEvent) {
-            scene.dropTarget.onMoved(DragAndDropEvent(dtde))
+            val event = DragAndDropEvent(dtde)
+            val dragAndDropTarget = dragAndDropTarget()
+            dragAndDropTarget.onMoved(event)
+            if (dragAndDropTarget.hasEligibleDropTarget) {
+                dtde.acceptDrag(dtde.dropAction)
+            } else {
+                dtde.rejectDrag()
+            }
         }
 
         override fun dropActionChanged(dtde: DropTargetDragEvent) {
-            scene.dropTarget.onChanged(DragAndDropEvent(dtde))
+            val event = DragAndDropEvent(dtde)
+            val dragAndDropTarget = dragAndDropTarget()
+            dragAndDropTarget.onChanged(event)
         }
 
         override fun drop(dtde: DropTargetDropEvent) {
-            val accepted = scene.dropTarget.onDrop(DragAndDropEvent(dtde))
+            val event = DragAndDropEvent(dtde)
+            val dragAndDropTarget = dragAndDropTarget()
+            val accepted = dragAndDropTarget.onDrop(event)
+            dragAndDropTarget.onEnded(event)
             dtde.acceptDrop(dtde.dropAction)
             dtde.dropComplete(accepted)
         }
 
         private fun DragAndDropEvent(dragEvent: DropTargetDragEvent) = DragAndDropEvent(
-            nativeEvent = dragEvent,
             action = DragAndDropTransferAction.fromAwtAction(dragEvent.dropAction),
+            nativeEvent = dragEvent,
             positionInRootImpl = dragEvent.location.toOffset()
         )
 
         private fun DragAndDropEvent(dropEvent: DropTargetDropEvent) = DragAndDropEvent(
-            nativeEvent = dropEvent,
             action = DragAndDropTransferAction.fromAwtAction(dropEvent.dropAction),
+            nativeEvent = dropEvent,
             positionInRootImpl = dropEvent.location.toOffset()
         )
 
@@ -256,7 +302,7 @@ internal class ComposeTransferHandler(private val rootContainer: JComponent) : T
                 false
             ),
             // This seems to be ignored, and the initial action is MOVE regardless
-            DnDConstants.ACTION_MOVE
+            MOVE
         )
     }
 
@@ -305,7 +351,7 @@ private interface PlatformAdaptations {
 
     /**
      * Returns the image to represent the dragged object, given its rendering at the size specified
-     * by the `decorationSize` argument passed to [DragAndDropManager.drag].
+     * by the `decorationSize` argument passed to [DragAndDropManager.requestDragAndDropTransfer].
      */
     fun dragImage(image: BufferedImage, density: Float): Image
 

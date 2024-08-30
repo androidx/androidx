@@ -3288,6 +3288,7 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun convertLocalToWindowPosition-MK-Hz9U (J)J
 	public fun convertScreenToLocalPosition-MK-Hz9U (J)J
 	public fun convertWindowToLocalPosition-MK-Hz9U (J)J
+	public fun getDragAndDropManager ()Landroidx/compose/ui/platform/PlatformDragAndDropManager;
 	public abstract fun getInputModeManager ()Landroidx/compose/ui/input/InputModeManager;
 	public fun getMeasureDrawLayerBounds ()Z
 	public fun getParentFocusManager ()Landroidx/compose/ui/focus/FocusManager;
@@ -3300,7 +3301,6 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun isWindowTransparent ()Z
 	public fun requestFocus ()Z
 	public fun setPointerIcon (Landroidx/compose/ui/input/pointer/PointerIcon;)V
-	public fun startDrag-12SF9DM (Landroidx/compose/ui/draganddrop/DragAndDropTransferData;JLkotlin/jvm/functions/Function1;)Z
 	public fun textInputSession (Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 	public static synthetic fun textInputSession$suspendImpl (Landroidx/compose/ui/platform/PlatformContext;Lkotlin/jvm/functions/Function2;Lkotlin/coroutines/Continuation;)Ljava/lang/Object;
 }
@@ -3319,6 +3319,24 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext$Sem
 	public abstract fun onSemanticsChange (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerAppended (Landroidx/compose/ui/semantics/SemanticsOwner;)V
 	public abstract fun onSemanticsOwnerRemoved (Landroidx/compose/ui/semantics/SemanticsOwner;)V
+}
+
+public abstract interface class androidx/compose/ui/platform/PlatformDragAndDropManager {
+	public fun isRequestDragAndDropTransferSupported ()Z
+	public fun requestDragAndDropTransfer-Uv8p0NA (Landroidx/compose/ui/platform/PlatformDragAndDropSource;J)V
+}
+
+public abstract interface class androidx/compose/ui/platform/PlatformDragAndDropSource {
+	public abstract fun startDragAndDropTransfer-d-4ec7I (Landroidx/compose/ui/platform/PlatformDragAndDropSource$StartTransferScope;JLkotlin/jvm/functions/Function0;)V
+}
+
+public abstract interface class androidx/compose/ui/platform/PlatformDragAndDropSource$StartTransferScope {
+	public abstract fun startDragAndDropTransfer-12SF9DM (Landroidx/compose/ui/draganddrop/DragAndDropTransferData;JLkotlin/jvm/functions/Function1;)Z
+}
+
+public abstract interface class androidx/compose/ui/platform/PlatformDragAndDropTarget : androidx/compose/ui/draganddrop/DragAndDropTarget {
+	public abstract fun acceptDragAndDropTransfer (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Z
+	public abstract fun getHasEligibleDropTarget ()Z
 }
 
 public final class androidx/compose/ui/platform/PlatformInsets {
@@ -3523,7 +3541,7 @@ public abstract interface class androidx/compose/ui/scene/ComposeScene {
 	public abstract fun createLayer (Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;ZLandroidx/compose/runtime/CompositionContext;)Landroidx/compose/ui/scene/ComposeSceneLayer;
 	public abstract fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public abstract fun getDensity ()Landroidx/compose/ui/unit/Density;
-	public abstract fun getDropTarget ()Landroidx/compose/ui/scene/ComposeSceneDropTarget;
+	public abstract fun getDragAndDropTarget ()Landroidx/compose/ui/scene/ComposeSceneDragAndDropTarget;
 	public abstract fun getFocusManager ()Landroidx/compose/ui/scene/ComposeSceneFocusManager;
 	public abstract fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public abstract fun getSize-bOM6tXw ()Landroidx/compose/ui/unit/IntSize;
@@ -3553,13 +3571,17 @@ public final class androidx/compose/ui/scene/ComposeSceneContext$Companion {
 	public final fun getEmpty ()Landroidx/compose/ui/scene/ComposeSceneContext;
 }
 
-public final class androidx/compose/ui/scene/ComposeSceneDropTarget {
+public final class androidx/compose/ui/scene/ComposeSceneDragAndDropTarget : androidx/compose/ui/draganddrop/DragAndDropTarget {
 	public static final field $stable I
-	public final fun onChanged (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
-	public final fun onDrop (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Z
-	public final fun onEntered (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Z
-	public final fun onExited (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
-	public final fun onMoved (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public final fun acceptDragAndDropTransfer (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Z
+	public final fun getHasEligibleDropTarget ()Z
+	public fun onChanged (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public fun onDrop (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)Z
+	public fun onEnded (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public fun onEntered (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public fun onExited (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public fun onMoved (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
+	public fun onStarted (Landroidx/compose/ui/draganddrop/DragAndDropEvent;)V
 }
 
 public final class androidx/compose/ui/scene/ComposeSceneFocusManager {

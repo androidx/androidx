@@ -16,49 +16,27 @@
 
 package androidx.compose.ui.draganddrop
 
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.geometry.Offset
 
 internal interface DragAndDropManager {
 
     /**
-     * A [Modifier] that can be added to the [Owners][androidx.compose.ui.node.Owner] modifier
-     * list that contains the modifiers required by drag and drop.
-     * (Eg, a root drag and drop modifier).
+     * Returns a boolean value indicating whether requesting drag and drop transfer is supported. If
+     * it's not, the transfer might be initiated only be system and calling
+     * [requestDragAndDropTransfer] will throw an error.
      */
-    val modifier: Modifier
+    val isRequestDragAndDropTransferSupported: Boolean
+        get() = false
 
     /**
-     * Initiates a drag-and-drop operation for transferring data.
-     *
-     * @param transferData the data to be transferred after successful completion of the
-     * drag and drop gesture.
-     *
-     * @param decorationSize the size of the drag decoration to be drawn.
-     *
-     * @param drawDragDecoration provides the visual representation of the item dragged during the
-     * drag and drop gesture.
-     *
-     * @return true if the method completes successfully, or false if it fails anywhere.
-     * Returning false means the system was unable to do a drag because of another
-     * ongoing operation or some other reasons.
+     * Requests a drag and drop transfer. It might throw [UnsupportedOperationException] in case if
+     * the operation is not supported. [isRequestDragAndDropTransferSupported] can be used to check
+     * if it might be performed.
      */
-    fun drag(
-        transferData: DragAndDropTransferData,
-        decorationSize: Size,
-        drawDragDecoration: DrawScope.() -> Unit,
-    ): Boolean
-
-    /**
-     * Called to notify this [DragAndDropManager] that a [DragAndDropModifierNode] is interested
-     * in receiving events for a particular drag and drop session.
-     */
-    fun registerNodeInterest(node: DragAndDropModifierNode)
-
-    /**
-     * Called to check if a [DragAndDropModifierNode] has previously registered interest for a
-     * drag and drop session.
-     */
-    fun isInterestedNode(node: DragAndDropModifierNode): Boolean
+    fun requestDragAndDropTransfer(node: DragAndDropNode, offset: Offset) {
+        throw UnsupportedOperationException(
+            "requestDragAndDropTransfer is not supported in the current environment. " +
+                "A Drag & Drop transfer will be initiated by the platform itself"
+        )
+    }
 }
