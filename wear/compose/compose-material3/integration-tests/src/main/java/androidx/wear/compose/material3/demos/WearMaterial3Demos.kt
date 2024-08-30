@@ -43,17 +43,10 @@ val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
         listOf(
-            ComposableDemo("Color Scheme") { ColorSchemeDemos() },
-            Material3DemoCategory("Curved Text", CurvedTextDemos),
-            Material3DemoCategory("Alert Dialog", AlertDialogs),
-            Material3DemoCategory("Confirmation", Comfirmations),
-            Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
-            ComposableDemo("Scaffold") { ScaffoldSample() },
-            Material3DemoCategory("ScrollAway", ScrollAwayDemos),
-            ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
             Material3DemoCategory(
                 "Button",
                 listOf(
+                    ComposableDemo("Base Button") { BaseButtonDemo() },
                     ComposableDemo("Filled Button") { ButtonDemo() },
                     ComposableDemo("Filled Tonal Button") { FilledTonalButtonDemo() },
                     ComposableDemo("Filled Variant Button") { FilledVariantButtonDemo() },
@@ -64,6 +57,14 @@ val WearMaterial3Demos =
                     ComposableDemo("Button (Image Background)") { ButtonBackgroundImageDemo() },
                 )
             ),
+            ComposableDemo("Color Scheme") { ColorSchemeDemos() },
+            Material3DemoCategory("Curved Text", CurvedTextDemos),
+            Material3DemoCategory("Alert Dialog", AlertDialogs),
+            Material3DemoCategory("Confirmation", Comfirmations),
+            Material3DemoCategory("Open on phone Dialog", OpenOnPhoneDialogDemos),
+            ComposableDemo("Scaffold") { ScaffoldSample() },
+            Material3DemoCategory("ScrollAway", ScrollAwayDemos),
+            ComposableDemo("Haptics") { Centralize { HapticsDemos() } },
             ComposableDemo("Compact Button") { CompactButtonDemo() },
             ComposableDemo("Icon Button") { IconButtonDemo() },
             ComposableDemo("Image Button") { ImageButtonDemo() },

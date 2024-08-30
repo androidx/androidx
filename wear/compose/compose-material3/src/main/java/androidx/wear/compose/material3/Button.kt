@@ -1778,8 +1778,12 @@ private fun ButtonImpl(
     val borderModifier =
         if (border != null) modifier.border(border = border, shape = shape) else modifier
     Row(
+        verticalAlignment = Alignment.CenterVertically,
+        // Fill the container height but not its width as buttons have fixed size height but we
+        // want them to be able to fit their content
         modifier =
             borderModifier
+                .fillMaxHeight()
                 .clip(shape = shape)
                 .width(intrinsicSize = IntrinsicSize.Max)
                 .paint(
@@ -1834,25 +1838,18 @@ private fun ButtonImpl(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as buttons have fixed size height but we
-            // want them to be able to fit their content
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            if (icon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                    content = provideScopeContent(colors.iconColor(enabled), icon)
-                )
-                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            }
-            Column {
-                Row(content = labelContent)
-                if (secondaryLabelContent != null) {
-                    Spacer(modifier = Modifier.size(2.dp))
-                    Row(content = secondaryLabelContent)
-                }
+        if (icon != null) {
+            Box(
+                modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                content = provideScopeContent(colors.iconColor(enabled), icon)
+            )
+            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+        }
+        Column {
+            Row(content = labelContent)
+            if (secondaryLabelContent != null) {
+                Spacer(modifier = Modifier.size(2.dp))
+                Row(content = secondaryLabelContent)
             }
         }
     }
