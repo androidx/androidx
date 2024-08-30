@@ -39,13 +39,15 @@
       <item quantity="other">%d sekundžių</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Laikotarpis"</string>
-    <!-- no translation found for wear_m3c_date_picker_day (8932770593644830235) -->
-    <skip />
-    <!-- no translation found for wear_m3c_date_picker_month (5962969526377479136) -->
-    <skip />
-    <!-- no translation found for wear_m3c_date_picker_year (4697690064312147449) -->
-    <skip />
+    <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Diena"</string>
+    <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mėnuo"</string>
+    <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Metai"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Patvirtinti"</string>
-    <!-- no translation found for wear_m3c_picker_next_button_content_description (3346011303652897029) -->
+    <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Kitas"</string>
+    <!-- no translation found for wear_m3c_confirmation_failure_message (6690105830380889949) -->
+    <skip />
+    <!-- no translation found for wear_m3c_confirmation_success_message (7045594078216655038) -->
+    <skip />
+    <!-- no translation found for wear_m3c_open_on_phone (5829463187924353601) -->
     <skip />
 </resources>
