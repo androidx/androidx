@@ -47,7 +47,7 @@ class TextTests : OnCanvasTests {
         val headingOnPositioned = Channel<Float>(10)
         val subtitleOnPositioned = Channel<Float>(10)
 
-        composableContent {
+        createComposeWindow {
             val density = LocalDensity.current.density
             Row {
                 Text(
