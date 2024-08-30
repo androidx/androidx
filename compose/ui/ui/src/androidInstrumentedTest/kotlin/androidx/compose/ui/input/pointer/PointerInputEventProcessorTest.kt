@@ -56,6 +56,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -2907,6 +2908,8 @@ private class TestOwner : Owner {
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
 
+    override val rectManager: RectManager = RectManager()
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
@@ -2988,6 +2991,8 @@ private class TestOwner : Owner {
     override fun onSemanticsChange() {}
 
     override fun onLayoutChange(layoutNode: LayoutNode) {}
+
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
 

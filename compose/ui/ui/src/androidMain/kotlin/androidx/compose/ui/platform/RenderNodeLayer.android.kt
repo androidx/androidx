@@ -338,6 +338,9 @@ internal class RenderNodeLayer(
         ownerView.recycle(this)
     }
 
+    override val underlyingMatrix: Matrix
+        get() = matrixCache.calculateMatrix(renderNode)
+
     override fun mapOffset(point: Offset, inverse: Boolean): Offset {
         return if (inverse) {
             matrixCache.mapInverse(renderNode, point)

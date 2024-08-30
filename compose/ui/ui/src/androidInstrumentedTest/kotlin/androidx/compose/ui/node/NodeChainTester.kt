@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.invertTo
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -422,6 +423,8 @@ private class MockOwner(
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
 
+    override val rectManager: RectManager = RectManager()
+
     override val fontFamilyResolver: FontFamily.Resolver
         get() = TODO("Not yet implemented")
 
@@ -522,6 +525,8 @@ private class MockOwner(
         layoutChangeCount++
     }
 
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
+
     @InternalComposeUiApi override fun onInteropViewLayoutChange(view: InteropView) {}
 
     override fun getFocusDirection(keyEvent: KeyEvent): FocusDirection? {
@@ -564,6 +569,9 @@ private class MockOwner(
             override fun transform(matrix: Matrix) {
                 matrix.timesAssign(transform)
             }
+
+            override val underlyingMatrix: Matrix
+                get() = transform
 
             override fun inverseTransform(matrix: Matrix) {
                 matrix.timesAssign(inverseTransform)

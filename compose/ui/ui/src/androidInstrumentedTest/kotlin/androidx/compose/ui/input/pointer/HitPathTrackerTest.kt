@@ -61,6 +61,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -3299,6 +3300,8 @@ private class MockOwner(
     override val windowInfo: WindowInfo
         get() = TODO("Not yet implemented")
 
+    override val rectManager: RectManager = RectManager()
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
@@ -3415,6 +3418,9 @@ private class MockOwner(
 
             override fun transform(matrix: Matrix) {}
 
+            override val underlyingMatrix: Matrix
+                get() = Matrix()
+
             override fun inverseTransform(matrix: Matrix) {}
 
             override fun mapOffset(point: Offset, inverse: Boolean) = point
@@ -3426,6 +3432,8 @@ private class MockOwner(
     override fun onLayoutChange(layoutNode: LayoutNode) {
         layoutChangeCount++
     }
+
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {}
 
     override fun onInteropViewLayoutChange(view: InteropView) {}
 

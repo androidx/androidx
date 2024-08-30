@@ -137,6 +137,7 @@ value class IntOffset(val packedValue: Long) {
 
     companion object {
         val Zero = IntOffset(0x0L)
+        val Max = IntOffset(0x7FFF_FFFF_7FFF_FFFF)
     }
 }
 

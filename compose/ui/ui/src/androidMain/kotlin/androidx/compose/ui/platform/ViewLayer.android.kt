@@ -77,6 +77,9 @@ internal class ViewLayer(
 
     private val matrixCache = LayerMatrixCache(getMatrix)
 
+    override val underlyingMatrix: Matrix
+        get() = matrixCache.calculateMatrix(this)
+
     /**
      * Local copy of the transform origin as GraphicsLayerModifier can be implemented as a model
      * object. Update this field within [updateLayerProperties] and use it in [resize] or other
