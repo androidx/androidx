@@ -19,7 +19,9 @@ package androidx.lifecycle
 import androidx.annotation.MainThread
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.CreationExtras.Key
 import androidx.lifecycle.viewmodel.ViewModelProviderImpl
+import androidx.lifecycle.viewmodel.internal.JvmViewModelProviders
 import androidx.lifecycle.viewmodel.internal.ViewModelProviders
 import kotlin.reflect.KClass
 
@@ -47,6 +49,41 @@ public actual class ViewModelProvider private constructor(
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public actual open class OnRequeryFactory {
         public actual open fun onRequery(viewModel: ViewModel) {}
+    }
+
+    /** Simple factory, which calls empty constructor on the give class. */
+    public open class NewInstanceFactory
+    /**
+     * Construct a new [NewInstanceFactory] instance.
+     *
+     * Use [NewInstanceFactory.instance] to get a default instance of [NewInstanceFactory].
+     */
+    @Suppress("SingletonConstructor")
+    constructor() : Factory {
+
+        public override fun <T : ViewModel> create(
+            modelClass: KClass<T>,
+            extras: CreationExtras,
+        ): T = JvmViewModelProviders.createViewModel(modelClass.java)
+
+        public companion object {
+            private var _instance: NewInstanceFactory? = null
+
+            /**
+             * Retrieve a singleton instance of NewInstanceFactory.
+             *
+             * @return A valid [NewInstanceFactory]
+             */
+            @JvmStatic
+            public val instance: NewInstanceFactory
+                @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+                get() {
+                    if (_instance == null) {
+                        _instance = NewInstanceFactory()
+                    }
+                    return _instance!!
+                }
+        }
     }
 
     public actual companion object {

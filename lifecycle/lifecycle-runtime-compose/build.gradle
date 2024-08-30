@@ -68,6 +68,12 @@ kotlin {
                 implementation(libs.kotlinStdlib)
             }
         }
+
+        nonAndroidMain.dependsOn(commonMain)
+        desktopMain.dependsOn(nonAndroidMain)
+        nativeMain.dependsOn(nonAndroidMain)
+        jsMain.dependsOn(nonAndroidMain)
+        wasmJsMain.dependsOn(nonAndroidMain)
     }
 }
 

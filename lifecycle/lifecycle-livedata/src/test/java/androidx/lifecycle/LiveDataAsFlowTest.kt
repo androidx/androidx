@@ -55,6 +55,45 @@ class LiveDataAsFlowTest {
     }
 
     @Test
+    fun checkCancellationFromInitialValue() {
+        val ld = MutableLiveData<Int>()
+        ld.value = 1
+        val flow = ld.asFlow()
+        // check that flow creation didn't make livedata active
+        assertThat(ld.hasActiveObservers()).isFalse()
+        // Collect only a single value to get the initial value and cancel immediately
+        val job = testScope.launch { assertThat(flow.take(1).toList()).isEqualTo(listOf(1)) }
+        scopes.triggerAllActions()
+        mainScope.launch {
+            // This should never be received by the take(1)
+            ld.value = 2
+        }
+        scopes.triggerAllActions()
+        // Verify that the job completing removes the observer
+        assertThat(job.isCompleted).isTrue()
+        assertThat(ld.hasActiveObservers()).isFalse()
+    }
+
+    @Test
+    fun checkCancellationAfterJobCompletes() {
+        val ld = MutableLiveData<Int>()
+        ld.value = 1
+        val flow = ld.asFlow()
+        // check that flow creation didn't make livedata active
+        assertThat(ld.hasActiveObservers()).isFalse()
+        val job = testScope.launch { assertThat(flow.take(2).toList()).isEqualTo(listOf(1, 2)) }
+        scopes.triggerAllActions()
+        mainScope.launch {
+            // Receiving this should complete the job and remove the observer
+            ld.value = 2
+        }
+        scopes.triggerAllActions()
+        // Verify that the job completing removes the observer
+        assertThat(job.isCompleted).isTrue()
+        assertThat(ld.hasActiveObservers()).isFalse()
+    }
+
+    @Test
     fun dispatchMultiple() {
         val ld = MutableLiveData<Int>()
         val collected = mutableListOf<Int>()

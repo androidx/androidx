@@ -71,7 +71,7 @@ kotlin {
             dependencies {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
-                api(project(":annotation:annotation"))
+                api("androidx.annotation:annotation:1.8.0")
             }
         }
 

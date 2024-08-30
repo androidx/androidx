@@ -14,10 +14,15 @@
  * limitations under the License.
  */
 
+@file:JvmName("LocalLifecycleOwnerKt")
+
 package androidx.lifecycle.compose
 
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.lifecycle.LifecycleOwner
 
-/** The CompositionLocal containing the current [LifecycleOwner]. */
-public expect val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner>
+public actual val LocalLifecycleOwner: ProvidableCompositionLocal<LifecycleOwner> =
+    staticCompositionLocalOf {
+        error("CompositionLocal LocalLifecycleOwner not present")
+    }

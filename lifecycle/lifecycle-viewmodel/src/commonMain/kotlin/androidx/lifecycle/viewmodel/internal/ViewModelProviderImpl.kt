@@ -61,12 +61,26 @@ internal class ViewModelProviderImpl(
         }
         val extras = MutableCreationExtras(extras)
         extras[ViewModelProviders.ViewModelKey] = key
-        // AGP has some desugaring issues associated with compileOnly dependencies so we need to
-        // fall back to the other create method to keep from crashing.
-        return try {
-            factory.create(modelClass, extras)
-        } catch (e: Error) { // There is no `AbstractMethodError` on KMP, using common ancestor.
-            factory.create(modelClass, CreationExtras.Empty)
-        }.also { newViewModel -> store.put(key, newViewModel) }
+
+        return createViewModel(factory, modelClass, extras).also { vm -> store.put(key, vm) }
     }
 }
+
+/**
+ * Returns a new instance of a [ViewModel].
+ *
+ * **Important:** Android targets using `compileOnly` dependencies may encounter AGP desugaring
+ * issues where `Factory.create` throws an `AbstractMethodError`. This is resolved by an
+ * Android-specific implementation that first attempts all `ViewModelProvider.Factory.create`
+ * method overloads before allowing the exception to propagate.
+ *
+ * @see <a href="https://b.corp.google.com/issues/230454566">b/230454566</a>
+ * @see <a href="https://b.corp.google.com/issues/341792251">b/341792251</a>
+ * @see <a href="https://github.com/square/leakcanary/issues/2314">leakcanary/issues/2314</a>
+ * @see <a href="https://github.com/square/leakcanary/issues/2677">leakcanary/issues/2677</a>
+ */
+internal expect fun <VM : ViewModel> createViewModel(
+    factory: ViewModelProvider.Factory,
+    modelClass: KClass<VM>,
+    extras: CreationExtras,
+): VM

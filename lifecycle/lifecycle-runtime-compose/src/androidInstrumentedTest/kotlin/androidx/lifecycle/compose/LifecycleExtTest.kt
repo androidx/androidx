@@ -16,19 +16,15 @@
 
 package androidx.lifecycle.compose
 
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import androidx.kruth.assertThat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth.assertThat
+import kotlin.test.Test
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import org.junit.Rule
-import org.junit.Test
-import org.junit.runner.RunWith
 
-@MediumTest
-@RunWith(AndroidJUnit4::class)
+@OptIn(ExperimentalTestApi::class)
 class LifecycleExtTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -37,27 +33,24 @@ class LifecycleExtTest {
         UnconfinedTestDispatcher()
     )
 
-    @get:Rule
-    val rule = createComposeRule()
-
     @Test
-    fun lifecycleCollectAsState() {
+    fun lifecycleCollectAsState() = runComposeUiTest {
         val lifecycle = lifecycleOwner.lifecycle
         assertThat(lifecycle.currentStateFlow.value).isEqualTo(Lifecycle.State.INITIALIZED)
 
         var realStateValue: Lifecycle.State? = null
-        rule.setContent {
+        setContent {
             realStateValue = lifecycle.currentStateAsState().value
         }
 
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(realStateValue).isEqualTo(Lifecycle.State.INITIALIZED)
         }
 
         // TODO(b/280362188): commenting this portion out until bug is fixed
         /*
         lifecycleOwner.currentState = Lifecycle.State.RESUMED
-        rule.runOnIdle {
+        runOnIdle {
             assertThat(realStateValue).isEqualTo(Lifecycle.State.RESUMED)
         }
         */
