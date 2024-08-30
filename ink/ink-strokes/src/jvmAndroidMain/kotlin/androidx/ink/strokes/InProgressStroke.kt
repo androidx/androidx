@@ -47,7 +47,6 @@ import java.nio.ShortBuffer
  * 6. For best performance, reuse this object and go back to step 1 rather than allocating a new
  *    instance.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class InProgressStroke {
 
@@ -251,6 +250,7 @@ public class InProgressStroke {
      * Writes to [outBoxAccumulator] the bounding box of the vertex positions of the mesh for brush
      * coat [coatIndex].
      *
+     * @param coatIndex The index of the coat to obtain the bounding box from.
      * @param outBoxAccumulator The pre-allocated [BoxAccumulator] to be filled with the result.
      */
     public fun populateMeshBounds(
