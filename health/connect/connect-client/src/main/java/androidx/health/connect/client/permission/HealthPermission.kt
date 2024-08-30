@@ -16,6 +16,7 @@
 package androidx.health.connect.client.permission
 
 import androidx.annotation.RestrictTo
+import androidx.health.connect.client.HealthConnectFeatures
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
 import androidx.health.connect.client.records.BasalBodyTemperatureRecord
 import androidx.health.connect.client.records.BasalMetabolicRateRecord
@@ -150,6 +151,10 @@ internal constructor(
          * A permission to read data in background.
          *
          * An attempt to read data in background without this permission may result in an error.
+         *
+         * This feature is dependent on the version of HealthConnect installed on the device. To
+         * check if it's available call [HealthConnectFeatures.getFeatureStatus] and pass
+         * [HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND] as an argument.
          *
          * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
          * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
