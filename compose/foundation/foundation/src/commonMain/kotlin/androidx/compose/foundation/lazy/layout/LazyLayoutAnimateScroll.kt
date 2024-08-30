@@ -171,6 +171,7 @@ internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
                 var prevValue = 0f
                 anim.animateTo(target, sequentialAnimation = (anim.velocity != 0f)) {
                     // If we haven't found the item yet, check if it's visible.
+                    debugLog { "firstVisibleItemIndex=$firstVisibleItemIndex" }
                     if (!isItemVisible(index)) {
                         // Springs can overshoot their target, clamp to the desired range
                         val coercedValue =
