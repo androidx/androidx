@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
@@ -38,6 +39,7 @@ import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
+import androidx.wear.compose.material3.ListSubheader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
@@ -56,6 +58,25 @@ import androidx.wear.compose.material3.samples.SimpleChildButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledVariantButtonSample
 import androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
+
+@Composable
+fun BaseButtonDemo() {
+    // This demo shows how to use the Base Button overload, which has a single content slot
+    // that can be used with a trailing lambda. It should vertically center content by default,
+    // but that can easily be changed by using Modifier.align from RowScope in whatever is passed
+    // to the content slot.
+    ScalingLazyDemo {
+        item { ListHeader { Text("Base Button") } }
+        item { ListSubheader { Text("Default alignment") } }
+        item { Button(onClick = {}, modifier = Modifier.fillMaxWidth()) { Text("Base Button") } }
+        item { ListSubheader { Text("Top Alignment") } }
+        item {
+            Button(onClick = {}, modifier = Modifier.fillMaxWidth()) {
+                Text("Base Button", modifier = Modifier.align(Alignment.Top))
+            }
+        }
+    }
+}
 
 @Composable
 fun ButtonDemo() {

@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -65,9 +66,25 @@ class ButtonScreenshotTest {
 
     @get:Rule val testName = TestName()
 
-    @Test fun button_enabled() = verifyScreenshot() { BaseButton() }
+    @Test fun button_enabled() = verifyScreenshot { BaseButton() }
 
-    @Test fun button_disabled() = verifyScreenshot() { BaseButton(enabled = false) }
+    @Test fun button_disabled() = verifyScreenshot { BaseButton(enabled = false) }
+
+    @Test
+    fun button_default_alignment() = verifyScreenshot {
+        // Uses the base Button overload, should be vertically centered by default
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth().testTag(TEST_TAG)) {
+            Text("Button")
+        }
+    }
+
+    @Test
+    fun button_top_alignment() = verifyScreenshot {
+        // Uses RowScope to override the default vertical alignment to be top
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth().testTag(TEST_TAG)) {
+            Text("Button", modifier = Modifier.align(Alignment.Top))
+        }
+    }
 
     @Test
     fun three_slot_button_ltr() =
