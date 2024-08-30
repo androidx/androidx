@@ -854,8 +854,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -871,8 +873,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -888,8 +892,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelAlignment = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -904,7 +910,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             Button(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
             )
         }
 
@@ -919,8 +925,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             FilledTonalButton(
                 onClick = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -936,8 +944,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             FilledTonalButton(
                 onClick = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -953,8 +963,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             FilledTonalButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelAlignment = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -969,7 +981,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             FilledTonalButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
             )
         }
 
@@ -984,8 +996,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             OutlinedButton(
                 onClick = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -1001,8 +1015,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             OutlinedButton(
                 onClick = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -1018,8 +1034,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             OutlinedButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelAlignment = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -1034,7 +1052,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             OutlinedButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
             )
         }
 
@@ -1049,8 +1067,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             ChildButton(
                 onClick = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -1066,8 +1086,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             ChildButton(
                 onClick = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -1083,8 +1105,10 @@ class ButtonTest {
         rule.setContentWithTheme {
             ChildButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelAlignment = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -1099,7 +1123,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             ChildButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
             )
         }
 
@@ -1113,7 +1137,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                label = { labelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
             )
         }
 
@@ -1127,7 +1151,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
             )
         }
 
@@ -1141,7 +1165,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
                 icon = {},
             )
         }
@@ -1156,7 +1180,7 @@ class ButtonTest {
         rule.setContentWithTheme {
             CompactButton(
                 onClick = {},
-                label = { labelAlignment = LocalTextAlign.current },
+                label = { labelAlignment = LocalTextConfiguration.current.textAlign },
             )
         }
 

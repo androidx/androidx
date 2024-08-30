@@ -1266,17 +1266,32 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public static void TextToggleButton(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional androidx.wear.compose.material3.TextToggleButtonColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, optional androidx.compose.ui.graphics.Shape shape, optional androidx.compose.foundation.BorderStroke? border, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> content);
   }
 
+  public final class TextConfiguration {
+    ctor public TextConfiguration(androidx.compose.ui.text.style.TextAlign? textAlign, int overflow, int maxLines);
+    method public int getMaxLines();
+    method public int getOverflow();
+    method public androidx.compose.ui.text.style.TextAlign? getTextAlign();
+    property public final int maxLines;
+    property public final int overflow;
+    property public final androidx.compose.ui.text.style.TextAlign? textAlign;
+  }
+
+  public final class TextConfigurationDefaults {
+    method public int getOverflow();
+    method public androidx.compose.ui.text.style.TextAlign? getTextAlign();
+    property public final int Overflow;
+    property public final androidx.compose.ui.text.style.TextAlign? TextAlign;
+    field public static final androidx.wear.compose.material3.TextConfigurationDefaults INSTANCE;
+    field public static final int MaxLines = 2147483647; // 0x7fffffff
+  }
+
   public final class TextKt {
     method @androidx.compose.runtime.Composable public static void ProvideTextStyle(androidx.compose.ui.text.TextStyle value, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Text(androidx.compose.ui.text.AnnotatedString text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional java.util.Map<java.lang.String,androidx.compose.foundation.text.InlineTextContent> inlineContent, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
     method @androidx.compose.runtime.Composable public static void Text(String text, optional androidx.compose.ui.Modifier modifier, optional long color, optional long fontSize, optional androidx.compose.ui.text.font.FontStyle? fontStyle, optional androidx.compose.ui.text.font.FontWeight? fontWeight, optional androidx.compose.ui.text.font.FontFamily? fontFamily, optional long letterSpacing, optional androidx.compose.ui.text.style.TextDecoration? textDecoration, optional androidx.compose.ui.text.style.TextAlign? textAlign, optional long lineHeight, optional int overflow, optional boolean softWrap, optional int maxLines, optional int minLines, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.text.TextLayoutResult,kotlin.Unit> onTextLayout, optional androidx.compose.ui.text.TextStyle style);
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.style.TextAlign?> getLocalTextAlign();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Integer> getLocalTextMaxLines();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.style.TextOverflow> getLocalTextOverflow();
+    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.material3.TextConfiguration> getLocalTextConfiguration();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> getLocalTextStyle();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.style.TextAlign?> LocalTextAlign;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Integer> LocalTextMaxLines;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.style.TextOverflow> LocalTextOverflow;
+    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.wear.compose.material3.TextConfiguration> LocalTextConfiguration;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.TextStyle> LocalTextStyle;
   }
 

@@ -98,11 +98,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = LocalTextAlign.current,
+    textAlign: TextAlign? = LocalTextConfiguration.current.textAlign,
     lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = LocalTextOverflow.current,
+    overflow: TextOverflow = LocalTextConfiguration.current.overflow,
     softWrap: Boolean = true,
-    maxLines: Int = LocalTextMaxLines.current,
+    maxLines: Int = LocalTextConfiguration.current.maxLines,
     minLines: Int = 1,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
@@ -192,11 +192,11 @@ fun Text(
     fontFamily: FontFamily? = null,
     letterSpacing: TextUnit = TextUnit.Unspecified,
     textDecoration: TextDecoration? = null,
-    textAlign: TextAlign? = LocalTextAlign.current,
+    textAlign: TextAlign? = LocalTextConfiguration.current.textAlign,
     lineHeight: TextUnit = TextUnit.Unspecified,
-    overflow: TextOverflow = LocalTextOverflow.current,
+    overflow: TextOverflow = LocalTextConfiguration.current.overflow,
     softWrap: Boolean = true,
-    maxLines: Int = LocalTextMaxLines.current,
+    maxLines: Int = LocalTextConfiguration.current.maxLines,
     minLines: Int = 1,
     inlineContent: Map<String, InlineTextContent> = mapOf(),
     onTextLayout: (TextLayoutResult) -> Unit = {},
@@ -250,27 +250,47 @@ fun ProvideTextStyle(value: TextStyle, content: @Composable () -> Unit) {
 }
 
 /**
- * CompositionLocal containing the preferred max lines that will be used by [Text] components by
- * default. Material3 components related to text such as [Button], [CheckboxButton], [SwitchButton],
- * [RadioButton] will use [LocalTextMaxLines] to set values with which to style child text
+ * CompositionLocal containing the preferred [TextConfiguration] that will be used by [Text]
+ * components by default consisting of text alignment, overflow specification and max lines.
+ * Material3 components related to text such as [Button], [CheckboxButton], [SwitchButton],
+ * [RadioButton] use [LocalTextConfiguration] to set values with which to style child text
  * components.
  */
-val LocalTextMaxLines: ProvidableCompositionLocal<Int> =
-    compositionLocalOf(structuralEqualityPolicy()) { Int.MAX_VALUE }
+val LocalTextConfiguration: ProvidableCompositionLocal<TextConfiguration> =
+    compositionLocalOf(structuralEqualityPolicy()) {
+        TextConfiguration(
+            TextConfigurationDefaults.TextAlign,
+            TextConfigurationDefaults.Overflow,
+            TextConfigurationDefaults.MaxLines
+        )
+    }
 
-/**
- * CompositionLocal containing the preferred [TextOverflow] that will be used by [Text] components
- * by default. Material3 components related to text such as [Button], [CheckboxButton],
- * [SwitchButton], [RadioButton] will use [LocalTextOverflow] to set values with which to style
- * child text components.
- */
-val LocalTextOverflow: ProvidableCompositionLocal<TextOverflow> =
-    compositionLocalOf(structuralEqualityPolicy()) { TextOverflow.Clip }
+class TextConfiguration(
+    val textAlign: TextAlign?,
+    val overflow: TextOverflow,
+    val maxLines: Int,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || other !is TextConfiguration) return false
 
-/**
- * CompositionLocal containing the preferred [TextAlign] that will be used by [Text] components by
- * default. Material3 components related to text such as [Button], [CheckboxButton], [SwitchButton],
- * [RadioButton] will use [LocalTextAlign] to set values with which to style child text components.
- */
-val LocalTextAlign: ProvidableCompositionLocal<TextAlign?> =
-    compositionLocalOf(structuralEqualityPolicy()) { null }
+        if (textAlign != other.textAlign) return false
+        if (overflow != other.overflow) return false
+        if (maxLines != other.maxLines) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = textAlign.hashCode()
+        result = 31 * result + overflow.hashCode()
+        result = 31 * result + maxLines.hashCode()
+        return result
+    }
+}
+
+object TextConfigurationDefaults {
+    val TextAlign: TextAlign? = null
+    val Overflow: TextOverflow = TextOverflow.Clip
+    const val MaxLines: Int = Int.MAX_VALUE
+}

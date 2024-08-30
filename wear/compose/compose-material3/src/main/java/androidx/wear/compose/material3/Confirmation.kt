@@ -45,6 +45,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.CurvedDirection
@@ -185,8 +186,12 @@ fun Confirmation(
                 CompositionLocalProvider(
                     LocalContentColor provides colors.textColor,
                     LocalTextStyle provides MaterialTheme.typography.titleMedium,
-                    LocalTextAlign provides TextAlign.Center,
-                    LocalTextMaxLines provides ConfirmationDefaults.LinearContentMaxLines
+                    LocalTextConfiguration provides
+                        TextConfiguration(
+                            textAlign = TextAlign.Center,
+                            maxLines = ConfirmationDefaults.LinearContentMaxLines,
+                            overflow = TextOverflow.Ellipsis
+                        ),
                 ) {
                     if (text != null) {
                         Spacer(Modifier.height(ConfirmationDefaults.LinearContentSpacing))

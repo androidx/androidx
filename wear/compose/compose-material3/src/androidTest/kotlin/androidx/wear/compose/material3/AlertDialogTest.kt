@@ -263,7 +263,7 @@ class AlertDialogTest {
         var expectedContentColor: Color = Color.Unspecified
         var expectedTextStyle: TextStyle = TextStyle.Default
         var expectedTextAlign: TextAlign? = null
-        var expectedTextMaxLines: Int = 0
+        var expectedTextMaxLines = 0
 
         var actualContentColor: Color = Color.Unspecified
         var actualTextStyle: TextStyle = TextStyle.Default
@@ -281,8 +281,8 @@ class AlertDialogTest {
                     Text("Title")
                     actualContentColor = LocalContentColor.current
                     actualTextStyle = LocalTextStyle.current
-                    actualTextAlign = LocalTextAlign.current
-                    actualTextMaxLines = LocalTextMaxLines.current
+                    actualTextAlign = LocalTextConfiguration.current.textAlign
+                    actualTextMaxLines = LocalTextConfiguration.current.maxLines
                 },
                 bottomButton = {},
                 onDismissRequest = {},
@@ -317,7 +317,7 @@ class AlertDialogTest {
                     Text("Text")
                     actualContentColor = LocalContentColor.current
                     actualTextStyle = LocalTextStyle.current
-                    actualTextAlign = LocalTextAlign.current
+                    actualTextAlign = LocalTextConfiguration.current.textAlign
                 },
                 bottomButton = {},
                 onDismissRequest = {},

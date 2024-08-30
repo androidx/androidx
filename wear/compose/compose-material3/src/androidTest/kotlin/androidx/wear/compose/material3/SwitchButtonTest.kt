@@ -436,8 +436,10 @@ class SwitchButtonTest {
             SwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelTextAlign = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+                label = { labelTextAlign = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelTextAlign = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -454,8 +456,10 @@ class SwitchButtonTest {
             SplitSwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelTextAlign = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+                label = { labelTextAlign = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelTextAlign = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -472,8 +476,10 @@ class SwitchButtonTest {
             SwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -490,8 +496,10 @@ class SwitchButtonTest {
             SplitSwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -508,8 +516,10 @@ class SwitchButtonTest {
             SwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -526,8 +536,10 @@ class SwitchButtonTest {
             SplitSwitchButtonWithDefaults(
                 checked = true,
                 onCheckedChange = {},
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 

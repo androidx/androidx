@@ -479,8 +479,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             RadioButtonWithDefaults(
                 selected = true,
-                label = { labelTextAlign = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+                label = { labelTextAlign = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelTextAlign = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -496,8 +498,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             SplitRadioButtonWithDefaults(
                 selected = true,
-                label = { labelTextAlign = LocalTextAlign.current },
-                secondaryLabel = { secondaryLabelTextAlign = LocalTextAlign.current },
+                label = { labelTextAlign = LocalTextConfiguration.current.textAlign },
+                secondaryLabel = {
+                    secondaryLabelTextAlign = LocalTextConfiguration.current.textAlign
+                },
             )
         }
 
@@ -513,8 +517,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             RadioButtonWithDefaults(
                 selected = true,
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -530,8 +536,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             SplitRadioButtonWithDefaults(
                 selected = true,
-                label = { labelOverflow = LocalTextOverflow.current },
-                secondaryLabel = { secondaryLabelOverflow = LocalTextOverflow.current },
+                label = { labelOverflow = LocalTextConfiguration.current.overflow },
+                secondaryLabel = {
+                    secondaryLabelOverflow = LocalTextConfiguration.current.overflow
+                },
             )
         }
 
@@ -547,8 +555,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             RadioButtonWithDefaults(
                 selected = true,
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 
@@ -564,8 +574,10 @@ class RadioButtonTest {
         rule.setContentWithTheme {
             SplitRadioButtonWithDefaults(
                 selected = true,
-                label = { labelMaxLines = LocalTextMaxLines.current },
-                secondaryLabel = { secondaryLabelMaxLines = LocalTextMaxLines.current },
+                label = { labelMaxLines = LocalTextConfiguration.current.maxLines },
+                secondaryLabel = {
+                    secondaryLabelMaxLines = LocalTextConfiguration.current.maxLines
+                },
             )
         }
 

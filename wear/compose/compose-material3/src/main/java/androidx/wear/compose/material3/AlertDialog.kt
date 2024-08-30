@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -401,8 +402,12 @@ private fun Title(content: @Composable () -> Unit) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             LocalTextStyle provides MaterialTheme.typography.titleMedium,
-            LocalTextAlign provides TextAlign.Center,
-            LocalTextMaxLines provides AlertDialogDefaults.titleMaxLines,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    maxLines = AlertDialogDefaults.titleMaxLines,
+                    overflow = TextOverflow.Ellipsis
+                ),
             content = content
         )
     }
@@ -433,7 +438,12 @@ private fun TextMessage(content: @Composable () -> Unit) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-            LocalTextAlign provides TextAlign.Center,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = TextConfigurationDefaults.MaxLines
+                ),
             content = content
         )
     }

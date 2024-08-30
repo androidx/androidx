@@ -164,9 +164,12 @@ fun RadioButton(
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled = enabled, selected = selected),
                     textStyle = RadioButtonTokens.LabelFont.value,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 3,
-                    textAlign = TextAlign.Start,
+                    textConfiguration =
+                        TextConfiguration(
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 3,
+                            textAlign = TextAlign.Start,
+                        ),
                     content = label
                 ),
             secondaryLabel =
@@ -174,9 +177,12 @@ fun RadioButton(
                     contentColor =
                         colors.secondaryContentColor(enabled = enabled, selected = selected),
                     textStyle = RadioButtonTokens.SecondaryLabelFont.value,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 2,
-                    textAlign = TextAlign.Start,
+                    textConfiguration =
+                        TextConfiguration(
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 2,
+                            textAlign = TextAlign.Start,
+                        ),
                     content = secondaryLabel
                 )
         )
@@ -304,9 +310,12 @@ fun SplitRadioButton(
                     provideScopeContent(
                         contentColor = colors.contentColor(enabled = enabled, selected = selected),
                         textStyle = SplitRadioButtonTokens.LabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 3,
+                                textAlign = TextAlign.Start,
+                            ),
                         content = label
                     ),
                 secondaryLabel =
@@ -314,9 +323,12 @@ fun SplitRadioButton(
                         contentColor =
                             colors.secondaryContentColor(enabled = enabled, selected = selected),
                         textStyle = SplitRadioButtonTokens.SecondaryLabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 2,
+                                textAlign = TextAlign.Start,
+                            ),
                         content = secondaryLabel
                     ),
             )
