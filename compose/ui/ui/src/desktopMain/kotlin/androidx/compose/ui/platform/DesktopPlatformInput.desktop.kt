@@ -43,7 +43,7 @@ internal class DesktopTextInputService(private val component: PlatformComponent)
     data class CurrentInput(
         var value: TextFieldValue,
         val onEditCommand: ((List<EditCommand>) -> Unit),
-        val onImeActionPerformed: ((ImeAction) -> Unit),
+        val onImeActionPerformed: (ImeAction) -> Unit,
         val imeAction: ImeAction,
         var focusedRect: Rect? = null
     )
@@ -64,7 +64,10 @@ internal class DesktopTextInputService(private val component: PlatformComponent)
         onImeActionPerformed: (ImeAction) -> Unit
     ) {
         val input = CurrentInput(
-            value, onEditCommand, onImeActionPerformed, imeOptions.imeAction
+            value = value,
+            onEditCommand = onEditCommand,
+            onImeActionPerformed = onImeActionPerformed,
+            imeAction = imeOptions.imeAction
         )
         currentInput = input
 
@@ -83,14 +86,12 @@ internal class DesktopTextInputService(private val component: PlatformComponent)
     }
 
     override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) {
-        currentInput?.let { input ->
-            input.value = newValue
-        }
+        currentInput?.value = newValue
     }
 
     // TODO(https://github.com/JetBrains/compose-jb/issues/2040): probably the position of input method
     //  popup isn't correct now
-    @Deprecated("This method should not be called, used BringIntoViewRequester instead.")
+    @Deprecated("This method should not be called, use BringIntoViewRequester instead.")
     override fun notifyFocusedRect(rect: Rect) {
         currentInput?.let { input ->
             input.focusedRect = rect

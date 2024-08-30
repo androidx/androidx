@@ -419,7 +419,7 @@ class SkikoComposeUiTest @InternalTestApi constructor(
     private inner class TestContext : PlatformContext by PlatformContext.Empty {
         override val windowInfo: WindowInfo = TestWindowInfo()
 
-        override val textInputService: PlatformTextInputService = TestTextInputService()
+        override val textInputService = TestTextInputService()
 
         override val rootForTestListener: PlatformContext.RootForTestListener
             get() = composeRootRegistry

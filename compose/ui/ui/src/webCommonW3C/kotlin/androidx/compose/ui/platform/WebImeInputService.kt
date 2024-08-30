@@ -39,9 +39,9 @@ internal class WebImeInputService(parentInputService: InputAwareInputService) : 
     ) {
         backingTextArea =
             BackingTextArea(
-                imeOptions,
-                onEditCommand,
-                onImeActionPerformed,
+                imeOptions = imeOptions,
+                onEditCommand = onEditCommand,
+                onImeActionPerformed = onImeActionPerformed,
                 processKeyboardEvent = this@WebImeInputService::processKeyboardEvent
             )
         backingTextArea?.register()

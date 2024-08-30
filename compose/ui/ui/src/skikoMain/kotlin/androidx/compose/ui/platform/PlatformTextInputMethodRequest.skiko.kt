@@ -16,4 +16,19 @@
 
 package androidx.compose.ui.platform
 
-actual interface PlatformTextInputMethodRequest
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.ImeOptions
+import androidx.compose.ui.text.input.TextFieldValue
+
+actual interface PlatformTextInputMethodRequest {
+    @ExperimentalComposeUiApi
+    val state: TextFieldValue
+    @ExperimentalComposeUiApi
+    val imeOptions: ImeOptions
+    @ExperimentalComposeUiApi
+    val onEditCommand: (List<EditCommand>) -> Unit
+    @ExperimentalComposeUiApi
+    val onImeAction: ((ImeAction) -> Unit)?
+}
