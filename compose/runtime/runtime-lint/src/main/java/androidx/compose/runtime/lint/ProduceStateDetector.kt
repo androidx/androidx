@@ -32,8 +32,13 @@ import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.intellij.psi.PsiMethod
 import java.util.EnumSet
+import org.jetbrains.uast.UBinaryExpression
 import org.jetbrains.uast.UCallExpression
+import org.jetbrains.uast.UExpression
+import org.jetbrains.uast.UMultiResolvable
+import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
+import org.jetbrains.uast.UastBinaryOperator
 import org.jetbrains.uast.getParameterForArgument
 import org.jetbrains.uast.tryResolve
 import org.jetbrains.uast.visitor.AbstractUastVisitor
@@ -53,64 +58,100 @@ class ProduceStateDetector : Detector(), SourceCodeScanner {
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
         if (method.isInPackageName(Names.Runtime.PackageName)) {
             // The ProduceStateScope lambda
-            val producer = node.valueArguments.find {
-                node.getParameterForArgument(it)?.name == "producer"
-            } ?: return
+            val producer =
+                node.valueArguments.find { node.getParameterForArgument(it)?.name == "producer" }
+                    ?: return
 
             var referencesReceiver = false
             var callsSetValue = false
 
-            producer.accept(object : AbstractUastVisitor() {
-                val mutableStatePsiClass =
-                    context.evaluator.findClass(Names.Runtime.MutableState.javaFqn)
+            producer.accept(
+                object : AbstractUastVisitor() {
+                    val mutableStatePsiClass =
+                        context.evaluator.findClass(Names.Runtime.MutableState.javaFqn)
 
-                /**
-                 * Visit function calls to see if the functions have a parameter of MutableState
-                 * / ProduceStateScope. If they do, we cannot know for sure whether those
-                 * functions internally call setValue, so we avoid reporting an error to avoid
-                 * false positives.
-                 */
-                override fun visitCallExpression(
-                    node: UCallExpression
-                ): Boolean {
-                    val resolvedMethod = node.resolve() ?: return false
-                    return resolvedMethod.parameterList.parameters.any { parameter ->
-                        val type = parameter.type
+                    /**
+                     * Visit function calls to see if the functions have a parameter of MutableState
+                     * / ProduceStateScope. If they do, we cannot know for sure whether those
+                     * functions internally call setValue, so we avoid reporting an error to avoid
+                     * false positives.
+                     */
+                    override fun visitCallExpression(node: UCallExpression): Boolean {
+                        val resolvedMethod = node.resolve() ?: return referencesReceiver
+                        return resolvedMethod.parameterList.parameters.any { parameter ->
+                            val type = parameter.type
 
-                        // Is the parameter type ProduceStateScope or a subclass
-                        if (type.inheritsFrom(ProduceStateScopeName)) {
-                            referencesReceiver = true
+                            // Is the parameter type ProduceStateScope or a subclass
+                            if (type.inheritsFrom(ProduceStateScopeName)) {
+                                referencesReceiver = true
+                            }
+
+                            // Is the parameter type MutableState
+                            if (
+                                mutableStatePsiClass != null &&
+                                    context.evaluator.getTypeClass(type) == mutableStatePsiClass
+                            ) {
+                                referencesReceiver = true
+                            }
+
+                            referencesReceiver
                         }
+                    }
 
-                        // Is the parameter type MutableState
-                        if (mutableStatePsiClass != null &&
-                            context.evaluator.getTypeClass(type) == mutableStatePsiClass) {
-                            referencesReceiver = true
+                    /**
+                     * Visit binary operator to see if
+                     * 1) it is an assign operator;
+                     * 2) its left operand refers to 'value'; and
+                     * 3) it is resolved to a call to MutableState#setValue.
+                     */
+                    override fun visitBinaryExpression(node: UBinaryExpression): Boolean {
+                        // =, +=, etc.
+                        if (node.operator !is UastBinaryOperator.AssignOperator) {
+                            return callsSetValue
                         }
-
-                        referencesReceiver
+                        // this.value =, value +=, etc.
+                        if (node.leftOperand.rightMostNameReference()?.identifier != "value") {
+                            return callsSetValue
+                        }
+                        // NB: we can't use node.resolveOperator() during the migration,
+                        // since K1 / K2 UAST behaviors mismatch.
+                        // `multiResolve()` literally encompasses all possible resolution
+                        // results for (compound, overridden) operators.
+                        val resolvedMethods =
+                            (node as? UMultiResolvable)?.multiResolve() ?: return callsSetValue
+                        if (
+                            resolvedMethods.any {
+                                (it.element as? PsiMethod).isValueAccessorFromMutableState()
+                            }
+                        ) {
+                            callsSetValue = true
+                            return true
+                        }
+                        // TODO(b/34684249): revisit this fallback option after restoring
+                        //  K2 UAST binary resolution to allow only setter, not getter
+                        val resolvedOperand = node.leftOperand.tryResolve()
+                        if ((resolvedOperand as? PsiMethod).isValueAccessorFromMutableState()) {
+                            callsSetValue = true
+                        }
+                        return callsSetValue
                     }
-                }
 
-                /**
-                 * Visit any simple name reference expressions to see if there is a reference to
-                 * `value` that resolves to a call to MutableState#setValue.
-                 */
-                override fun visitSimpleNameReferenceExpression(
-                    node: USimpleNameReferenceExpression
-                ): Boolean {
-                    if (node.identifier != "value") return false
-                    val resolvedMethod = node.tryResolve() as? PsiMethod ?: return false
-                    if (resolvedMethod.name == "setValue" &&
-                        resolvedMethod.containingClass?.inheritsFrom(
-                            Names.Runtime.MutableState
-                        ) == true
-                    ) {
-                        callsSetValue = true
+                    private tailrec fun UExpression.rightMostNameReference():
+                        USimpleNameReferenceExpression? {
+                        return when (this) {
+                            is USimpleNameReferenceExpression -> this
+                            is UQualifiedReferenceExpression ->
+                                this.selector.rightMostNameReference()
+                            else -> null
+                        }
                     }
-                    return callsSetValue
+
+                    private fun PsiMethod?.isValueAccessorFromMutableState(): Boolean =
+                        this != null &&
+                            (name == "setValue" || name == "getValue") &&
+                            containingClass?.inheritsFrom(Names.Runtime.MutableState) == true
                 }
-            })
+            )
 
             if (!callsSetValue && !referencesReceiver) {
                 context.report(

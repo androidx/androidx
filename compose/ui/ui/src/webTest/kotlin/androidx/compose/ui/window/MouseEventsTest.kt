@@ -27,7 +27,6 @@ import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.NonCancellable.isActive
@@ -41,7 +40,7 @@ class MouseEventsTest : OnCanvasTests {
     fun testPointerEvents() = runTest {
         val pointerEvents = mutableListOf<PointerEvent>()
 
-        composableContent {
+        createComposeWindow {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -90,7 +89,7 @@ class MouseEventsTest : OnCanvasTests {
         var primaryClickedCounter = 0
         var secondaryClickedCounter = 0
 
-        composableContent {
+        createComposeWindow {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -121,7 +120,7 @@ class MouseEventsTest : OnCanvasTests {
     fun testPointerButtonIsNullForNoClickEvents() = runTest {
         var event: PointerEvent? = null
 
-        composableContent {
+        createComposeWindow {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

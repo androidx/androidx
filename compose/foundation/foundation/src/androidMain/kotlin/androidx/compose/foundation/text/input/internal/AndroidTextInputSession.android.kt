@@ -195,7 +195,13 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     }
 }
 
-private val ALL_MIME_TYPES = arrayOf("*/*")
+/**
+ * Even though [star/star] should be enough to cover all cases, some IMEs do not like when it's the
+ * only mime type that's declared as supported. IMEs claim that they do not have the necessary
+ * explicit information that the editor will support image or video content. Instead we also add
+ * those types specifically to make sure that IMEs can send everything.
+ */
+private val ALL_MIME_TYPES = arrayOf("*/*", "image/*", "video/*")
 
 private fun logDebug(tag: String = TIA_TAG, content: () -> String) {
     if (TIA_DEBUG) {

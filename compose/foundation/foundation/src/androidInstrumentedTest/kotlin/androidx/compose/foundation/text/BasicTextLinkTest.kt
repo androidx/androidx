@@ -862,6 +862,44 @@ class BasicTextLinkTest {
         }
     }
 
+    @Test
+    fun links_displayedWithCorrectStyle_onFirstFrame() {
+        val checked = mutableStateOf(false)
+        var calledAfterChecked = false
+
+        rule.setContent {
+            calledAfterChecked = checked.value
+            BasicText(
+                buildAnnotatedString {
+                    withLink(
+                        LinkAnnotation.Clickable(
+                            "tag",
+                            TextLinkStyles(SpanStyle(color = Color.Green))
+                        ) {}
+                    ) {
+                        append("Link")
+                    }
+                },
+                style = TextStyle(Color.Red),
+                onTextLayout = {
+                    // When the flicker happens, the BasicText is first composed and drawn
+                    // with the empty span styles. Only after the recomposition the link
+                    // style is applied. After the fix the first composition happens with
+                    // the correct link color and therefore the span styles will contain it
+                    val colors = it.layoutInput.text.spanStyles.map { it.item.color }
+                    assertThat(colors).isNotEmpty()
+                    assertThat(colors.first()).isEqualTo(Color.Green)
+                }
+            )
+        }
+
+        checked.value = true
+        rule.runOnIdle {
+            // ensures that recomposition happened after a `checked` change
+            assertThat(calledAfterChecked).isTrue()
+        }
+    }
+
     @Composable
     private fun TextWithLinks() = with(rule.density) {
         Column {

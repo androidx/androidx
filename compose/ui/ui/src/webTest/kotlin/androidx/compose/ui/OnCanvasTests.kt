@@ -17,8 +17,7 @@
 package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.window.ComposeWindow
-import androidx.compose.ui.window.DefaultWindowState
+import androidx.compose.ui.window.CanvasBasedWindow
 import kotlinx.browser.document
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,7 +25,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 import org.w3c.dom.HTMLCanvasElement
-import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.events.Event
 
 /**
@@ -36,25 +34,6 @@ import org.w3c.dom.events.Event
 private const val canvasId: String = "canvasApp"
 
 internal interface OnCanvasTests {
-
-    companion object {
-        private var injected: Boolean = false
-        private fun injectDefaultStyles() {
-            if (injected) return
-            injected = true
-            document.head!!.appendChild(
-                (document.createElement("style") as HTMLStyleElement).apply {
-                    type = "text/css"
-                    appendChild(
-                        document.createTextNode(
-                            "body { margin: 0;}}"
-                        )
-                    )
-                }
-            )
-        }
-    }
-
     fun getCanvas() = document.getElementById(canvasId) as HTMLCanvasElement
 
     private fun resetCanvas() {
@@ -70,16 +49,9 @@ internal interface OnCanvasTests {
         document.body!!.appendChild(canvas)
     }
 
-    fun composableContent(content: @Composable () -> Unit) {
-        // We should use this method whenever we are relying on the fact that document coordinates start exactly at (0, 0)
-        // TODO: strictly speaking, this way one test suit affects the other in that sense that styles can be injected by different tests suite
-        injectDefaultStyles()
+    fun createComposeWindow(content: @Composable () -> Unit) {
         resetCanvas()
-        createComposeViewport(content)
-    }
-
-    fun createComposeViewport(content: @Composable () -> Unit) {
-        ComposeWindow(canvas = getCanvas(), content = content, state = DefaultWindowState(document.documentElement!!))
+        CanvasBasedWindow(canvasElementId = canvasId, content = content)
     }
 
     fun dispatchEvents(vararg events: Any) {

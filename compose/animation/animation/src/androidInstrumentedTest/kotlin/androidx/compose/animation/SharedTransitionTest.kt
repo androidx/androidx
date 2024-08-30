@@ -25,9 +25,12 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.SeekableTransitionState
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.core.rememberTransition
+import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,6 +55,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.BottomCenter
@@ -81,6 +85,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -2879,6 +2884,106 @@ class SharedTransitionTest {
             ScaleToBounds(alignment = customAlignment) ===
                 ScaleToBounds(alignment = customAlignment)
         )
+    }
+
+    // Regression test for b/347520198, SharedTransitionLayout onDraw would not get invalidated
+    // in some cases.
+    @SdkSuppress(minSdkVersion = 26)
+    @Test
+    fun testSharedTransitionScopeIsInvalidated() {
+        var state by mutableIntStateOf(0)
+
+        val animDurationMillis = 500
+
+        val parentTag = "STL"
+        val clickTarget = "click-target"
+
+        rule.setContent {
+            SharedTransitionLayout(Modifier.size(100.dp).testTag(parentTag)) {
+                // This outer AnimatedContent doesn't do anything, and the issue only triggers
+                // when it's present
+                AnimatedContent(targetState = true) {
+                    @Suppress("UNUSED_EXPRESSION")
+                    it // Need to reference the unused outer AnimatedContent's target state
+
+                    AnimatedContent(
+                        targetState = state,
+                        transitionSpec = {
+                            // Add a delay to the animation just so that it takes a known time to
+                            // complete
+                            fadeIn(snap()).togetherWith(fadeOut(snap(animDurationMillis)))
+                        }
+                    ) { currentState ->
+                        val innerAnimatedContentScope = this
+                        Box(
+                            // This will cycle from Green -> Blue -> Red -> Blue -> Red...
+                            Modifier.testTag(clickTarget)
+                                .clickable(
+                                    // Don't let the clickable paint anything, it may interfere with
+                                    // the test.
+                                    interactionSource = remember { MutableInteractionSource() },
+                                    indication = null
+                                ) {
+                                    state =
+                                        when (currentState) {
+                                            0 -> 2
+                                            1 -> 2
+                                            else -> 1
+                                        }
+                                }
+                                .fillMaxSize()
+                        ) {
+                            val color =
+                                when (currentState) {
+                                    0 -> Color.Green
+                                    1 -> Color.Red
+                                    else -> Color.Blue
+                                }
+                            Box(
+                                Modifier
+                                    // Using shared bounds so that we control when the item enters
+                                    // and leaves in every case. Particularly, we want the target to
+                                    // show immediately
+                                    .sharedBounds(
+                                        rememberSharedContentState(
+                                            key =
+                                                if (currentState == 0) "no match"
+                                                else "matching key"
+                                        ),
+                                        animatedVisibilityScope = innerAnimatedContentScope,
+                                        enter = fadeIn(snap()),
+                                        exit = fadeOut(snap())
+                                    )
+                                    .background(color)
+                                    .fillMaxSize()
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        // Start off with a Green box
+        rule.onNodeWithTag(parentTag).captureToImage().assertContainsColor(Color.Green)
+
+        fun clickAndAssertColorDuringTransition(color: Color) {
+            rule.mainClock.autoAdvance = false
+            rule.onNodeWithTag(clickTarget).performClick()
+
+            rule.mainClock.advanceTimeByFrame()
+            rule.mainClock.advanceTimeBy(animDurationMillis / 2L)
+
+            rule.onNodeWithTag(parentTag).captureToImage().assertContainsColor(color)
+
+            rule.mainClock.autoAdvance = true
+            rule.waitForIdle()
+        }
+
+        // Transition into a Blue box
+        clickAndAssertColorDuringTransition(Color.Blue)
+
+        // Transition into a Red box
+        clickAndAssertColorDuringTransition(Color.Red)
     }
 }
 

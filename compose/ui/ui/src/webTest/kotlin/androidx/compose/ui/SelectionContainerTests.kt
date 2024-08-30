@@ -28,7 +28,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.ViewConfiguration
-import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -58,7 +57,7 @@ class SelectionContainerTests : OnCanvasTests {
 
         var viewConfiguration: ViewConfiguration? = null
 
-        composableContent {
+        createComposeWindow {
             var selection by remember { mutableStateOf<Selection?>(null) }
 
             androidx.compose.foundation.text.selection.SelectionContainer(
@@ -120,7 +119,7 @@ class SelectionContainerTests : OnCanvasTests {
 
         var viewConfiguration: ViewConfiguration? = null
 
-        composableContent {
+        createComposeWindow {
             var selection by remember { mutableStateOf<Selection?>(null) }
 
             androidx.compose.foundation.text.selection.SelectionContainer(
@@ -172,7 +171,7 @@ class SelectionContainerTests : OnCanvasTests {
 
         var viewConfiguration: ViewConfiguration? = null
 
-        composableContent {
+        createComposeWindow {
             var selection by remember { mutableStateOf<Selection?>(null) }
 
             androidx.compose.foundation.text.selection.SelectionContainer(

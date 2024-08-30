@@ -118,10 +118,6 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
         layoutWidth: Int,
         layoutHeight: Int
     ) {
-        require(crossAxisOffset == 0) {
-            "positioning a list item with non zero crossAxisOffset is not supported." +
-                "$crossAxisOffset was passed."
-        }
         position(mainAxisOffset, layoutWidth, layoutHeight)
     }
 

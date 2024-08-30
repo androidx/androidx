@@ -69,7 +69,13 @@ internal class TextLinkScope(internal val initialText: AnnotatedString) {
     /**
      * [initialText] with applied links styling to it from [LinkAnnotation.styles]
      */
-    internal var text: AnnotatedString = initialText
+    internal var text: AnnotatedString = AnnotatedString.Builder(initialText).also { builder ->
+        initialText.getLinkAnnotations(0, initialText.length).fastForEach { link ->
+            link.item.styles?.style?.let { style ->
+                builder.addStyle(style, link.start, link.end)
+            }
+        }
+    }.toAnnotatedString()
 
     // Additional span style annotations applied to the AnnotatedString. These SpanStyles are coming
     // from LinkAnnotation's style arguments

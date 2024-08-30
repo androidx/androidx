@@ -47,7 +47,7 @@ class KeyEventTests : OnCanvasTests {
         val fr = FocusRequester()
         var mapping = ""
         var k: Key? = null
-        composableContent {
+        createComposeWindow {
             Box(
                 Modifier.size(1000.dp).background(Color.Red).focusRequester(fr).focusTarget()
                     .onKeyEvent {
@@ -96,7 +96,7 @@ class KeyEventTests : OnCanvasTests {
         var lastKeyEvent: KeyEvent? = null
         var stopPropagation = true
 
-        composableContent {
+        createComposeWindow {
             TextField(
                 value = textValue.value,
                 onValueChange = { textValue.value = it },

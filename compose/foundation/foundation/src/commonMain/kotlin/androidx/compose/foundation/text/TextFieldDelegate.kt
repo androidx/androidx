@@ -254,8 +254,11 @@ internal class TextFieldDelegate {
                         offsetMapping,
                         textLayoutResult.value,
                         { matrix ->
-                            innerTextFieldCoordinates.findRootCoordinates()
-                                .transformFrom(innerTextFieldCoordinates, matrix)
+                            if (innerTextFieldCoordinates.isAttached) {
+                                innerTextFieldCoordinates
+                                    .findRootCoordinates()
+                                    .transformFrom(innerTextFieldCoordinates, matrix)
+                            }
                         },
                         innerTextFieldCoordinates.visibleBounds(),
                         innerTextFieldCoordinates.localBoundingBoxOf(

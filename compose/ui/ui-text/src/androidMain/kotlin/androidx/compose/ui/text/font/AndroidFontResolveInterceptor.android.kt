@@ -20,6 +20,8 @@ import android.content.Context
 import android.content.res.Configuration
 import android.graphics.fonts.FontStyle
 import android.os.Build
+import androidx.annotation.DoNotInline
+import androidx.annotation.RequiresApi
 import androidx.compose.ui.unit.Density
 
 /**
@@ -52,10 +54,23 @@ internal data class AndroidFontResolveInterceptor(
  * A helper function to create an interceptor using a context.
  */
 internal fun AndroidFontResolveInterceptor(context: Context): AndroidFontResolveInterceptor {
-    val fontWeightAdjustment = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-        context.resources.configuration.fontWeightAdjustment
-    } else {
-        0
-    }
+    val fontWeightAdjustment = FontWeightAdjustmentHelper.getFontWeightAdjustment(context)
     return AndroidFontResolveInterceptor(fontWeightAdjustment)
+}
+
+internal object FontWeightAdjustmentHelper {
+    fun getFontWeightAdjustment(context: Context): Int =
+        when {
+            Build.VERSION.SDK_INT >= 31 ->
+                FontWeightAdjustmentHelperApi31.fontWeightAdjustment(context)
+            else -> 0
+        }
+}
+
+@RequiresApi(31)
+internal object FontWeightAdjustmentHelperApi31 {
+    @DoNotInline
+    @RequiresApi(31)
+    fun fontWeightAdjustment(context: Context): Int =
+        context.resources.configuration.fontWeightAdjustment
 }

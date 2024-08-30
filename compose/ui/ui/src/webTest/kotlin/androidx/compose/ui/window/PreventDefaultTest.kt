@@ -25,6 +25,7 @@ import androidx.compose.ui.events.keyDownEvent
 import androidx.compose.ui.events.keyDownEventUnprevented
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -36,7 +37,7 @@ class PreventDefaultTest : OnCanvasTests {
     fun testPreventDefault() {
         val fr = FocusRequester()
         var changedValue = ""
-        composableContent {
+        createComposeWindow {
             TextField(
                 value = "",
                 onValueChange = { changedValue = it },

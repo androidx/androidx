@@ -2267,7 +2267,9 @@ public final class androidx/compose/ui/input/pointer/util/VelocityTracker1D {
 
 public final class androidx/compose/ui/input/pointer/util/VelocityTrackerKt {
 	public static final fun addPointerInputChange (Landroidx/compose/ui/input/pointer/util/VelocityTracker;Landroidx/compose/ui/input/pointer/PointerInputChange;)V
+	public static final fun getVelocityTrackerAddPointsFix ()Z
 	public static final fun getVelocityTrackerStrategyUseImpulse ()Z
+	public static final fun setVelocityTrackerAddPointsFix (Z)V
 	public static final fun setVelocityTrackerStrategyUseImpulse (Z)V
 }
 

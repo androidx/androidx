@@ -501,7 +501,7 @@ internal abstract class DragGestureNode(
                     Velocity(maximumVelocity, maximumVelocity)
                 )
                 velocityTracker.resetTracking()
-                channel?.trySend(DragStopped(velocity))
+                channel?.trySend(DragStopped(velocity.toValidVelocity()))
             }
 
             val onDragCancel: () -> Unit = {
@@ -640,6 +640,9 @@ private fun Offset.toFloat(orientation: Orientation) =
 
 private fun Velocity.toFloat(orientation: Orientation) =
     if (orientation == Orientation.Vertical) this.y else this.x
+
+private fun Velocity.toValidVelocity() =
+    Velocity(if (this.x.isNaN()) 0f else this.x, if (this.y.isNaN()) 0f else this.y)
 
 private val NoOpOnDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit = {}
 private val NoOpOnDragStopped: suspend CoroutineScope.(velocity: Float) -> Unit = {}

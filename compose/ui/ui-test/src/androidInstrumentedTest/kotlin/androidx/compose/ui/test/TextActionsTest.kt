@@ -23,6 +23,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
@@ -100,10 +101,14 @@ class TextActionsTest {
     @Test
     fun performTextInput_setTextNotSupported_shouldFail() {
         rule.setContent {
-            BoundaryNode(fieldTag, Modifier.semantics {
-                isEditable = true
-                insertTextAtCursor { true }
-            })
+            BoundaryNode(
+                fieldTag,
+                Modifier.semantics {
+                    isEditable = true
+                    insertTextAtCursor { true }
+                    requestFocus { true }
+                }
+            )
         }
 
         expectErrorMessageStartsWith(
@@ -205,10 +210,8 @@ class TextActionsTest {
             TextFieldUi(readOnly = true)
         }
 
-        rule.onNodeWithTag(fieldTag).performTextInput("hi")
-        rule.runOnIdle {
-            assertThat(lastSeenText).isEqualTo("")
-        }
+        expectError<AssertionError> { rule.onNodeWithTag(fieldTag).performTextInput("hi") }
+        rule.runOnIdle { assertThat(lastSeenText).isEqualTo("") }
     }
 
     @Test

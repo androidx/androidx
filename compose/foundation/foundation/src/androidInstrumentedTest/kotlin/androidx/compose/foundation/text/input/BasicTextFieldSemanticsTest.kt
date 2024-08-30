@@ -32,6 +32,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.testutils.expectError
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.testTag
@@ -174,8 +175,9 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             )
         }
 
-        rule.onNodeWithTag(Tag)
-            .performTextReplacement("hello")
+        expectError<AssertionError>(expectedMessage = "Failed to perform text input.*") {
+            rule.onNodeWithTag(Tag).performTextReplacement("hello")
+        }
 
         assertThat(state.text.toString()).isEqualTo("")
     }
@@ -237,8 +239,9 @@ class BasicTextFieldSemanticsTest : FocusedWindowTest {
             )
         }
 
-        rule.onNodeWithTag(Tag)
-            .performTextInput("hello")
+        expectError<AssertionError>(expectedMessage = "Failed to perform text input.*") {
+            rule.onNodeWithTag(Tag).performTextInput("hello")
+        }
 
         assertThat(state.text.toString()).isEqualTo("")
     }

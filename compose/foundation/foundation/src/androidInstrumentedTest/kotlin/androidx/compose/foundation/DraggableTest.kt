@@ -1124,6 +1124,26 @@ class DraggableTest {
         }
     }
 
+    @Test // b/355160589
+    fun onDragStopped_withSameTimeStamps_shouldNotPropagateNanVelocity() {
+        setDraggableContent {
+            Modifier.draggable(
+                Orientation.Horizontal,
+                onDragStopped = { assertThat(it).isNotNaN() }
+            ) {}
+        }
+
+        rule.onNodeWithTag(draggableBoxTag).performTouchInput {
+            down(center)
+            moveBy(Offset(100f, 0f), 0L)
+            moveBy(Offset(100f, 0f), 0L)
+            moveBy(Offset(100f, 0f), 0L)
+            up()
+        }
+
+        rule.waitForIdle()
+    }
+
     @Test
     fun equalInputs_shouldResolveToEquals() {
         val state = DraggableState { }
