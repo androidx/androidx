@@ -35,9 +35,13 @@ internal open class StreamConfigurationMapCompatBaseImpl(
             try {
                 streamConfigurationMap?.outputFormats
             } catch (e: NullPointerException) {
-                Logger.e(TAG, "Failed to get output formats from StreamConfigurationMap", e)
+                Logger.w(TAG, "Failed to get output formats from StreamConfigurationMap", e)
+                null
+            } catch (e: IllegalArgumentException) {
+                Logger.w(TAG, "Failed to get output formats from StreamConfigurationMap", e)
                 null
             }
+
         return outputFormats?.toTypedArray()
     }
 
