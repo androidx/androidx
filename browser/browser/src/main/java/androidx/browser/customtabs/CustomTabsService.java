@@ -221,7 +221,7 @@ public abstract class CustomTabsService extends Service {
         public void prefetch(@NonNull ICustomTabsCallback callback, @NonNull Uri url,
                 @NonNull Bundle options) {
             CustomTabsService.this.prefetch(
-                    new CustomTabsSessionToken(callback, null), url,
+                new CustomTabsSessionToken(callback, getSessionIdFromBundle(options)), url,
                     PrefetchOptions.fromBundle(options));
         }
 
