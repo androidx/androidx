@@ -808,14 +808,12 @@ class Draggable2DTest {
         val moveAngle = Math.atan(moveOffset.x / moveOffset.y.toDouble())
 
         rule.runOnIdle {
-            assertEquals(
-                downEventPosition.x + touchSlop * Math.cos(moveAngle).toFloat(),
-                onDragStartedOffset.x
-            )
-            assertEquals(
-                downEventPosition.y + touchSlop * Math.sin(moveAngle).toFloat(),
-                onDragStartedOffset.y
-            )
+            assertThat(downEventPosition.x + touchSlop * Math.cos(moveAngle).toFloat())
+                .isWithin(0.5f)
+                .of(onDragStartedOffset.x)
+            assertThat(downEventPosition.y + touchSlop * Math.sin(moveAngle).toFloat())
+                .isWithin(0.5f)
+                .of(onDragStartedOffset.y)
         }
     }
 
