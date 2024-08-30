@@ -48,7 +48,7 @@ class TextInputTests : OnCanvasTests  {
 
         val (firstFocusRequester, secondFocusRequester) = FocusRequester.createRefs()
 
-        createComposeWindow {
+        composableContent {
             TextField(
                 value = "",
                 onValueChange = { value ->
