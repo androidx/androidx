@@ -23,26 +23,18 @@ import android.provider.MediaStore
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.integration.core.util.getFakeConfigCameraProvider
-import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.fakes.FakeAppConfig
-import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraControl
-import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
 import androidx.camera.testing.impl.fakes.FakeOnImageSavedCallback
+import androidx.camera.testing.rules.FakeCameraTestRule
 import androidx.test.core.app.ApplicationProvider
-import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
-import org.junit.After
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -59,33 +51,17 @@ import org.robolectric.annotation.internal.DoNotInstrument
 class ImageCaptureTest(
     @CameraSelector.LensFacing private val lensFacing: Int,
 ) {
-    private val testScope = TestScope()
-    private val testDispatcher = StandardTestDispatcher(testScope.testScheduler)
-
-    @get:Rule val mainDispatcherRule = MainDispatcherRule(testDispatcher)
+    @get:Rule val fakeCameraRule = FakeCameraTestRule(ApplicationProvider.getApplicationContext())
 
     @get:Rule
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
     private val context = ApplicationProvider.getApplicationContext<Context>()
-    private lateinit var cameraProvider: ProcessCameraProvider
-    private lateinit var camera: FakeCamera
     private lateinit var cameraControl: FakeCameraControl
     private lateinit var imageCapture: ImageCapture
 
-    @Before
-    fun setup() {
-        cameraProvider = getFakeConfigCameraProvider(context)
-        imageCapture = bindImageCapture()
-    }
-
-    @After
-    fun tearDown() {
-        if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
-        }
-    }
+    @Before fun setup() = runTest { imageCapture = bindImageCapture() }
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
@@ -146,20 +122,8 @@ class ImageCaptureTest(
 
     private fun bindImageCapture(): ImageCapture {
         val imageCapture = ImageCapture.Builder().build()
-
-        cameraProvider.bindToLifecycle(
-            FakeLifecycleOwner().apply { startAndResume() },
-            CameraSelector.Builder().requireLensFacing(lensFacing).build(),
-            imageCapture
-        )
-        camera =
-            when (lensFacing) {
-                CameraSelector.LENS_FACING_BACK -> FakeAppConfig.getBackCamera()
-                CameraSelector.LENS_FACING_FRONT -> FakeAppConfig.getFrontCamera()
-                else -> throw AssertionError("Unsupported lens facing: $lensFacing")
-            }
-        cameraControl = camera.cameraControl as FakeCameraControl
-
+        fakeCameraRule.bindUseCases(lensFacing, listOf(imageCapture))
+        cameraControl = fakeCameraRule.getFakeCamera(lensFacing).cameraControl as FakeCameraControl
         return imageCapture
     }
 
