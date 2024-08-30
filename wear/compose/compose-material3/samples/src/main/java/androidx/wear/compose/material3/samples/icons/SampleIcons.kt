@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,39 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.material3.demos
+package androidx.wear.compose.material3.samples.icons
 
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.Dp
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.samples.R
 
 @Composable
-internal fun StandardIcon(size: Dp) {
+fun FavoriteIcon(size: Dp) {
     Icon(
-        Icons.Filled.Favorite,
+        painter = painterResource(R.drawable.ic_favorite_rounded),
         contentDescription = "Favorite icon",
         modifier = Modifier.size(size)
     )
 }
 
 @Composable
-internal fun AvatarIcon() {
+fun AvatarIcon() {
     Icon(
-        Icons.Filled.AccountCircle,
+        painter = painterResource(R.drawable.ic_account_circle),
         contentDescription = "Account",
         modifier = Modifier.size(ButtonDefaults.LargeIconSize)
     )
 }
 
 @Composable
-internal fun CheckIcon() {
+fun CheckIcon() {
     Icon(
-        Icons.Filled.Check,
+        painter = painterResource(R.drawable.ic_check_rounded),
         contentDescription = "Check",
         modifier = Modifier.size(ButtonDefaults.IconSize)
     )

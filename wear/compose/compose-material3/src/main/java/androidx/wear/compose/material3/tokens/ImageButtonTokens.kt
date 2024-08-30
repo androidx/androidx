@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: 0_72
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
 internal object ImageButtonTokens {
     val BackgroundImageGradientColor = ColorSchemeKeyTokens.SurfaceContainer
-    val ContentColor = ColorSchemeKeyTokens.OnSurface
+    val ContentColor = ColorSchemeKeyTokens.OnBackground
+    val DisabledContainerOpacity = 0.12f
     val DisabledContentColor = ColorSchemeKeyTokens.OnSurface
     val DisabledContentOpacity = 0.38f
     val GradientEndOpacity = 0.0f
     val GradientStartOpacity = 1.0f
-    val IconColor = ColorSchemeKeyTokens.OnSurface
-    val SecondaryContentColor = ColorSchemeKeyTokens.OnSurface
+    val IconColor = ColorSchemeKeyTokens.OnBackground
+    val SecondaryContentColor = ColorSchemeKeyTokens.OnBackground
+    val SecondaryContentOpacity = 0.8f
 }

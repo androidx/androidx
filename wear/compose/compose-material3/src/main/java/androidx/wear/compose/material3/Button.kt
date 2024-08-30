@@ -1216,7 +1216,7 @@ object ButtonDefaults {
     /**
      * Creates a [ButtonColors] for a [Button] with an image background, typically with a scrim over
      * the image to ensure that the content is visible. Uses a default content color of
-     * [ColorScheme.onSurface].
+     * [ColorScheme.onBackground].
      *
      * @param backgroundImagePainter The [Painter] to use to draw the background of the [Button]
      * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
@@ -1249,7 +1249,10 @@ object ButtonDefaults {
                     )
             ),
         contentColor: Color = ImageButtonTokens.ContentColor.value,
-        secondaryContentColor: Color = ImageButtonTokens.SecondaryContentColor.value,
+        secondaryContentColor: Color =
+            ImageButtonTokens.SecondaryContentColor.value.copy(
+                alpha = ImageButtonTokens.SecondaryContentOpacity
+            ),
         iconColor: Color = ImageButtonTokens.IconColor.value,
         disabledContentColor: Color =
             ImageButtonTokens.DisabledContentColor.value.toDisabledColor(
@@ -1274,13 +1277,13 @@ object ButtonDefaults {
                 )
             }
 
-        val disabledContentAlpha = ImageButtonTokens.DisabledContentOpacity
+        val disabledContainerAlpha = ImageButtonTokens.DisabledContainerOpacity
         val disabledBackgroundPainter =
-            remember(backgroundImagePainter, backgroundImageScrimBrush, disabledContentAlpha) {
+            remember(backgroundImagePainter, backgroundImageScrimBrush, disabledContainerAlpha) {
                 androidx.wear.compose.materialcore.ImageWithScrimPainter(
                     imagePainter = backgroundImagePainter,
                     brush = backgroundImageScrimBrush,
-                    alpha = disabledContentAlpha,
+                    alpha = disabledContainerAlpha,
                     forcedSize = forcedSize,
                 )
             }
