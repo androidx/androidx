@@ -16,7 +16,7 @@
 
 package androidx.navigation.runtime.lint
 
-import androidx.navigation.common.lint.isClassReference
+import androidx.navigation.lint.common.isClassReference
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Implementation

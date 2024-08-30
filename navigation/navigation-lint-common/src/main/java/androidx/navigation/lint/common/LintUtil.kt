@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.navigation.common.lint
+package androidx.navigation.lint.common
 
 import org.jetbrains.kotlin.analysis.api.analyze
+import org.jetbrains.kotlin.analysis.api.symbols.KtClassKind
 import org.jetbrains.kotlin.analysis.api.symbols.KtClassOrObjectSymbol
 import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
@@ -60,7 +61,8 @@ fun UExpression.isClassReference(): Pair<Boolean, String?> {
             }
                 as? KtClassOrObjectSymbol ?: return false to null
 
-        (symbol.classKind.isClass || symbol.classKind.name == "INTERFACE") to
-            symbol.name?.asString()
+        (symbol.classKind.isClass ||
+            symbol.classKind == KtClassKind.INTERFACE ||
+            symbol.classKind == KtClassKind.COMPANION_OBJECT) to symbol.name?.asString()
     }
 }

@@ -16,6 +16,9 @@
 
 package androidx.navigation.common.lint
 
+import androidx.navigation.lint.common.BaseWrongStartDestinationTypeDetector
+import androidx.navigation.lint.common.createWrongStartDestinationTypeIssue
+
 class WrongStartDestinationTypeDetector :
     BaseWrongStartDestinationTypeDetector(
         methodNames = listOf("navigation", "setStartDestination"),

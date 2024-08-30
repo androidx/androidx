@@ -16,9 +16,8 @@
 
 package androidx.navigation
 
-import androidx.core.bundle.Bundle
-
 import androidx.annotation.RestrictTo
+import androidx.core.bundle.Bundle
 import androidx.navigation.internal.Uri
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmStatic

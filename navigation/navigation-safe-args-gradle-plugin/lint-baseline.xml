@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha12" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha12)" variant="all" version="8.4.0-alpha12">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -58,8 +58,8 @@
     <issue
         id="GradleProjectIsolation"
         message="Use providers.gradleProperty instead of findProperty"
-        errorLine1="                    (project.findProperty(&quot;android.useAndroidX&quot;) == &quot;true&quot;).also {"
-        errorLine2="                             ~~~~~~~~~~~~">
+        errorLine1="                        (project.findProperty(&quot;android.useAndroidX&quot;) == &quot;true&quot;).also {"
+        errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/androidx/navigation/safeargs/gradle/SafeArgsPlugin.kt"/>
     </issue>
@@ -67,8 +67,8 @@
     <issue
         id="WithPluginClasspathUsage"
         message="Avoid usage of GradleRunner#withPluginClasspath, which is broken. Instead use something like https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
-        errorLine1="        .withProjectDir(projectRoot()).withPluginClasspath()"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="            .withPluginClasspath()"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/kotlin/androidx/navigation/safeargs/gradle/BasePluginTest.kt"/>
     </issue>

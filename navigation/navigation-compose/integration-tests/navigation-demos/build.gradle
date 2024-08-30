@@ -38,6 +38,7 @@ dependencies {
     implementation(project(":compose:integration-tests:demos:common"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:material:material"))
+    implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":navigation:navigation-compose"))
     implementation(project(":navigation:navigation-compose:navigation-compose-samples"))
 }

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
 
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    fun navGraphDestinations_withRoutes() = inflateNavGraph_withRoutes(1)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    @Test fun navGraphDestinations_withRoutes() = inflateNavGraph_withRoutes(1)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/navigation/NavDeepLinkBenchmark.kt"/>
     </issue>
@@ -13,8 +13,8 @@
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    fun navGraphDestinations_withRoutes10() = inflateNavGraph_withRoutes(10)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    @Test fun navGraphDestinations_withRoutes10() = inflateNavGraph_withRoutes(10)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/navigation/NavDeepLinkBenchmark.kt"/>
     </issue>
@@ -22,8 +22,8 @@
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    fun navGraphDestinations_withRoutes50() = inflateNavGraph_withRoutes(50)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    @Test fun navGraphDestinations_withRoutes50() = inflateNavGraph_withRoutes(50)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/navigation/NavDeepLinkBenchmark.kt"/>
     </issue>
@@ -31,8 +31,8 @@
     <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
-        errorLine1="    fun navGraphDestinations_withRoutes100() = inflateNavGraph_withRoutes(100)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    @Test fun navGraphDestinations_withRoutes100() = inflateNavGraph_withRoutes(100)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/navigation/NavDeepLinkBenchmark.kt"/>
     </issue>

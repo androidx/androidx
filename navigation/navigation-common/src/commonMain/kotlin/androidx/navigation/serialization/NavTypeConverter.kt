@@ -28,9 +28,13 @@ import kotlinx.serialization.serializerOrNull
 /** Marker for Native Kotlin types with either full or partial built-in NavType support */
 private enum class InternalType {
     INT,
+    INT_NULLABLE,
     BOOL,
+    BOOL_NULLABLE,
     FLOAT,
+    FLOAT_NULLABLE,
     LONG,
+    LONG_NULLABLE,
     STRING,
     INT_ARRAY,
     BOOL_ARRAY,
@@ -53,9 +57,13 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
     val type =
         when (this.toInternalType()) {
             InternalType.INT -> NavType.IntType
+            InternalType.INT_NULLABLE -> InternalNavType.IntNullableType
             InternalType.BOOL -> NavType.BoolType
+            InternalType.BOOL_NULLABLE -> InternalNavType.BoolNullableType
             InternalType.FLOAT -> NavType.FloatType
+            InternalType.FLOAT_NULLABLE -> InternalNavType.FloatNullableType
             InternalType.LONG -> NavType.LongType
+            InternalType.LONG_NULLABLE -> InternalNavType.LongNullableType
             InternalType.STRING -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
             InternalType.BOOL_ARRAY -> NavType.BoolArrayType
@@ -90,10 +98,14 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
 private fun SerialDescriptor.toInternalType(): InternalType {
     val serialName = serialName.replace("?", "")
     return when {
-        serialName == "kotlin.Int" -> InternalType.INT
-        serialName == "kotlin.Boolean" -> InternalType.BOOL
-        serialName == "kotlin.Float" -> InternalType.FLOAT
-        serialName == "kotlin.Long" -> InternalType.LONG
+        serialName == "kotlin.Int" ->
+            if (isNullable) InternalType.INT_NULLABLE else InternalType.INT
+        serialName == "kotlin.Boolean" ->
+            if (isNullable) InternalType.BOOL_NULLABLE else InternalType.BOOL
+        serialName == "kotlin.Float" ->
+            if (isNullable) InternalType.FLOAT_NULLABLE else InternalType.FLOAT
+        serialName == "kotlin.Long" ->
+            if (isNullable) InternalType.LONG_NULLABLE else InternalType.LONG
         serialName == "kotlin.String" -> InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
         serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
@@ -110,7 +122,7 @@ private fun SerialDescriptor.toInternalType(): InternalType {
 /**
  * Match the [SerialDescriptor] of a type to a KType
  *
- * Returns true match, false otherwise.
+ * Returns true if match, false otherwise.
  */
 internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
     if (this.isNullable != kType.isMarkedNullable) return false
@@ -121,8 +133,7 @@ internal fun SerialDescriptor.matchKType(kType: KType): Boolean {
             "types. Please use @Serializable or @Serializable(with = ...) on the " +
             "class or object declaration."
     }
-    if (this.hashCode() != kTypeSerializer.descriptor.hashCode()) return false
-    return true
+    return this == kTypeSerializer.descriptor
 }
 
 internal object UNKNOWN : NavType<String>(false) {
@@ -134,4 +145,88 @@ internal object UNKNOWN : NavType<String>(false) {
     override fun get(bundle: Bundle, key: String): String? = null
 
     override fun parseValue(value: String): String = "null"
+}
+
+internal object InternalNavType {
+    val IntNullableType =
+        object : NavType<Int?>(true) {
+            override val name: String
+                get() = "integer_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Int?) {
+                // store null as serializable inside bundle, so that decoder will use the null
+                // instead of default value
+                if (value == null) bundle.putBundle(key, null)
+                else IntType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Int? {
+                return bundle[key] as? Int
+            }
+
+            override fun parseValue(value: String): Int? {
+                return if (value == "null") null else IntType.parseValue(value)
+            }
+        }
+
+    val BoolNullableType =
+        object : NavType<Boolean?>(true) {
+            override val name: String
+                get() = "boolean_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Boolean?) {
+                if (value == null) bundle.putBundle(key, null)
+                else BoolType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Boolean? {
+                return bundle[key] as? Boolean
+            }
+
+            override fun parseValue(value: String): Boolean? {
+                return if (value == "null") null else BoolType.parseValue(value)
+            }
+        }
+
+    val FloatNullableType =
+        object : NavType<Float?>(true) {
+            override val name: String
+                get() = "float_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Float?) {
+                if (value == null) bundle.putBundle(key, null)
+                else FloatType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Float? {
+                return bundle[key] as? Float
+            }
+
+            override fun parseValue(value: String): Float? {
+                return if (value == "null") null else FloatType.parseValue(value)
+            }
+        }
+
+    val LongNullableType =
+        object : NavType<Long?>(true) {
+            override val name: String
+                get() = "long_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: Long?) {
+                if (value == null) bundle.putBundle(key, null)
+                else LongType.put(bundle, key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Long? {
+                return bundle[key] as? Long
+            }
+
+            override fun parseValue(value: String): Long? {
+                return if (value == "null") null else LongType.parseValue(value)
+            }
+        }
 }

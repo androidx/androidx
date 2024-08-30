@@ -27,10 +27,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStore
 import androidx.navigation.NavDestination.Companion.createRoute
 import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.NavGraph.Companion.childHierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.serialization.generateHashCode
 import androidx.navigation.serialization.generateRouteWithArgs
+import kotlin.collections.removeFirst as removeFirstKt
+import kotlin.collections.removeLast as removeLastKt
+import androidx.navigation.NavGraph.Companion.childHierarchy
+import androidx.navigation.serialization.generateHashCode
 import kotlin.jvm.JvmOverloads
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
@@ -578,7 +580,7 @@ public actual open class NavController {
             "Attempted to pop ${popUpTo.destination}, which is not the top of the back stack " +
                 "(${entry.destination})"
         }
-        backQueue.removeLast()
+        backQueue.removeLastKt()
         val navigator =
             navigatorProvider.getNavigator<Navigator<NavDestination>>(
                 entry.destination.navigatorName
@@ -777,10 +779,10 @@ public actual open class NavController {
                         upwardStateTransitions[entry] = Lifecycle.State.STARTED
                     }
                 }
-                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirst()
+                if (nextStarted.firstOrNull()?.id == destination.id) nextStarted.removeFirstKt()
                 nextResumed = nextResumed.parent
             } else if (nextStarted.isNotEmpty() && destination.id == nextStarted.first().id) {
-                val started = nextStarted.removeFirst()
+                val started = nextStarted.removeFirstKt()
                 if (currentMaxLifecycle == Lifecycle.State.RESUMED) {
                     // Downward transitions should be done immediately so children are
                     // paused before their parent navigation graphs
@@ -879,9 +881,8 @@ public actual open class NavController {
     @MainThread
     private fun onGraphCreated(startDestinationArgs: Bundle?) {
         navigatorStateToRestore?.let { navigatorStateToRestore ->
-            val navigatorNames = navigatorStateToRestore.getStringArray(
-                KEY_NAVIGATOR_STATE_NAMES
-            )
+            val navigatorNames =
+                navigatorStateToRestore.getStringArrayList(KEY_NAVIGATOR_STATE_NAMES)
             if (navigatorNames != null) {
                 for (name in navigatorNames) {
                     val navigator = _navigatorProvider.getNavigator<Navigator<*>>(name!!)
@@ -896,9 +897,7 @@ public actual open class NavController {
             for (state in backStackToRestore) {
                 val node = findDestination(state.destinationId)
                 if (node == null) {
-                    val dest = NavDestination.getDisplayName(
-                        state.destinationId
-                    )
+                    val dest = NavDestination.getDisplayName(state.destinationId)
                     throw IllegalStateException(
                         "Restoring the Navigation back stack failed: destination $dest cannot be " +
                             "found from the current destination $currentDestination"
@@ -906,9 +905,8 @@ public actual open class NavController {
                 }
                 val entry = state.instantiate(node, hostLifecycleState, viewModel)
                 val navigator = _navigatorProvider.getNavigator<Navigator<*>>(node.navigatorName)
-                val navigatorBackStack = navigatorState.getOrPut(navigator) {
-                    NavControllerNavigatorState(navigator)
-                }
+                val navigatorBackStack =
+                    navigatorState.getOrPut(navigator) { NavControllerNavigatorState(navigator) }
                 backQueue.add(entry)
                 navigatorBackStack.addInternal(entry)
                 val parent = entry.destination.parent
@@ -990,9 +988,17 @@ public actual open class NavController {
         if (_graph!!.route == route || _graph!!.matchDeepLink(route) != null) {
             return _graph
         }
-        val currentNode = backQueue.lastOrNull()?.destination ?: _graph!!
-        val currentGraph = if (currentNode is NavGraph) currentNode else currentNode.parent!!
-        return currentGraph.findNode(route)
+        return backQueue.getTopGraph().findNode(route)
+    }
+
+    /**
+     * Returns the last NavGraph on the backstack.
+     *
+     * If there are no NavGraphs on the stack, returns [_graph]
+     */
+    private fun ArrayDeque<NavBackStackEntry>.getTopGraph(): NavGraph {
+        val currentNode = lastOrNull()?.destination ?: _graph!!
+        return if (currentNode is NavGraph) currentNode else currentNode.parent!!
     }
 
     // Finds destination within _graph including its children and
@@ -1024,7 +1030,14 @@ public actual open class NavController {
             "Cannot navigate to $route. Navigation graph has not been set for " +
                 "NavController $this."
         }
-        val deepLinkMatch = _graph!!.matchDeepLink(route)
+        val currGraph = backQueue.getTopGraph()
+        val deepLinkMatch =
+            currGraph.matchDeepLinkComprehensive(
+                route = route,
+                searchChildren = true,
+                searchParent = true,
+                lastVisited = currGraph
+            )
         if (deepLinkMatch != null) {
             val destination = deepLinkMatch.destination
             val args = destination.addInDefaultArgs(deepLinkMatch.matchingArgs) ?: Bundle()
@@ -1136,7 +1149,7 @@ public actual open class NavController {
         val tempBackQueue: ArrayDeque<NavBackStackEntry> = ArrayDeque()
         // pop from startDestination back to original node and create a new entry for each
         while (backQueue.lastIndex >= nodeIndex) {
-            val oldEntry = backQueue.removeLast()
+            val oldEntry = backQueue.removeLastKt()
             unlinkChildFromParent(oldEntry)
             val newEntry = NavBackStackEntry(oldEntry, oldEntry.destination.addInDefaultArgs(args))
             tempBackQueue.addFirst(newEntry)
@@ -1521,9 +1534,7 @@ public actual open class NavController {
         val backStackDestIds = navState.getIntArray(KEY_BACK_STACK_DEST_IDS)
         val backStackIds = navState.getStringArrayList(KEY_BACK_STACK_IDS)
         if (backStackDestIds != null && backStackIds != null) {
-            backStackDestIds.forEachIndexed { index, id ->
-                backStackMap[id] = backStackIds[index]
-            }
+            backStackDestIds.forEachIndexed { index, id -> backStackMap[id] = backStackIds[index] }
         }
         val backStackStateIds = navState.getStringArrayList(KEY_BACK_STACK_STATES_IDS)
         backStackStateIds?.filterNotNull()?.forEach { id ->

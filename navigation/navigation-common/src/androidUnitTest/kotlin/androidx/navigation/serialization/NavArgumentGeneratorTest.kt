@@ -53,14 +53,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToIntNullableIllegal() {
+    fun convertToIntNullable() {
         @Serializable class TestClass(val arg: Int?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.IntNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("integer does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -106,14 +109,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToBooleanNullableIllegal() {
+    fun convertToBooleanNullable() {
         @Serializable class TestClass(val arg: Boolean?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.BoolNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("boolean does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -131,14 +137,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToFloatNullableIllegal() {
+    fun convertToFloatNullable() {
         @Serializable class TestClass(val arg: Float?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.FloatNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("float does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -156,14 +165,17 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
-    fun convertToLongNullableIllegal() {
+    fun convertToLongNullable() {
         @Serializable class TestClass(val arg: Long?)
 
-        val exception =
-            assertFailsWith<IllegalArgumentException> {
-                serializer<TestClass>().generateNavArguments()
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.LongNullableType
+                nullable = true
             }
-        assertThat(exception.message).isEqualTo("long does not allow nullable values")
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
 
     @Test
@@ -749,21 +761,26 @@ class NavArgumentGeneratorTest {
     fun convertToEnum() {
         @Serializable class TestClass(val arg: TestEnum)
 
-        val navType =
-            object : NavType<TestEnum>(false) {
-                override fun put(bundle: Bundle, key: String, value: TestEnum) {}
-
-                override fun get(bundle: Bundle, key: String) = null
-
-                override fun parseValue(value: String) = TestEnum.TEST
-            }
         val expected =
             navArgument("arg") {
-                type = navType
+                type = NavType.EnumType(TestEnum::class.java)
                 nullable = false
             }
-        val converted =
-            serializer<TestClass>().generateNavArguments(mapOf(typeOf<TestEnum>() to navType))
+        val converted = serializer<TestClass>().generateNavArguments()
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToTopLevelEnum() {
+        @Serializable class TestClass(val arg: TestTopLevelEnum)
+
+        val expected =
+            navArgument("arg") {
+                type = NavType.EnumType(TestTopLevelEnum::class.java)
+                nullable = false
+            }
+        val converted = serializer<TestClass>().generateNavArguments()
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
     }
@@ -772,26 +789,44 @@ class NavArgumentGeneratorTest {
     fun convertToEnumNullable() {
         @Serializable class TestClass(val arg: TestEnum?)
 
-        val navType =
-            object : NavType<TestEnum?>(true) {
-                override val name: String
-                    get() = "TestEnum"
-
-                override fun put(bundle: Bundle, key: String, value: TestEnum?) {}
-
-                override fun get(bundle: Bundle, key: String) = null
-
-                override fun parseValue(value: String) = TestEnum.TEST
-            }
-        val converted =
-            serializer<TestClass>().generateNavArguments(mapOf(typeOf<TestEnum?>() to navType))
+        @Suppress("UNCHECKED_CAST")
         val expected =
             navArgument("arg") {
-                type = navType
+                type = InternalNavType.EnumNullableType(TestEnum::class.java as Class<Enum<*>?>)
                 nullable = true
             }
+        val converted = serializer<TestClass>().generateNavArguments()
         assertThat(converted).containsExactlyInOrder(expected)
         assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToNestedEnum() {
+        @Serializable class TestClass(val arg: EnumWrapper.NestedEnum)
+
+        val expected =
+            navArgument("arg") {
+                type = NavType.EnumType(EnumWrapper.NestedEnum::class.java)
+                nullable = false
+            }
+        val converted = serializer<TestClass>().generateNavArguments()
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToEnumOverriddenSerialNameIllegal() {
+        @Serializable class TestClass(val arg: TestEnumCustomSerialName)
+
+        val exception =
+            assertFailsWith<IllegalArgumentException> {
+                serializer<TestClass>().generateNavArguments()
+            }
+        assertThat(exception.message)
+            .isEqualTo(
+                "Cannot find class with name \"MyCustomSerialName\". Ensure that the " +
+                    "serialName for this argument is the default fully qualified name"
+            )
     }
 
     @Test
@@ -1313,8 +1348,24 @@ class NavArgumentGeneratorTest {
         } else true
     }
 
-    @Serializable
     enum class TestEnum {
         TEST
     }
+
+    @SerialName("MyCustomSerialName")
+    enum class TestEnumCustomSerialName {
+        TEST
+    }
+
+    @Serializable
+    private class EnumWrapper {
+        enum class NestedEnum {
+            ONE,
+            TWO
+        }
+    }
+}
+
+enum class TestTopLevelEnum {
+    TEST
 }
