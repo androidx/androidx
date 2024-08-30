@@ -135,8 +135,8 @@ fun ScreenScaffold(
  *   different to the time text at the [AppScaffold] level. When null, the time text from the
  *   [AppScaffold] is displayed for this screen.
  * @param scrollIndicator The [ScrollIndicator] to display on this screen, which is expected to be
- *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator]. No scroll
- *   indicator is displayed if null is passed.
+ *   aligned to Center-End. It is recommended to use the Material3 [ScrollIndicator] which is
+ *   provided by default. No scroll indicator is displayed if null is passed.
  * @param bottomButton Optional slot for a Button (usually an [EdgeButton]) that takes the available
  *   space below a scrolling list. It will scale up and fade in when the user scrolls to the end of
  *   the list, and scale down and fade out as the user scrolls up.
@@ -147,7 +147,9 @@ fun ScreenScaffold(
     scrollState: LazyColumnState,
     modifier: Modifier = Modifier,
     timeText: (@Composable () -> Unit)? = null,
-    scrollIndicator: (@Composable BoxScope.() -> Unit)? = null,
+    scrollIndicator: (@Composable BoxScope.() -> Unit)? = {
+        ScrollIndicator(scrollState, modifier = Modifier.align(Alignment.CenterEnd))
+    },
     bottomButton: (@Composable BoxScope.() -> Unit)? = null,
     content: @Composable BoxScope.() -> Unit,
 ) =

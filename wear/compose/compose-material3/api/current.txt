@@ -882,6 +882,7 @@ package androidx.wear.compose.material3 {
   public final class ScrollIndicatorKt {
     method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.compose.foundation.lazy.LazyListState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
     method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.compose.foundation.ScrollState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
+    method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.wear.compose.foundation.lazy.LazyColumnState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
     method @androidx.compose.runtime.Composable public static void ScrollIndicator(androidx.wear.compose.foundation.lazy.ScalingLazyListState state, optional androidx.compose.ui.Modifier modifier, optional boolean reverseDirection, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> positionAnimationSpec);
   }
 

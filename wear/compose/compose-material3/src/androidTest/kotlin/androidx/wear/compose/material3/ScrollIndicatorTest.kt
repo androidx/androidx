@@ -215,6 +215,33 @@ class ScrollIndicatorTest {
     }
 
     @Test
+    fun wearLazyColumnStateAdapter_veryLongContent() {
+        verifyWearLazyColumnPositionAndSize(
+            expectedIndicatorPosition = 0f,
+            expectedIndicatorSize = 0.2f,
+            itemsCount = 40
+        )
+    }
+
+    @Test
+    fun wearLazyColumnStateAdapter_longContent() {
+        verifyWearLazyColumnPositionAndSize(
+            expectedIndicatorPosition = 0f,
+            expectedIndicatorSize = 0.2f,
+            itemsCount = 15
+        )
+    }
+
+    @Test
+    fun wearLazyColumnStateAdapter_mediumContent() {
+        verifyWearLazyColumnPositionAndSize(
+            expectedIndicatorPosition = 0f,
+            expectedIndicatorSize = 0.5f,
+            itemsCount = 6
+        )
+    }
+
+    @Test
     fun columnStateAdapter_veryLongContent() {
         verifyColumnPositionAndSize(
             expectedIndicatorPosition = 0f,
@@ -432,6 +459,46 @@ class ScrollIndicatorTest {
                 }
             }
         }
+        rule.runOnIdle {
+            Truth.assertThat(indicatorState.positionFraction)
+                .isWithin(0.05f)
+                .of(expectedIndicatorPosition)
+            Truth.assertThat(indicatorState.sizeFraction).isWithin(0.05f).of(expectedIndicatorSize)
+        }
+    }
+
+    private fun verifyWearLazyColumnPositionAndSize(
+        expectedIndicatorPosition: Float,
+        expectedIndicatorSize: Float,
+        verticalArrangement: Arrangement.Vertical =
+            Arrangement.spacedBy(space = itemSpacingDp, alignment = Alignment.Bottom),
+        scrollByItems: Float = 0f,
+        itemsCount: Int = 0,
+    ) {
+        lateinit var state: LazyListState
+        lateinit var indicatorState: IndicatorState
+        rule.setContent {
+            state = rememberLazyListState()
+            indicatorState = LazyColumnStateAdapter(state)
+            LazyColumn(
+                state = state,
+                verticalArrangement = verticalArrangement,
+                modifier = Modifier.requiredSize(itemSizeDp * 3f + itemSpacingDp * 2f),
+            ) {
+                items(itemsCount) {
+                    Box(Modifier.requiredSize(itemSizeDp).background(Color.Red)) { Text("$it") }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            if (scrollByItems != 0f) {
+                runBlocking {
+                    state.scrollBy((itemSizePx.toFloat() + itemSpacingPx.toFloat()) * scrollByItems)
+                }
+            }
+        }
+
         rule.runOnIdle {
             Truth.assertThat(indicatorState.positionFraction)
                 .isWithin(0.05f)
