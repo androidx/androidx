@@ -29,7 +29,10 @@ import com.google.gson.stream.JsonWriter
 import java.io.File
 import java.io.StringWriter
 import org.dom4j.Element
+import org.dom4j.Namespace
+import org.dom4j.QName
 import org.dom4j.io.XMLWriter
+import org.dom4j.tree.DefaultText
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.XmlProvider
@@ -273,6 +276,10 @@ private fun Project.configureComponentPublishing(
     }
 }
 
+private val ARTIFACT_ID = QName("artifactId", Namespace("", "http://maven.apache.org/POM/4.0.0"))
+
+private fun Element.textElements() = content().filterIsInstance<DefaultText>()
+
 /** Looks for a dependencies XML element within [pom] and sorts its contents. */
 fun sortPomDependencies(pom: String): String {
     // Workaround for using the default namespace in dom4j.
@@ -284,7 +291,16 @@ fun sortPomDependencies(pom: String): String {
         element ->
         val deps = element.elements()
         val sortedDeps = deps.toSortedSet(compareBy { it.stringValue }).toList()
-
+        sortedDeps.map { // b/356612738 https://github.com/gradle/gradle/issues/30112
+            val itsArtifactId = it.element(ARTIFACT_ID)
+            if (itsArtifactId.stringValue.endsWith("-debug")) {
+                itsArtifactId.textElements().last().text =
+                    itsArtifactId.textElements().last().text.removeSuffix("-debug")
+            } else if (itsArtifactId.stringValue.endsWith("-release")) {
+                itsArtifactId.textElements().last().text =
+                    itsArtifactId.textElements().last().text.removeSuffix("-release")
+            }
+        }
         // Content contains formatting nodes, so to avoid modifying those we replace
         // each element with the sorted element from its respective index. Note this
         // will not move adjacent elements, so any comments would remain in their
