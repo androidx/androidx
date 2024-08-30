@@ -79,6 +79,18 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
     }
 
     @Test
+    fun linearWavyProgressIndicator_indeterminate_lowerAmplitude() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { LinearWavyProgressIndicator(amplitude = 0.5f) }
+        }
+        rule.mainClock.advanceTimeBy(1200)
+        assertIndicatorAgainstGolden(
+            "linearWavyProgressIndicator_indeterminate_lowerAmplitude_${scheme.name}"
+        )
+    }
+
+    @Test
     fun linearWavyProgressIndicator_midProgress_determinate() {
         rule.setMaterialContent(scheme.colorScheme) {
             Box(wrap.testTag(wrapperTestTag)) { LinearWavyProgressIndicator(progress = { 0.5f }) }
@@ -249,6 +261,18 @@ class WavyProgressIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper
         rule.mainClock.advanceTimeBy(0)
         assertIndicatorAgainstGolden(
             "circularWavyProgressIndicator_lightTheme_indeterminate_start_${scheme.name}"
+        )
+    }
+
+    @Test
+    fun circularWavyProgressIndicator_indeterminate_lowerAmplitude() {
+        rule.mainClock.autoAdvance = false
+        rule.setMaterialContent(scheme.colorScheme) {
+            Box(wrap.testTag(wrapperTestTag)) { CircularWavyProgressIndicator(amplitude = 0.5f) }
+        }
+        rule.mainClock.advanceTimeBy(500)
+        assertIndicatorAgainstGolden(
+            "circularWavyProgressIndicator_indeterminate_lowerAmplitude_${scheme.name}"
         )
     }
 
