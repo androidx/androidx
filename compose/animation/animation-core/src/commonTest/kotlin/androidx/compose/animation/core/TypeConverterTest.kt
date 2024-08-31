@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,9 @@
 
 package androidx.compose.animation.core
 
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-@RunWith(JUnit4::class)
 class TypeConverterTest {
     @Test
     fun testFloatToVectorConverter() {

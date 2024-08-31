@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,20 +18,17 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.MonotonicFrameClock
 import androidx.compose.ui.geometry.Offset
-import junit.framework.TestCase.assertEquals
-import junit.framework.TestCase.assertFalse
-import junit.framework.TestCase.assertTrue
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class SuspendAnimationTest {
     @Test
-    fun animateFloatVariantTest() = runBlocking {
+    fun animateFloatVariantTest() = runTest {
         val anim =
             TargetBasedAnimation(
                 spring(dampingRatio = Spring.DampingRatioMediumBouncy),
@@ -58,7 +55,7 @@ class SuspendAnimationTest {
     }
 
     @Test
-    fun animateGenericsVariantTest() = runBlocking {
+    fun animateGenericsVariantTest() = runTest {
         val from = Offset(666f, 321f)
         val to = Offset(919f, 864f)
         val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
@@ -86,7 +83,7 @@ class SuspendAnimationTest {
     }
 
     @Test
-    fun animateDecayTest() = runBlocking {
+    fun animateDecayTest() = runTest {
         val from = 666f
         val velocity = 999f
         val anim =
@@ -115,7 +112,7 @@ class SuspendAnimationTest {
 
     @Test
     fun animateToTest() {
-        runBlocking {
+        runTest {
             val from = Offset(666f, 321f)
             val to = Offset(919f, 864f)
             val offsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
@@ -179,7 +176,7 @@ class SuspendAnimationTest {
     }
 
     @Test
-    fun animateDecayOnAnimationStateTest() = runBlocking {
+    fun animateDecayOnAnimationStateTest() = runTest {
         val from = 9f
         val initialVelocity = 20f
         val anim =

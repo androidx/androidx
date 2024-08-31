@@ -54,6 +54,9 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
+                implementation(kotlin("test"))
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(project(":kruth:kruth"))
             }
         }
 

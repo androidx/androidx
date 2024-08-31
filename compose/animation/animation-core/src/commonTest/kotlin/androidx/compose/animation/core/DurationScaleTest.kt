@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,18 +17,15 @@
 package androidx.compose.animation.core
 
 import androidx.compose.ui.MotionDurationScale
+import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 
-@RunWith(JUnit4::class)
 class DurationScaleTest {
     @Test
-    fun testAnimatable() = runBlocking {
+    fun testAnimatable() = runTest {
         val clock = SuspendAnimationTest.TestFrameClock()
         withContext(
             clock +

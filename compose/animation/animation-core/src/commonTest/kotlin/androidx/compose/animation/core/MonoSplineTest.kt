@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,11 @@
 
 package androidx.compose.animation.core
 
-import java.util.Arrays
-import org.junit.Assert.assertEquals
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-@RunWith(JUnit4::class)
 class MonoSplineTest {
     @Test
     fun testCurveFit01() {
@@ -108,14 +106,14 @@ internal fun drawTextGraph(
     var maxY = y[0]
     var ret = ""
     for (i in x.indices) {
-        minX = Math.min(minX, x[i])
-        maxX = Math.max(maxX, x[i])
-        minY = Math.min(minY, y[i])
-        maxY = Math.max(maxY, y[i])
+        minX = min(minX, x[i])
+        maxX = max(maxX, x[i])
+        minY = min(minY, y[i])
+        maxY = max(maxY, y[i])
     }
     val c = Array(dimy) { CharArray(dimx) }
     for (i in 0 until dimy) {
-        Arrays.fill(c[i], ' ')
+        repeat(c[i].size) { c[i][it] = ' ' }
     }
     val dimx1 = dimx - 1
     val dimy1 = dimy - 1
@@ -134,14 +132,14 @@ internal fun drawTextGraph(
         v = (v * 1000 + 0.5).toInt() / 1000f
         ret +=
             if (i % 5 == 0 || i == c.size - 1) {
-                "|" + String(c[i]) + "| " + v + "\n"
+                "|" + c[i].concatToString() + "| " + v + "\n"
             } else {
-                "|" + String(c[i]) + "|\n"
+                "|" + c[i].concatToString() + "|\n"
             }
     }
     val minStr = ((minX * 1000 + 0.5).toInt() / 1000f).toString()
     val maxStr = ((maxX * 1000 + 0.5).toInt() / 1000f).toString()
-    var s = minStr + String(CharArray(dimx) { ' ' })
+    var s = minStr + CharArray(dimx) { ' ' }.concatToString()
     s = s.substring(0, dimx - maxStr.length + 2) + maxStr + '\n'
     return (ret + s).trimIndent()
 }
