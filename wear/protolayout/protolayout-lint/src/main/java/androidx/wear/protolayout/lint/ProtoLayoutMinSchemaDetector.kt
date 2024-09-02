@@ -144,6 +144,7 @@ class ProtoLayoutMinSchemaDetector : Detector(), Detector.UastScanner {
                 in 101..200 -> 33
                 in 201..300 -> 34
                 in 301..400 -> 35
+                in 401..500 -> 36
                 else -> Int.MAX_VALUE
             }
 
