@@ -286,12 +286,12 @@ public class PdfViewer extends LoadingViewer {
         mPaginatedView.setPageViewFactory(mPageViewFactory);
 
         mSelectionObserver =
-                new PageSelectionValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                new PageSelectionValueObserver(mPaginatedView, mPageViewFactory,
                         requireContext());
         mSelectionModel.selection().addObserver(mSelectionObserver);
 
         mSelectedMatchObserver =
-                new SelectedMatchValueObserver(mPaginatedView, mPaginationModel, mPageViewFactory,
+                new SelectedMatchValueObserver(mPaginatedView, mPageViewFactory,
                         mZoomView, mLayoutHandler, requireContext());
         mSearchModel.selectedMatch().addObserver(mSelectedMatchObserver);
 
