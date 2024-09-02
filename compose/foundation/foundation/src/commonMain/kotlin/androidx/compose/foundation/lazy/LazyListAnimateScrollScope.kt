@@ -55,14 +55,14 @@ fun LazyLayoutAnimateScrollScope(state: LazyListState): LazyLayoutAnimateScrollS
         override fun calculateDistanceTo(targetIndex: Int, targetOffset: Int): Int {
             val layoutInfo = state.layoutInfo
             if (layoutInfo.visibleItemsInfo.isEmpty()) return 0
-            val visibleItem =
-                layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
-            return if (visibleItem == null) {
+            return if (targetIndex !in firstVisibleItemIndex..lastVisibleItemIndex) {
                 val averageSize = calculateVisibleItemsAverageSize(layoutInfo)
                 val indexesDiff = targetIndex - firstVisibleItemIndex
                 (averageSize * indexesDiff) - firstVisibleItemScrollOffset
             } else {
-                visibleItem.offset
+                val visibleItem =
+                    layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
+                visibleItem?.offset ?: 0
             } + targetOffset
         }
 
