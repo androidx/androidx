@@ -29,7 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.wear.compose.material3.CheckboxButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.LocalTextMaxLines
+import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.Text
 
 @Composable
@@ -113,7 +113,7 @@ private fun DemoCheckboxButton(
             Text(
                 primary,
                 modifier = Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextMaxLines.current
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
             )
         },
         secondaryLabel = {

@@ -479,9 +479,12 @@ fun Button(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -496,11 +499,14 @@ fun Button(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3
+                    ),
                 content = label
             )
     )
@@ -594,9 +600,12 @@ fun FilledTonalButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -611,11 +620,14 @@ fun FilledTonalButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -704,9 +716,12 @@ fun OutlinedButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -721,11 +736,14 @@ fun OutlinedButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -814,9 +832,12 @@ fun ChildButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -831,11 +852,14 @@ fun ChildButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -957,9 +981,12 @@ fun CompactButton(
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled),
                     textStyle = CompactButtonTokens.LabelFont.value,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                    textConfiguration =
+                        TextConfiguration(
+                            textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        ),
                     label
                 )
         )

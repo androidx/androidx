@@ -266,7 +266,14 @@ class TextTest {
                 "working otherwise it would not be a good test."
         var result: TextLayoutResult? = null
         rule.setContent {
-            CompositionLocalProvider(LocalTextMaxLines provides maxLines) {
+            CompositionLocalProvider(
+                LocalTextConfiguration provides
+                    TextConfiguration(
+                        maxLines = maxLines,
+                        textAlign = TextConfigurationDefaults.TextAlign,
+                        overflow = TextConfigurationDefaults.Overflow,
+                    )
+            ) {
                 Text(
                     text = text,
                     onTextLayout = { textLayoutResult -> result = textLayoutResult },
@@ -323,7 +330,14 @@ class TextTest {
                 "working otherwise it would not be a good test."
         var result: TextLayoutResult? = null
         rule.setContent {
-            CompositionLocalProvider(LocalTextOverflow provides TextOverflow.Ellipsis) {
+            CompositionLocalProvider(
+                LocalTextConfiguration provides
+                    TextConfiguration(
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextConfigurationDefaults.TextAlign,
+                        maxLines = TextConfigurationDefaults.MaxLines,
+                    )
+            ) {
                 Text(
                     text = text,
                     maxLines = 1,

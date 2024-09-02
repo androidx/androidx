@@ -36,11 +36,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
-import androidx.wear.compose.material3.LocalTextAlign
+import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.TEST_TAG
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TextConfiguration
+import androidx.wear.compose.material3.TextConfigurationDefaults
 import androidx.wear.compose.material3.setContentWithTheme
 import org.junit.Rule
 import org.junit.Test
@@ -62,12 +64,30 @@ class TextScreenshotTest {
 
     @Test
     fun text_align_follows_composition_local_center_alignment() = verifyScreenshot {
-        CompositionLocalProvider(LocalTextAlign provides TextAlign.Center) { sampleText() }
+        CompositionLocalProvider(
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    overflow = TextConfigurationDefaults.Overflow,
+                    maxLines = TextConfigurationDefaults.MaxLines,
+                )
+        ) {
+            sampleText()
+        }
     }
 
     @Test
     fun text_align_follows_composition_local_end_alignment() = verifyScreenshot {
-        CompositionLocalProvider(LocalTextAlign provides TextAlign.End) { sampleText() }
+        CompositionLocalProvider(
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.End,
+                    overflow = TextConfigurationDefaults.Overflow,
+                    maxLines = TextConfigurationDefaults.MaxLines,
+                )
+        ) {
+            sampleText()
+        }
     }
 
     @Composable
