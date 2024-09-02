@@ -57,6 +57,7 @@ import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealState
 import androidx.wear.compose.foundation.RevealValue
+import androidx.wear.compose.foundation.SwipeDirection
 import androidx.wear.compose.foundation.SwipeToReveal
 import androidx.wear.compose.foundation.createAnchors
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
@@ -311,6 +312,7 @@ class SwipeToRevealScope {
  * @param useAnchoredActions Whether the actions should stay revealed, or bounce back to hidden when
  *   the user stops swiping. This is relevant for SwipeToReveal components with a single action. If
  *   the developer wants a swipe to clear behaviour, this should be set to false.
+ * @param swipeDirection Direction of the swipe to reveal the actions.
  */
 @OptIn(ExperimentalWearFoundationApi::class)
 @Composable
@@ -318,6 +320,7 @@ fun rememberRevealState(
     initialValue: RevealValue = RevealValue.Covered,
     anchorWidth: Dp = SwipeToRevealDefaults.SingleActionAnchorWidth,
     useAnchoredActions: Boolean = true,
+    swipeDirection: SwipeDirection = SwipeDirection.RightToLeft,
 ): RevealState {
     val anchorFraction = anchorWidth.value / screenWidthDp()
     return androidx.wear.compose.foundation.rememberRevealState(
@@ -326,7 +329,8 @@ fun rememberRevealState(
         anchors =
             createAnchors(
                 revealingAnchor = if (useAnchoredActions) anchorFraction else 0f,
-            )
+                swipeDirection = swipeDirection,
+            ),
     )
 }
 
@@ -423,7 +427,13 @@ internal fun ActionButton(
                     } else {
                         if (hasUndo || revealActionType == RevealActionType.PrimaryAction) {
                             revealState.lastActionType = revealActionType
-                            revealState.animateTo(RevealValue.Revealed)
+                            revealState.animateTo(
+                                if (revealState.offset > 0) {
+                                    RevealValue.LeftRevealed
+                                } else {
+                                    RevealValue.RightRevealed
+                                }
+                            )
                         }
                     }
                 } finally {
@@ -463,7 +473,8 @@ internal fun ActionButton(
                         }
                     primaryActionTextRevealed.value =
                         abs(revealState.offset) > minimumOffsetToRevealPx &&
-                            revealState.targetValue == RevealValue.Revealed
+                            (revealState.targetValue == RevealValue.RightRevealed ||
+                                revealState.targetValue == RevealValue.LeftRevealed)
                 }
             }
         }

@@ -1185,7 +1185,7 @@ package androidx.wear.compose.material3 {
 
   public final class SwipeToRevealKt {
     method @androidx.compose.runtime.Composable public static void SwipeToReveal(kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.SwipeToRevealScope,kotlin.Unit> actions, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.foundation.RevealState revealState, optional float actionButtonHeight, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional int initialValue, optional float anchorWidth, optional boolean useAnchoredActions);
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional int initialValue, optional float anchorWidth, optional boolean useAnchoredActions, optional int swipeDirection);
   }
 
   public final class SwipeToRevealScope {

@@ -293,11 +293,19 @@ package androidx.wear.compose.foundation {
 
   public static final class RevealValue.Companion {
     method public int getCovered();
-    method public int getRevealed();
-    method public int getRevealing();
+    method public int getLeftRevealed();
+    method public int getLeftRevealing();
+    method @Deprecated public int getRevealed();
+    method @Deprecated public int getRevealing();
+    method public int getRightRevealed();
+    method public int getRightRevealing();
     property public final int Covered;
-    property public final int Revealed;
-    property public final int Revealing;
+    property public final int LeftRevealed;
+    property public final int LeftRevealing;
+    property @Deprecated public final int Revealed;
+    property @Deprecated public final int Revealing;
+    property public final int RightRevealed;
+    property public final int RightRevealing;
   }
 
   public interface ScrollInfoProvider {
@@ -318,6 +326,19 @@ package androidx.wear.compose.foundation {
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.compose.foundation.ScrollState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.LazyColumnState state);
     method public static androidx.wear.compose.foundation.ScrollInfoProvider ScrollInfoProvider(androidx.wear.compose.foundation.lazy.ScalingLazyListState state);
+  }
+
+  @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi @kotlin.jvm.JvmInline public final value class SwipeDirection {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.wear.compose.foundation.SwipeDirection.Companion Companion;
+  }
+
+  public static final class SwipeDirection.Companion {
+    method public int getBoth();
+    method public int getRightToLeft();
+    property public final int Both;
+    property public final int RightToLeft;
   }
 
   public final class SwipeToDismissBoxDefaults {
@@ -352,7 +373,7 @@ package androidx.wear.compose.foundation {
 
   public final class SwipeToRevealKt {
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static void SwipeToReveal(kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit> primaryAction, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit> onFullSwipe, optional androidx.wear.compose.foundation.RevealState state, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit>? secondaryAction, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealScope,kotlin.Unit>? undoAction, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> createAnchors(optional float coveredAnchor, optional float revealingAnchor, optional float revealedAnchor);
+    method @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> createAnchors(optional float coveredAnchor, optional float revealingAnchor, optional float revealedAnchor, optional int swipeDirection);
     method @SuppressCompatibility @androidx.compose.runtime.Composable @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public static androidx.wear.compose.foundation.RevealState rememberRevealState(optional int initialValue, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.RevealValue,java.lang.Boolean> confirmValueChange, optional kotlin.jvm.functions.Function2<? super androidx.compose.ui.unit.Density,? super java.lang.Float,java.lang.Float> positionalThreshold, optional java.util.Map<androidx.wear.compose.foundation.RevealValue,java.lang.Float> anchors);
   }
 

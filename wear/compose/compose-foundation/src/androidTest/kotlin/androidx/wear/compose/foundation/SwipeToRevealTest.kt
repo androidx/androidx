@@ -80,7 +80,7 @@ class SwipeToRevealTest {
     fun onRevealing_drawsAction() {
         rule.setContent {
             swipeToRevealWithDefaults(
-                state = rememberRevealState(initialValue = RevealValue.Revealing),
+                state = rememberRevealState(initialValue = RevealValue.RightRevealing),
                 primaryAction = { actionContent(modifier = Modifier.testTag(TEST_TAG)) }
             )
         }
@@ -115,13 +115,13 @@ class SwipeToRevealTest {
 
     @Test
     fun stateToSwiped_onFullSwipeLeft() {
-        verifyGesture(revealValue = RevealValue.Revealed, gesture = { swipeLeft() })
+        verifyGesture(revealValue = RevealValue.RightRevealed, gesture = { swipeLeft() })
     }
 
     @Test
     fun stateToIconsVisible_onPartialSwipeLeft() {
         verifyGesture(
-            revealValue = RevealValue.Revealing,
+            revealValue = RevealValue.RightRevealing,
             gesture = { swipeLeft(startX = width / 2f, endX = 0f) }
         )
     }
@@ -132,7 +132,9 @@ class SwipeToRevealTest {
         rule.setContent {
             revealState =
                 rememberRevealState(
-                    confirmValueChange = { revealValue -> revealValue != RevealValue.Revealing }
+                    confirmValueChange = { revealValue ->
+                        revealValue != RevealValue.RightRevealing
+                    }
                 )
             swipeToRevealWithDefaults(state = revealState, modifier = Modifier.testTag(TEST_TAG))
         }
@@ -152,7 +154,9 @@ class SwipeToRevealTest {
             revealStateOne = rememberRevealState()
             revealStateTwo =
                 rememberRevealState(
-                    confirmValueChange = { revealValue -> revealValue != RevealValue.Revealing }
+                    confirmValueChange = { revealValue ->
+                        revealValue != RevealValue.RightRevealing
+                    }
                 )
             Column {
                 swipeToRevealWithDefaults(
@@ -177,7 +181,7 @@ class SwipeToRevealTest {
         }
 
         rule.runOnIdle {
-            assertEquals(RevealValue.Revealing, revealStateOne.currentValue)
+            assertEquals(RevealValue.RightRevealing, revealStateOne.currentValue)
             assertEquals(RevealValue.Covered, revealStateTwo.currentValue)
         }
     }
@@ -215,7 +219,7 @@ class SwipeToRevealTest {
 
         rule.runOnIdle {
             assertEquals(RevealValue.Covered, revealStateOne.currentValue)
-            assertEquals(RevealValue.Revealing, revealStateTwo.currentValue)
+            assertEquals(RevealValue.RightRevealing, revealStateTwo.currentValue)
         }
     }
 
@@ -252,8 +256,8 @@ class SwipeToRevealTest {
 
         rule.runOnIdle {
             // assert that state does not reset
-            assertEquals(RevealValue.Revealed, revealStateOne.currentValue)
-            assertEquals(RevealValue.Revealing, revealStateTwo.currentValue)
+            assertEquals(RevealValue.RightRevealed, revealStateOne.currentValue)
+            assertEquals(RevealValue.RightRevealing, revealStateTwo.currentValue)
         }
     }
 
@@ -270,9 +274,9 @@ class SwipeToRevealTest {
             val coroutineScope = rememberCoroutineScope()
             coroutineScope.launch {
                 // First change
-                revealStateOne.snapTo(RevealValue.Revealing)
+                revealStateOne.snapTo(RevealValue.RightRevealing)
                 // Second change, in a different state
-                revealStateTwo.snapTo(RevealValue.Revealing)
+                revealStateTwo.snapTo(RevealValue.RightRevealing)
             }
         }
 
@@ -283,7 +287,7 @@ class SwipeToRevealTest {
     fun onMultiSnapOnSameState_doesNotReset() {
         lateinit var revealStateOne: RevealState
         lateinit var revealStateTwo: RevealState
-        val lastValue = RevealValue.Revealed
+        val lastValue = RevealValue.RightRevealed
         rule.setContent {
             revealStateOne = rememberRevealState()
             revealStateTwo = rememberRevealState()
@@ -292,7 +296,7 @@ class SwipeToRevealTest {
 
             val coroutineScope = rememberCoroutineScope()
             coroutineScope.launch {
-                revealStateOne.snapTo(RevealValue.Revealing) // First change
+                revealStateOne.snapTo(RevealValue.RightRevealing) // First change
                 revealStateOne.snapTo(lastValue) // Second change, same state
             }
         }
@@ -304,7 +308,7 @@ class SwipeToRevealTest {
     fun onSecondaryActionClick_setsLastClickAction() =
         verifyLastClickAction(
             expectedClickType = RevealActionType.SecondaryAction,
-            initialRevealValue = RevealValue.Revealing,
+            initialRevealValue = RevealValue.RightRevealing,
             secondaryActionModifier = Modifier.testTag(TEST_TAG)
         )
 
@@ -312,7 +316,7 @@ class SwipeToRevealTest {
     fun onPrimaryActionClick_setsLastClickAction() =
         verifyLastClickAction(
             expectedClickType = RevealActionType.PrimaryAction,
-            initialRevealValue = RevealValue.Revealing,
+            initialRevealValue = RevealValue.RightRevealing,
             primaryActionModifier = Modifier.testTag(TEST_TAG)
         )
 
@@ -320,7 +324,7 @@ class SwipeToRevealTest {
     fun onUndoActionClick_setsLastClickAction() =
         verifyLastClickAction(
             expectedClickType = RevealActionType.UndoAction,
-            initialRevealValue = RevealValue.Revealed,
+            initialRevealValue = RevealValue.RightRevealed,
             undoActionModifier = Modifier.testTag(TEST_TAG)
         )
 

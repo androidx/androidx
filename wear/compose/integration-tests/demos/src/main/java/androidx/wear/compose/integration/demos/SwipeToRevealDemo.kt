@@ -90,11 +90,11 @@ fun SwipeToRevealChips(
                 val coroutineScope = rememberCoroutineScope()
                 val deleteItem: () -> Unit = {
                     coroutineScope.launch {
-                        revealState.animateTo(RevealValue.Revealed)
+                        revealState.animateTo(RevealValue.RightRevealed)
 
                         // hide the content after some time if the state is still revealed
                         delay(1500)
-                        if (revealState.currentValue == RevealValue.Revealed) {
+                        if (revealState.currentValue == RevealValue.RightRevealed) {
                             // Undo should no longer be triggered
                             undoActionEnabled = false
                             currentState.expanded = false
@@ -103,12 +103,12 @@ fun SwipeToRevealChips(
                 }
                 val addItem: () -> Unit = {
                     coroutineScope.launch {
-                        revealState.animateTo(RevealValue.Revealed)
+                        revealState.animateTo(RevealValue.RightRevealed)
                         itemCount++
 
                         // reset the state after some delay if the state is still revealed
                         delay(2000)
-                        if (revealState.currentValue == RevealValue.Revealed) {
+                        if (revealState.currentValue == RevealValue.RightRevealed) {
                             revealState.animateTo(RevealValue.Covered)
                         }
                     }
@@ -268,7 +268,7 @@ private fun SwipeToRevealCardExpandable(
     val coroutineScope = rememberCoroutineScope()
     var showDialog by remember { mutableStateOf(false) }
     LaunchedEffect(revealState.currentValue) {
-        if (revealState.currentValue == RevealValue.Revealed) {
+        if (revealState.currentValue == RevealValue.RightRevealed) {
             delay(2000)
             expandableState.expanded = false
         }
@@ -290,7 +290,9 @@ private fun SwipeToRevealCardExpandable(
                 customActions =
                     listOf(
                         CustomAccessibilityAction("Delete") {
-                            coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) }
+                            coroutineScope.launch {
+                                revealState.animateTo(RevealValue.RightRevealed)
+                            }
                             true
                         },
                         CustomAccessibilityAction("More Options") {
@@ -300,13 +302,17 @@ private fun SwipeToRevealCardExpandable(
                     )
             },
         revealState = revealState,
-        onFullSwipe = { coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) } },
+        onFullSwipe = {
+            coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealed) }
+        },
         primaryAction = {
             SwipeToRevealPrimaryAction(
                 revealState = revealState,
                 icon = { Icon(SwipeToRevealDefaults.Delete, contentDescription = "Delete") },
                 label = { Text(text = "Delete") },
-                onClick = { coroutineScope.launch { revealState.animateTo(RevealValue.Revealed) } }
+                onClick = {
+                    coroutineScope.launch { revealState.animateTo(RevealValue.RightRevealed) }
+                }
             )
         },
         secondaryAction = {
