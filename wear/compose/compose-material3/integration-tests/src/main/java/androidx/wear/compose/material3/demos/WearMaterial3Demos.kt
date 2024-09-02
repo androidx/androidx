@@ -53,9 +53,9 @@ val WearMaterial3Demos =
                     ComposableDemo("Outlined Button") { OutlinedButtonDemo() },
                     ComposableDemo("Child Button") { ChildButtonDemo() },
                     ComposableDemo("Multiline Button") { MultilineButtonDemo() },
+                    ComposableDemo("App Button") { AppButtonDemo() },
                     ComposableDemo("Avatar Button") { AvatarButtonDemo() },
                     ComposableDemo("Button (Image Background)") { ButtonBackgroundImageDemo() },
-                    ComposableDemo("App Button") { AppButtonDemo() },
                 )
             ),
             ComposableDemo("Color Scheme") { ColorSchemeDemos() },

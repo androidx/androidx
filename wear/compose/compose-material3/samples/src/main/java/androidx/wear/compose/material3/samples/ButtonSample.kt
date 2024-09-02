@@ -42,23 +42,6 @@ fun SimpleButtonSample() {
 
 @Sampled
 @Composable
-fun ButtonWithOnLongClickSample(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth(),
-) {
-    Button(
-        onClick = onClickHandler,
-        onLongClick = onLongClickHandler,
-        onLongClickLabel = "Long click",
-        label = { Text("Button") },
-        secondaryLabel = { Text("with long click") },
-        modifier = modifier,
-    )
-}
-
-@Sampled
-@Composable
 fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
     Button(
         onClick = { /* Do something */ },
@@ -77,27 +60,57 @@ fun ButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
 
 @Sampled
 @Composable
-fun SimpleFilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
-    FilledTonalButton(
+fun ButtonLargeIconSample(modifier: Modifier = Modifier.fillMaxWidth(), enabled: Boolean = true) {
+    // When customising the icon size, it is recommended to also specify
+    // the associated content padding
+    Button(
         onClick = { /* Do something */ },
-        label = { Text("Filled Tonal Button") },
-        modifier = modifier,
+        enabled = enabled,
+        label = { Text("Button") },
+        secondaryLabel = { Text("Secondary label") },
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_favorite_rounded),
+                contentDescription = "Favorite icon",
+                modifier = Modifier.size(ButtonDefaults.LargeIconSize)
+            )
+        },
+        contentPadding = ButtonDefaults.ButtonWithLargeIconContentPadding,
+        modifier = modifier
     )
 }
 
 @Sampled
 @Composable
-fun FilledTonalButtonWithOnLongClickSample(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
+fun ButtonExtraLargeIconSample(
+    modifier: Modifier = Modifier.fillMaxWidth(),
+    enabled: Boolean = true
 ) {
+    // When customising the icon size, it is recommended to also specify
+    // the associated content padding
+    Button(
+        onClick = { /* Do something */ },
+        enabled = enabled,
+        label = { Text("Button") },
+        secondaryLabel = { Text("Secondary label") },
+        icon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_favorite_rounded),
+                contentDescription = "Favorite icon",
+                modifier = Modifier.size(ButtonDefaults.ExtraLargeIconSize)
+            )
+        },
+        contentPadding = ButtonDefaults.ButtonWithExtraLargeIconContentPadding,
+        modifier = modifier
+    )
+}
+
+@Sampled
+@Composable
+fun SimpleFilledTonalButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
     FilledTonalButton(
-        onClick = onClickHandler,
-        onLongClick = onLongClickHandler,
-        onLongClickLabel = "Long click",
+        onClick = { /* Do something */ },
         label = { Text("Filled Tonal Button") },
-        secondaryLabel = { Text("with long click") },
         modifier = modifier,
     )
 }
@@ -162,23 +175,6 @@ fun SimpleOutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
 
 @Sampled
 @Composable
-fun OutlinedButtonWithOnLongClickSample(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
-) {
-    OutlinedButton(
-        onClick = onClickHandler,
-        onLongClick = onLongClickHandler,
-        onLongClickLabel = "Long click",
-        label = { Text("Outlined Button") },
-        secondaryLabel = { Text("with long click") },
-        modifier = modifier,
-    )
-}
-
-@Sampled
-@Composable
 fun OutlinedButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
     OutlinedButton(
         onClick = { /* Do something */ },
@@ -201,23 +197,6 @@ fun SimpleChildButtonSample(modifier: Modifier = Modifier.fillMaxWidth()) {
     ChildButton(
         onClick = { /* Do something */ },
         label = { Text("Child Button") },
-        modifier = modifier,
-    )
-}
-
-@Sampled
-@Composable
-fun ChildButtonWithOnLongClickSample(
-    onClickHandler: () -> Unit,
-    onLongClickHandler: () -> Unit,
-    modifier: Modifier = Modifier.fillMaxWidth()
-) {
-    ChildButton(
-        onClick = onClickHandler,
-        onLongClick = onLongClickHandler,
-        onLongClickLabel = "Long click",
-        label = { Text("Child Button") },
-        secondaryLabel = { Text("with long click") },
         modifier = modifier,
     )
 }
