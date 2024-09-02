@@ -222,6 +222,54 @@ class ParagraphLayoutCacheTest {
     }
 
     @Test
+    fun TextLayoutResult_layout_withStartEllipsis_withoutSoftWrap() {
+        val fontSize = 20f
+        val textDelegate =
+            ParagraphLayoutCache(
+                    text = "Hello World! Hello World! Hello World! Hello World!",
+                    style = createTextStyle(fontSize = fontSize.sp),
+                    fontFamilyResolver = fontFamilyResolver,
+                    softWrap = false,
+                    overflow = TextOverflow.StartEllipsis,
+                )
+                .also { it.density = density }
+
+        textDelegate.layoutWithConstraints(Constraints.fixed(0, 0), LayoutDirection.Ltr)
+        // Makes width smaller than needed.
+        val width = textDelegate.maxIntrinsicWidth(LayoutDirection.Ltr) / 2
+        val constraints = Constraints(maxWidth = width)
+        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = textDelegate.paragraph!!
+
+        assertThat(layoutResult.lineCount).isEqualTo(1)
+        assertThat(layoutResult.isLineEllipsized(0)).isTrue()
+    }
+
+    @Test
+    fun TextLayoutResult_layout_withMiddleEllipsis_withoutSoftWrap() {
+        val fontSize = 20f
+        val textDelegate =
+            ParagraphLayoutCache(
+                    text = "Hello World! Hello World! Hello World! Hello World!",
+                    style = createTextStyle(fontSize = fontSize.sp),
+                    fontFamilyResolver = fontFamilyResolver,
+                    softWrap = false,
+                    overflow = TextOverflow.MiddleEllipsis,
+                )
+                .also { it.density = density }
+
+        textDelegate.layoutWithConstraints(Constraints.fixed(0, 0), LayoutDirection.Ltr)
+        // Makes width smaller than needed.
+        val width = textDelegate.maxIntrinsicWidth(LayoutDirection.Ltr) / 2
+        val constraints = Constraints(maxWidth = width)
+        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = textDelegate.paragraph!!
+
+        assertThat(layoutResult.lineCount).isEqualTo(1)
+        assertThat(layoutResult.isLineEllipsized(0)).isTrue()
+    }
+
+    @Test
     fun TextLayoutResult_layoutWithLimitedHeight_withEllipsis() {
         val fontSize = 20f
 
@@ -291,7 +339,7 @@ class ParagraphLayoutCacheTest {
                 fontFamilyResolver,
                 emptyList(),
                 maxLines = 5,
-                ellipsis = true
+                overflow = TextOverflow.Ellipsis
             )
         assertThat(actual.height).isEqualTo(expected.height)
     }

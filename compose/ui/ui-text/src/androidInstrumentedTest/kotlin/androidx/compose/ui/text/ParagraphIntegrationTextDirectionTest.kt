@@ -19,6 +19,7 @@ package androidx.compose.ui.text
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -64,7 +65,8 @@ class ParagraphIntegrationTextDirectionTest {
                 style = TextStyle(textDirection = TextDirection.Unspecified),
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = resourceLoader
+                fontFamilyResolver = resourceLoader,
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -80,7 +82,8 @@ class ParagraphIntegrationTextDirectionTest {
                 style = TextStyle(textDirection = TextDirection.Unspecified),
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = resourceLoader
+                fontFamilyResolver = resourceLoader,
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)
@@ -98,7 +101,8 @@ class ParagraphIntegrationTextDirectionTest {
                     ),
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = resourceLoader
+                fontFamilyResolver = resourceLoader,
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Ltr)
@@ -116,7 +120,8 @@ class ParagraphIntegrationTextDirectionTest {
                     ),
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = resourceLoader
+                fontFamilyResolver = resourceLoader,
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.getParagraphDirection(0)).isEqualTo(ResolvedTextDirection.Rtl)

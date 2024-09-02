@@ -24,6 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.implementedInJetBrainsFork
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 
@@ -45,7 +46,7 @@ internal actual fun ActualParagraph(
     spanStyles: List<Range<SpanStyle>>,
     placeholders: List<Range<Placeholder>>,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
@@ -54,6 +55,6 @@ internal actual fun ActualParagraph(
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints
 ): Paragraph = implementedInJetBrainsFork()

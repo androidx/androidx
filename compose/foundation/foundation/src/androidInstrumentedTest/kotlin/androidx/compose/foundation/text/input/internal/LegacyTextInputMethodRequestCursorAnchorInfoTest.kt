@@ -412,7 +412,8 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
                 style = input.style,
                 constraints = Constraints(maxWidth = width),
                 density = input.density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = TextOverflow.Clip
             )
 
         return TextLayoutResult(input, paragraph, IntSize(width, ceil(paragraph.height).toInt()))

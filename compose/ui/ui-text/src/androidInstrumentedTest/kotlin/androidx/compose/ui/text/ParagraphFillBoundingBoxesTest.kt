@@ -28,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.em
@@ -694,7 +695,7 @@ class ParagraphFillBoundingBoxesTest {
             spanStyles = text.spanStyles,
             placeholders = placeholders,
             maxLines = Int.MAX_VALUE,
-            ellipsis = false,
+            overflow = TextOverflow.Clip,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = fontFamilyResolver

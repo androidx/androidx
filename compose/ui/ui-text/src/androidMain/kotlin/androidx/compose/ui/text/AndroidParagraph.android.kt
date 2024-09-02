@@ -82,6 +82,10 @@ import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextOverflow.Companion.Ellipsis
+import androidx.compose.ui.text.style.TextOverflow.Companion.MiddleEllipsis
+import androidx.compose.ui.text.style.TextOverflow.Companion.StartEllipsis
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -97,7 +101,7 @@ import java.util.Locale as JavaLocale
 internal class AndroidParagraph(
     val paragraphIntrinsics: AndroidParagraphIntrinsics,
     val maxLines: Int,
-    val ellipsis: Boolean,
+    val overflow: TextOverflow,
     val constraints: Constraints
 ) : Paragraph {
     constructor(
@@ -106,7 +110,7 @@ internal class AndroidParagraph(
         spanStyles: List<AnnotatedString.Range<SpanStyle>>,
         placeholders: List<AnnotatedString.Range<Placeholder>>,
         maxLines: Int,
-        ellipsis: Boolean,
+        overflow: TextOverflow,
         constraints: Constraints,
         fontFamilyResolver: FontFamily.Resolver,
         density: Density
@@ -121,7 +125,7 @@ internal class AndroidParagraph(
                 density = density
             ),
         maxLines = maxLines,
-        ellipsis = ellipsis,
+        overflow = overflow,
         constraints = constraints
     )
 
@@ -139,7 +143,7 @@ internal class AndroidParagraph(
         val style = paragraphIntrinsics.style
 
         charSequence =
-            if (shouldAttachIndentationFixSpan(style, ellipsis)) {
+            if (shouldAttachIndentationFixSpan(style, overflow == Ellipsis)) {
                 // When letter spacing, align and ellipsize applied to text, the ellipsized line is
                 // indented wrong. This function adds the IndentationFixSpan in order to fix the
                 // issue
@@ -164,13 +168,14 @@ internal class AndroidParagraph(
         val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak.wordBreak)
 
         val ellipsize =
-            if (ellipsis) {
-                TextUtils.TruncateAt.END
-            } else {
-                null
+            when (overflow) {
+                Ellipsis -> TextUtils.TruncateAt.END
+                MiddleEllipsis -> TextUtils.TruncateAt.MIDDLE
+                StartEllipsis -> TextUtils.TruncateAt.START
+                else -> null
             }
 
-        val firstLayout =
+        var firstLayout =
             constructTextLayout(
                 alignment = alignment,
                 justificationMode = justificationMode,
@@ -182,8 +187,42 @@ internal class AndroidParagraph(
                 lineBreakWordStyle = lineBreakWordStyle
             )
 
-        // Ellipsize if there's not enough vertical space to fit all lines
-        if (ellipsis && firstLayout.height > constraints.maxHeight && maxLines > 1) {
+        // In case of start/middle ellipsis when the letter spacing is enabled and some of the
+        // characters are ellipsized away, we need to remeasure. This is because though
+        // internally ellipsized character are replaced with zero-width U+FEFF character, the
+        // letter spacing is still applied to each such character. It's been fixed on API 35
+        // where letter spacing won't be applied to some special characters including U+FEFF.
+        if (
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM &&
+                textPaint.letterSpacing != 0f &&
+                (overflow == StartEllipsis || overflow == MiddleEllipsis) &&
+                firstLayout.getLineEllipsisCount(0) > 0
+        ) {
+            val beforeEllipsis = firstLayout.getLineEllipsisOffset(0)
+            val afterEllipsis = beforeEllipsis + firstLayout.getLineEllipsisCount(0)
+            val newSpannable =
+                TextUtils.concat(
+                    charSequence.subSequence(0, beforeEllipsis),
+                    Typography.ellipsis.toString(),
+                    charSequence.subSequence(afterEllipsis, charSequence.length)
+                )
+            firstLayout =
+                constructTextLayout(
+                    alignment = alignment,
+                    justificationMode = justificationMode,
+                    ellipsize = ellipsize,
+                    maxLines = maxLines,
+                    hyphens = hyphens,
+                    breakStrategy = breakStrategy,
+                    lineBreakStyle = lineBreakStyle,
+                    lineBreakWordStyle = lineBreakWordStyle,
+                    charSequence = newSpannable
+                )
+        }
+
+        // Ellipsize if there's not enough vertical space to fit all lines. Because this only makes
+        // sense for end ellipsis because start/middle only works for a single line.
+        if (overflow == Ellipsis && firstLayout.height > constraints.maxHeight && maxLines > 1) {
             val calculatedMaxLines =
                 firstLayout.numberOfLinesThatFitMaxHeight(constraints.maxHeight)
             layout =
@@ -194,10 +233,8 @@ internal class AndroidParagraph(
                         ellipsize = ellipsize,
                         // When we can't fully fit even a single line, measure with one line anyway.
                         // This will allow to have an ellipsis on that single line. If we measured
-                        // with
-                        // 0 maxLines, it would measure all lines with no ellipsis even though the
-                        // first
-                        // line might be partially visible
+                        // with 0 maxLines, it would measure all lines with no ellipsis even though
+                        // the first line might be partially visible
                         maxLines = calculatedMaxLines.coerceAtLeast(1),
                         hyphens = hyphens,
                         breakStrategy = breakStrategy,
@@ -443,6 +480,11 @@ internal class AndroidParagraph(
 
     override fun isLineEllipsized(lineIndex: Int): Boolean = layout.isLineEllipsized(lineIndex)
 
+    internal fun getLineEllipsisOffset(lineIndex: Int): Int =
+        layout.getLineEllipsisOffset(lineIndex)
+
+    internal fun getLineEllipsisCount(lineIndex: Int): Int = layout.getLineEllipsisCount(lineIndex)
+
     override fun getLineForOffset(offset: Int): Int = layout.getLineForOffset(offset)
 
     override fun getHorizontalPosition(offset: Int, usePrimaryDirection: Boolean): Float =
@@ -554,7 +596,8 @@ internal class AndroidParagraph(
         hyphens: Int,
         breakStrategy: Int,
         lineBreakStyle: Int,
-        lineBreakWordStyle: Int
+        lineBreakWordStyle: Int,
+        charSequence: CharSequence = this.charSequence,
     ) =
         TextLayout(
             charSequence = charSequence,

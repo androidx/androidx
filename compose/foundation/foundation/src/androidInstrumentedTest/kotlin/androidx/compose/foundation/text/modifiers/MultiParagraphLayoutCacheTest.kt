@@ -337,7 +337,7 @@ class MultiParagraphLayoutCacheTest {
                 fontFamilyResolver,
                 text.spanStyles,
                 maxLines = 5,
-                ellipsis = true
+                overflow = TextOverflow.Ellipsis
             )
         assertThat(actual.height).isEqualTo(expected.height)
     }

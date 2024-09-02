@@ -690,7 +690,8 @@ class CursorAnchorInfoBuilderTest {
                 style = input.style,
                 constraints = Constraints(maxWidth = ceil(width).toInt()),
                 density = input.density,
-                fontFamilyResolver = fontFamilyResolver
+                fontFamilyResolver = fontFamilyResolver,
+                overflow = TextOverflow.Clip
             )
 
         return TextLayoutResult(input, paragraph, IntSize(intWidth, ceil(paragraph.height).toInt()))
