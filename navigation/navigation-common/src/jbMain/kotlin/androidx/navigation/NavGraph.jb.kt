@@ -47,7 +47,7 @@ public actual open class NavGraph actual constructor(navGraphNavigator: Navigato
         lastVisited: NavDestination
     ): DeepLinkMatch? {
         // First search through any deep links directly added to this NavGraph
-        val bestMatch = super.matchDeepLink(route)
+        val bestMatch = matchDeepLinkRequest(route)
 
         // If searchChildren is true, search through all child destinations for a matching deeplink
         val bestChildMatch =

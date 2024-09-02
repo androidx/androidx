@@ -139,7 +139,7 @@ public actual open class NavDestination actual constructor(
         return matchingDeepLink
     }
 
-    private fun matchDeepLinkRequest(route: String): DeepLinkMatch? {
+    protected fun matchDeepLinkRequest(route: String): DeepLinkMatch? {
         if (deepLinks.isEmpty()) {
             return null
         }
