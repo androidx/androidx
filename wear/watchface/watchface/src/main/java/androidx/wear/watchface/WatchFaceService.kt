@@ -1927,6 +1927,7 @@ public abstract class WatchFaceService : WallpaperService() {
                 if (this::choreographer.isInitialized) {
                     frameCallback?.let { choreographer.removeFrameCallback(it) }
                 }
+                frameCallback = null
                 if (this::interactiveInstanceId.isInitialized) {
                     InteractiveInstanceManager.deleteInstance(interactiveInstanceId)
                 }
