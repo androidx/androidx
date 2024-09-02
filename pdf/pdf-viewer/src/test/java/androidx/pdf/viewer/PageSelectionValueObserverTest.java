@@ -78,7 +78,7 @@ public class PageSelectionValueObserverTest {
         PdfViewer.setScreenForTest(mContext);
 
         PageSelectionValueObserver pageSelectionValueObserver =
-                new PageSelectionValueObserver(mMockPaginatedView, mMockPaginationModel,
+                new PageSelectionValueObserver(mMockPaginatedView,
                         mMockPageViewFactory, mContext);
         pageSelectionValueObserver.onChange(mMockOldPageSelection, mMockNewPageSelection);
 

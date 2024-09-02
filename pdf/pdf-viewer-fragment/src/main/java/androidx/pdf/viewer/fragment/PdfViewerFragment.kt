@@ -539,12 +539,7 @@ public open class PdfViewerFragment : Fragment() {
         paginatedView?.pageViewFactory = updatedPageViewFactory
 
         selectionObserver =
-            PageSelectionValueObserver(
-                paginatedView!!,
-                paginationModel!!,
-                pageViewFactory!!,
-                requireContext()
-            )
+            PageSelectionValueObserver(paginatedView!!, pageViewFactory!!, requireContext())
         pdfLoaderCallbacks?.selectionModel?.selection()?.addObserver(selectionObserver)
     }
 
@@ -615,7 +610,6 @@ public open class PdfViewerFragment : Fragment() {
         selectedMatchObserver =
             SelectedMatchValueObserver(
                 paginatedView!!,
-                paginationModel!!,
                 pageViewFactory!!,
                 zoomView!!,
                 layoutHandler!!,
