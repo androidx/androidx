@@ -18,6 +18,7 @@ package androidx.compose.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.window.CanvasBasedWindow
+import kotlin.test.BeforeTest
 import kotlinx.browser.document
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +35,12 @@ import org.w3c.dom.events.Event
 private const val canvasId: String = "canvasApp"
 
 internal interface OnCanvasTests {
+
+    @BeforeTest
+    fun beforeTest() {
+        resetCanvas()
+    }
+
     fun getCanvas() = document.getElementById(canvasId) as HTMLCanvasElement
 
     private fun resetCanvas() {
@@ -50,7 +57,6 @@ internal interface OnCanvasTests {
     }
 
     fun createComposeWindow(content: @Composable () -> Unit) {
-        resetCanvas()
         CanvasBasedWindow(canvasElementId = canvasId, content = content)
     }
 
