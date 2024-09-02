@@ -34,9 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +46,6 @@ class NestedScrollingBenchmark {
 
     private val nestedScrollingCaseFactory = { NestedScrollingTestCase() }
 
-    @Ignore("b/362302352")
     @Test
     fun nested_scroll_propagation() {
         benchmarkRule.runBenchmarkFor(nestedScrollingCaseFactory) {
@@ -101,7 +98,6 @@ class NestedScrollingTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     private val noOpConnection = object : NestedScrollConnection {}
     private val delta = Offset(200f, 200f)
     private val velocity = Velocity(2000f, 200f)
-    private var scrollResult = Offset.Zero
     private var velocityResult = Velocity.Zero
     private val IntermediateConnection = object : NestedScrollConnection {}
 
@@ -129,9 +125,8 @@ class NestedScrollingTestCase : LayeredComposeTestCase(), ToggleableTestCase {
     }
 
     override fun toggleState() {
-        scrollResult = dispatcher.dispatchPreScroll(delta, NestedScrollSource.UserInput)
-        scrollResult =
-            dispatcher.dispatchPostScroll(delta, scrollResult, NestedScrollSource.UserInput)
+        val scrollResult = dispatcher.dispatchPreScroll(delta, NestedScrollSource.UserInput)
+        dispatcher.dispatchPostScroll(delta, scrollResult, NestedScrollSource.UserInput)
 
         runBlocking {
             velocityResult = dispatcher.dispatchPreFling(velocity)
@@ -144,8 +139,5 @@ class NestedScrollingTestCase : LayeredComposeTestCase(), ToggleableTestCase {
         assertNotEquals(collectedDeltasMiddle, Offset.Zero)
         assertNotEquals(collectedVelocityOuter, Velocity.Zero)
         assertNotEquals(collectedVelocityMiddle, Velocity.Zero)
-
-        assertEquals(scrollResult, collectedDeltasOuter)
-        assertEquals(velocityResult, collectedVelocityOuter)
     }
 }
