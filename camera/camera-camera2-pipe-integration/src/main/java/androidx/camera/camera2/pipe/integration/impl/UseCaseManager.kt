@@ -64,6 +64,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.MirrorMode
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCase
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.AttachedSurfaceInfo
 import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CameraInfoInternal
@@ -119,6 +120,7 @@ public class UseCaseManager
 @Inject
 constructor(
     private val cameraPipe: CameraPipe,
+    @GuardedBy("lock") private val cameraCoordinator: CameraCoordinator,
     private val callbackMap: CameraCallbackMap,
     private val requestListener: ComboRequestListener,
     private val cameraConfig: CameraConfig,
@@ -690,7 +692,7 @@ constructor(
         return supportedSurfaceCombination
             .checkSupported(
                 SupportedSurfaceCombination.FeatureSettings(
-                    CameraMode.DEFAULT,
+                    getCameraMode(),
                     getRequiredMaxBitDepth(attachedSurfaceInfoList),
                     isPreviewStabilizationOn(),
                     isUltraHdrOn()
@@ -705,6 +707,19 @@ constructor(
                     "Combination of $sessionSurfacesConfigs + $meteringRepeating is supported: $it"
                 }
             }
+    }
+
+    private fun getCameraMode(): Int {
+        synchronized(lock) {
+            if (
+                cameraCoordinator.cameraOperatingMode ==
+                    CameraCoordinator.CAMERA_OPERATING_MODE_CONCURRENT
+            ) {
+                return CameraMode.CONCURRENT_CAMERA
+            }
+        }
+
+        return CameraMode.DEFAULT
     }
 
     private fun getRequiredMaxBitDepth(attachedSurfaceInfoList: List<AttachedSurfaceInfo>): Int {
@@ -741,9 +756,7 @@ constructor(
 
                 val surfaceConfig =
                     supportedSurfaceCombination.transformSurfaceConfig(
-                        // TODO: Test with correct Camera Mode when concurrent mode / ultra high
-                        // resolution is implemented.
-                        CameraMode.DEFAULT,
+                        getCameraMode(),
                         useCase.currentConfig.inputFormat,
                         surfaceResolution
                     )
@@ -782,9 +795,7 @@ constructor(
                 useCase.sessionConfig.surfaces.forEach { deferrableSurface ->
                     add(
                         supportedSurfaceCombination.transformSurfaceConfig(
-                            // TODO: Test with correct Camera Mode when concurrent mode / ultra high
-                            // resolution is implemented.
-                            CameraMode.DEFAULT,
+                            getCameraMode(),
                             useCase.currentConfig.inputFormat,
                             deferrableSurface.prescribedSize
                         )
@@ -795,9 +806,7 @@ constructor(
 
     private fun createMeteringRepeatingSurfaceConfig() =
         supportedSurfaceCombination.transformSurfaceConfig(
-            // TODO: Test with correct Camera Mode when concurrent mode / ultra high resolution is
-            // implemented.
-            CameraMode.DEFAULT,
+            getCameraMode(),
             meteringRepeating.imageFormat,
             meteringRepeating.attachedSurfaceResolution!!
         )
