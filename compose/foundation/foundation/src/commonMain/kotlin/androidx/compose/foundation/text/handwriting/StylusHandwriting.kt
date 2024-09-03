@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.handwriting
 
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.isDeepPress
 import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusEventModifierNode
@@ -166,6 +167,9 @@ internal open class StylusHandwritingNode(var onHandwritingSlopExceeded: () -> B
 
                         val time = change.uptimeMillis - firstDown.uptimeMillis
                         if (time >= viewConfiguration.longPressTimeoutMillis) {
+                            break
+                        }
+                        if (pointerEvent.isDeepPress) {
                             break
                         }
 
