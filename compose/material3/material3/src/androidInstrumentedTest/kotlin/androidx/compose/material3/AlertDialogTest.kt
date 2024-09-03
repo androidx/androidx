@@ -102,7 +102,7 @@ class AlertDialogTest {
                 textContentColor = Color.DarkGray
             )
         }
-
+        rule.waitForIdle()
         // Assert background
         rule
             .onNode(isDialog())
