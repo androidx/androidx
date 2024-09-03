@@ -19,6 +19,7 @@ package androidx.core.splashscreen.test
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -32,6 +33,7 @@ import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.uiautomator.UiDevice
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.concurrent.CountDownLatch
@@ -144,18 +146,68 @@ public class SplashscreenParametrizedTest(
     @SdkSuppress(minSdkVersion = 23)
     @Test
     public fun splashscreenViewScreenshotComparison() {
-        val activity = startActivityWithSplashScreen {
+        val controller = startActivityWithSplashScreen {
             // Clear out any previous instances
             it.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
             it.putExtra(EXTRA_SPLASHSCREEN_WAIT, true)
             it.putExtra(EXTRA_ANIMATION_LISTENER, true)
-            it.putExtra(EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT, true)
+            it.putExtra(EXTRA_SPLASHSCREEN_SCREENSHOT, true)
         }
-        assertTrue(activity.waitedLatch.await(2, TimeUnit.SECONDS))
-        activity.waitBarrier.set(false)
-        activity.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
 
-        compareBitmaps(activity.splashScreenScreenshot!!, activity.splashScreenViewScreenShot!!)
+        var splashScreenViewScreenShot: Bitmap? = null
+
+        controller.doOnExitAnimation {
+            // b/355716686
+            // During the transition from the splash screen of system starting window to the
+            // activity, there may be a moment that `PhoneWindowManager`'s
+            // `mTopFullscreenOpaqueWindowState` would be `null`, which might lead to the flicker of
+            // status bar (b/64291272, ag/2664318)
+            val topFullscreenWinState = "mTopFullscreenOpaqueWindowState"
+
+            // We should take the screenshot when `mTopFullscreenOpaqueWindowState` is window of the
+            // activity
+            val topFullscreenWinStateBelongsToActivity =
+                Regex(
+                    topFullscreenWinState +
+                        "=Window\\{.*" +
+                        controller.activity.componentName.className +
+                        "\\}"
+                )
+
+            val isTopFullscreenWinStateReady: () -> Boolean = {
+                val dumpedWindowPolicy =
+                    InstrumentationRegistry.getInstrumentation()
+                        .uiAutomation
+                        .executeShellCommand("dumpsys window p")
+                        .use { FileInputStream(it.fileDescriptor).reader().readText() }
+
+                !dumpedWindowPolicy.contains(topFullscreenWinState) ||
+                    dumpedWindowPolicy.contains(topFullscreenWinStateBelongsToActivity)
+            }
+
+            val timeout = 2000L
+            val interval = 100L
+            val start = SystemClock.uptimeMillis()
+            var topFullscreenWinStateReady = isTopFullscreenWinStateReady()
+            while (!topFullscreenWinStateReady && SystemClock.uptimeMillis() - start < timeout) {
+                SystemClock.sleep(interval)
+                topFullscreenWinStateReady = isTopFullscreenWinStateReady()
+            }
+            if (!topFullscreenWinStateReady)
+                fail("$topFullscreenWinState is not ready, cannot take screenshot")
+
+            splashScreenViewScreenShot =
+                InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot()
+            it.remove()
+            controller.exitAnimationListenerLatch.countDown()
+            true
+        }
+
+        assertTrue(controller.waitedLatch.await(2, TimeUnit.SECONDS))
+        controller.waitBarrier.set(false)
+        controller.exitAnimationListenerLatch.await(2, TimeUnit.SECONDS)
+
+        compareBitmaps(controller.splashScreenScreenshot!!, splashScreenViewScreenShot!!)
     }
 
     /**
