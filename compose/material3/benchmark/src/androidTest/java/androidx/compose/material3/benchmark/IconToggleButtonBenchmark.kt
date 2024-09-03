@@ -18,9 +18,12 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.FilledTonalIconToggleButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.IconButtonShapes
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedIconToggleButton
@@ -92,6 +95,7 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
 
     private var state by mutableStateOf(false)
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun MeasuredContent() {
         when (type) {
@@ -117,6 +121,58 @@ internal class IconToggleButtonTestCase(private val type: IconToggleButtonType) 
                 ) {
                     Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
                 }
+            IconToggleButtonType.IconToggleButtonExpressive ->
+                IconToggleButton(
+                    checked = state,
+                    onCheckedChange = { /* Do something! */ },
+                    shapes =
+                        IconButtonShapes(
+                            shape = IconButtonDefaults.smallRoundShape,
+                            pressedShape = IconButtonDefaults.smallPressedShape,
+                            checkedShape = IconButtonDefaults.smallSquareShape
+                        )
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+                }
+            IconToggleButtonType.FilledIconToggleButtonExpressive ->
+                FilledIconToggleButton(
+                    checked = state,
+                    onCheckedChange = { /* Do something! */ },
+                    shapes =
+                        IconButtonShapes(
+                            shape = IconButtonDefaults.smallRoundShape,
+                            pressedShape = IconButtonDefaults.smallPressedShape,
+                            checkedShape = IconButtonDefaults.smallSquareShape
+                        )
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+                }
+            IconToggleButtonType.FilledTonalIconToggleButtonExpressive ->
+                FilledTonalIconToggleButton(
+                    checked = state,
+                    onCheckedChange = { /* Do something! */ },
+                    shapes =
+                        IconButtonShapes(
+                            shape = IconButtonDefaults.smallRoundShape,
+                            pressedShape = IconButtonDefaults.smallPressedShape,
+                            checkedShape = IconButtonDefaults.smallSquareShape
+                        )
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+                }
+            IconToggleButtonType.OutlinedIconToggleButtonExpressive ->
+                OutlinedIconToggleButton(
+                    checked = state,
+                    onCheckedChange = { /* Do something! */ },
+                    shapes =
+                        IconButtonShapes(
+                            shape = IconButtonDefaults.smallRoundShape,
+                            pressedShape = IconButtonDefaults.smallPressedShape,
+                            checkedShape = IconButtonDefaults.smallSquareShape
+                        )
+                ) {
+                    Icon(Icons.Outlined.Lock, contentDescription = "Localized description")
+                }
         }
     }
 
@@ -134,5 +190,9 @@ enum class IconToggleButtonType {
     IconToggleButton,
     FilledIconToggleButton,
     FilledTonalIconToggleButton,
-    OutlinedIconToggleButton
+    OutlinedIconToggleButton,
+    IconToggleButtonExpressive,
+    FilledIconToggleButtonExpressive,
+    FilledTonalIconToggleButtonExpressive,
+    OutlinedIconToggleButtonExpressive
 }
