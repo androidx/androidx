@@ -93,6 +93,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
                     InternalType.FLOAT -> NavType.FloatListType
                     InternalType.LONG -> NavType.LongListType
                     InternalType.STRING -> NavType.StringListType
+                    InternalType.STRING_NULLABLE -> InternalNavType.StringNullableListType
                     else -> UNKNOWN
                 }
             }
@@ -325,6 +326,40 @@ internal object InternalNavType {
                 value?.map { Uri.encode(it) } ?: emptyList()
 
             override fun emptyCollection(): Array<String?>? = arrayOf()
+        }
+
+    val StringNullableListType: NavType<List<String?>?> =
+        object : CollectionNavType<List<String?>?>(true) {
+            override val name: String
+                get() = "List<String?>"
+
+            override fun put(bundle: Bundle, key: String, value: List<String?>?) {
+                bundle.putStringArray(key, value?.toTypedArray())
+            }
+
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            override fun get(bundle: Bundle, key: String): List<String?>? {
+                return (bundle[key] as Array<String?>?)?.toList()
+            }
+
+            override fun parseValue(value: String): List<String?> {
+                return listOf(StringType.parseValue(value))
+            }
+
+            override fun parseValue(value: String, previousValue: List<String?>?): List<String?>? {
+                return previousValue?.plus(parseValue(value)) ?: parseValue(value)
+            }
+
+            override fun valueEquals(value: List<String?>?, other: List<String?>?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: List<String?>?): List<String> =
+                value?.map { Uri.encode(it) } ?: emptyList()
+
+            override fun emptyCollection(): List<String?> = emptyList()
         }
 
     class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {

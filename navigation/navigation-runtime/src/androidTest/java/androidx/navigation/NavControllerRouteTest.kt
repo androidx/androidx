@@ -4835,6 +4835,40 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectStringNullableListNullLiteral() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String?>?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+
+        navController.navigate(TestClass(listOf("one", "null")))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg!!.first()).isEqualTo("one")
+        assertThat(arg.last()).isNull()
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectStringNullableListNullString() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<String?>?)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+
+        navController.navigate(TestClass(listOf("one", null)))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+
+        val arg = navController.currentBackStackEntry?.toRoute<TestClass>()!!.arg
+        assertThat(arg!!.first()).isEqualTo("one")
+        assertThat(arg.last()).isNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateWithObjectNullStringList() {
         @Serializable @SerialName("test") class TestClass(val arg: List<String>?)
 
