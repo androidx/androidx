@@ -20,6 +20,7 @@ import android.content.Context
 import androidx.camera.camera2.pipe.CameraDevices
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.integration.impl.CameraInteropStateCallbackRepository
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import dagger.Component
@@ -44,7 +45,8 @@ public class CameraAppConfig(
     private val context: Context,
     private val cameraThreadConfig: CameraThreadConfig,
     private val cameraPipe: CameraPipe,
-    private val camera2InteropCallbacks: CameraInteropStateCallbackRepository
+    private val camera2InteropCallbacks: CameraInteropStateCallbackRepository,
+    private val cameraCoordinator: CameraCoordinator
 ) {
     @Provides public fun provideContext(): Context = context
 
@@ -55,6 +57,8 @@ public class CameraAppConfig(
     @Provides
     public fun provideCamera2InteropCallbacks(): CameraInteropStateCallbackRepository =
         camera2InteropCallbacks
+
+    @Provides public fun provideCameraCoordinator(): CameraCoordinator = cameraCoordinator
 }
 
 /** Dagger component for Application (Process) scoped dependencies. */
