@@ -53,6 +53,5 @@
     <string name="file_error" msgid="4003885928556884091">"ගොනුව විවෘත කිරීමට අසමත් විය. අවසර ගැටලුවක් විය හැකි ද?"</string>
     <string name="page_broken" msgid="2968770793669433462">"PDF ලේඛනය සඳහා පිටුව හානි වී ඇත"</string>
     <string name="needs_more_data" msgid="3520133467908240802">"PDF ලේඛනය සැකසීම සඳහා ප්‍රමාණවත් දත්ත නොමැත"</string>
-    <!-- no translation found for error_cannot_open_pdf (2361919778558145071) -->
-    <skip />
+    <string name="error_cannot_open_pdf" msgid="2361919778558145071">"PDF ගොනුව විවෘත කළ නොහැක"</string>
 </resources>
