@@ -165,9 +165,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         mZoomViewBasePadding =
                 new Rect(
                         mZoomView.getPaddingLeft(),
-                        mZoomView.getPaddingTop()
-                                + getResources().getDimensionPixelSize(
-                                R.dimen.viewer_doc_additional_top_offset),
+                        mZoomView.getPaddingTop(),
                         mZoomView.getPaddingRight(),
                         mZoomView.getPaddingBottom());
         mZoomViewConfigured = true;
@@ -183,9 +181,9 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         if (mZoomView != null) {
             mZoomView.setPadding(
                     0,
-                    mZoomViewBasePadding.top + insetsCompat.top,
+                    mZoomViewBasePadding.top,
                     0,
-                    mZoomViewBasePadding.bottom + insetsCompat.bottom);
+                    mZoomViewBasePadding.bottom);
             setScrollbarMarginTop(mZoomView.getPaddingTop());
             // Ignore ZoomView's intrinsic padding on the right side as we want it to be
             // right-anchored
