@@ -145,7 +145,9 @@ class DaoWriterTest {
                     COMMON.RX3_FLOWABLE,
                     COMMON.RX2_OBSERVABLE,
                     COMMON.RX3_OBSERVABLE,
-                    COMMON.PUBLISHER
+                    COMMON.PUBLISHER,
+                    COMMON.PAGING_SOURCE,
+                    COMMON.LIMIT_OFFSET_PAGING_SOURCE
                 )
             )
         runProcessorTestWithK1(sources = sources, classpath = libs) { invocation ->

@@ -90,7 +90,6 @@ dependencies {
     testImplementation(libs.antlr4)
     testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
-    testImplementationAarAsJar(project(":room:room-paging"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }
