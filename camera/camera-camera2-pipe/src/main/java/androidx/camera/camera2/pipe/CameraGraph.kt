@@ -670,6 +670,63 @@ public interface CameraGraph : AutoCloseable {
          */
         public suspend fun unlock3APostCapture(cancelAf: Boolean = true): Deferred<Result3A>
     }
+
+    /**
+     * [Parameters] is a Map-like interface that stores the key-value parameter pairs from
+     * [CaptureRequest] and [Metadata] for each [CameraGraph]. Parameter are read/set directly using
+     * get/set methods in this interface.
+     *
+     * During an active [CameraGraph.Session], changes in [Parameters] may not be applied right
+     * away. Instead, the change will be applied after [CameraGraph.Session] closes. When there is
+     * no active [CameraGraph.Session], the change will be applied without having to wait for the
+     * session to close. When applying parameter changes, it will overwrite parameter values that
+     * were configured when building the request, and overwrite [Config.defaultParameters]. It will
+     * not overwrite [Config.requiredParameters].
+     *
+     * Note that [Parameters] only store values that is a result of methods from this interface. The
+     * parameter values that were set from implicit template values, or from building a request
+     * directly will not be reflected here.
+     */
+    public interface Parameters {
+        /** Get the value correspond to the given [CaptureRequest.Key]. */
+        public operator fun <T> get(key: CaptureRequest.Key<T>): T?
+
+        /** Get the value correspond to the given [Metadata.Key]. */
+        public operator fun <T> get(key: Metadata.Key<T>): T?
+
+        /** Store the [CaptureRequest] key value pair in the class. */
+        public operator fun <T> set(key: CaptureRequest.Key<T>, value: T)
+
+        /** Store the [Metadata] key value pair in the class. */
+        public operator fun <T> set(key: Metadata.Key<T>, value: T)
+
+        /**
+         * Store the key value pairs in the class. The key is either [CaptureRequest.Key] or
+         * [Metadata.Key].
+         */
+        public fun setAll(values: Map<*, Any?>)
+
+        /** Clear all [CaptureRequest] and [Metadata] parameters stored in the class. */
+        public fun clear()
+
+        /**
+         * Remove the [CaptureRequest] key value pair associated with the given key. Returns true if
+         * a key was present and removed.
+         */
+        public fun <T> remove(key: CaptureRequest.Key<T>): Boolean
+
+        /**
+         * Remove the [Metadata] key value pair associated with the given key. Returns true if a key
+         * was present and removed.
+         */
+        public fun <T> remove(key: Metadata.Key<T>): Boolean
+
+        /**
+         * Remove all parameters that match the given keys. The key is either [CaptureRequest.Key]
+         * or [Metadata.Key].
+         */
+        public fun removeAll(keys: Set<*>): Boolean
+    }
 }
 
 /**
