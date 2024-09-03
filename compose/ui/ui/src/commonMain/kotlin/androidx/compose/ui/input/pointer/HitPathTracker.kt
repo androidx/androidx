@@ -73,33 +73,42 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
         eachPin@ for (i in pointerInputNodes.indices) {
             val pointerInputNode = pointerInputNodes[i]
 
-            if (merging) {
-                val node = parent.children.firstOrNull { it.modifierNode == pointerInputNode }
-
-                if (node != null) {
-                    node.markIsIn()
-                    node.pointerIds.add(pointerId)
-
-                    val mutableObjectList =
-                        hitPointerIdsAndNodes.getOrPut(pointerId.value) { mutableObjectListOf() }
-
-                    mutableObjectList.add(node)
-                    parent = node
-                    continue@eachPin
-                } else {
-                    merging = false
+            // Doesn't add nodes that aren't attached
+            if (pointerInputNode.isAttached) {
+                pointerInputNode.detachedListener = {
+                    removePointerInputModifierNode(pointerInputNode)
                 }
+
+                if (merging) {
+                    val node = parent.children.firstOrNull { it.modifierNode == pointerInputNode }
+
+                    if (node != null) {
+                        node.markIsIn()
+                        node.pointerIds.add(pointerId)
+
+                        val mutableObjectList =
+                            hitPointerIdsAndNodes.getOrPut(pointerId.value) {
+                                mutableObjectListOf()
+                            }
+
+                        mutableObjectList.add(node)
+                        parent = node
+                        continue@eachPin
+                    } else {
+                        merging = false
+                    }
+                }
+                // TODO(lmr): i wonder if Node here and PointerInputNode ought to be the same thing?
+                val node = Node(pointerInputNode).apply { pointerIds.add(pointerId) }
+
+                val mutableObjectList =
+                    hitPointerIdsAndNodes.getOrPut(pointerId.value) { mutableObjectListOf() }
+
+                mutableObjectList.add(node)
+
+                parent.children.add(node)
+                parent = node
             }
-            // TODO(lmr): i wonder if Node here and PointerInputNode ought to be the same thing?
-            val node = Node(pointerInputNode).apply { pointerIds.add(pointerId) }
-
-            val mutableObjectList =
-                hitPointerIdsAndNodes.getOrPut(pointerId.value) { mutableObjectListOf() }
-
-            mutableObjectList.add(node)
-
-            parent.children.add(node)
-            parent = node
         }
 
         if (prunePointerIdsAndChangesNotInNodesList) {
@@ -107,6 +116,10 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
                 removeInvalidPointerIdsAndChanges(key, value)
             }
         }
+    }
+
+    private fun removePointerInputModifierNode(pointerInputNode: Modifier.Node) {
+        root.removePointerInputModifierNode(pointerInputNode)
     }
 
     // Removes pointers/changes that are not in the latest hit test
@@ -163,14 +176,6 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
         root.dispatchCancel()
         clearPreviouslyHitModifierNodeCache()
     }
-
-    /** Removes detached Pointer Input Modifier Nodes. */
-    // TODO(shepshapard): Ideally, we can process the detaching of PointerInputFilters at the time
-    //  that either their associated LayoutNode is removed from the three, or their
-    //  associated PointerInputModifier is removed from a LayoutNode.
-    fun removeDetachedPointerInputNodes() {
-        root.removeDetachedPointerInputModifierNodes()
-    }
 }
 
 /**
@@ -182,6 +187,9 @@ internal class HitPathTracker(private val rootCoordinates: LayoutCoordinates) {
 @OptIn(InternalCoreApi::class)
 internal open class NodeParent {
     val children: MutableVector<Node> = mutableVectorOf()
+
+    // Supports removePointerInputModifierNode() function
+    private val removeMatchingPointerInputModifierNodeList = MutableObjectList<NodeParent>(10)
 
     open fun buildCache(
         changes: LongSparseArray<PointerInputChange>,
@@ -249,6 +257,35 @@ internal open class NodeParent {
         children.forEach { it.dispatchCancel() }
     }
 
+    open fun removePointerInputModifierNode(pointerInputModifierNode: Modifier.Node) {
+        removeMatchingPointerInputModifierNodeList.clear()
+
+        // adds root first
+        removeMatchingPointerInputModifierNodeList.add(this)
+
+        while (removeMatchingPointerInputModifierNodeList.isNotEmpty()) {
+            val parent =
+                removeMatchingPointerInputModifierNodeList.removeAt(
+                    removeMatchingPointerInputModifierNodeList.size - 1
+                )
+
+            var index = 0
+            while (index < parent.children.size) {
+                val child = parent.children[index]
+
+                if (child.modifierNode == pointerInputModifierNode) {
+                    parent.children.remove(child)
+                    child.dispatchCancel()
+                    // TODO(JJW): Break here if we change tree structure so same node can't be in
+                    //  multiple locations (they can be now).
+                } else {
+                    removeMatchingPointerInputModifierNodeList.add(child)
+                    index++
+                }
+            }
+        }
+    }
+
     /** Removes all child nodes. */
     fun clear() {
         children.clear()
@@ -259,22 +296,6 @@ internal open class NodeParent {
         hitNodes: MutableObjectList<Node>
     ) {
         children.forEach { it.removeInvalidPointerIdsAndChanges(pointerIdValue, hitNodes) }
-    }
-
-    /** Removes all child [Node]s that are no longer attached to the compose tree. */
-    fun removeDetachedPointerInputModifierNodes() {
-        var index = 0
-        while (index < children.size) {
-            val child = children[index]
-
-            if (!child.modifierNode.isAttached) {
-                child.dispatchCancel()
-                children.removeAt(index)
-            } else {
-                index++
-                child.removeDetachedPointerInputModifierNodes()
-            }
-        }
     }
 
     open fun cleanUpHits(internalPointerEvent: InternalPointerEvent) {
@@ -610,7 +631,6 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
     }
 
     override fun toString(): String {
-        return "Node(pointerInputFilter=$modifierNode, children=$children, " +
-            "pointerIds=$pointerIds)"
+        return "Node(modifierNode=$modifierNode, children=$children, " + "pointerIds=$pointerIds)"
     }
 }
