@@ -61,11 +61,6 @@ fun FullScreenProgressIndicatorSample() {
             progress = { 0.25f },
             startAngle = 120f,
             endAngle = 60f,
-            colors =
-                ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Green,
-                    trackColor = Color.Green.copy(alpha = 0.5f)
-                )
         )
     }
 }
@@ -171,11 +166,6 @@ fun SegmentedProgressIndicatorSample() {
         SegmentedCircularProgressIndicator(
             segmentCount = 5,
             progress = { 0.5f },
-            colors =
-                ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Green,
-                    trackColor = Color.Green.copy(alpha = 0.5f)
-                )
         )
     }
 }
@@ -192,11 +182,18 @@ fun SegmentedProgressIndicatorOnOffSample() {
         SegmentedCircularProgressIndicator(
             segmentCount = 5,
             completed = { it % 2 != 0 },
-            colors =
-                ProgressIndicatorDefaults.colors(
-                    indicatorColor = Color.Green,
-                    trackColor = Color.Green.copy(alpha = 0.5f)
-                )
+        )
+    }
+}
+
+@Sampled
+@Composable
+fun SmallSegmentedProgressIndicatorSample() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        SegmentedCircularProgressIndicator(
+            segmentCount = 8,
+            completed = { it % 2 != 0 },
+            modifier = Modifier.align(Alignment.Center).size(80.dp)
         )
     }
 }
