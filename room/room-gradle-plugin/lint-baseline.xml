@@ -2,66 +2,12 @@
 <issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="                it in this.properties &amp;&amp; this.properties[it].toString().toBoolean()"
-        errorLine2="                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/RoomGradlePlugin.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Use providers.gradleProperty instead of getProperties"
-        errorLine1="                it in this.properties &amp;&amp; this.properties[it].toString().toBoolean()"
-        errorLine2="                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/RoomGradlePlugin.kt"/>
-    </issue>
-
-    <issue
         id="WithPluginClasspathUsage"
         message="Avoid usage of GradleRunner#withPluginClasspath, which is broken. Instead use something like https://github.com/autonomousapps/dependency-analysis-gradle-plugin/tree/main/testkit#gradle-testkit-support-plugin"
         errorLine1="            .withPluginClasspath()"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/room/gradle/GradleTestUtils.kt"/>
-    </issue>
-
-    <issue
-        id="WithTypeWithoutConfigureEach"
-        message="Avoid passing a closure to withType, use withType().configureEach instead"
-        errorLine1="        project.tasks.withType(JavaCompile::class.java) { task ->"
-        errorLine2="                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/integration/AndroidPluginIntegration.kt"/>
-    </issue>
-
-    <issue
-        id="WithTypeWithoutConfigureEach"
-        message="Avoid passing a closure to withType, use withType().configureEach instead"
-        errorLine1="            project.tasks.withType(KaptTask::class.java) { task ->"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/integration/AndroidPluginIntegration.kt"/>
-    </issue>
-
-    <issue
-        id="WithTypeWithoutConfigureEach"
-        message="Avoid passing a closure to withType, use withType().configureEach instead"
-        errorLine1="            project.tasks.withType(KspTaskJvm::class.java) { task ->"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/integration/AndroidPluginIntegration.kt"/>
-    </issue>
-
-    <issue
-        id="WithTypeWithoutConfigureEach"
-        message="Avoid passing a closure to withType, use withType().configureEach instead"
-        errorLine1="            project.tasks.withType(KspTask::class.java) { task ->"
-        errorLine2="                          ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/gradle/integration/KotlinMultiplatformPluginIntegration.kt"/>
     </issue>
 
 </issues>

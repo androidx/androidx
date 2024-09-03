@@ -126,7 +126,7 @@ dependencies {
 
 room {
     schemaDirectory(
-        provider { layout.projectDirectory.dir("schemas").getAsFile().getAbsolutePath() }
+        layout.projectDirectory.dir("schemas")
     )
 }
 

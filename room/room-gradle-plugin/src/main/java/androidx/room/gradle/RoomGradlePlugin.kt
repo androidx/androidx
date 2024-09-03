@@ -28,16 +28,16 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.file.ProjectLayout
-import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ProviderFactory
 
 class RoomGradlePlugin
 @Inject
 constructor(
     projectLayout: ProjectLayout,
-    objectFactory: ObjectFactory,
+    providerFactory: ProviderFactory,
 ) : Plugin<Project> {
 
-    private val commonIntegration = CommonIntegration(projectLayout, objectFactory)
+    private val commonIntegration = CommonIntegration(projectLayout, providerFactory)
     private val androidIntegration by lazy { AndroidPluginIntegration(commonIntegration) }
     private val kmpIntegration by lazy { KotlinMultiplatformPluginIntegration(commonIntegration) }
 

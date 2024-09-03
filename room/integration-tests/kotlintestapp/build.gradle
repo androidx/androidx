@@ -103,15 +103,15 @@ dependencies {
 room {
     schemaDirectory(
         "withKapt",
-        provider { layout.projectDirectory.dir("schemas").getAsFile().getAbsolutePath() }
+        layout.projectDirectory.dir("schemas")
     )
     schemaDirectory(
         "withKspGenJava",
-        provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+        layout.projectDirectory.dir("schemas-ksp")
     )
     schemaDirectory(
         "withKspGenKotlin",
-        provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+        layout.projectDirectory.dir("schemas-ksp")
     )
 }
 
