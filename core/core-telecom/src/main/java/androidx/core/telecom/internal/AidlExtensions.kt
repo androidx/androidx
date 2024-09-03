@@ -17,11 +17,14 @@
 package androidx.core.telecom.internal
 
 import android.util.Log
+import androidx.core.telecom.CallException
 import androidx.core.telecom.extensions.Extensions
 import androidx.core.telecom.extensions.IActionsResultCallback
 import androidx.core.telecom.extensions.ICallDetailsListener
 import androidx.core.telecom.extensions.ICapabilityExchange
 import androidx.core.telecom.extensions.ICapabilityExchangeListener
+import androidx.core.telecom.extensions.ILocalSilenceActions
+import androidx.core.telecom.extensions.ILocalSilenceStateListener
 import androidx.core.telecom.extensions.IParticipantActions
 import androidx.core.telecom.extensions.IParticipantStateListener
 import androidx.core.telecom.extensions.Participant
@@ -118,6 +121,63 @@ internal class ParticipantStateListenerRemote(private val binder: IParticipantSt
     }
 }
 
+@ExperimentalAppActions
+internal class LocalCallSilenceActionsRemote(binder: ILocalSilenceActions) :
+    ILocalSilenceActions by binder
+
+@ExperimentalAppActions
+internal class LocalCallSilenceStateListenerRemote(val binder: ILocalSilenceStateListener) {
+    fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
+        binder.updateIsLocallySilenced(isLocallySilenced)
+    }
+
+    fun finishSync(actions: ILocalSilenceActions) {
+        binder.finishSync(actions)
+    }
+}
+
+@ExperimentalAppActions
+internal class LocalCallSilenceCallbackRepository(coroutineScope: CoroutineScope) {
+    var localCallSilenceCallback: (suspend (Boolean) -> Unit)? = null
+
+    val eventListener =
+        object : ILocalSilenceActions.Stub() {
+            override fun setIsLocallySilenced(
+                isLocallySilenced: Boolean,
+                cb: IActionsResultCallback?
+            ) {
+                cb?.let {
+                    coroutineScope.launch {
+                        if (localCallSilenceCallback == null) {
+                            ActionsResultCallbackRemote(cb)
+                                .onFailure(
+                                    CallException.ERROR_UNKNOWN,
+                                    "localCallSilenceCallback is NULL"
+                                )
+                        } else {
+                            localCallSilenceCallback?.invoke(isLocallySilenced)
+                            ActionsResultCallbackRemote(cb).onSuccess()
+                        }
+                    }
+                }
+            }
+        }
+}
+
+@ExperimentalAppActions
+internal class LocalCallSilenceStateListener(
+    private val updateLocalCallSilence: (Boolean) -> Unit,
+    private val finishSync: (LocalCallSilenceActionsRemote?) -> Unit
+) : ILocalSilenceStateListener.Stub() {
+    override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
+        updateLocalCallSilence.invoke(isLocallySilenced)
+    }
+
+    override fun finishSync(cb: ILocalSilenceActions?) {
+        finishSync.invoke(cb?.let { LocalCallSilenceActionsRemote(it) })
+    }
+}
+
 /**
  * The remote interface used to begin capability exchange with the InCallService.
  *
@@ -183,6 +243,12 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
         ((CoroutineScope, Set<Int>, ParticipantStateListenerRemote) -> Unit)? =
         null
 
+    // This is set in LocalSilenceExtensionImpl (VoIP side) in onExchangeStarted(...)
+    // callbacks.onCreateLocalCallSilenceExtension = // current impl
+    var onCreateLocalCallSilenceExtension:
+        ((CoroutineScope, Set<Int>, LocalCallSilenceStateListenerRemote) -> Unit)? =
+        null
+
     val listener =
         object : ICapabilityExchangeListener.Stub() {
             override fun onCreateParticipantExtension(
@@ -195,6 +261,21 @@ internal class CapabilityExchangeRepository(private val connectionScope: Corouti
                         connectionScope,
                         actions?.toSet() ?: emptySet(),
                         ParticipantStateListenerRemote(l)
+                    )
+                }
+            }
+
+            override fun onCreateLocalCallSilenceExtension(
+                version: Int,
+                actions: IntArray?,
+                l: ILocalSilenceStateListener?
+            ) {
+                l?.let {
+                    // called by the LocalSilenceExtensionImpl (VoIP side)
+                    onCreateLocalCallSilenceExtension?.invoke(
+                        connectionScope,
+                        actions?.toSet() ?: emptySet(),
+                        LocalCallSilenceStateListenerRemote(l)
                     )
                 }
             }

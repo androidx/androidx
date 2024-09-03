@@ -83,4 +83,27 @@ public interface CallExtensionScope {
         onActiveParticipantChanged: suspend (Participant?) -> Unit,
         onParticipantsUpdated: suspend (Set<Participant>) -> Unit
     ): ParticipantExtensionRemote
+
+    /**
+     * Add support for this remote surface to display information related to the local call silence
+     * state for this call.
+     *
+     * ```
+     * connectExtensions(call) {
+     *     val localCallSilenceExtension = addLocalCallSilenceExtension(
+     *         // consume local call silence state changes
+     *     )
+     *     onConnected {
+     *         // At this point, support for the local call silence extension will be known
+     *     }
+     * }
+     * ```
+     *
+     * @param onIsLocallySilencedUpdated Called when the local call silence state has changed and
+     *   the UI should be updated.
+     * @return The interface that is used to interact with the local call silence extension methods.
+     */
+    public fun addLocalCallSilenceExtension(
+        onIsLocallySilencedUpdated: suspend (Boolean) -> Unit
+    ): LocalCallSilenceExtensionRemote
 }

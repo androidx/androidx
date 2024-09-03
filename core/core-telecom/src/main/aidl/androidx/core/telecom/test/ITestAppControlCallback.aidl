@@ -6,4 +6,5 @@ import androidx.core.telecom.extensions.ParticipantParcelable;
 oneway interface ITestAppControlCallback {
     void raiseHandStateAction(in String callId, boolean isHandRaised);
     void kickParticipantAction(in String callId, in ParticipantParcelable participant);
+    void setLocalCallSilenceState(in String callId, boolean isLocallySilenced);
 }

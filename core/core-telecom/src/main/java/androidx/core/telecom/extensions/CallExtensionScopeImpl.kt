@@ -152,6 +152,24 @@ internal class CallExtensionScopeImpl(
         return extension
     }
 
+    override fun addLocalCallSilenceExtension(
+        onIsLocallySilencedUpdated: suspend (Boolean) -> Unit
+    ): LocalCallSilenceExtensionRemoteImpl {
+        val extension = LocalCallSilenceExtensionRemoteImpl(callScope, onIsLocallySilencedUpdated)
+        registerExtension {
+            CallExtensionCreator(
+                extensionCapability =
+                    Capability().apply {
+                        featureId = Extensions.LOCAL_CALL_SILENCE
+                        featureVersion = LocalCallSilenceExtensionImpl.VERSION
+                        supportedActions = extension.actions
+                    },
+                onExchangeComplete = extension::onExchangeComplete
+            )
+        }
+        return extension
+    }
+
     /**
      * Register an extension with this call, whose capability will be negotiated with the VOIP
      * application.

@@ -97,4 +97,28 @@ public interface ExtensionInitializationScope {
         initialParticipants: Set<Participant> = emptySet(),
         initialActiveParticipant: Participant? = null
     ): ParticipantExtension
+
+    /**
+     * Adds the local call silence extension to a call, which provides the ability for this
+     * application to signal to the local call silence state to other surfaces (e.g. Android Auto)
+     *
+     * Local Call Silence means that the call should be silenced at the application layer (local
+     * silence) instead of the hardware layer (global silence). Using a local call silence over
+     * global silence is advantageous when the application wants to still receive the audio input
+     * data while not transmitting audio input data to remote users.
+     *
+     * @param initialCallSilenceState The initial call silence value at the start of the call. True,
+     *   signals silence the user and do not transmit audio data to the remote users. False signals
+     *   the mic is transmitting audio data at the application layer.
+     * @param onLocalSilenceUpdate This is called when the user has requested to change their
+     *   silence state on a remote surface. If true, this user has requested to silence the
+     *   microphone. If false, this user has unsilenced the microphone. This operation should not
+     *   return until the request has been processed.
+     * @return The interface used by this application to further update the local call silence
+     *   extension state to remote surfaces
+     */
+    public fun addLocalSilenceExtension(
+        initialCallSilenceState: Boolean,
+        onLocalSilenceUpdate: (suspend (Boolean) -> Unit),
+    ): LocalCallSilenceExtension
 }
