@@ -16,6 +16,15 @@
 
 package androidx.compose.foundation.gestures
 
+import android.os.Build
+import android.view.InputDevice
+import android.view.MotionEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_MOVE
+import android.view.MotionEvent.CLASSIFICATION_DEEP_PRESS
+import android.view.MotionEvent.CLASSIFICATION_NONE
+import android.view.MotionEvent.PointerCoords
+import android.view.View
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -31,6 +40,7 @@ import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.TouchInjectionScope
@@ -39,6 +49,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -756,9 +767,203 @@ class TapGestureDetectorTest {
         assertTrue(longPressed)
         assertFalse(released)
         assertFalse(canceled)
+        assertFalse(doubleTapped)
 
         rule.mainClock.advanceTimeBy(500)
         performTouch { up(1) }
         assertTrue(released)
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun longPress_deepPress() {
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            allGestures()
+        }
+
+        rule.waitForIdle()
+
+        val pointerProperties =
+            arrayOf(
+                MotionEvent.PointerProperties().also {
+                    it.id = 0
+                    it.toolType = MotionEvent.TOOL_TYPE_FINGER
+                }
+            )
+
+        val downEvent =
+            MotionEvent.obtain(
+                /* downTime = */ 0,
+                /* eventTime = */ 0,
+                /* action = */ ACTION_DOWN,
+                /* pointerCount = */ 1,
+                /* pointerProperties = */ pointerProperties,
+                /* pointerCoords = */ arrayOf(
+                    PointerCoords().apply {
+                        x = 5f
+                        y = 5f
+                    }
+                ),
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 0f,
+                /* yPrecision = */ 0f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
+                /* displayId = */ 0,
+                /* flags = */ 0,
+                /* classification = */ CLASSIFICATION_NONE
+            )
+
+        view.dispatchTouchEvent(downEvent)
+        rule.mainClock.advanceTimeBy(50)
+
+        assertTrue(pressed)
+        assertFalse(longPressed)
+
+        val deepPressMoveEvent =
+            MotionEvent.obtain(
+                /* downTime = */ 0,
+                /* eventTime = */ 50,
+                /* action = */ ACTION_MOVE,
+                /* pointerCount = */ 1,
+                /* pointerProperties = */ pointerProperties,
+                /* pointerCoords = */ arrayOf(
+                    PointerCoords().apply {
+                        x = 10f
+                        y = 10f
+                    }
+                ),
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 0f,
+                /* yPrecision = */ 0f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
+                /* displayId = */ 0,
+                /* flags = */ 0,
+                /* classification = */ CLASSIFICATION_DEEP_PRESS
+            )
+
+        view.dispatchTouchEvent(deepPressMoveEvent)
+        rule.mainClock.advanceTimeBy(50)
+
+        assertTrue(pressed)
+        // Even though the timeout didn't pass, the deep press should immediately trigger the long
+        // press
+        assertTrue(longPressed)
+        assertFalse(tapped)
+        assertFalse(released)
+        assertFalse(canceled)
+        assertFalse(doubleTapped)
+    }
+
+    /** Detect the second deep press as long press. */
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun secondTapLongPress_deepPress() {
+        lateinit var view: View
+        rule.setContent {
+            view = LocalView.current
+            allGestures()
+        }
+
+        performTouch {
+            down(0, Offset(5f, 5f))
+            up(0)
+        }
+
+        assertTrue(pressed)
+        assertTrue(released)
+        assertFalse(canceled)
+        assertFalse(tapped)
+        assertFalse(doubleTapped)
+        assertFalse(longPressed)
+
+        pressed = false
+        released = false
+
+        rule.mainClock.advanceTimeBy(50)
+
+        val pointerProperties =
+            arrayOf(
+                MotionEvent.PointerProperties().also {
+                    it.id = 0
+                    it.toolType = MotionEvent.TOOL_TYPE_FINGER
+                }
+            )
+
+        val downEvent =
+            MotionEvent.obtain(
+                /* downTime = */ 0,
+                /* eventTime = */ 50,
+                /* action = */ ACTION_DOWN,
+                /* pointerCount = */ 1,
+                /* pointerProperties = */ pointerProperties,
+                /* pointerCoords = */ arrayOf(
+                    PointerCoords().apply {
+                        x = 5f
+                        y = 5f
+                    }
+                ),
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 0f,
+                /* yPrecision = */ 0f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
+                /* displayId = */ 0,
+                /* flags = */ 0,
+                /* classification = */ CLASSIFICATION_NONE
+            )
+
+        view.dispatchTouchEvent(downEvent)
+        rule.mainClock.advanceTimeBy(50)
+
+        assertTrue(pressed)
+        assertFalse(longPressed)
+        assertFalse(tapped)
+
+        val deepPressMoveEvent =
+            MotionEvent.obtain(
+                /* downTime = */ 0,
+                /* eventTime = */ 100,
+                /* action = */ ACTION_MOVE,
+                /* pointerCount = */ 1,
+                /* pointerProperties = */ pointerProperties,
+                /* pointerCoords = */ arrayOf(
+                    PointerCoords().apply {
+                        x = 10f
+                        y = 10f
+                    }
+                ),
+                /* metaState = */ 0,
+                /* buttonState = */ 0,
+                /* xPrecision = */ 0f,
+                /* yPrecision = */ 0f,
+                /* deviceId = */ 0,
+                /* edgeFlags = */ 0,
+                /* source = */ InputDevice.SOURCE_TOUCHSCREEN,
+                /* displayId = */ 0,
+                /* flags = */ 0,
+                /* classification = */ CLASSIFICATION_DEEP_PRESS
+            )
+
+        view.dispatchTouchEvent(deepPressMoveEvent)
+        rule.mainClock.advanceTimeBy(50)
+
+        assertTrue(pressed)
+        // Even though the timeout didn't pass, the deep press should immediately trigger the long
+        // press
+        assertTrue(longPressed)
+        assertFalse(tapped)
+        assertFalse(released)
+        assertFalse(canceled)
+        assertFalse(doubleTapped)
     }
 }

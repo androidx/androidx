@@ -881,6 +881,7 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
     var currentDown = initialDown
     val longPressTimeout = viewConfiguration.longPressTimeoutMillis
     return try {
+        var deepPress = false
         // wait for first tap up or long press
         withTimeout(longPressTimeout) {
             var finished = false
@@ -897,6 +898,11 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
                     }
                 ) {
                     finished = true // Canceled
+                }
+
+                if (event.isDeepPress) {
+                    deepPress = true
+                    finished = true
                 }
 
                 // Check for cancel by position consumption. We can look on the Final pass of
@@ -921,7 +927,13 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
                 }
             }
         }
-        null
+        // If we finished early because of a deep press, return the relevant change as this counts
+        // as a long press
+        if (deepPress) {
+            longPress ?: initialDown
+        } else {
+            null
+        }
     } catch (_: PointerEventTimeoutCancellationException) {
         longPress ?: initialDown
     }
