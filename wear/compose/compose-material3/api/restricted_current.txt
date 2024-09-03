@@ -71,8 +71,12 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledTonalButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledVariantButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors filledVariantButtonColors(optional long containerColor, optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContainerColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
+    method public float getButtonExtraLargeIconStartPadding();
     method public float getButtonHorizontalPadding();
+    method public float getButtonLargeIconStartPadding();
     method public float getButtonVerticalPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithExtraLargeIconContentPadding();
+    method public androidx.compose.foundation.layout.PaddingValues getButtonWithLargeIconContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getCompactButtonContentPadding();
     method public float getCompactButtonHeight();
     method public float getCompactButtonHorizontalPadding();
@@ -84,6 +88,7 @@ package androidx.wear.compose.material3 {
     method public float getEdgeButtonHeightLarge();
     method public float getEdgeButtonHeightMedium();
     method public float getEdgeButtonHeightSmall();
+    method public float getExtraLargeIconSize();
     method public float getHeight();
     method public float getIconSize();
     method public float getLargeIconSize();
@@ -93,8 +98,12 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedButtonBorder(boolean enabled, optional long borderColor, optional long disabledBorderColor, optional float borderWidth);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors outlinedButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ButtonColors outlinedButtonColors(optional long contentColor, optional long secondaryContentColor, optional long iconColor, optional long disabledContentColor, optional long disabledSecondaryContentColor, optional long disabledIconColor);
+    property public final float ButtonExtraLargeIconStartPadding;
     property public final float ButtonHorizontalPadding;
+    property public final float ButtonLargeIconStartPadding;
     property public final float ButtonVerticalPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithExtraLargeIconContentPadding;
+    property public final androidx.compose.foundation.layout.PaddingValues ButtonWithLargeIconContentPadding;
     property public final androidx.compose.foundation.layout.PaddingValues CompactButtonContentPadding;
     property public final float CompactButtonHeight;
     property public final float CompactButtonHorizontalPadding;
@@ -105,6 +114,7 @@ package androidx.wear.compose.material3 {
     property public final float EdgeButtonHeightLarge;
     property public final float EdgeButtonHeightMedium;
     property public final float EdgeButtonHeightSmall;
+    property public final float ExtraLargeIconSize;
     property public final float Height;
     property public final float IconSize;
     property public final float LargeIconSize;

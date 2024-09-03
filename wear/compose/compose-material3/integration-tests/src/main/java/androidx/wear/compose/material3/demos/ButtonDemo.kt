@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.sizeIn
@@ -29,7 +28,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
@@ -40,23 +38,20 @@ import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.ListSubheader
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.samples.ButtonExtraLargeIconSample
+import androidx.wear.compose.material3.samples.ButtonLargeIconSample
 import androidx.wear.compose.material3.samples.ButtonSample
-import androidx.wear.compose.material3.samples.ButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.ChildButtonSample
-import androidx.wear.compose.material3.samples.ChildButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.CompactButtonSample
 import androidx.wear.compose.material3.samples.CompactButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
-import androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.FilledVariantButtonSample
 import androidx.wear.compose.material3.samples.OutlinedButtonSample
-import androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleChildButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledVariantButtonSample
 import androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
-import androidx.wear.compose.material3.samples.icons.AvatarIcon
 import androidx.wear.compose.material3.samples.icons.FavoriteIcon
 
 @Composable
@@ -179,10 +174,13 @@ fun ButtonDemo() {
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            ButtonWithOnLongClickSample(
+            Button(
+                onClick = { showOnClickToast(context) },
+                onLongClick = { showOnLongClickToast(context) },
+                onLongClickLabel = "Long click",
+                label = { Text("Button") },
+                secondaryLabel = { Text("with long click") },
                 modifier = Modifier.fillMaxWidth(),
-                onClickHandler = { showOnClickToast(context) },
-                onLongClickHandler = { showOnLongClickToast(context) },
             )
         }
     }
@@ -252,9 +250,13 @@ fun FilledTonalButtonDemo() {
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            FilledTonalButtonWithOnLongClickSample(
-                onClickHandler = { showOnClickToast(context) },
-                onLongClickHandler = { showOnLongClickToast(context) }
+            FilledTonalButton(
+                onClick = { showOnClickToast(context) },
+                onLongClick = { showOnLongClickToast(context) },
+                onLongClickLabel = "Long click",
+                label = { Text("Filled Tonal Button") },
+                secondaryLabel = { Text("with long click") },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -407,9 +409,13 @@ fun OutlinedButtonDemo() {
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            OutlinedButtonWithOnLongClickSample(
-                onClickHandler = { showOnClickToast(context) },
-                onLongClickHandler = { showOnLongClickToast(context) }
+            OutlinedButton(
+                onClick = { showOnClickToast(context) },
+                onLongClick = { showOnLongClickToast(context) },
+                onLongClickLabel = "Long click",
+                label = { Text("Outlined Button") },
+                secondaryLabel = { Text("with long click") },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -479,9 +485,13 @@ fun ChildButtonDemo() {
         }
         item { ListHeader { Text("Long Click") } }
         item {
-            ChildButtonWithOnLongClickSample(
-                onClickHandler = { showOnClickToast(context) },
-                onLongClickHandler = { showOnLongClickToast(context) },
+            ChildButton(
+                onClick = { showOnClickToast(context) },
+                onLongClick = { showOnLongClickToast(context) },
+                onLongClickLabel = "Long click",
+                label = { Text("Child Button") },
+                secondaryLabel = { Text("with long click") },
+                modifier = Modifier.fillMaxWidth(),
             )
         }
     }
@@ -634,18 +644,6 @@ fun MultilineButtonDemo() {
 }
 
 @Composable
-fun AvatarButtonDemo() {
-    ScalingLazyDemo {
-        item { ListHeader { Text("Label + Avatar") } }
-        item { AvatarButton(enabled = true) }
-        item { AvatarButton(enabled = false) }
-        item { ListHeader { Text("Primary/Secondary + Avatar") } }
-        item { Avatar3SlotButton(enabled = true) }
-        item { Avatar3SlotButton(enabled = false) }
-    }
-}
-
-@Composable
 fun ButtonBackgroundImageDemo() {
     ScalingLazyDemo {
         item { ListHeader { Text("Button (Image Background)") } }
@@ -684,31 +682,23 @@ fun ButtonBackgroundImageDemo() {
 fun AppButtonDemo() {
     ScalingLazyDemo {
         item { ListHeader { Text("Large Icon") } }
-        item { AppButton(label = "Button") }
-        item { AppButton(label = "Button", enabled = false) }
-        item { AppButton(label = "Button", secondaryLabel = "Secondary label") }
-        item { AppButton(label = "Button", secondaryLabel = "Secondary label", enabled = false) }
+        item { ButtonLargeIcon(enabled = true) }
+        item { ButtonLargeIcon(enabled = false) }
+        item { ButtonLargeIconSample(enabled = true) }
+        item { ButtonLargeIconSample(enabled = false) }
     }
 }
 
 @Composable
-private fun AvatarButton(enabled: Boolean) =
-    MultilineButton(
-        enabled = enabled,
-        colors = ButtonDefaults.filledTonalButtonColors(),
-        icon = { AvatarIcon() },
-        label = { Text("Primary text") }
-    )
-
-@Composable
-private fun Avatar3SlotButton(enabled: Boolean) =
-    Multiline3SlotButton(
-        enabled = enabled,
-        colors = ButtonDefaults.filledTonalButtonColors(),
-        icon = { AvatarIcon() },
-        label = { Text("Primary text") },
-        secondaryLabel = { Text("Secondary label") }
-    )
+fun AvatarButtonDemo() {
+    ScalingLazyDemo {
+        item { ListHeader { Text("Extra Large Icon") } }
+        item { ButtonExtraLargeIcon(enabled = true) }
+        item { ButtonExtraLargeIcon(enabled = false) }
+        item { ButtonExtraLargeIconSample(enabled = true) }
+        item { ButtonExtraLargeIconSample(enabled = false) }
+    }
+}
 
 @Composable
 private fun MultilineButton(
@@ -777,18 +767,25 @@ private fun ButtonBackgroundImage(painter: Painter, enabled: Boolean) =
     )
 
 @Composable
-private fun AppButton(label: String, secondaryLabel: String? = null, enabled: Boolean = true) {
+private fun ButtonLargeIcon(enabled: Boolean = true) {
     Button(
         onClick = { /* Do something */ },
-        label = { Text(label) },
-        secondaryLabel = secondaryLabel?.let { { Text(text = it) } },
+        label = { Text("Button") },
         icon = { FavoriteIcon(ButtonDefaults.LargeIconSize) },
         enabled = enabled,
         modifier = Modifier.fillMaxWidth(),
-        contentPadding =
-            PaddingValues(
-                horizontal = 12.dp,
-                vertical = 8.dp,
-            )
+        contentPadding = ButtonDefaults.ButtonWithLargeIconContentPadding
+    )
+}
+
+@Composable
+private fun ButtonExtraLargeIcon(enabled: Boolean = true) {
+    Button(
+        onClick = { /* Do something */ },
+        label = { Text("Button") },
+        icon = { FavoriteIcon(ButtonDefaults.ExtraLargeIconSize) },
+        enabled = enabled,
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = ButtonDefaults.ButtonWithExtraLargeIconContentPadding
     )
 }

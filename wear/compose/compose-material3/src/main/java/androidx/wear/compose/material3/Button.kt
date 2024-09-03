@@ -92,10 +92,6 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * Example of a [Button]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
- *
- * Example of a [Button] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.ButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -175,10 +171,6 @@ fun Button(
  * Example of a [FilledTonalButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
- *
- * Example of a [FilledTonalButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -257,10 +249,6 @@ fun FilledTonalButton(
  * Example of an [OutlinedButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
- *
- * Example of a [OutlinedButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -339,10 +327,6 @@ fun OutlinedButton(
  * Example of a [ChildButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
- *
- * Example of a [ChildButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.ChildButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -423,6 +407,14 @@ fun ChildButton(
  * Example of a [Button] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonSample
+ *
+ * Example of a [Button] with a large icon and adjusted content padding:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonLargeIconSample
+ *
+ * Example of a [Button] with an extra large icon and adjusted content padding:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonExtraLargeIconSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -1393,7 +1385,16 @@ object ButtonDefaults {
             disabledIconColor = disabledIconColor
         )
 
+    /** The recommended horizontal padding used by [Button] by default */
     val ButtonHorizontalPadding = 14.dp
+
+    /** The recommended start padding to be used with [Button] with a large icon */
+    val ButtonLargeIconStartPadding = 12.dp
+
+    /** The recommended start padding to be used with [Button] with an extra large icon */
+    val ButtonExtraLargeIconStartPadding = 8.dp
+
+    /** The recommended vertical padding used by [Button] by default */
     val ButtonVerticalPadding = 6.dp
 
     /** The default content padding used by [Button] */
@@ -1403,11 +1404,35 @@ object ButtonDefaults {
             vertical = ButtonVerticalPadding,
         )
 
+    /** The default content padding used by [Button] with a large icon */
+    val ButtonWithLargeIconContentPadding: PaddingValues =
+        PaddingValues(
+            start = ButtonLargeIconStartPadding,
+            top = ButtonVerticalPadding,
+            end = ButtonHorizontalPadding,
+            bottom = ButtonVerticalPadding
+        )
+
+    /** The default content padding used by [Button] with an extra large icon */
+    val ButtonWithExtraLargeIconContentPadding: PaddingValues =
+        PaddingValues(
+            start = ButtonExtraLargeIconStartPadding,
+            top = ButtonVerticalPadding,
+            end = ButtonHorizontalPadding,
+            bottom = ButtonVerticalPadding
+        )
+
+    /** The size of the icon when used inside a "[CompactButton]. */
+    val SmallIconSize: Dp = CompactButtonTokens.IconSize
+
     /** The default size of the icon when used inside a [Button]. */
     val IconSize: Dp = FilledButtonTokens.IconSize
 
-    /** The size of the icon when used inside a Large "Avatar" [Button]. */
+    /** The recommended icon size when used in [Button]s for icons such as an app icon */
     val LargeIconSize: Dp = FilledButtonTokens.IconLargeSize
+
+    /** The recommended icon size when used in [Button]s for icons such as an avatar icon */
+    val ExtraLargeIconSize: Dp = FilledButtonTokens.IconExtraLargeSize
 
     /**
      * The default height applied for the [Button]. Note that you can override it by applying
@@ -1448,9 +1473,6 @@ object ButtonDefaults {
 
     /** The height to be applied for a large [EdgeButton]. */
     val EdgeButtonHeightLarge = 96.dp
-
-    /** The size of the icon when used inside a "[CompactButton]. */
-    val SmallIconSize: Dp = CompactButtonTokens.IconSize
 
     /**
      * The default padding to be provided around a [CompactButton] in order to ensure that its
