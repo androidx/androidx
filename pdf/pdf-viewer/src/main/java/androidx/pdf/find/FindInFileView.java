@@ -16,6 +16,7 @@
 
 package androidx.pdf.find;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -35,6 +36,8 @@ import android.widget.TextView.OnEditorActionListener;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.pdf.R;
 import androidx.pdf.models.MatchRects;
 import androidx.pdf.util.Accessibility;
@@ -254,6 +257,8 @@ public class FindInFileView extends LinearLayout {
                 mAnnotationButton.hide();
             }
             setupFindInFileBtn();
+            WindowCompat.getInsetsController(((Activity) getContext()).getWindow(), this)
+                    .show(WindowInsetsCompat.Type.ime());
             if (mIsRestoring) {
                 restoreSelectedMatch();
             }
