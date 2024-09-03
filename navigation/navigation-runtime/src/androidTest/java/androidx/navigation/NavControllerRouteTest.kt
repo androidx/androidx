@@ -5190,6 +5190,34 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectDoubleArray() {
+        @Serializable @SerialName("test") class TestClass(val arg: DoubleArray)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(doubleArrayOf(11E123, 11.11))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isEqualTo(doubleArrayOf(11E123, 11.11))
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullDoubleArray() {
+        @Serializable @SerialName("test") class TestClass(val arg: DoubleArray? = null)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNull()
+    }
+
+    @UiThreadTest
+    @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph

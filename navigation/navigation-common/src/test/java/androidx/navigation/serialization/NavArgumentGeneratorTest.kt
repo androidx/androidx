@@ -487,6 +487,34 @@ class NavArgumentGeneratorTest {
     }
 
     @Test
+    fun convertToDoubleArray() {
+        @Serializable class TestClass(val arg: DoubleArray)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleArrayType
+                nullable = false
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
+    fun convertToDoubleArrayNullable() {
+        @Serializable class TestClass(val arg: DoubleArray?)
+
+        val converted = serializer<TestClass>().generateNavArguments()
+        val expected =
+            navArgument("arg") {
+                type = InternalNavType.DoubleArrayType
+                nullable = true
+            }
+        assertThat(converted).containsExactlyInOrder(expected)
+        assertThat(converted[0].argument.isDefaultValueUnknown).isFalse()
+    }
+
+    @Test
     fun convertToStringArray() {
         @Serializable class TestClass(val arg: Array<String>)
 
