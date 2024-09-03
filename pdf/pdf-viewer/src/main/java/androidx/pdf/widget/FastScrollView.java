@@ -150,6 +150,7 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         super.onViewRemoved(child);
         // Prevent leaks if ZoomView is removed from this ViewGroup.
         if (child instanceof ZoomView && child == mZoomView) {
+            mZoomView.zoomScroll().removeObserver(mZoomScrollObserver);
             mZoomView = null;
         }
     }
@@ -200,7 +201,6 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (mZoomView != null && mZoomViewConfigured) {
-            mZoomView.zoomScroll().removeObserver(mZoomScrollObserver);
             mZoomViewConfigured = false;
         }
         if (mPaginationModel != null) {
