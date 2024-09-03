@@ -140,7 +140,7 @@ fun OpenOnPhoneDialog(
                 iconContainer(
                     iconContainerColor = colors.iconContainerColor,
                     progressIndicatorColors =
-                        ProgressIndicatorColors(
+                        ProgressIndicatorDefaults.colors(
                             SolidColor(colors.progressIndicatorColor),
                             SolidColor(colors.progressTrackColor)
                         ),

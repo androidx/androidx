@@ -277,7 +277,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CircularProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional boolean allowProgressOverflow, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
   }
 
   @androidx.compose.runtime.Immutable @androidx.compose.runtime.Stable public final class ColorScheme {
@@ -805,21 +805,25 @@ package androidx.wear.compose.material3 {
   }
 
   public final class ProgressIndicatorColors {
-    ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush, optional androidx.compose.ui.graphics.Brush disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush disabledTrackBrush);
+    ctor public ProgressIndicatorColors(androidx.compose.ui.graphics.Brush indicatorBrush, androidx.compose.ui.graphics.Brush trackBrush, androidx.compose.ui.graphics.Brush overflowTrackBrush, androidx.compose.ui.graphics.Brush disabledIndicatorBrush, androidx.compose.ui.graphics.Brush disabledTrackBrush, androidx.compose.ui.graphics.Brush disabledOverflowTrackBrush);
     method public androidx.compose.ui.graphics.Brush getDisabledIndicatorBrush();
+    method public androidx.compose.ui.graphics.Brush getDisabledOverflowTrackBrush();
     method public androidx.compose.ui.graphics.Brush getDisabledTrackBrush();
     method public androidx.compose.ui.graphics.Brush getIndicatorBrush();
+    method public androidx.compose.ui.graphics.Brush getOverflowTrackBrush();
     method public androidx.compose.ui.graphics.Brush getTrackBrush();
     property public final androidx.compose.ui.graphics.Brush disabledIndicatorBrush;
+    property public final androidx.compose.ui.graphics.Brush disabledOverflowTrackBrush;
     property public final androidx.compose.ui.graphics.Brush disabledTrackBrush;
     property public final androidx.compose.ui.graphics.Brush indicatorBrush;
+    property public final androidx.compose.ui.graphics.Brush overflowTrackBrush;
     property public final androidx.compose.ui.graphics.Brush trackBrush;
   }
 
   public final class ProgressIndicatorDefaults {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush, optional androidx.compose.ui.graphics.Brush? disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush? disabledTrackBrush);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional long indicatorColor, optional long trackColor, optional long disabledIndicatorColor, optional long disabledTrackColor);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional androidx.compose.ui.graphics.Brush? indicatorBrush, optional androidx.compose.ui.graphics.Brush? trackBrush, optional androidx.compose.ui.graphics.Brush? overflowTrackBrush, optional androidx.compose.ui.graphics.Brush? disabledIndicatorBrush, optional androidx.compose.ui.graphics.Brush? disabledTrackBrush, optional androidx.compose.ui.graphics.Brush? disabledOverflowTrackBrush);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.ProgressIndicatorColors colors(optional long indicatorColor, optional long trackColor, optional long overflowTrackColor, optional long disabledIndicatorColor, optional long disabledTrackColor, optional long disabledOverflowTrackColor);
     field public static final androidx.wear.compose.material3.ProgressIndicatorDefaults INSTANCE;
   }
 
@@ -934,7 +938,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class SegmentedCircularProgressIndicatorKt {
-    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
+    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional boolean allowProgressOverflow, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
     method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> completed, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
   }
 

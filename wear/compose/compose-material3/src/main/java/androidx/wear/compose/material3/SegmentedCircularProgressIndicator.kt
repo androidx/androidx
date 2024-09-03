@@ -41,9 +41,15 @@ import kotlin.math.min
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
  *   Has to be a number equal or greater to 1.
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range 0..1. The
- *   progress is applied to the entire [SegmentedCircularProgressIndicator] across all segments.
+ *   represents completion. Values smaller than 0.0 will be coerced to 0, while values larger than
+ *   1.0 will be wrapped around and shown as overflow with a different track color. The progress is
+ *   applied to the entire [SegmentedCircularProgressIndicator] across all segments.
  * @param modifier Modifier to be applied to the SegmentedCircularProgressIndicator.
+ * @param allowProgressOverflow When progress overflow is allowed, values smaller than 0.0 will be
+ *   coerced to 0, while values larger than 1.0 will be wrapped around and shown as overflow with a
+ *   different track color [ProgressIndicatorColors.overflowTrackBrush]. For example values 1.2, 2.2
+ *   etc will be shown as 20% progress with the overflow color. When progress overflow is not
+ *   allowed, progress values will be coerced into the range 0..1.
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
  *   represent 6 o'clock and 9 o'clock respectively. Default is 270 degrees
@@ -64,6 +70,7 @@ fun SegmentedCircularProgressIndicator(
     @IntRange(from = 1) segmentCount: Int,
     progress: () -> Float,
     modifier: Modifier = Modifier,
+    allowProgressOverflow: Boolean = false,
     startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
@@ -72,7 +79,7 @@ fun SegmentedCircularProgressIndicator(
     enabled: Boolean = true,
 ) =
     SegmentedCircularProgressIndicatorImpl(
-        segmentParams = SegmentParams.Progress(progress),
+        segmentParams = SegmentParams.Progress(progress, allowProgressOverflow),
         modifier = modifier,
         segmentCount = segmentCount,
         startAngle = startAngle,
@@ -191,15 +198,23 @@ private fun SegmentedCircularProgressIndicatorImpl(
                                 )
                             }
                             is SegmentParams.Progress -> {
-                                val progressInSegments =
-                                    segmentCount * segmentParams.progress().coerceIn(0f, 1f)
+                                val currentProgress = segmentParams.progress()
+                                val coercedProgress =
+                                    coerceProgress(currentProgress, segmentParams.allowOverflow)
+                                val progressInSegments = segmentCount * coercedProgress
+                                val hasOverflow =
+                                    segmentParams.allowOverflow && currentProgress > 1.0f
 
                                 if (segment >= floor(progressInSegments)) {
                                     drawIndicatorSegment(
                                         startAngle = segmentStartAngle,
                                         sweep = segmentSweepAngle,
                                         gapSweep = 0f, // Overlay, no gap
-                                        brush = colors.trackBrush(enabled),
+                                        brush =
+                                            colors.trackBrush(
+                                                enabled = enabled,
+                                                hasOverflow = hasOverflow
+                                            ),
                                         stroke = stroke
                                     )
                                 }
@@ -227,5 +242,5 @@ private fun SegmentedCircularProgressIndicatorImpl(
 private sealed interface SegmentParams {
     data class Completed(val completed: (segmentIndex: Int) -> Boolean) : SegmentParams
 
-    data class Progress(val progress: () -> Float) : SegmentParams
+    data class Progress(val progress: () -> Float, val allowOverflow: Boolean) : SegmentParams
 }

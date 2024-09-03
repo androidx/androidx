@@ -140,13 +140,15 @@ fun CircularProgressCustomisableFullScreenDemo() {
     val startAngle = remember { mutableFloatStateOf(360f) }
     val endAngle = remember { mutableFloatStateOf(360f) }
     val enabled = remember { mutableStateOf(true) }
+    val overflowAllowed = remember { mutableStateOf(true) }
     val hasLargeStroke = remember { mutableStateOf(true) }
     val hasCustomColors = remember { mutableStateOf(false) }
     val colors =
         if (hasCustomColors.value) {
             ProgressIndicatorDefaults.colors(
                 indicatorColor = Color.Green,
-                trackColor = Color.Green.copy(alpha = 0.5f)
+                trackColor = Color.Green.copy(alpha = 0.5f),
+                overflowTrackColor = Color.Green.copy(alpha = 0.7f),
             )
         } else {
             ProgressIndicatorDefaults.colors()
@@ -166,6 +168,7 @@ fun CircularProgressCustomisableFullScreenDemo() {
             startAngle = startAngle,
             endAngle = endAngle,
             enabled = enabled,
+            overflowAllowed = overflowAllowed,
             hasLargeStroke = hasLargeStroke,
             hasCustomColors = hasCustomColors,
         )
@@ -175,8 +178,9 @@ fun CircularProgressCustomisableFullScreenDemo() {
             startAngle = startAngle.value,
             endAngle = endAngle.value,
             enabled = enabled.value,
+            allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
-            colors = colors
+            colors = colors,
         )
     }
 }
@@ -187,6 +191,7 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
     val startAngle = remember { mutableFloatStateOf(0f) }
     val endAngle = remember { mutableFloatStateOf(0f) }
     val enabled = remember { mutableStateOf(true) }
+    val overflowAllowed = remember { mutableStateOf(true) }
     val hasCustomColors = remember { mutableStateOf(false) }
     val hasLargeStroke = remember { mutableStateOf(true) }
     val numSegments = remember { mutableIntStateOf(5) }
@@ -194,7 +199,8 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
         if (hasCustomColors.value) {
             ProgressIndicatorDefaults.colors(
                 indicatorColor = Color.Green,
-                trackColor = Color.Green.copy(alpha = 0.5f)
+                trackColor = Color.Green.copy(alpha = 0.5f),
+                overflowTrackColor = Color.Green.copy(alpha = 0.7f),
             )
         } else {
             ProgressIndicatorDefaults.colors()
@@ -217,6 +223,7 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
             hasLargeStroke = hasLargeStroke,
             hasCustomColors = hasCustomColors,
             numSegments = numSegments,
+            overflowAllowed = overflowAllowed
         )
 
         SegmentedCircularProgressIndicator(
@@ -225,8 +232,9 @@ fun SegmentedProgressCustomisableFullScreenDemo() {
             startAngle = startAngle.value,
             endAngle = endAngle.value,
             enabled = enabled.value,
+            allowProgressOverflow = overflowAllowed.value,
             strokeWidth = strokeWidth,
-            colors = colors
+            colors = colors,
         )
     }
 }
@@ -240,6 +248,7 @@ fun ProgressIndicatorCustomizer(
     enabled: MutableState<Boolean>,
     hasLargeStroke: MutableState<Boolean>,
     hasCustomColors: MutableState<Boolean>,
+    overflowAllowed: MutableState<Boolean>,
     numSegments: MutableState<Int>? = null,
 ) {
     ScalingLazyColumn(
@@ -254,8 +263,8 @@ fun ProgressIndicatorCustomizer(
                 onValueChange = { progress.value = it },
                 increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
                 decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
-                valueRange = 0f..1f,
-                steps = 4,
+                valueRange = 0f..2f,
+                steps = 9,
                 colors =
                     InlineSliderDefaults.colors(
                         containerColor = MaterialTheme.colorScheme.background,
@@ -334,6 +343,14 @@ fun ProgressIndicatorCustomizer(
                 checked = hasCustomColors.value,
                 onCheckedChange = { hasCustomColors.value = it },
                 label = { Text("Custom colors") },
+            )
+        }
+        item {
+            SwitchButton(
+                modifier = Modifier.fillMaxWidth().padding(8.dp),
+                checked = overflowAllowed.value,
+                onCheckedChange = { overflowAllowed.value = it },
+                label = { Text("Overflow") },
             )
         }
     }

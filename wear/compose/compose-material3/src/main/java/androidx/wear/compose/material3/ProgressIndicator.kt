@@ -29,6 +29,7 @@ import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.wear.compose.materialcore.toRadians
 import kotlin.math.cos
 import kotlin.math.min
+import kotlin.math.round
 import kotlin.math.sin
 
 /** Contains defaults for Progress Indicators. */
@@ -37,50 +38,64 @@ object ProgressIndicatorDefaults {
     @Composable fun colors() = MaterialTheme.colorScheme.defaultProgressIndicatorColors
 
     /**
-     * Creates a [ProgressIndicatorColors] with modified colors used in [CircularProgressIndicator]
-     * and [LinearProgressIndicator].
+     * Creates a [ProgressIndicatorColors] with modified colors.
      *
      * @param indicatorColor The indicator color.
      * @param trackColor The track color.
+     * @param overflowTrackColor The overflow track color.
      * @param disabledIndicatorColor The disabled indicator color.
      * @param disabledTrackColor The disabled track color.
+     * @param disabledOverflowTrackColor The disabled overflow track color.
      */
     @Composable
     fun colors(
         indicatorColor: Color = Color.Unspecified,
         trackColor: Color = Color.Unspecified,
+        overflowTrackColor: Color = Color.Unspecified,
         disabledIndicatorColor: Color = Color.Unspecified,
         disabledTrackColor: Color = Color.Unspecified,
+        disabledOverflowTrackColor: Color = Color.Unspecified,
     ) =
         MaterialTheme.colorScheme.defaultProgressIndicatorColors.copy(
             indicatorColor = indicatorColor,
             trackColor = trackColor,
+            overflowTrackColor = overflowTrackColor,
             disabledIndicatorColor = disabledIndicatorColor,
             disabledTrackColor = disabledTrackColor,
+            disabledOverflowTrackColor = disabledOverflowTrackColor,
         )
 
     /**
-     * Creates a [ProgressIndicatorColors] with modified brushes used in [CircularProgressIndicator]
-     * and [LinearProgressIndicator].
+     * Creates a [ProgressIndicatorColors] with modified brushes.
      *
      * @param indicatorBrush [Brush] used to draw indicator.
      * @param trackBrush [Brush] used to draw track.
+     * @param overflowTrackBrush [Brush] used to draw track for progress overflow.
      * @param disabledIndicatorBrush [Brush] used to draw the indicator if the progress is disabled.
      * @param disabledTrackBrush [Brush] used to draw the track if the progress is disabled.
+     * @param disabledOverflowTrackBrush [Brush] used to draw the overflow track if the progress is
+     *   disabled.
      */
     @Composable
     fun colors(
         indicatorBrush: Brush? = null,
         trackBrush: Brush? = null,
+        overflowTrackBrush: Brush? = null,
         disabledIndicatorBrush: Brush? = null,
         disabledTrackBrush: Brush? = null,
+        disabledOverflowTrackBrush: Brush? = null,
     ) =
         MaterialTheme.colorScheme.defaultProgressIndicatorColors.copy(
             indicatorBrush = indicatorBrush,
             trackBrush = trackBrush,
+            overflowTrackBrush = overflowTrackBrush,
             disabledIndicatorBrush = disabledIndicatorBrush,
             disabledTrackBrush = disabledTrackBrush,
+            disabledOverflowTrackBrush = disabledOverflowTrackBrush
         )
+
+    // TODO(b/364538891): add color and alpha tokens for ProgressIndicator
+    private const val OverflowTrackColorAlpha = 0.6f
 
     private val ColorScheme.defaultProgressIndicatorColors: ProgressIndicatorColors
         get() {
@@ -88,6 +103,11 @@ object ProgressIndicatorDefaults {
                 ?: ProgressIndicatorColors(
                         indicatorBrush = SolidColor(fromToken(ColorSchemeKeyTokens.Primary)),
                         trackBrush = SolidColor(fromToken(ColorSchemeKeyTokens.SurfaceContainer)),
+                        overflowTrackBrush =
+                            SolidColor(
+                                fromToken(ColorSchemeKeyTokens.Primary)
+                                    .copy(alpha = OverflowTrackColorAlpha)
+                            ),
                         disabledIndicatorBrush =
                             SolidColor(
                                 fromToken(ColorSchemeKeyTokens.OnSurface)
@@ -98,6 +118,12 @@ object ProgressIndicatorDefaults {
                                 fromToken(ColorSchemeKeyTokens.OnSurface)
                                     .toDisabledColor(disabledAlpha = DisabledContainerAlpha)
                             ),
+                        disabledOverflowTrackBrush =
+                            SolidColor(
+                                fromToken(ColorSchemeKeyTokens.Primary)
+                                    .copy(alpha = OverflowTrackColorAlpha)
+                                    .toDisabledColor(disabledAlpha = DisabledContainerAlpha)
+                            )
                     )
                     .also { defaultProgressIndicatorColorsCached = it }
         }
@@ -108,44 +134,61 @@ object ProgressIndicatorDefaults {
  *
  * @param indicatorBrush [Brush] used to draw the indicator of progress indicator.
  * @param trackBrush [Brush] used to draw the track of progress indicator.
+ * @param overflowTrackBrush [Brush] used to draw the track for progress overflow (>100%).
  * @param disabledIndicatorBrush [Brush] used to draw the indicator if the component is disabled.
  * @param disabledTrackBrush [Brush] used to draw the track if the component is disabled.
+ * @param disabledOverflowTrackBrush [Brush] used to draw the track if the component is disabled.
  */
 class ProgressIndicatorColors(
     val indicatorBrush: Brush,
     val trackBrush: Brush,
-    val disabledIndicatorBrush: Brush = indicatorBrush,
-    val disabledTrackBrush: Brush = disabledIndicatorBrush,
+    val overflowTrackBrush: Brush,
+    val disabledIndicatorBrush: Brush,
+    val disabledTrackBrush: Brush,
+    val disabledOverflowTrackBrush: Brush,
 ) {
     internal fun copy(
         indicatorColor: Color = Color.Unspecified,
         trackColor: Color = Color.Unspecified,
+        overflowTrackColor: Color = Color.Unspecified,
         disabledIndicatorColor: Color = Color.Unspecified,
         disabledTrackColor: Color = Color.Unspecified,
+        disabledOverflowTrackColor: Color = Color.Unspecified,
     ) =
         ProgressIndicatorColors(
             indicatorBrush =
                 if (indicatorColor.isSpecified) SolidColor(indicatorColor) else indicatorBrush,
             trackBrush = if (trackColor.isSpecified) SolidColor(trackColor) else trackBrush,
+            overflowTrackBrush =
+                if (overflowTrackColor.isSpecified) SolidColor(overflowTrackColor)
+                else overflowTrackBrush,
             disabledIndicatorBrush =
                 if (disabledIndicatorColor.isSpecified) SolidColor(disabledIndicatorColor)
                 else disabledIndicatorBrush,
             disabledTrackBrush =
                 if (disabledTrackColor.isSpecified) SolidColor(disabledTrackColor)
                 else disabledTrackBrush,
+            disabledOverflowTrackBrush =
+                if (disabledOverflowTrackColor.isSpecified) SolidColor(disabledOverflowTrackColor)
+                else disabledOverflowTrackBrush,
         )
 
     internal fun copy(
         indicatorBrush: Brush? = null,
         trackBrush: Brush? = null,
+        overflowTrackBrush: Brush? = null,
         disabledIndicatorBrush: Brush? = null,
         disabledTrackBrush: Brush? = null,
+        disabledOverflowTrackBrush: Brush? = null,
     ) =
         ProgressIndicatorColors(
             indicatorBrush = indicatorBrush ?: this.indicatorBrush,
             trackBrush = trackBrush ?: this.trackBrush,
+            overflowTrackBrush = overflowTrackBrush ?: this.overflowTrackBrush,
             disabledIndicatorBrush = disabledIndicatorBrush ?: this.disabledIndicatorBrush,
             disabledTrackBrush = disabledTrackBrush ?: this.disabledTrackBrush,
+            disabledOverflowTrackBrush =
+                disabledOverflowTrackBrush ?: this.disabledOverflowTrackBrush,
         )
 
     /**
@@ -158,12 +201,17 @@ class ProgressIndicatorColors(
     }
 
     /**
-     * Represents the track color, depending on [enabled].
+     * Represents the track color, depending on [enabled] and [hasOverflow] parameters.
      *
      * @param enabled whether the component is enabled.
+     * @param enabled whether the progress has overflow.
      */
-    internal fun trackBrush(enabled: Boolean): Brush {
-        return if (enabled) trackBrush else disabledTrackBrush
+    internal fun trackBrush(enabled: Boolean, hasOverflow: Boolean = false): Brush {
+        return if (enabled) {
+            if (hasOverflow) overflowTrackBrush else trackBrush
+        } else {
+            if (hasOverflow) disabledOverflowTrackBrush else disabledTrackBrush
+        }
     }
 
     override fun equals(other: Any?): Boolean {
@@ -172,8 +220,10 @@ class ProgressIndicatorColors(
 
         if (indicatorBrush != other.indicatorBrush) return false
         if (trackBrush != other.trackBrush) return false
+        if (overflowTrackBrush != other.overflowTrackBrush) return false
         if (disabledIndicatorBrush != other.disabledIndicatorBrush) return false
         if (disabledTrackBrush != other.disabledTrackBrush) return false
+        if (disabledOverflowTrackBrush != other.disabledOverflowTrackBrush) return false
 
         return true
     }
@@ -181,8 +231,10 @@ class ProgressIndicatorColors(
     override fun hashCode(): Int {
         var result = indicatorBrush.hashCode()
         result = 31 * result + trackBrush.hashCode()
+        result = 31 * result + overflowTrackBrush.hashCode()
         result = 31 * result + disabledIndicatorBrush.hashCode()
         result = 31 * result + disabledTrackBrush.hashCode()
+        result = 31 * result + disabledOverflowTrackBrush.hashCode()
         return result
     }
 }
@@ -242,4 +294,26 @@ internal fun DrawScope.drawIndicatorSegment(
             style = stroke
         )
     }
+}
+
+/**
+ * Coerce a [Float] progress value to [0.0..1.0] range.
+ *
+ * If overflow is enabled, truncate overflow values larger than 1.0 to only the fractional part.
+ * Integer values larger than 0.0 always return 1.0 (full progress) and negative values are coerced
+ * to 0.0. For example: 1.2 will be return 0.2, and 2.0 will return 1.0. If overflow is disabled,
+ * simply coerce all values to [0.0..1.0] range. For example, 1.2 and 2.0 will both return 1.0.
+ *
+ * @param progress The progress value to be coerced to [0.0..1.0] range.
+ * @param allowProgressOverflow If overflow is allowed.
+ */
+internal fun coerceProgress(progress: Float, allowProgressOverflow: Boolean): Float {
+    if (!allowProgressOverflow) return progress.coerceIn(0f, 1f)
+    if (progress <= 0.0f) return 0.0f
+    if (progress <= 1.0f) return progress
+
+    val fraction = progress % 1.0f
+    // Round to 5 decimals to avoid floating point errors.
+    val roundedFraction = round(fraction * 100000f) / 100000f
+    return if (roundedFraction == 0.0f) 1.0f else roundedFraction
 }

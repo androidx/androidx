@@ -55,8 +55,13 @@ import kotlin.math.min
  * Progress indicators express the proportion of completion of an ongoing task.
  *
  * @param progress The progress of this progress indicator where 0.0 represents no progress and 1.0
- *   represents completion. Values outside of this range are coerced into the range 0..1.
+ *   represents completion.
  * @param modifier Modifier to be applied to the CircularProgressIndicator.
+ * @param allowProgressOverflow When progress overflow is allowed, values smaller than 0.0 will be
+ *   coerced to 0, while values larger than 1.0 will be wrapped around and shown as overflow with a
+ *   different track color [ProgressIndicatorColors.overflowTrackBrush]. For example values 1.2, 2.2
+ *   etc will be shown as 20% progress with the overflow color. When progress overflow is not
+ *   allowed, progress values will be coerced into the range 0..1.
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
  *   represent 6 o'clock and 9 o'clock respectively. Default is 270 degrees
@@ -79,6 +84,7 @@ import kotlin.math.min
 fun CircularProgressIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
+    allowProgressOverflow: Boolean = false,
     startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
     colors: ProgressIndicatorColors = ProgressIndicatorDefaults.colors(),
@@ -86,7 +92,6 @@ fun CircularProgressIndicator(
     gapSize: Dp = CircularProgressIndicatorDefaults.calculateRecommendedGapSize(strokeWidth),
     enabled: Boolean = true,
 ) {
-    val coercedProgress = { progress().coerceIn(0f, 1f) }
     // Canvas internally uses Spacer.drawBehind.
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
@@ -95,8 +100,11 @@ fun CircularProgressIndicator(
             .fillMaxSize()
             .focusable()
             .drawWithCache {
+                val currentProgress = progress()
+                val coercedProgress = coerceProgress(currentProgress, allowProgressOverflow)
                 val fullSweep = 360f - ((startAngle - endAngle) % 360 + 360) % 360
-                var progressSweep = fullSweep * coercedProgress()
+                var progressSweep = fullSweep * coercedProgress
+                val hasOverflow = allowProgressOverflow && currentProgress > 1.0f
                 val stroke = Stroke(width = strokeWidth.toPx(), cap = StrokeCap.Round)
                 val minSize = min(size.height, size.width)
                 // Sweep angle between two progress indicator segments.
@@ -123,7 +131,7 @@ fun CircularProgressIndicator(
                         startAngle = startAngle + progressSweep,
                         sweep = fullSweep - progressSweep,
                         gapSweep = gapSweep,
-                        brush = colors.trackBrush(enabled),
+                        brush = colors.trackBrush(enabled, hasOverflow),
                         stroke = stroke
                     )
                 }
