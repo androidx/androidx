@@ -90,6 +90,14 @@ constructor(
     public var flashMode: Int by updateOnPropertyChange(DEFAULT_FLASH_MODE)
     public var template: Int by updateOnPropertyChange(DEFAULT_REQUEST_TEMPLATE)
     public var tryExternalFlashAeMode: Boolean by updateOnPropertyChange(false)
+
+    /**
+     * The [CaptureRequest.CONTROL_AE_MODE] that is set to camera if supported.
+     *
+     * If null, a value based on other settings is calculated and available via
+     * [getFinalPreferredAeMode]. If not supported, [getSupportedAeMode] is used to find the next
+     * best option.
+     */
     public var preferredAeMode: Int? by updateOnPropertyChange(null)
     public var preferredFocusMode: Int? by updateOnPropertyChange(null)
     public var preferredAeFpsRange: Range<Int>? by
@@ -118,6 +126,19 @@ constructor(
             }
         }
 
+    /**
+     * Returns the AE mode that is finally set to camera based on all other settings and camera
+     * capabilities.
+     */
+    public fun getFinalSupportedAeMode(): Int =
+        cameraProperties.metadata.getSupportedAeMode(getFinalPreferredAeMode())
+
+    /**
+     * Returns the AE mode that is finally set to camera based on all other settings.
+     *
+     * Note that this may not be supported via the camera and should be sanitized with
+     * [getSupportedAeMode].
+     */
     private fun getFinalPreferredAeMode(): Int {
         var preferAeMode =
             preferredAeMode
