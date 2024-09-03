@@ -36,13 +36,12 @@
       <item quantity="one">%d secondo</item>
     </plurals>
     <string name="wear_m3c_time_picker_period" msgid="5567285614451063120">"Periodo"</string>
-    <!-- no translation found for wear_m3c_date_picker_day (8932770593644830235) -->
-    <skip />
-    <!-- no translation found for wear_m3c_date_picker_month (5962969526377479136) -->
-    <skip />
-    <!-- no translation found for wear_m3c_date_picker_year (4697690064312147449) -->
-    <skip />
+    <string name="wear_m3c_date_picker_day" msgid="8932770593644830235">"Giorno"</string>
+    <string name="wear_m3c_date_picker_month" msgid="5962969526377479136">"Mese"</string>
+    <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Anno"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Conferma"</string>
-    <!-- no translation found for wear_m3c_picker_next_button_content_description (3346011303652897029) -->
-    <skip />
+    <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Avanti"</string>
+    <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Non riuscita"</string>
+    <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Riuscita"</string>
+    <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Su smartph."</string>
 </resources>
