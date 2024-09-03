@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import androidx.core.graphics.Insets
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
@@ -345,17 +346,35 @@ private class DialogWrapper(
         ViewCompat.setWindowInsetsAnimationCallback(
             frameLayout,
             object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                private inline fun <T> insetValue(
+                    unchangedValue: T,
+                    block: (left: Int, top: Int, right: Int, bottom: Int) -> T
+                ): T {
+                    if (properties.decorFitsSystemWindows) {
+                        return unchangedValue
+                    }
+                    val left = maxOf(0, dialogLayout.left)
+                    val top = maxOf(0, dialogLayout.top)
+                    val right = maxOf(0, frameLayout.width - dialogLayout.right)
+                    val bottom = maxOf(0, frameLayout.height - dialogLayout.bottom)
+                    return if (left == 0 && top == 0 && right == 0 && bottom == 0) {
+                        unchangedValue
+                    } else {
+                        block(left, top, right, bottom)
+                    }
+                }
+
+                override fun onStart(
+                    animation: WindowInsetsAnimationCompat,
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                ): WindowInsetsAnimationCompat.BoundsCompat =
+                    insetValue(bounds) { l, t, r, b -> bounds.inset(Insets.of(l, t, r, b)) }
+
                 override fun onProgress(
                     insets: WindowInsetsCompat,
                     runningAnimations: MutableList<WindowInsetsAnimationCompat>
-                ): WindowInsetsCompat {
-                    return insets.inset(
-                        dialogLayout.left,
-                        dialogLayout.top,
-                        frameLayout.width - dialogLayout.right,
-                        frameLayout.height - dialogLayout.bottom
-                    )
-                }
+                ): WindowInsetsCompat =
+                    insetValue(insets) { l, t, r, b -> insets.inset(l, t, r, b) }
             }
         )
         dialogLayout.addOnLayoutChangeListener(this)
@@ -491,10 +510,13 @@ private class DialogWrapper(
     }
 
     override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-        val left = dialogLayout.left
-        val top = dialogLayout.top
-        val right = v.width - dialogLayout.right
-        val bottom = v.height - dialogLayout.bottom
+        if (properties.decorFitsSystemWindows) {
+            return insets
+        }
+        val left = maxOf(0, dialogLayout.left)
+        val top = maxOf(0, dialogLayout.top)
+        val right = maxOf(0, v.width - dialogLayout.right)
+        val bottom = maxOf(0, v.height - dialogLayout.bottom)
         return insets.inset(left, top, right, bottom)
     }
 
