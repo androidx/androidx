@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: v0_71
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
 
 internal enum class TypographyKeyTokens {
+    ArcLarge,
     ArcMedium,
     ArcSmall,
     BodyExtraSmall,

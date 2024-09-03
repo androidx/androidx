@@ -43,6 +43,7 @@ val WearMaterial3Demos =
     Material3DemoCategory(
         "Material 3",
         listOf(
+            Material3DemoCategory(title = "Typography", TypographyDemos),
             Material3DemoCategory(
                 "Button",
                 listOf(
@@ -152,7 +153,6 @@ val WearMaterial3Demos =
                     },
                 )
             ),
-            Material3DemoCategory(title = "Typography", TypographyDemos),
             Material3DemoCategory(
                 "Animated Text",
                 if (Build.VERSION.SDK_INT > 31) {
