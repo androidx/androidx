@@ -26,7 +26,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeValueReceiver
-import com.google.common.truth.Truth.assertWithMessage
+import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.util.IllegalFormatConversionException
 import java.util.MissingFormatArgumentException
@@ -39,166 +39,169 @@ import org.robolectric.ParameterizedRobolectricTestRunner.Parameters
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DynamicFormatterFormatTest(private val case: Case) {
     enum class Case(
-        val expected: String,
         val format: String,
         val args: List<Any?>? = null,
         val dynamicArgs: List<DynamicType>? = null,
         val equivalentArgs: List<Any?>? = null,
+        val expected: String,
     ) {
-        CONSTANT_ONLY("hello world", "hello world", args = listOf()),
-        NON_DYNAMIC_ARGS("hello world", "hello %s", args = listOf("world")),
-        EXPLICIT_ARG_INDEX("12 34 56 56", "%d %3\$d %d %<d", args = listOf(12, 56, 34)),
+        CONSTANT_ONLY(format = "hello world", args = listOf(), expected = "hello world"),
+        NON_DYNAMIC_ARGS(format = "hello %s", args = listOf("world"), expected = "hello world"),
+        EXPLICIT_ARG_INDEX(
+            format = "%d %3\$d %d %<d",
+            args = listOf(12, 56, 34),
+            expected = "12 34 56 56",
+        ),
         DYNAMIC_START(
-            "hello world",
-            "%s world",
+            format = "%s world",
             dynamicArgs = listOf(DynamicString.constant("hello")),
             equivalentArgs = listOf("hello"),
+            expected = "hello world",
         ),
         DYNAMIC_MIDDLE(
-            "hello world",
-            "hel%srld",
+            format = "hel%srld",
             dynamicArgs = listOf(DynamicString.constant("lo wo")),
             equivalentArgs = listOf("lo wo"),
+            expected = "hello world",
         ),
         DYNAMIC_END(
-            "hello world",
-            "hello %s",
+            format = "hello %s",
             dynamicArgs = listOf(DynamicString.constant("world")),
             equivalentArgs = listOf("world"),
+            expected = "hello world",
         ),
         SEPARATED_DYNAMIC(
-            "hello world",
-            "%s %s",
+            format = "%s %s",
             dynamicArgs = listOf(DynamicString.constant("hello"), DynamicString.constant("world")),
             equivalentArgs = listOf("hello", "world"),
+            expected = "hello world",
         ),
         CONNECTED_DYNAMIC(
-            "helloworld",
-            "%s%s",
+            format = "%s%s",
             dynamicArgs = listOf(DynamicString.constant("hello"), DynamicString.constant("world")),
             equivalentArgs = listOf("hello", "world"),
+            expected = "helloworld",
         ),
         // %%
         FORMAT_percent_DYNAMIC_TYPE(
-            "%",
-            "%%",
+            format = "%%",
             // args are ignored
             dynamicArgs = listOf(DynamicString.constant("hello")),
             equivalentArgs = listOf("hello"),
+            expected = "%",
         ),
         // %%
         FORMAT_n_DYNAMIC_TYPE(
-            "\n",
-            "%n",
+            format = "%n",
             // args are ignored
             dynamicArgs = listOf(DynamicString.constant("hello")),
             equivalentArgs = listOf("hello"),
+            expected = "\n",
         ),
         // %s
         FORMAT_s_DYNAMIC_STRING(
-            "ab",
-            "%s",
+            format = "%s",
             dynamicArgs = listOf(DynamicString.constant("ab")),
             equivalentArgs = listOf("ab"),
+            expected = "ab",
         ),
         FORMAT_s_DYNAMIC_INT32(
-            "12",
-            "%s",
+            format = "%s",
             dynamicArgs = listOf(DynamicInt32.constant(12)),
             equivalentArgs = listOf(12),
+            expected = "12",
         ),
         FORMAT_s_DYNAMIC_FLOAT(
-            "12.0",
-            "%s",
+            format = "%s",
             dynamicArgs = listOf(DynamicFloat.constant(12f)),
             equivalentArgs = listOf(12f),
+            expected = "12.0",
         ),
         FORMAT_s_DYNAMIC_BOOL_TRUE(
-            "true",
-            "%s",
+            format = "%s",
             dynamicArgs = listOf(DynamicBool.constant(true)),
             equivalentArgs = listOf(true),
+            expected = "true",
         ),
         FORMAT_s_DYNAMIC_BOOL_FALSE(
-            "false",
-            "%s",
+            format = "%s",
             dynamicArgs = listOf(DynamicBool.constant(false)),
             equivalentArgs = listOf(false),
+            expected = "false",
         ),
         // %S
         FORMAT_S_DYNAMIC_INT32(
-            "12",
-            "%S",
+            format = "%S",
             dynamicArgs = listOf(DynamicInt32.constant(12)),
             equivalentArgs = listOf(12),
+            expected = "12",
         ),
         FORMAT_S_DYNAMIC_FLOAT(
-            "12.0",
-            "%S",
+            format = "%S",
             dynamicArgs = listOf(DynamicFloat.constant(12f)),
             equivalentArgs = listOf(12f),
+            expected = "12.0",
         ),
         FORMAT_S_DYNAMIC_BOOL_TRUE(
-            "TRUE",
-            "%S",
+            format = "%S",
             dynamicArgs = listOf(DynamicBool.constant(true)),
             equivalentArgs = listOf(true),
+            expected = "TRUE",
         ),
         FORMAT_S_DYNAMIC_BOOL_FALSE(
-            "FALSE",
-            "%S",
+            format = "%S",
             dynamicArgs = listOf(DynamicBool.constant(false)),
             equivalentArgs = listOf(false),
+            expected = "FALSE",
         ),
         // %b
         FORMAT_b_DYNAMIC_BOOL_TRUE(
-            "true",
-            "%b",
+            format = "%b",
             dynamicArgs = listOf(DynamicBool.constant(true)),
             equivalentArgs = listOf(true),
+            expected = "true",
         ),
         FORMAT_b_DYNAMIC_BOOL_FALSE(
-            "false",
-            "%b",
+            format = "%b",
             dynamicArgs = listOf(DynamicBool.constant(false)),
             equivalentArgs = listOf(false),
+            expected = "false",
         ),
         FORMAT_b_DYNAMIC_TYPE_IS_TRUE(
-            "true",
-            "%b",
+            format = "%b",
             dynamicArgs = listOf(DYNAMIC_INSTANT),
             equivalentArgs = listOf(INSTANT),
+            expected = "true",
         ),
         // %B
         FORMAT_B_DYNAMIC_BOOL_TRUE(
-            "TRUE",
-            "%B",
+            format = "%B",
             dynamicArgs = listOf(DynamicBool.constant(true)),
             equivalentArgs = listOf(true),
+            expected = "TRUE",
         ),
         FORMAT_B_DYNAMIC_BOOL_FALSE(
-            "FALSE",
-            "%B",
+            format = "%B",
             dynamicArgs = listOf(DynamicBool.constant(false)),
             equivalentArgs = listOf(false),
+            expected = "FALSE",
         ),
         FORMAT_B_DYNAMIC_TYPE_IS_TRUE(
-            "TRUE",
-            "%B",
+            format = "%B",
             dynamicArgs = listOf(DYNAMIC_INSTANT),
             equivalentArgs = listOf(INSTANT),
+            expected = "TRUE",
         ),
         // %d
         FORMAT_d_DYNAMIC_INT32(
-            "12",
-            "%d",
+            format = "%d",
             dynamicArgs = listOf(DynamicInt32.constant(12)),
             equivalentArgs = listOf(12),
+            expected = "12",
         ),
         // %f
         FORMAT_f_DYNAMIC_FLOAT(
-            "12.345000 34.57 56.70",
-            "%f %.2f %.2f",
+            format = "%f %.2f %.2f",
             dynamicArgs =
                 listOf(
                     DynamicFloat.constant(12.345f), // default fraction digits
@@ -206,23 +209,21 @@ class DynamicFormatterFormatTest(private val case: Case) {
                     DynamicFloat.constant(56.7f), // min fraction digits
                 ),
             equivalentArgs = listOf(12.345f, 34.567f, 56.7f),
+            expected = "12.345000 34.57 56.70",
         ),
     }
 
     @Test
     fun equalsExpected() {
         val args = (case.args ?: case.dynamicArgs)!!.toTypedArray()
-        assertWithMessage(case.name)
-            .that(DynamicString.format(case.format, *args).evaluate())
-            .isEqualTo(case.expected)
+        assertThat(DynamicString.format(case.format, *args).evaluate()).isEqualTo(case.expected)
     }
 
     @Test
     fun equalsDefault() {
         val dynamicArgs = (case.args ?: case.dynamicArgs)!!.toTypedArray()
         val equivalentArgs = (case.args ?: case.equivalentArgs)!!.toTypedArray()
-        assertWithMessage(case.name)
-            .that(DynamicString.format(case.format, *dynamicArgs).evaluate())
+        assertThat(DynamicString.format(case.format, *dynamicArgs).evaluate())
             .isEqualTo(case.format.format(*equivalentArgs))
     }
 
@@ -256,115 +257,114 @@ class DynamicFormatterFormatTest(private val case: Case) {
 
 @RunWith(ParameterizedRobolectricTestRunner::class)
 class DynamicFormatterFailingTest(private val case: Case) {
-    enum class Case(val expected: Exception, val format: String, val args: List<Any?> = listOf()) {
+    enum class Case(val format: String, val args: List<Any?> = listOf(), val expected: Exception) {
         NOT_ENOUGH_POSITIONAL_ARGS(
-            MissingFormatArgumentException("Format specifier '%s'"),
-            "%s %s",
-            args = listOf("hello")
+            format = "%s %s",
+            args = listOf("hello"),
+            expected = MissingFormatArgumentException("Format specifier '%s'"),
         ),
         NOT_ENOUGH_EXPLICIT_INDEX_ARGS(
-            MissingFormatArgumentException("Format specifier '%3\$s'"),
-            "%s %3\$s",
-            args = listOf("hello")
+            format = "%s %3\$s",
+            args = listOf("hello"),
+            expected = MissingFormatArgumentException("Format specifier '%3\$s'"),
         ),
         RELATIVE_INDEX_IS_FIRST(
-            MissingFormatArgumentException("Format specifier '%<s'"),
-            "%<s",
-            args = listOf("hello")
+            format = "%<s",
+            args = listOf("hello"),
+            expected = MissingFormatArgumentException("Format specifier '%<s'"),
         ),
         DYNAMIC_ARG_NOT_ALLOWED(
-            IllegalFormatConversionException('d', String::class.java),
-            "%d",
-            args = listOf(DynamicString.constant("hello"))
+            format = "%d",
+            args = listOf(DynamicString.constant("hello")),
+            expected = IllegalFormatConversionException('d', String::class.java),
         ),
         UNSUPPORTED_DYNAMIC_CONVERSION(
-            UnsupportedOperationException("Unsupported conversion for DynamicType: 'h'"),
-            "%h",
-            args = listOf(DynamicInt32.constant(12))
+            format = "%h",
+            args = listOf(DynamicInt32.constant(12)),
+            expected = UnsupportedOperationException("Unsupported conversion for DynamicType: 'h'"),
         ),
         // %s
         FORMAT_s_DYNAMIC_STRING_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2s'"),
-            "%2s",
-            args = listOf(DynamicString.constant("a"))
+            format = "%2s",
+            args = listOf(DynamicString.constant("a")),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2s'"),
         ),
         FORMAT_s_DYNAMIC_INT32_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2s'"),
-            "%2s",
-            args = listOf(DynamicInt32.constant(12))
+            format = "%2s",
+            args = listOf(DynamicInt32.constant(12)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2s'"),
         ),
         FORMAT_s_DYNAMIC_FLOAT_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2s'"),
-            "%2s",
-            args = listOf(DynamicFloat.constant(12f))
+            format = "%2s",
+            args = listOf(DynamicFloat.constant(12f)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2s'"),
         ),
         FORMAT_s_DYNAMIC_BOOL_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2s'"),
-            "%2s",
-            args = listOf(DynamicBool.constant(true))
+            format = "%2s",
+            args = listOf(DynamicBool.constant(true)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2s'"),
         ),
         FORMAT_s_UNSUPPORTED_DYNAMIC_ARG(
-            UnsupportedOperationException("$DYNAMIC_INSTANT unsupported for specifier: '%s'"),
-            "%s",
+            format = "%s",
             args = listOf(DYNAMIC_INSTANT),
+            expected =
+                UnsupportedOperationException("$DYNAMIC_INSTANT unsupported for specifier: '%s'"),
         ),
         // %S
         FORMAT_S_DYNAMIC_INT32_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2S'"),
-            "%2S",
-            args = listOf(DynamicInt32.constant(12))
+            format = "%2S",
+            args = listOf(DynamicInt32.constant(12)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2S'"),
         ),
         FORMAT_S_DYNAMIC_FLOAT_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2S'"),
-            "%2S",
-            args = listOf(DynamicFloat.constant(12f))
+            format = "%2S",
+            args = listOf(DynamicFloat.constant(12f)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2S'"),
         ),
         FORMAT_S_DYNAMIC_BOOL_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2S'"),
-            "%2S",
-            args = listOf(DynamicBool.constant(true))
+            format = "%2S",
+            args = listOf(DynamicBool.constant(true)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2S'"),
         ),
         FORMAT_S_UNSUPPORTED_DYNAMIC_ARG(
-            UnsupportedOperationException("$DYNAMIC_INSTANT unsupported for specifier: '%S'"),
-            "%S",
+            format = "%S",
             args = listOf(DYNAMIC_INSTANT),
+            expected =
+                UnsupportedOperationException("$DYNAMIC_INSTANT unsupported for specifier: '%S'"),
         ),
         // %b
         FORMAT_b_DYNAMIC_BOOL_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2b'"),
-            "%2b",
-            args = listOf(DynamicBool.constant(true))
+            format = "%2b",
+            args = listOf(DynamicBool.constant(true)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2b'"),
         ),
         // %B
         FORMAT_B_DYNAMIC_BOOL_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2B'"),
-            "%2B",
-            args = listOf(DynamicBool.constant(true))
+            format = "%2B",
+            args = listOf(DynamicBool.constant(true)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2B'"),
         ),
         // %d
         FORMAT_d_DYNAMIC_INT32_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2d'"),
-            "%2d",
-            args = listOf(DynamicInt32.constant(12))
+            format = "%2d",
+            args = listOf(DynamicInt32.constant(12)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2d'"),
         ),
         // %f
         FORMAT_f_DYNAMIC_FLOAT_WITH_UNSUPPORTED_OPTIONS(
-            UnsupportedOperationException("Unsupported specifier: '%2f'"),
-            "%2f",
-            args = listOf(DynamicFloat.constant(12f))
+            format = "%2f",
+            args = listOf(DynamicFloat.constant(12f)),
+            expected = UnsupportedOperationException("Unsupported specifier: '%2f'"),
         ),
     }
 
     @Test
     fun fails() {
         val exception =
-            assertFailsWith(case.expected::class, case.name) {
+            assertFailsWith(case.expected::class) {
                 DynamicString.format(case.format, *case.args.toTypedArray())
             }
-        assertWithMessage(case.name)
-            .that(exception)
-            .hasMessageThat()
-            .isEqualTo(case.expected.message)
+        assertThat(exception).hasMessageThat().isEqualTo(case.expected.message)
     }
 
     companion object {
