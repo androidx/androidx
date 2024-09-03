@@ -23,6 +23,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.annotation.DeprecatedSinceApi
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.credentials.provider.utils.PrivilegedApp
 import androidx.credentials.provider.utils.RequestValidationUtil
@@ -104,7 +105,7 @@ private constructor(
         origin: String? = null
     ) : this(packageName, origin, SigningInfoCompat.fromSignatures(signatures), null)
 
-    internal companion object {
+    companion object {
         /**
          * Constructs an instance of [CallingAppInfo]
          *
@@ -118,6 +119,7 @@ private constructor(
          * @throws IllegalArgumentException If [packageName] is empty
          */
         @RequiresApi(28)
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun create(packageName: String, signingInfo: SigningInfo, origin: String? = null) =
             CallingAppInfo(packageName, signingInfo, origin)
 
@@ -135,6 +137,7 @@ private constructor(
          * @throws IllegalArgumentException If [packageName] is empty
          */
         @DeprecatedSinceApi(28, "Use the SigningInfo based constructor instead")
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun create(packageName: String, signatures: List<Signature>, origin: String? = null) =
             CallingAppInfo(packageName, signatures, origin)
 
