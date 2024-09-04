@@ -33,6 +33,7 @@ import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudio
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioMimeInfo;
 import static androidx.camera.video.internal.config.AudioConfigUtil.resolveAudioSettings;
 import static androidx.camera.video.internal.utils.StorageUtil.formatSize;
+import static androidx.camera.video.internal.utils.StorageUtil.isStorageFullException;
 import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.util.Preconditions.checkNotNull;
 
@@ -1627,8 +1628,9 @@ public final class Recorder implements VideoOutput {
                 mediaMuxer = recordingToStart.performOneTimeMediaMuxerCreation(muxerOutputFormat,
                         uri -> mOutputUri = uri);
             } catch (IOException e) {
-                onInProgressRecordingInternalError(recordingToStart, ERROR_INVALID_OUTPUT_OPTIONS,
-                        e);
+                int error = isStorageFullException(e) ? ERROR_INSUFFICIENT_STORAGE
+                        : ERROR_INVALID_OUTPUT_OPTIONS;
+                onInProgressRecordingInternalError(recordingToStart, error, e);
                 return;
             }
 
@@ -1657,7 +1659,15 @@ public final class Recorder implements VideoOutput {
             if (isAudioEnabled()) {
                 mAudioTrackIndex = mediaMuxer.addTrack(mAudioOutputConfig.getMediaFormat());
             }
-            mediaMuxer.start();
+            try {
+                mediaMuxer.start();
+            } catch (IllegalStateException e) {
+                long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+                int error = availableBytes < mRequiredFreeStorageBytes
+                        ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+                onInProgressRecordingInternalError(recordingToStart, error, e);
+                return;
+            }
 
             // MediaMuxer is successfully initialized, transfer the ownership to Recorder.
             mMediaMuxer = mediaMuxer;
@@ -2087,8 +2097,16 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
-                encodedData.getBufferInfo());
+        try {
+            mMediaMuxer.writeSampleData(mVideoTrackIndex, encodedData.getByteBuffer(),
+                    encodedData.getBufferInfo());
+        } catch (IllegalStateException e) {
+            long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+            int error = availableBytes < mRequiredFreeStorageBytes
+                    ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+            onInProgressRecordingInternalError(recording, error, e);
+            return;
+        }
 
         mRecordingBytes = newRecordingBytes;
         mRecordingDurationNs = newRecordingDurationNs;
@@ -2157,9 +2175,17 @@ public final class Recorder implements VideoOutput {
             }
         }
 
-        mMediaMuxer.writeSampleData(mAudioTrackIndex,
-                encodedData.getByteBuffer(),
-                encodedData.getBufferInfo());
+        try {
+            mMediaMuxer.writeSampleData(mAudioTrackIndex,
+                    encodedData.getByteBuffer(),
+                    encodedData.getBufferInfo());
+        } catch (IllegalStateException e) {
+            long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+            int error = availableBytes < mRequiredFreeStorageBytes
+                    ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
+            onInProgressRecordingInternalError(recording, error, e);
+            return;
+        }
 
         mRecordingBytes = newRecordingBytes;
         mPreviousRecordingAudioDataTimeUs = currentPresentationTimeUs;
@@ -2428,9 +2454,12 @@ public final class Recorder implements VideoOutput {
                 mMediaMuxer.stop();
                 mMediaMuxer.release();
             } catch (IllegalStateException e) {
-                Logger.e(TAG, "MediaMuxer failed to stop or release with error: " + e.getMessage());
+                Logger.e(TAG, "MediaMuxer failed to stop or release with error: " + e.getMessage(),
+                        e);
                 if (errorToSend == ERROR_NONE) {
-                    errorToSend = ERROR_UNKNOWN;
+                    long availableBytes = checkNotNull(mOutputStorage).getAvailableBytes();
+                    errorToSend = availableBytes < mRequiredFreeStorageBytes
+                            ? ERROR_INSUFFICIENT_STORAGE : ERROR_UNKNOWN;
                 }
             }
             mMediaMuxer = null;
