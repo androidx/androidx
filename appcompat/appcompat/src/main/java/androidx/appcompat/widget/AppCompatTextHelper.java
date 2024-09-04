@@ -442,7 +442,7 @@ class AppCompatTextHelper {
             return true;
         }
 
-        else if (a.hasValue(R.styleable.TextAppearance_android_typeface)) {
+        if (a.hasValue(R.styleable.TextAppearance_android_typeface)) {
             // Ignore previous pending fonts
             mAsyncFontPending = false;
             int typefaceIndex = a.getInt(R.styleable.TextAppearance_android_typeface, SANS);
@@ -462,7 +462,7 @@ class AppCompatTextHelper {
             return true;
         }
 
-        else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P
                 && mFontWeight != TEXT_FONT_WEIGHT_UNSPECIFIED && mFontTypeface != null) {
             mFontTypeface = Api28Impl.create(mFontTypeface, mFontWeight,
                     (mStyle & Typeface.ITALIC) != 0);
