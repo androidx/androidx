@@ -15,16 +15,22 @@
  */
 package androidx.compose.ui.window
 
-import android.content.res.Configuration
+import android.util.DisplayMetrics
 import android.view.KeyEvent
+import android.view.MotionEvent.ACTION_DOWN
+import android.view.MotionEvent.ACTION_UP
+import android.view.View
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
@@ -32,11 +38,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.gesture.MotionEvent
+import androidx.compose.ui.gesture.PointerProperties
+import androidx.compose.ui.input.pointer.PointerCoords
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertIsDisplayed
@@ -259,9 +273,9 @@ class DialogTest {
     fun canFillScreenWidth_dependingOnProperty() {
         var box1Width = 0
         var box2Width = 0
-        lateinit var configuration: Configuration
+        lateinit var displayMetrics: DisplayMetrics
         rule.setContent {
-            configuration = LocalConfiguration.current
+            displayMetrics = LocalView.current.context.resources.displayMetrics
             Dialog(
                 onDismissRequest = {},
                 properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -272,7 +286,7 @@ class DialogTest {
                 Box(Modifier.fillMaxSize().onSizeChanged { box2Width = it.width })
             }
         }
-        val expectedWidth = with(rule.density) { configuration.screenWidthDp.dp.roundToPx() }
+        val expectedWidth = with(rule.density) { displayMetrics.widthPixels }
         assertThat(box1Width).isEqualTo(expectedWidth)
         assertThat(box2Width).isLessThan(box1Width)
     }
@@ -310,6 +324,111 @@ class DialogTest {
         width = 40.dp
         rule.runOnIdle {
             with(rule.density) { assertThat(actualWidth).isEqualTo(40.dp.roundToPx()) }
+        }
+    }
+
+    @Test
+    fun dismissWhenClickingOutsideContent() {
+        var dismissed = false
+        var clicked = false
+        lateinit var composeView: View
+        val clickBoxTag = "clickBox"
+        rule.setContent {
+            Dialog(
+                onDismissRequest = { dismissed = true },
+                properties =
+                    DialogProperties(
+                        usePlatformDefaultWidth = false,
+                        decorFitsSystemWindows = false
+                    )
+            ) {
+                composeView = LocalView.current
+                Box(Modifier.size(10.dp).testTag(clickBoxTag).clickable { clicked = true })
+            }
+        }
+
+        // click inside the compose view
+        rule.onNodeWithTag(clickBoxTag).performClick()
+
+        rule.waitForIdle()
+
+        assertThat(dismissed).isFalse()
+        assertThat(clicked).isTrue()
+
+        clicked = false
+
+        // click outside the compose view
+        rule.waitForIdle()
+        var root = composeView
+        while (root.parent is View) {
+            root = root.parent as View
+        }
+
+        rule.runOnIdle {
+            val x = root.width / 4f
+            val y = root.height / 4f
+            val down =
+                MotionEvent(
+                    eventTime = 0,
+                    action = ACTION_DOWN,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties = arrayOf(PointerProperties(0)),
+                    pointerCoords = arrayOf(PointerCoords(x, y)),
+                    root
+                )
+            root.dispatchTouchEvent(down)
+            val up =
+                MotionEvent(
+                    eventTime = 10,
+                    action = ACTION_UP,
+                    numPointers = 1,
+                    actionIndex = 0,
+                    pointerProperties = arrayOf(PointerProperties(0)),
+                    pointerCoords = arrayOf(PointerCoords(x, y)),
+                    root
+                )
+            root.dispatchTouchEvent(up)
+        }
+        rule.waitForIdle()
+
+        assertThat(dismissed).isTrue()
+        assertThat(clicked).isFalse()
+    }
+
+    @Test
+    fun dialogInsetsWhenDecorFitsSystemWindows() {
+        var top = -1
+        var bottom = -1
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            Dialog(onDismissRequest = {}) {
+                val density = LocalDensity.current
+                val insets = WindowInsets.safeContent
+                Box(
+                    Modifier.fillMaxSize().onPlaced {
+                        top = insets.getTop(density)
+                        bottom = insets.getBottom(density)
+                    }
+                ) {
+                    TextField(
+                        "Hello World",
+                        onValueChange = {},
+                        Modifier.align(Alignment.BottomStart).focusRequester(focusRequester)
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(top).isEqualTo(0)
+            assertThat(bottom).isEqualTo(0)
+            focusRequester.requestFocus()
+        }
+
+        rule.runOnIdle {
+            assertThat(top).isEqualTo(0)
+            assertThat(bottom).isEqualTo(0)
         }
     }
 
