@@ -308,10 +308,7 @@ private fun StandardBottomSheet(
                 // min anchor. This is done to avoid showing a gap when the sheet opens and bounces
                 // when it's applied with a bouncy motion. Note that the content inside the Surface
                 // is scaled back down to maintain its aspect ratio (see below).
-                .verticalScaleUp(
-                    { state.anchoredDraggableState.offset },
-                    { state.anchoredDraggableState.anchors.minAnchor() }
-                ),
+                .verticalScaleUp(state),
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
@@ -323,10 +320,7 @@ private fun StandardBottomSheet(
                 // Scale the content down in case the sheet offset overflows below the min anchor.
                 // The wrapping Surface is scaled up, so this is done to maintain the content's
                 // aspect ratio.
-                .verticalScaleDown(
-                    { state.anchoredDraggableState.offset },
-                    { state.anchoredDraggableState.anchors.minAnchor() }
-                )
+                .verticalScaleDown(state)
         ) {
             if (dragHandle != null) {
                 val partialExpandActionLabel =
@@ -443,42 +437,40 @@ private fun BottomSheetScaffoldLayout(
 }
 
 /**
- * A [Modifier] that scales up the drawing layer on the Y axis in case the [sheetOffset] overflows
- * below the min anchor coordinates. The scaling will ensure that there is no visible gap between
- * the sheet and the edge of the screen in case the sheet bounces when it opens due to a more
- * expressive motion setting.
+ * A [Modifier] that scales up the drawing layer on the Y axis in case the [SheetState]'s
+ * anchoredDraggableState offset overflows below the min anchor coordinates. The scaling will ensure
+ * that there is no visible gap between the sheet and the edge of the screen in case the sheet
+ * bounces when it opens due to a more expressive motion setting.
  *
  * A [verticalScaleDown] should be applied to the content of the sheet to maintain the content
  * aspect ratio as the container scales up.
  *
- * @param sheetOffset a lambda that provides the current sheet's offset
- * @param minAnchor a lambda that provides the sheet's min anchor coordinate
+ * @param state a [SheetState]
  * @see verticalScaleDown
  */
-internal fun Modifier.verticalScaleUp(sheetOffset: () -> Float, minAnchor: () -> Float) =
-    graphicsLayer {
-        val offset = sheetOffset()
-        val anchor = minAnchor()
-        val overflow = if (offset < anchor) anchor - offset else 0f
-        scaleY = if (overflow > 0f) (size.height + overflow) / size.height else 1f
-        transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun Modifier.verticalScaleUp(state: SheetState) = graphicsLayer {
+    val offset = state.anchoredDraggableState.offset
+    val anchor = state.anchoredDraggableState.anchors.minAnchor()
+    val overflow = if (offset < anchor) anchor - offset else 0f
+    scaleY = if (overflow > 0f) (size.height + overflow) / size.height else 1f
+    transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
+}
 
 /**
- * A [Modifier] that scales down the drawing layer on the Y axis in case the [sheetOffset] overflows
- * below the min anchor coordinates. This modifier should be applied to the content inside a
- * component that was scaled up with a [verticalScaleUp] modifier. It will ensure that the content
- * maintains its aspect ratio as the container scales up.
+ * A [Modifier] that scales down the drawing layer on the Y axis in case the [SheetState]'s
+ * anchoredDraggableState offset overflows below the min anchor coordinates. This modifier should be
+ * applied to the content inside a component that was scaled up with a [verticalScaleUp] modifier.
+ * It will ensure that the content maintains its aspect ratio as the container scales up.
  *
- * @param sheetOffset a lambda that provides the current sheet's offset
- * @param minAnchor a lambda that provides the sheet's min anchor coordinate
+ * @param state a [SheetState]
  * @see verticalScaleUp
  */
-internal fun Modifier.verticalScaleDown(sheetOffset: () -> Float, minAnchor: () -> Float) =
-    graphicsLayer {
-        val offset = sheetOffset()
-        val anchor = minAnchor()
-        val overflow = if (offset < anchor) anchor - offset else 0f
-        scaleY = if (overflow > 0f) 1 / ((size.height + overflow) / size.height) else 1f
-        transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
-    }
+@OptIn(ExperimentalMaterial3Api::class)
+internal fun Modifier.verticalScaleDown(state: SheetState) = graphicsLayer {
+    val offset = state.anchoredDraggableState.offset
+    val anchor = state.anchoredDraggableState.anchors.minAnchor()
+    val overflow = if (offset < anchor) anchor - offset else 0f
+    scaleY = if (overflow > 0f) 1 / ((size.height + overflow) / size.height) else 1f
+    transformOrigin = TransformOrigin(pivotFractionX = 0.5f, pivotFractionY = 0f)
+}

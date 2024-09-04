@@ -298,10 +298,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                 // min anchor. This is done to avoid showing a gap when the sheet opens and bounces
                 // when it's applied with a bouncy motion. Note that the content inside the Surface
                 // is scaled back down to maintain its aspect ratio (see below).
-                .verticalScaleUp(
-                    { sheetState.anchoredDraggableState.offset },
-                    { sheetState.anchoredDraggableState.anchors.minAnchor() }
-                ),
+                .verticalScaleUp(sheetState),
         shape = shape,
         color = containerColor,
         contentColor = contentColor,
@@ -324,10 +321,7 @@ internal fun BoxScope.ModalBottomSheetContent(
                 // Scale the content down in case the sheet offset overflows below the min anchor.
                 // The wrapping Surface is scaled up, so this is done to maintain the content's
                 // aspect ratio.
-                .verticalScaleDown(
-                    { sheetState.anchoredDraggableState.offset },
-                    { sheetState.anchoredDraggableState.anchors.minAnchor() }
-                )
+                .verticalScaleDown(sheetState)
         ) {
             if (dragHandle != null) {
                 val collapseActionLabel = getString(Strings.BottomSheetPartialExpandDescription)
