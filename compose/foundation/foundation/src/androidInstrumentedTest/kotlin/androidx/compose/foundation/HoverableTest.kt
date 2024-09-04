@@ -305,11 +305,21 @@ class HoverableTest {
         rule.runOnIdle { moveContent = true }
 
         rule.runOnIdle {
-            Truth.assertThat(interactions).hasSize(2)
+            Truth.assertThat(interactions).hasSize(3)
+            // Check first interaction
             Truth.assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+
+            // Check second interaction
+            // Because the content is moved to a new parent during an active event stream, the
+            // current event stream cancelled and an exit is triggered.
             Truth.assertThat(interactions[1]).isInstanceOf(HoverInteraction.Exit::class.java)
-            Truth.assertThat((interactions[1] as HoverInteraction.Exit).enter)
-                .isEqualTo(interactions[0])
+            val hoverInteractionExit = interactions[1] as HoverInteraction.Exit
+            Truth.assertThat(hoverInteractionExit.enter).isEqualTo(interactions[0])
+
+            // Check third interaction
+            // After the content is moved, the hover enter is re-triggered since the mouse is now
+            // hovering over the new content.
+            Truth.assertThat(interactions[2]).isInstanceOf(HoverInteraction.Enter::class.java)
         }
     }
 
