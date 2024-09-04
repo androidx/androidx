@@ -20,7 +20,6 @@ package androidx.ink.geometry
 
 import android.graphics.Matrix
 import androidx.annotation.RestrictTo
-import androidx.ink.geometry.internal.getValue
 import androidx.ink.geometry.internal.threadLocal
 
 /** Scratch space to be used as the argument to [Matrix.getValues] and [Matrix.setValues]. */
