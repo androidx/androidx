@@ -377,7 +377,7 @@ suspend fun AwaitPointerEventScope.waitForUpOrCancellation(
  * consumed or a pointer down change event was already consumed in the given pass. If the gesture
  * was not canceled, the final up change is returned or `null` if the event was canceled.
  */
-private suspend fun AwaitPointerEventScope.waitForLongPress(
+internal suspend fun AwaitPointerEventScope.waitForLongPress(
     pass: PointerEventPass = PointerEventPass.Main
 ): LongPressResult {
     var result: LongPressResult = LongPressResult.Canceled
@@ -420,7 +420,7 @@ private suspend fun AwaitPointerEventScope.waitForLongPress(
     return result
 }
 
-private sealed class LongPressResult {
+internal sealed class LongPressResult {
     /** Long press was triggered */
     object Success : LongPressResult()
 
