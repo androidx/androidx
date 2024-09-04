@@ -312,8 +312,8 @@ internal class CurvedTextDelegate {
         paint.getTextBounds(text, 0, text.length, rect)
 
         textWidth = rect.width().toFloat()
-        textHeight = -paint.fontMetrics.top + paint.fontMetrics.bottom
-        baseLinePosition = if (clockwise) -paint.fontMetrics.top else paint.fontMetrics.bottom
+        textHeight = -paint.fontMetrics.ascent + paint.fontMetrics.descent
+        baseLinePosition = if (clockwise) -paint.fontMetrics.ascent else paint.fontMetrics.descent
     }
 
     private fun updateTypeFace() {
