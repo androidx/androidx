@@ -1,5 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-beta01)" variant="all" version="8.6.0-beta01">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="MissingClass"
+        message="Class referenced in the manifest, `androidx.camera.core.impl.MetadataHolderService`, was not found in the project or the libraries"
+        errorLine1="            android:name=&quot;androidx.camera.core.impl.MetadataHolderService&quot;"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                    captureConfigs.forEach { captureConfig ->"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/Camera2CapturePipelineTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                    captureConfigs.forEach { captureConfig ->"
+        errorLine2="                                   ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/Camera2CapturePipelineTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="        forEach { config ->"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/Camera2CapturePipelineTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="        forEach { config ->"
+        errorLine2="        ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/Camera2CapturePipelineTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                captureConfigs.forEach { captureConfig ->"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/Camera2CapturePipelineTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="            cameraInfos.forEach {"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/androidTest/java/androidx/camera/camera2/internal/compat/workaround/ExtraSupportedSurfaceCombinationsContainerDeviceTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="        useCasesExpectedSizeMap.keys.forEach {"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SupportedSurfaceCombinationTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="        useCasesExpectedDynamicRangeMap.keys.forEach {"
+        errorLine2="                                             ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SupportedSurfaceCombinationTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                useCases.forEach { put(it, it.currentConfig) }"
+        errorLine2="                         ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SupportedSurfaceCombinationTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
+        errorLine1="                useCaseConfigs.forEach { put(it, DEFAULT_SUPPORTED_SIZES.toList()) }"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/test/java/androidx/camera/camera2/internal/SupportedSurfaceCombinationTest.kt"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
@@ -26,6 +125,249 @@
         errorLine2="               ~~~~~">
         <location
             file="src/androidTest/java/androidx/camera/camera2/internal/Camera2ImplCameraXTest.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class AfRegionFlipHorizontallyQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/AfRegionFlipHorizontallyQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class AutoFlashUnderExposedQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/AutoFlashUnderExposedQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureNoResponseQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CaptureNoResponseQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureSessionOnClosedNotCalledQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CaptureSessionOnClosedNotCalledQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureSessionStuckQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CaptureSessionStuckQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CaptureSessionStuckWhenCreatingBeforeClosingCameraQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ConfigureSurfaceToSecondarySessionFailQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/ConfigureSurfaceToSecondarySessionFailQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CrashWhenTakingPhotoWithAutoFlashAEModeQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/CrashWhenTakingPhotoWithAutoFlashAEModeQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class FlashAvailabilityBufferUnderflowQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/FlashAvailabilityBufferUnderflowQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ImageCaptureFailWithAutoFlashQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/ImageCaptureFailWithAutoFlashQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ImageCaptureFailedForVideoSnapshotQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/ImageCaptureFailedForVideoSnapshotQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ImageCapturePixelHDRPlusQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/ImageCapturePixelHDRPlusQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class IncorrectCaptureStateQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/IncorrectCaptureStateQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class InvalidVideoProfilesQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/InvalidVideoProfilesQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class JpegCaptureDownsizingQuirk implements SoftwareJpegEncodingPreferredQuirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/JpegCaptureDownsizingQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public final class JpegHalCorruptImageQuirk implements SoftwareJpegEncodingPreferredQuirk {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/JpegHalCorruptImageQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class LegacyCameraOutputConfigNullPointerQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/LegacyCameraOutputConfigNullPointerQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class LegacyCameraSurfaceCleanupQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/LegacyCameraSurfaceCleanupQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class Preview3AThreadCrashQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/Preview3AThreadCrashQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class PreviewOrientationIncorrectQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/PreviewOrientationIncorrectQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class PreviewPixelHDRnetQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/PreviewPixelHDRnetQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class RepeatingStreamConstraintForVideoRecordingQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/RepeatingStreamConstraintForVideoRecordingQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class StillCaptureFlashStopRepeatingQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/StillCaptureFlashStopRepeatingQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class TextureViewIsClosedQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/TextureViewIsClosedQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class TorchIsClosedAfterImageCapturingQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/TorchIsClosedAfterImageCapturingQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public final class YuvImageOnePixelShiftQuirk implements OnePixelShiftQuirk {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/YuvImageOnePixelShiftQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ZslDisablerQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/camera2/internal/compat/quirk/ZslDisablerQuirk.java"/>
     </issue>
 
     <issue
