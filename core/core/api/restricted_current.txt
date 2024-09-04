@@ -4349,6 +4349,8 @@ package androidx.core.view.accessibility {
 
   public static class AccessibilityNodeInfoCompat.CollectionInfoCompat {
     method public int getColumnCount();
+    method public int getImportantForAccessibilityItemCount();
+    method public int getItemCount();
     method public int getRowCount();
     method public int getSelectionMode();
     method public boolean isHierarchical();
@@ -4357,6 +4359,18 @@ package androidx.core.view.accessibility {
     field public static final int SELECTION_MODE_MULTIPLE = 2; // 0x2
     field public static final int SELECTION_MODE_NONE = 0; // 0x0
     field public static final int SELECTION_MODE_SINGLE = 1; // 0x1
+    field public static final int UNDEFINED = -1; // 0xffffffff
+  }
+
+  public static final class AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder {
+    ctor public AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat build();
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setColumnCount(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setHierarchical(boolean);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setImportantForAccessibilityItemCount(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setItemCount(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setRowCount(int);
+    method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat.CollectionInfoCompat.Builder setSelectionMode(int);
   }
 
   public static class AccessibilityNodeInfoCompat.CollectionItemInfoCompat {
