@@ -105,6 +105,9 @@ public final class SetSchemaRequest {
             READ_ASSISTANT_APP_SEARCH_DATA,
             ENTERPRISE_ACCESS,
             MANAGED_PROFILE_CONTACTS_ACCESS,
+            EXECUTE_APP_FUNCTIONS,
+            EXECUTE_APP_FUNCTIONS_TRUSTED,
+            PACKAGE_USAGE_STATS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RequiresFeature(
@@ -189,6 +192,46 @@ public final class SetSchemaRequest {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int MANAGED_PROFILE_CONTACTS_ACCESS = 8;
+
+    /**
+     * The AppSearch enumeration corresponding to {@link
+     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS} Android permission that can be used to
+     * guard AppSearch schema type visibility in {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
+     *
+     * <p>This is internally used by AppFunctions API to store app functions runtime metadata so it
+     * is visible to packages holding {@link android.Manifest.permission#EXECUTE_APP_FUNCTIONS}
+     * permission (currently associated with system assistant apps).
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int EXECUTE_APP_FUNCTIONS = 9;
+
+    /**
+     * The AppSearch enumeration corresponding to {@link
+     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} Android permission that can be
+     * used to guard AppSearch schema type visibility in {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}.
+     *
+     * <p>This is internally used by AppFunctions API to store app functions runtime metadata so it
+     * is visible to packages holding {@link
+     * android.Manifest.permission#EXECUTE_APP_FUNCTIONS_TRUSTED} permission (currently associated
+     * with system packages in the {@link android.app.role.SYSTEM_UI_INTELLIGENCE} role).
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int EXECUTE_APP_FUNCTIONS_TRUSTED = 10;
+
+    /**
+     * The {@link android.Manifest.permission#PACKAGE_USAGE_STATS} AppSearch supported in {@link
+     * SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility}
+     *
+     * @exportToFramework:hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int PACKAGE_USAGE_STATS = 11;
 
     private final Set<AppSearchSchema> mSchemas;
     private final Set<String> mSchemasNotDisplayedBySystem;
@@ -539,7 +582,7 @@ public final class SetSchemaRequest {
             Preconditions.checkNotNull(permissions);
             for (int permission : permissions) {
                 Preconditions.checkArgumentInRange(permission, READ_SMS,
-                        MANAGED_PROFILE_CONTACTS_ACCESS, "permission");
+                        PACKAGE_USAGE_STATS, "permission");
             }
             resetIfBuilt();
             Set<Set<Integer>> visibleToPermissions = mSchemasVisibleToPermissions.get(schemaType);
