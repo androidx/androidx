@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Build
@@ -34,15 +36,20 @@ import android.view.accessibility.AccessibilityNodeInfo
 import android.widget.FrameLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
-import androidx.compose.foundation.background
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -56,6 +63,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.movableContentOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
@@ -66,14 +74,18 @@ import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SubcompositionReusableContentHost
+import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalSavedStateRegistryOwner
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.platform.findViewTreeCompositionContext
 import androidx.compose.ui.platform.testTag
@@ -91,6 +103,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.OnCreate
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.OnRelease
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.OnReset
@@ -98,6 +111,13 @@ import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.OnViewAttach
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.OnViewDetach
 import androidx.compose.ui.viewinterop.AndroidViewTest.AndroidViewLifecycleEvent.ViewLifecycleEvent
+import androidx.core.view.SoftwareKeyboardControllerCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsAnimationCompat
+import androidx.core.view.WindowInsetsAnimationCompat.BoundsCompat
+import androidx.core.view.WindowInsetsAnimationCompat.Callback
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Lifecycle.Event.ON_CREATE
 import androidx.lifecycle.Lifecycle.Event.ON_PAUSE
@@ -129,13 +149,18 @@ import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import org.hamcrest.CoreMatchers.endsWith
 import org.hamcrest.CoreMatchers.equalTo
 import org.hamcrest.CoreMatchers.instanceOf
+import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
@@ -145,6 +170,36 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AndroidViewTest {
     @get:Rule val rule = createAndroidComposeRule<TestActivity>()
+
+    private val setDurationScale =
+        ValueAnimator::class.java.getDeclaredMethod("setDurationScale", Float::class.java).apply {
+            isAccessible = true
+        }
+
+    private val getDurationScale =
+        ValueAnimator::class.java.getDeclaredMethod("getDurationScale").apply {
+            isAccessible = true
+        }
+
+    private var oldDurationScale = 1f
+
+    @Before
+    fun edgeToEdge() {
+        rule.runOnUiThread { rule.activity.enableEdgeToEdge() }
+    }
+
+    @Before
+    fun setDurationScale() {
+        rule.runOnUiThread {
+            oldDurationScale = getDurationScale.invoke(null) as Float
+            setDurationScale.invoke(null, 1f)
+        }
+    }
+
+    @After
+    fun resetDurationScale() {
+        rule.runOnUiThread { setDurationScale.invoke(null, oldDurationScale) }
+    }
 
     @Test
     fun androidViewWithConstructor() {
@@ -1764,6 +1819,321 @@ class AndroidViewTest {
             )
             .that(callbackInvocations)
             .isEqualTo(1)
+    }
+
+    @Test
+    fun insetsMoveWithChild() {
+        rule.runOnIdle {
+            WindowInsetsControllerCompat(rule.activity.window, rule.activity.window.decorView)
+                .show(WindowInsetsCompat.Type.systemBars())
+        }
+
+        var topPadding by mutableIntStateOf(0)
+        var topInset = 0
+        var outerTopInset = 0
+        var latch = CountDownLatch(1)
+        var isAnimating = false
+        lateinit var composeView: ComposeView
+
+        rule.setContent {
+            composeView = LocalView.current.parent as ComposeView
+            composeView.consumeWindowInsets = false // call this before accessing insets
+            val insets = WindowInsets.systemBars
+            Box(
+                Modifier.layout { m, c ->
+                        outerTopInset = insets.getTop(this)
+                        val p = m.measure(c.offset(vertical = -topPadding))
+                        layout(p.width, p.height) { p.place(0, topPadding) }
+                    }
+                    .background(Color.Blue)
+                    .fillMaxSize()
+            ) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { context ->
+                        ComposeView(context).apply {
+                            setContent {
+                                val systemBars = WindowInsets.systemBars
+                                val density = LocalDensity.current
+                                Box(
+                                    Modifier.fillMaxSize().onPlaced {
+                                        topInset = systemBars.getTop(density)
+                                        latch.countDown()
+                                    }
+                                )
+                                Box(Modifier.fillMaxSize().systemBarsPadding())
+                            }
+                        }
+                    }
+                )
+                Box(Modifier.fillMaxSize().background(Color.White).safeContentPadding())
+            }
+        }
+
+        rule.runOnIdle {
+            ViewCompat.setWindowInsetsAnimationCallback(
+                composeView.parent as View,
+                object : Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                    override fun onProgress(
+                        insets: WindowInsetsCompat,
+                        runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                    ): WindowInsetsCompat = insets
+
+                    override fun onStart(
+                        animation: WindowInsetsAnimationCompat,
+                        bounds: BoundsCompat
+                    ): BoundsCompat {
+                        isAnimating = true
+                        return super.onStart(animation, bounds)
+                    }
+
+                    override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                        isAnimating = false
+                        super.onEnd(animation)
+                    }
+                }
+            )
+        }
+
+        rule.waitForIdle()
+
+        assumeTrue(outerTopInset > 0) // This device must have a status bar inset
+
+        rule.runOnIdle {
+            assertThat(topInset).isEqualTo(outerTopInset)
+            latch = CountDownLatch(1)
+            topPadding = 5
+        }
+
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+
+        // For some reason, the status bar insets animate to the target
+        // value on older SDKs
+        rule.waitForIdle()
+        rule.waitUntil { !isAnimating }
+
+        rule.runOnIdle { assertThat(topInset).isEqualTo(outerTopInset - 5) }
+    }
+
+    @Test
+    fun insetsMoveWithChildSize() {
+        rule.runOnIdle {
+            WindowInsetsControllerCompat(rule.activity.window, rule.activity.window.decorView)
+                .show(WindowInsetsCompat.Type.systemBars())
+        }
+
+        var topInset = 0
+        var bottomInset = 0
+        var outerTopInset = 0
+        var outerBottomInset = 0
+        var latch = CountDownLatch(1)
+        lateinit var composeView: ComposeView
+        var childUsesMaxSize by mutableStateOf(false)
+
+        rule.setContent {
+            composeView = LocalView.current.parent as ComposeView
+            composeView.consumeWindowInsets = false // call this before accessing insets
+            val insets = WindowInsets.systemBars
+            Box(
+                Modifier.layout { m, c ->
+                        outerTopInset = insets.getTop(this)
+                        outerBottomInset = insets.getBottom(this)
+                        val p = m.measure(c)
+                        layout(p.width, p.height) { p.place(0, 0) }
+                    }
+                    .background(Color.Blue)
+                    .fillMaxSize()
+            ) {
+                AndroidView(
+                    modifier = Modifier.align(AbsoluteAlignment.TopLeft),
+                    factory = { context ->
+                        ComposeView(context).apply {
+                            setContent {
+                                val systemBars = WindowInsets.systemBars
+                                val density = LocalDensity.current
+                                val sizeModifier =
+                                    if (childUsesMaxSize) {
+                                        Modifier.fillMaxSize()
+                                    } else {
+                                        Modifier.size(100.dp)
+                                    }
+                                Box(
+                                    sizeModifier
+                                        .onPlaced {
+                                            topInset = systemBars.getTop(density)
+                                            bottomInset = systemBars.getBottom(density)
+                                            latch.countDown()
+                                        }
+                                        .background(Color.White)
+                                )
+                            }
+                        }
+                    }
+                )
+                Box(Modifier.fillMaxSize().background(Color.White).safeContentPadding())
+            }
+        }
+
+        // The device must have system bars
+        assumeTrue(outerTopInset != 0 || outerBottomInset != 0)
+
+        rule.runOnIdle {
+            assertThat(topInset).isEqualTo(outerTopInset)
+            assertThat(bottomInset).isEqualTo(0)
+            latch = CountDownLatch(1)
+            childUsesMaxSize = true
+        }
+
+        rule.waitForIdle()
+
+        assertThat(latch.await(1, TimeUnit.SECONDS)).isTrue()
+
+        // On older devices, the insets animate over a few frames. Wait for that animation to
+        // finish.
+        var framesAtSameValue = 0
+        var lastBottom = 0
+        rule.waitUntil {
+            if (lastBottom == bottomInset) {
+                framesAtSameValue++
+            } else {
+                framesAtSameValue = 0
+            }
+            lastBottom = bottomInset
+            framesAtSameValue > 2
+        }
+        rule.runOnIdle {
+            assertThat(topInset).isEqualTo(outerTopInset)
+            assertThat(bottomInset).isEqualTo(outerBottomInset)
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 30)
+    @Test
+    fun insetsAnimateForChildren() {
+        val hardKeyboardHidden = rule.activity.resources.configuration.hardKeyboardHidden
+        // can't test with a hardware keyboard active because we can't bring up the IME
+        assumeTrue(hardKeyboardHidden != Configuration.HARDKEYBOARDHIDDEN_NO)
+
+        lateinit var composeView: ComposeView
+        lateinit var outerBounds: BoundsCompat
+        lateinit var innerBounds: BoundsCompat
+        val outerProgressInsets = mutableListOf<WindowInsetsCompat>()
+        val innerProgressInsets = mutableListOf<WindowInsetsCompat>()
+        var isAnimating = false
+        var isImeVisible = false
+        var wasAnimated = false
+
+        rule.setContent {
+            composeView = LocalView.current.parent as ComposeView
+            composeView.consumeWindowInsets = false // call this before accessing insets
+            Box(Modifier.background(Color.White).fillMaxSize().systemBarsPadding()) {
+                AndroidView(
+                    modifier = Modifier.fillMaxSize(),
+                    factory = { context ->
+                        View(context).apply {
+                            ViewCompat.setWindowInsetsAnimationCallback(
+                                this,
+                                object : Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                                    override fun onProgress(
+                                        insets: WindowInsetsCompat,
+                                        runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                                    ): WindowInsetsCompat {
+                                        innerProgressInsets += insets
+                                        return insets
+                                    }
+
+                                    override fun onStart(
+                                        animation: WindowInsetsAnimationCompat,
+                                        bounds: BoundsCompat
+                                    ): BoundsCompat {
+                                        innerBounds = bounds
+                                        return bounds
+                                    }
+                                }
+                            )
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            val view = composeView.parent as View
+            ViewCompat.setWindowInsetsAnimationCallback(
+                view,
+                object : Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                    override fun onProgress(
+                        insets: WindowInsetsCompat,
+                        runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                    ): WindowInsetsCompat {
+                        outerProgressInsets += insets
+                        return insets
+                    }
+
+                    override fun onStart(
+                        animation: WindowInsetsAnimationCompat,
+                        bounds: BoundsCompat
+                    ): BoundsCompat {
+                        outerBounds = bounds
+                        isAnimating = true
+                        wasAnimated = true
+                        return bounds
+                    }
+
+                    override fun onEnd(animation: WindowInsetsAnimationCompat) {
+                        isAnimating = false
+                    }
+                }
+            )
+            ViewCompat.setOnApplyWindowInsetsListener(view) { _, insets ->
+                isImeVisible = insets.isVisible(WindowInsetsCompat.Type.ime())
+                insets
+            }
+            WindowInsetsControllerCompat(rule.activity.window, composeView)
+                .show(WindowInsetsCompat.Type.systemBars())
+        }
+
+        // For some reason, the status bar insets animate to the target
+        // value on older SDKs
+        rule.waitForIdle()
+        rule.waitUntil { !isAnimating }
+
+        rule.runOnIdle {
+            assertThat(isImeVisible).isFalse()
+            outerProgressInsets.clear()
+            innerProgressInsets.clear()
+            wasAnimated = false
+            SoftwareKeyboardControllerCompat(composeView).show()
+        }
+
+        rule.waitForIdle()
+
+        rule.waitUntil { !isAnimating && isImeVisible }
+
+        // the IME wasn't animated, so we can't test
+        assumeTrue(wasAnimated)
+
+        rule.runOnIdle {
+            // With the system bars being part of the padding, the bounds should be different by
+            // the size of the system bars padding
+            assertThat(innerBounds.lowerBound.bottom).isEqualTo(0)
+            assertThat(innerBounds.upperBound.bottom).isLessThan(outerBounds.upperBound.bottom)
+
+            innerProgressInsets.forEach { insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                assertThat(systemBars.left).isEqualTo(0)
+                assertThat(systemBars.top).isEqualTo(0)
+                assertThat(systemBars.right).isEqualTo(0)
+                assertThat(systemBars.bottom).isEqualTo(0)
+            }
+            outerProgressInsets.forEach { insets ->
+                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+                assertThat(
+                        maxOf(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
+                    )
+                    .isGreaterThan(0)
+            }
+        }
     }
 
     @Composable
