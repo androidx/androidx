@@ -24,6 +24,23 @@ import kotlin.jvm.JvmName
  * Returns the largest [WindowSizeClass] that is within the bounds of ([widthDp], [heightDp]). This
  * method prefers width and uses max height to break ties. If there is no match a default of
  * `WindowSizeClass(0,0)` is returned. Examples: Input: Set: `setOf(WindowSizeClass(300, 300),
+ * WindowSizeClass(300, 600)` widthDp: `300.5f` heightDp: `800.5f` Output: `WindowSizeClass(300,
+ * 600)` Input: Set: `setOf(WindowSizeClass(300, 300), WindowSizeClass(300, 600)` widthDp: `300`
+ * heightDp: `400` Output: `WindowSizeClass(300, 300)`. This is an overload that truncates the
+ * floats to integers.
+ *
+ * @param widthDp the width of the window to match a [WindowSizeClass] to.
+ * @param heightDp the height of the window to match a [WindowSizeClass] to.
+ * @see computeWindowSizeClass
+ */
+fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Float, heightDp: Float): WindowSizeClass {
+    return computeWindowSizeClass(widthDp.toInt(), heightDp.toInt())
+}
+
+/**
+ * Returns the largest [WindowSizeClass] that is within the bounds of ([widthDp], [heightDp]). This
+ * method prefers width and uses max height to break ties. If there is no match a default of
+ * `WindowSizeClass(0,0)` is returned. Examples: Input: Set: `setOf(WindowSizeClass(300, 300),
  * WindowSizeClass(300, 600)` widthDp: `300` heightDp: `800` Output: `WindowSizeClass(300, 600)`
  * Input: Set: `setOf(WindowSizeClass(300, 300), WindowSizeClass(300, 600)` widthDp: `300` heightDp:
  * `400` Output: `WindowSizeClass(300, 300)`
