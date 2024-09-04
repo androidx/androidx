@@ -51,7 +51,7 @@ androidXMultiplatform {
                 api(project(":compose:runtime:runtime"))
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-text"))
-                api(project(":graphics:graphics-shapes"))
+                api("androidx.graphics:graphics-shapes:1.0.1")
             }
         }
 
