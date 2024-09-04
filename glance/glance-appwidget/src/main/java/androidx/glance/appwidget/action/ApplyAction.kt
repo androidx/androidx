@@ -149,9 +149,8 @@ private fun getPendingIntentForAction(
                 translationContext.context,
                 0,
                 ActionCallbackBroadcastReceiver.createIntent(
-                        translationContext.context,
+                        translationContext,
                         action.callbackClass,
-                        translationContext.appWidgetId,
                         editParams(action.parameters)
                     )
                     .apply {
@@ -263,10 +262,9 @@ private fun getFillInIntentForAction(
         }
         is RunCallbackAction -> {
             ActionCallbackBroadcastReceiver.createIntent(
-                    context = translationContext.context,
-                    callbackClass = action.callbackClass,
-                    appWidgetId = translationContext.appWidgetId,
-                    parameters = editParams(action.parameters)
+                    translationContext,
+                    action.callbackClass,
+                    editParams(action.parameters)
                 )
                 .applyTrampolineIntent(
                     translationContext,

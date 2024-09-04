@@ -20,21 +20,25 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
+import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.glance.action.ActionParameters
 import androidx.glance.action.mutableActionParametersOf
 import androidx.glance.appwidget.AppWidgetId
+import androidx.glance.appwidget.TranslationContext
 import androidx.glance.appwidget.goAsync
 import androidx.glance.appwidget.logException
 import kotlinx.coroutines.CancellationException
 
 /** Responds to broadcasts from [RunCallbackAction] clicks by executing the associated action. */
-internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
+open class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
 
     @Suppress("DEPRECATION")
-    override fun onReceive(context: Context, intent: Intent) {
+    override fun onReceive(context: Context?, intent: Intent?) {
         goAsync {
             try {
+                requireNotNull(context) { "Context is null" }
+                requireNotNull(intent) { "Intent is null" }
                 val extras =
                     requireNotNull(intent.extras) {
                         "The intent must have action parameters extras."
@@ -72,21 +76,21 @@ internal class ActionCallbackBroadcastReceiver : BroadcastReceiver() {
         }
     }
 
-    companion object {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    internal companion object {
         private const val AppWidgetId = "ActionCallbackBroadcastReceiver:appWidgetId"
         private const val ExtraCallbackClassName = "ActionCallbackBroadcastReceiver:callbackClass"
         private const val ExtraParameters = "ActionCallbackBroadcastReceiver:parameters"
 
         internal fun createIntent(
-            context: Context,
+            translationContext: TranslationContext,
             callbackClass: Class<out ActionCallback>,
-            appWidgetId: Int,
             parameters: ActionParameters
         ) =
-            Intent(context, ActionCallbackBroadcastReceiver::class.java)
-                .setPackage(context.packageName)
+            Intent()
+                .setComponent(translationContext.glanceComponents.actionCallbackBroadcastReceiver)
                 .putExtra(ExtraCallbackClassName, callbackClass.canonicalName)
-                .putExtra(AppWidgetId, appWidgetId)
+                .putExtra(AppWidgetId, translationContext.appWidgetId)
                 .putParameterExtras(parameters)
 
         private fun Intent.putParameterExtras(parameters: ActionParameters): Intent {

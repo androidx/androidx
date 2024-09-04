@@ -16,6 +16,7 @@
 
 package androidx.glance.appwidget
 
+import android.app.Application
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProviderInfo
@@ -33,6 +34,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.glance.GlanceId
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
@@ -61,6 +63,12 @@ class GlanceAppWidgetManager(private val context: Context) {
         synchronized(GlanceAppWidgetManager) {
             return dataStoreSingleton
                 ?: run {
+                    // Delete old file format that did not include the process name.
+                    context
+                        .preferencesDataStoreFile("GlanceAppWidgetManager")
+                        .takeIf { it.exists() }
+                        ?.delete()
+
                     val newValue = context.appManagerDataStore
                     dataStoreSingleton = newValue
                     newValue
@@ -346,7 +354,19 @@ class GlanceAppWidgetManager(private val context: Context) {
 
     private companion object {
         private val Context.appManagerDataStore by
-            preferencesDataStore(name = "GlanceAppWidgetManager")
+            preferencesDataStore(name = "GlanceAppWidgetManager-$processName")
+
+        private val processName: String
+            get() =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    Application.getProcessName()
+                } else {
+                    Class.forName("android.app.ActivityThread")
+                        .getDeclaredMethod("currentProcessName")
+                        .apply { isAccessible = true }
+                        .invoke(null) as String
+                }
+
         private var dataStoreSingleton: DataStore<Preferences>? = null
         private val providersKey = stringSetPreferencesKey("list::Providers")
 

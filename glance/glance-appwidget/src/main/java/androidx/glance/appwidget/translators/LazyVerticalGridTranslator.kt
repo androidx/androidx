@@ -110,8 +110,7 @@ private fun RemoteViews.translateEmittableLazyVerticalGrid(
             }
             .build()
     setRemoteAdapter(
-        translationContext.context,
-        translationContext.appWidgetId,
+        translationContext,
         viewDef.mainViewId,
         translationContext.layoutSize.toSizeString(),
         items

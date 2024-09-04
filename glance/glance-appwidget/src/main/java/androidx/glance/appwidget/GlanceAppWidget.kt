@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -28,6 +29,9 @@ import androidx.annotation.RestrictTo.Scope
 import androidx.compose.runtime.Composable
 import androidx.glance.GlanceComposable
 import androidx.glance.GlanceId
+import androidx.glance.appwidget.action.ActionCallbackBroadcastReceiver
+import androidx.glance.appwidget.action.ActionTrampolineActivity
+import androidx.glance.appwidget.action.InvisibleActionTrampolineActivity
 import androidx.glance.appwidget.state.getAppWidgetState
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
@@ -53,7 +57,8 @@ import kotlinx.coroutines.CancellationException
 abstract class GlanceAppWidget(
     @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
 ) {
-    private val sessionManager: SessionManager = GlanceSessionManager
+    @get:RestrictTo(Scope.LIBRARY_GROUP)
+    protected open val sessionManager: SessionManager = GlanceSessionManager
 
     /**
      * Override this function to provide the Glance Composable.
@@ -135,7 +140,7 @@ abstract class GlanceAppWidget(
         val glanceId = AppWidgetId(appWidgetId)
         sessionManager.runWithLock {
             if (!isSessionRunning(context, glanceId.toSessionKey())) {
-                startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+                startSession(context, createAppWidgetSession(glanceId, options))
                 return@runWithLock
             }
             val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
@@ -217,11 +222,23 @@ abstract class GlanceAppWidget(
         block: suspend SessionManagerScope.(AppWidgetSession) -> Unit
     ) = runWithLock {
         if (!isSessionRunning(context, glanceId.toSessionKey())) {
-            startSession(context, AppWidgetSession(this@GlanceAppWidget, glanceId, options))
+            startSession(context, createAppWidgetSession(glanceId, options))
         }
         val session = getSession(glanceId.toSessionKey()) as AppWidgetSession
         block(session)
     }
+
+    /**
+     * Override this function to specify the components that will be used for actions and
+     * RemoteViewsService. All of the components must run in the same process.
+     *
+     * If null, then the default components will be used.
+     */
+    @get:RestrictTo(Scope.LIBRARY_GROUP) open val components: GlanceComponents? = null
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected open fun createAppWidgetSession(id: AppWidgetId, options: Bundle? = null) =
+        AppWidgetSession(this@GlanceAppWidget, id, options)
 }
 
 @RestrictTo(Scope.LIBRARY_GROUP) data class AppWidgetId(val appWidgetId: Int) : GlanceId
@@ -265,4 +282,31 @@ suspend fun GlanceAppWidget.provideContent(
             "provideContent requires a ContentReceiver and should only be called from " +
                 "GlanceAppWidget.provideGlance"
         )
+}
+
+/**
+ * Specifies which components will be used as targets for action trampolines, RunCallback actions,
+ * and RemoteViewsService when creating RemoteViews. These components must all run in the same
+ * process.
+ */
+@RestrictTo(Scope.LIBRARY_GROUP)
+class GlanceComponents(
+    val actionTrampolineActivity: ComponentName,
+    val invisibleActionTrampolineActivity: ComponentName,
+    val actionCallbackBroadcastReceiver: ComponentName,
+    val remoteViewsService: ComponentName,
+) {
+    companion object {
+        /** The default components used for GlanceAppWidget. */
+        fun getDefault(context: Context) =
+            GlanceComponents(
+                actionTrampolineActivity =
+                    ComponentName(context, ActionTrampolineActivity::class.java),
+                invisibleActionTrampolineActivity =
+                    ComponentName(context, InvisibleActionTrampolineActivity::class.java),
+                actionCallbackBroadcastReceiver =
+                    ComponentName(context, ActionCallbackBroadcastReceiver::class.java),
+                remoteViewsService = ComponentName(context, GlanceRemoteViewsService::class.java),
+            )
+    }
 }

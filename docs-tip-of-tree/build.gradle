@@ -181,6 +181,7 @@ dependencies {
     docs(project(":fragment:fragment-testing"))
     docs(project(":glance:glance"))
     docs(project(":glance:glance-appwidget"))
+    docs(project(":glance:glance-appwidget-multiprocess"))
     docs(project(":glance:glance-appwidget-testing"))
     docs(project(":glance:glance-appwidget-preview"))
     docs(project(":glance:glance-material"))

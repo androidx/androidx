@@ -24,7 +24,7 @@ import android.os.Bundle
  * This trampoline is only used for device versions before [android.os.Build.VERSION_CODES.Q].
  */
 @Suppress("ForbiddenSuperClass")
-internal class ActionTrampolineActivity : Activity() {
+open class ActionTrampolineActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

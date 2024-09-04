@@ -55,26 +55,28 @@ class ActionCallbackBroadcastReceiverTest {
     }
 
     private fun createPendingIntent(parameters: ActionParameters, viewId: Int): PendingIntent {
+        val translationContext =
+            TranslationContext(
+                context,
+                appWidgetId = 1,
+                isRtl = false,
+                layoutConfiguration = LayoutConfiguration.create(context, 1),
+                itemPosition = -1,
+                isLazyCollectionDescendant = false,
+                glanceComponents = GlanceComponents.getDefault(context),
+            )
         return PendingIntent.getBroadcast(
             context,
             0,
             ActionCallbackBroadcastReceiver.createIntent(
-                    context = context,
+                    translationContext = translationContext,
                     callbackClass = ActionCallback::class.java,
-                    appWidgetId = 1,
                     parameters = parameters
                 )
                 .apply {
                     data =
                         createUniqueUri(
-                            TranslationContext(
-                                context,
-                                appWidgetId = 1,
-                                isRtl = false,
-                                layoutConfiguration = LayoutConfiguration.create(context, 1),
-                                itemPosition = -1,
-                                isLazyCollectionDescendant = false,
-                            ),
+                            translationContext,
                             viewId = viewId,
                             type = ActionTrampolineType.CALLBACK,
                         )

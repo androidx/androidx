@@ -49,13 +49,13 @@ internal fun Intent.applyTrampolineIntent(
     type: ActionTrampolineType,
     activityOptions: Bundle? = null,
 ): Intent {
-    val target =
-        if (type == ActionTrampolineType.ACTIVITY) {
-            ActionTrampolineActivity::class.java
-        } else {
-            InvisibleActionTrampolineActivity::class.java
-        }
-    return Intent(translationContext.context, target).also { intent ->
+    return Intent().also { intent ->
+        intent.component =
+            if (type == ActionTrampolineType.ACTIVITY) {
+                translationContext.glanceComponents.actionTrampolineActivity
+            } else {
+                translationContext.glanceComponents.invisibleActionTrampolineActivity
+            }
         intent.data = createUniqueUri(translationContext, viewId, type)
         intent.putExtra(ActionTypeKey, type.name)
         intent.putExtra(ActionIntentKey, this)

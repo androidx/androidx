@@ -21,6 +21,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.RemoteViews
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -70,7 +71,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
  *   [android.appwidget.AppWidgetManager.updateAppWidget]. The [id] must be valid
  *   ([AppWidgetId.isRealId]) in that case.
  */
-internal class AppWidgetSession(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+open class AppWidgetSession(
     private val widget: GlanceAppWidget,
     private val id: AppWidgetId,
     initialOptions: Bundle? = null,
@@ -184,7 +186,8 @@ internal class AppWidgetSession(
                     layoutConfig,
                     layoutConfig.addLayout(root),
                     DpSize.Unspecified,
-                    receiver
+                    receiver,
+                    widget.components ?: GlanceComponents.getDefault(context),
                 )
             if (shouldPublish) {
                 appWidgetManager.updateAppWidget(id.appWidgetId, rv)
