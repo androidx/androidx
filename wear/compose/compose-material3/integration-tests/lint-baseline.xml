@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var topLetterSpacing by remember { mutableStateOf(0.6f) }"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/TypographyDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateCreation"
+        message="Prefer `mutableFloatStateOf` instead of `mutableStateOf`"
+        errorLine1="    var bottomLetterSpacing by remember { mutableStateOf(2.0f) }"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/TypographyDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            progress = { progress.value },"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            startAngle = startAngle.value,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            endAngle = endAngle.value,"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `intValue` to avoid unnecessary allocations."
+        errorLine1="            segmentCount = numSegments.value,"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            progress = { progress.value },"
+        errorLine2="                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            startAngle = startAngle.value,"
+        errorLine2="                                    ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+    <issue
+        id="AutoboxingStateValueProperty"
+        message="Assigning `value` will cause an autoboxing operation. Use `floatValue` to avoid unnecessary allocations."
+        errorLine1="            endAngle = endAngle.value,"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material3/demos/ProgressIndicatorDemo.kt"/>
+    </issue>
+
+</issues>

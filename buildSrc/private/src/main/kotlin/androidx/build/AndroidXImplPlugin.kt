@@ -761,20 +761,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
     private fun Project.buildOnServerDependsOnLint() {
         if (!project.usingMaxDepVersions()) {
-            val androidComponents = extensions.findByType(AndroidComponentsExtension::class.java)
-            androidComponents?.onVariants { variant ->
-                if (!variant.name.lowercase(Locale.getDefault()).contains("release")) {
-                    val taskName =
-                        "lint${variant.name.replaceFirstChar {
-                            if (it.isLowerCase()) {
-                                it.titlecase(Locale.getDefault())
-                            } else {
-                                it.toString()
-                            }
-                        }}"
-                    project.addToBuildOnServer(taskName)
-                }
-            }
+            project.addToBuildOnServer("lint")
         }
     }
 
