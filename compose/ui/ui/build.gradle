@@ -189,8 +189,11 @@ dependencies {
         // version of foundation will be at least this version. This will prevent the bug in
         // foundation from occurring. This does _NOT_ require that the app have foundation as
         // a dependency.
-        commonMainImplementation("androidx.compose.foundation:foundation:1.4.0") {
-            because 'prevents a critical bug in Text'
+        // A separate issue exists when foundation 1.6 is used with ui 1.7: overscroll stops
+        // showing due to a behavior change in NestedScrollSource. This constraint ensures that
+        // a version of foundation compatible with the new NestedScrollSource is used.
+        commonMainImplementation("androidx.compose.foundation:foundation:1.7.0") {
+            because 'prevents a regression in Overscroll'
         }
     }
 }
