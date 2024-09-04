@@ -39,6 +39,7 @@ import androidx.pdf.viewer.PageViewFactory;
 import androidx.pdf.viewer.PaginatedView;
 import androidx.pdf.viewer.PdfSelectionHandles;
 
+import java.util.List;
 import java.util.Objects;
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -194,9 +195,10 @@ public class SelectionActionMode {
 
             if (pageSelection.getRects().size() == 1 || startHandlerect.intersect(0, 0, screenWidth,
                     screenHeight)) {
-                return pageSelection.getRects().getFirst();
+                return pageSelection.getRects().get(0);
             } else if (stopHandleRect.intersect(0, 0, screenWidth, screenHeight)) {
-                return pageSelection.getRects().getLast();
+                List<Rect> rects = pageSelection.getRects();
+                return rects.get(rects.size() - 1);
             } else {
                 // Center of the view in page coordinates
                 int viewCentreX = mPaginatedView.getViewArea().centerX()
