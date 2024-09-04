@@ -313,7 +313,9 @@ constructor(
                 false
             } else {
                 /* When maxLines exceeds
-                 1. if ellipsis is applied, ellipsisCount of lastLine is greater than 0.
+                 1. if ellipsis is applied, ellipsisCount of lastLine is greater than 0. It works
+                 for all ellipsis position because start/middle ellipsis only supported for a single
+                 line text.
                  2. if ellipsis is not applies, lineEnd of the last line is unequals to
                  charSequence.length.
                  On certain cases, even though ellipsize is set, text overflow might still be

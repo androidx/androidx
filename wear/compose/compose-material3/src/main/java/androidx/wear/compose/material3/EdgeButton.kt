@@ -258,9 +258,12 @@ fun EdgeButton(
             provideScopeContent(
                 colors.contentColor(enabled = enabled),
                 MaterialTheme.typography.labelMedium,
-                TextOverflow.Ellipsis,
-                maxLines = 3, // TODO(): Change according to buttonHeight
-                TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        TextAlign.Center,
+                        TextOverflow.Ellipsis,
+                        maxLines = 3, // TODO(): Change according to buttonHeight
+                    ),
                 content
             )
     )

@@ -42,7 +42,7 @@ dependencies {
     implementation(libs.kotlinSerializationCore)
 
     api(libs.kotlinStdlib)
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
+    androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(project(":internal-testutils-navigation"))
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestImplementation(libs.testExtJunit)
@@ -53,8 +53,8 @@ dependencies {
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.espressoIntents)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinTest)
 

@@ -89,7 +89,7 @@ public class SelectedMatchValueObserverTest {
         PdfViewer.setScreenForTest(mContext);
 
         SelectedMatchValueObserver selectedMatchValueObserver = new SelectedMatchValueObserver(
-                mMockPaginatedView, mMockPaginationModel, mMockPageViewFactory, mMockZoomView,
+                mMockPaginatedView, mMockPageViewFactory, mMockZoomView,
                 mMockLayoutHandler, mContext);
         selectedMatchValueObserver.onChange(mMockOldSelection, mMockNewSelection);
 

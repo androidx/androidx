@@ -37,15 +37,15 @@ dependencies {
     implementation("androidx.activity:activity:1.7.1")
     implementation("androidx.lifecycle:lifecycle-common:2.6.1")
 
-    implementation(projectOrArtifact(":compose:integration-tests:demos:common"))
-    implementation(projectOrArtifact(":compose:foundation:foundation"))
-    implementation(projectOrArtifact(":compose:material:material"))
-    implementation(projectOrArtifact(":paging:paging-compose"))
-    implementation(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
+    implementation(project(":compose:integration-tests:demos:common"))
+    implementation(project(":compose:foundation:foundation"))
+    implementation(project(":compose:material:material"))
+    implementation(project(":paging:paging-compose"))
+    implementation(project(":paging:paging-compose:paging-compose-samples"))
 
-    ksp(projectOrArtifact(":room:room-compiler"))
-    implementation(projectOrArtifact(":room:room-ktx"))
-    implementation(projectOrArtifact(":room:room-paging"))
+    ksp(project(":room:room-compiler"))
+    implementation(project(":room:room-ktx"))
+    implementation(project(":room:room-paging"))
 }
 
 androidx {

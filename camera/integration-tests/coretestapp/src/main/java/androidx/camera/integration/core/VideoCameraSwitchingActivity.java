@@ -32,6 +32,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
@@ -77,6 +79,13 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private static final String VIDEO_FILE_PREFIX = "video";
     private static final String INFO_FILE_PREFIX = "video_camera_switching_test_info";
     private static final String KEY_DEVICE_ORIENTATION = "device_orientation";
+    private static final String INTENT_EXTRA_CAMERA_IMPLEMENTATION = "camera_implementation";
+    // Camera2 implementation.
+    private static final String CAMERA2_IMPLEMENTATION_OPTION = "camera2";
+    // Camera-pipe implementation.
+    private static final String CAMERA_PIPE_IMPLEMENTATION_OPTION = "camera_pipe";
+
+    private static String sCameraImplementationType;
 
     @NonNull
     private CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
@@ -103,6 +112,7 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
     private OrientationEventListener mOrientationEventListener;
     private int mMirrorMode = MIRROR_MODE_OFF;
 
+    @OptIn(markerClass = androidx.camera.lifecycle.ExperimentalCameraProviderConfiguration.class)
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,6 +139,21 @@ public class VideoCameraSwitchingActivity extends AppCompatActivity {
                 mMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
             } else {
                 mMirrorMode = MIRROR_MODE_OFF;
+            }
+
+            String cameraImplementation = bundle.getString(INTENT_EXTRA_CAMERA_IMPLEMENTATION);
+            if (cameraImplementation != null && sCameraImplementationType == null) {
+                if (cameraImplementation.equals(CAMERA2_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(Camera2Config.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else if (cameraImplementation.equals(CAMERA_PIPE_IMPLEMENTATION_OPTION)) {
+                    ProcessCameraProvider.configureInstance(
+                            CameraPipeConfig.defaultConfig());
+                    sCameraImplementationType = cameraImplementation;
+                } else {
+                    throw new IllegalArgumentException("Failed to configure the CameraProvider "
+                            + "using unknown " + cameraImplementation + " implementation option.");
+                }
             }
         }
 

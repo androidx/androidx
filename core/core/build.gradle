@@ -33,7 +33,7 @@ dependencies {
     api(libs.kotlinStdlib)
 
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
-    annotationProcessor(projectOrArtifact(":versionedparcelable:versionedparcelable-compiler"))
+    annotationProcessor(project(":versionedparcelable:versionedparcelable-compiler"))
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinStdlib)
@@ -43,7 +43,7 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.testUiautomator)
 
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
@@ -51,8 +51,8 @@ dependencies {
     // Including both dexmakers allows support for all API levels plus final mocking support on
     // API 28+. The implementation is swapped based on the finality of the mock type. This
     // delegation is handled manually inside androidx.core.util.mockito.CustomMockMaker.
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.dexmakerMockitoInline)
     androidTestImplementation("androidx.appcompat:appcompat:1.1.0") {
         exclude group: "androidx.core", module: "core"
     }

@@ -31,7 +31,6 @@ import androidx.ink.brush.InputToolType
  * ones which could introduce unpredictable garbage collection related delays to the time-sensitive
  * input path. This class has the [update] method for that purpose, rather than being immutable.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class StrokeInput {
     /** The x-coordinate of the input position in stroke space. */
     public var x: Float = 0F
@@ -143,6 +142,12 @@ public class StrokeInput {
      * @param elapsedTimeMillis Marks the number of milliseconds since the stroke started. It is a
      *   non-negative timestamp in the [android.os.SystemClock.elapsedRealtime] time base.
      * @param toolType The type of tool used to create this input data.
+     * @param strokeUnitLengthCm The physical distance in centimeters that the pointer must travel
+     *   in order to produce an input motion of one stroke unit. For stylus/touch, this is the
+     *   real-world distance that the stylus/ fingertip must move in physical space; for mouse, this
+     *   is the visual distance that the mouse pointer must travel along the surface of the display.
+     *   A value of [NO_STROKE_UNIT_LENGTH] indicates that the relationship between stroke space and
+     *   physical space is unknown or ill-defined.
      * @param pressure Should be within [0, 1] but it's not enforced until added to a
      *   [StrokeInputBatch] object. Absence of [pressure] data is represented with [NO_PRESSURE].
      * @param tiltRadians The angle in radians between a stylus and the line perpendicular to the

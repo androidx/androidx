@@ -24,6 +24,7 @@ import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
@@ -87,7 +88,8 @@ class ParagraphMethodBenchmark(private val textType: TextType, private val textL
                 Constraints(
                     maxWidth =
                         ceil(paragraphIntrinsics.maxIntrinsicWidth / preferredLineCount).toInt()
-                )
+                ),
+            overflow = TextOverflow.Clip
         )
     }
 

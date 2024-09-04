@@ -20,6 +20,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -345,7 +346,7 @@ class ParagraphIntegrationIndentationFixTest {
                     textIndent = textIndent
                 ),
             maxLines = lastLine + 1,
-            ellipsis = true,
+            overflow = TextOverflow.Ellipsis,
             constraints = Constraints(maxWidth = width),
             density = Density(density = 1f),
             fontFamilyResolver =

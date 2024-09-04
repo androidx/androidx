@@ -20,6 +20,7 @@ import androidx.compose.ui.text.Paragraph
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.resolveDefaults
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -103,7 +104,7 @@ private constructor(
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
                         maxLines = 1,
-                        ellipsis = false
+                        overflow = TextOverflow.Clip
                     )
                     .height
 
@@ -115,7 +116,7 @@ private constructor(
                         density = density,
                         fontFamilyResolver = fontFamilyResolver,
                         maxLines = 2,
-                        ellipsis = false
+                        overflow = TextOverflow.Clip
                     )
                     .height
 

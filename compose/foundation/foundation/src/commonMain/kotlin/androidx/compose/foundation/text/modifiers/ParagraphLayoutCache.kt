@@ -249,7 +249,7 @@ internal class ParagraphLayoutCache(
                 ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines(softWrap, overflow, maxLines),
-            ellipsis = overflow == TextOverflow.Ellipsis
+            overflow = overflow
         )
     }
 
@@ -338,7 +338,7 @@ internal class ParagraphLayoutCache(
                 ),
                 finalConstraints,
                 maxLines,
-                overflow == TextOverflow.Ellipsis
+                overflow
             ),
             layoutSize
         )

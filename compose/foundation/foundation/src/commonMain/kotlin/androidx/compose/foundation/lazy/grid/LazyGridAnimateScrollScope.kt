@@ -53,10 +53,7 @@ fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollS
         override fun calculateDistanceTo(targetIndex: Int, targetOffset: Int): Int {
             val layoutInfo = state.layoutInfo
             if (layoutInfo.visibleItemsInfo.isEmpty()) return 0
-            val visibleItem =
-                layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
-
-            return if (visibleItem == null) {
+            return if (targetIndex !in firstVisibleItemIndex..lastVisibleItemIndex) {
                 val slotsPerLine = state.slotsPerLine
                 val averageLineMainAxisSize = calculateLineAverageMainAxisSize(layoutInfo)
                 val before = targetIndex < firstVisibleItemIndex
@@ -65,11 +62,13 @@ fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollS
                         (slotsPerLine - 1) * if (before) -1 else 1) / slotsPerLine
                 (averageLineMainAxisSize * linesDiff) - firstVisibleItemScrollOffset
             } else {
+                val visibleItem =
+                    layoutInfo.visibleItemsInfo.fastFirstOrNull { it.index == targetIndex }
                 if (layoutInfo.orientation == Orientation.Vertical) {
-                    visibleItem.offset.y
+                    visibleItem?.offset?.y
                 } else {
-                    visibleItem.offset.x
-                }
+                    visibleItem?.offset?.x
+                } ?: 0
             } + targetOffset
         }
 

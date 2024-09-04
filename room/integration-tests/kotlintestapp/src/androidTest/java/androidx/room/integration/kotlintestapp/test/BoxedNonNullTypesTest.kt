@@ -27,7 +27,6 @@ import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.integration.kotlintestapp.RoomTestConfig
 import androidx.room.integration.kotlintestapp.assumeKsp
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -138,14 +137,6 @@ class BoxedNonNullTypesTest {
 
     @Test // repro for: b/211822920
     fun getAsRx2ObservableUnknownNullabilityInCursor() {
-        if (RoomTestConfig.isKsp) {
-            // only in KSP we know the value is non-null, hence default to 0.
-            // in RX, it would generate code that would return null and get filtered by RxRoom
-            // Even though this becomes inconsistent between KSP and KAPT, the KSP path is more
-            // consistent with the non-observable version of the query.
-            assertThat(db.myDao().getAsRx2ObservableUnknownTypeInCursor().blockingFirst())
-                .isEqualTo(0L)
-        }
         db.myDao().insert(MyEntity(9))
         assertThat(db.myDao().getAsRx2ObservableUnknownTypeInCursor().blockingFirst()).isEqualTo(9L)
     }

@@ -172,7 +172,7 @@ suspend fun PointerInputScope.detectDragGestures(
     onDrag: (change: PointerInputChange, dragAmount: Offset) -> Unit
 ) =
     detectDragGestures(
-        onDragStart = { change, _ -> onDragStart(change.position) },
+        onDragStart = { _, slopTriggerChange, _ -> onDragStart(slopTriggerChange.position) },
         onDragEnd = { onDragEnd.invoke() },
         onDragCancel = onDragCancel,
         shouldAwaitTouchSlop = { true },
@@ -200,7 +200,8 @@ suspend fun PointerInputScope.detectDragGestures(
  *
  * @param onDragStart A lambda to be called when the drag gesture starts, it contains information
  *   about the last known [PointerInputChange] relative to the containing element and the post slop
- *   delta.
+ *   delta, slopTriggerChange. It also contains information about the down event where this gesture
+ *   started and the overSlopOffset.
  * @param onDragEnd A lambda to be called when the gesture ends. It contains information about the
  *   up [PointerInputChange] that finished the gesture.
  * @param onDragCancel A lambda to be called when the gesture is cancelled either by an error or
@@ -224,7 +225,10 @@ suspend fun PointerInputScope.detectDragGestures(
  * @see detectDragGesturesAfterLongPress to detect gestures after long press
  */
 internal suspend fun PointerInputScope.detectDragGestures(
-    onDragStart: (change: PointerInputChange, initialDelta: Offset) -> Unit,
+    onDragStart:
+        (
+            down: PointerInputChange, slopTriggerChange: PointerInputChange, overSlopOffset: Offset
+        ) -> Unit,
     onDragEnd: (change: PointerInputChange) -> Unit,
     onDragCancel: () -> Unit,
     shouldAwaitTouchSlop: () -> Boolean,
@@ -242,7 +246,6 @@ internal suspend fun PointerInputScope.detectDragGestures(
         }
         val down = awaitFirstDown(requireUnconsumed = false)
         var drag: PointerInputChange?
-        var initialDelta = Offset.Zero
         overSlop = Offset.Zero
 
         if (awaitTouchSlop) {
@@ -257,13 +260,12 @@ internal suspend fun PointerInputScope.detectDragGestures(
                         overSlop = over
                     }
             } while (drag != null && !drag.isConsumed)
-            initialDelta = overSlop
         } else {
             drag = initialDown
         }
 
         if (drag != null) {
-            onDragStart.invoke(drag, initialDelta)
+            onDragStart.invoke(down, drag, overSlop)
             onDrag(drag, overSlop)
             val upEvent =
                 drag(
@@ -879,6 +881,7 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
     var currentDown = initialDown
     val longPressTimeout = viewConfiguration.longPressTimeoutMillis
     return try {
+        var deepPress = false
         // wait for first tap up or long press
         withTimeout(longPressTimeout) {
             var finished = false
@@ -895,6 +898,11 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
                     }
                 ) {
                     finished = true // Canceled
+                }
+
+                if (event.isDeepPress) {
+                    deepPress = true
+                    finished = true
                 }
 
                 // Check for cancel by position consumption. We can look on the Final pass of
@@ -919,7 +927,13 @@ suspend fun AwaitPointerEventScope.awaitLongPressOrCancellation(
                 }
             }
         }
-        null
+        // If we finished early because of a deep press, return the relevant change as this counts
+        // as a long press
+        if (deepPress) {
+            longPress ?: initialDown
+        } else {
+            null
+        }
     } catch (_: PointerEventTimeoutCancellationException) {
         longPress ?: initialDown
     }

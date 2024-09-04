@@ -841,6 +841,7 @@ internal class LayoutNodeLayoutDelegate(
             }
             layoutState = LayoutState.LayingOut
 
+            val firstPlacement = !placedOnce
             lastPosition = position
             lastZIndex = zIndex
             lastLayerBlock = layerBlock
@@ -849,6 +850,7 @@ internal class LayoutNodeLayoutDelegate(
             onNodePlacedCalled = false
 
             val owner = layoutNode.requireOwner()
+            owner.rectManager.onLayoutPositionChanged(layoutNode, position, firstPlacement)
             if (!layoutPending && isPlaced) {
                 outerCoordinator.placeSelfApparentToRealOffset(position, zIndex, layerBlock, layer)
                 onNodePlaced()

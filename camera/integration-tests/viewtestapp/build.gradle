@@ -56,6 +56,7 @@ dependencies {
     implementation(project(":camera:camera-view"))
     implementation(project(":camera:camera-video"))
     implementation(project(":camera:camera-effects"))
+    implementation(project(":camera:camera-media3-effect"))
     implementation(libs.guavaAndroid)
     implementation('com.google.mlkit:barcode-scanning:17.0.2')
     implementation("androidx.exifinterface:exifinterface:1.3.2")
@@ -78,6 +79,8 @@ dependencies {
     implementation("androidx.compose.material:material:1.4.0")
     implementation("androidx.compose.ui:ui:1.4.0")
     implementation("androidx.compose.foundation:foundation:1.4.0")
+    implementation(libs.media3Common)
+    implementation(libs.media3Effect)
 
     // Align dependencies in debugRuntimeClasspath and debugAndroidTestRuntimeClasspath.
     androidTestImplementation("androidx.annotation:annotation-experimental:1.4.1")

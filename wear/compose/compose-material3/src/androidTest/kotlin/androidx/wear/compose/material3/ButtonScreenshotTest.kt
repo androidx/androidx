@@ -21,9 +21,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.testutils.assertAgainstGolden
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -32,6 +36,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -43,11 +48,11 @@ import androidx.wear.compose.material3.CenteredText
 import androidx.wear.compose.material3.ChildButton
 import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
+import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.SCREENSHOT_GOLDEN_PATH
 import androidx.wear.compose.material3.TEST_TAG
-import androidx.wear.compose.material3.TestIcon
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.setContentWithTheme
 import org.junit.Rule
@@ -65,9 +70,25 @@ class ButtonScreenshotTest {
 
     @get:Rule val testName = TestName()
 
-    @Test fun button_enabled() = verifyScreenshot() { BaseButton() }
+    @Test fun button_enabled() = verifyScreenshot { BaseButton() }
 
-    @Test fun button_disabled() = verifyScreenshot() { BaseButton(enabled = false) }
+    @Test fun button_disabled() = verifyScreenshot { BaseButton(enabled = false) }
+
+    @Test
+    fun button_default_alignment() = verifyScreenshot {
+        // Uses the base Button overload, should be vertically centered by default
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth().testTag(TEST_TAG)) {
+            Text("Button")
+        }
+    }
+
+    @Test
+    fun button_top_alignment() = verifyScreenshot {
+        // Uses RowScope to override the default vertical alignment to be top
+        Button(onClick = {}, modifier = Modifier.fillMaxWidth().testTag(TEST_TAG)) {
+            Text("Button", modifier = Modifier.align(Alignment.Top))
+        }
+    }
 
     @Test
     fun three_slot_button_ltr() =
@@ -111,7 +132,31 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.IconSize) },
+        )
+    }
+
+    @Test
+    fun button_large_icon() = verifyScreenshot {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label", modifier = Modifier.fillMaxWidth()) },
+            secondaryLabel = { Text("Secondary label", modifier = Modifier.fillMaxWidth()) },
+            icon = { ButtonIcon(size = ButtonDefaults.LargeIconSize) },
+            contentPadding = ButtonDefaults.ButtonWithLargeIconContentPadding
+        )
+    }
+
+    @Test
+    fun button_extra_large_icon() = verifyScreenshot {
+        Button(
+            onClick = {},
+            modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
+            label = { Text("Label", modifier = Modifier.fillMaxWidth()) },
+            secondaryLabel = { Text("Secondary label", modifier = Modifier.fillMaxWidth()) },
+            icon = { ButtonIcon(size = ButtonDefaults.ExtraLargeIconSize) },
+            contentPadding = ButtonDefaults.ButtonWithExtraLargeIconContentPadding
         )
     }
 
@@ -130,7 +175,7 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.IconSize) },
         )
     }
 
@@ -149,7 +194,7 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.IconSize) },
         )
     }
 
@@ -168,7 +213,7 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.IconSize) },
         )
     }
 
@@ -191,7 +236,7 @@ class ButtonScreenshotTest {
             onClick = {},
             modifier = Modifier.fillMaxWidth().testTag(TEST_TAG),
             label = { Text("Label only", modifier = Modifier.fillMaxWidth()) },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.SmallIconSize) },
         )
     }
 
@@ -209,7 +254,7 @@ class ButtonScreenshotTest {
             onClick = {},
             label = { Text("Three Slot Button") },
             secondaryLabel = { Text("Secondary Label") },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.IconSize) },
             modifier = Modifier.testTag(TEST_TAG)
         )
     }
@@ -233,7 +278,7 @@ class ButtonScreenshotTest {
                     backgroundImagePainter = painterResource(R.drawable.backgroundimage1),
                     forcedSize = size
                 ),
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.SmallIconSize) },
             modifier = Modifier.testTag(TEST_TAG)
         )
     }
@@ -243,7 +288,7 @@ class ButtonScreenshotTest {
         CompactButton(
             onClick = {},
             label = { Text("Compact Button") },
-            icon = { TestIcon() },
+            icon = { ButtonIcon(size = ButtonDefaults.SmallIconSize) },
             enabled = enabled,
             modifier = Modifier.testTag(TEST_TAG)
         )
@@ -268,5 +313,19 @@ class ButtonScreenshotTest {
             .onNodeWithTag(TEST_TAG)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, testName.methodName)
+    }
+
+    @Composable
+    private fun ButtonIcon(
+        size: Dp,
+        modifier: Modifier = Modifier,
+        iconLabel: String = "ButtonIcon",
+    ) {
+        val testImage = Icons.Outlined.AccountCircle
+        Icon(
+            imageVector = testImage,
+            contentDescription = iconLabel,
+            modifier = modifier.testTag(iconLabel).size(size)
+        )
     }
 }

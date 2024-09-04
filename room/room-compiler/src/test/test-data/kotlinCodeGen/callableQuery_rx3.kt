@@ -49,7 +49,7 @@ public class MyDao_Impl(
         }
         val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
         val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity
+        val _result: MyEntity?
         if (_stmt.step()) {
           val _tmpPk: Int
           _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
@@ -57,7 +57,7 @@ public class MyDao_Impl(
           _tmpOther = _stmt.getText(_cursorIndexOfOther)
           _result = MyEntity(_tmpPk,_tmpOther)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          _result = null
         }
         _result
       } finally {
@@ -87,7 +87,7 @@ public class MyDao_Impl(
         }
         val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_stmt, "pk")
         val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_stmt, "other")
-        val _result: MyEntity
+        val _result: MyEntity?
         if (_stmt.step()) {
           val _tmpPk: Int
           _tmpPk = _stmt.getLong(_cursorIndexOfPk).toInt()
@@ -95,7 +95,7 @@ public class MyDao_Impl(
           _tmpOther = _stmt.getText(_cursorIndexOfOther)
           _result = MyEntity(_tmpPk,_tmpOther)
         } else {
-          error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
+          _result = null
         }
         _result
       } finally {

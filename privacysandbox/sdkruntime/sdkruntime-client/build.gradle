@@ -120,8 +120,8 @@ dependencies {
     androidTestImplementation(project(':internal-testutils-runtime'))
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
 
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockitoInline)
 
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:current"))
     androidTestBundleDex(project(":privacysandbox:sdkruntime:test-sdks:v4"))

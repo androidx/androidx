@@ -57,8 +57,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.testUiautomator)
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.mockitoCore)
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.fragment:fragment-testing:1.4.1")
 }

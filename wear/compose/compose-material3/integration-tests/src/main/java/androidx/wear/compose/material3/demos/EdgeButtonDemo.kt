@@ -57,6 +57,7 @@ import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButton
 import androidx.wear.compose.material3.TextButtonDefaults
+import androidx.wear.compose.material3.samples.icons.CheckIcon
 
 @Composable
 fun EdgeButtonBelowLazyColumnDemo() {

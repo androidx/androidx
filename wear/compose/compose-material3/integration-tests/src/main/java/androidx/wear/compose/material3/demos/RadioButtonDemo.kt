@@ -32,7 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.LocalTextMaxLines
+import androidx.wear.compose.material3.LocalTextConfiguration
 import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Text
 
@@ -139,7 +139,7 @@ private fun DemoRadioButton(
             Text(
                 primary,
                 Modifier.fillMaxWidth(),
-                maxLines = primaryMaxLines ?: LocalTextMaxLines.current
+                maxLines = primaryMaxLines ?: LocalTextConfiguration.current.maxLines
             )
         },
         secondaryLabel =

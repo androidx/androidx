@@ -33,19 +33,19 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projectOrArtifact(":datastore:datastore-preferences-external-protobuf"))
+    compileOnly(project(":datastore:datastore-preferences-external-protobuf"))
 
     implementation(libs.protobufLite)
     implementation(libs.kotlinStdlib)
     implementation('androidx.core:core-ktx:1.7.0')
     implementation('androidx.lifecycle:lifecycle-runtime-ktx:2.3.1')
     implementation('androidx.activity:activity-compose:1.3.1')
-    implementation(projectOrArtifact(":compose:ui:ui"))
-    implementation(projectOrArtifact(":compose:ui:ui-tooling-preview"))
-    implementation(projectOrArtifact(":compose:material:material"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":compose:material:material"))
     testImplementation('junit:junit:4.13.2')
-    debugImplementation(projectOrArtifact(":compose:ui:ui-tooling"))
-    debugImplementation(projectOrArtifact(":compose:ui:ui-test-manifest"))
+    debugImplementation(project(":compose:ui:ui-tooling"))
+    debugImplementation(project(":compose:ui:ui-test-manifest"))
 
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation("com.google.protobuf:protobuf-javalite:3.19.4")

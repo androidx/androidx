@@ -38,23 +38,6 @@ import java.util.MissingFormatArgumentException
  *
  * See [Formatter] documentation for the format string syntax.
  *
- * Example usage:
- * ```
- * DynamicFormatter().format(
- *   "%s has walked %d steps. %1$s has also walked %.2f meters.",
- *   "John", PlatformHealthSources.dailySteps(), PlatformHealthSources.dailyDistanceMeters()
- * )
- * // Generates an equivalent of:
- * DynamicString.constant("John has walked ")
- *   .concat(PlatformHealthSources.dailySteps().format())
- *   .concat(DynamicString.constant(" steps. John has also walked "))
- *   .concat(
- *     PlatformHealthSources.dailyMeters()
- *       .format(FloatFormatter.Builder().setMaxFractionDigits(2).build())
- *   )
- *   .concat(DynamicString.constant(" meters."))
- * ```
- *
  * Argument index options (`%s`, `%2$s`, and `%<s`) are fully supported.
  *
  * These are the supported conversions and options:
@@ -71,12 +54,34 @@ import java.util.MissingFormatArgumentException
  * |%f |See [Formatter]  |No             |Yes, width and precision|Yes, width and precision|No             |No                 |
  * |...|See [Formatter]  |No             |No                      |No                      |No             |No                 |
  *
- * NOTE: `%f` has a default precision of 6..6 in [Formatter], which is different from
+ * NOTE 1: `%f` has a default precision of 6..6 in [Formatter], which is different from
  * [DynamicFloat.format] which defaults to 0..3. [DynamicFormatter] behaves like [Formatter] and
  * defaults to 6..6.
+ *
+ * NOTE 2: [DynamicFormatter] uses `Locale.getDefault(Locale.Category.FORMAT)` at the time of
+ * calling [format] for non-[DynamicType] arguments. This can change on the remote side which, would
+ * cause a mismatch between the locally-formatted arguments and the remotely-formatted arguments,
+ * unless the provider sends a newly formatted [DynamicString] (using a new invocation of [format]).
+ *
+ * Example usage:
+ * ```
+ * DynamicFormatter().format(
+ *   "%s has walked %d steps. %1$s has also walked %.2f meters.",
+ *   "John", PlatformHealthSources.dailySteps(), PlatformHealthSources.dailyDistanceMeters()
+ * )
+ * // Generates an equivalent of:
+ * DynamicString.constant("John has walked ")
+ *   .concat(PlatformHealthSources.dailySteps().format())
+ *   .concat(DynamicString.constant(" steps. John has also walked "))
+ *   .concat(
+ *     PlatformHealthSources.dailyMeters()
+ *       .format(FloatFormatter.Builder().setMaxFractionDigits(2).build())
+ *   )
+ *   .concat(DynamicString.constant(" meters."))
+ * ```
  */
 public class DynamicFormatter {
-    // TODO: b/297323092 - Allow providing locale for remote evaluation in the constructor.
+    // TODO: b/297323092 - Allow providing in the constructor for both local and remote evaluation.
     private val locale
         get() = Locale.getDefault(Locale.Category.FORMAT)
 
@@ -124,39 +129,38 @@ public class DynamicFormatter {
      * on the result.
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
-    private fun extractFormatParts(
-        format: String,
-        args: Array<out Any?>
-    ): Sequence<ConstantOrDynamicPart> = sequence {
-        var lastPosition = 0
-        var lastVariableIndex = -1
-        var lastPositionalVariableIndex = -1
-        for (match in PATTERN.findAll(format)) {
-            if (match.range.first > lastPosition) {
-                // Non-variable (non-match) from the end of the last dynamic part, i.e.:
-                // "...<dynamic><*constant*><dynamic>...".
-                yield(ConstantPart(format.substring(lastPosition until match.range.first)))
+    private fun extractFormatParts(format: String, args: Array<out Any?>): Sequence<Part> =
+        sequence {
+            var lastPosition = 0
+            var lastVariableIndex = -1
+            var lastPositionalVariableIndex = -1
+            for (match in PATTERN.findAll(format)) {
+                if (match.range.first > lastPosition) {
+                    // Non-variable (non-match) from the end of the last dynamic part, i.e.:
+                    // "...<dynamic><*constant*><dynamic>...".
+                    yield(Part.Constant(format.substring(lastPosition until match.range.first)))
+                }
+                // Variable match - parsing the specifier, maintaining last indices, and formatting.
+                val formatAttributes =
+                    match.toFormatStringVariable(
+                        lastIndex = lastVariableIndex,
+                        lastPositionalIndex = lastPositionalVariableIndex
+                    )
+                lastVariableIndex = formatAttributes.index
+                if (formatAttributes.isPositionalIndex) {
+                    lastPositionalVariableIndex = formatAttributes.index
+                }
+                yield(formatAttributes.format(args))
+                // Remembering position in order to extract non-variable parts between variable
+                // matches.
+                lastPosition = match.range.last + 1
             }
-            // Variable match - parsing the specifier, maintaining last indices, and formatting.
-            val formatAttributes =
-                match.toFormatStringVariable(
-                    lastIndex = lastVariableIndex,
-                    lastPositionalIndex = lastPositionalVariableIndex
-                )
-            lastVariableIndex = formatAttributes.index
-            if (formatAttributes.isPositionalIndex) {
-                lastPositionalVariableIndex = formatAttributes.index
+            if (lastPosition < format.length) {
+                // Non-variable (non-match) from the end of the last dynamic part at the end of the
+                // format, i.e.: "...<dynamic><*constant*>".
+                yield(Part.Constant(format.substring(lastPosition)))
             }
-            yield(formatAttributes.format(args))
-            // Remembering position in order to extract non-variable parts between variable matches.
-            lastPosition = match.range.last + 1
         }
-        if (lastPosition < format.length) {
-            // Non-variable (non-match) from the end of the last dynamic part at the end of the
-            // format, i.e.: "...<dynamic><*constant*>".
-            yield(ConstantPart(format.substring(lastPosition)))
-        }
-    }
 
     /**
      * Converts a [PATTERN] match to an [FormatStringVariable].
@@ -228,36 +232,35 @@ public class DynamicFormatter {
      * )
      * ```
      */
-    private fun Sequence<ConstantOrDynamicPart>.mergeConstants(): Sequence<ConstantOrDynamicPart> =
-        sequence {
-            val empty = ConstantPart("")
-            var lastConstant = empty
-            forEach { nextSection ->
-                if (nextSection is ConstantPart) {
-                    lastConstant += nextSection
-                } else {
-                    if (lastConstant.value.isNotEmpty()) yield(lastConstant)
-                    lastConstant = empty
-                    yield(nextSection)
-                }
+    private fun Sequence<Part>.mergeConstants(): Sequence<Part> = sequence {
+        val empty = Part.Constant("")
+        var lastConstant = empty
+        forEach { nextSection ->
+            if (nextSection is Part.Constant) {
+                lastConstant += nextSection
+            } else {
+                if (lastConstant.value.isNotEmpty()) yield(lastConstant)
+                lastConstant = empty
+                yield(nextSection)
             }
-            if (lastConstant.value.isNotEmpty()) yield(lastConstant)
+        }
+        if (lastConstant.value.isNotEmpty()) yield(lastConstant)
+    }
+
+    /** Represents a [Constant] or a [Dynamic] value. */
+    private sealed interface Part {
+        @RequiresSchemaVersion(major = 1, minor = 200) fun toDynamicString(): DynamicString
+
+        data class Constant(val value: String) : Part {
+            operator fun plus(other: Constant) = Constant(value + other.value)
+
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            override fun toDynamicString() = DynamicString.constant(value)
         }
 
-    /** Represents a [ConstantPart] or a [DynamicPart] value. */
-    private sealed interface ConstantOrDynamicPart {
-        @RequiresSchemaVersion(major = 1, minor = 200) fun toDynamicString(): DynamicString
-    }
-
-    private data class ConstantPart(val value: String) : ConstantOrDynamicPart {
-        operator fun plus(other: ConstantPart) = ConstantPart(value + other.value)
-
-        @RequiresSchemaVersion(major = 1, minor = 200)
-        override fun toDynamicString() = DynamicString.constant(value)
-    }
-
-    private data class DynamicPart(val value: DynamicString) : ConstantOrDynamicPart {
-        @RequiresSchemaVersion(major = 1, minor = 200) override fun toDynamicString() = value
+        data class Dynamic(val value: DynamicString) : Part {
+            @RequiresSchemaVersion(major = 1, minor = 200) override fun toDynamicString() = value
+        }
     }
 
     /**
@@ -299,17 +302,17 @@ public class DynamicFormatter {
          * [DynamicFormatter.format].
          */
         @RequiresSchemaVersion(major = 1, minor = 200)
-        fun format(args: Array<out Any?>): ConstantOrDynamicPart {
+        fun format(args: Array<out Any?>): Part {
             if (index >= args.size) {
                 throw MissingFormatArgumentException("Format specifier '$specifier'")
             }
             val arg = args[index]
             // Non-DynamicType arguments use Formatter.
-            if (arg !is DynamicType) return ConstantPart(arg.defaultFormat())
+            if (arg !is DynamicType) return Part.Constant(arg.defaultFormat())
             throwIfIfNotAllowed(arg)
             return when (conversion) {
-                '%' -> ConstantPart(arg.defaultFormat()) // Argument is ignored by %%.
-                'n' -> ConstantPart(arg.defaultFormat()) // Argument is ignored by %n.
+                '%' -> Part.Constant(arg.defaultFormat()) // Argument is ignored by %%.
+                'n' -> Part.Constant(arg.defaultFormat()) // Argument is ignored by %n.
                 's' -> asStringPart(arg)
                 'S' -> asStringUpperPart(arg)
                 'b' -> asBooleanPart(arg)
@@ -324,25 +327,25 @@ public class DynamicFormatter {
         }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asStringPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asStringPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicString -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(arg)
+                    Part.Dynamic(arg)
                 }
                 is DynamicInt32 -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(arg.format())
+                    Part.Dynamic(arg.format())
                 }
                 is DynamicFloat -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(
+                    Part.Dynamic(
                         arg.format(FloatFormatter.Builder().setMinFractionDigits(1).build())
                     )
                 }
                 is DynamicBool -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(
+                    Part.Dynamic(
                         DynamicString.onCondition(arg)
                             .use(true.defaultFormat())
                             .elseUse(false.defaultFormat())
@@ -352,21 +355,21 @@ public class DynamicFormatter {
             }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asStringUpperPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asStringUpperPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicInt32 -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(arg.format())
+                    Part.Dynamic(arg.format())
                 }
                 is DynamicFloat -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(
+                    Part.Dynamic(
                         arg.format(FloatFormatter.Builder().setMinFractionDigits(1).build())
                     )
                 }
                 is DynamicBool -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(
+                    Part.Dynamic(
                         DynamicString.onCondition(arg)
                             .use(true.defaultFormat())
                             .elseUse(false.defaultFormat())
@@ -376,49 +379,49 @@ public class DynamicFormatter {
             }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asBooleanPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asBooleanPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicBool -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(
+                    Part.Dynamic(
                         DynamicString.onCondition(arg)
                             .use(true.defaultFormat())
                             .elseUse(false.defaultFormat())
                     )
                 }
                 // All non-null is true, including DynamicType.
-                else -> ConstantPart(arg.defaultFormat())
+                else -> Part.Constant(arg.defaultFormat())
             }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asBooleanUpperPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asBooleanUpperPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicBool -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(DynamicString.onCondition(arg).use("TRUE").elseUse("FALSE"))
+                    Part.Dynamic(DynamicString.onCondition(arg).use("TRUE").elseUse("FALSE"))
                 }
                 // All non-null is true, including DynamicType.
-                else -> ConstantPart(arg.defaultFormat())
+                else -> Part.Constant(arg.defaultFormat())
             }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asDecimalPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asDecimalPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicInt32 -> {
                     throwUnsupportedForAnyOption()
-                    DynamicPart(arg.format())
+                    Part.Dynamic(arg.format())
                 }
                 else -> throwUnsupportedDynamicType(arg)
             }
 
         @RequiresSchemaVersion(major = 1, minor = 200)
-        private fun asFloatPart(arg: DynamicType): ConstantOrDynamicPart =
+        private fun asFloatPart(arg: DynamicType): Part =
             when (arg) {
                 is DynamicFloat -> {
                     throwUnsupportedSpecifierIf(
                         flags.isNotEmpty() || width != null || dateTimePrefix != null
                     )
-                    DynamicPart(
+                    Part.Dynamic(
                         arg.format(
                             FloatFormatter.Builder()
                                 .apply {

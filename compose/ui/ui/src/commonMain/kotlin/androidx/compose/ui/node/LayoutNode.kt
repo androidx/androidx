@@ -59,6 +59,8 @@ import androidx.compose.ui.semantics.generateSemanticsId
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.viewinterop.InteropView
 import androidx.compose.ui.viewinterop.InteropViewFactoryHolder
@@ -90,6 +92,11 @@ internal class LayoutNode(
     ComposeUiNode,
     InteroperableComposeUiNode,
     Owner.OnLayoutCompletedListener {
+
+    internal var offsetFromRoot: IntOffset = IntOffset.Max
+    internal var lastSize: IntSize = IntSize.Zero
+    internal var outerToInnerOffset: IntOffset = IntOffset.Max
+    internal var outerToInnerOffsetDirty: Boolean = true
 
     var forceUseOldLayers: Boolean = false
 
@@ -814,7 +821,7 @@ internal class LayoutNode(
     /** The inner-most layer coordinator. Used for performance for NodeCoordinator.findLayer(). */
     private var _innerLayerCoordinator: NodeCoordinator? = null
     internal var innerLayerCoordinatorIsDirty = true
-    private val innerLayerCoordinator: NodeCoordinator?
+    internal val innerLayerCoordinator: NodeCoordinator?
         get() {
             if (innerLayerCoordinatorIsDirty) {
                 var coordinator: NodeCoordinator? = innerCoordinator
@@ -1056,6 +1063,7 @@ internal class LayoutNode(
      * measurement need to be re-done. Such events include modifier change, attach/detach, etc.
      */
     internal fun invalidateMeasurements() {
+        outerToInnerOffsetDirty = true
         if (lookaheadRoot != null) {
             requestLookaheadRemeasure()
         } else {
@@ -1077,6 +1085,7 @@ internal class LayoutNode(
 
     /** Used to request a new layout pass from the owner. */
     internal fun requestRelayout(forceRequest: Boolean = false) {
+        outerToInnerOffsetDirty = true
         if (!isVirtual) {
             owner?.onRequestRelayout(this, forceRequest = forceRequest)
         }
@@ -1325,6 +1334,7 @@ internal class LayoutNode(
         if (isAttached) {
             invalidateSemantics()
         }
+        owner?.onLayoutNodeDeactivated(this)
     }
 
     override fun onRelease() {

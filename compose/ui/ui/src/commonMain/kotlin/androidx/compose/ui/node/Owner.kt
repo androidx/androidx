@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextInputService
@@ -132,6 +133,9 @@ internal interface Owner : PositionCalculator {
 
     /** Provide information about the window that hosts this [Owner]. */
     val windowInfo: WindowInfo
+
+    /** Provides a queryable and observable index of nodes' bounding rectangles */
+    val rectManager: RectManager
 
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
@@ -257,6 +261,8 @@ internal interface Owner : PositionCalculator {
 
     /** The position and/or size of the [layoutNode] changed. */
     fun onLayoutChange(layoutNode: LayoutNode)
+
+    fun onLayoutNodeDeactivated(layoutNode: LayoutNode)
 
     /**
      * The position and/or size of an interop view (typically, an android.view.View) has changed. On

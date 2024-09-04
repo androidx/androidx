@@ -162,7 +162,7 @@ private class DelegatingImageCapturedCallback(delegate: ImageCapture.OnImageCapt
     }
 
     override fun onCaptureSuccess(imageProxy: ImageProxy) {
-        delegate?.onCaptureSuccess(imageProxy)
+        delegate?.onCaptureSuccess(imageProxy) ?: run { imageProxy.close() }
     }
 
     override fun onError(exception: ImageCaptureException) {

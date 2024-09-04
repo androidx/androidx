@@ -41,6 +41,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
@@ -67,11 +68,9 @@ import androidx.wear.compose.materialcore.screenWidthDp
  * Example of an [AlertDialog] with an icon, title and two buttons to confirm and dismiss:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithConfirmAndDismissSample
- * @param show A boolean indicating whether the dialog should be displayed. When set to true an
- *   'intro' animation is triggered and the dialog is displayed. Subsequently, when set to false an
- *   'outro' animation is triggered, then [onDismissRequest] is called and dialog becomes hidden.
+ * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
- *   right (typically also called by the [dismissButton]) or by other dismiss action.
+ *   right (typically also called by the [dismissButton]).
  * @param confirmButton A slot for a [Button] indicating positive sentiment. Clicking the button
  *   must remove the dialog from the composition hierarchy. It's recommended to use
  *   [AlertDialogDefaults.ConfirmButton] in this slot with onClick callback.
@@ -140,9 +139,7 @@ fun AlertDialog(
  * Example of an [AlertDialog] with content groups and a bottom [EdgeButton]:
  *
  * @sample androidx.wear.compose.material3.samples.AlertDialogWithContentGroupsSample
- * @param show A boolean indicating whether the dialog should be displayed. When set to true an
- *   'intro' animation is triggered and the dialog is displayed. Subsequently, when set to false an
- *   'outro' animation is triggered, then [onDismissRequest] is called and dialog becomes hidden.
+ * @param show A boolean indicating whether the dialog should be displayed.
  * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping to
  *   the right or by other dismiss action.
  * @param bottomButton A slot for a [EdgeButton] indicating positive sentiment. Clicking the button
@@ -405,8 +402,12 @@ private fun Title(content: @Composable () -> Unit) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             LocalTextStyle provides MaterialTheme.typography.titleMedium,
-            LocalTextAlign provides TextAlign.Center,
-            LocalTextMaxLines provides AlertDialogDefaults.titleMaxLines,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    maxLines = AlertDialogDefaults.titleMaxLines,
+                    overflow = TextOverflow.Ellipsis
+                ),
             content = content
         )
     }
@@ -437,7 +438,12 @@ private fun TextMessage(content: @Composable () -> Unit) {
         CompositionLocalProvider(
             LocalContentColor provides MaterialTheme.colorScheme.onBackground,
             LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-            LocalTextAlign provides TextAlign.Center,
+            LocalTextConfiguration provides
+                TextConfiguration(
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = TextConfigurationDefaults.MaxLines
+                ),
             content = content
         )
     }

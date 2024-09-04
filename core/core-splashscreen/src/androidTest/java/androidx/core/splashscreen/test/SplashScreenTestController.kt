@@ -44,11 +44,9 @@ internal const val EXTRA_SPLASHSCREEN_WAIT = "splashscreen_wait"
 
 /**
  * If set to true, takes a screenshot of the splash screen and saves it in
- * [SplashScreenTestController.splashScreenScreenshot] and a second screenshot of
- * [androidx.core.splashscreen.SplashScreenViewProvider.view] and saves it in
- * [SplashScreenTestController.splashScreenViewScreenShot]
+ * [SplashScreenTestController.splashScreenScreenshot]
  */
-internal const val EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT = "SplashScreenViewScreenShot"
+internal const val EXTRA_SPLASHSCREEN_SCREENSHOT = "SplashScreenScreenShot"
 
 public interface SplashScreenTestControllerHolder {
     public var controller: SplashScreenTestController
@@ -56,7 +54,6 @@ public interface SplashScreenTestControllerHolder {
 
 public class SplashScreenTestController(internal val activity: Activity) {
 
-    public var splashScreenViewScreenShot: Bitmap? = null
     public var splashScreenScreenshot: Bitmap? = null
     public var splashscreenIconId: Int = 0
     public var splashscreenBackgroundId: Int = 0
@@ -95,7 +92,7 @@ public class SplashScreenTestController(internal val activity: Activity) {
         val extras = intent.extras ?: Bundle.EMPTY
 
         val useListener = extras.getBoolean(EXTRA_ANIMATION_LISTENER)
-        val takeScreenShot = extras.getBoolean(EXTRA_SPLASHSCREEN_VIEW_SCREENSHOT)
+        val takeScreenShot = extras.getBoolean(EXTRA_SPLASHSCREEN_SCREENSHOT)
         val waitForSplashscreen = extras.getBoolean(EXTRA_SPLASHSCREEN_WAIT)
 
         val tv = TypedValue()
@@ -137,17 +134,7 @@ public class SplashScreenTestController(internal val activity: Activity) {
                 if (onExitAnimationListener(splashScreenViewProvider)) {
                     return@setOnExitAnimationListener
                 }
-                if (takeScreenShot) {
-                    splashScreenViewProvider.view.postDelayed(
-                        {
-                            splashScreenViewScreenShot =
-                                getInstrumentation().uiAutomation.takeScreenshot()
-                            splashScreenViewProvider.remove()
-                            exitAnimationListenerLatch.countDown()
-                        },
-                        100
-                    )
-                } else {
+                if (!takeScreenShot) {
                     splashScreenViewProvider.remove()
                     exitAnimationListenerLatch.countDown()
                 }

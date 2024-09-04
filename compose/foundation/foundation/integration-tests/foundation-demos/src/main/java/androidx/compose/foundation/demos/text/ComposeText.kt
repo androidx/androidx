@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.demos.text
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
@@ -35,11 +36,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
@@ -100,7 +105,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
@@ -120,8 +127,26 @@ val fontSize6 = 20.sp
 val fontSize8 = 25.sp
 val fontSize10 = 30.sp
 
-private val overflowOptions = listOf(TextOverflow.Visible, TextOverflow.Ellipsis, TextOverflow.Clip)
-private val paragraphOptions = listOf(true, false)
+@SuppressLint("PrimitiveInCollection")
+private val overflowOptions =
+    listOf(
+        TextOverflow.Clip,
+        TextOverflow.Visible,
+        TextOverflow.StartEllipsis,
+        TextOverflow.MiddleEllipsis,
+        TextOverflow.Ellipsis
+    )
+private val boolOptions = listOf(true, false)
+@SuppressLint("PrimitiveInCollection")
+private val textAlignments =
+    listOf(
+        TextAlign.Left,
+        TextAlign.Start,
+        TextAlign.Center,
+        TextAlign.Right,
+        TextAlign.End,
+        TextAlign.Justify
+    )
 
 @Preview
 @Composable
@@ -623,9 +648,30 @@ fun TextOverflowVisibleInDrawText() {
 
 @Composable
 fun TextOverflowDemo() {
-    Column {
-        var singleParagraph by remember { mutableStateOf(paragraphOptions[0]) }
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.verticalScroll(rememberScrollState())
+    ) {
+        var singleParagraph by remember { mutableStateOf(boolOptions[0]) }
         var selectedOverflow by remember { mutableStateOf(overflowOptions[0]) }
+        var singleLinePerPar by remember { mutableStateOf(boolOptions[1]) }
+        var width by remember { mutableFloatStateOf(250f) }
+        var height by remember { mutableFloatStateOf(50f) }
+        var letterSpacing by remember { mutableFloatStateOf(0f) }
+        var textAlign by remember { mutableStateOf(TextAlign.Left) }
+        var softWrap by remember { mutableStateOf(true) }
+
+        TextOverflowDemo(
+            singleParagraph,
+            selectedOverflow,
+            singleLinePerPar,
+            width.dp,
+            height.dp,
+            letterSpacing.sp,
+            textAlign,
+            softWrap
+        )
+
         Row(Modifier.fillMaxWidth()) {
             Column(Modifier.selectableGroup().weight(1f)) {
                 Text("TextOverflow", fontWeight = FontWeight.Bold)
@@ -649,7 +695,7 @@ fun TextOverflowDemo() {
             }
             Column(Modifier.selectableGroup().weight(1f)) {
                 Text("Paragraph", fontWeight = FontWeight.Bold)
-                paragraphOptions.forEach {
+                boolOptions.forEach {
                     Row(
                         Modifier.fillMaxWidth()
                             .selectable(
@@ -667,14 +713,86 @@ fun TextOverflowDemo() {
                     }
                 }
             }
+            Column(Modifier.selectableGroup().weight(1f)) {
+                Text("Single line", fontWeight = FontWeight.Bold)
+                boolOptions.forEach {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .selectable(
+                                selected = (it == singleLinePerPar),
+                                onClick = { singleLinePerPar = it },
+                                role = Role.RadioButton
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = (it == singleLinePerPar), onClick = null)
+                        Text(text = it.toString())
+                    }
+                }
+            }
         }
-
-        TextOverflowDemo(singleParagraph, selectedOverflow)
+        Column {
+            Text("Width " + "%.1f".format(width) + "dp")
+            Slider(width, { width = it }, valueRange = 30f..300f)
+        }
+        Column {
+            Text("Height " + "%.1f".format(height) + "dp")
+            Slider(height, { height = it }, valueRange = 5f..300f)
+        }
+        Column {
+            Text("Letter spacing " + "%.1f".format(letterSpacing) + "sp")
+            Slider(letterSpacing, { letterSpacing = it }, valueRange = -4f..8f, steps = 11)
+        }
+        Row(Modifier.fillMaxWidth()) {
+            Column(Modifier.weight(1f)) {
+                Text("Text Align", fontWeight = FontWeight.Bold)
+                textAlignments.forEach {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .selectable(
+                                selected = (it == textAlign),
+                                onClick = { textAlign = it },
+                                role = Role.RadioButton
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = (it == textAlign), onClick = null)
+                        Text(text = it.toString())
+                    }
+                }
+            }
+            Column(Modifier.weight(1f)) {
+                Text("Soft wrap", fontWeight = FontWeight.Bold)
+                boolOptions.forEach {
+                    Row(
+                        Modifier.fillMaxWidth()
+                            .selectable(
+                                selected = (it == softWrap),
+                                onClick = { softWrap = it },
+                                role = Role.RadioButton
+                            ),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(selected = (it == softWrap), onClick = null)
+                        Text(text = it.toString())
+                    }
+                }
+            }
+        }
     }
 }
 
 @Composable
-private fun ColumnScope.TextOverflowDemo(singleParagraph: Boolean, textOverflow: TextOverflow) {
+private fun ColumnScope.TextOverflowDemo(
+    singleParagraph: Boolean,
+    textOverflow: TextOverflow,
+    singeLine: Boolean,
+    width: Dp,
+    height: Dp,
+    letterSpacing: TextUnit,
+    textAlign: TextAlign,
+    softWrap: Boolean
+) {
     Box(Modifier.weight(1f).fillMaxWidth()) {
         val text =
             if (singleParagraph) {
@@ -687,11 +805,19 @@ private fun ColumnScope.TextOverflowDemo(singleParagraph: Boolean, textOverflow:
                     }
                 }
             }
-        Text(
+        val textStyle =
+            TextStyle(fontSize = fontSize6, letterSpacing = letterSpacing, textAlign = textAlign)
+        BasicText(
             text = text,
-            modifier = Modifier.align(Alignment.Center).background(Color.Magenta).size(100.dp),
-            fontSize = fontSize6,
-            overflow = textOverflow
+            modifier =
+                Modifier.align(Alignment.Center)
+                    .background(Color.Magenta)
+                    .widthIn(max = width)
+                    .heightIn(max = height),
+            style = textStyle,
+            overflow = textOverflow,
+            maxLines = if (singeLine) 1 else Int.MAX_VALUE,
+            softWrap = softWrap
         )
     }
 }

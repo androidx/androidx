@@ -34,6 +34,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -1416,7 +1417,8 @@ class MultiParagraphIntegrationTest {
                 style = TextStyle(textDirection = TextDirection.Rtl),
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
 
         // the first character uses TextDirection.Content, text is Ltr
@@ -1441,7 +1443,8 @@ class MultiParagraphIntegrationTest {
                 placeholders = placeholders,
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
 
         // Rendered as below:
@@ -1465,7 +1468,8 @@ class MultiParagraphIntegrationTest {
                 placeholders = placeholders,
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
 
         // Rendered as below:
@@ -1490,7 +1494,8 @@ class MultiParagraphIntegrationTest {
                 placeholders = placeholders,
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.placeholderRects).hasSize(1)
@@ -1524,7 +1529,8 @@ class MultiParagraphIntegrationTest {
                 placeholders = placeholders,
                 constraints = Constraints(),
                 density = defaultDensity,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
 
         assertThat(paragraph.placeholderRects).hasSize(2)
@@ -1563,7 +1569,8 @@ class MultiParagraphIntegrationTest {
             placeholders = placeholders,
             constraints = Constraints(),
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            overflow = TextOverflow.Clip
         )
     }
 
@@ -1575,7 +1582,8 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(),
             constraints = minWidthConstraints,
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            overflow = TextOverflow.Clip
         )
     }
 
@@ -1587,7 +1595,8 @@ class MultiParagraphIntegrationTest {
             style = TextStyle(),
             constraints = minHeightConstraints,
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            overflow = TextOverflow.Clip
         )
     }
 
@@ -1610,7 +1619,8 @@ class MultiParagraphIntegrationTest {
                 style = TextStyle(fontSize = fontSize, fontFamily = fontFamilyMeasureFont),
                 constraints = constraints,
                 density = this,
-                fontFamilyResolver = UncachedFontFamilyResolver(context)
+                fontFamilyResolver = UncachedFontFamilyResolver(context),
+                overflow = TextOverflow.Clip
             )
         }
     }
@@ -1821,7 +1831,8 @@ class MultiParagraphIntegrationTest {
             maxLines = maxLines,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            overflow = TextOverflow.Clip
         )
     }
 
@@ -1845,7 +1856,8 @@ class MultiParagraphIntegrationTest {
             maxLines = maxLines,
             constraints = Constraints(maxWidth = width.ceilToInt()),
             density = defaultDensity,
-            fontFamilyResolver = UncachedFontFamilyResolver(context)
+            fontFamilyResolver = UncachedFontFamilyResolver(context),
+            overflow = TextOverflow.Clip
         )
     }
 }

@@ -77,6 +77,18 @@ public value class AeMode(public val value: Int) {
 
         @JvmStatic
         public fun fromIntOrNull(value: Int): AeMode? = values.firstOrNull { it.value == value }
+
+        @JvmStatic
+        public fun fromInt(value: Int): AeMode =
+            when (value) {
+                OFF.value -> OFF
+                ON.value -> ON
+                ON_AUTO_FLASH.value -> ON_AUTO_FLASH
+                ON_ALWAYS_FLASH.value -> ON_ALWAYS_FLASH
+                ON_AUTO_FLASH_REDEYE.value -> ON_AUTO_FLASH_REDEYE
+                ON_EXTERNAL_FLASH.value -> ON_EXTERNAL_FLASH
+                else -> ON
+            }
     }
 }
 

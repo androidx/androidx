@@ -57,6 +57,9 @@ class XNullabilityTest {
                 public String returnsNonNull() {
                     return "";
                 }
+                public int returnsPrimitiveInt() {
+                    return 0;
+                }
 
                 public String parameters(
                     int primitiveParam,
@@ -75,6 +78,10 @@ class XNullabilityTest {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("primitiveInt").let { field ->
                 assertThat(field.type.nullability).isEqualTo(NONNULL)
+            }
+            element.getMethodByJvmName("returnsPrimitiveInt").let { method ->
+                assertThat(method.returnType.nullability).isEqualTo(NONNULL)
+                assertThat(method.executableType.returnType.nullability).isEqualTo(NONNULL)
             }
             element.getField("boxedInt").let { field ->
                 assertThat(field.type.nullability).isEqualTo(UNKNOWN)
@@ -161,6 +168,8 @@ class XNullabilityTest {
                     nonNullGenericWithNullableType: List<Int?>
                 ) {
                 }
+
+                val nullableLambda: ((String) -> Int)? = null
             }
             """
                     .trimIndent()
@@ -245,6 +254,9 @@ class XNullabilityTest {
                         Triple("nonNullGenericWithNonNullType", NONNULL, NONNULL),
                         Triple("nonNullGenericWithNullableType", NONNULL, NULLABLE)
                     )
+            }
+            element.getField("nullableLambda").let { field ->
+                assertThat(field.type.nullability).isEqualTo(NULLABLE)
             }
         }
     }

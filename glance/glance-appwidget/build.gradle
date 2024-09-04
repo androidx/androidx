@@ -116,7 +116,7 @@ androidx {
             "using a Jetpack Compose-style API."
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = false
-    samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
+    samples(project(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 
 LayoutGeneratorTask.registerLayoutGenerator(

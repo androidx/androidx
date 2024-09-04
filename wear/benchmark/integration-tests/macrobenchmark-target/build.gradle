@@ -39,7 +39,7 @@ android {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.constraintLayout)
-    implementation projectOrArtifact(":activity:activity-ktx")
+    implementation project(":activity:activity-ktx")
     implementation 'androidx.core:core-ktx'
     implementation(libs.material)
     implementation(project(":profileinstaller:profileinstaller"))

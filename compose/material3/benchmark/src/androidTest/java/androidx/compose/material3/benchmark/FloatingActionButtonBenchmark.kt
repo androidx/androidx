@@ -18,9 +18,14 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.LargeExtendedFloatingActionButton
+import androidx.compose.material3.LargeFloatingActionButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MediumExtendedFloatingActionButton
+import androidx.compose.material3.MediumFloatingActionButton
+import androidx.compose.material3.SmallExtendedFloatingActionButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -32,21 +37,21 @@ import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class FloatingActionButtonBenchmark {
+@RunWith(Parameterized::class)
+class FloatingActionButtonBenchmark(private val size: FabSize) {
 
     @get:Rule val benchmarkRule = ComposeBenchmarkRule()
 
-    private val fabTestCaseFactory = { FloatingActionButtonTestCase() }
-    private val extendedFabTestCaseFactory = { ExtendedFloatingActionButtonTestCase() }
+    private val fabTestCaseFactory = { FloatingActionButtonTestCase(size) }
+    private val extendedFabTestCaseFactory = { ExtendedFloatingActionButtonTestCase(size) }
 
     @Ignore
     @Test
@@ -105,13 +110,33 @@ class FloatingActionButtonBenchmark {
     fun extendedFab_firstPixel() {
         benchmarkRule.benchmarkToFirstPixel(extendedFabTestCaseFactory)
     }
+
+    companion object {
+        @Parameterized.Parameters(name = "size = {0}")
+        @JvmStatic
+        fun parameters() = FabSize.values()
+    }
 }
 
-internal class FloatingActionButtonTestCase : LayeredComposeTestCase() {
+internal class FloatingActionButtonTestCase(private val size: FabSize) : LayeredComposeTestCase() {
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun MeasuredContent() {
-        FloatingActionButton(onClick = { /*TODO*/ }) { Box(modifier = Modifier.size(24.dp)) }
+        when (size) {
+            FabSize.Small ->
+                FloatingActionButton(onClick = { /*TODO*/ }) {
+                    Box(modifier = Modifier.size(24.dp))
+                }
+            FabSize.Medium ->
+                MediumFloatingActionButton(onClick = { /*TODO*/ }) {
+                    Box(modifier = Modifier.size(24.dp))
+                }
+            FabSize.Large ->
+                LargeFloatingActionButton(onClick = { /*TODO*/ }) {
+                    Box(modifier = Modifier.size(24.dp))
+                }
+        }
     }
 
     @Composable
@@ -120,19 +145,42 @@ internal class FloatingActionButtonTestCase : LayeredComposeTestCase() {
     }
 }
 
-internal class ExtendedFloatingActionButtonTestCase : LayeredComposeTestCase() {
+internal class ExtendedFloatingActionButtonTestCase(private val size: FabSize) :
+    LayeredComposeTestCase() {
 
+    @OptIn(ExperimentalMaterial3ExpressiveApi::class)
     @Composable
     override fun MeasuredContent() {
-        ExtendedFloatingActionButton(
-            text = { Text(text = "Extended FAB") },
-            icon = { Box(modifier = Modifier.size(24.dp)) },
-            onClick = { /*TODO*/ }
-        )
+        when (size) {
+            FabSize.Small ->
+                SmallExtendedFloatingActionButton(
+                    text = { Text(text = "Extended FAB") },
+                    icon = { Box(modifier = Modifier.size(24.dp)) },
+                    onClick = { /*TODO*/ }
+                )
+            FabSize.Medium ->
+                MediumExtendedFloatingActionButton(
+                    text = { Text(text = "Extended FAB") },
+                    icon = { Box(modifier = Modifier.size(24.dp)) },
+                    onClick = { /*TODO*/ }
+                )
+            FabSize.Large ->
+                LargeExtendedFloatingActionButton(
+                    text = { Text(text = "Extended FAB") },
+                    icon = { Box(modifier = Modifier.size(24.dp)) },
+                    onClick = { /*TODO*/ }
+                )
+        }
     }
 
     @Composable
     override fun ContentWrappers(content: @Composable () -> Unit) {
         MaterialTheme { content() }
     }
+}
+
+enum class FabSize {
+    Small,
+    Medium,
+    Large,
 }

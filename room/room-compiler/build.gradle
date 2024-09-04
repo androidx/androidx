@@ -82,7 +82,7 @@ dependencies {
     testImplementation(libs.autoValue) // to access the processor in tests
     testImplementation(libs.autoServiceAnnotations)
     testImplementation(libs.autoService) // to access the processor in tests
-    testImplementation(projectOrArtifact(":paging:paging-common"))
+    testImplementation(project(":paging:paging-common"))
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.jsr250)
@@ -90,7 +90,6 @@ dependencies {
     testImplementation(libs.antlr4)
     testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
-    testImplementationAarAsJar(project(":room:room-paging"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }

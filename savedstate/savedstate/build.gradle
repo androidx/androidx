@@ -51,7 +51,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(jvmTest)
             dependencies {
-                implementation(projectOrArtifact(":lifecycle:lifecycle-runtime"))
+                implementation(project(":lifecycle:lifecycle-runtime"))
                 implementation(libs.testExtJunit)
                 implementation(libs.testCore)
                 implementation(libs.testRunner)

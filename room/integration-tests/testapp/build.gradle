@@ -102,7 +102,7 @@ dependencies {
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-paging"))
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
-    androidTestImplementation(projectOrArtifact(":paging:paging-runtime"))
+    androidTestImplementation(project(":paging:paging-runtime"))
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.1")
     androidTestImplementation("androidx.lifecycle:lifecycle-livedata:2.6.1")

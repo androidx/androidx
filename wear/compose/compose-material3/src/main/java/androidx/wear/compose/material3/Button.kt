@@ -92,10 +92,6 @@ import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
  * Example of a [Button]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
- *
- * Example of a [Button] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.ButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -175,10 +171,6 @@ fun Button(
  * Example of a [FilledTonalButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
- *
- * Example of a [FilledTonalButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.FilledTonalButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -257,10 +249,6 @@ fun FilledTonalButton(
  * Example of an [OutlinedButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
- *
- * Example of a [OutlinedButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.OutlinedButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -339,10 +327,6 @@ fun OutlinedButton(
  * Example of a [ChildButton]:
  *
  * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
- *
- * Example of a [ChildButton] with onLongClick:
- *
- * @sample androidx.wear.compose.material3.samples.ChildButtonWithOnLongClickSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -423,6 +407,14 @@ fun ChildButton(
  * Example of a [Button] with an icon and secondary label:
  *
  * @sample androidx.wear.compose.material3.samples.ButtonSample
+ *
+ * Example of a [Button] with a large icon and adjusted content padding:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonLargeIconSample
+ *
+ * Example of a [Button] with an extra large icon and adjusted content padding:
+ *
+ * @sample androidx.wear.compose.material3.samples.ButtonExtraLargeIconSample
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
  * @param onLongClick Called when this button is long clicked (long-pressed). When this callback is
@@ -479,9 +471,12 @@ fun Button(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -496,11 +491,14 @@ fun Button(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3
+                    ),
                 content = label
             )
     )
@@ -594,9 +592,12 @@ fun FilledTonalButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -611,11 +612,14 @@ fun FilledTonalButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -704,9 +708,12 @@ fun OutlinedButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -721,11 +728,14 @@ fun OutlinedButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -814,9 +824,12 @@ fun ChildButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled),
                 textStyle = FilledButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         icon = icon,
@@ -831,11 +844,14 @@ fun ChildButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled),
                 textStyle = FilledButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign =
-                    if (icon != null || secondaryLabel != null) TextAlign.Start
-                    else TextAlign.Center,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign =
+                            if (icon != null || secondaryLabel != null) TextAlign.Start
+                            else TextAlign.Center,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             )
     )
@@ -957,9 +973,12 @@ fun CompactButton(
                 provideScopeContent(
                     contentColor = colors.contentColor(enabled),
                     textStyle = CompactButtonTokens.LabelFont.value,
-                    overflow = TextOverflow.Ellipsis,
-                    maxLines = 1,
-                    textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                    textConfiguration =
+                        TextConfiguration(
+                            textAlign = if (icon != null) TextAlign.Start else TextAlign.Center,
+                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 1,
+                        ),
                     label
                 )
         )
@@ -1216,7 +1235,7 @@ object ButtonDefaults {
     /**
      * Creates a [ButtonColors] for a [Button] with an image background, typically with a scrim over
      * the image to ensure that the content is visible. Uses a default content color of
-     * [ColorScheme.onSurface].
+     * [ColorScheme.onBackground].
      *
      * @param backgroundImagePainter The [Painter] to use to draw the background of the [Button]
      * @param backgroundImageScrimBrush The [Brush] to use to paint a scrim over the background
@@ -1249,7 +1268,10 @@ object ButtonDefaults {
                     )
             ),
         contentColor: Color = ImageButtonTokens.ContentColor.value,
-        secondaryContentColor: Color = ImageButtonTokens.SecondaryContentColor.value,
+        secondaryContentColor: Color =
+            ImageButtonTokens.SecondaryContentColor.value.copy(
+                alpha = ImageButtonTokens.SecondaryContentOpacity
+            ),
         iconColor: Color = ImageButtonTokens.IconColor.value,
         disabledContentColor: Color =
             ImageButtonTokens.DisabledContentColor.value.toDisabledColor(
@@ -1274,13 +1296,13 @@ object ButtonDefaults {
                 )
             }
 
-        val disabledContentAlpha = ImageButtonTokens.DisabledContentOpacity
+        val disabledContainerAlpha = ImageButtonTokens.DisabledContainerOpacity
         val disabledBackgroundPainter =
-            remember(backgroundImagePainter, backgroundImageScrimBrush, disabledContentAlpha) {
+            remember(backgroundImagePainter, backgroundImageScrimBrush, disabledContainerAlpha) {
                 androidx.wear.compose.materialcore.ImageWithScrimPainter(
                     imagePainter = backgroundImagePainter,
                     brush = backgroundImageScrimBrush,
-                    alpha = disabledContentAlpha,
+                    alpha = disabledContainerAlpha,
                     forcedSize = forcedSize,
                 )
             }
@@ -1363,7 +1385,16 @@ object ButtonDefaults {
             disabledIconColor = disabledIconColor
         )
 
+    /** The recommended horizontal padding used by [Button] by default */
     val ButtonHorizontalPadding = 14.dp
+
+    /** The recommended start padding to be used with [Button] with a large icon */
+    val ButtonLargeIconStartPadding = 12.dp
+
+    /** The recommended start padding to be used with [Button] with an extra large icon */
+    val ButtonExtraLargeIconStartPadding = 8.dp
+
+    /** The recommended vertical padding used by [Button] by default */
     val ButtonVerticalPadding = 6.dp
 
     /** The default content padding used by [Button] */
@@ -1373,11 +1404,35 @@ object ButtonDefaults {
             vertical = ButtonVerticalPadding,
         )
 
+    /** The default content padding used by [Button] with a large icon */
+    val ButtonWithLargeIconContentPadding: PaddingValues =
+        PaddingValues(
+            start = ButtonLargeIconStartPadding,
+            top = ButtonVerticalPadding,
+            end = ButtonHorizontalPadding,
+            bottom = ButtonVerticalPadding
+        )
+
+    /** The default content padding used by [Button] with an extra large icon */
+    val ButtonWithExtraLargeIconContentPadding: PaddingValues =
+        PaddingValues(
+            start = ButtonExtraLargeIconStartPadding,
+            top = ButtonVerticalPadding,
+            end = ButtonHorizontalPadding,
+            bottom = ButtonVerticalPadding
+        )
+
+    /** The size of the icon when used inside a "[CompactButton]. */
+    val SmallIconSize: Dp = CompactButtonTokens.IconSize
+
     /** The default size of the icon when used inside a [Button]. */
     val IconSize: Dp = FilledButtonTokens.IconSize
 
-    /** The size of the icon when used inside a Large "Avatar" [Button]. */
+    /** The recommended icon size when used in [Button]s for icons such as an app icon */
     val LargeIconSize: Dp = FilledButtonTokens.IconLargeSize
+
+    /** The recommended icon size when used in [Button]s for icons such as an avatar icon */
+    val ExtraLargeIconSize: Dp = FilledButtonTokens.IconExtraLargeSize
 
     /**
      * The default height applied for the [Button]. Note that you can override it by applying
@@ -1418,9 +1473,6 @@ object ButtonDefaults {
 
     /** The height to be applied for a large [EdgeButton]. */
     val EdgeButtonHeightLarge = 96.dp
-
-    /** The size of the icon when used inside a "[CompactButton]. */
-    val SmallIconSize: Dp = CompactButtonTokens.IconSize
 
     /**
      * The default padding to be provided around a [CompactButton] in order to ensure that its
@@ -1778,8 +1830,12 @@ private fun ButtonImpl(
     val borderModifier =
         if (border != null) modifier.border(border = border, shape = shape) else modifier
     Row(
+        verticalAlignment = Alignment.CenterVertically,
+        // Fill the container height but not its width as buttons have fixed size height but we
+        // want them to be able to fit their content
         modifier =
             borderModifier
+                .fillMaxHeight()
                 .clip(shape = shape)
                 .width(intrinsicSize = IntrinsicSize.Max)
                 .paint(
@@ -1834,25 +1890,18 @@ private fun ButtonImpl(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as buttons have fixed size height but we
-            // want them to be able to fit their content
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            if (icon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                    content = provideScopeContent(colors.iconColor(enabled), icon)
-                )
-                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
-            }
-            Column {
-                Row(content = labelContent)
-                if (secondaryLabelContent != null) {
-                    Spacer(modifier = Modifier.size(2.dp))
-                    Row(content = secondaryLabelContent)
-                }
+        if (icon != null) {
+            Box(
+                modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                content = provideScopeContent(colors.iconColor(enabled), icon)
+            )
+            Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+        }
+        Column {
+            Row(content = labelContent)
+            if (secondaryLabelContent != null) {
+                Spacer(modifier = Modifier.size(2.dp))
+                Row(content = secondaryLabelContent)
             }
         }
     }

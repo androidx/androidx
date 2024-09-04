@@ -130,9 +130,12 @@ fun CheckboxButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
                 textStyle = CheckboxButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                    ),
                 content = label
             ),
         toggleControl = {
@@ -158,9 +161,12 @@ fun CheckboxButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked),
                 textStyle = CheckboxButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        textAlign = TextAlign.Start,
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                    ),
                 content = secondaryLabel
             ),
         background = { isEnabled, isChecked ->
@@ -286,9 +292,12 @@ fun SplitCheckboxButton(
                     provideScopeContent(
                         contentColor = colors.contentColor(enabled = enabled, checked = checked),
                         textStyle = SplitCheckboxButtonTokens.LabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                textAlign = TextAlign.Start,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 3,
+                            ),
                         content = label
                     ),
                 secondaryLabel =
@@ -296,9 +305,12 @@ fun SplitCheckboxButton(
                         contentColor =
                             colors.secondaryContentColor(enabled = enabled, checked = checked),
                         textStyle = SplitCheckboxButtonTokens.SecondaryLabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 2,
+                                textAlign = TextAlign.Start,
+                            ),
                         content = secondaryLabel
                     ),
             )

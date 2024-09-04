@@ -291,6 +291,9 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchResults search(String, androidx.appsearch.app.SearchSpec);
   }
 
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalAppSearchApi {
+  }
+
   public interface Features {
     method public int getMaxIndexedProperties();
     method public boolean isFeatureSupported(String);

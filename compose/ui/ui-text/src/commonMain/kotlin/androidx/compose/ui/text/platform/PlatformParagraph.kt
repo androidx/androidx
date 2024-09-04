@@ -23,6 +23,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 
@@ -54,7 +55,7 @@ internal expect fun ActualParagraph(
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
@@ -64,7 +65,7 @@ internal expect fun ActualParagraph(
 internal expect fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints
 ): Paragraph
 

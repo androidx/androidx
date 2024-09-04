@@ -521,7 +521,13 @@ internal abstract class NodeCoordinator(
                 layoutNode.innerLayerCoordinatorIsDirty = true
                 invalidateParentLayer()
             } else if (updateParameters) {
-                updateLayerParameters()
+                val positionalPropertiesChanged = updateLayerParameters()
+                if (positionalPropertiesChanged) {
+                    layoutNode
+                        .requireOwner()
+                        .rectManager
+                        .onLayoutLayerPositionalPropertiesChanged(layoutNode)
+                }
             }
         } else {
             this.layerBlock = null
@@ -1340,7 +1346,9 @@ internal abstract class NodeCoordinator(
                         layoutDelegate.measurePassDelegate
                             .notifyChildrenUsingCoordinatesWhilePlacing()
                     }
-                    layoutNode.owner?.requestOnPositionedCallback(layoutNode)
+                    val owner = layoutNode.requireOwner()
+                    owner.rectManager.onLayoutLayerPositionalPropertiesChanged(layoutNode)
+                    owner.requestOnPositionedCallback(layoutNode)
                 }
             }
         }

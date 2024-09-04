@@ -259,53 +259,11 @@ class AlertDialogTest {
     }
 
     @Test
-    fun calls_onDismissRequest_when_dialogBottomButton_becomes_hidden() {
-        val show = mutableStateOf(true)
-        var dismissed = false
-
-        rule.setContentWithTheme {
-            AlertDialog(
-                modifier = Modifier.testTag(TEST_TAG),
-                title = {},
-                bottomButton = {},
-                onDismissRequest = { dismissed = true },
-                show = show.value
-            )
-        }
-        rule.waitForIdle()
-        show.value = false
-
-        rule.waitForIdle()
-        assert(dismissed)
-    }
-
-    @Test
-    fun calls_onDismissRequest_when_dialogConfirmDismissButtons_becomes_hidden() {
-        val show = mutableStateOf(true)
-        var dismissed = false
-
-        rule.setContentWithTheme {
-            AlertDialog(
-                modifier = Modifier.testTag(TEST_TAG),
-                title = {},
-                confirmButton = {},
-                onDismissRequest = { dismissed = true },
-                show = show.value
-            )
-        }
-        rule.waitForIdle()
-        show.value = false
-
-        rule.waitForIdle()
-        assert(dismissed)
-    }
-
-    @Test
     fun applies_correct_titleProperties() {
         var expectedContentColor: Color = Color.Unspecified
         var expectedTextStyle: TextStyle = TextStyle.Default
         var expectedTextAlign: TextAlign? = null
-        var expectedTextMaxLines: Int = 0
+        var expectedTextMaxLines = 0
 
         var actualContentColor: Color = Color.Unspecified
         var actualTextStyle: TextStyle = TextStyle.Default
@@ -323,8 +281,8 @@ class AlertDialogTest {
                     Text("Title")
                     actualContentColor = LocalContentColor.current
                     actualTextStyle = LocalTextStyle.current
-                    actualTextAlign = LocalTextAlign.current
-                    actualTextMaxLines = LocalTextMaxLines.current
+                    actualTextAlign = LocalTextConfiguration.current.textAlign
+                    actualTextMaxLines = LocalTextConfiguration.current.maxLines
                 },
                 bottomButton = {},
                 onDismissRequest = {},
@@ -359,7 +317,7 @@ class AlertDialogTest {
                     Text("Text")
                     actualContentColor = LocalContentColor.current
                     actualTextStyle = LocalTextStyle.current
-                    actualTextAlign = LocalTextAlign.current
+                    actualTextAlign = LocalTextConfiguration.current.textAlign
                 },
                 bottomButton = {},
                 onDismissRequest = {},

@@ -226,7 +226,9 @@ package androidx.compose.ui.unit {
   }
 
   public static final class IntOffset.Companion {
+    method public long getMax();
     method public long getZero();
+    property public final long Max;
     property public final long Zero;
   }
 

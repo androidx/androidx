@@ -30,7 +30,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.13.0")
     implementation(project(":fragment:fragment-ktx"))
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.6.2")
-    implementation(projectOrArtifact(":transition:transition"))
+    implementation(project(":transition:transition"))
     implementation("androidx.recyclerview:recyclerview:1.1.0")
     debugImplementation(project(":fragment:fragment-testing-manifest"))
 

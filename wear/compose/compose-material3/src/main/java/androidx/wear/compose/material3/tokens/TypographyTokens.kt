@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-// VERSION: v0_65
+// VERSION: v0_71
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
@@ -26,6 +26,20 @@ import androidx.compose.ui.text.font.toFontFamily
 import androidx.wear.compose.material3.DefaultTextStyle
 
 internal object TypographyTokens {
+    val ArcLarge =
+        DefaultTextStyle.copy(
+            fontFamily =
+                Font(
+                        DeviceFontFamilyName(TypeScaleTokens.ArcLargeFont.name),
+                        weight = FontWeight(TypeScaleTokens.ArcLargeWeight.toInt()),
+                        variationSettings = TypographyVariableFontsTokens.ArcLargeVariationSettings,
+                    )
+                    .toFontFamily(),
+            fontWeight = FontWeight(TypeScaleTokens.ArcLargeWeight.toInt()),
+            fontSize = TypeScaleTokens.ArcLargeSize,
+            lineHeight = TypeScaleTokens.ArcLargeLineHeight,
+            letterSpacing = TypeScaleTokens.ArcLargeTracking,
+        )
     val ArcMedium =
         DefaultTextStyle.copy(
             fontFamily =

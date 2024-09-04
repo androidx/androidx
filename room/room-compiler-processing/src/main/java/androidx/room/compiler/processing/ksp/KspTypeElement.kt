@@ -104,9 +104,14 @@ internal sealed class KspTypeElement(
             null
         } else {
             declaration.superTypes
-                .singleOrNull {
-                    val declaration = it.resolve().declaration.replaceTypeAliases()
-                    declaration is KSClassDeclaration && declaration.classKind == ClassKind.CLASS
+                .firstOrNull {
+                    val type = it.resolve()
+                    val declaration = type.declaration.replaceTypeAliases()
+                    declaration is KSClassDeclaration &&
+                        (declaration.classKind == ClassKind.CLASS &&
+                            // Filter out error class declarations, for consistency with KAPT these
+                            // are exposed as super interfaces.
+                            (isFromJava() || !type.isError))
                 }
                 ?.let { env.wrap(it).makeNonNullable() } ?: anyTypeElement.type
         }
@@ -115,8 +120,13 @@ internal sealed class KspTypeElement(
     override val superInterfaces by lazy {
         declaration.superTypes
             .filter {
-                val declaration = it.resolve().declaration.replaceTypeAliases()
-                declaration is KSClassDeclaration && declaration.classKind == ClassKind.INTERFACE
+                val type = it.resolve()
+                val declaration = type.declaration.replaceTypeAliases()
+                declaration is KSClassDeclaration &&
+                    (declaration.classKind == ClassKind.INTERFACE ||
+                        // Workaround https://github.com/google/ksp/issues/1443 by exposing
+                        // error class declarations as super interfaces.
+                        (isFromKotlin() && type.isError))
             }
             .mapTo(mutableListOf()) { env.wrap(it).makeNonNullable() }
     }

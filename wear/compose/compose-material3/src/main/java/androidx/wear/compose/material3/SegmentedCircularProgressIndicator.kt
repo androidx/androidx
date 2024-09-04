@@ -93,6 +93,10 @@ fun SegmentedCircularProgressIndicator(
  * Example of [SegmentedCircularProgressIndicator] where the segments are turned on/off:
  *
  * @sample androidx.wear.compose.material3.samples.SegmentedProgressIndicatorOnOffSample
+ *
+ * Example of smaller size [SegmentedCircularProgressIndicator]:
+ *
+ * @sample androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
  *   Has to be a number equal or greater to 1.
  * @param completed A function that for each segment between 1..[segmentCount] returns true if this

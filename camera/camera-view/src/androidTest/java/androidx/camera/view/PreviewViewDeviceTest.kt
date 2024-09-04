@@ -70,8 +70,6 @@ import com.google.common.truth.Truth.assertThat
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executor
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicReference
@@ -273,6 +271,8 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
 
         instrumentation.runOnMainSync {
             val previewView = PreviewView(context)
+            // Specifies the content description and uses it to find the view to click
+            previewView.contentDescription = previewView.hashCode().toString()
             clickEventHelper = ClickEventHelper(previewView)
             previewView.setOnTouchListener(clickEventHelper)
             previewView.controller = fakeController
@@ -311,7 +311,6 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
         private var uiDevice: UiDevice? = null
         private var limitedRetryCount = 0
         private var retriedCounter = 0
-        private var executor: ExecutorService? = null
 
         override fun onTouch(view: View, event: MotionEvent): Boolean {
             if (view != targetView) {
@@ -337,7 +336,6 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
                 uiDevice = null
                 limitedRetryCount = 0
                 retriedCounter = 0
-                executor?.shutdown()
                 synchronized(lock) { isPerformingClick = false }
             }
 
@@ -359,34 +357,16 @@ class PreviewViewDeviceTest(private val implName: String, private val cameraConf
                 }
             }
 
-            executor = Executors.newSingleThreadExecutor()
             limitedRetryCount = retryCount
             retriedCounter = 0
             this.uiDevice = uiDevice
             performSingleClickInternal()
         }
 
-        private fun performSingleClickInternal() {
-            executor!!.execute {
-                var needClearContentDescription = false
-                val originalContentDescription = targetView.contentDescription
-
-                if (originalContentDescription == null || originalContentDescription.isEmpty()) {
-                    needClearContentDescription = true
-                    targetView.contentDescription = targetView.hashCode().toString()
-                }
-
-                uiDevice!!
-                    .findObject(
-                        UiSelector().descriptionContains(targetView.contentDescription.toString())
-                    )
-                    .click()
-
-                if (needClearContentDescription) {
-                    targetView.contentDescription = originalContentDescription
-                }
-            }
-        }
+        private fun performSingleClickInternal() =
+            uiDevice!!
+                .findObject(UiSelector().descriptionContains(targetView.hashCode().toString()))
+                .click()
     }
 
     @Test

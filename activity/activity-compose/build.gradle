@@ -36,7 +36,7 @@ dependencies {
     implementation(libs.kotlinCoroutinesCore)
     api("androidx.compose.runtime:runtime:1.0.1")
     api("androidx.compose.runtime:runtime-saveable:1.0.1")
-    api(projectOrArtifact(":activity:activity-ktx"))
+    api(project(":activity:activity-ktx"))
     api("androidx.compose.ui:ui:1.0.1")
     api("androidx.core:core-ktx:1.13.0")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
@@ -46,8 +46,8 @@ dependencies {
 
     androidTestImplementation("androidx.annotation:annotation:1.8.1")
     androidTestImplementation("androidx.compose.foundation:foundation-layout:1.6.0")
-    androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
-    androidTestImplementation projectOrArtifact(":compose:material:material")
+    androidTestImplementation project(":compose:ui:ui-test-junit4")
+    androidTestImplementation project(":compose:material:material")
     androidTestRuntimeOnly project(":compose:test-utils")
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:runtime:runtime"))
@@ -57,7 +57,7 @@ dependencies {
     androidTestImplementation(project(":compose:ui:ui-text"))
     androidTestImplementation(project(":lifecycle:lifecycle-common"))
     androidTestImplementation(project(":lifecycle:lifecycle-runtime"))
-    androidTestImplementation projectOrArtifact(":lifecycle:lifecycle-runtime-testing")
+    androidTestImplementation project(":lifecycle:lifecycle-runtime-testing")
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.2")
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -65,8 +65,8 @@ dependencies {
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.truth)
 
-    lintChecks(projectOrArtifact(":activity:activity-compose-lint"))
-    lintPublish(projectOrArtifact(":activity:activity-compose-lint"))
+    lintChecks(project(":activity:activity-compose-lint"))
+    lintPublish(project(":activity:activity-compose-lint"))
 }
 
 androidx {
@@ -75,7 +75,7 @@ androidx {
     inceptionYear = "2020"
     description = "Compose integration with Activity"
     legacyDisableKotlinStrictApiMode = true
-    samples(projectOrArtifact(":activity:activity-compose:activity-compose-samples"))
+    samples(project(":activity:activity-compose:activity-compose-samples"))
 }
 
 android {

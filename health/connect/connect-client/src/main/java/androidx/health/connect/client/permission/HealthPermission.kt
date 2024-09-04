@@ -154,7 +154,6 @@ internal constructor(
          * @sample androidx.health.connect.client.samples.RequestBackgroundReadPermission
          * @sample androidx.health.connect.client.samples.ReadRecordsInBackground
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) // Hidden for now
         const val PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND =
             PERMISSION_PREFIX + "READ_HEALTH_DATA_IN_BACKGROUND"
 

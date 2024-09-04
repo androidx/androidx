@@ -35,6 +35,7 @@ import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.integration.adapter.BlockingTestDeferrableSurface
+import androidx.camera.camera2.pipe.integration.adapter.CameraCoordinatorAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
 import androidx.camera.camera2.pipe.integration.adapter.CameraUseCaseAdapter
 import androidx.camera.camera2.pipe.integration.adapter.FakeTestUseCase
@@ -676,9 +677,10 @@ class UseCaseManagerTest {
         val fakeCameraMetadata =
             FakeCameraMetadata(cameraId = cameraId, characteristics = characteristicsMap)
         val fakeCamera = FakeCamera()
+        val cameraPipe = CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext()))
         return UseCaseManager(
-                cameraPipe =
-                    CameraPipe(CameraPipe.Config(ApplicationProvider.getApplicationContext())),
+                cameraPipe = cameraPipe,
+                cameraCoordinator = CameraCoordinatorAdapter(cameraPipe, cameraPipe.cameras()),
                 cameraConfig = CameraConfig(cameraId),
                 callbackMap = CameraCallbackMap(),
                 requestListener = ComboRequestListener(),

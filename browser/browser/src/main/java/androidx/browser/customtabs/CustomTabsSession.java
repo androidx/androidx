@@ -128,8 +128,9 @@ public final class CustomTabsSession {
     @ExperimentalPrefetch
     @SuppressWarnings("NullAway")  // TODO: b/142938599
     public void prefetch(@NonNull Uri url, @NonNull PrefetchOptions options) {
+        Bundle optionsWithId = createBundleWithId(options.toBundle());
         try {
-            mService.prefetch(mCallback, url, options.toBundle());
+            mService.prefetch(mCallback, url, optionsWithId);
         } catch (RemoteException e) {
             return;
         }
@@ -146,9 +147,10 @@ public final class CustomTabsSession {
     @ExperimentalPrefetch
     @SuppressWarnings("NullAway")  // TODO: b/142938599
     public void prefetch(@NonNull List<Uri> urls, @NonNull PrefetchOptions options) {
+        Bundle optionsWithId = createBundleWithId(options.toBundle());
         try {
             for (Uri uri : urls) {
-                mService.prefetch(mCallback, uri, options.toBundle());
+                mService.prefetch(mCallback, uri, optionsWithId);
             }
         } catch (RemoteException e) {
             return;

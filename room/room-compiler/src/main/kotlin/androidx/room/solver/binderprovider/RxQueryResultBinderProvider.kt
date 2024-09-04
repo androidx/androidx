@@ -33,7 +33,8 @@ private constructor(context: Context, private val rxType: RxType) :
         context.processingEnv.findType(rxType.className.canonicalName)?.rawType
     }
 
-    override fun extractTypeArg(declared: XType): XType = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XType): XType =
+        declared.typeArguments.first().makeNullable()
 
     override fun create(
         typeArg: XType,

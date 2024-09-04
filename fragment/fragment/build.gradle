@@ -61,13 +61,13 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore, excludes.espresso)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.mockitoCore)
+    androidTestImplementation(libs.dexmakerMockito)
     androidTestImplementation(project(":internal-testutils-runtime"), {
         exclude group: "androidx.fragment", module: "fragment"
     })
 
-    testImplementation(projectOrArtifact(":fragment:fragment"))
+    testImplementation(project(":fragment:fragment"))
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.junit)
     testRuntimeOnly(libs.testCore)

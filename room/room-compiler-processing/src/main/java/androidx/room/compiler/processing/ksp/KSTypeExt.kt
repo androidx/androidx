@@ -210,3 +210,18 @@ internal fun KSNode.hasSuppressWildcardsAnnotationInHierarchy(): Boolean {
     val parent = parent ?: return false
     return parent.hasSuppressWildcardsAnnotationInHierarchy()
 }
+
+/**
+ * Returns the inner arguments for this type.
+ *
+ * Specifically it excludes outer type args when this type is an inner type.
+ *
+ * Needed due to https://github.com/google/ksp/issues/2065
+ */
+val KSType.innerArguments: List<KSTypeArgument>
+    get() =
+        if (arguments.isNotEmpty()) {
+            arguments.subList(0, declaration.typeParameters.size)
+        } else {
+            emptyList()
+        }

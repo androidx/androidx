@@ -137,9 +137,12 @@ fun SwitchButton(
             provideScopeContent(
                 contentColor = colors.contentColor(enabled = enabled, checked),
                 textStyle = SwitchButtonTokens.LabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 3,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 3,
+                        textAlign = TextAlign.Start,
+                    ),
                 content = label
             ),
         toggleControl = {
@@ -171,9 +174,12 @@ fun SwitchButton(
             provideNullableScopeContent(
                 contentColor = colors.secondaryContentColor(enabled = enabled, checked),
                 textStyle = SwitchButtonTokens.SecondaryLabelFont.value,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 2,
-                textAlign = TextAlign.Start,
+                textConfiguration =
+                    TextConfiguration(
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 2,
+                        textAlign = TextAlign.Start,
+                    ),
                 content = secondaryLabel
             ),
         background = { isEnabled, isChecked ->
@@ -300,9 +306,12 @@ fun SplitSwitchButton(
                     provideScopeContent(
                         contentColor = colors.contentColor(enabled = enabled, checked = checked),
                         textStyle = SplitSwitchButtonTokens.LabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 3,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 3,
+                                textAlign = TextAlign.Start,
+                            ),
                         content = label
                     ),
                 secondaryLabel =
@@ -310,9 +319,12 @@ fun SplitSwitchButton(
                         contentColor =
                             colors.secondaryContentColor(enabled = enabled, checked = checked),
                         textStyle = SplitSwitchButtonTokens.SecondaryLabelFont.value,
-                        overflow = TextOverflow.Ellipsis,
-                        maxLines = 2,
-                        textAlign = TextAlign.Start,
+                        textConfiguration =
+                            TextConfiguration(
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 2,
+                                textAlign = TextAlign.Start,
+                            ),
                         content = secondaryLabel
                     ),
                 spacerSize = SwitchButtonDefaults.LabelSpacerSize

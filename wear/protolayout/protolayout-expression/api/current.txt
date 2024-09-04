@@ -408,6 +408,16 @@ package androidx.wear.protolayout.expression {
 
 package androidx.wear.protolayout.expression.util {
 
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public final class DynamicDateFormat {
+    ctor public DynamicDateFormat(String pattern);
+    ctor public DynamicDateFormat(String pattern, optional java.time.ZoneId timeZone);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(optional androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant instant);
+    method public java.time.ZoneId getTimeZone();
+    method public void setTimeZone(java.time.ZoneId);
+    property public final java.time.ZoneId timeZone;
+  }
+
   public final class DynamicFormatter {
     ctor public DynamicFormatter();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString format(String format, java.lang.Object?... args);

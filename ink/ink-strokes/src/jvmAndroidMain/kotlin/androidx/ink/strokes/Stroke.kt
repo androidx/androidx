@@ -33,7 +33,6 @@ import androidx.ink.nativeloader.NativeLoader
  * [InProgressStrokesView] or [InProgressStroke], which will ultimately return a [Stroke] when input
  * is completed.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @OptIn(ExperimentalInkCustomBrushApi::class)
 @Suppress("NotCloseable") // Finalize is only used to free the native peer.
 public class Stroke {

@@ -28,6 +28,7 @@ import androidx.compose.ui.text.ParagraphIntrinsics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
@@ -97,7 +98,8 @@ class ParagraphBenchmark(
     ): Paragraph {
         return Paragraph(
             paragraphIntrinsics = paragraphIntrinsics(text, spanStyles),
-            constraints = Constraints(maxWidth = ceil(width).toInt())
+            constraints = Constraints(maxWidth = ceil(width).toInt()),
+            overflow = TextOverflow.Clip
         )
     }
 

@@ -72,6 +72,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
+import androidx.compose.ui.ComposeUiFlags
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.SessionMutex
@@ -179,6 +181,7 @@ import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.EmptySemanticsModifier
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.findClosestParentNode
+import androidx.compose.ui.spatial.RectManager
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
@@ -1010,6 +1013,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     override fun onDetach(node: LayoutNode) {
         measureAndLayoutDelegate.onNodeDetached(node)
         requestClearInvalidObservations()
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isRectTrackingEnabled) {
+            rectManager.remove(node)
+        }
     }
 
     fun requestClearInvalidObservations() {
@@ -1038,6 +1045,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
             // Remove all the items that were visited. Removing items shifts all items after
             // to the front of the list, so removing in a chunk is cheaper than removing one-by-one
             endApplyChangesListeners.removeRange(0, size)
+        }
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isRectTrackingEnabled) {
+            rectManager.dispatchCallbacks()
         }
     }
 
@@ -1312,6 +1323,10 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
                 measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
                 dispatchPendingInteropLayoutCallbacks()
             }
+            @OptIn(ExperimentalComposeUiApi::class)
+            if (ComposeUiFlags.isRectTrackingEnabled) {
+                rectManager.dispatchCallbacks()
+            }
         }
     }
 
@@ -1462,7 +1477,12 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks(forceDispatch = positionChanged)
     }
 
-    override fun onDraw(canvas: android.graphics.Canvas) {}
+    override fun onDraw(canvas: android.graphics.Canvas) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isRectTrackingEnabled) {
+            rectManager.dispatchCallbacks()
+        }
+    }
 
     override fun createLayer(
         drawBlock: (canvas: Canvas, parentLayer: GraphicsLayer?) -> Unit,
@@ -1559,6 +1579,15 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         // goes live.
         if (SDK_INT >= 26 && semanticAutofill?._TEMP_AUTOFILL_FLAG == true) {
             semanticAutofill.onLayoutChange(layoutNode)
+        }
+    }
+
+    override val rectManager = RectManager()
+
+    override fun onLayoutNodeDeactivated(layoutNode: LayoutNode) {
+        @OptIn(ExperimentalComposeUiApi::class)
+        if (ComposeUiFlags.isRectTrackingEnabled) {
+            rectManager.remove(layoutNode)
         }
     }
 

@@ -259,7 +259,7 @@ internal class MultiParagraphLayoutCache(
                 ),
             // This is a fallback behavior for ellipsis. Native
             maxLines = finalMaxLines(softWrap, overflow, maxLines),
-            ellipsis = overflow == TextOverflow.Ellipsis
+            overflow = overflow
         )
     }
 

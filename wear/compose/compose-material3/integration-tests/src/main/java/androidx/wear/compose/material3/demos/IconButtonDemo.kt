@@ -46,6 +46,7 @@ import androidx.wear.compose.material3.samples.IconButtonWithCornerAnimationSamp
 import androidx.wear.compose.material3.samples.IconButtonWithImageSample
 import androidx.wear.compose.material3.samples.IconButtonWithOnLongClickSample
 import androidx.wear.compose.material3.samples.OutlinedIconButtonSample
+import androidx.wear.compose.material3.samples.icons.FavoriteIcon
 import androidx.wear.compose.material3.touchTargetAwareSize
 
 @Composable
@@ -57,7 +58,7 @@ fun IconButtonDemo() {
             Row {
                 IconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
-                IconButton(onClick = {}, enabled = false) { StandardIcon(ButtonDefaults.IconSize) }
+                IconButton(onClick = {}, enabled = false) { FavoriteIcon(ButtonDefaults.IconSize) }
             }
         }
         item { ListHeader { Text("Filled Tonal") } }
@@ -66,7 +67,7 @@ fun IconButtonDemo() {
                 FilledTonalIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 FilledTonalIconButton(onClick = {}, enabled = false) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -76,7 +77,7 @@ fun IconButtonDemo() {
                 FilledIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 FilledIconButton(onClick = {}, enabled = false) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -90,7 +91,7 @@ fun IconButtonDemo() {
                     enabled = false,
                     colors = IconButtonDefaults.filledVariantIconButtonColors()
                 ) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -100,7 +101,7 @@ fun IconButtonDemo() {
                 OutlinedIconButtonSample()
                 Spacer(modifier = Modifier.width(5.dp))
                 OutlinedIconButton(onClick = {}, enabled = false) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -128,7 +129,7 @@ fun IconButtonDemo() {
                         ),
                     interactionSource = interactionSource1
                 ) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
                 Spacer(modifier = Modifier.width(5.dp))
                 val interactionSource2 = remember { MutableInteractionSource() }
@@ -143,7 +144,7 @@ fun IconButtonDemo() {
                         ),
                     interactionSource = interactionSource2
                 ) {
-                    StandardIcon(ButtonDefaults.IconSize)
+                    FavoriteIcon(ButtonDefaults.IconSize)
                 }
             }
         }
@@ -222,6 +223,6 @@ private fun IconButtonWithSize(size: Dp) {
         modifier = Modifier.touchTargetAwareSize(size),
         onClick = { /* Do something */ }
     ) {
-        StandardIcon(IconButtonDefaults.iconSizeFor(size))
+        FavoriteIcon(IconButtonDefaults.iconSizeFor(size))
     }
 }

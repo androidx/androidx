@@ -29,6 +29,7 @@ import androidx.compose.ui.text.ceilToInt
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.createFontFamilyResolver
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 
@@ -62,7 +63,7 @@ internal actual fun ActualParagraph(
             density = density
         ),
         maxLines,
-        ellipsis,
+        if (ellipsis) TextOverflow.Ellipsis else TextOverflow.Clip,
         Constraints(maxWidth = width.ceilToInt())
     )
 
@@ -72,7 +73,7 @@ internal actual fun ActualParagraph(
     spanStyles: List<AnnotatedString.Range<SpanStyle>>,
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints,
     density: Density,
     fontFamilyResolver: FontFamily.Resolver
@@ -87,19 +88,19 @@ internal actual fun ActualParagraph(
             density = density
         ),
         maxLines,
-        ellipsis,
+        overflow,
         constraints
     )
 
 internal actual fun ActualParagraph(
     paragraphIntrinsics: ParagraphIntrinsics,
     maxLines: Int,
-    ellipsis: Boolean,
+    overflow: TextOverflow,
     constraints: Constraints
 ): Paragraph =
     AndroidParagraph(
         paragraphIntrinsics as AndroidParagraphIntrinsics,
         maxLines,
-        ellipsis,
+        overflow,
         constraints
     )

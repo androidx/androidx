@@ -43,7 +43,6 @@ import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.Lock3ABehavior
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.Result3A.Status
-import androidx.camera.camera2.pipe.TorchState
 import androidx.camera.camera2.pipe.core.Log.debug
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
@@ -646,14 +645,23 @@ internal class Controller3A(
         return listener.result
     }
 
-    fun setTorch(torchState: TorchState): Deferred<Result3A> {
-        // Determine the flash mode based on the torch state.
-        val flashMode = if (torchState == TorchState.ON) FlashMode.TORCH else FlashMode.OFF
-        // To use the flash control, AE mode must be set to ON or OFF.
+    /**
+     * Enables the torch which may require changing the [AeMode].
+     *
+     * To use [FlashMode.TORCH], either [AeMode.ON] or [AeMode.OFF] needs to be used, otherwise, the
+     * flash mode is a no-op. If the current AE mode is neither of them, this function changes the
+     * AE mode to [AeMode.ON] in order to enable the torch.
+     */
+    fun setTorchOn(): Deferred<Result3A> {
         val currAeMode = graphState3A.aeMode
         val desiredAeMode =
             if (currAeMode == AeMode.ON || currAeMode == AeMode.OFF) null else AeMode.ON
-        return update3A(aeMode = desiredAeMode, flashMode = flashMode)
+        return update3A(aeMode = desiredAeMode, flashMode = FlashMode.TORCH)
+    }
+
+    /** Disables the torch and sets a new AE mode if provided. */
+    fun setTorchOff(aeMode: AeMode? = null): Deferred<Result3A> {
+        return update3A(aeMode = aeMode, flashMode = FlashMode.OFF)
     }
 
     private fun lock3ANow(

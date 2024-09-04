@@ -18,6 +18,7 @@ package androidx.compose.ui.text
 
 import androidx.compose.ui.text.android.style.ceilToInt
 import androidx.compose.ui.text.font.toFontFamily
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
@@ -504,7 +505,7 @@ class ParagraphPlaceholderIntegrationTest {
                 fontSize = fontSize.sp,
                 width = 2 * fontSize,
                 maxLines = 1,
-                ellipsis = true
+                overflow = TextOverflow.Ellipsis
             )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(placeholders.size)
@@ -531,7 +532,7 @@ class ParagraphPlaceholderIntegrationTest {
                 fontSize = fontSize.sp,
                 width = 2 * fontSize,
                 height = 1.3f * fontSize,
-                ellipsis = true
+                overflow = TextOverflow.Ellipsis
             )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(placeholders.size)
@@ -559,7 +560,6 @@ class ParagraphPlaceholderIntegrationTest {
                 width = 2 * fontSize,
                 height = fontSize,
                 maxLines = 1,
-                ellipsis = false
             )
         val placeholderRects = paragraph.placeholderRects
         assertThat(placeholderRects.size).isEqualTo(placeholders.size)
@@ -576,7 +576,7 @@ class ParagraphPlaceholderIntegrationTest {
         width: Float = Float.MAX_VALUE,
         height: Float = Float.MAX_VALUE,
         maxLines: Int = Int.MAX_VALUE,
-        ellipsis: Boolean = false
+        overflow: TextOverflow = TextOverflow.Clip
     ): Paragraph {
         return Paragraph(
             text = text,
@@ -584,7 +584,7 @@ class ParagraphPlaceholderIntegrationTest {
             spanStyles = spanStyles,
             placeholders = placeholders,
             maxLines = maxLines,
-            ellipsis = ellipsis,
+            overflow = overflow,
             constraints = Constraints(maxWidth = width.ceilToInt(), maxHeight = height.ceilToInt()),
             density = defaultDensity,
             fontFamilyResolver = UncachedFontFamilyResolver(context)

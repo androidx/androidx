@@ -16,31 +16,57 @@
 
 package androidx.wear.compose.material3.demos
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.wear.compose.foundation.CurvedDirection
 import androidx.wear.compose.foundation.CurvedLayout
 import androidx.wear.compose.foundation.CurvedTextStyle
 import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
+import androidx.wear.compose.material3.CurvedTextDefaults
+import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
+import androidx.wear.compose.material3.Icon
+import androidx.wear.compose.material3.InlineSlider
+import androidx.wear.compose.material3.InlineSliderDefaults
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.TextToggleButton
 import androidx.wear.compose.material3.curvedText
 
+@OptIn(ExperimentalWearMaterial3Api::class)
 var TypographyDemos =
     listOf(
         DemoCategory(
             "Arc",
             listOf(
                 ComposableDemo("Arc Small") {
-                    val curvedStyle = CurvedTextStyle(MaterialTheme.typography.arcSmall)
-                    CurvedLayout { curvedText("Arc Small", style = curvedStyle) }
+                    ArcWithLetterSpacing(MaterialTheme.typography.arcSmall, "Arc Small")
                 },
                 ComposableDemo("Arc Medium") {
-                    val curvedStyle = CurvedTextStyle(MaterialTheme.typography.arcMedium)
-                    CurvedLayout { curvedText("Arc Medium", style = curvedStyle) }
-                }
+                    ArcWithLetterSpacing(MaterialTheme.typography.arcMedium, "Arc Medium")
+                },
+                ComposableDemo("Arc Large") {
+                    ArcWithLetterSpacing(MaterialTheme.typography.arcLarge, "Arc Large")
+                },
             )
         ),
         DemoCategory(
@@ -124,3 +150,71 @@ var TypographyDemos =
             )
         ),
     )
+
+@OptIn(ExperimentalWearMaterial3Api::class)
+@Composable
+private fun ArcWithLetterSpacing(arcStyle: TextStyle, label: String) {
+    var topLetterSpacing by remember { mutableStateOf(0.6f) }
+    var bottomLetterSpacing by remember { mutableStateOf(2.0f) }
+    val topCurvedStyle = CurvedTextStyle(arcStyle).copy(letterSpacing = topLetterSpacing.sp)
+    val bottomCurvedStyle = CurvedTextStyle(arcStyle).copy(letterSpacing = bottomLetterSpacing.sp)
+    val mmms = "MMMMMMMMMMMMMMMMMMMM"
+    var useMMMs by remember { mutableStateOf(true) }
+
+    Box {
+        CurvedLayout {
+            curvedText(
+                if (useMMMs) mmms else label,
+                style = topCurvedStyle,
+                maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        CurvedLayout(anchor = 90f, angularDirection = CurvedDirection.Angular.Reversed) {
+            curvedText(
+                if (useMMMs) mmms else label,
+                style = bottomCurvedStyle,
+                maxSweepAngle = CurvedTextDefaults.StaticContentMaxSweepAngle,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+
+        Column(
+            modifier = Modifier.fillMaxSize().padding(32.dp),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "Top=$topLetterSpacing, bottom = $bottomLetterSpacing",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            InlineSlider(
+                value = topLetterSpacing,
+                onValueChange = { topLetterSpacing = it },
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
+                valueRange = 0f..4f,
+                steps = 39,
+                segmented = false
+            )
+            InlineSlider(
+                value = bottomLetterSpacing,
+                onValueChange = { bottomLetterSpacing = it },
+                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
+                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
+                valueRange = 0f..4f,
+                steps = 39,
+                segmented = false
+            )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                TextToggleButton(
+                    checked = useMMMs,
+                    onCheckedChange = { useMMMs = !useMMMs },
+                    modifier = Modifier.height(36.dp)
+                ) {
+                    Text(text = "MMM")
+                }
+            }
+        }
+    }
+}

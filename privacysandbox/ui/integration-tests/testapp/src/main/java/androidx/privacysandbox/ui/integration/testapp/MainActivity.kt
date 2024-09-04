@@ -285,15 +285,15 @@ class MainActivity : AppCompatActivity() {
                     if (!isDrawerOpen) {
                         isDrawerOpen = true
                         currentFragment.handleDrawerStateChange(isDrawerOpen = true)
+                    } else if (slideOffset == 0f) {
+                        isDrawerOpen = false
+                        currentFragment.handleDrawerStateChange(isDrawerOpen = false)
                     }
                 }
 
                 override fun onDrawerOpened(drawerView: View) {}
 
-                override fun onDrawerClosed(drawerView: View) {
-                    isDrawerOpen = false
-                    currentFragment.handleDrawerStateChange(isDrawerOpen = false)
-                }
+                override fun onDrawerClosed(drawerView: View) {}
 
                 override fun onDrawerStateChanged(newState: Int) {}
             }
