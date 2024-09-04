@@ -368,7 +368,7 @@ package androidx.room {
     ctor @Deprecated public RoomWarnings();
     field public static final String AMBIGUOUS_COLUMN_IN_RESULT = "ROOM_AMBIGUOUS_COLUMN_IN_RESULT";
     field public static final String CANNOT_CREATE_VERIFICATION_DATABASE = "ROOM_CANNOT_CREATE_VERIFICATION_DATABASE";
-    field public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
+    field @Deprecated public static final String CURSOR_MISMATCH = "ROOM_CURSOR_MISMATCH";
     field public static final androidx.room.RoomWarnings.Companion Companion;
     field public static final String DEFAULT_CONSTRUCTOR = "ROOM_DEFAULT_CONSTRUCTOR";
     field public static final String DOES_NOT_IMPLEMENT_EQUALS_HASHCODE = "ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE";
@@ -383,12 +383,15 @@ package androidx.room {
     field public static final String MISSING_JAVA_TMP_DIR = "ROOM_MISSING_JAVA_TMP_DIR";
     field public static final String MISSING_SCHEMA_LOCATION = "ROOM_MISSING_SCHEMA_LOCATION";
     field public static final String PRIMARY_KEY_FROM_EMBEDDED_IS_DROPPED = "ROOM_EMBEDDED_PRIMARY_KEY_IS_DROPPED";
+    field public static final String QUERY_MISMATCH = "ROOM_QUERY_MISMATCH";
     field public static final String RELATION_QUERY_WITHOUT_TRANSACTION = "ROOM_RELATION_QUERY_WITHOUT_TRANSACTION";
     field public static final String RELATION_TYPE_MISMATCH = "ROOM_RELATION_TYPE_MISMATCH";
     field public static final String UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE = "ROOM_UNNECESSARY_NULLABILITY_IN_DAO_RETURN_TYPE";
   }
 
   public static final class RoomWarnings.Companion {
+    method @Deprecated public String getCURSOR_MISMATCH();
+    property @Deprecated public String CURSOR_MISMATCH;
   }
 
   @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget.FUNCTION, kotlin.annotation.AnnotationTarget.CLASS}) public @interface SkipQueryVerification {

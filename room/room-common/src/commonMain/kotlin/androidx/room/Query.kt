@@ -120,7 +120,7 @@ package androidx.room
  *
  * And Room will create the correct implementation to convert the query result into a `SongDuration`
  * object. If there is a mismatch between the query result and the fields of the POJO, and as long
- * as there is at least 1 field match, Room prints a [RoomWarnings.CURSOR_MISMATCH] warning and sets
+ * as there is at least 1 field match, Room prints a [RoomWarnings.QUERY_MISMATCH] warning and sets
  * as many fields as it can.
  */
 @Target(AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER)

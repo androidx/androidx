@@ -253,28 +253,28 @@ interface BooksDao {
     @Query("SELECT * FROM book WHERE bookId = :bookId")
     fun getBookMaybe(bookId: String): Maybe<Book>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Query(
         "SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId "
     )
     fun getBooksWithPublisher(): List<BookWithPublisher>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Query(
         "SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId "
     )
     fun getBooksWithPublisherLiveData(): LiveData<List<BookWithPublisher>>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Query(
         "SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId "
     )
     fun getBooksWithPublisherFlowable(): Flowable<List<BookWithPublisher>>
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
     @Query(
         "SELECT * FROM book INNER JOIN publisher " +
             "ON book.bookPublisherId = publisher.publisherId "
