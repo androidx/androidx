@@ -124,6 +124,7 @@ import androidx.core.util.Preconditions;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -286,6 +287,8 @@ public class ExifData {
             TAG_F_NUMBER, TAG_EXPOSURE_TIME, TAG_GPS_TIMESTAMP));
 
     private static final int MM_IN_MICRONS = 1000;
+    private static final String COMPONENTS_CONFIGURATION_YCBCR = new String(new byte[]{1, 2, 3, 0},
+            StandardCharsets.UTF_8);
 
     private final List<Map<String, ExifAttribute>> mAttributes;
     private final ByteOrder mByteOrder;
@@ -876,7 +879,8 @@ public class ExifData {
                         String.valueOf(EXPOSURE_PROGRAM_NOT_DEFINED), attributes);
                 setAttributeIfMissing(TAG_EXIF_VERSION, "0230", attributes);
                 // Default is for YCbCr components
-                setAttributeIfMissing(TAG_COMPONENTS_CONFIGURATION, "1,2,3,0", attributes);
+                setAttributeIfMissing(TAG_COMPONENTS_CONFIGURATION, COMPONENTS_CONFIGURATION_YCBCR,
+                        attributes);
                 setAttributeIfMissing(TAG_METERING_MODE, String.valueOf(METERING_MODE_UNKNOWN),
                         attributes);
                 setAttributeIfMissing(TAG_LIGHT_SOURCE, String.valueOf(LIGHT_SOURCE_UNKNOWN),
