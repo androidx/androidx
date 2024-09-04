@@ -956,7 +956,8 @@ internal fun HorizontalTimePicker(
     autoSwitchToMinute: Boolean
 ) {
     Row(
-        modifier = modifier.padding(bottom = ClockFaceBottomMargin),
+        modifier =
+            modifier.semantics { isTraversalGroup = true }.padding(bottom = ClockFaceBottomMargin),
         verticalAlignment = Alignment.CenterVertically
     ) {
         HorizontalClockDisplay(state, colors)
@@ -1573,7 +1574,7 @@ internal fun ClockFace(
                             screen[index] % 12
                         }
                     ClockText(
-                        modifier = Modifier.semantics { traversalIndex = index.toFloat() },
+                        modifier = Modifier.semantics { traversalIndex = index.toFloat() + 1f },
                         state = state,
                         value = outerValue,
                         autoSwitchToMinute = autoSwitchToMinute

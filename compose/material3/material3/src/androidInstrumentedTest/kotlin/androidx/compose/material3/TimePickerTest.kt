@@ -30,7 +30,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsProperties.SelectableGroup
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsMatcher.Companion.expectValue
 import androidx.compose.ui.test.SemanticsMatcher.Companion.keyIsDefined
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -673,6 +675,39 @@ class TimePickerTest {
                 }
 
             rule.onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour).performClick()
+            rule.runOnIdle {
+                state.selection = TimePickerSelectionMode.Hour
+                assertThat(state.hour).isEqualTo(number)
+            }
+        }
+    }
+
+    @Test
+    fun clockFace_12Hour_traversalIndex() {
+        val state =
+            AnalogTimePickerState(
+                TimePickerState(initialHour = 0, initialMinute = 0, is24Hour = false)
+            )
+
+        rule.setMaterialContent(lightColorScheme()) {
+            ClockFace(state, TimePickerDefaults.colors(), autoSwitchToMinute = true)
+        }
+
+        repeat(12) { number ->
+            val hour =
+                when {
+                    number == 0 -> 12
+                    else -> number
+                }
+
+            rule
+                .onNodeWithTimeValue(hour, TimePickerSelectionMode.Hour)
+                .assert(
+                    SemanticsMatcher("Index of nodes in timepicker") {
+                        it.config.getOrNull(SemanticsProperties.TraversalIndex) == number + 1f
+                    }
+                )
+                .performClick()
             rule.runOnIdle {
                 state.selection = TimePickerSelectionMode.Hour
                 assertThat(state.hour).isEqualTo(number)
