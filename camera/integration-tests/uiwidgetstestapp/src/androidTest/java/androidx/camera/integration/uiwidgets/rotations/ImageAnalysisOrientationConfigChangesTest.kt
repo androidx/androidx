@@ -21,6 +21,7 @@ import android.view.Surface
 import android.view.View
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
@@ -87,6 +88,7 @@ class ImageAnalysisOrientationConfigChangesTest(
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33) // b/360867144: Module crashes on API34
     fun verifyRotation() {
         verifyRotation<OrientationConfigChangesOverriddenActivity>(lensFacing, cameraXConfig) {
             if (rotate(rotation)) {
