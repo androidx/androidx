@@ -54,11 +54,13 @@ package androidx.health.connect.client {
   @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi public interface HealthConnectFeatures {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
+    field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
     field public static final int FEATURE_STATUS_UNAVAILABLE = 1; // 0x1
   }
 
   public static final class HealthConnectFeatures.Companion {
+    field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
     field public static final int FEATURE_STATUS_UNAVAILABLE = 1; // 0x1
   }

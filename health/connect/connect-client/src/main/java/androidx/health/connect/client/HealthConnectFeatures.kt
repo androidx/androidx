@@ -19,6 +19,7 @@ package androidx.health.connect.client
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi
+import androidx.health.connect.client.feature.HealthConnectPlatformVersion
 import androidx.health.connect.client.feature.HealthConnectVersionInfo
 
 /** Interface for checking availability of features in [HealthConnectClient]. */
@@ -37,7 +38,7 @@ interface HealthConnectFeatures {
     companion object {
 
         /** Feature constant for reading health data in background. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_HEALTH_DATA_BACKGROUND_READ = 1
+        const val FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1
 
         /** Feature constant for skin temperature. */
         @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_SKIN_TEMPERATURE = 2
@@ -52,7 +53,7 @@ interface HealthConnectFeatures {
         @IntDef(
             value =
                 [
-                    FEATURE_HEALTH_DATA_BACKGROUND_READ,
+                    FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
                     FEATURE_SKIN_TEMPERATURE,
                     FEATURE_PLANNED_EXERCISE,
                     FEATURE_HEALTH_DATA_HISTORIC_READ
@@ -77,6 +78,14 @@ interface HealthConnectFeatures {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         annotation class FeatureStatus
 
-        internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> = mapOf()
+        // TODO(b/362483564): Change to SDK EXT in API 34 once that's available
+        private val API_35_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 35)
+
+        internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
+            mapOf(
+                FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
+                    HealthConnectVersionInfo(platformVersion = API_35_PLATFORM_VERSION)
+            )
     }
 }
