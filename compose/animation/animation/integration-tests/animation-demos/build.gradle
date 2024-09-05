@@ -33,7 +33,7 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation project(':compose:material3:material3')
     implementation project(":navigation:navigation-compose")
-    debugImplementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling"))
 }
 
 tasks.withType(KotlinCompile).configureEach {

@@ -40,7 +40,7 @@ dependencies {
     implementation("androidx.coordinatorlayout:coordinatorlayout:1.1.0")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
 
-    debugImplementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling"))
 }
 
 android {
