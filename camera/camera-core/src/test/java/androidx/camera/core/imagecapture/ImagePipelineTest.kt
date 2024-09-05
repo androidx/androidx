@@ -59,6 +59,7 @@ import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.createJpegrBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegrFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createRawFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
@@ -174,6 +175,21 @@ class ImagePipelineTest {
     fun createRequests_verifyCameraRequest_whenFormatIsJpegr() {
         // Arrange.
         imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.JPEG_R)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        val captureInput = imagePipeline.captureNode.inputEdge
+
+        // Act: create requests
+        val result =
+            imagePipeline.createRequests(IN_MEMORY_REQUEST, CALLBACK, Futures.immediateFuture(null))
+
+        // Assert: CameraRequest is constructed correctly.
+        verifyCaptureRequest(captureInput, result)
+    }
+
+    @Test
+    fun createRequests_verifyCameraRequest_whenFormatIsRAw() {
+        // Arrange.
+        imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.RAW_SENSOR)
         imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
         val captureInput = imagePipeline.captureNode.inputEdge
 
@@ -389,6 +405,19 @@ class ImagePipelineTest {
         assertThat(CALLBACK.inMemoryResult!!.planes).isEqualTo(image.planes)
     }
 
+    @Test
+    fun sendInMemoryRequest_receivesImageProxy_whenFormatIsRaw() {
+        // Arrange & act.
+        imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.RAW_SENSOR)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        val image = sendInMemoryRequest(imagePipeline, ImageFormat.RAW_SENSOR)
+
+        // Assert: the image is received by TakePictureCallback.
+        assertThat(image.format).isEqualTo(ImageFormat.RAW_SENSOR)
+        assertThat(CALLBACK.inMemoryResult!!.format).isEqualTo(ImageFormat.RAW_SENSOR)
+        assertThat(CALLBACK.inMemoryResult!!.planes).isEqualTo(image.planes)
+    }
+
     /** Creates a ImageProxy and sends it to the pipeline. */
     private fun sendInMemoryRequest(
         pipeline: ImagePipeline,
@@ -415,6 +444,9 @@ class ImagePipelineTest {
                     }
                     val jpegBytes = createJpegrBytes(WIDTH, HEIGHT)
                     createJpegrFakeImageProxy(imageInfo, jpegBytes)
+                }
+                ImageFormat.RAW_SENSOR -> {
+                    createRawFakeImageProxy(imageInfo, WIDTH, HEIGHT)
                 }
                 else -> {
                     val jpegBytes = createJpegBytes(WIDTH, HEIGHT)

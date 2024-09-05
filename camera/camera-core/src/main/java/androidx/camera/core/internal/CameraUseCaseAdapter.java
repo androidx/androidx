@@ -23,6 +23,7 @@ import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
 import static androidx.camera.core.DynamicRange.ENCODING_SDR;
 import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_OUTPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
@@ -1041,14 +1042,20 @@ public final class CameraUseCaseAdapter implements Camera {
                 throw new IllegalArgumentException("Extensions are not supported for use with "
                         + "Ultra HDR image capture.");
             }
+
+            if (hasRawImageCapture(useCases)) {
+                throw new IllegalArgumentException("Extensions are not supported for use with "
+                        + "Raw image capture.");
+            }
         }
 
         // TODO(b/322311893): throw exception to block feature combination of effect with Ultra
         //  HDR, until ImageProcessor and SurfaceProcessor can support JPEG/R format.
         synchronized (mLock) {
-            if (!mEffects.isEmpty() && hasUltraHdrImageCapture(useCases)) {
-                throw new IllegalArgumentException("Ultra HDR image capture does not support for "
-                        + "use with CameraEffect.");
+            if (!mEffects.isEmpty() && (hasUltraHdrImageCapture(useCases)
+                    || hasRawImageCapture(useCases))) {
+                throw new IllegalArgumentException("Ultra HDR image and Raw capture does not "
+                        + "support for use with CameraEffect.");
             }
         }
     }
@@ -1081,6 +1088,23 @@ public final class CameraUseCaseAdapter implements Camera {
             UseCaseConfig<?> config = useCase.getCurrentConfig();
             if (config.containsOption(OPTION_OUTPUT_FORMAT) && checkNotNull(
                     config.retrieveOption(OPTION_OUTPUT_FORMAT)) == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    private static boolean hasRawImageCapture(@NonNull Collection<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            if (!isImageCapture(useCase)) {
+                continue;
+            }
+
+            UseCaseConfig<?> config = useCase.getCurrentConfig();
+            if (config.containsOption(OPTION_OUTPUT_FORMAT)
+                    && (checkNotNull(config.retrieveOption(OPTION_OUTPUT_FORMAT))
+                    == OUTPUT_FORMAT_RAW)) {
                 return true;
             }
 
