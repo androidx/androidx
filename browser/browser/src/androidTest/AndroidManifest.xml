@@ -92,6 +92,16 @@
         </service>
 
         <service
+            android:name="androidx.browser.customtabs.TestCustomTabsServiceSetNetwork"
+            android:enabled="false"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.support.customtabs.action.CustomTabsService" />
+                <category android:name="androidx.browser.customtabs.category.SetNetwork" />
+            </intent-filter>
+        </service>
+
+        <service
             android:name="androidx.browser.customtabs.PostMessageService"
             android:enabled="false"
             android:exported="true" />
