@@ -65,10 +65,10 @@ import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.rotate
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScrollModifierNode
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
@@ -455,12 +455,22 @@ object PullToRefreshDefaults {
                             this@drawWithContent.drawContent()
                         }
                     }
-                    .graphicsLayer {
-                        val showElevation = state.distanceFraction > 0f || isRefreshing
-                        translationY = state.distanceFraction * threshold.roundToPx() - size.height
-                        shadowElevation = if (showElevation) elevation.toPx() else 0f
-                        this.shape = shape
-                        clip = true
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeWithLayer(
+                                0,
+                                0,
+                                layerBlock = {
+                                    val showElevation = state.distanceFraction > 0f || isRefreshing
+                                    translationY =
+                                        state.distanceFraction * threshold.roundToPx() - size.height
+                                    shadowElevation = if (showElevation) elevation.toPx() else 0f
+                                    this.shape = shape
+                                    clip = true
+                                }
+                            )
+                        }
                     }
                     .background(color = containerColor, shape = shape),
             contentAlignment = Alignment.Center,
