@@ -232,4 +232,38 @@
              the given action. -->
         <attr name="activityAction" format="string" />
     </declare-styleable>
+
+    <!-- Attributes that are read when parsing an <DividerAttributes> tag, which defines the divider
+         attributes for `SplitPairRule` and `SplitPlaceholderRule`. The <DividerAttributes> tag must
+         be a child of the <SplitPairRule> or <SplitPlaceholderRule> tag. If not set, no divider
+         is shown. -->
+    <declare-styleable name="DividerAttributes">
+        <!-- The divider type. The default type is `fixed`. -->
+        <attr name="dividerType" format="enum">
+            <!-- Fixed divider type. -->
+            <enum name="fixed" value="0" />
+            <!-- Draggable divider type. -->
+            <enum name="draggable" value="1" />
+        </attr>
+        <!-- The divider width in dp. If unspecified, the system default value will be used. The
+             width may be set to zero for a draggable divider, so that the drag handle is displayed
+             without the divider line. -->
+        <attr name="dividerWidthDp" format="integer" />
+        <!-- The divider color. The color must be opaque. The default color is black. -->
+        <attr name="dividerColor" format="color" />
+        <!-- The minimum split ratio of the primary container that the user is allowed to drag to.
+             The value must be in the range (0.0, 1.0). System default value will be used if
+             dragRangeMinRatio or dragRangeMaxRatio is unspecified. dragRangeMaxRatio must be
+             greater than or equal to dragRangeMinRatio.
+             This attribute is only allowed for a draggable divider and an exception is thrown
+             otherwise. See DividerAttributes.DragRange for more details. -->
+        <attr name="dragRangeMinRatio" format="float" />
+        <!-- The maximum split ratio of the primary container that the user is allowed to drag to.
+             The value must be in the range (0.0, 1.0). System default value will be used if
+             dragRangeMinRatio or dragRangeMaxRatio is unspecified. dragRangeMaxRatio must be
+             greater than or equal to dragRangeMinRatio.
+             This attribute is only allowed for a draggable divider and an exception is thrown
+             otherwise. See DividerAttributes.DragRange for more details. -->
+        <attr name="dragRangeMaxRatio" format="float" />
+    </declare-styleable>
 </resources>

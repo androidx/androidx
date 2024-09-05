@@ -120,6 +120,21 @@ class SplitPlaceholderRule : SplitRule {
         private var isSticky = false
         private var defaultSplitAttributes = SplitAttributes.Builder().build()
 
+        /** Creates a Builder with values initialized from the original [SplitPlaceholderRule] */
+        internal constructor(
+            original: SplitPlaceholderRule
+        ) : this(original.filters, original.placeholderIntent) {
+            this.setTag(original.tag)
+                .setMinWidthDp(original.minWidthDp)
+                .setMinHeightDp(original.minHeightDp)
+                .setMinSmallestWidthDp(original.minSmallestWidthDp)
+                .setMaxAspectRatioInPortrait(original.maxAspectRatioInPortrait)
+                .setMaxAspectRatioInLandscape(original.maxAspectRatioInLandscape)
+                .setFinishPrimaryWithPlaceholder(original.finishPrimaryWithPlaceholder)
+                .setSticky(original.isSticky)
+                .setDefaultSplitAttributes(original.defaultSplitAttributes)
+        }
+
         /**
          * Sets the smallest value of width of the parent window when the split should be used, in
          * DP. When the window size is smaller than requested here, activities in the secondary

@@ -35,7 +35,7 @@ import androidx.window.RequiresWindowSdkExtension
 abstract class DividerAttributes
 private constructor(
     @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) val widthDp: Int = WIDTH_SYSTEM_DEFAULT,
-    @ColorInt val color: Int = Color.BLACK,
+    @ColorInt val color: Int = COLOR_SYSTEM_DEFAULT,
 ) {
     override fun toString(): String =
         DividerAttributes::class.java.simpleName + "{" + "width=$widthDp, " + "color=$color" + "}"
@@ -52,7 +52,7 @@ private constructor(
     @RequiresWindowSdkExtension(6)
     private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
-        @ColorInt color: Int = Color.BLACK
+        @ColorInt color: Int = COLOR_SYSTEM_DEFAULT
     ) : DividerAttributes(widthDp, color) {
 
         override fun equals(other: Any?): Boolean {
@@ -73,7 +73,7 @@ private constructor(
             @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong())
             private var widthDp = WIDTH_SYSTEM_DEFAULT
 
-            @ColorInt private var color = Color.BLACK
+            @ColorInt private var color = COLOR_SYSTEM_DEFAULT
 
             /**
              * The [FixedDividerAttributes] builder constructor initialized by an existing
@@ -139,7 +139,7 @@ private constructor(
     @RequiresWindowSdkExtension(6)
     private constructor(
         @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong()) widthDp: Int = WIDTH_SYSTEM_DEFAULT,
-        @ColorInt color: Int = Color.BLACK,
+        @ColorInt color: Int = COLOR_SYSTEM_DEFAULT,
         val dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT,
     ) : DividerAttributes(widthDp, color) {
 
@@ -169,7 +169,7 @@ private constructor(
             @IntRange(from = WIDTH_SYSTEM_DEFAULT.toLong())
             private var widthDp = WIDTH_SYSTEM_DEFAULT
 
-            @ColorInt private var color = Color.BLACK
+            @ColorInt private var color = COLOR_SYSTEM_DEFAULT
 
             private var dragRange: DragRange = DragRange.DRAG_RANGE_SYSTEM_DEFAULT
 
@@ -316,6 +316,70 @@ private constructor(
             object : DividerAttributes() {
                 override fun toString(): String = "NO_DIVIDER"
             }
+
+        /** Specifies a fixed divider. Used by the XML rule parser and must match attrs.xml. */
+        internal const val TYPE_VALUE_FIXED: Int = 0
+
+        /** Specifies a draggable divider. Used by the XML rule parser and must match attrs.xml. */
+        internal const val TYPE_VALUE_DRAGGABLE: Int = 1
+
+        /** Indicates that the drag range value is unspecified. Used by the XML rule parser. */
+        internal const val DRAG_RANGE_VALUE_UNSPECIFIED: Float = -1.0f
+
+        /** The default color of a divider. */
+        internal const val COLOR_SYSTEM_DEFAULT: Int = Color.BLACK
+
+        /** Creates a [DividerAttributes] from values. Used by the XML rule parser. */
+        internal fun createDividerAttributes(
+            type: Int,
+            widthDp: Int,
+            color: Int,
+            dragRangeMinRatio: Float,
+            dragRangeMaxRatio: Float,
+        ): DividerAttributes {
+            return when (type) {
+                TYPE_VALUE_FIXED ->
+                    FixedDividerAttributes.Builder().setWidthDp(widthDp).setColor(color).build()
+                TYPE_VALUE_DRAGGABLE -> {
+                    val builder =
+                        DraggableDividerAttributes.Builder().setWidthDp(widthDp).setColor(color)
+                    if (
+                        dragRangeMinRatio == DRAG_RANGE_VALUE_UNSPECIFIED ||
+                            dragRangeMaxRatio == DRAG_RANGE_VALUE_UNSPECIFIED
+                    ) {
+                        builder.setDragRange(DragRange.DRAG_RANGE_SYSTEM_DEFAULT)
+                    } else {
+                        // Validation happens in SplitRatioDragRange constructor
+                        builder.setDragRange(
+                            DragRange.SplitRatioDragRange(dragRangeMinRatio, dragRangeMaxRatio)
+                        )
+                    }
+                    builder.build()
+                }
+                else -> throw IllegalArgumentException("Got unknown divider type $type!")
+            }
+        }
+
+        /** Validates divider XML attributes. */
+        internal fun validateXmlDividerAttributes(
+            type: Int,
+            hasDragRangeMinRatio: Boolean,
+            hasDragRangeMaxRatio: Boolean,
+        ) {
+            if (type == TYPE_VALUE_DRAGGABLE) {
+                return
+            }
+            if (hasDragRangeMinRatio) {
+                throw IllegalArgumentException(
+                    "Fixed divider does not allow attribute dragRangeMinRatio!"
+                )
+            }
+            if (hasDragRangeMaxRatio) {
+                throw IllegalArgumentException(
+                    "Fixed divider does not allow attribute dragRangeMaxRatio!"
+                )
+            }
+        }
 
         private fun validateWidth(widthDp: Int) = run {
             require(widthDp == WIDTH_SYSTEM_DEFAULT || widthDp >= 0) {

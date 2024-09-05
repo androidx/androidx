@@ -152,6 +152,83 @@ class RuleParserTests {
     }
 
     /**
+     * Verifies that params are set correctly when reading {@link SplitPairRule} from XML with
+     * divider attributes.
+     *
+     * @see R.xml.test_split_config_custom_split_pair_rule_with_divider for customized value.
+     */
+    @Test
+    fun testCustom_SplitPairRule_withDivider() {
+        val rules =
+            RuleController.parseRules(
+                application,
+                R.xml.test_split_config_custom_split_pair_rule_with_divider
+            )
+        assertEquals(4, rules.size)
+        val expectedDividerColor = 0xff112233
+
+        val expectedDividerAttributes1 = DividerAttributes.FixedDividerAttributes.Builder().build()
+
+        val expectedDividerAttributes2 =
+            DividerAttributes.DraggableDividerAttributes.Builder().build()
+
+        val expectedDividerAttributes3 =
+            DividerAttributes.FixedDividerAttributes.Builder()
+                .setWidthDp(1)
+                .setColor(expectedDividerColor.toInt())
+                .build()
+
+        val expectedDividerAttributes4 =
+            DividerAttributes.DraggableDividerAttributes.Builder()
+                .setWidthDp(1)
+                .setColor(expectedDividerColor.toInt())
+                .setDragRange(DividerAttributes.DragRange.SplitRatioDragRange(0.2f, 0.8f))
+                .build()
+
+        rules.forEach {
+            val rule = it as SplitPairRule
+            when (rule.tag) {
+                "rule1" ->
+                    assertEquals(
+                        expectedDividerAttributes1,
+                        rule.defaultSplitAttributes.dividerAttributes
+                    )
+                "rule2" ->
+                    assertEquals(
+                        expectedDividerAttributes2,
+                        rule.defaultSplitAttributes.dividerAttributes
+                    )
+                "rule3" ->
+                    assertEquals(
+                        expectedDividerAttributes3,
+                        rule.defaultSplitAttributes.dividerAttributes
+                    )
+                "rule4" ->
+                    assertEquals(
+                        expectedDividerAttributes4,
+                        rule.defaultSplitAttributes.dividerAttributes
+                    )
+                else -> throw IllegalStateException("Unexpected rule tag ${rule.tag}")
+            }
+        }
+    }
+
+    /**
+     * Verifies that a `IllegalArgumentException` thrown for invalid divider attributes.
+     *
+     * @see R.xml.test_split_config_custom_split_pair_rule_with_divider_error for customized value.
+     */
+    @Test
+    fun testCustom_SplitPairRule_withDividerError() {
+        assertThrows(IllegalArgumentException::class.java) {
+            RuleController.parseRules(
+                application,
+                R.xml.test_split_config_custom_split_pair_rule_with_divider_error
+            )
+        }
+    }
+
+    /**
      * Verifies that default params are set correctly when reading {@link SplitPlaceholderRule} from
      * XML.
      */
