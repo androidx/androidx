@@ -106,8 +106,32 @@ class DialogTest {
     }
 
     @Test
+    fun dialogTest_isNotDismissed_whenClicked_noClickableContent() {
+        setupDialogTest { DefaultDialogContent() }
+
+        val interaction = rule.onNodeWithTag(testTag)
+        interaction.assertIsDisplayed()
+
+        // Click inside the dialog
+        interaction.performClick()
+
+        // Check that the Clickable was pressed and the Dialog is still visible.
+        interaction.assertIsDisplayed()
+    }
+
+    @Test
     fun dialogTest_isDismissed_whenSpecified() {
         setupDialogTest()
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        clickOutsideDialog()
+        textInteraction.assertDoesNotExist()
+    }
+
+    @Test
+    fun dialogTest_isDismissed_whenSpecified_decorFitsFalse() {
+        setupDialogTest(dialogProperties = DialogProperties(decorFitsSystemWindows = false))
         val textInteraction = rule.onNodeWithTag(testTag)
         textInteraction.assertIsDisplayed()
 
@@ -129,6 +153,20 @@ class DialogTest {
     @Test
     fun dialogTest_isNotDismissed_whenDismissOnClickOutsideIsFalse() {
         setupDialogTest(dialogProperties = DialogProperties(dismissOnClickOutside = false))
+        val textInteraction = rule.onNodeWithTag(testTag)
+        textInteraction.assertIsDisplayed()
+
+        clickOutsideDialog()
+        // The Dialog should still be visible
+        textInteraction.assertIsDisplayed()
+    }
+
+    @Test
+    fun dialogTest_isNotDismissed_whenDismissOnClickOutsideIsFalse_decorFitsFalse() {
+        setupDialogTest(
+            dialogProperties =
+                DialogProperties(dismissOnClickOutside = false, decorFitsSystemWindows = false)
+        )
         val textInteraction = rule.onNodeWithTag(testTag)
         textInteraction.assertIsDisplayed()
 

@@ -25,6 +25,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnLayoutChangeListener
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.Window
@@ -73,6 +74,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
+import kotlin.math.roundToInt
 
 /**
  * Properties used to customize the behavior of a [Dialog].
@@ -274,7 +276,8 @@ private class DialogWrapper(
     ),
     ViewRootForInspector,
     OnApplyWindowInsetsListener,
-    OnLayoutChangeListener {
+    OnLayoutChangeListener,
+    OnTouchListener {
 
     private val dialogLayout: DialogLayout
 
@@ -341,7 +344,6 @@ private class DialogWrapper(
                 )
                 .also { it.gravity = Gravity.CENTER }
         )
-        frameLayout.setOnClickListener { onDismissRequest() }
         ViewCompat.setOnApplyWindowInsetsListener(frameLayout, this)
         ViewCompat.setWindowInsetsAnimationCallback(
             frameLayout,
@@ -454,6 +456,9 @@ private class DialogWrapper(
         dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
         val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
         dialogLayout.decorFitsSystemWindows = decorFitsSystemWindows
+        setCanceledOnTouchOutside(properties.dismissOnClickOutside)
+        val frameLayout = dialogLayout.parent as View
+        frameLayout.setOnTouchListener(if (properties.dismissOnClickOutside) this else null)
         val window = window
         if (window != null) {
             val softInput =
@@ -532,6 +537,24 @@ private class DialogWrapper(
         oldBottom: Int
     ) {
         v.requestApplyInsets()
+    }
+
+    override fun onTouch(v: View, event: MotionEvent): Boolean {
+        // This handler only set when properties.dismissOnClickOutside is true
+        if (event.actionMasked == MotionEvent.ACTION_UP) {
+            val x = event.x.roundToInt()
+            val y = event.y.roundToInt()
+            val insideContent =
+                x in dialogLayout.left..dialogLayout.right &&
+                    y in dialogLayout.top..dialogLayout.bottom
+            if (!insideContent) {
+                onDismissRequest()
+                return true
+            }
+        }
+        // We must always accept the ACTION_DOWN or else we don't receive the rest of the
+        // event stream.
+        return event.actionMasked == MotionEvent.ACTION_DOWN
     }
 }
 
