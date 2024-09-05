@@ -1183,15 +1183,15 @@ package androidx.compose.material3 {
     method public java.util.List<androidx.graphics.shapes.RoundedPolygon> getIndeterminateIndicatorPolygons();
     method @androidx.compose.runtime.Composable public long getIndicatorColor();
     method public float getIndicatorSize();
-    property @androidx.compose.runtime.Composable public final long ContainedContainerColor;
-    property @androidx.compose.runtime.Composable public final long ContainedIndicatorColor;
     property public final float ContainerHeight;
-    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape ContainerShape;
     property public final float ContainerWidth;
     property public final java.util.List<androidx.graphics.shapes.RoundedPolygon> DeterminateIndicatorPolygons;
     property public final java.util.List<androidx.graphics.shapes.RoundedPolygon> IndeterminateIndicatorPolygons;
-    property @androidx.compose.runtime.Composable public final long IndicatorColor;
     property public final float IndicatorSize;
+    property @androidx.compose.runtime.Composable public final long containedContainerColor;
+    property @androidx.compose.runtime.Composable public final long containedIndicatorColor;
+    property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape containerShape;
+    property @androidx.compose.runtime.Composable public final long indicatorColor;
     field public static final androidx.compose.material3.LoadingIndicatorDefaults INSTANCE;
   }
 
@@ -3070,9 +3070,11 @@ package androidx.compose.material3.pulltorefresh {
     method @Deprecated @androidx.compose.runtime.Composable public long getIndicatorColor();
     method @androidx.compose.runtime.Composable public long getLoadingIndicatorColor();
     method @androidx.compose.runtime.Composable public long getLoadingIndicatorContainerColor();
+    method public float getLoadingIndicatorElevation();
     method public float getPositionalThreshold();
     method public androidx.compose.ui.graphics.Shape getShape();
     property public final float Elevation;
+    property public final float LoadingIndicatorElevation;
     property public final float PositionalThreshold;
     property @Deprecated @androidx.compose.runtime.Composable public final long containerColor;
     property @Deprecated @androidx.compose.runtime.Composable public final long indicatorColor;
