@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -263,6 +265,42 @@ class LayoutCoordinatesHelperTest {
             alignment = Alignment.TopEnd
         }
         rule.runOnIdle { assertEquals(calculateExpectedIntOffset(alignment), targetOffset.value) }
+    }
+
+    @Test
+    fun onPlacedCalledOnReuseInsideLazyColumn() {
+        lateinit var density: Density
+        val items = 200
+        val visibleItems = 2
+        val itemSize = 50.dp
+        val invocations = arrayOf(0, 0)
+
+        // It's important to share lambda across all iterations
+        val placedCallback0: (LayoutCoordinates) -> Unit = { invocations[0] = invocations[0] + 1 }
+        val placedCallback1: (LayoutCoordinates) -> Unit = { invocations[1] = invocations[1] + 1 }
+        val scrollState = LazyListState()
+        rule.setContent {
+            density = LocalDensity.current
+            LazyColumn(Modifier.size(itemSize, itemSize * visibleItems), scrollState) {
+                items(items) {
+                    Box(Modifier.size(itemSize).onPlaced(placedCallback0)) {
+                        Box(Modifier.size(itemSize).onPlaced(placedCallback1))
+                    }
+                }
+            }
+        }
+
+        var expectedInvocations = visibleItems
+        val delta = with(density) { (itemSize * visibleItems).toPx() }
+        repeat(items / visibleItems) {
+            rule.runOnIdle {
+                assertThat(invocations[0]).isAtLeast(expectedInvocations)
+                assertThat(invocations[1]).isAtLeast(expectedInvocations)
+
+                scrollState.dispatchRawDelta(delta)
+                expectedInvocations += visibleItems
+            }
+        }
     }
 
     private fun Modifier.animatePlacement(
