@@ -20,6 +20,7 @@ package androidx.navigation.serialization
 
 import android.net.Uri
 import android.os.Bundle
+import androidx.navigation.CollectionNavType
 import androidx.navigation.NavType
 import java.io.Serializable
 import kotlin.reflect.KType
@@ -78,7 +79,11 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.LONG_ARRAY -> NavType.LongArrayType
             InternalType.ARRAY -> {
                 val typeParameter = getElementDescriptor(0).toInternalType()
-                if (typeParameter == InternalType.STRING) NavType.StringArrayType else UNKNOWN
+                when (typeParameter) {
+                    InternalType.STRING -> NavType.StringArrayType
+                    InternalType.STRING_NULLABLE -> InternalNavType.StringNullableArrayType
+                    else -> UNKNOWN
+                }
             }
             InternalType.LIST -> {
                 val typeParameter = getElementDescriptor(0).toInternalType()
@@ -289,6 +294,37 @@ internal object InternalNavType {
 
             // "null" is still serialized as "null"
             override fun serializeAsValue(value: String): String = Uri.encode(value)
+        }
+
+    val StringNullableArrayType: NavType<Array<String?>?> =
+        object : CollectionNavType<Array<String?>?>(true) {
+            override val name: String
+                get() = "string_nullable[]"
+
+            override fun put(bundle: Bundle, key: String, value: Array<String?>?) {
+                bundle.putStringArray(key, value)
+            }
+
+            @Suppress("UNCHECKED_CAST", "DEPRECATION")
+            override fun get(bundle: Bundle, key: String): Array<String?>? =
+                bundle[key] as Array<String?>?
+
+            // match String? behavior where null -> null, and "null" -> null
+            override fun parseValue(value: String): Array<String?> =
+                arrayOf(StringType.parseValue(value))
+
+            override fun parseValue(
+                value: String,
+                previousValue: Array<String?>?
+            ): Array<String?>? = previousValue?.plus(parseValue(value)) ?: parseValue(value)
+
+            override fun valueEquals(value: Array<String?>?, other: Array<String?>?): Boolean =
+                value.contentDeepEquals(other)
+
+            override fun serializeAsValues(value: Array<String?>?): List<String> =
+                value?.map { Uri.encode(it) } ?: emptyList()
+
+            override fun emptyCollection(): Array<String?>? = arrayOf()
         }
 
     class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {
