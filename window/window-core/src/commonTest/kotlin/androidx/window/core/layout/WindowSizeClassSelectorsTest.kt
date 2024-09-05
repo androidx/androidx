@@ -26,6 +26,23 @@ class WindowSizeClassSelectorsTest {
     val coreSet = WindowSizeClass.BREAKPOINTS_V1
 
     @Test
+    fun compute_window_size_class_with_floats_truncates() {
+        // coreSet does not contain 10, 10
+        val intResult =
+            coreSet.computeWindowSizeClass(
+                WIDTH_DP_MEDIUM_LOWER_BOUND,
+                HEIGHT_DP_MEDIUM_LOWER_BOUND
+            )
+        val floatResult =
+            coreSet.computeWindowSizeClass(
+                WIDTH_DP_MEDIUM_LOWER_BOUND + .9f,
+                HEIGHT_DP_MEDIUM_LOWER_BOUND + .9f
+            )
+
+        assertEquals(intResult, floatResult)
+    }
+
+    @Test
     fun compute_window_size_class_returns_zero_for_default() {
         // coreSet does not contain 10, 10
         val actual = coreSet.computeWindowSizeClass(10, 10)

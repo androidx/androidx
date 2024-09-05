@@ -140,10 +140,10 @@ class WindowSizeClass(
         const val HEIGHT_DP_EXPANDED_LOWER_BOUND = 900
 
         private val WIDTH_DP_BREAKPOINTS_V1 =
-            listOf(WIDTH_DP_MEDIUM_LOWER_BOUND, WIDTH_DP_EXPANDED_LOWER_BOUND)
+            listOf(0, WIDTH_DP_MEDIUM_LOWER_BOUND, WIDTH_DP_EXPANDED_LOWER_BOUND)
 
         private val HEIGHT_DP_BREAKPOINTS_V1 =
-            listOf(HEIGHT_DP_MEDIUM_LOWER_BOUND, HEIGHT_DP_EXPANDED_LOWER_BOUND)
+            listOf(0, HEIGHT_DP_MEDIUM_LOWER_BOUND, HEIGHT_DP_EXPANDED_LOWER_BOUND)
 
         @JvmField
         val BREAKPOINTS_V1 =
@@ -163,7 +163,13 @@ class WindowSizeClass(
          * @throws IllegalArgumentException if [dpWidth] or [dpHeight] is negative.
          */
         @JvmStatic
-        @Deprecated("Use the constructor instead.")
+        @Deprecated(
+            "Use computeWindowSizeClass instead.",
+            ReplaceWith(
+                "BREAKPOINTS_V1.computeWindowSizeClass(widthDp = dpWidth, heightDp = dpHeight)",
+                "androidx.window.core.layout.computeWindowSizeClass"
+            )
+        )
         fun compute(dpWidth: Float, dpHeight: Float): WindowSizeClass {
             val widthDp =
                 when {

@@ -16,6 +16,7 @@
 
 package androidx.window.core.layout
 
+import androidx.window.core.layout.WindowSizeClass.Companion.BREAKPOINTS_V1
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_EXPANDED_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.HEIGHT_DP_MEDIUM_LOWER_BOUND
 import androidx.window.core.layout.WindowSizeClass.Companion.WIDTH_DP_EXPANDED_LOWER_BOUND
@@ -45,6 +46,34 @@ class WindowSizeClassTest {
                 .map { sizeClass -> sizeClass.windowWidthSizeClass }
 
         assertEquals(expected, actual)
+    }
+
+    @Test
+    @Suppress("DEPRECATION")
+    fun test_breakpoint_matches_original_set() {
+        val breakpoints = BREAKPOINTS_V1
+
+        val expectedWidthBreakpoints =
+            setOf(
+                WindowWidthSizeClass.COMPACT,
+                WindowWidthSizeClass.MEDIUM,
+                WindowWidthSizeClass.EXPANDED
+            )
+
+        val expectedHeightBreakpoints =
+            setOf(
+                WindowHeightSizeClass.COMPACT,
+                WindowHeightSizeClass.MEDIUM,
+                WindowHeightSizeClass.EXPANDED
+            )
+
+        val actualWidthBreakpoints =
+            breakpoints.map { sizeClass -> sizeClass.windowWidthSizeClass }.toSet()
+        val actualHeightBreakpoints =
+            breakpoints.map { sizeClass -> sizeClass.windowHeightSizeClass }.toSet()
+
+        assertEquals(expectedWidthBreakpoints, actualWidthBreakpoints)
+        assertEquals(expectedHeightBreakpoints, actualHeightBreakpoints)
     }
 
     @Suppress("DEPRECATION")
