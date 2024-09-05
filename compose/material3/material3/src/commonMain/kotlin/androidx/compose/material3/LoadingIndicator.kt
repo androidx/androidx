@@ -94,7 +94,7 @@ import kotlinx.coroutines.launch
 fun LoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
-    color: Color = LoadingIndicatorDefaults.IndicatorColor,
+    color: Color = LoadingIndicatorDefaults.indicatorColor,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
 ) =
     LoadingIndicatorImpl(
@@ -102,7 +102,7 @@ fun LoadingIndicator(
         modifier = modifier,
         containerColor = Color.Unspecified,
         indicatorColor = color,
-        containerShape = LoadingIndicatorDefaults.ContainerShape,
+        containerShape = LoadingIndicatorDefaults.containerShape,
         indicatorPolygons = polygons,
     )
 
@@ -129,14 +129,14 @@ fun LoadingIndicator(
 @Composable
 fun LoadingIndicator(
     modifier: Modifier = Modifier,
-    color: Color = LoadingIndicatorDefaults.IndicatorColor,
+    color: Color = LoadingIndicatorDefaults.indicatorColor,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
 ) =
     LoadingIndicatorImpl(
         modifier = modifier,
         containerColor = Color.Unspecified,
         indicatorColor = color,
-        containerShape = LoadingIndicatorDefaults.ContainerShape,
+        containerShape = LoadingIndicatorDefaults.containerShape,
         indicatorPolygons = polygons,
     )
 
@@ -175,9 +175,9 @@ fun LoadingIndicator(
 fun ContainedLoadingIndicator(
     progress: () -> Float,
     modifier: Modifier = Modifier,
-    containerColor: Color = LoadingIndicatorDefaults.ContainedContainerColor,
-    indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
-    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
+    containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.containerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.DeterminateIndicatorPolygons
 ) =
     LoadingIndicatorImpl(
@@ -215,9 +215,9 @@ fun ContainedLoadingIndicator(
 @Composable
 fun ContainedLoadingIndicator(
     modifier: Modifier = Modifier,
-    containerColor: Color = LoadingIndicatorDefaults.ContainedContainerColor,
-    indicatorColor: Color = LoadingIndicatorDefaults.ContainedIndicatorColor,
-    containerShape: Shape = LoadingIndicatorDefaults.ContainerShape,
+    containerColor: Color = LoadingIndicatorDefaults.containedContainerColor,
+    indicatorColor: Color = LoadingIndicatorDefaults.containedIndicatorColor,
+    containerShape: Shape = LoadingIndicatorDefaults.containerShape,
     polygons: List<RoundedPolygon> = LoadingIndicatorDefaults.IndeterminateIndicatorPolygons,
 ) =
     LoadingIndicatorImpl(
@@ -473,25 +473,25 @@ object LoadingIndicatorDefaults {
     val IndicatorSize = LoadingIndicatorTokens.ActiveSize
 
     /** A [LoadingIndicator] default container [Shape]. */
-    val ContainerShape: Shape
+    val containerShape: Shape
         @Composable get() = LoadingIndicatorTokens.ContainerShape.value
 
     /**
      * A [LoadingIndicator] default active indicator [Color] when using an uncontained
      * [LoadingIndicator].
      */
-    val IndicatorColor: Color
+    val indicatorColor: Color
         @Composable get() = LoadingIndicatorTokens.ActiveIndicatorColor.value
 
     /**
      * A [LoadingIndicator] default active indicator [Color] when using a
      * [ContainedLoadingIndicator].
      */
-    val ContainedIndicatorColor: Color
+    val containedIndicatorColor: Color
         @Composable get() = LoadingIndicatorTokens.ContainedActiveColor.value
 
     /** A [LoadingIndicator] default container [Color] when using a [ContainedLoadingIndicator]. */
-    val ContainedContainerColor: Color
+    val containedContainerColor: Color
         @Composable get() = LoadingIndicatorTokens.ContainedContainerColor.value
 
     /**
@@ -591,28 +591,6 @@ private fun calculateScaleFactor(indicatorPolygons: List<RoundedPolygon>): Float
         scaleFactor = min(scaleFactor, max(scaleX, scaleY))
     }
     return scaleFactor
-}
-
-/**
- * Calculates a scale factor that will be used when scaling the provided [Morph] into a specified
- * sized container.
- *
- * Since the morph may rotate, a simple [Morph.calculateBounds] is not enough to determine the size
- * the morph will occupy as it rotates. Using the simple bounds calculation may result in a clipped
- * shape.
- *
- * This function calculates and returns a scale factor by utilizing the [Morph.calculateMaxBounds]
- * and comparing its result to the [Morph.calculateBounds]. The scale factor can later be used when
- * calling [processPath].
- */
-private fun calculateScaleFactor(morph: Morph): Float {
-    val bounds = morph.calculateBounds()
-    val maxBounds = morph.calculateMaxBounds()
-    val scaleX = bounds.width() / maxBounds.width()
-    val scaleY = bounds.height() / maxBounds.height()
-    // We use max(scaleX, scaleY) to handle cases like a pill-shape that can throw off the
-    // entire calculation.
-    return max(scaleX, scaleY)
 }
 
 /**

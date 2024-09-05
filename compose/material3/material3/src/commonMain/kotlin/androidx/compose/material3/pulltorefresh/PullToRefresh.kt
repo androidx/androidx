@@ -390,7 +390,7 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorContainerColor: Color
-        @Composable get() = LoadingIndicatorDefaults.ContainedContainerColor
+        @Composable get() = LoadingIndicatorDefaults.containedContainerColor
 
     /** The default indicator color for [Indicator] */
     @Deprecated("Use loadingIndicatorColor instead", ReplaceWith("loadingIndicatorColor"))
@@ -403,13 +403,16 @@ object PullToRefreshDefaults {
      */
     @ExperimentalMaterial3ExpressiveApi
     val loadingIndicatorColor: Color
-        @Composable get() = LoadingIndicatorDefaults.ContainedIndicatorColor
+        @Composable get() = LoadingIndicatorDefaults.containedIndicatorColor
 
     /** The default refresh threshold for [rememberPullToRefreshState] */
     val PositionalThreshold = 80.dp
 
-    /** The default elevation for [IndicatorBox] */
+    /** The default elevation for an [IndicatorBox] that is applied to an [Indicator] */
     val Elevation = ElevationTokens.Level2
+
+    /** The default elevation for an [IndicatorBox] that is applied to a [LoadingIndicator] */
+    val LoadingIndicatorElevation = ElevationTokens.Level0
 
     /**
      * A Wrapper that handles the size, offset, clipping, shadow, and background drawing for a
@@ -515,7 +518,18 @@ object PullToRefreshDefaults {
         }
     }
 
-    /** A [LoadingIndicator] indicator for [PullToRefreshBox]. */
+    /**
+     * A [LoadingIndicator] indicator for [PullToRefreshBox].
+     *
+     * @param state the state of this modifier, will use `state.distanceFraction` and [threshold] to
+     *   calculate the offset
+     * @param isRefreshing whether a refresh is occurring
+     * @param modifier the modifier applied to this layout
+     * @param containerColor the container color of this indicator
+     * @param color the color of this indicator
+     * @param elevation the elevation of this indicator
+     * @param threshold how much the indicator can be pulled down before a refresh is triggered on
+     */
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun LoadingIndicator(
@@ -524,7 +538,7 @@ object PullToRefreshDefaults {
         modifier: Modifier = Modifier,
         containerColor: Color = this.loadingIndicatorContainerColor,
         color: Color = this.loadingIndicatorColor,
-        elevation: Dp = ElevationTokens.Level0,
+        elevation: Dp = LoadingIndicatorElevation,
         threshold: Dp = PositionalThreshold
     ) {
         IndicatorBox(
