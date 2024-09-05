@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture
 
 import android.graphics.ImageFormat
 import android.graphics.Rect
+import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
@@ -70,6 +71,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -91,11 +93,13 @@ class ImagePipelineTest {
 
     private lateinit var imagePipeline: ImagePipeline
     private lateinit var imageCaptureConfig: ImageCaptureConfig
+    private lateinit var cameraCharacteristics: CameraCharacteristics
 
     @Before
     fun setUp() {
         imageCaptureConfig = createImageCaptureConfig()
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        cameraCharacteristics = mock(CameraCharacteristics::class.java)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
     }
 
     @After
@@ -115,7 +119,7 @@ class ImagePipelineTest {
                 .setCaptureOptionUnpacker { _, builder -> builder.templateType = TEMPLATE_TYPE }
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
         // Act.
-        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE, cameraCharacteristics)
         // Assert.
         assertThat(pipeline.captureNode.inputEdge.imageReaderProxyProvider)
             .isEqualTo(imageReaderProxyProvider)
@@ -134,6 +138,7 @@ class ImagePipelineTest {
             ImagePipeline(
                 imageCaptureConfig,
                 SIZE,
+                cameraCharacteristics,
                 /*cameraEffect=*/ null,
                 /*isVirtualCamera=*/ true
             )
@@ -150,7 +155,13 @@ class ImagePipelineTest {
     @Test
     fun createPipelineWithEffect_processingNodeContainsEffect() {
         assertThat(
-                ImagePipeline(imageCaptureConfig, SIZE, GrayscaleImageEffect(), false)
+                ImagePipeline(
+                        imageCaptureConfig,
+                        SIZE,
+                        cameraCharacteristics,
+                        GrayscaleImageEffect(),
+                        false
+                    )
                     .processingNode
                     .mImageProcessor
             )
@@ -175,7 +186,7 @@ class ImagePipelineTest {
     fun createRequests_verifyCameraRequest_whenFormatIsJpegr() {
         // Arrange.
         imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.JPEG_R)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val captureInput = imagePipeline.captureNode.inputEdge
 
         // Act: create requests
@@ -190,7 +201,7 @@ class ImagePipelineTest {
     fun createRequests_verifyCameraRequest_whenFormatIsRAw() {
         // Arrange.
         imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.RAW_SENSOR)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val captureInput = imagePipeline.captureNode.inputEdge
 
         // Act: create requests
@@ -261,6 +272,7 @@ class ImagePipelineTest {
             ImagePipeline(
                 imageCaptureConfig,
                 SIZE,
+                cameraCharacteristics,
                 null,
                 false,
                 postviewSize,
@@ -283,7 +295,15 @@ class ImagePipelineTest {
         // Arrange.
         val postviewSize = Size(640, 480)
         imagePipeline =
-            ImagePipeline(imageCaptureConfig, SIZE, null, false, postviewSize, ImageFormat.JPEG)
+            ImagePipeline(
+                imageCaptureConfig,
+                SIZE,
+                cameraCharacteristics,
+                null,
+                false,
+                postviewSize,
+                ImageFormat.JPEG
+            )
 
         // Act: create SessionConfig
         val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
@@ -304,6 +324,7 @@ class ImagePipelineTest {
             ImagePipeline(
                 imageCaptureConfig,
                 SIZE,
+                cameraCharacteristics,
                 null,
                 false,
                 postviewSize,
@@ -372,7 +393,7 @@ class ImagePipelineTest {
         builder.mutableConfig.insertOption(OPTION_BUFFER_FORMAT, ImageFormat.YUV_420_888)
         builder.mutableConfig.insertOption(OPTION_IO_EXECUTOR, mainThreadExecutor())
         builder.mutableConfig.insertOption(ImageInputConfig.OPTION_INPUT_FORMAT, ImageFormat.JPEG)
-        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE)
+        val pipeline = ImagePipeline(builder.useCaseConfig, SIZE, cameraCharacteristics)
 
         // Arrange & act.
         sendInMemoryRequest(pipeline, ImageFormat.YUV_420_888)
@@ -396,7 +417,7 @@ class ImagePipelineTest {
     fun sendInMemoryRequest_receivesImageProxy_whenFormatIsJpegr() {
         // Arrange & act.
         imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.JPEG_R)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val image = sendInMemoryRequest(imagePipeline, ImageFormat.JPEG_R)
 
         // Assert: the image is received by TakePictureCallback.
@@ -409,7 +430,7 @@ class ImagePipelineTest {
     fun sendInMemoryRequest_receivesImageProxy_whenFormatIsRaw() {
         // Arrange & act.
         imageCaptureConfig = createImageCaptureConfig(inputFormat = ImageFormat.RAW_SENSOR)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, cameraCharacteristics)
         val image = sendInMemoryRequest(imagePipeline, ImageFormat.RAW_SENSOR)
 
         // Assert: the image is received by TakePictureCallback.
