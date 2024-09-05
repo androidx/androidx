@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.StartupMode
@@ -48,16 +48,19 @@ class StartupBenchmark(
     }
 
     @Test
-    fun startup() =
+    fun start() =
         benchmarkRule.measureStartup(
             compilationMode = compilationMode,
             startupMode = startupMode,
-            packageName = "androidx.wear.compose.integration.macrobenchmark.target"
+            packageName = PACKAGE_NAME
         ) {
-            action = "androidx.wear.compose.integration.macrobenchmark.target.WEAR_STARTUP_ACTIVITY"
+            action = WEAR_STARTUP_ACTIVITY
         }
 
     companion object {
+        private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
+        private const val WEAR_STARTUP_ACTIVITY = "${PACKAGE_NAME}.WEAR_STARTUP_ACTIVITY"
+
         @Parameterized.Parameters(name = "startup={0},compilation={1}")
         @JvmStatic
         fun parameters() = createStartupCompilationParams()

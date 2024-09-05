@@ -22,7 +22,6 @@ import androidx.benchmark.macro.FrameTimingMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
 import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
 import androidx.testutils.createCompilationParams
 import org.junit.After
 import org.junit.Before
@@ -33,7 +32,7 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class SwipeToRevealBenchmark(private val compilationMode: CompilationMode) {
+class ButtonBenchmark(private val compilationMode: CompilationMode) {
     @get:Rule val benchmarkRule = MacrobenchmarkRule()
 
     @Before
@@ -55,19 +54,18 @@ class SwipeToRevealBenchmark(private val compilationMode: CompilationMode) {
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
-                intent.action = SWIPE_TO_REVEAL_ACTIVITY
+                intent.action = BUTTON_ACTIVITY
                 startActivityAndWait(intent)
             }
         ) {
-            val swipeToReveal = device.findObject(By.desc(CONTENT_DESCRIPTION))
-            // Setting a gesture margin is important otherwise gesture nav is triggered.
-            swipeToReveal.setGestureMargin(device.displayWidth / 5)
+            val buttons = buildList {
+                repeat(4) { add(device.findObject(By.desc(numberedContentDescription(it)))) }
+            }
             repeat(3) {
-                swipeToReveal.swipe(Direction.LEFT, 0.5f, SWIPE_SPEED)
-                device.waitForIdle()
-                Thread.sleep(500)
-                swipeToReveal.swipe(Direction.RIGHT, 1f, SWIPE_SPEED)
-                device.waitForIdle()
+                for (button in buttons) {
+                    button.click()
+                    device.waitForIdle()
+                }
                 Thread.sleep(500)
             }
         }
@@ -75,12 +73,10 @@ class SwipeToRevealBenchmark(private val compilationMode: CompilationMode) {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val SWIPE_TO_REVEAL_ACTIVITY = "${PACKAGE_NAME}.SWIPE_TO_REVEAL_ACTIVITY"
+        private const val BUTTON_ACTIVITY = "${PACKAGE_NAME}.BUTTON_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
         fun parameters() = createCompilationParams()
     }
-
-    private val SWIPE_SPEED = 500
 }

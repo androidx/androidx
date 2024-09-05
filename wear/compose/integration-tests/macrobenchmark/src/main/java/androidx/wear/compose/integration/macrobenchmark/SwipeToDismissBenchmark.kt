@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import android.content.Intent
 import androidx.benchmark.macro.CompilationMode
@@ -55,7 +55,7 @@ class SwipeToDismissBenchmark(private val compilationMode: CompilationMode) {
             iterations = 10,
             setupBlock = {
                 val intent = Intent()
-                intent.action = ACTION
+                intent.action = SWIPE_TO_DISMISS_ACTIVITY
                 startActivityAndWait(intent)
             }
         ) {
@@ -76,8 +76,7 @@ class SwipeToDismissBenchmark(private val compilationMode: CompilationMode) {
 
     companion object {
         private const val PACKAGE_NAME = "androidx.wear.compose.integration.macrobenchmark.target"
-        private const val ACTION =
-            "androidx.wear.compose.integration.macrobenchmark.target.SWIPE_TO_DISMISS_ACTIVITY"
+        private const val SWIPE_TO_DISMISS_ACTIVITY = "${PACKAGE_NAME}.SWIPE_TO_DISMISS_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic

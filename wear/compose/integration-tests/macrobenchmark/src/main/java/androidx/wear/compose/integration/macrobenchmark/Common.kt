@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.wear.compose.integration.macrobenchmark.test
+package androidx.wear.compose.integration.macrobenchmark
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 
 internal val CONTENT_DESCRIPTION = "find-me"
+
+internal fun numberedContentDescription(n: Int) = "find-me-$n"
 
 internal fun disableChargingExperience() {
     val instrumentation = InstrumentationRegistry.getInstrumentation()
