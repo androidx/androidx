@@ -280,7 +280,7 @@ Done\.
 # Linux builds cannot build mac, hence we get this warning.
 # see: https://github.com/JetBrains/kotlin/blob/master/native/commonizer/README.md
 # This warning is printed from: https://github.com/JetBrains/kotlin/blob/bc853e45e8982eff74e3263b0197c1af6086615d/native/commonizer/src/org/jetbrains/kotlin/commonizer/konan/LibraryCommonizer.kt#L41
-Warning\: No libraries found for target (macos|ios|ios_simulator|tvos|tvos_simulator|watchos|watchos_simulator)_(arm|x)[0-9]+\. This target will be excluded from commonization\.
+Warning\: No libraries found for target (macos|ios|ios_simulator|tvos|tvos_simulator|watchos|watchos_simulator|watchos_device)_(arm|x)[0-9]+\. This target will be excluded from commonization\.
 # > Task :compose:ui:ui:testDebugUnitTest
 (OpenJDK 64\-Bit Server VM warning:.*|.*Sharing is only supported for boot loader classes because bootstrap classpath has been appended)
 # KMP messages on successful XCFramework builds.
