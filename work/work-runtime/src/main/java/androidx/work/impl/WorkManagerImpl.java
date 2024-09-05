@@ -50,6 +50,7 @@ import androidx.work.Logger;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.Operation;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.StopReason;
 import androidx.work.TracerKt;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
@@ -621,9 +622,9 @@ public class WorkManagerImpl extends WorkManager {
      *           foreground service.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public void stopForegroundWork(@NonNull WorkGenerationalId id) {
+    public void stopForegroundWork(@NonNull WorkGenerationalId id, @StopReason int reason) {
         mWorkTaskExecutor.executeOnTaskThread(new StopWorkRunnable(mProcessor,
-                new StartStopToken(id), true));
+                new StartStopToken(id), true, reason));
     }
 
     /**
