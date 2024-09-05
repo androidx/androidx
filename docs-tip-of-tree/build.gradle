@@ -47,7 +47,6 @@ dependencies {
     docs(project(":benchmark:benchmark-macro"))
     docs(project(":benchmark:benchmark-macro-junit4"))
     docs(project(":biometric:biometric"))
-    docs(project(":biometric:biometric-ktx"))
     docs(project(":bluetooth:bluetooth"))
     docs(project(":bluetooth:bluetooth-testing"))
     docs(project(":browser:browser"))

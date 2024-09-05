@@ -41,12 +41,5 @@
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light"
             android:screenOrientation="fullSensor" />
-
-        <activity
-            android:name=".AuthPromptTestActivity"
-            android:label="@string/auth_prompt_test_title"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.Light"
-            android:screenOrientation="fullSensor" />
     </application>
 </manifest>

@@ -16,6 +16,7 @@
 
 package androidx.biometric.integration.testapp
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.biometric.integration.testapp.databinding.MainActivityBinding
@@ -32,11 +33,10 @@ class MainActivity : FragmentActivity() {
 
         // Set button callbacks.
         binding.biometricPromptButton.setOnClickListener { launch<BiometricPromptTestActivity>() }
-        binding.authPromptButton.setOnClickListener { launch<AuthPromptTestActivity>() }
     }
 
     /** Launches an instance of the given test activity [T]. */
-    private inline fun <reified T : FragmentActivity> launch() {
+    private inline fun <reified T : Activity> launch() {
         startActivity(Intent(this, T::class.java))
     }
 }

@@ -407,8 +407,6 @@ includeProject(":benchmark:integration-tests:macrobenchmark-target", [BuildType.
 includeProject(":benchmark:integration-tests:startup-benchmark", [BuildType.MAIN])
 includeProject(":binarycompatibilityvalidator:binarycompatibilityvalidator", [BuildType.MAIN])
 includeProject(":biometric:biometric", [BuildType.MAIN])
-includeProject(":biometric:biometric-ktx", [BuildType.MAIN])
-includeProject(":biometric:biometric-ktx-samples", "biometric/biometric-ktx/samples", [BuildType.MAIN])
 includeProject(":biometric:integration-tests:testapp", [BuildType.MAIN])
 includeProject(":bluetooth:bluetooth", [BuildType.MAIN])
 includeProject(":bluetooth:bluetooth-testing", [BuildType.MAIN])
