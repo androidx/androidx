@@ -394,7 +394,6 @@ private constructor(
         return when {
             builtInConverterFlags.enums.isEnabled() && typeElement?.isEnum() == true ->
                 EnumColumnTypeAdapter(typeElement, type)
-            !context.isAndroidOnlyTarget() -> null // UUID and ByteBuffer are Android-only
             builtInConverterFlags.uuid.isEnabled() && type.isUUID() -> UuidColumnTypeAdapter(type)
             builtInConverterFlags.byteBuffer.isEnabled() && type.isByteBuffer() ->
                 ByteBufferColumnTypeAdapter(type)
