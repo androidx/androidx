@@ -85,7 +85,7 @@ dependencies {
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
     implementation(project(":compose:ui:ui-tooling-preview"))
-    debugImplementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling"))
     implementation("androidx.activity:activity-compose:1.9.0")
     implementation("androidx.compose.material3:material3:1.2.1")
     implementation("androidx.compose.material:material-icons-extended:1.6.8")

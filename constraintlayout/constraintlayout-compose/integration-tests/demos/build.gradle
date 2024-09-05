@@ -32,7 +32,7 @@ dependencies {
     implementation(project(":compose:material:material"))
     implementation("androidx.compose.material:material-icons-core:1.6.7")
     implementation(project(":compose:ui:ui-tooling-preview"))
-    debugImplementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling"))
 }
 
 android {
