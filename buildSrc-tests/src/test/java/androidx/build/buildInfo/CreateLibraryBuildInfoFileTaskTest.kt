@@ -16,6 +16,7 @@
 
 package androidx.build.buildInfo
 
+import androidx.build.PlatformIdentifier
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.asBuildInfoDependencies
 import androidx.build.jetpad.LibraryBuildInfoFile
 import androidx.testutils.gradle.ProjectSetupRule
@@ -96,12 +97,27 @@ class CreateLibraryBuildInfoFileTaskTest {
     }
 
     @Test
-    fun resolveTarget_succeeds() {
-        assertThat(resolveTarget(false)).isEqualTo("androidx")
-        assertThat(resolveTarget(true)).isEqualTo("androidx_multiplatform_mac")
+    fun hasApplePlatform_withAtLeastOnePlatformIdentifierTargetingAnApplePlatform_returnsTrue() {
+        val platforms =
+            setOf(
+                PlatformIdentifier.ANDROID,
+                PlatformIdentifier.IOS_ARM_64,
+                PlatformIdentifier.JVM,
+            )
+        assertThat(hasApplePlatform(platforms)).isTrue()
     }
 
-    fun setupBuildInfoProject() {
+    @Test
+    fun hasApplePlatform_withNoPlatformIdentifiersTargetingAnApplePlatform_returnsFalse() {
+        val platforms =
+            setOf(
+                PlatformIdentifier.ANDROID,
+                PlatformIdentifier.JVM,
+            )
+        assertThat(hasApplePlatform(platforms)).isFalse()
+    }
+
+    private fun setupBuildInfoProject() {
         projectSetup.writeDefaultBuildGradle(
             prefix =
                 """
@@ -147,7 +163,8 @@ class CreateLibraryBuildInfoFileTaskTest {
                             it.artifactId,
                             project.provider { "fakeSha" },
                             false,
-                            false
+                            false,
+                            "androidx"
                         )
                     }
                 }
