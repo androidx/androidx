@@ -36,7 +36,6 @@ class WindowMetrics
 internal constructor(
     private val _bounds: Bounds,
     private val _windowInsetsCompat: WindowInsetsCompat,
-
     /**
      * Returns the logical density of the display this window is in.
      *
@@ -65,8 +64,14 @@ internal constructor(
     val bounds: Rect
         get() = _bounds.toRect()
 
-    override fun toString(): String {
-        return "WindowMetrics( bounds=$_bounds, windowInsetsCompat=$_windowInsetsCompat)"
+    /**
+     * Returns the [WindowInsetsCompat] of the area associated with this window or visual context.
+     */
+    @ExperimentalWindowApi
+    @RequiresApi(VERSION_CODES.R)
+    // TODO (b/238354685): Match interface style of Bounds after the API is fully backported
+    fun getWindowInsets(): WindowInsetsCompat {
+        return _windowInsetsCompat
     }
 
     override fun equals(other: Any?): Boolean {
@@ -85,16 +90,11 @@ internal constructor(
     override fun hashCode(): Int {
         var result = _bounds.hashCode()
         result = 31 * result + _windowInsetsCompat.hashCode()
+        result = 31 * result + density.hashCode()
         return result
     }
 
-    /**
-     * Returns the [WindowInsetsCompat] of the area associated with this window or visual context.
-     */
-    @ExperimentalWindowApi
-    @RequiresApi(VERSION_CODES.R)
-    // TODO (b/238354685): Match interface style of Bounds after the API is fully backported
-    fun getWindowInsets(): WindowInsetsCompat {
-        return _windowInsetsCompat
+    override fun toString(): String {
+        return "WindowMetrics(_bounds=$_bounds, _windowInsetsCompat=$_windowInsetsCompat, density=$density)"
     }
 }
