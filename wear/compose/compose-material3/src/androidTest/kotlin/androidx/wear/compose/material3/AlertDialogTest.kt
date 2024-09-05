@@ -29,8 +29,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.SdkSuppress
 import junit.framework.TestCase.assertEquals
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -228,20 +231,68 @@ class AlertDialogTest {
     }
 
     @Test
-    fun supports_swipeToDismiss() {
+    fun supports_swipeToDismiss_confirmDismissButtons() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             AlertDialog(
                 modifier = Modifier.testTag(TEST_TAG),
                 title = {},
-                bottomButton = {},
-                onDismissRequest = { showDialog = false },
+                dismissButton = {},
+                confirmButton = {},
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog
             )
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @Test
+    fun supports_swipeToDismiss_bottomButton() {
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            var showDialog by remember { mutableStateOf(true) }
+            AlertDialog(
+                modifier = Modifier.testTag(TEST_TAG),
+                title = {},
+                bottomButton = {},
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
+                show = showDialog
+            )
+        }
+
+        rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            AlertDialog(
+                modifier = Modifier.testTag(TEST_TAG),
+                title = {},
+                bottomButton = {},
+                onDismissRequest = { dismissCounter++ },
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(0, dismissCounter)
     }
 
     @Test

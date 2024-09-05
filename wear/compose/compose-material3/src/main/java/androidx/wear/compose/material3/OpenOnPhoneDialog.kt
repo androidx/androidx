@@ -123,7 +123,7 @@ fun OpenOnPhoneDialog(
     }
 
     Dialog(
-        showDialog = show,
+        show = show,
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         properties = properties,

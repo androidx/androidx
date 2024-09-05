@@ -342,7 +342,7 @@ private fun AlertDialogImpl(
     val state = rememberScalingLazyListState(initialCenterItemIndex = 0)
 
     Dialog(
-        showDialog = show,
+        show = show,
         onDismissRequest = onDismissRequest,
         properties = properties,
     ) {

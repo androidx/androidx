@@ -162,7 +162,7 @@ fun Confirmation(
     }
 
     Dialog(
-        showDialog = show,
+        show = show,
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         properties = properties,
@@ -589,7 +589,7 @@ internal fun ConfirmationImpl(
     }
 
     Dialog(
-        showDialog = show,
+        show = show,
         modifier = modifier,
         onDismissRequest = onDismissRequest,
         properties = properties,

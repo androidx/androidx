@@ -25,12 +25,15 @@ import androidx.compose.testutils.assertContainsColor
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.test.filters.SdkSuppress
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -51,12 +54,16 @@ class OpenOnPhoneDialogTest {
 
     @Test
     fun openOnPhone_supports_swipeToDismiss() {
+        var dismissCounter = 0
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             OpenOnPhoneDialog(
                 modifier = Modifier.testTag(TEST_TAG),
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog
             )
         }
@@ -65,6 +72,7 @@ class OpenOnPhoneDialogTest {
         // Advancing time so that the dialog is dismissed
         rule.mainClock.advanceTimeBy(300)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
@@ -85,6 +93,51 @@ class OpenOnPhoneDialogTest {
             OpenOnPhoneDialog(onDismissRequest = {}, show = true) { TestImage(IconTestTag) }
         }
         rule.onNodeWithTag(IconTestTag).assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun openOnPhone_onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            OpenOnPhoneDialog(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissCounter++ },
+                durationMillis = 1000,
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        // First we have to wait until animation completes and goes into idle state.
+        // onDismissRequest will be called once it's finished - so dismissCounter will be 1.
+        Assert.assertEquals(1, dismissCounter)
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+
+        // However, onDismissRequest should not be called when show.value becomes false and dialog
+        // is hidden. That's why it should remain as 1.
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun openOnPhone_calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            OpenOnPhoneDialog(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = {
+                    dismissCounter++
+                    show.value = false
+                },
+                durationMillis = 100,
+                show = show.value
+            )
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
