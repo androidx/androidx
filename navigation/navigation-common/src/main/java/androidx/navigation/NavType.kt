@@ -880,6 +880,7 @@ public abstract class NavType<T>(
                 override fun valueEquals(value: Array<String>?, other: Array<String>?) =
                     value.contentDeepEquals(other)
 
+                // "null" is still serialized as "null"
                 override fun serializeAsValues(value: Array<String>?): List<String> =
                     value?.map { Uri.encode(it) } ?: emptyList()
 

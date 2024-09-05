@@ -18,6 +18,7 @@
 
 package androidx.navigation.serialization
 
+import android.net.Uri
 import android.os.Bundle
 import androidx.navigation.NavType
 import java.io.Serializable
@@ -38,6 +39,7 @@ private enum class InternalType {
     LONG,
     LONG_NULLABLE,
     STRING,
+    STRING_NULLABLE,
     INT_ARRAY,
     BOOL_ARRAY,
     FLOAT_ARRAY,
@@ -68,7 +70,8 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.FLOAT_NULLABLE -> InternalNavType.FloatNullableType
             InternalType.LONG -> NavType.LongType
             InternalType.LONG_NULLABLE -> InternalNavType.LongNullableType
-            InternalType.STRING -> NavType.StringType
+            InternalType.STRING -> InternalNavType.StringNonNullableType
+            InternalType.STRING_NULLABLE -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
             InternalType.BOOL_ARRAY -> NavType.BoolArrayType
             InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
@@ -120,7 +123,8 @@ private fun SerialDescriptor.toInternalType(): InternalType {
             if (isNullable) InternalType.FLOAT_NULLABLE else InternalType.FLOAT
         serialName == "kotlin.Long" ->
             if (isNullable) InternalType.LONG_NULLABLE else InternalType.LONG
-        serialName == "kotlin.String" -> InternalType.STRING
+        serialName == "kotlin.String" ->
+            if (isNullable) InternalType.STRING_NULLABLE else InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
         serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
         serialName == "kotlin.FloatArray" -> InternalType.FLOAT_ARRAY
@@ -266,6 +270,25 @@ internal object InternalNavType {
             override fun parseValue(value: String): Long? {
                 return if (value == "null") null else LongType.parseValue(value)
             }
+        }
+
+    val StringNonNullableType =
+        object : NavType<String>(false) {
+            override val name: String
+                get() = "string_non_nullable"
+
+            override fun put(bundle: Bundle, key: String, value: String) {
+                bundle.putString(key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): String = bundle.getString(key) ?: "null"
+
+            // "null" is still parsed as "null"
+            override fun parseValue(value: String): String = value
+
+            // "null" is still serialized as "null"
+            override fun serializeAsValue(value: String): String = Uri.encode(value)
         }
 
     class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {
