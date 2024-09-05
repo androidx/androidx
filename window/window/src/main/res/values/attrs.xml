@@ -250,7 +250,7 @@
              without the divider line. -->
         <attr name="dividerWidthDp" format="integer" />
         <!-- The divider color. The color must be opaque. The default color is black. -->
-        <attr name="dividerColor" format="color" />
+        <attr name="dividerColor" format="color|reference" />
         <!-- The minimum split ratio of the primary container that the user is allowed to drag to.
              The value must be in the range (0.0, 1.0). System default value will be used if
              dragRangeMinRatio or dragRangeMaxRatio is unspecified. dragRangeMaxRatio must be
