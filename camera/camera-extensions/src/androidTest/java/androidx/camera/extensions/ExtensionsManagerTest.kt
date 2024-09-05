@@ -194,7 +194,11 @@ class ExtensionsManagerTest(
     @Test
     fun correctAvailability_whenExtensionIsNotAvailable() {
         // Skips the test if extensions availability is disabled by quirk.
-        assumeFalse(ExtensionsTestUtil.extensionsDisabledByQuirk())
+        assumeFalse(
+            ExtensionsTestUtil.extensionsDisabledByQuirk(
+                CameraUtil.getCameraIdWithLensFacing(lensFacing)!!
+            )
+        )
 
         extensionsManager =
             ExtensionsManager.getInstanceAsync(context, cameraProvider)[
