@@ -1728,6 +1728,9 @@ public abstract class WatchFaceService : WallpaperService() {
             synchronized(lock) { editedComplicationPreviewData.clear() }
         }
 
+        internal fun hasOverriddenComplications(): Boolean =
+            synchronized(lock) { overriddenComplications?.isNotEmpty() ?: false }
+
         /**
          * Undoes any complication overrides by [overrideComplicationsForEditing], restoring the
          * original data. In addition any complications marked as being cleared after editing by
@@ -1791,7 +1794,12 @@ public abstract class WatchFaceService : WallpaperService() {
                             pair.key,
                             pair.value,
                             now,
-                            forceLoad = mutableWatchState.isAmbient.value ?: false,
+                            // Force synchronous complication image update if there's overridden
+                            // complications or if we're rendering ambient frames where the next
+                            // frame might be up to a minute away.
+                            forceLoad =
+                                hasOverriddenComplications() ||
+                                    (mutableWatchState.isAmbient.value ?: false),
                         )
                     }
                     complicationSlotsManager.onComplicationsUpdated()
