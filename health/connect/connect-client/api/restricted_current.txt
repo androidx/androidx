@@ -54,6 +54,7 @@ package androidx.health.connect.client {
   @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi public interface HealthConnectFeatures {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
+    field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
     field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
@@ -61,6 +62,7 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectFeatures.Companion {
+    field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
     field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
     field public static final int FEATURE_STATUS_AVAILABLE = 2; // 0x2
@@ -163,6 +165,7 @@ package androidx.health.connect.client.permission {
     method public static String getReadPermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
     method public static String getWritePermission(kotlin.reflect.KClass<? extends androidx.health.connect.client.records.Record> recordType);
     field public static final androidx.health.connect.client.permission.HealthPermission.Companion Companion;
+    field public static final String PERMISSION_READ_HEALTH_DATA_HISTORY = "android.permission.health.READ_HEALTH_DATA_HISTORY";
     field public static final String PERMISSION_READ_HEALTH_DATA_IN_BACKGROUND = "android.permission.health.READ_HEALTH_DATA_IN_BACKGROUND";
     field public static final String PERMISSION_WRITE_EXERCISE_ROUTE = "android.permission.health.WRITE_EXERCISE_ROUTE";
   }

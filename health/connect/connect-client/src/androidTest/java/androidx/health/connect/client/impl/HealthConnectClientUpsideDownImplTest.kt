@@ -135,7 +135,7 @@ class HealthConnectClientUpsideDownImplTest {
         val features =
             listOf(
                 HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
-                HealthConnectFeatures.FEATURE_HEALTH_DATA_HISTORIC_READ,
+                HealthConnectFeatures.FEATURE_READ_HEALTH_DATA_HISTORY,
                 HealthConnectFeatures.FEATURE_SKIN_TEMPERATURE,
                 HealthConnectFeatures.FEATURE_PLANNED_EXERCISE
             )

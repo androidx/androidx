@@ -47,7 +47,7 @@ interface HealthConnectFeatures {
         @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_PLANNED_EXERCISE = 3
 
         /** Feature constant for reading health data history. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_HEALTH_DATA_HISTORIC_READ = 4
+        const val FEATURE_READ_HEALTH_DATA_HISTORY = 4
 
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
@@ -56,7 +56,7 @@ interface HealthConnectFeatures {
                     FEATURE_READ_HEALTH_DATA_IN_BACKGROUND,
                     FEATURE_SKIN_TEMPERATURE,
                     FEATURE_PLANNED_EXERCISE,
-                    FEATURE_HEALTH_DATA_HISTORIC_READ
+                    FEATURE_READ_HEALTH_DATA_HISTORY
                 ]
         )
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -86,6 +86,8 @@ interface HealthConnectFeatures {
                 FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION),
                 FEATURE_SKIN_TEMPERATURE to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION),
+                FEATURE_READ_HEALTH_DATA_HISTORY to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION)
             )
     }
