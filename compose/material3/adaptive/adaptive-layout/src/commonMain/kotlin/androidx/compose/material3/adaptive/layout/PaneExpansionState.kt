@@ -101,13 +101,19 @@ sealed interface PaneExpansionStateKey {
  *
  * @param keyProvider the provider of [PaneExpansionStateKey]
  * @param anchors the anchor list of the returned [PaneExpansionState]
+ * @param initialAnchoredIndex the index of the anchor that is supposed to be used during the
+ *   initial layout of the associated scaffold; it has to be a valid index of the provided [anchors]
+ *   otherwise the function throws; by default the value will be -1 and no initial anchor will be
+ *   used.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberPaneExpansionState(
     keyProvider: PaneExpansionStateKeyProvider,
-    anchors: List<PaneExpansionAnchor> = emptyList()
-): PaneExpansionState = rememberPaneExpansionState(keyProvider.paneExpansionStateKey, anchors)
+    anchors: List<PaneExpansionAnchor> = emptyList(),
+    initialAnchoredIndex: Int = -1
+): PaneExpansionState =
+    rememberPaneExpansionState(keyProvider.paneExpansionStateKey, anchors, initialAnchoredIndex)
 
 /**
  * Remembers and returns a [PaneExpansionState] associated to a given [PaneExpansionStateKey].
@@ -117,21 +123,35 @@ fun rememberPaneExpansionState(
  *
  * @param key the key of [PaneExpansionStateKey]
  * @param anchors the anchor list of the returned [PaneExpansionState]
+ * @param initialAnchoredIndex the index of the anchor that is supposed to be used during the
+ *   initial layout of the associated scaffold; it has to be a valid index of the provided [anchors]
+ *   otherwise the function throws; by default the value will be -1 and no initial anchor will be
+ *   used.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
 fun rememberPaneExpansionState(
     key: PaneExpansionStateKey = PaneExpansionStateKey.Default,
-    anchors: List<PaneExpansionAnchor> = emptyList()
+    anchors: List<PaneExpansionAnchor> = emptyList(),
+    initialAnchoredIndex: Int = -1
 ): PaneExpansionState {
     val dataMap = rememberSaveable(saver = PaneExpansionStateSaver()) { mutableStateMapOf() }
+    val initialAnchor =
+        remember(anchors, initialAnchoredIndex) {
+            if (initialAnchoredIndex == -1) null else anchors[initialAnchoredIndex]
+        }
     val expansionState = remember {
-        val defaultData = PaneExpansionStateData()
-        dataMap[PaneExpansionStateKey.Default] = defaultData
-        PaneExpansionState(defaultData)
+        PaneExpansionState(
+            dataMap[PaneExpansionStateKey.Default]
+                ?: PaneExpansionStateData(currentAnchor = initialAnchor)
+        )
     }
     return expansionState.apply {
-        restore(dataMap[key] ?: PaneExpansionStateData().also { dataMap[key] = it }, anchors)
+        restore(
+            dataMap[key]
+                ?: PaneExpansionStateData(currentAnchor = initialAnchor).also { dataMap[key] = it },
+            anchors
+        )
     }
 }
 
@@ -174,6 +194,13 @@ internal constructor(
             }
             data.currentDraggingOffsetState = coercedValue
             currentMeasuredDraggingOffset = coercedValue
+        }
+
+    @VisibleForTesting
+    internal var currentAnchor
+        get() = data.currentAnchorState
+        set(value) {
+            data.currentAnchorState = value
         }
 
     private var data by mutableStateOf(data)
@@ -272,8 +299,8 @@ internal constructor(
     internal fun restore(data: PaneExpansionStateData, anchors: List<PaneExpansionAnchor>) {
         this.data = data
         this.anchors = anchors
-        if (!anchors.contains(Snapshot.withoutReadObservation { data.currentAnchorState })) {
-            data.currentAnchorState = null
+        if (!anchors.contains(Snapshot.withoutReadObservation { currentAnchor })) {
+            currentAnchor = null
         }
     }
 
@@ -285,9 +312,7 @@ internal constructor(
         measuredDensity = density
         Snapshot.withoutReadObservation {
             // Changes will always apply to the ongoing measurement, no need to trigger remeasuring
-            data.currentAnchorState?.also {
-                currentDraggingOffset = it.positionIn(measuredWidth, density)
-            }
+            currentAnchor?.also { currentDraggingOffset = it.positionIn(measuredWidth, density) }
                 ?: {
                     if (currentDraggingOffset != Unspecified) {
                         // To re-coerce the value
@@ -314,7 +339,7 @@ internal constructor(
                     currentMeasuredDraggingOffset,
                     velocity
                 )
-            data.currentAnchorState = anchors[anchorPosition.index]
+            currentAnchor = anchors[anchorPosition.index]
             animate(
                 currentMeasuredDraggingOffset.toFloat(),
                 anchorPosition.position.toFloat(),
