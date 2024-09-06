@@ -3,11 +3,11 @@ attr activityName
 attr alwaysExpand
 attr animationBackgroundColor
 attr clearTop
-attr dividerColor
-attr dividerType
-attr dividerWidthDp
 attr dragRangeMaxRatio
 attr dragRangeMinRatio
+attr embeddingDividerColor
+attr embeddingDividerType
+attr embeddingDividerWidthDp
 attr finishPrimaryWithPlaceholder
 attr finishPrimaryWithSecondary
 attr finishSecondaryWithPrimary

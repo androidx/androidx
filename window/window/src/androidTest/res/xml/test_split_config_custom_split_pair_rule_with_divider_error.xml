@@ -22,7 +22,7 @@
             window:secondaryActivityName="B"/>
         <!-- Fixed divider does not allow the dragging attributes -->
         <DividerAttributes
-            window:dividerType="fixed"
+            window:embeddingDividerType="fixed"
             window:dragRangeMinRatio="0.2"
             window:dragRangeMaxRatio="0.8" />
     </SplitPairRule>

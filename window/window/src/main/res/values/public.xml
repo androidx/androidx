@@ -39,9 +39,9 @@
     <public name="activityName" type="attr" />
     <public name="activityAction" type="attr" />
 
-    <public name="dividerType" type="attr" />
-    <public name="dividerWidthDp" type="attr" />
-    <public name="dividerColor" type="attr" />
+    <public name="embeddingDividerType" type="attr" />
+    <public name="embeddingDividerWidthDp" type="attr" />
+    <public name="embeddingDividerColor" type="attr" />
     <public name="dragRangeMinRatio" type="attr" />
     <public name="dragRangeMaxRatio" type="attr" />
 </resources>
