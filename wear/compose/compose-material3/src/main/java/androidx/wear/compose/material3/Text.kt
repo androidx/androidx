@@ -265,6 +265,13 @@ val LocalTextConfiguration: ProvidableCompositionLocal<TextConfiguration> =
         )
     }
 
+/**
+ * Class representing aspects of [Text] that can be configured with [LocalTextConfiguration].
+ *
+ * @param textAlign The alignment of the text within the lines of the paragraph.
+ * @param overflow How visual overflow should be handled.
+ * @param maxLines The maximum number of lines for the text to span, wrapping if necessary.
+ */
 class TextConfiguration(
     val textAlign: TextAlign?,
     val overflow: TextOverflow,
@@ -289,8 +296,14 @@ class TextConfiguration(
     }
 }
 
+/** Default values for [TextConfiguration] */
 object TextConfigurationDefaults {
+    /** Default text alignment for [Text] */
     val TextAlign: TextAlign? = null
+
+    /** Default visual text overflow for [Text] */
     val Overflow: TextOverflow = TextOverflow.Clip
+
+    /** Default max lines for [Text] */
     const val MaxLines: Int = Int.MAX_VALUE
 }
