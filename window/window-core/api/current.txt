@@ -28,13 +28,13 @@ package androidx.window.core.layout {
     ctor public WindowSizeClass(float widthDp, float heightDp);
     ctor public WindowSizeClass(int minWidthDp, int minHeightDp);
     method @Deprecated public static androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method public boolean containsHeightDp(int heightDp);
+    method public boolean containsWidthDp(int widthDp);
+    method public boolean containsWindowSizeDp(int widthDp, int heightDp);
     method public int getMinHeightDp();
     method public int getMinWidthDp();
     method @Deprecated public androidx.window.core.layout.WindowHeightSizeClass getWindowHeightSizeClass();
     method @Deprecated public androidx.window.core.layout.WindowWidthSizeClass getWindowWidthSizeClass();
-    method public boolean isAtLeastBreakpoint(int widthBreakpointDp, int heightBreakpointDp);
-    method public boolean isHeightAtLeastBreakpoint(int heightBreakpointDp);
-    method public boolean isWidthAtLeastBreakpoint(int widthBreakpointDp);
     property public final int minHeightDp;
     property public final int minWidthDp;
     property @Deprecated public final androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;

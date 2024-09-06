@@ -45,6 +45,11 @@ import kotlin.jvm.JvmStatic
  * these cases developers may wish to specify their own custom break points and match using a `when`
  * statement.
  *
+ * To process a [WindowSizeClass] use the methods [containsWindowSizeDp], [containsWidthDp],
+ * [containsHeightDp] methods. Note these methods are order dependent as the smaller [minWidthDp]
+ * and [minHeightDp] would match all the breakpoints that are larger. Therefore when processing the
+ * selection should normally be ordered from larger to smaller breakpoints.
+ *
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
@@ -80,28 +85,34 @@ class WindowSizeClass(
         get() = WindowHeightSizeClass.compute(minHeightDp.toFloat())
 
     /**
-     * Returns `true` when [minWidthDp] is greater than or equal to [widthBreakpointDp], `false`
-     * otherwise.
+     * Returns `true` when [minWidthDp] is greater than or equal to [widthDp], `false` otherwise.
+     * When processing a [WindowSizeClass] note that this method is order dependent. A
+     * [WindowSizeClass] with [minWidthDp] = 0 and [minHeightDp] = 0 will match any breakpoint, so
+     * the selection should normally go from largest to smallest breakpoints.
      */
-    fun isWidthAtLeastBreakpoint(widthBreakpointDp: Int): Boolean {
-        return minWidthDp >= widthBreakpointDp
+    fun containsWidthDp(widthDp: Int): Boolean {
+        return minWidthDp >= widthDp
     }
 
     /**
-     * Returns `true` when [minHeightDp] is greater than or equal to [heightBreakpointDp], `false`
-     * otherwise.
+     * Returns `true` when [minHeightDp] is greater than or equal to [heightDp], `false` otherwise.
+     * When processing a [WindowSizeClass] note that this method is order dependent. A
+     * [WindowSizeClass] with [minWidthDp] = 0 and [minHeightDp] = 0 will match any breakpoint, so
+     * the selection should normally go from largest to smallest breakpoints.
      */
-    fun isHeightAtLeastBreakpoint(heightBreakpointDp: Int): Boolean {
-        return minHeightDp >= heightBreakpointDp
+    fun containsHeightDp(heightDp: Int): Boolean {
+        return minHeightDp >= heightDp
     }
 
     /**
-     * Returns `true` when [widthBreakpointDp] is greater than or equal to [minWidthDp] and
-     * [heightBreakpointDp] is greater than or equal to [minHeightDp], `false` otherwise.
+     * Returns `true` when [widthDp] is greater than or equal to [minWidthDp] and [heightDp] is
+     * greater than or equal to [minHeightDp], `false` otherwise. When processing a
+     * [WindowSizeClass] note that this method is order dependent. A [WindowSizeClass] with
+     * [minWidthDp] = 0 and [minHeightDp] = 0 will match any breakpoint, so * the selection should
+     * normally go from largest to smallest breakpoints.
      */
-    fun isAtLeastBreakpoint(widthBreakpointDp: Int, heightBreakpointDp: Int): Boolean {
-        return isWidthAtLeastBreakpoint(widthBreakpointDp) &&
-            isHeightAtLeastBreakpoint(heightBreakpointDp)
+    fun containsWindowSizeDp(widthDp: Int, heightDp: Int): Boolean {
+        return containsWidthDp(widthDp) && containsHeightDp(heightDp)
     }
 
     override fun equals(other: Any?): Boolean {
