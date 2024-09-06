@@ -44,6 +44,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -91,7 +92,7 @@ class ImageCaptureTest(
     @Test
     fun canSubmitTakePictureRequest(): Unit = runTest {
         val countDownLatch = CountDownLatch(1)
-        cameraControl.addOnNewCaptureRequestListener { countDownLatch.countDown() }
+        cameraControl.setOnNewCaptureRequestListener { countDownLatch.countDown() }
 
         imageCapture.takePicture(CameraXExecutors.directExecutor(), FakeOnImageCapturedCallback())
 
@@ -100,6 +101,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runTest {
         val callback = FakeOnImageCapturedCallback()
@@ -110,6 +112,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runTest {
         val saveLocation = temporaryFolder.newFile()
@@ -128,6 +131,7 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
+    @Ignore("b/318314454")
     @Test
     fun canFindFakeImageUri_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val callback = FakeOnImageSavedCallback()
