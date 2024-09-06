@@ -27,7 +27,6 @@ import android.provider.MediaStore;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.utils.Exif;
@@ -49,9 +48,7 @@ import java.util.UUID;
 /**
  * Saves JPEG bytes to disk.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class JpegBytes2Disk implements
-        Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
+class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
 
     private static final String TEMP_FILE_PREFIX = "CameraX";
     private static final String TEMP_FILE_SUFFIX = ".tmp";
@@ -290,8 +287,7 @@ public class JpegBytes2Disk implements
      * Input packet.
      */
     @AutoValue
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public abstract static class In {
+    abstract static class In {
 
         @NonNull
         abstract Packet<byte[]> getPacket();
@@ -300,7 +296,7 @@ public class JpegBytes2Disk implements
         abstract ImageCapture.OutputFileOptions getOutputFileOptions();
 
         @NonNull
-        public static In of(@NonNull Packet<byte[]> jpegBytes,
+        static In of(@NonNull Packet<byte[]> jpegBytes,
                 @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
             return new AutoValue_JpegBytes2Disk_In(jpegBytes, outputFileOptions);
         }
