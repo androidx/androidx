@@ -20,10 +20,11 @@ import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material3.FloatingAppBarPosition.Companion.Bottom
-import androidx.compose.material3.FloatingAppBarPosition.Companion.End
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.Bottom
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.End
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertPixels
 import androidx.compose.ui.Modifier
@@ -67,14 +68,20 @@ class FloatingAppBarTest {
         var containerColor = Color.Unspecified
         val scrollHeightOffsetDp = 20.dp
         var scrollHeightOffsetPx = 0f
+        var containerSizePx = 0f
+        val screenOffsetDp = FloatingAppBarDefaults.ScreenOffset
+        var screenOffsetPx = 0f
 
         rule.setMaterialContent(lightColorScheme()) {
             backgroundColor = MaterialTheme.colorScheme.background
             containerColor = FloatingAppBarDefaults.ContainerColor
-            scrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = Bottom)
+            scrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
             scrollHeightOffsetPx = with(LocalDensity.current) { scrollHeightOffsetDp.toPx() }
+            containerSizePx =
+                with(LocalDensity.current) { FloatingAppBarDefaults.ContainerSize.toPx() }
+            screenOffsetPx = with(LocalDensity.current) { screenOffsetDp.toPx() }
             HorizontalFloatingAppBar(
-                modifier = Modifier.testTag(FloatingAppBarTestTag),
+                modifier = Modifier.testTag(FloatingAppBarTestTag).offset(y = -screenOffsetDp),
                 expanded = false,
                 scrollBehavior = scrollBehavior,
                 shape = RectangleShape,
@@ -86,6 +93,7 @@ class FloatingAppBarTest {
             )
         }
 
+        assertThat(scrollBehavior.state.offsetLimit).isEqualTo(-(containerSizePx + screenOffsetPx))
         // Simulate scrolled content.
         rule.runOnIdle {
             scrollBehavior.state.offset = -scrollHeightOffsetPx
@@ -93,10 +101,11 @@ class FloatingAppBarTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(FloatingAppBarTestTag).captureToImage().assertPixels(null) { pos ->
+            val scrolled = (scrollHeightOffsetPx - screenOffsetPx).roundToInt()
             when (pos.y) {
                 0 -> backgroundColor
-                scrollHeightOffsetPx.roundToInt() - 2 -> backgroundColor
-                scrollHeightOffsetPx.roundToInt() -> containerColor
+                scrolled - 2 -> backgroundColor
+                scrolled -> containerColor
                 else -> null
             }
         }
@@ -109,14 +118,20 @@ class FloatingAppBarTest {
         var containerColor = Color.Unspecified
         val scrollHeightOffsetDp = 20.dp
         var scrollHeightOffsetPx = 0f
+        var containerSizePx = 0f
+        val screenOffsetDp = FloatingAppBarDefaults.ScreenOffset
+        var screenOffsetPx = 0f
 
         rule.setMaterialContent(lightColorScheme()) {
             backgroundColor = MaterialTheme.colorScheme.background
             containerColor = FloatingAppBarDefaults.ContainerColor
-            scrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = End)
+            scrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(exitDirection = End)
             scrollHeightOffsetPx = with(LocalDensity.current) { scrollHeightOffsetDp.toPx() }
+            containerSizePx =
+                with(LocalDensity.current) { FloatingAppBarDefaults.ContainerSize.toPx() }
+            screenOffsetPx = with(LocalDensity.current) { screenOffsetDp.toPx() }
             VerticalFloatingAppBar(
-                modifier = Modifier.testTag(FloatingAppBarTestTag),
+                modifier = Modifier.testTag(FloatingAppBarTestTag).offset(x = -screenOffsetDp),
                 expanded = false,
                 scrollBehavior = scrollBehavior,
                 shape = RectangleShape,
@@ -128,6 +143,7 @@ class FloatingAppBarTest {
             )
         }
 
+        assertThat(scrollBehavior.state.offsetLimit).isEqualTo(-(containerSizePx + screenOffsetPx))
         // Simulate scrolled content.
         rule.runOnIdle {
             scrollBehavior.state.offset = -scrollHeightOffsetPx
@@ -135,10 +151,11 @@ class FloatingAppBarTest {
         }
         rule.waitForIdle()
         rule.onNodeWithTag(FloatingAppBarTestTag).captureToImage().assertPixels(null) { pos ->
+            val scrolled = (scrollHeightOffsetPx - screenOffsetPx).roundToInt()
             when (pos.x) {
                 0 -> backgroundColor
-                scrollHeightOffsetPx.roundToInt() - 2 -> backgroundColor
-                scrollHeightOffsetPx.roundToInt() -> containerColor
+                scrolled - 2 -> backgroundColor
+                scrolled -> containerColor
                 else -> null
             }
         }

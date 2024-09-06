@@ -38,8 +38,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingAppBarDefaults
 import androidx.compose.material3.FloatingAppBarDefaults.ScreenOffset
-import androidx.compose.material3.FloatingAppBarPosition.Companion.Bottom
-import androidx.compose.material3.FloatingAppBarPosition.Companion.End
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.Bottom
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.End
 import androidx.compose.material3.HorizontalFloatingAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -123,7 +123,7 @@ fun ScrollableHorizontalFloatingAppBar() {
     }
     val listState = rememberLazyListState()
     val exitAlwaysScrollBehavior =
-        FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = Bottom)
+        FloatingAppBarDefaults.exitAlwaysScrollBehavior(exitDirection = Bottom)
     Scaffold(
         modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
         content = { innerPadding ->
@@ -227,7 +227,8 @@ fun ScrollableVerticalFloatingAppBar() {
         am.isEnabled && am.isTouchExplorationEnabled
     }
     val listState = rememberLazyListState()
-    val exitAlwaysScrollBehavior = FloatingAppBarDefaults.exitAlwaysScrollBehavior(position = End)
+    val exitAlwaysScrollBehavior =
+        FloatingAppBarDefaults.exitAlwaysScrollBehavior(exitDirection = End)
     Scaffold(
         modifier = Modifier.nestedScroll(exitAlwaysScrollBehavior),
         content = { innerPadding ->

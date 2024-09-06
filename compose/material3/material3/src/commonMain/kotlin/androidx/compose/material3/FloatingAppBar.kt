@@ -28,9 +28,9 @@ import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.DraggableState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -44,10 +44,10 @@ import androidx.compose.material3.FloatingAppBarDefaults.horizontalEnterTransiti
 import androidx.compose.material3.FloatingAppBarDefaults.horizontalExitTransition
 import androidx.compose.material3.FloatingAppBarDefaults.verticalEnterTransition
 import androidx.compose.material3.FloatingAppBarDefaults.verticalExitTransition
-import androidx.compose.material3.FloatingAppBarPosition.Companion.Bottom
-import androidx.compose.material3.FloatingAppBarPosition.Companion.End
-import androidx.compose.material3.FloatingAppBarPosition.Companion.Start
-import androidx.compose.material3.FloatingAppBarPosition.Companion.Top
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.Bottom
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.End
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.Start
+import androidx.compose.material3.FloatingAppBarExitDirection.Companion.Top
 import androidx.compose.material3.tokens.ColorSchemeKeyTokens
 import androidx.compose.material3.tokens.ElevationTokens
 import androidx.compose.material3.tokens.MotionSchemeKeyTokens
@@ -69,8 +69,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
@@ -86,7 +89,8 @@ import kotlin.math.roundToInt
  * @param containerColor the color used for the background of this FloatingAppBar. Use
  *   [Color.Transparent] to have no color.
  * @param contentPadding the padding applied to the content of this FloatingAppBar.
- * @param scrollBehavior a [FloatingAppBarScrollBehavior].
+ * @param scrollBehavior a [FloatingAppBarScrollBehavior]. If null, this FloatingAppBar will not
+ *   automatically react to scrolling.
  * @param shape the shape used for this FloatingAppBar.
  * @param leadingContent the leading content of this FloatingAppBar. The default layout here is a
  *   [Row], so content inside will be placed horizontally. Only showing if [expanded] is true.
@@ -155,7 +159,8 @@ fun HorizontalFloatingAppBar(
  * @param containerColor the color used for the background of this FloatingAppBar. Use
  *   Color.Transparent] to have no color.
  * @param contentPadding the padding applied to the content of this FloatingAppBar.
- * @param scrollBehavior a [FloatingAppBarScrollBehavior].
+ * @param scrollBehavior a [FloatingAppBarScrollBehavior]. If null, this FloatingAppBar will not
+ *   automatically react to scrolling.
  * @param shape the shape used for this FloatingAppBar.
  * @param leadingContent the leading content of this FloatingAppBar. The default layout here is a
  *   [Column], so content inside will be placed vertically. Only showing if [expanded] is true.
@@ -222,11 +227,8 @@ fun VerticalFloatingAppBar(
 @Stable
 sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
 
-    /** Indicates the position relative to the screen. */
-    val position: FloatingAppBarPosition
-
-    /** The offset from the edge of the screen. */
-    val screenOffset: Dp
+    /** Indicates the direction towards which the floating app bar exits the screen. */
+    val exitDirection: FloatingAppBarExitDirection
 
     /**
      * A [FloatingAppBarState] that is attached to this behavior and is read and updated when
@@ -247,7 +249,7 @@ sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
     val flingAnimationSpec: DecayAnimationSpec<Float>
 
     /** A [Modifier] that is attached to this behavior. */
-    @Composable fun Modifier.floatingScrollBehavior(): Modifier
+    fun Modifier.floatingScrollBehavior(): Modifier
 }
 
 /**
@@ -258,8 +260,7 @@ sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
  * collapse when the nested content is pulled up, and will immediately appear when the content is
  * pulled down.
  *
- * @param position indicates the position relative to the screen
- * @param screenOffset offset from the edge of the screen
+ * @param exitDirection indicates the direction towards which the floating app bar exits the screen
  * @param state a [FloatingAppBarState]
  * @param snapAnimationSpec an [AnimationSpec] that defines how the floating app bar snaps to either
  *   fully collapsed or fully extended state when a fling or a drag scrolled it into an intermediate
@@ -269,8 +270,7 @@ sealed interface FloatingAppBarScrollBehavior : NestedScrollConnection {
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private class ExitAlwaysFloatingAppBarScrollBehavior(
-    override val position: FloatingAppBarPosition,
-    override val screenOffset: Dp,
+    override val exitDirection: FloatingAppBarExitDirection,
     override val state: FloatingAppBarState,
     override val snapAnimationSpec: AnimationSpec<Float>,
     override val flingAnimationSpec: DecayAnimationSpec<Float>,
@@ -299,31 +299,34 @@ private class ExitAlwaysFloatingAppBarScrollBehavior(
             settleFloatingAppBar(state, available.y, snapAnimationSpec, flingAnimationSpec)
     }
 
-    @Composable
     override fun Modifier.floatingScrollBehavior(): Modifier {
-        val isRtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+        var isRtl = false
         val orientation =
-            when (position) {
+            when (exitDirection) {
                 Start,
                 End -> Orientation.Horizontal
                 else -> Orientation.Vertical
             }
+        val draggableState = DraggableState { delta ->
+            val offset = if (exitDirection in listOf(Start, End) && isRtl) -delta else delta
+            when (exitDirection) {
+                Start,
+                Top -> state.offset += offset
+                End,
+                Bottom -> state.offset -= offset
+            }
+        }
 
         return this.layout { measurable, constraints ->
+                isRtl = layoutDirection == LayoutDirection.Rtl
+
                 // Sets the app bar's offset to collapse the entire bar's when content scrolled.
                 val placeable = measurable.measure(constraints)
-                val limit =
-                    when (position) {
-                        Start,
-                        End -> placeable.width + screenOffset.toPx()
-                        else -> placeable.height + screenOffset.toPx()
-                    }
-                state.offsetLimit = -limit
-
                 val offset =
-                    if (position in listOf(Start, End) && isRtl) -state.offset else state.offset
+                    if (exitDirection in listOf(Start, End) && isRtl) -state.offset
+                    else state.offset
                 layout(placeable.width, placeable.height) {
-                    when (position) {
+                    when (exitDirection) {
                         Start -> placeable.placeWithLayer(offset.roundToInt(), 0)
                         End -> placeable.placeWithLayer(-offset.roundToInt(), 0)
                         Top -> placeable.placeWithLayer(0, offset.roundToInt())
@@ -333,20 +336,28 @@ private class ExitAlwaysFloatingAppBarScrollBehavior(
             }
             .draggable(
                 orientation = orientation,
-                state =
-                    rememberDraggableState { delta ->
-                        val offset = if (position in listOf(Start, End) && isRtl) -delta else delta
-                        when (position) {
-                            Start,
-                            Top -> state.offset += offset
-                            End,
-                            Bottom -> state.offset -= offset
-                        }
-                    },
+                state = draggableState,
                 onDragStopped = { velocity ->
                     settleFloatingAppBar(state, velocity, snapAnimationSpec, flingAnimationSpec)
                 }
             )
+            .onGloballyPositioned { coordinates ->
+                // Updates the app bar's offsetLimit relative to the parent.
+                val parentOffset = coordinates.positionInParent()
+                val parentSize = coordinates.parentLayoutCoordinates?.size ?: IntSize.Zero
+                val width = coordinates.size.width
+                val height = coordinates.size.height
+                val limit =
+                    when (exitDirection) {
+                        Start ->
+                            if (isRtl) parentSize.width - parentOffset.x else width + parentOffset.x
+                        End ->
+                            if (isRtl) width + parentOffset.x else parentSize.width - parentOffset.x
+                        Top -> height + parentOffset.y
+                        else -> parentSize.height - parentOffset.y
+                    }
+                state.offsetLimit = -(limit - state.offset)
+            }
     }
 }
 
@@ -382,15 +393,16 @@ object FloatingAppBarDefaults {
     val ScreenOffset = 16.dp
 
     // TODO: note that this scroll behavior may impact assistive technologies making the component
-    //  inaccessible. See @sample androidx.compose.material3.samples.HorizontalFloatingAppBar on how
+    //  inaccessible.
+    //  See @sample androidx.compose.material3.samples.ScrollableHorizontalFloatingAppBar on how
     //  to disable scrolling when touch exploration is enabled.
     /**
      * Returns a [FloatingAppBarScrollBehavior]. A floating app bar that is set up with this
      * [FloatingAppBarScrollBehavior] will immediately collapse when the content is pulled up, and
      * will immediately appear when the content is pulled down.
      *
-     * @param position indicates the position relative to the screen
-     * @param screenOffset offset from the edge of the screen
+     * @param exitDirection indicates the direction towards which the floating app bar exits the
+     *   screen
      * @param state the state object to be used to control or observe the floating app bar's scroll
      *   state. See [rememberFloatingAppBarState] for a state that is remembered across
      *   compositions.
@@ -404,16 +416,14 @@ object FloatingAppBarDefaults {
     @ExperimentalMaterial3ExpressiveApi
     @Composable
     fun exitAlwaysScrollBehavior(
-        position: FloatingAppBarPosition,
-        screenOffset: Dp = ScreenOffset,
+        exitDirection: FloatingAppBarExitDirection,
         state: FloatingAppBarState = rememberFloatingAppBarState(),
         snapAnimationSpec: AnimationSpec<Float> = MotionSchemeKeyTokens.DefaultEffects.value(),
         flingAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay()
     ): FloatingAppBarScrollBehavior =
-        remember(position, screenOffset, state, snapAnimationSpec, flingAnimationSpec) {
+        remember(exitDirection, state, snapAnimationSpec, flingAnimationSpec) {
             ExitAlwaysFloatingAppBarScrollBehavior(
-                position = position,
-                screenOffset = screenOffset,
+                exitDirection = exitDirection,
                 state = state,
                 snapAnimationSpec = snapAnimationSpec,
                 flingAnimationSpec = flingAnimationSpec
@@ -629,33 +639,33 @@ private fun FloatingAppBarState.collapsedFraction() =
     }
 
 /**
- * The possible positions for a [HorizontalFloatingAppBar] or [VerticalFloatingAppBar], used to
- * determine the direction when a [FloatingAppBarScrollBehavior] is attached.
+ * The possible directions for a [HorizontalFloatingAppBar] or [VerticalFloatingAppBar], used to
+ * determine the exit direction when a [FloatingAppBarScrollBehavior] is attached.
  */
 @ExperimentalMaterial3ExpressiveApi
 @kotlin.jvm.JvmInline
-value class FloatingAppBarPosition
+value class FloatingAppBarExitDirection
 internal constructor(@Suppress("unused") private val value: Int) {
     companion object {
-        /** Position FloatingAppBar at the bottom of the screen */
-        val Bottom = FloatingAppBarPosition(0)
+        /** FloatingAppBar exits towards the bottom of the screen */
+        val Bottom = FloatingAppBarExitDirection(0)
 
-        /** Position FloatingAppBar at the top of the screen */
-        val Top = FloatingAppBarPosition(1)
+        /** FloatingAppBar exits towards the top of the screen */
+        val Top = FloatingAppBarExitDirection(1)
 
-        /** Position FloatingAppBar at the start of the screen */
-        val Start = FloatingAppBarPosition(2)
+        /** FloatingAppBar exits towards the start of the screen */
+        val Start = FloatingAppBarExitDirection(2)
 
-        /** Position FloatingAppBar at the end of the screen */
-        val End = FloatingAppBarPosition(3)
+        /** FloatingAppBar exits towards the end of the screen */
+        val End = FloatingAppBarExitDirection(3)
     }
 
     override fun toString(): String {
         return when (this) {
-            Bottom -> "FloatingAppBarPosition.Bottom"
-            Top -> "FloatingAppBarPosition.Top"
-            Start -> "FloatingAppBarPosition.Start"
-            else -> "FloatingAppBarPosition.End"
+            Bottom -> "FloatingAppBarExitDirection.Bottom"
+            Top -> "FloatingAppBarExitDirection.Top"
+            Start -> "FloatingAppBarExitDirection.Start"
+            else -> "FloatingAppBarExitDirection.End"
         }
     }
 }
