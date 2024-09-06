@@ -52,6 +52,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.8.1")
     implementation("androidx.collection:collection:1.4.2")
     implementation("androidx.core:core:1.8.0")
+    implementation(project(":window:window-core"))
 
     def extensions_core_version = "androidx.window.extensions.core:core:1.0.0"
     def extensions_version = "androidx.window.extensions:extensions:1.4.0-beta01"
