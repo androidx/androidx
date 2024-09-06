@@ -31,7 +31,9 @@ class TextStringSimpleNodeInvalidationTest : NodeInvalidationTestParent() {
                 maxLines = params.maxLines,
                 softWrap = params.softWrap,
                 fontFamilyResolver = params.fontFamilyResolver,
-                overflow = params.overflow
+                overflow = params.overflow,
+                // TODO(b/364657660): Give this a non-null value when AutoSize becomes public
+                autoSize = null
             )
     }
 
