@@ -123,7 +123,7 @@ public class PageIndicator extends ReusableToast {
         Resources res = mContext.getResources();
         switch (range.length()) {
             case 0:
-                return res.getString(R.string.label_page_single, range.getLast() + 1, mNumPages);
+                return res.getString(R.string.label_page_single, range.getLast(), mNumPages);
             case 1:
                 return res.getString(R.string.label_page_single, range.getFirst() + 1, mNumPages);
             default:
