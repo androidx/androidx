@@ -101,7 +101,10 @@ internal class UsageFlagsVerificationHelper private constructor() {
             return if (isSupported(HardwareBuffer.USAGE_FRONT_BUFFER)) {
                 FrontBufferUtils.BaseFlags or HardwareBuffer.USAGE_FRONT_BUFFER
             } else {
-                FrontBufferUtils.BaseFlags
+                // If the front buffer usage flag is not supported, configure the CPU write flag
+                // in order to prevent arm frame buffer compression from causing visual artifacts
+                // on certain devices like the Samsung Galaxy Tab S6 lite. See b/365131024
+                FrontBufferUtils.BaseFlags or HardwareBuffer.USAGE_CPU_WRITE_OFTEN
             }
         }
     }
