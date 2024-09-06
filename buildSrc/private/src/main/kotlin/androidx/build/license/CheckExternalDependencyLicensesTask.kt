@@ -15,6 +15,7 @@
  */
 package androidx.build.license
 
+import androidx.build.capitalize
 import androidx.build.getPrebuiltsRoot
 import androidx.build.getVersionByName
 import androidx.build.kotlinExtensionOrNull
@@ -22,12 +23,12 @@ import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.artifacts.component.ModuleComponentIdentifier
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.artifacts.result.ResolvedArtifactResult
-import org.gradle.api.attributes.Category
-import org.gradle.api.attributes.Usage
+import org.gradle.api.attributes.Attribute
 import org.gradle.api.attributes.plugin.GradlePluginApiVersion
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
@@ -103,7 +104,6 @@ abstract class CheckExternalDependencyLicensesTask : DefaultTask() {
     }
 
     companion object {
-        internal const val CONFIGURATION_NAME = "allExternalDependencies"
         const val TASK_NAME = "checkExternalLicenses"
     }
 }
@@ -113,68 +113,21 @@ fun Project.configureExternalDependencyLicenseCheck() {
         CheckExternalDependencyLicensesTask.TASK_NAME,
         CheckExternalDependencyLicensesTask::class.java
     ) { task ->
+        @OptIn(ExperimentalBuildToolsApi::class, ExperimentalKotlinGradlePluginApi::class)
+        val kotlinVersion =
+            kotlinExtensionOrNull?.compilerVersion?.get() ?: project.getVersionByName("kotlin")
         task.prebuiltsRoot.set(project.provider { project.getPrebuiltsRoot().absolutePath })
-
+        // configurations.toList() to avoid modify the collection while we iterate over it
+        val duplicateConfigs =
+            configurations.toList().map { configuration ->
+                duplicateForLicenseCheck(configuration, kotlinVersion)
+            }
+        val localArtifactRepositories = project.findLocalMavenRepositories()
         task.filesToCheck.from(
-            project.provider {
-                val configName = "CheckExternalLicences"
-                val container = project.configurations
-                val checkerConfig =
-                    container.findByName(configName)
-                        ?: container.create(configName) { checkerConfig ->
-                            checkerConfig.isCanBeConsumed = false
-                            checkerConfig.attributes {
-                                it.attribute(
-                                    Usage.USAGE_ATTRIBUTE,
-                                    project.objects.named<Usage>(Usage.JAVA_RUNTIME)
-                                )
-                                it.attribute(
-                                    Category.CATEGORY_ATTRIBUTE,
-                                    project.objects.named<Category>(Category.LIBRARY)
-                                )
-                                it.attribute(
-                                    GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                                    project.objects.named<GradlePluginApiVersion>(
-                                        GradleVersion.current().getVersion()
-                                    )
-                                )
-                            }
-
-                            @OptIn(
-                                ExperimentalBuildToolsApi::class,
-                                ExperimentalKotlinGradlePluginApi::class
-                            )
-                            val kotlinVersion =
-                                kotlinExtensionOrNull?.compilerVersion?.get()
-                                    ?: project.getVersionByName("kotlin")
-
-                            project.configurations
-                                .flatMap {
-                                    it.allDependencies
-                                        .filterIsInstance(ExternalDependency::class.java)
-                                        .filterNot { it.group?.startsWith("com.android") == true }
-                                        .filterNot { it.group?.startsWith("android.arch") == true }
-                                        .filterNot { it.group?.startsWith("androidx") == true }
-                                }
-                                .forEach { dep ->
-                                    /* workaround for dependency constraint applied in Kotlin Plugin */
-                                    if (
-                                        dep.group == "org.jetbrains.kotlin" &&
-                                            dep.name == "kotlin-build-tools-impl"
-                                    ) {
-                                        dep.version { it.strictly(kotlinVersion) }
-                                    }
-                                    checkerConfig.dependencies.add(dep)
-                                }
-                        }
-
-                val localArtifactRepositories = project.findLocalMavenRepositories()
-                val dependencyArtifacts =
-                    checkerConfig.incoming.artifacts.artifacts.mapNotNull {
-                        project.validateAndGetArtifactInPrebuilts(it, localArtifactRepositories)
-                    }
-
-                dependencyArtifacts
+            duplicateConfigs.flatMap { configuration ->
+                configuration.incoming.artifacts.artifacts.mapNotNull {
+                    project.validateAndGetArtifactInPrebuilts(it, localArtifactRepositories)
+                }
             }
         )
     }
@@ -249,3 +202,45 @@ private fun Project.findLocalMavenRepositories(): FileCollection {
             .map { File(it) }
     return project.files(fileList)
 }
+
+private fun Project.duplicateForLicenseCheck(
+    configuration: Configuration,
+    kotlinVersion: String
+): Configuration {
+    val duplicate = configurations.create("${configuration.name}${configurationNameSuffix}")
+    duplicate.copyAttributesFrom(configuration)
+    duplicate.attributes.attribute(
+        GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+        project.objects.named(GradleVersion.current().version)
+    )
+    val dependencies =
+        configuration.dependencies
+            .filterIsInstance<ExternalDependency>()
+            .filter { it.isValidForLicenseCheck() }
+            .onEach { it.fixVersion(kotlinVersion) }
+    duplicate.dependencies.addAll(dependencies)
+    duplicate.isCanBeConsumed = false
+    return duplicate
+}
+
+private fun Configuration.copyAttributesFrom(configuration: Configuration) {
+    configuration.attributes.keySet().forEach { attrKey ->
+        val value: Any = configuration.attributes.getAttribute(attrKey)!!
+        @Suppress("UNCHECKED_CAST") attributes.attribute(attrKey as Attribute<Any>, value)
+    }
+}
+
+private fun ExternalDependency.isValidForLicenseCheck(): Boolean {
+    return group?.startsWith("com.android") == false &&
+        group?.startsWith("android.arch") == false &&
+        group?.startsWith("androidx") == false
+}
+
+private fun ExternalDependency.fixVersion(kotlinVersion: String) {
+    /* workaround for dependency constraint applied in Kotlin Plugin */
+    if (group == "org.jetbrains.kotlin" && name == "kotlin-build-tools-impl") {
+        this.version { version -> version.strictly(kotlinVersion) }
+    }
+}
+
+private val configurationNameSuffix = CheckExternalDependencyLicensesTask.TASK_NAME.capitalize()
