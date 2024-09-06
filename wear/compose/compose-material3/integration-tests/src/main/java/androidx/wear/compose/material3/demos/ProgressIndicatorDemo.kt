@@ -52,6 +52,7 @@ import androidx.wear.compose.material3.SegmentedCircularProgressIndicator
 import androidx.wear.compose.material3.SwitchButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.FullScreenProgressIndicatorSample
+import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSample
 import androidx.wear.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
@@ -89,6 +90,9 @@ val ProgressIndicatorDemos =
         },
         ComposableDemo("Small progress values") {
             Centralize { SmallValuesProgressIndicatorSample() }
+        },
+        ComposableDemo("Indeterminate progress") {
+            Centralize { IndeterminateProgressIndicatorSample() }
         },
         ComposableDemo("Segmented progress") { Centralize { SegmentedProgressIndicatorSample() } },
         ComposableDemo("Progress segments on/off") {

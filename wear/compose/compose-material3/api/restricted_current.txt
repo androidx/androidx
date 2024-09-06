@@ -266,10 +266,12 @@ package androidx.wear.compose.material3 {
   public final class CircularProgressIndicatorDefaults {
     method public float calculateRecommendedGapSize(float strokeWidth);
     method public float getFullScreenPadding();
+    method public float getIndeterminateStrokeWidth();
     method @androidx.compose.runtime.Composable public float getLargeStrokeWidth();
     method @androidx.compose.runtime.Composable public float getSmallStrokeWidth();
     method public float getStartAngle();
     property public final float FullScreenPadding;
+    property public final float IndeterminateStrokeWidth;
     property public final float StartAngle;
     property @androidx.compose.runtime.Composable public final float largeStrokeWidth;
     property @androidx.compose.runtime.Composable public final float smallStrokeWidth;
@@ -277,6 +279,7 @@ package androidx.wear.compose.material3 {
   }
 
   public final class CircularProgressIndicatorKt {
+    method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize);
     method @androidx.compose.runtime.Composable public static void CircularProgressIndicator(kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional boolean allowProgressOverflow, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
   }
 
