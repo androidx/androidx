@@ -56,10 +56,7 @@ enum class PlatformGroup {
 }
 
 /** Target platforms supported by the AndroidX implementation of Kotlin multi-platform. */
-enum class PlatformIdentifier(
-    val id: String,
-    @Suppress("unused") private val group: PlatformGroup
-) {
+enum class PlatformIdentifier(val id: String, val group: PlatformGroup) {
     JVM("jvm", PlatformGroup.JVM),
     JVM_STUBS("jvmStubs", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),

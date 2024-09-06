@@ -19,6 +19,8 @@ package androidx.build.buildInfo
 import androidx.build.AndroidXExtension
 import androidx.build.AndroidXMultiplatformExtension
 import androidx.build.LibraryGroup
+import androidx.build.PlatformGroup
+import androidx.build.PlatformIdentifier
 import androidx.build.addToBuildOnServer
 import androidx.build.buildInfo.CreateLibraryBuildInfoFileTask.Companion.TASK_NAME
 import androidx.build.docs.CheckTipOfTreeDocsTask.Companion.requiresDocs
@@ -120,7 +122,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         val outputDir = resolvedOutputFile.parentFile
         if (!outputDir.exists()) {
             if (!outputDir.mkdirs()) {
-                throw RuntimeException("Failed to create " + "output directory: $outputDir")
+                throw RuntimeException("Failed to create output directory: $outputDir")
             }
         }
         if (!resolvedOutputFile.exists()) {
@@ -269,6 +271,20 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
         val anchorTask = tasks.register("${TASK_NAME}Anchor")
         addToBuildOnServer(anchorTask)
         configure<PublishingExtension> {
+
+            /**
+             * Select the appropriate target based on if the project targets any Apple platforms
+             *
+             * If the project targets any Apple platform then the project can only be built on the
+             * 'androidx_multiplatform_mac' target. Otherwise the 'androidx' build target is used.
+             */
+            val buildTarget =
+                if (hasApplePlatform(androidXKmpExtension.supportedPlatforms)) {
+                    "androidx_multiplatform_mac"
+                } else {
+                    "androidx"
+                }
+
             // Unfortunately, dependency information is only available through internal API
             // (See https://github.com/gradle/gradle/issues/21345).
             publications.withType(MavenPublicationInternal::class.java).configureEach { mavenPub ->
@@ -282,6 +298,7 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                         artifactId = mavenPub.artifactId,
                         shouldPublishDocs = androidXExtension.requiresDocs(),
                         isKmp = androidXKmpExtension.supportedPlatforms.isNotEmpty(),
+                        buildTarget = buildTarget,
                     )
                 }
             }
@@ -296,6 +313,7 @@ private fun Project.createTaskForComponent(
     artifactId: String,
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
+    buildTarget: String,
 ) {
     val task =
         createBuildInfoTask(
@@ -304,7 +322,8 @@ private fun Project.createTaskForComponent(
             artifactId,
             getHeadShaProvider(project),
             shouldPublishDocs,
-            isKmp
+            isKmp,
+            buildTarget,
         )
     anchorTask.dependsOn(task)
     addTaskToAggregateBuildInfoFileTask(task)
@@ -317,6 +336,7 @@ private fun Project.createBuildInfoTask(
     shaProvider: Provider<String>,
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
+    buildTarget: String,
 ): TaskProvider<CreateLibraryBuildInfoFileTask> {
     val kmpTaskSuffix = computeTaskSuffix(name, artifactId)
     return CreateLibraryBuildInfoFileTask.setup(
@@ -342,7 +362,7 @@ private fun Project.createBuildInfoTask(
         // suffix is listed in docs-public/build.gradle.
         shouldPublishDocs = shouldPublishDocs && kmpTaskSuffix == "",
         isKmp = isKmp,
-        target = resolveTarget(isKmp),
+        target = buildTarget,
     )
 }
 
@@ -365,14 +385,11 @@ fun computeTaskSuffix(projectName: String, artifactId: String) =
     }
 
 /**
- * Select the appropriate target based on if the project is KMP
+ * Indicates if any of the given [PlatformIdentifier]s targets an Apple platform
  *
- * All non-Kotlin multiplatform projects use the `androidx` target. Projects that are KMP are built
- * for various platforms; specifically, the `iosarm64` and `iosx64` platforms can only be built on
- * the `androidx_multiplatform_mac` target.
- *
- * @param isKmp indicates if the project is KMP
- * @return target
+ * @param supportedPlatforms the set of [PlatformIdentifier] to examine
+ * @return true if any [PlatformIdentifier]s targets an Apple platform, false otherwise
  */
 @VisibleForTesting
-fun resolveTarget(isKmp: Boolean) = if (isKmp) "androidx_multiplatform_mac" else "androidx"
+fun hasApplePlatform(supportedPlatforms: Set<PlatformIdentifier>) =
+    supportedPlatforms.any { it.group == PlatformGroup.MAC }
