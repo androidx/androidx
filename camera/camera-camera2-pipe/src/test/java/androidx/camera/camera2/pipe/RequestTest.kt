@@ -63,9 +63,21 @@ internal class RequestTest {
         assertThat("$request1").contains("1")
         assertThat("$request1").contains("Request")
 
-        assertThat("$request").contains("42")
-        assertThat("$request").contains("parameters")
-        assertThat("$request").contains("extras")
+        val requestString = request.toStringVerbose()
+        assertThat(requestString).contains("42")
+        assertThat(requestString).contains("parameters")
+        assertThat(requestString).contains("extras")
+    }
+
+    @Test
+    fun requestHasNiceLoggingString_notEqual() {
+        val request1 = Request(listOf(StreamId(1)))
+        val request2 = Request(listOf(StreamId(1)))
+
+        assertThat(request1).isNotEqualTo(request2)
+
+        // The Request string should be different if the Requests themselves are different.
+        assertThat("$request1").isNotEqualTo("$request2")
     }
 
     @Test
