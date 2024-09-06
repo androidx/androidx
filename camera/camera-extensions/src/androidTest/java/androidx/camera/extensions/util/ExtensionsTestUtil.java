@@ -384,8 +384,8 @@ public class ExtensionsTestUtil {
     /**
      * Returns whether extensions is disabled by quirk.
      */
-    public static boolean extensionsDisabledByQuirk() {
-        return new ExtensionDisabledValidator().shouldDisableExtension();
+    public static boolean extensionsDisabledByQuirk(@NonNull String cameraId) {
+        return new ExtensionDisabledValidator().shouldDisableExtension(cameraId);
     }
 
     /**
