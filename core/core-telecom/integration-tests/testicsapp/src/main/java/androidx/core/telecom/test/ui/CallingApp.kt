@@ -16,7 +16,12 @@
 
 package androidx.core.telecom.test.ui
 
+import android.Manifest
 import android.app.role.RoleManager
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +43,21 @@ fun CallingApp(isSupported: Boolean) {
     val roleIntent by remember {
         mutableStateOf(roleManager.createRequestRoleIntent(RoleManager.ROLE_DIALER))
     }
+    var isBtPermRequestSuggested by remember {
+        mutableStateOf(
+            // Telecom handles getting the name for UDC+
+            Build.VERSION.SDK_INT < Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                context.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT) !=
+                    PackageManager.PERMISSION_GRANTED
+        )
+    }
+    val btPermlauncher =
+        rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+            isBtGranted ->
+            isBtPermRequestSuggested = !isBtGranted
+            navController.launchAudioRouteDialog()
+        }
+
     val ongoingCallsViewModel: OngoingCallsViewModel = viewModel()
 
     val startRoute =
@@ -57,7 +77,13 @@ fun CallingApp(isSupported: Boolean) {
         roleRequestsDestination(roleIntent) { isGranted = it }
         callsDestination(
             ongoingCallsViewModel,
-            onShowAudioRouting = { navController.launchAudioRouteDialog() },
+            onShowAudioRouting = {
+                if (isBtPermRequestSuggested) {
+                    btPermlauncher.launch(Manifest.permission.BLUETOOTH_CONNECT)
+                } else {
+                    navController.launchAudioRouteDialog()
+                }
+            },
             onMoveToSettings = { navController.moveToSettingsDestination() }
         )
         audioRouteDialog(
