@@ -57,6 +57,7 @@ fi
 # require root
 if [[ `id` != "uid=0"* ]]; then
     echo "Not running as root, cannot lock clocks, aborting"
+    echo "Run 'adb root' and retry"
     exit -1
 fi
 

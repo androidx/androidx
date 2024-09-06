@@ -27,8 +27,7 @@ if [ "`command -v getprop`" == "" ]; then
     else
         echo "Could not find adb. Options are:"
         echo "  1. Ensure adb is on your \$PATH"
-        echo "  2. Use './gradlew lockClocks'"
-        echo "  3. Manually adb push this script to your device, and run it there"
+        echo "  2. Manually adb push this script to your device, and run it there"
         exit -1
     fi
 fi
