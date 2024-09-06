@@ -218,7 +218,6 @@ internal constructor(
         internal const val READ_OXYGEN_SATURATION = PERMISSION_PREFIX + "READ_OXYGEN_SATURATION"
         internal const val READ_RESPIRATORY_RATE = PERMISSION_PREFIX + "READ_RESPIRATORY_RATE"
         internal const val READ_RESTING_HEART_RATE = PERMISSION_PREFIX + "READ_RESTING_HEART_RATE"
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val READ_SKIN_TEMPERATURE = PERMISSION_PREFIX + "READ_SKIN_TEMPERATURE"
 
         // Write permissions for ACTIVITY.
@@ -277,8 +276,6 @@ internal constructor(
         internal const val WRITE_OXYGEN_SATURATION = PERMISSION_PREFIX + "WRITE_OXYGEN_SATURATION"
         internal const val WRITE_RESPIRATORY_RATE = PERMISSION_PREFIX + "WRITE_RESPIRATORY_RATE"
         internal const val WRITE_RESTING_HEART_RATE = PERMISSION_PREFIX + "WRITE_RESTING_HEART_RATE"
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val WRITE_SKIN_TEMPERATURE = PERMISSION_PREFIX + "WRITE_SKIN_TEMPERATURE"
 
         internal const val READ_PERMISSION_PREFIX = PERMISSION_PREFIX + "READ_"
