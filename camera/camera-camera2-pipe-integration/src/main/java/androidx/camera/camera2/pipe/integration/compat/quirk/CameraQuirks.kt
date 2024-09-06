@@ -218,6 +218,14 @@ constructor(
         }
         if (
             quirkSettings.shouldEnableQuirk(
+                QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk::class.java,
+                QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk.isEnabled(cameraMetadata)
+            )
+        ) {
+            quirks.add(QuickSuccessiveImageCaptureFailsRepeatingRequestQuirk())
+        }
+        if (
+            quirkSettings.shouldEnableQuirk(
                 ImageCaptureFailedWhenVideoCaptureIsBoundQuirk::class.java,
                 ImageCaptureFailedWhenVideoCaptureIsBoundQuirk.isEnabled()
             )

@@ -74,7 +74,7 @@ constructor(
             graphConfig.defaultTemplate,
             surfaceMap,
             streamGraph,
-            quirks.shouldWaitForRepeatingRequest(graphConfig)
+            quirks.shouldWaitForRepeatingRequestStartOnDisconnect(graphConfig)
         )
             as CaptureSequenceProcessor<Any, CaptureSequence<Any>>
     }
@@ -97,7 +97,7 @@ internal class Camera2CaptureSequenceProcessor(
     private val template: RequestTemplate,
     private val surfaceMap: Map<StreamId, Surface>,
     private val streamGraph: StreamGraph,
-    private val shouldWaitForRepeatingRequest: Boolean = false,
+    private val awaitRepeatingRequestOnDisconnect: Boolean = false,
 ) : CaptureSequenceProcessor<CaptureRequest, Camera2CaptureSequence> {
     private val debugId = captureSequenceProcessorDebugIds.incrementAndGet()
     private val lock = Any()
@@ -293,7 +293,7 @@ internal class Camera2CaptureSequenceProcessor(
                     session !is CameraConstrainedHighSpeedCaptureSessionWrapper
             ) {
                 if (captureSequence.repeating) {
-                    if (shouldWaitForRepeatingRequest) {
+                    if (awaitRepeatingRequestOnDisconnect) {
                         lastSingleRepeatingRequestSequence = captureSequence
                     }
                     session.setRepeatingRequest(
@@ -334,7 +334,7 @@ internal class Camera2CaptureSequenceProcessor(
             captureSequence = lastSingleRepeatingRequestSequence
         }
 
-        if (shouldWaitForRepeatingRequest && captureSequence != null) {
+        if (awaitRepeatingRequestOnDisconnect && captureSequence != null) {
             awaitRepeatingRequestStarted(captureSequence)
         }
 

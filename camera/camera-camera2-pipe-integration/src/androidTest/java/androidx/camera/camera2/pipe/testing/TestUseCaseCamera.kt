@@ -98,7 +98,6 @@ class TestUseCaseCamera(
                 requestListener,
                 cameraConfig,
                 cameraQuirks,
-                null,
                 ZslControlNoOpImpl(),
                 NoOpTemplateParamsOverride,
             )

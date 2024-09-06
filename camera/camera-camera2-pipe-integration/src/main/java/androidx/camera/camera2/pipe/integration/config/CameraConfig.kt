@@ -21,7 +21,6 @@ import android.hardware.camera2.params.StreamConfigurationMap
 import android.os.Build
 import androidx.annotation.Nullable
 import androidx.annotation.VisibleForTesting
-import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
@@ -38,8 +37,6 @@ import androidx.camera.camera2.pipe.integration.compat.CameraCompatModule
 import androidx.camera.camera2.pipe.integration.compat.EvCompCompat
 import androidx.camera.camera2.pipe.integration.compat.ZoomCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
-import androidx.camera.camera2.pipe.integration.compat.quirk.CaptureSessionStuckQuirk
-import androidx.camera.camera2.pipe.integration.compat.quirk.FinalizeSessionOnCloseQuirk
 import androidx.camera.camera2.pipe.integration.impl.CameraPipeCameraProperties
 import androidx.camera.camera2.pipe.integration.impl.CameraProperties
 import androidx.camera.camera2.pipe.integration.impl.ComboRequestListener
@@ -147,23 +144,6 @@ public abstract class CameraModule {
             cameraMetadata: CameraMetadata?
         ): StreamConfigurationMap? {
             return cameraMetadata?.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)
-        }
-
-        @CameraScope
-        @Provides
-        public fun provideCameraGraphFlags(cameraQuirks: CameraQuirks): CameraGraph.Flags {
-            if (cameraQuirks.quirks.contains(CaptureSessionStuckQuirk::class.java)) {
-                Log.debug { "CameraPipe should be enabling CaptureSessionStuckQuirk" }
-            }
-            // TODO(b/276354253): Set quirkWaitForRepeatingRequestOnDisconnect flag for overrides.
-
-            // TODO(b/277310425): When creating a CameraGraph, this flag should be turned OFF when
-            //  this behavior is not needed based on the use case interaction and the device on
-            //  which the test is running.
-            val quirkFinalizeSessionOnCloseBehavior = FinalizeSessionOnCloseQuirk.getBehavior()
-            return CameraGraph.Flags(
-                quirkFinalizeSessionOnCloseBehavior = quirkFinalizeSessionOnCloseBehavior,
-            )
         }
 
         @CameraScope

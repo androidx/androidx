@@ -31,9 +31,12 @@ import androidx.camera.camera2.pipe.CameraGraph.Flags.FinalizeSessionOnCloseBeha
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.EXTENSION
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.HIGH_SPEED
 import androidx.camera.camera2.pipe.CameraGraph.OperatingMode.Companion.NORMAL
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.AT_LEAST
+import androidx.camera.camera2.pipe.CameraGraph.RepeatingRequestRequirementsBeforeCapture.CompletionBehavior.EXACT
 import androidx.camera.camera2.pipe.GraphState.GraphStateStarting
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
+import androidx.camera.camera2.pipe.compat.Camera2Quirks
 import androidx.camera.camera2.pipe.core.Log
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -253,6 +256,39 @@ public interface CameraGraph : AutoCloseable {
     }
 
     /**
+     * Defines the repeating request requirements before a non-repeating capture.
+     *
+     * If `completionBehavior` is [AT_LEAST], repeating frames are completed at least
+     * `repeatingFramesToComplete` number of times before submitting capture. However, CameraPipe
+     * may wait for more repeating capture frames if required.
+     *
+     * If [EXACT] is used, any CameraPipe behavior is overwritten and exactly
+     * `repeatingFramesToComplete` number of frames are completed before submitting capture. This
+     * can be used in conjunction with a `repeatingFramesToComplete` value of zero to disable any
+     * CameraPipe quirky behavior added as a workaround. See
+     * [Camera2Quirks.getRepeatingRequestFrameCountForCapture] for details.
+     *
+     * @param repeatingFramesToComplete Number of repeating frames to complete before submitting a
+     *   capture. A value of zero implies no such requirement.
+     * @param completionBehavior The behavior for how `repeatingFramesToComplete` is handled.
+     */
+    public class RepeatingRequestRequirementsBeforeCapture(
+        public val repeatingFramesToComplete: UInt = 0u,
+        public val completionBehavior: CompletionBehavior = AT_LEAST,
+    ) {
+        /**
+         * Defines the behavior for how [repeatingFramesToComplete] parameter of
+         * `RepeatingRequestRequirementsBeforeCapture` is handled.
+         *
+         * @see RepeatingRequestRequirementsBeforeCapture
+         */
+        public enum class CompletionBehavior {
+            AT_LEAST,
+            EXACT
+        }
+    }
+
+    /**
      * Flags define boolean values that are used to adjust the behavior and interactions with
      * camera2. These flags should default to the ideal behavior and should be overridden on
      * specific devices to be faster or to work around bad behavior.
@@ -284,10 +320,29 @@ public interface CameraGraph : AutoCloseable {
         val abortCapturesOnStop: Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.R,
 
         /**
+         * An override flag for quirk that requires waiting for the last repeating capture request
+         * (if any) to start before submitting a non-repeating capture request in case no repeating
+         * request has started yet.
+         *
+         * The value represents how many repeating request captures need to be completed before a
+         * non-repeating capture. Note that CameraPipe may have its own logic to. When null,
+         * CameraPipe will use its own logic to decide whether such a workaround is required. When
+         * zero or negative, CameraPipe will disable such behavior.
+         *
+         * Please refer to the bugs linked here, or
+         * [Camera2Quirks.getRepeatingRequestFrameCountForCapture] for more information. This flag
+         * provides the overrides for you to enable a workaround to fix such issues.
+         * - Bug(s): b/356792665
+         * - API levels: All
+         */
+        val quirkWaitForRepeatingRequestBeforeNonRepeatingCapture:
+            RepeatingRequestRequirementsBeforeCapture =
+            RepeatingRequestRequirementsBeforeCapture(),
+
+        /**
          * A quirk that waits for the last repeating capture request to start before stopping the
          * current capture session. Please refer to the bugs linked here, or
-         * [androidx.camera.camera2.pipe.compat.Camera2Quirks.shouldWaitForRepeatingRequest] for
-         * more information.
+         * [Camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect] for more information.
          *
          * This flag provides the overrides for you to override the default behavior (CameraPipe
          * would turn on/off the quirk automatically based on device information).
