@@ -18,9 +18,7 @@ package androidx.wear.compose.material3.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,8 +30,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.lazy.LazyColumn
 import androidx.wear.compose.foundation.lazy.items
+import androidx.wear.compose.foundation.lazy.rememberLazyColumnState
+import androidx.wear.compose.material3.AppScaffold
+import androidx.wear.compose.material3.EdgeButton
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.ScreenScaffold
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.lazy.scrollTransform
 import androidx.wear.compose.material3.lazy.targetMorphingHeight
@@ -43,28 +45,37 @@ import androidx.wear.compose.material3.lazy.targetMorphingHeight
 @Composable
 fun LazyColumnScalingMorphingEffectSample() {
     val allIngredients = listOf("2 eggs", "tomato", "cheese", "bread")
-
-    LazyColumn(modifier = Modifier.background(Color.Black).padding(horizontal = 10.dp)) {
-        item {
-            // No modifier is applied - no Material 3 Motion.
-            ListHeader { Text("Ingredients") }
-        }
-
-        items(allIngredients) { ingredient ->
-            Text(
-                ingredient,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyLarge,
+    val state = rememberLazyColumnState()
+    AppScaffold {
+        ScreenScaffold(state, bottomButton = { EdgeButton(onClick = {}) { Text("Okay") } }) {
+            LazyColumn(
+                state = state,
                 modifier =
-                    Modifier.fillMaxWidth()
-                        // Apply Material 3 Motion transformations.
-                        .scrollTransform(
-                            this,
-                            backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
-                            shape = RoundedCornerShape(10.dp)
-                        )
-                        .padding(10.dp)
-            )
+                    Modifier.background(MaterialTheme.colorScheme.background)
+                        .padding(horizontal = 10.dp)
+            ) {
+                item {
+                    // No modifier is applied - no Material 3 Motion.
+                    ListHeader { Text("Ingredients") }
+                }
+
+                items(allIngredients) { ingredient ->
+                    Text(
+                        ingredient,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                // Apply Material 3 Motion transformations.
+                                .scrollTransform(
+                                    this,
+                                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer,
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .padding(10.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -84,11 +95,14 @@ fun LazyColumnTargetMorphingHeightSample() {
             MenuItem("Black tea", 2f),
             MenuItem("London fog", 2.6f),
         )
-
-    MaterialTheme {
-        Box(modifier = Modifier.aspectRatio(1f).background(Color.Black)) {
+    val state = rememberLazyColumnState()
+    AppScaffold {
+        ScreenScaffold(state, bottomButton = { EdgeButton(onClick = {}) { Text("Okay") } }) {
             LazyColumn(
-                modifier = Modifier.padding(horizontal = 10.dp),
+                state = state,
+                modifier =
+                    Modifier.background(MaterialTheme.colorScheme.background)
+                        .padding(horizontal = 10.dp),
             ) {
                 item {
                     // No modifier is applied - no Material 3 Motion transformations.
