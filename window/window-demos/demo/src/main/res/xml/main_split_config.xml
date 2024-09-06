@@ -26,9 +26,9 @@
             window:primaryActivityName="androidx.window.demo.embedding.SplitActivityList"
             window:secondaryActivityName="androidx.window.demo.embedding.SplitActivityDetail"/>
         <DividerAttributes
-            window:dividerType="draggable"
-            window:dividerColor="@color/colorAccent"
-            window:dividerWidthDp="1"
+            window:embeddingDividerType="draggable"
+            window:embeddingDividerColor="@color/colorAccent"
+            window:embeddingDividerWidthDp="1"
             window:dragRangeMinRatio="0.2"
             window:dragRangeMaxRatio="0.8" />
     </SplitPairRule>
@@ -40,9 +40,9 @@
         <ActivityFilter
             window:activityName="androidx.window.demo.embedding.SplitActivityList"/>
         <DividerAttributes
-            window:dividerType="draggable"
-            window:dividerColor="@color/colorAccent"
-            window:dividerWidthDp="1"
+            window:embeddingDividerType="draggable"
+            window:embeddingDividerColor="@color/colorAccent"
+            window:embeddingDividerWidthDp="1"
             window:dragRangeMinRatio="0.2"
             window:dragRangeMaxRatio="0.8" />
     </SplitPlaceholderRule>

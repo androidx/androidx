@@ -20,14 +20,14 @@
         <SplitPairFilter
             window:primaryActivityName="A"
             window:secondaryActivityName="B"/>
-        <DividerAttributes window:dividerType="fixed" />
+        <DividerAttributes window:embeddingDividerType="fixed" />
     </SplitPairRule>
 
     <SplitPairRule window:tag="rule2">
         <SplitPairFilter
             window:primaryActivityName="A"
             window:secondaryActivityName="B"/>
-        <DividerAttributes window:dividerType="draggable" />
+        <DividerAttributes window:embeddingDividerType="draggable" />
     </SplitPairRule>
 
     <SplitPairRule window:tag="rule3">
@@ -35,9 +35,9 @@
             window:primaryActivityName="C"
             window:secondaryActivityName="D"/>
         <DividerAttributes
-            window:dividerType="fixed"
-            window:dividerColor="#112233"
-            window:dividerWidthDp="1" />
+            window:embeddingDividerType="fixed"
+            window:embeddingDividerColor="#112233"
+            window:embeddingDividerWidthDp="1" />
     </SplitPairRule>
 
     <SplitPairRule window:tag="rule4">
@@ -45,9 +45,9 @@
             window:primaryActivityName="C"
             window:secondaryActivityName="D"/>
         <DividerAttributes
-            window:dividerType="draggable"
-            window:dividerColor="#112233"
-            window:dividerWidthDp="1"
+            window:embeddingDividerType="draggable"
+            window:embeddingDividerColor="#112233"
+            window:embeddingDividerWidthDp="1"
             window:dragRangeMinRatio="0.2"
             window:dragRangeMaxRatio="0.8" />
     </SplitPairRule>
