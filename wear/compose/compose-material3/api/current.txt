@@ -448,6 +448,11 @@ package androidx.wear.compose.material3 {
     property public final int YearMonthDay;
   }
 
+  public final class DynamicColorSchemeKt {
+    method public static androidx.wear.compose.material3.ColorScheme dynamicColorScheme(android.content.Context context, optional androidx.wear.compose.material3.ColorScheme defaultColorScheme);
+    method public static boolean isDynamicColorSchemeEnabled(android.content.Context context);
+  }
+
   public final class EdgeButtonKt {
     method @androidx.compose.runtime.Composable public static void EdgeButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional androidx.compose.ui.Modifier modifier, optional float buttonHeight, optional boolean enabled, optional androidx.wear.compose.material3.ButtonColors colors, optional androidx.compose.foundation.BorderStroke? border, optional androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
   }
