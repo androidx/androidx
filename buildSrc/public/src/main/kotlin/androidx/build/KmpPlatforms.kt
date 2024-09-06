@@ -82,6 +82,7 @@ enum class PlatformIdentifier(
     WATCHOS_X_64("watchosx64", PlatformGroup.MAC),
     WATCHOS_ARM_32("watchosarm64", PlatformGroup.MAC),
     WATCHOS_ARM_64("watchosarm64", PlatformGroup.MAC),
+    WATCHOS_DEVICE_ARM_64("watchosdevicearm64", PlatformGroup.MAC),
     TVOS_SIMULATOR_ARM_64("tvossimulatorarm64", PlatformGroup.MAC),
     TVOS_X_64("tvosx64", PlatformGroup.MAC),
     TVOS_ARM_64("tvosarm64", PlatformGroup.MAC),
