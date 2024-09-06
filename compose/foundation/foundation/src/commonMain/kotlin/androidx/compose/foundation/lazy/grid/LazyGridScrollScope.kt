@@ -18,22 +18,22 @@ package androidx.compose.foundation.lazy.grid
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
-import androidx.compose.foundation.pager.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 
 /**
- * An implementation of [LazyLayoutAnimateScrollScope] that can be used with LazyGrids.
+ * An implementation of [LazyLayoutScrollScope] that can be used with LazyGrids.
  *
- * @param state The [LazyGridState] associated with the layout where this animated scroll should be
+ * @param state The [LazyGridState] associated with the layout where this custom scroll should be
  *   performed.
- * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [LazyHorizontalGrid]
- *   and [LazyVerticalGrid].
- * @sample androidx.compose.foundation.samples.CustomLazyGridAnimateToItemScrollSample
+ * @param scrollScope The base [ScrollScope] where the scroll session was created.
+ * @return An implementation of [LazyLayoutScrollScope] that works with [LazyHorizontalGrid] and
+ *   [LazyVerticalGrid].
+ * @sample androidx.compose.foundation.samples.LazyGridCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollScope {
-    return object : LazyLayoutAnimateScrollScope {
+fun LazyLayoutScrollScope(state: LazyGridState, scrollScope: ScrollScope): LazyLayoutScrollScope {
+    return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
         override val firstVisibleItemIndex: Int
             get() = state.firstVisibleItemIndex
 
@@ -46,7 +46,7 @@ fun LazyLayoutAnimateScrollScope(state: LazyGridState): LazyLayoutAnimateScrollS
         override val itemCount: Int
             get() = state.layoutInfo.totalItemsCount
 
-        override fun ScrollScope.snapToItem(index: Int, offset: Int) {
+        override fun snapToItem(index: Int, offset: Int) {
             state.snapToItemIndexInternal(index, offset, forceRemeasure = true)
         }
 
