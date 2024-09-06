@@ -174,6 +174,25 @@ class PrivacySandboxApiPackagerTest {
     }
 
     @Test
+    fun dirWithClassExtension_ignored() {
+        val source =
+            Source.kotlin(
+                "com/mysdk/Valid.kt",
+                """
+            |package com.mysdk
+            |interface Valid
+        """
+                    .trimMargin()
+            )
+        val sdkClasspath = compileAll(listOf(source)).outputClasspath.first().toPath()
+        sdkClasspath.resolve("otherdir.class").createDirectories()
+        val sdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")
+
+        // Does not throw
+        PrivacySandboxApiPackager().packageSdkDescriptors(sdkClasspath, sdkDescriptor)
+    }
+
+    @Test
     fun sdkClasspathDoesNotExist_throwException() {
         val invalidClasspathFile = makeTestDirectory().resolve("dir_that_does_not_exist")
         val validSdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")

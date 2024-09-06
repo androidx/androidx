@@ -61,6 +61,7 @@ class PrivacySandboxApiPackager {
             sdkClasspath
                 .toFile()
                 .walk()
+                .filter { it.isFile }
                 .map { it.toPath() }
                 .filter { shouldKeepFile(sdkClasspath, it) }
                 .forEach { file ->
