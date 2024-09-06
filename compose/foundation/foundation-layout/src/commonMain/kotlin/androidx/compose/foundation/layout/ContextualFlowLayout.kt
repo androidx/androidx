@@ -334,7 +334,7 @@ internal class ContextualFlowRowScopeImpl(
     override val maxHeight: Dp
 ) : RowScope by RowScopeInstance, ContextualFlowRowScope {
     override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
-        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+        requirePrecondition(fraction in 0.0f..1.0f) {
             "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
         return this.then(
@@ -353,7 +353,7 @@ internal class ContextualFlowColumnScopeImpl(
     override val maxHeightInLine: Dp
 ) : ColumnScope by ColumnScopeInstance, ContextualFlowColumnScope {
     override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
-        requirePrecondition(fraction >= 0.0f && fraction <= 1.0f) {
+        requirePrecondition(fraction in 0.0f..1.0f) {
             "invalid fraction $fraction; must be >= 0 and <= 1.0"
         }
         return this.then(
