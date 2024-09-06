@@ -90,6 +90,13 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
         clickOnItem(item = 0, expectedLabel = "0", numberOfMoves = 6, numberOfFingers = 3)
     }
 
+    @Test
+    fun clickWith100MovesOnLateItem() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at 0 will be hit tested late.
+        clickOnItem(item = 0, expectedLabel = "0", numberOfMoves = 100, numberOfFingers = 3)
+    }
+
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
     @Test
     fun clickWithMoveOnEarlyItemFyi() {
@@ -100,6 +107,19 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             item = lastItem,
             expectedLabel = "$lastItem",
             numberOfMoves = 6,
+            numberOfFingers = 3
+        )
+    }
+
+    @Test
+    fun clickWith100MovesOnEarlyItemFyi() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at NumItems - 1 will be hit tested early.
+        val lastItem = NumItems - 1
+        clickOnItem(
+            item = lastItem,
+            expectedLabel = "$lastItem",
+            numberOfMoves = 100,
             numberOfFingers = 3
         )
     }
@@ -117,6 +137,19 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
         )
     }
 
+    @Test
+    fun clickWith100MovesAndFlingHistoryOnLateItem() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at 0 will be hit tested late.
+        clickOnItem(
+            item = 0,
+            expectedLabel = "0",
+            numberOfMoves = 100,
+            numberOfFingers = 3,
+            enableHistory = true
+        )
+    }
+
     // This test requires less hit testing so changes to dispatch will be tracked more by this test.
     @Test
     fun clickWithMoveAndFlingHistoryOnEarlyItemFyi() {
@@ -127,6 +160,20 @@ class ComposeMultiFingerInputUIOnlyBenchmark {
             item = lastItem,
             expectedLabel = "$lastItem",
             numberOfMoves = 6,
+            numberOfFingers = 3,
+            enableHistory = true
+        )
+    }
+
+    @Test
+    fun clickWith100MovesAndFlingHistoryOnEarlyItemFyi() {
+        // As items that are laid out last are hit tested first (so z order is respected), item
+        // at NumItems - 1 will be hit tested early.
+        val lastItem = NumItems - 1
+        clickOnItem(
+            item = lastItem,
+            expectedLabel = "$lastItem",
+            numberOfMoves = 100,
             numberOfFingers = 3,
             enableHistory = true
         )
