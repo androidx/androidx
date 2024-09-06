@@ -64,6 +64,16 @@ internal class ExtensionInitializationScopeImpl : ExtensionInitializationScope {
         return participant
     }
 
+    override fun addLocalSilenceExtension(
+        initialCallSilenceState: Boolean,
+        onLocalSilenceUpdate: (suspend (Boolean) -> Unit)
+    ): LocalCallSilenceExtension {
+        val localSilenceExtension =
+            LocalCallSilenceExtensionImpl(initialCallSilenceState, onLocalSilenceUpdate)
+        registerExtension(onExchangeStarted = localSilenceExtension::onExchangeStarted)
+        return localSilenceExtension
+    }
+
     /**
      * Register an extension to be created once capability exchange begins.
      *

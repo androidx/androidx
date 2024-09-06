@@ -44,6 +44,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
@@ -418,6 +419,8 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
         MutableSharedFlow(replay = 1)
     private val kickParticipantFlow: MutableSharedFlow<Pair<String, Participant?>> =
         MutableSharedFlow(replay = 1)
+    private val isLocallySilencedFlow: MutableSharedFlow<Pair<String, Boolean>> =
+        MutableStateFlow(Pair("", false))
 
     override fun raiseHandStateAction(callId: String?, isHandRaised: Boolean) {
         if (callId == null) return
@@ -429,12 +432,27 @@ class TestCallCallbackListener(private val scope: CoroutineScope) : ITestAppCont
         scope.launch { kickParticipantFlow.emit(Pair(callId, participant?.toParticipant())) }
     }
 
+    override fun setLocalCallSilenceState(callId: String?, isLocallySilenced: Boolean) {
+        if (callId == null) return
+        scope.launch { isLocallySilencedFlow.emit(Pair(callId, isLocallySilenced)) }
+    }
+
     suspend fun waitForRaiseHandState(callId: String, expectedState: Boolean) {
         val result =
             withTimeoutOrNull(5000) {
                 raisedHandFlow.filter { it.first == callId && it.second == expectedState }.first()
             }
         assertEquals("raised hands action never received", expectedState, result?.second)
+    }
+
+    suspend fun waitForIsLocalSilenced(callId: String, expectedState: Boolean) {
+        val result =
+            withTimeoutOrNull(5000) {
+                isLocallySilencedFlow
+                    .filter { it.first == callId && it.second == expectedState }
+                    .first()
+            }
+        assertEquals("<LOCAL CALL SILENCE> never received", expectedState, result?.second)
     }
 
     suspend fun waitForKickParticipant(callId: String, expectedParticipant: Participant?) {

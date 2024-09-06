@@ -43,6 +43,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -57,6 +58,8 @@ open class VoipAppWithExtensionsControl : Service() {
     private var participantsFlow: MutableStateFlow<Set<Participant>> = MutableStateFlow(emptySet())
     private var activeParticipantFlow: MutableStateFlow<Participant?> = MutableStateFlow(null)
     private var raisedHandsFlow: MutableStateFlow<List<Participant>> = MutableStateFlow(emptyList())
+    // TODO:: b/364316364 should be Pair(callId:String, value: Boolean)
+    private var isLocallySilencedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     companion object {
         val TAG = VoipAppWithExtensionsControl::class.java.simpleName
@@ -85,7 +88,6 @@ open class VoipAppWithExtensionsControl : Service() {
             }
 
             override fun addCall(capabilities: List<Capability>, isOutgoing: Boolean): String {
-                Log.i(TAG, "VoipAppWithExtensionsControl: addCall: in function")
                 var id = ""
                 runBlocking {
                     val deferredId = CompletableDeferred<String>()
@@ -106,7 +108,7 @@ open class VoipAppWithExtensionsControl : Service() {
                                 participantsFlow
                                     .onEach {
                                         TestUtils.printParticipants(it, "VoIP participants")
-                                        participantStateUpdater!!.updateParticipants(it)
+                                        participantStateUpdater?.updateParticipants(it)
                                     }
                                     .launchIn(this)
                                 raisedHandsFlow
@@ -118,7 +120,16 @@ open class VoipAppWithExtensionsControl : Service() {
                                 activeParticipantFlow
                                     .onEach {
                                         Log.i(TAG, "VOIP active participant: $it")
-                                        participantStateUpdater!!.updateActiveParticipant(it)
+                                        participantStateUpdater?.updateActiveParticipant(it)
+                                    }
+                                    .launchIn(this)
+                                isLocallySilencedFlow
+                                    .drop(1) // ignore the first value from the voip app
+                                    // since only values from the test should be sent!
+                                    .onEach {
+                                        Log.i(TAG, "VoIP isLocallySilenced=[$it]")
+                                        // TODO:: b/364316364 gate on callId
+                                        localCallSilenceUpdater?.updateIsLocallySilenced(it)
                                     }
                                     .launchIn(this)
                                 deferredId.complete(this.getCallId().toString())
@@ -141,6 +152,11 @@ open class VoipAppWithExtensionsControl : Service() {
 
             override fun updateRaisedHands(raisedHandsParticipants: List<ParticipantParcelable>) {
                 raisedHandsFlow.value = raisedHandsParticipants.map { it.toParticipant() }
+            }
+
+            // TODO:: b/364316364 add CallId arg.  Should be changing on a per call basis
+            override fun updateIsLocallySilenced(isLocallySilenced: Boolean) {
+                isLocallySilencedFlow.value = isLocallySilenced
             }
         }
 
