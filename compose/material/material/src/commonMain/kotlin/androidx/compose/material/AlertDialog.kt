@@ -428,7 +428,7 @@ internal fun AlertDialogFlowRow(
                 val arrangement = Arrangement.Bottom
                 // TODO(soboleva): rtl support
                 // Handle vertical direction
-                val mainAxisPositions = IntArray(childrenMainAxisSizes.size) { 0 }
+                val mainAxisPositions = IntArray(childrenMainAxisSizes.size)
                 with(arrangement) {
                     arrange(mainAxisLayoutSize, childrenMainAxisSizes, mainAxisPositions)
                 }

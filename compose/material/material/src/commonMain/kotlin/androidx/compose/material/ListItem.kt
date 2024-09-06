@@ -370,7 +370,7 @@ private fun BaselinesOffsetColumn(
 
         val containerWidth =
             placeables.fastFold(0) { maxWidth, placeable -> max(maxWidth, placeable.width) }
-        val y = Array(placeables.size) { 0 }
+        val y = IntArray(placeables.size)
         var containerHeight = 0
         placeables.fastForEachIndexed { index, placeable ->
             val toPreviousBaseline =

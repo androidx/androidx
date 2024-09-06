@@ -255,7 +255,7 @@ internal fun RowColumnMeasurePolicy.measure(
             crossAxisSpace,
             max(crossAxisMin, beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine)
         )
-    val mainAxisPositions = IntArray(subSize) { 0 }
+    val mainAxisPositions = IntArray(subSize)
     populateMainAxisPositions(
         mainAxisLayoutSize,
         childrenMainAxisSize,
@@ -276,8 +276,3 @@ internal fun RowColumnMeasurePolicy.measure(
         endIndex
     )
 }
-
-internal expect inline fun initCause(
-    exception: IllegalArgumentException,
-    cause: Exception
-): Throwable
