@@ -58,6 +58,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import kotlin.Long.Companion.MAX_VALUE
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -818,6 +819,37 @@ class SandboxedSdkViewTest {
         // Return to the first activity. The onScreenGeometry should now be non-empty.
         sandboxedSdkViewUiInfo = session.runAndRetrieveNextUiChange { uiDevice.pressBack() }
         assertThat(sandboxedSdkViewUiInfo.onScreenGeometry.isEmpty).isFalse()
+    }
+
+    @Test
+    fun addChildViewToSandboxedSdkView_throwsException() {
+        addViewToLayout()
+        val exception =
+            assertThrows(UnsupportedOperationException::class.java) { view.addView(View(context)) }
+        assertThat(exception.message).isEqualTo("Cannot add a view to SandboxedSdkView")
+    }
+
+    @Test
+    fun removeViewsFromSandboxedSdkView_throwsException() {
+        addViewToLayout()
+        val removeChildRunnableArray =
+            arrayOf(
+                Runnable { view.removeView(View(context)) },
+                Runnable { view.removeAllViews() },
+                Runnable { view.removeViewAt(0) },
+                Runnable { view.removeViews(0, 0) },
+                Runnable { view.removeViewInLayout(View(context)) },
+                Runnable { view.removeAllViewsInLayout() },
+                Runnable { view.removeViewsInLayout(0, 0) }
+            )
+
+        removeChildRunnableArray.forEach { removeChildRunnable ->
+            val exception =
+                assertThrows(UnsupportedOperationException::class.java) {
+                    removeChildRunnable.run()
+                }
+            assertThat(exception.message).isEqualTo("Cannot remove a view from SandboxedSdkView")
+        }
     }
 
     private fun addViewToLayout(waitToBeActive: Boolean = false, viewToAdd: View = view) {
