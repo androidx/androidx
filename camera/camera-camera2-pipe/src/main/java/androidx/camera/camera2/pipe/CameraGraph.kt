@@ -335,13 +335,12 @@ public interface CameraGraph : AutoCloseable {
          * - Bug(s): b/356792665
          * - API levels: All
          */
-        val quirkWaitForRepeatingRequestBeforeNonRepeatingCapture:
-            RepeatingRequestRequirementsBeforeCapture =
+        val awaitRepeatingRequestBeforeCapture: RepeatingRequestRequirementsBeforeCapture =
             RepeatingRequestRequirementsBeforeCapture(),
 
         /**
-         * A quirk that waits for the last repeating capture request to start before stopping the
-         * current capture session. Please refer to the bugs linked here, or
+         * Flag to wait for the last repeating capture request to start before stopping the current
+         * capture session. Please refer to the bugs linked here, or
          * [Camera2Quirks.shouldWaitForRepeatingRequestStartOnDisconnect] for more information.
          *
          * This flag provides the overrides for you to override the default behavior (CameraPipe
@@ -350,10 +349,10 @@ public interface CameraGraph : AutoCloseable {
          * - Device(s): Camera devices on hardware level LEGACY
          * - API levels: All
          */
-        val quirkWaitForRepeatingRequestOnDisconnect: Boolean? = null,
+        val awaitRepeatingRequestOnDisconnect: Boolean? = null,
 
         /**
-         * A quirk that finalizes [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
+         * Flag to finalize [androidx.camera.camera2.pipe.compat.CaptureSessionState] when the
          * CameraGraph is stopped or closed. When a CameraGraph is started, the app might wait for
          * the Surfaces to be released before setting the new Surfaces. This creates a potential
          * deadlock, and this quirk is aimed to mitigate such behavior by releasing the Surfaces
@@ -362,28 +361,28 @@ public interface CameraGraph : AutoCloseable {
          * - Device(s): All (but behaviors might differ across devices)
          * - API levels: All
          */
-        val quirkFinalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
+        val finalizeSessionOnCloseBehavior: FinalizeSessionOnCloseBehavior = OFF,
 
         /**
-         * A quirk that closes the camera capture session when the CameraGraph is stopped or closed.
-         * This is needed in cases where the app that do not wish to receive further frames, or in
-         * cases where not closing the capture session before closing the camera device might cause
-         * the camera close call itself to hang indefinitely.
+         * Flag to close the camera capture session when the CameraGraph is stopped or closed. This
+         * is needed in cases where the app that do not wish to receive further frames, or in cases
+         * where not closing the capture session before closing the camera device might cause the
+         * camera close call itself to hang indefinitely.
          * - Bug(s): b/277310425, b/277310425
          * - Device(s): Depends on the situation and the use case.
          * - API levels: All
          */
-        val quirkCloseCaptureSessionOnDisconnect: Boolean = false,
+        val closeCaptureSessionOnDisconnect: Boolean = false,
 
         /**
-         * A quirk that closes the camera device when the CameraGraph is closed. This is needed on
-         * devices where not closing the camera device before creating a new capture session can
-         * lead to crashes.
+         * Flag to close the camera device when the CameraGraph is closed. This is needed on devices
+         * where not closing the camera device before creating a new capture session can lead to
+         * crashes.
          * - Bug(s): b/282871038
          * - Device(s): Exynos7870 platforms.
          * - API levels: All
          */
-        val quirkCloseCameraDeviceOnClose: Boolean = false,
+        val closeCameraDeviceOnClose: Boolean = false,
     ) {
 
         @JvmInline
