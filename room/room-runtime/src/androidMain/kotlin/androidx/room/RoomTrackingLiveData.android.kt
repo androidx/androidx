@@ -66,13 +66,7 @@ internal sealed class RoomTrackingLiveData<T>(
 
     private suspend fun refresh() {
         if (registeredObserver.compareAndSet(false, true)) {
-            database.invalidationTracker.subscribe(
-                InvalidationTracker.WeakObserver(
-                    database.invalidationTracker,
-                    database.getCoroutineScope(),
-                    observer
-                )
-            )
+            database.invalidationTracker.addWeakObserver(observer)
         }
         var computed: Boolean
         do {
