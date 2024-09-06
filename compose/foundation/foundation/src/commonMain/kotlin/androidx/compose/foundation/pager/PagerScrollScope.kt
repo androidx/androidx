@@ -17,22 +17,23 @@
 package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import kotlin.math.roundToInt
 
 /**
- * A [LazyLayoutAnimateScrollScope] that allows customization of animated scroll in [Pager]. The
- * scope contains information about the layout where animated scroll can be performed as well as the
+ * A [LazyLayoutScrollScope] that allows customization of animated scroll in [Pager]. The scope
+ * contains information about the layout where animated scroll can be performed as well as the
  * necessary tools to do that respecting the scroll mutation priority.
  *
  * @param state The [PagerState] associated with the layout where this animated scroll should be
  *   performed.
- * @return An implementation of [LazyLayoutAnimateScrollScope] that works with [HorizontalPager] and
+ * @param scrollScope The base [ScrollScope] where the scroll session was created.
+ * @return An implementation of [LazyLayoutScrollScope] that works with [HorizontalPager] and
  *   [VerticalPager].
- * @sample androidx.compose.foundation.samples.CustomPagerAnimateToPageScrollSample
+ * @sample androidx.compose.foundation.samples.PagerCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScope {
-    return object : LazyLayoutAnimateScrollScope {
+fun LazyLayoutScrollScope(state: PagerState, scrollScope: ScrollScope): LazyLayoutScrollScope {
+    return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
 
         override val firstVisibleItemIndex: Int
             get() = state.firstVisiblePage
@@ -46,7 +47,7 @@ fun LazyLayoutAnimateScrollScope(state: PagerState): LazyLayoutAnimateScrollScop
         override val itemCount: Int
             get() = state.pageCount
 
-        override fun ScrollScope.snapToItem(index: Int, offset: Int) {
+        override fun snapToItem(index: Int, offset: Int) {
             val offsetFraction = offset / state.pageSizeWithSpacing.toFloat()
             state.snapToItem(index, offsetFraction, forceRemeasure = true)
         }

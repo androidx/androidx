@@ -32,10 +32,10 @@ import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.internal.requirePrecondition
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
 import androidx.compose.foundation.lazy.layout.LazyLayoutBeyondBoundsInfo
 import androidx.compose.foundation.lazy.layout.LazyLayoutPinnedItemList
 import androidx.compose.foundation.lazy.layout.LazyLayoutPrefetchState
+import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
 import androidx.compose.foundation.lazy.layout.PrefetchScheduler
 import androidx.compose.runtime.Composable
@@ -454,8 +454,6 @@ internal constructor(
     /** Constraints passed to the prefetcher for premeasuring the prefetched items. */
     internal var premeasureConstraints = Constraints()
 
-    private val animateScrollScope = LazyLayoutAnimateScrollScope(this)
-
     /** Stores currently pinned pages which are always composed, used by for beyond bound pages. */
     internal val pinnedPages = LazyLayoutPinnedItemList()
 
@@ -589,13 +587,14 @@ internal constructor(
         val targetPageOffsetToSnappedPosition = (pageOffsetFraction * pageSizeWithSpacing)
 
         scroll {
-            animateScrollScope.animateScrollToPage(
-                targetPage,
-                targetPageOffsetToSnappedPosition,
-                animationSpec,
-                updateTargetPage = { updateTargetPage(it) },
-                this
-            )
+            LazyLayoutScrollScope(this@PagerState, this)
+                .animateScrollToPage(
+                    targetPage,
+                    targetPageOffsetToSnappedPosition,
+                    animationSpec,
+                    updateTargetPage = { updateTargetPage(it) },
+                    this
+                )
         }
     }
 
@@ -911,7 +910,7 @@ private fun PagerMeasureResult.calculateNewMinScrollOffset(pageCount: Int): Long
         .toLong()
 }
 
-private suspend fun LazyLayoutAnimateScrollScope.animateScrollToPage(
+private suspend fun LazyLayoutScrollScope.animateScrollToPage(
     targetPage: Int,
     targetPageOffsetToSnappedPosition: Float,
     animationSpec: AnimationSpec<Float>,

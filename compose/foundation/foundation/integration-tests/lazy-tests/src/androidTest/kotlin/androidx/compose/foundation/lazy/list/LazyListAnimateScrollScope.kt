@@ -17,9 +17,10 @@
 package androidx.compose.foundation.lazy.list
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.lazy.LazyLayoutScrollScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ class LazyListAnimateScrollScope(orientation: Orientation) :
             }
         }
 
-        val animatedScrollScope = LazyLayoutAnimateScrollScope(state)
+        val animatedScrollScope = LazyLayoutScrollScope(state, NoOpScope)
         /**
          * Sticky item is considered non visible whilst sticking, distance should be best effort,
          * average size * (target pos - current pos)
@@ -59,5 +60,10 @@ class LazyListAnimateScrollScope(orientation: Orientation) :
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun params() = arrayOf(Orientation.Vertical, Orientation.Horizontal)
+
+        val NoOpScope =
+            object : ScrollScope {
+                override fun scrollBy(pixels: Float): Float = 0f
+            }
     }
 }

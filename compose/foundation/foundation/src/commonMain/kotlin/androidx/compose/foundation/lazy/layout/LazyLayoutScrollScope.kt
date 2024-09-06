@@ -45,17 +45,17 @@ private inline fun debugLog(generateMsg: () -> String) {
 }
 
 /**
- * A scope to allow customization of animated scroll in LazyLayouts. This scope contains all needed
- * information to perform an animatedScroll in a scrollable LazyLayout.
+ * A [ScrollScope] to allow customization of scroll sessions in LazyLayouts. This scope contains
+ * additional information to perform a custom scroll session in a scrollable LazyLayout.
  *
  * For implementations for the most common layouts see:
  *
- * @see androidx.compose.foundation.lazy.grid.LazyLayoutAnimateScrollScope
- * @see androidx.compose.foundation.lazy.staggeredgrid.LazyLayoutAnimateScrollScope
- * @see androidx.compose.foundation.lazy.LazyLayoutAnimateScrollScope
- * @see androidx.compose.foundation.pager.LazyLayoutAnimateScrollScope
+ * @see androidx.compose.foundation.lazy.grid.LazyLayoutScrollScope
+ * @see androidx.compose.foundation.lazy.staggeredgrid.LazyLayoutScrollScope
+ * @see androidx.compose.foundation.lazy.LazyLayoutScrollScope
+ * @see androidx.compose.foundation.pager.LazyLayoutScrollScope
  */
-interface LazyLayoutAnimateScrollScope {
+interface LazyLayoutScrollScope : ScrollScope {
 
     /** The index of the first visible item in the lazy layout. */
     val firstVisibleItemIndex: Int
@@ -78,7 +78,7 @@ interface LazyLayoutAnimateScrollScope {
      * @param index The position index where we should immediately snap to.
      * @param offset The offset where we should immediately snap to.
      */
-    fun ScrollScope.snapToItem(index: Int, offset: Int = 0)
+    fun snapToItem(index: Int, offset: Int = 0)
 
     /**
      * The "expected" distance to [targetIndex]. This means the "expected" offset of [targetIndex]
@@ -94,11 +94,11 @@ interface LazyLayoutAnimateScrollScope {
     fun calculateDistanceTo(targetIndex: Int, targetOffset: Int = 0): Int
 }
 
-internal fun LazyLayoutAnimateScrollScope.isItemVisible(index: Int): Boolean {
+internal fun LazyLayoutScrollScope.isItemVisible(index: Int): Boolean {
     return index in firstVisibleItemIndex..lastVisibleItemIndex
 }
 
-internal suspend fun LazyLayoutAnimateScrollScope.animateScrollToItem(
+internal suspend fun LazyLayoutScrollScope.animateScrollToItem(
     index: Int,
     scrollOffset: Int,
     numOfItemsForTeleport: Int,

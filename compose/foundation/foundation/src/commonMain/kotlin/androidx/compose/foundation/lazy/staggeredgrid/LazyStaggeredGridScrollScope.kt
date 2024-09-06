@@ -18,24 +18,26 @@ package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
-import androidx.compose.foundation.lazy.grid.LazyLayoutAnimateScrollScope
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateScrollScope
-import androidx.compose.foundation.pager.LazyLayoutAnimateScrollScope
+import androidx.compose.foundation.lazy.layout.LazyLayoutScrollScope
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastSumBy
 
 /**
- * An implementation of [LazyLayoutAnimateScrollScope] that can be used with LazyStaggeredGrids.
+ * An implementation of [LazyLayoutScrollScope] that can be used with LazyStaggeredGrids.
  *
- * @param state The [LazyStaggeredGridState] associated with the layout where this animated scroll
+ * @param state The [LazyStaggeredGridState] associated with the layout where this custom scroll
  *   should be performed.
- * @return An implementation of [LazyLayoutAnimateScrollScope] that works with
+ * @param scrollScope The base [ScrollScope] where the scroll session was created.
+ * @return An implementation of [LazyLayoutScrollScope] that works with
  *   [LazyHorizontalStaggeredGrid] and [LazyVerticalStaggeredGrid].
- * @sample androidx.compose.foundation.samples.CustomLazyStaggeredGridAnimateToItemScrollSample
+ * @sample androidx.compose.foundation.samples.LazyStaggeredGridCustomScrollUsingLazyLayoutScrollScopeSample
  */
-fun LazyLayoutAnimateScrollScope(state: LazyStaggeredGridState): LazyLayoutAnimateScrollScope {
+fun LazyLayoutScrollScope(
+    state: LazyStaggeredGridState,
+    scrollScope: ScrollScope
+): LazyLayoutScrollScope {
 
-    return object : LazyLayoutAnimateScrollScope {
+    return object : LazyLayoutScrollScope, ScrollScope by scrollScope {
         override val firstVisibleItemIndex: Int
             get() = state.firstVisibleItemIndex
 
@@ -48,7 +50,7 @@ fun LazyLayoutAnimateScrollScope(state: LazyStaggeredGridState): LazyLayoutAnima
         override val itemCount: Int
             get() = state.layoutInfo.totalItemsCount
 
-        override fun ScrollScope.snapToItem(index: Int, offset: Int) {
+        override fun snapToItem(index: Int, offset: Int) {
             with(state) { snapToItemInternal(index, offset, forceRemeasure = true) }
         }
 

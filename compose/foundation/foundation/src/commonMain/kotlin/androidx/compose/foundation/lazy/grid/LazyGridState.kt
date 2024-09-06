@@ -276,8 +276,6 @@ constructor(
             }
         }
 
-    private val animateScrollScope = LazyLayoutAnimateScrollScope(this)
-
     /** Stores currently pinned items which are always composed. */
     internal val pinnedItems = LazyLayoutPinnedItemList()
 
@@ -449,13 +447,8 @@ constructor(
      */
     suspend fun animateScrollToItem(@AndroidXIntRange(from = 0) index: Int, scrollOffset: Int = 0) {
         scroll {
-            animateScrollScope.animateScrollToItem(
-                index,
-                scrollOffset,
-                numOfItemsToTeleport,
-                density,
-                this
-            )
+            LazyLayoutScrollScope(this@LazyGridState, this)
+                .animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density, this)
         }
     }
 
