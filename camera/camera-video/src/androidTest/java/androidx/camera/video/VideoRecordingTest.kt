@@ -713,6 +713,14 @@ class VideoRecordingTest(
 
         checkAndBindUseCases(preview, videoCapture)
 
+        // TODO(b/340406044): Enable the test for stream sharing use case.
+        // Bypass stream sharing if it's enforced on the device. Like quirks in
+        // androidx.camera.core.internal.compat.workaround.StreamSharingForceEnabler.
+        assumeFalse(
+            "The test is temporarily ignored when stream sharing is enabled.",
+            isStreamSharingEnabled(videoCapture)
+        )
+
         val recording =
             recordingSession.createRecording(asPersistentRecording = true).startAndVerify()
 
@@ -736,6 +744,14 @@ class VideoRecordingTest(
         )
 
         checkAndBindUseCases(preview, videoCapture)
+
+        // TODO(b/340406044): Enable the test for stream sharing use case.
+        // Bypass stream sharing if it's enforced on the device. Like quirks in
+        // androidx.camera.core.internal.compat.workaround.StreamSharingForceEnabler.
+        assumeFalse(
+            "The test is temporarily ignored when stream sharing is enabled.",
+            isStreamSharingEnabled(videoCapture)
+        )
 
         val recording =
             recordingSession

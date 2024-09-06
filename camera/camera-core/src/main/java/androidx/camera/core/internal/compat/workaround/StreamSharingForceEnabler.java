@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.core.internal.compat.quirk.ImageCaptureFailedForSpecificCombinationQuirk;
+import androidx.camera.core.internal.compat.quirk.PreviewGreenTintQuirk;
 
 import java.util.Collection;
 
@@ -28,11 +29,16 @@ import java.util.Collection;
  * Workaround to check whether stream sharing should be forced enabled.
  *
  * @see ImageCaptureFailedForSpecificCombinationQuirk
+ * @see PreviewGreenTintQuirk
  */
 public class StreamSharingForceEnabler {
     @Nullable
     private final ImageCaptureFailedForSpecificCombinationQuirk mSpecificCombinationQuirk =
             DeviceQuirks.get(ImageCaptureFailedForSpecificCombinationQuirk.class);
+
+    @Nullable
+    private final PreviewGreenTintQuirk mPreviewGreenTintQuirk =
+            DeviceQuirks.get(PreviewGreenTintQuirk.class);
 
     /**
      * Returns whether stream sharing should be forced enabled.
@@ -41,6 +47,9 @@ public class StreamSharingForceEnabler {
             @NonNull Collection<UseCase> appUseCases) {
         if (mSpecificCombinationQuirk != null) {
             return mSpecificCombinationQuirk.shouldForceEnableStreamSharing(cameraId, appUseCases);
+        }
+        if (mPreviewGreenTintQuirk != null) {
+            return mPreviewGreenTintQuirk.shouldForceEnableStreamSharing(cameraId, appUseCases);
         }
 
         return false;
