@@ -45,7 +45,7 @@ dependencies {
     implementation("androidx.compose.material:material-ripple:1.7.0")
     implementation("androidx.compose.ui:ui-util:1.7.0")
     implementation(project(":wear:compose:compose-material-core"))
-    implementation("androidx.profileinstaller:profileinstaller:1.3.1")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.graphics:graphics-shapes:1.0.1")
     implementation project(':compose:animation:animation-graphics')
 
