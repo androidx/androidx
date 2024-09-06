@@ -170,7 +170,9 @@ constructor(
         repeat(placeableOffsets.size) { index ->
             // placeableOffsets consist of x and y pairs for each placeable.
             // if isVertical is true then the main axis offsets are located at indexes 1, 3, 5 etc.
-            if ((isVertical && index % 2 == 1) || (!isVertical && index % 2 == 0)) {
+            // 1 when odd, 0 when even
+            val oddEven = index and 1
+            if ((isVertical && oddEven != 0) || (!isVertical && oddEven == 0)) {
                 placeableOffsets[index] += delta
             }
         }
@@ -255,7 +257,7 @@ constructor(
         get() = if (isVertical) height else width
 
     private inline fun IntOffset.copy(mainAxisMap: (Int) -> Int): IntOffset =
-        IntOffset(if (isVertical) x else mainAxisMap(x), if (isVertical) mainAxisMap(y) else y)
+        if (isVertical) IntOffset(x, mainAxisMap(y)) else IntOffset(mainAxisMap(x), y)
 }
 
 private const val Unset = Int.MIN_VALUE

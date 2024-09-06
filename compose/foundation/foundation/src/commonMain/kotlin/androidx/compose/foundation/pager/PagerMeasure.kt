@@ -639,7 +639,7 @@ private fun LazyLayoutMeasureScope.calculatePagesOffsets(
         fun Int.reverseAware() = if (!reverseLayout) this else pagesCount - this - 1
 
         val sizes = IntArray(pagesCount) { pageAvailableSize }
-        val offsets = IntArray(pagesCount) { 0 }
+        val offsets = IntArray(pagesCount)
 
         val arrangement = spacedBy(spaceBetweenPages.toDp())
         if (orientation == Orientation.Vertical) {

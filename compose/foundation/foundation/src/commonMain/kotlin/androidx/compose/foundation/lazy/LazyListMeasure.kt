@@ -617,7 +617,7 @@ private fun calculateItemsOffsets(
         fun Int.reverseAware() = if (!reverseLayout) this else itemsCount - this - 1
 
         val sizes = IntArray(itemsCount) { index -> items[index.reverseAware()].size }
-        val offsets = IntArray(itemsCount) { 0 }
+        val offsets = IntArray(itemsCount)
         if (isVertical) {
             with(
                 requirePreconditionNotNull(verticalArrangement) {

@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.unit.Constraints.Companion.Infinity
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.jvm.JvmInline
 import kotlin.math.min
 
@@ -416,13 +420,13 @@ private const val MaxAllowedForMaxNonFocusBits = (1 shl (31 - MaxNonFocusBits)) 
 private const val MaxNonFocusMask = 0x1FFF // 8K (13 bits)
 
 // Wrap those throws in functions to avoid inlining the string building at the call sites
-private fun invalidConstraint(widthVal: Int, heightVal: Int) {
+private fun throwInvalidConstraintException(widthVal: Int, heightVal: Int) {
     throw IllegalArgumentException(
         "Can't represent a width of $widthVal and height of $heightVal in Constraints"
     )
 }
 
-private fun invalidSize(size: Int): Nothing {
+private fun throwInvalidSizeException(size: Int): Nothing {
     throw IllegalArgumentException("Can't represent a size of $size in Constraints")
 }
 
@@ -440,7 +444,7 @@ internal fun createConstraints(
     val widthBits = bitsNeedForSizeUnchecked(widthVal)
 
     if (widthBits + heightBits > 31) {
-        invalidConstraint(widthVal, heightVal)
+        throwInvalidConstraintException(widthVal, heightVal)
     }
 
     // Same as if (maxWidth == Infinity) 0 else maxWidth + 1 but branchless
@@ -489,7 +493,7 @@ private fun maxAllowedForSize(size: Int): Int {
         size < MinNonFocusMask -> MaxAllowedForMinNonFocusBits
         size < MinFocusMask -> MaxAllowedForMinFocusBits
         size < MaxFocusMask -> MaxAllowedForMaxFocusBits
-        else -> invalidSize(size)
+        else -> throwInvalidSizeException(size)
     }
 }
 
@@ -501,9 +505,9 @@ private fun maxAllowedForSize(size: Int): Int {
 @Stable
 fun Constraints(
     minWidth: Int = 0,
-    maxWidth: Int = Constraints.Infinity,
+    maxWidth: Int = Infinity,
     minHeight: Int = 0,
-    maxHeight: Int = Constraints.Infinity
+    maxHeight: Int = Infinity
 ): Constraints {
     requirePrecondition(maxWidth >= minWidth) {
         "maxWidth($maxWidth) must be >= than minWidth($minWidth)"
@@ -528,25 +532,25 @@ fun Constraints(
  */
 fun Constraints.constrain(otherConstraints: Constraints) =
     Constraints(
-        minWidth = otherConstraints.minWidth.coerceIn(minWidth, maxWidth),
-        maxWidth = otherConstraints.maxWidth.coerceIn(minWidth, maxWidth),
-        minHeight = otherConstraints.minHeight.coerceIn(minHeight, maxHeight),
-        maxHeight = otherConstraints.maxHeight.coerceIn(minHeight, maxHeight)
+        minWidth = otherConstraints.minWidth.fastCoerceIn(minWidth, maxWidth),
+        maxWidth = otherConstraints.maxWidth.fastCoerceIn(minWidth, maxWidth),
+        minHeight = otherConstraints.minHeight.fastCoerceIn(minHeight, maxHeight),
+        maxHeight = otherConstraints.maxHeight.fastCoerceIn(minHeight, maxHeight)
     )
 
 /** Takes a size and returns the closest size to it that satisfies the constraints. */
 @Stable
 fun Constraints.constrain(size: IntSize) =
     IntSize(
-        width = size.width.coerceIn(minWidth, maxWidth),
-        height = size.height.coerceIn(minHeight, maxHeight)
+        width = size.width.fastCoerceIn(minWidth, maxWidth),
+        height = size.height.fastCoerceIn(minHeight, maxHeight)
     )
 
 /** Takes a width and returns the closest size to it that satisfies the constraints. */
-@Stable fun Constraints.constrainWidth(width: Int) = width.coerceIn(minWidth, maxWidth)
+@Stable fun Constraints.constrainWidth(width: Int) = width.fastCoerceIn(minWidth, maxWidth)
 
 /** Takes a height and returns the closest size to it that satisfies the constraints. */
-@Stable fun Constraints.constrainHeight(height: Int) = height.coerceIn(minHeight, maxHeight)
+@Stable fun Constraints.constrainHeight(height: Int) = height.fastCoerceIn(minHeight, maxHeight)
 
 /** Takes a size and returns whether it satisfies the current constraints. */
 @Stable
@@ -558,17 +562,17 @@ fun Constraints.isSatisfiedBy(size: IntSize): Boolean {
 @Stable
 fun Constraints.offset(horizontal: Int = 0, vertical: Int = 0) =
     Constraints(
-        (minWidth + horizontal).coerceAtLeast(0),
+        (minWidth + horizontal).fastCoerceAtLeast(0),
         addMaxWithMinimum(maxWidth, horizontal),
-        (minHeight + vertical).coerceAtLeast(0),
+        (minHeight + vertical).fastCoerceAtLeast(0),
         addMaxWithMinimum(maxHeight, vertical)
     )
 
 private fun addMaxWithMinimum(max: Int, value: Int): Int {
-    return if (max == Constraints.Infinity) {
+    return if (max == Infinity) {
         max
     } else {
-        (max + value).coerceAtLeast(0)
+        (max + value).fastCoerceAtLeast(0)
     }
 }
 
@@ -630,7 +634,6 @@ private fun addMaxWithMinimum(max: Int, value: Int): Int {
  * compute other values without the need of lookup tables. For instance, [minHeightOffsets] returns
  * `2 + 13 + bitOffset`.
  */
-@Suppress("NOTHING_TO_INLINE")
 private inline fun indexToBitOffset(index: Int) =
     (index and 0x1 shl 1) + ((index and 0x2 shr 1) * 3)
 
@@ -638,12 +641,10 @@ private inline fun indexToBitOffset(index: Int) =
  * Minimum Height shift offsets into Long value, indexed by FocusMask Max offsets are these + 31
  * Width offsets are always either 2 (min) or 33 (max)
  */
-@Suppress("NOTHING_TO_INLINE") private inline fun minHeightOffsets(bitOffset: Int) = 15 + bitOffset
+private inline fun minHeightOffsets(bitOffset: Int) = 15 + bitOffset
 
 /** The mask to use for both minimum and maximum width. */
-@Suppress("NOTHING_TO_INLINE")
 private inline fun widthMask(bitOffset: Int) = (1 shl (13 + bitOffset)) - 1
 
 /** The mask to use for both minimum and maximum height. */
-@Suppress("NOTHING_TO_INLINE")
 private inline fun heightMask(bitOffset: Int) = (1 shl (18 - bitOffset)) - 1
