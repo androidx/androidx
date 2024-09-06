@@ -30,8 +30,6 @@ import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import com.android.tools.lint.detector.api.SourceCodeScanner
 import com.android.tools.lint.detector.api.isKotlin
-import com.android.tools.lint.model.DefaultLintModelAndroidLibrary
-import com.android.tools.lint.model.DefaultLintModelJavaLibrary
 import com.android.tools.lint.model.DefaultLintModelMavenName
 import com.android.tools.lint.model.LintModelLibrary
 import com.android.tools.lint.model.LintModelMavenName
@@ -43,7 +41,6 @@ import com.intellij.psi.PsiMember
 import com.intellij.psi.PsiMethod
 import com.intellij.psi.impl.compiled.ClsAnnotationImpl
 import com.intellij.psi.util.PsiTypesUtil
-import org.jetbrains.kotlin.konan.file.File
 import org.jetbrains.uast.UAnnotated
 import org.jetbrains.uast.UAnnotation
 import org.jetbrains.uast.UCallExpression
@@ -501,80 +498,6 @@ class RestrictToDetector : AbstractAnnotationDetector(), SourceCodeScanner {
                 severity = Severity.ERROR,
                 implementation = IMPLEMENTATION
             )
-    }
-}
-
-/** Attempts to find the Maven coordinate for the library containing [member]. */
-private fun JavaContext.findMavenCoordinate(member: PsiMember): LintModelMavenName? {
-    val mavenName =
-        evaluator.getLibrary(member) ?: evaluator.getProject(member)?.mavenCoordinate ?: return null
-
-    // If the lint model is missing a Maven coordinate for this class, try to infer one from the
-    // JAR's owner library. If we fail, return the broken Maven name anyway.
-    if (mavenName == LintModelMavenName.NONE) {
-        return evaluator
-            .findJarPath(member)
-            ?.let { jarPath ->
-                evaluator.findOwnerLibrary(jarPath.replace('/', File.separatorChar))
-            }
-            ?.getMavenNameFromIdentifier() ?: mavenName
-    }
-
-    // If the lint model says the class lives in a "local AAR", try a little bit harder to match
-    // that to an artifact in a real library based on build directory containment.
-    if (mavenName.groupId == "__local_aars__") {
-        val artifactPath = mavenName.artifactId
-
-        // The artifact is being repackaged within this project. Assume that means it's in the same
-        // Maven group.
-        if (artifactPath.startsWith(project.buildModule.buildFolder.path)) {
-            return project.mavenCoordinate
-        }
-
-        val lastIndexOfBuild = artifactPath.lastIndexOf("/build/")
-        if (lastIndexOfBuild < 0) return null
-
-        // Otherwise, try to find a dependency with a matching path and use its Maven group.
-        val path = artifactPath.substring(0, lastIndexOfBuild)
-        return evaluator.dependencies?.getAll()?.findMavenNameWithJarFileInPath(path, mavenName)
-            ?: mavenName
-    }
-
-    return mavenName
-}
-
-/**
- * Attempts to find the Maven name for the library with at least one JAR file matching the [path].
- */
-internal fun List<LintModelLibrary>.findMavenNameWithJarFileInPath(
-    path: String,
-    excludeMavenName: LintModelMavenName? = null
-): LintModelMavenName? {
-    return firstNotNullOfOrNull { library ->
-        val resolvedCoordinates =
-            when {
-                library is DefaultLintModelJavaLibrary -> library.resolvedCoordinates
-                library is DefaultLintModelAndroidLibrary -> library.resolvedCoordinates
-                else -> null
-            }
-
-        if (resolvedCoordinates == null || resolvedCoordinates == excludeMavenName) {
-            return@firstNotNullOfOrNull null
-        }
-
-        val hasMatchingJarFile =
-            when {
-                library == excludeMavenName -> emptyList()
-                library is DefaultLintModelJavaLibrary -> library.jarFiles
-                library is DefaultLintModelAndroidLibrary -> library.jarFiles
-                else -> emptyList()
-            }.any { jarFile -> jarFile.path.startsWith(path) }
-
-        if (hasMatchingJarFile) {
-            return@firstNotNullOfOrNull resolvedCoordinates
-        }
-
-        return@firstNotNullOfOrNull null
     }
 }
 
