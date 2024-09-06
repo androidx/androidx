@@ -78,8 +78,6 @@ android {
     testOptions.unitTests.includeAndroidResources = true
     namespace "androidx.health.connect.client"
     compileSdk = 35
-    // TODO(b/352609562): Typedef with `toLong()`
-    experimentalProperties["android.lint.useK2Uast"] = false
 }
 
 androidx {
