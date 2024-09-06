@@ -235,6 +235,10 @@ class E2EExtensionTests(private val parameters: TestParameters) : BaseTelecomTes
                     val participants = CachedParticipants(this)
                     onConnected {
                         hasConnected = true
+                        assertTrue(
+                            "Participants are not supported",
+                            participants.extension.isSupported
+                        )
                         // Wait for initial state
                         participants.waitForParticipants(emptySet())
                         participants.waitForActiveParticipant(null)
