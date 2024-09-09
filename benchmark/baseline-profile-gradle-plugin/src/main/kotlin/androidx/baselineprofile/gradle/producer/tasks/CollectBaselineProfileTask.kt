@@ -84,9 +84,9 @@ abstract class CollectBaselineProfileTask : DefaultTask() {
 
                 // Sets the project testInstrumentationRunnerArguments
                 it.testInstrumentationRunnerArguments.set(
-                    project.properties.filterKeys { k ->
-                        k.startsWith(PROP_KEY_PREFIX_INSTRUMENTATION_RUNNER_ARG)
-                    }
+                    project.providers.gradlePropertiesPrefixedBy(
+                        PROP_KEY_PREFIX_INSTRUMENTATION_RUNNER_ARG
+                    )
                 )
 
                 // Disables the task if requested
