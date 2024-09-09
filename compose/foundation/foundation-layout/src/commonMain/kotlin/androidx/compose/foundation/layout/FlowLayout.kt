@@ -890,8 +890,8 @@ private fun minIntrinsicMainAxisSize(
     if (children.isEmpty()) {
         return 0
     }
-    val mainAxisSizes = IntArray(children.size) { 0 }
-    val crossAxisSizes = IntArray(children.size) { 0 }
+    val mainAxisSizes = IntArray(children.size)
+    val crossAxisSizes = IntArray(children.size)
 
     for (index in children.indices) {
         val child = children[index]
