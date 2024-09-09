@@ -180,9 +180,44 @@ class AndroidFragmentTest {
 
         onView(withText("Show me on Screen")).check(matches(isDisplayed()))
     }
+
+    @Test
+    fun recomposeWhenSwapFragmentClass() {
+
+        lateinit var clazz: MutableState<Class<out Fragment>>
+        testRule.setContent {
+            clazz = remember { mutableStateOf(FragmentForCompose::class.java) }
+            AndroidFragment(
+                clazz = clazz.value,
+                arguments = bundleOf("name" to clazz.value.simpleName)
+            )
+        }
+
+        testRule.waitForIdle()
+
+        onView(withText("My name is ${FragmentForCompose::class.simpleName}"))
+            .check(matches(isDisplayed()))
+
+        testRule.runOnIdle { clazz.value = FragmentForCompose2::class.java }
+
+        testRule.waitForIdle()
+
+        onView(withText("My name is ${FragmentForCompose2::class.simpleName}"))
+            .check(matches(isDisplayed()))
+    }
 }
 
 class FragmentForCompose : Fragment(R.layout.content) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val name = arguments?.getString("name")
+        if (name != null) {
+            val textView = view.findViewById<TextView>(R.id.text)
+            textView.text = "My name is $name"
+        }
+    }
+}
+
+class FragmentForCompose2 : Fragment(R.layout.content) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val name = arguments?.getString("name")
         if (name != null) {
