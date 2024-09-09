@@ -19,8 +19,8 @@ package androidx.camera.integration.extensions
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.extensions.ExtensionsManager
 import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
@@ -95,7 +95,8 @@ class PreviewExtenderValidationTest(private val config: CameraXExtensionTestPara
                 cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
             }
 
-        cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
+        cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
     }
 
     @After
