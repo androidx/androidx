@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.content.ComponentName
 import android.os.Bundle
-import androidx.annotation.Discouraged
 import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -180,11 +179,12 @@ constructor(
         /**
          * Returns the request metadata as a `Bundle`.
          *
+         * This API should only be used by OEM services and library groups.
+         *
          * Note: this is not the equivalent of the complete request itself. For example, it does not
          * include the request's `credentialOptions` or `origin`.
          */
         @JvmStatic
-        @Discouraged("It should only be used by OEM services and library groups")
         fun getRequestMetadataBundle(request: GetCredentialRequest): Bundle {
             val bundle = Bundle()
             bundle.putBoolean(BUNDLE_KEY_PREFER_IDENTITY_DOC_UI, request.preferIdentityDocUi)
@@ -202,13 +202,14 @@ constructor(
         /**
          * Parses the [request] into an instance of [GetCredentialRequest].
          *
+         * It is recommended to construct a GetCredentialRequest by direct constructor calls,
+         * instead of using this API. This API should only be used by a small subset of system apps
+         * that reconstruct an existing object for user interactions such as collecting consents.
+         *
          * @param request the framework GetCredentialRequest object
          */
         @RequiresApi(34)
         @JvmStatic
-        @Discouraged(
-            "It is recommended to construct a GetCredentialRequest by directly instantiating a GetCredentialRequest"
-        )
         fun createFrom(request: android.credentials.GetCredentialRequest): GetCredentialRequest {
             return createFrom(
                 request.credentialOptions.map { CredentialOption.createFrom(it) },
@@ -220,14 +221,15 @@ constructor(
         /**
          * Parses the raw data into an instance of [GetCredentialRequest].
          *
+         * It is recommended to construct a GetCredentialRequest by direct constructor calls,
+         * instead of using this API. This API should only be used by a small subset of system apps
+         * that reconstruct an existing object for user interactions such as collecting consents.
+         *
          * @param credentialOptions matches [GetCredentialRequest.credentialOptions]
          * @param origin matches [GetCredentialRequest.origin]
          * @param metadata request metadata serialized as a Bundle using [getRequestMetadataBundle]
          */
         @JvmStatic
-        @Discouraged(
-            "It is recommended to construct a GetCredentialRequest by directly instantiating a GetCredentialRequest"
-        )
         fun createFrom(
             credentialOptions: List<CredentialOption>,
             origin: String?,

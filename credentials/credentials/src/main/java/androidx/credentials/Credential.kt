@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.Discouraged
 import androidx.annotation.RequiresApi
 import androidx.credentials.internal.FrameworkClassParsingException
 
@@ -40,15 +39,17 @@ internal constructor(
         /**
          * Parses the raw data into an instance of [Credential].
          *
+         * It is recommended to construct a Credential by directly instantiating a Credential
+         * subclass, instead of using this API. This API should only be used by a small subset of
+         * system apps that reconstruct an existing object for user interactions such as collecting
+         * consents.
+         *
          * @param type matches [Credential.type], the credential type
          * @param data matches [Credential.data], the credential data in the [Bundle] format; this
          *   should be constructed and retrieved from the a given [Credential] itself and never be
          *   created from scratch
          */
         @JvmStatic
-        @Discouraged(
-            "It is recommended to construct a Credential by directly instantiating a Credential subclass"
-        )
         fun createFrom(type: String, data: Bundle): Credential {
             return try {
                 when (type) {
@@ -70,13 +71,15 @@ internal constructor(
         /**
          * Parses the [credential] into an instance of [Credential].
          *
+         * It is recommended to construct a Credential by directly instantiating a Credential
+         * subclass, instead of using this API. This API should only be used by a small subset of
+         * system apps that reconstruct an existing object for user interactions such as collecting
+         * consents.
+         *
          * @param credential the framework Credential object
          */
         @JvmStatic
         @RequiresApi(34)
-        @Discouraged(
-            "It is recommended to construct a Credential by directly instantiating a Credential subclass"
-        )
         fun createFrom(credential: android.credentials.Credential): Credential {
             return createFrom(credential.type, credential.data)
         }
