@@ -351,9 +351,7 @@ class ConfirmationTest {
 
         // Stepping down half of the container height with vertical content padding
         textTop.assertIsEqualTo(
-            iconCenter +
-                ConfirmationDefaults.ConfirmationIconContainerSmallSize / 2 +
-                ConfirmationDefaults.LinearContentSpacing
+            iconCenter + ConfirmationLinearIconContainerSize / 2 + LinearContentSpacing
         )
     }
 
