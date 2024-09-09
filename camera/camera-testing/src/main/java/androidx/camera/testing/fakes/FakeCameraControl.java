@@ -59,6 +59,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -106,6 +107,9 @@ public final class FakeCameraControl implements CameraControlInternal {
             new ArrayDeque<>();
     @GuardedBy("mLock")
     private final ArrayDeque<CaptureResult> mCaptureResults = new ArrayDeque<>();
+
+    private final List<CaptureSuccessListener> mCaptureSuccessListeners =
+            new CopyOnWriteArrayList<>();
 
     private boolean mIsZslDisabledByUseCaseConfig = false;
     private boolean mIsZslConfigAdded = false;
@@ -212,9 +216,8 @@ public final class FakeCameraControl implements CameraControlInternal {
      * {@link #mExecutor}.
      *
      * @param captureStatus Represents how a capture request should be completed.
-     * @param result        The {@link CameraCaptureResult} which is notified to all the
-     *                      callbacks. Must not be
-     *                      null if captureStatus parameter is
+     * @param captureResult The {@link CameraCaptureResult} which is notified to all the
+     *                      callbacks. Must not be null if captureStatus parameter is
      *                      {@link CaptureResult#CAPTURE_STATUS_SUCCESSFUL}.
      * @return True if a capture request was completed, false otherwise.
      */
@@ -222,7 +225,8 @@ public final class FakeCameraControl implements CameraControlInternal {
     //  data like bitmap/image proxy and use that to complete capture.
     @SuppressWarnings("ObjectToString") // Required for captureConfig hashcode log
     private boolean completeFirstPendingCaptureRequest(
-            @CaptureResult.CaptureStatus int captureStatus, @Nullable CameraCaptureResult result) {
+            @CaptureResult.CaptureStatus int captureStatus,
+            @Nullable CameraCaptureResult captureResult) {
         CaptureConfig captureConfig;
         CallbackToFutureAdapter.Completer<Void> completer;
 
@@ -242,13 +246,17 @@ public final class FakeCameraControl implements CameraControlInternal {
         }
         Logger.d(TAG, "completeFirstPendingCaptureRequest: captureConfig = " + captureConfig);
 
+        if (captureStatus == CAPTURE_STATUS_SUCCESSFUL) {
+            notifyCaptureSuccess(requireNonNull(captureResult));
+        }
+
         for (CameraCaptureCallback cameraCaptureCallback :
                 captureConfig.getCameraCaptureCallbacks()) {
             mExecutor.execute(() -> {
                 switch (captureStatus) {
                     case CAPTURE_STATUS_SUCCESSFUL:
                         cameraCaptureCallback.onCaptureCompleted(captureConfig.getId(),
-                                Objects.requireNonNull(result));
+                                Objects.requireNonNull(captureResult));
                         break;
                     case CAPTURE_STATUS_FAILED:
                         cameraCaptureCallback.onCaptureFailed(captureConfig.getId(),
@@ -595,9 +603,51 @@ public final class FakeCameraControl implements CameraControlInternal {
         }
     }
 
+    /**
+     * Adds a listener to be notified when there are completed capture requests.
+     *
+     * @param listener {@link CaptureSuccessListener} that is notified with the submitted
+     *                 {@link CaptureConfig} parameters when capture requests are completed.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void addCaptureSuccessListener(@NonNull CaptureSuccessListener listener) {
+        mCaptureSuccessListeners.add(listener);
+    }
+
+    /**
+     * Removes a {@link CaptureSuccessListener} if it exist.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public void removeCaptureSuccessListener(@NonNull CaptureSuccessListener listener) {
+        mCaptureSuccessListeners.remove(listener);
+    }
+
+    private void notifyCaptureSuccess(@NonNull CameraCaptureResult result) {
+        Logger.d(TAG, "notifyCaptureComplete: mCaptureCompleteListeners = "
+                + mCaptureSuccessListeners);
+        for (CaptureSuccessListener listener : mCaptureSuccessListeners) {
+            listener.onCompleted(result);
+        }
+    }
+
     /** A listener which is used to notify when there are new submitted capture requests */
     public interface OnNewCaptureRequestListener {
         /** Called when there are new submitted capture request */
         void onNewCaptureRequests(@NonNull List<CaptureConfig> captureConfigs);
+    }
+
+    /**
+     * A listener which is used to notify when submitted capture requests are completed
+     * successfully.
+     *
+     * <p> The reason we need to listen to success case specifically is because of how CameraX image
+     * capture flow works internally. In case of success, a real android.media.Image instance is
+     * also expected from ImageReader which makes this kind of listener necessary for the proper
+     * implementation of a fake TakePictureManager.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public interface CaptureSuccessListener {
+        /** Called when a submitted capture request has been completed successfully. */
+        void onCompleted(@NonNull CameraCaptureResult result);
     }
 }

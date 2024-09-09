@@ -25,6 +25,7 @@ import static java.util.Objects.requireNonNull;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.internal.compat.workaround.InvalidJpegDataParser;
@@ -40,7 +41,9 @@ import java.io.IOException;
 /**
  * Saves JPEG bytes to disk.
  */
-class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+public class JpegBytes2Disk implements
+        Operation<JpegBytes2Disk.In, ImageCapture.OutputFileResults> {
 
     @NonNull
     @Override
@@ -72,7 +75,8 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
      * Input packet.
      */
     @AutoValue
-    abstract static class In {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public abstract static class In {
 
         @NonNull
         abstract Packet<byte[]> getPacket();
@@ -81,7 +85,7 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
         abstract ImageCapture.OutputFileOptions getOutputFileOptions();
 
         @NonNull
-        static In of(@NonNull Packet<byte[]> jpegBytes,
+        public static In of(@NonNull Packet<byte[]> jpegBytes,
                 @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
             return new AutoValue_JpegBytes2Disk_In(jpegBytes, outputFileOptions);
         }

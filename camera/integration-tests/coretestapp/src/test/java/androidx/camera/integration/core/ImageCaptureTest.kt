@@ -42,7 +42,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -82,7 +81,6 @@ class ImageCaptureTest(
         assertThat(countDownLatch.await(3, TimeUnit.SECONDS)).isTrue()
     }
 
-    @Ignore("b/318314454")
     @Test
     fun completesAllCaptures_whenMultiplePicsTakenConsecutivelyBeforeSubmittingResults(): Unit =
         runBlocking {
@@ -101,7 +99,6 @@ class ImageCaptureTest(
             callback2.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         }
 
-    @Ignore("b/318314454")
     @Test
     fun completesAllCaptures_whenMultiplePicsTakenConsecutivelyAfterSubmittingResults(): Unit =
         runBlocking {
@@ -120,7 +117,6 @@ class ImageCaptureTest(
             callback2.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         }
 
-    @Ignore("b/318314454")
     @Test
     fun completesFirstCapture_whenMultiplePicsTakenConsecutivelyBeforeSubmittingResult(): Unit =
         runBlocking {
@@ -138,7 +134,6 @@ class ImageCaptureTest(
             callback2.assertNoCapture(timeout = 100.milliseconds)
         }
 
-    @Ignore("b/318314454")
     @Test
     fun completesCaptureWithError_whenCaptureRequestsCancelled(): Unit = runBlocking {
         val callback = FakeOnImageCapturedCallback()
@@ -156,7 +151,6 @@ class ImageCaptureTest(
         )
     }
 
-    @Ignore("b/318314454")
     @Test
     fun completesCaptureWithError_whenCaptureRequestsFailed(): Unit = runBlocking {
         val callback = FakeOnImageCapturedCallback()
@@ -176,7 +170,6 @@ class ImageCaptureTest(
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
-    @Ignore("b/318314454")
     @Test
     fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runTest {
         val callback = FakeOnImageCapturedCallback()
@@ -184,13 +177,15 @@ class ImageCaptureTest(
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
         cameraControl.submitCaptureResult(successfulResult())
 
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
         callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         assertThat(callback.results.first().image.toBitmap()).isNotNull()
     }
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
-    @Ignore("b/318314454")
     @Test
     fun canFindImage_whenFileStorageAndImageSavedCallbackIsUsed(): Unit = runTest {
         val saveLocation = temporaryFolder.newFile()
@@ -204,13 +199,15 @@ class ImageCaptureTest(
         )
         cameraControl.submitCaptureResult(successfulResult())
 
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
+
         callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         assertThat(saveLocation.length()).isGreaterThan(previousLength)
     }
 
     // Duplicate to ImageCaptureTest on androidTest/fakecamera/ImageCaptureTest, any change here may
     // need to be reflected there too
-    @Ignore("b/318314454")
     @Test
     fun canFindFakeImageUri_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val callback = FakeOnImageSavedCallback()
@@ -221,6 +218,9 @@ class ImageCaptureTest(
             callback
         )
         cameraControl.submitCaptureResult(successfulResult())
+
+        // TODO: b/365571231 - Can we remove CameraX main thread dependencies using more fakes?
+        shadowOf(Looper.getMainLooper()).idle()
 
         callback.awaitCapturesAndAssert(timeout = 1.seconds, capturedImagesCount = 1)
         assertThat(callback.results.first().savedUri).isNotNull()
