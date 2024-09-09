@@ -27,6 +27,7 @@ internal object KmpConfig {
             KonanTarget.WATCHOS_ARM64,
             KonanTarget.WATCHOS_SIMULATOR_ARM64,
             KonanTarget.WATCHOS_X64,
+            KonanTarget.WATCHOS_DEVICE_ARM64,
             KonanTarget.TVOS_ARM64,
             KonanTarget.TVOS_SIMULATOR_ARM64,
             KonanTarget.TVOS_X64,
