@@ -58,6 +58,10 @@ internal abstract class AgpPlugin(
         } ?: return@lazy null
     }
 
+    val suppressWarnings: Boolean by lazy {
+        project.providers.gradleProperty("androidx.baselineprofile.suppresswarnings").isPresent
+    }
+
     // Logger
     protected val logger = BaselineProfilePluginLogger(project.logger)
 
@@ -100,6 +104,14 @@ internal abstract class AgpPlugin(
 
     private fun configureWithAndroidPlugin() {
 
+        fun setWarnings() {
+            if (suppressWarnings) {
+                logger.suppressAllWarnings()
+            } else {
+                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+            }
+        }
+
         onBeforeFinalizeDsl()
 
         testAndroidComponentExtension()?.let { testComponent ->
@@ -108,7 +120,7 @@ internal abstract class AgpPlugin(
 
                 // This can be done only here, since warnings may depend on user configuration
                 // that is ready only after `finalizeDsl`.
-                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                setWarnings()
                 checkAgpVersion()
             }
             testComponent.beforeVariants { onTestBeforeVariants(it) }
@@ -124,7 +136,7 @@ internal abstract class AgpPlugin(
 
                 // This can be done only here, since warnings may depend on user configuration
                 // that is ready only after `finalizeDsl`.
-                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                setWarnings()
                 checkAgpVersion()
             }
             applicationComponent.beforeVariants { onApplicationBeforeVariants(it) }
@@ -140,7 +152,7 @@ internal abstract class AgpPlugin(
 
                 // This can be done only here, since warnings may depend on user configuration
                 // that is ready only after `finalizeDsl`.
-                getWarnings()?.let { warnings -> logger.setWarnings(warnings) }
+                setWarnings()
                 checkAgpVersion()
             }
             libraryComponent.beforeVariants { onLibraryBeforeVariants(it) }

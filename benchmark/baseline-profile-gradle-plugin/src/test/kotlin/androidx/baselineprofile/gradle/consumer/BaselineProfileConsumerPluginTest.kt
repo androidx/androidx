@@ -1501,6 +1501,46 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
     }
 
     @Test
+    fun testSuppressWarningWithProperty() {
+        val requiredLines =
+            listOf(
+                "This version of the Baseline Profile Gradle Plugin was tested with versions below",
+                // We skip the lines in between because they may contain changing version numbers.
+                "baselineProfile {",
+                "    warnings {",
+                "        maxAgpVersion = false",
+                "    }",
+                "}"
+            )
+
+        projectSetup.consumer.setup(androidPlugin = ANDROID_APPLICATION_PLUGIN)
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
+        )
+
+        val gradleCmds =
+            arrayOf(
+                "generateBaselineProfile",
+                "-Pandroidx.benchmark.test.maxagpversion=1.0.0",
+            )
+
+        // Run with no suppress warnings property
+        projectSetup.consumer.gradleRunner.build(*gradleCmds) {
+            val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+            assertThat(notFound).isEmpty()
+        }
+
+        // Run with suppress warnings property
+        projectSetup.consumer.gradleRunner.build(
+            *gradleCmds,
+            "-Pandroidx.baselineprofile.suppresswarnings"
+        ) {
+            val notFound = it.lines().requireInOrder(*requiredLines.toTypedArray())
+            assertThat(notFound).isEqualTo(requiredLines)
+        }
+    }
+
+    @Test
     fun testMergeArtAndStartupProfilesShouldDependOnProfileGeneration() {
         projectSetup.producer.setupWithFreeAndPaidFlavors(
             freeReleaseProfileLines = listOf(Fixtures.CLASS_1_METHOD_1, Fixtures.CLASS_1),
