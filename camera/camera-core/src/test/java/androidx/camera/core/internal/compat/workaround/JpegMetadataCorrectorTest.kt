@@ -47,6 +47,20 @@ class JpegMetadataCorrectorTest {
     }
 
     @Test
+    fun needCorrectJpegMetadataOnSamsungS10e() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "SAMSUNG")
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", "beyond0")
+        assertThat(JpegMetadataCorrector(DeviceQuirks.getAll()).needCorrectJpegMetadata()).isTrue()
+    }
+
+    @Test
+    fun needCorrectJpegMetadataOnSamsungS10Plus() {
+        ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "SAMSUNG")
+        ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", "beyond2")
+        assertThat(JpegMetadataCorrector(DeviceQuirks.getAll()).needCorrectJpegMetadata()).isTrue()
+    }
+
+    @Test
     fun doesNotNeedCorrectJpegMetadataOnSamsungA23() {
         ReflectionHelpers.setStaticField(Build::class.java, "BRAND", "SAMSUNG")
         ReflectionHelpers.setStaticField(Build::class.java, "DEVICE", "a23")

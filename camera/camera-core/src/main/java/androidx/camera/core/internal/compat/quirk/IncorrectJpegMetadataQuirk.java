@@ -30,16 +30,19 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 309005680
+ *     Bug Id: 309005680, 356428987
  *     Description: Quirk required to check whether the captured JPEG image has incorrect metadata.
  *                  For example, Samsung A24 device has the problem and result in the captured
- *                  image can't be parsed and saved successfully.
- *     Device(s): Samsung Galaxy A24 device.
+ *                  image can't be parsed and saved successfully. Samsung S10e and S10+ devices are
+ *                  also reported to have the similar issue.
+ *     Device(s): Samsung Galaxy A24, S10e, S10+ device.
  */
 public final class IncorrectJpegMetadataQuirk implements Quirk {
 
     private static final Set<String> SAMSUNG_DEVICES = new HashSet<>(Arrays.asList(
-            "A24" // Samsung Galaxy A24 series devices
+            "A24", // Samsung Galaxy A24 series devices
+            "BEYOND0", // Samsung Galaxy S10e series devices
+            "BEYOND2" // Samsung Galaxy S10+ series devices
     ));
 
     static boolean load() {
