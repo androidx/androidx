@@ -488,7 +488,7 @@ fun ScalingLazyColumn(
     var initialized by remember { mutableStateOf(false) }
     BoxWithConstraints(
         modifier =
-            if (rotaryScrollableBehavior != null)
+            if (rotaryScrollableBehavior != null && userScrollEnabled)
                 modifier.rotaryScrollable(
                     behavior = rotaryScrollableBehavior,
                     focusRequester = rememberActiveFocusRequester(),
