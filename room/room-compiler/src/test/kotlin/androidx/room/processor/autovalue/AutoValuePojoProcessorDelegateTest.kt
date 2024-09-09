@@ -112,6 +112,7 @@ class AutoValuePojoProcessorDelegateTest {
                 // between javac (argN) and kotlinc (pN).
                 javacArguments = listOf("-parameters")
             )
+        // https://github.com/google/ksp/issues/2033
         runProcessorTestWithK1(
             sources = emptyList(),
             classpath = libraryClasspath,
