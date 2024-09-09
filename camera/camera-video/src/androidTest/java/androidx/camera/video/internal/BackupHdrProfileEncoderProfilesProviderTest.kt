@@ -46,6 +46,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -156,6 +157,9 @@ class BackupHdrProfileEncoderProfilesProviderTest(
         assumeTrue(baseProvider.hasProfile(quality))
         val encoderProfiles = baseProvider.getAll(quality)
         val baseVideoProfile = encoderProfiles!!.videoProfiles[0]
+        // Due to a known issue where VideoProfile might be null, see InvalidVideoProfilesQuirk,
+        // skip the test if VideoProfile is null.
+        assumeNotNull(baseVideoProfile)
 
         // Act.
         val resultVideoProfile = validateOrAdapt(baseVideoProfile, VideoEncoderInfoImpl.FINDER)
