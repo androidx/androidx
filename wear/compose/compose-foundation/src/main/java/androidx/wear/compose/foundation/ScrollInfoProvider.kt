@@ -99,11 +99,9 @@ fun ScrollInfoProvider(state: LazyColumnState): ScrollInfoProvider =
  * scrolled away at the top of the screen and [EdgeButton] which is scaled.
  *
  * @param state the [ScrollState] to use as the base for creating the [ScrollInfoProvider]
- * @param bottomButtonHeight optional parameter to specify the size of a bottom button if one is
- *   provided.
  */
-fun ScrollInfoProvider(state: ScrollState, bottomButtonHeight: Float = 0f): ScrollInfoProvider =
-    ScrollStateScrollInfoProvider(state, bottomButtonHeight)
+fun ScrollInfoProvider(state: ScrollState): ScrollInfoProvider =
+    ScrollStateScrollInfoProvider(state)
 
 // Implementation of [ScrollInfoProvider] for [ScalingLazyColumn].
 // Being in Foundation, this implementation has access to the ScalingLazyListState
@@ -199,10 +197,7 @@ private class LazyListStateScrollInfoProvider(val state: LazyListState) : Scroll
 }
 
 // Implementation of [ScrollInfoProvider] for [Column].
-private class ScrollStateScrollInfoProvider(
-    val state: ScrollState,
-    val bottomButtonHeight: Float = 0f
-) : ScrollInfoProvider {
+private class ScrollStateScrollInfoProvider(val state: ScrollState) : ScrollInfoProvider {
     override val isScrollAwayValid: Boolean
         get() = true
 
@@ -221,10 +216,7 @@ private class ScrollStateScrollInfoProvider(
         get() = state.value.toFloat()
 
     override val lastItemOffset: Float
-        get() {
-            return if (state.maxValue == Int.MAX_VALUE || bottomButtonHeight == 0f) 0f
-            else (state.value - state.maxValue + bottomButtonHeight).coerceAtLeast(0f)
-        }
+        get() = 0f
 
     override fun toString(): String {
         return "ScrollStateScrollInfoProvider(isScrollAwayValid=$isScrollAwayValid, " +
