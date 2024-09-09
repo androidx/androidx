@@ -27,6 +27,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.FrameLayout
 import androidx.core.os.BundleCompat
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
@@ -150,7 +151,6 @@ public open class PdfViewerFragment : Fragment() {
     private var shouldRedrawOnDocumentLoaded = false
     private var isAnnotationIntentResolvable = false
     private var documentLoaded = false
-    private var isSearchMenuAdjusted = false
 
     /**
      * The URI of the PDF document to display defaulting to `null`.
@@ -308,20 +308,13 @@ public open class PdfViewerFragment : Fragment() {
             paginatedView?.isConfigurationChanged = true
         }
 
-        /**
-         * Need to adjust the view only after the layout phase is completed for the views to
-         * accurately calculate the height of the view. The condition for visibility and
-         * [isSearchMenuAdjusted] guarantees that the listener is only invoked once after layout
-         * change.
-         */
-        findInFileView?.let { view ->
-            view.viewTreeObserver?.addOnGlobalLayoutListener {
-                if (view.visibility == View.VISIBLE) {
-                    if (!isSearchMenuAdjusted) {
-                        activity?.let { adjustInsetsForSearchMenu(view, it) }
-                    } else {
-                        isSearchMenuAdjusted = false
-                    }
+        // Use ViewCompat.setOnApplyWindowInsetsListener to listen for window insets changes
+        findInFileView?.let { findInFileViewInstance ->
+            activity?.let {
+                ViewCompat.setOnApplyWindowInsetsListener(it.window.decorView) { _, insets ->
+                    adjustInsetsForSearchMenu(findInFileViewInstance, it, insets)
+                    // Return insets to continue the default behavior
+                    insets
                 }
             }
         }
@@ -363,15 +356,18 @@ public open class PdfViewerFragment : Fragment() {
     }
 
     /** Adjusts the [FindInFileView] to be displayed on top of the keyboard. */
-    private fun adjustInsetsForSearchMenu(findInFileView: FindInFileView, activity: Activity) {
+    private fun adjustInsetsForSearchMenu(
+        findInFileView: FindInFileView,
+        activity: Activity,
+        insets: WindowInsetsCompat
+    ) {
         val containerLocation = IntArray(2)
         container!!.getLocationInWindow(containerLocation)
 
         val windowManager = activity.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val screenHeight = windowManager.currentWindowMetrics.bounds.height()
 
-        val imeInsets =
-            activity.window.decorView.rootWindowInsets.getInsets(WindowInsetsCompat.Type.ime())
+        val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime())
 
         val keyboardTop = screenHeight - imeInsets.bottom
         val absoluteContainerBottom = container!!.height + containerLocation[1]
@@ -383,7 +379,6 @@ public open class PdfViewerFragment : Fragment() {
         findInFileView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
             bottomMargin = menuMargin
         }
-        isSearchMenuAdjusted = true
     }
 
     /** Called after this viewer enters the screen and becomes visible. */
