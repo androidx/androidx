@@ -32,7 +32,8 @@ interface ListDelegate<out T> {
     /**
      * Host-side interface for requesting items in range `[startIndex, endIndex]` (both inclusive).
      *
-     * The sublist is returned to the host as a [List], via [OnDoneCallback.onSuccess]
+     * The sublist is returned to the host as a [List], via [OnDoneCallback.onSuccess] on the main
+     * thread.
      */
     @SuppressLint("ExecutorRegistration")
     fun requestItemRange(startIndex: Int, endIndex: Int, callback: OnDoneCallback)
