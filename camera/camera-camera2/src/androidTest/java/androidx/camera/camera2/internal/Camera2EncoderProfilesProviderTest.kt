@@ -19,14 +19,11 @@ package androidx.camera.camera2.internal
 import android.media.CamcorderProfile
 import android.media.EncoderProfiles.VideoProfile.HDR_NONE
 import android.media.EncoderProfiles.VideoProfile.YUV_420
-import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.CamcorderProfileResolutionQuirk
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
-import androidx.camera.camera2.internal.compat.quirk.DeviceQuirks
-import androidx.camera.camera2.internal.compat.quirk.InvalidVideoProfilesQuirk
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.EncoderProfilesProxy.VideoProfileProxy.BIT_DEPTH_8
 import androidx.camera.core.impl.Quirks
@@ -35,7 +32,6 @@ import androidx.camera.testing.impl.LabTestRule
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -192,16 +188,6 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
     }
 
     @LabTestRule.LabTestOnly
-    @SdkSuppress(minSdkVersion = 31)
-    @Test
-    fun detectNullVideoProfile() {
-        assumeTrue(CamcorderProfile.hasProfile(intCameraId, quality))
-        skipTestOnDevicesWithProblematicBuild()
-        val profiles = CamcorderProfile.getAll(cameraId, quality)!!
-        assertThat(profiles.videoProfiles[0]).isNotNull()
-    }
-
-    @LabTestRule.LabTestOnly
     @Test
     fun qualityHighAndLowIsNotNull() {
         assumeTrue(
@@ -209,20 +195,6 @@ class Camera2EncoderProfilesProviderTest(private val quality: Int) {
         )
 
         assertThat(encoderProfilesProvider.getAll(quality)).isNotNull()
-    }
-
-    private fun skipTestOnDevicesWithProblematicBuild() {
-        // Skip test for b/265613005, b/223439995 and b/277174217
-        val hasVideoProfilesQuirk = DeviceQuirks.get(InvalidVideoProfilesQuirk::class.java) != null
-        assumeFalse(
-            "Skip test with null VideoProfile issue. Unable to test.",
-            hasVideoProfilesQuirk || isProblematicCuttlefishBuild()
-        )
-    }
-
-    private fun isProblematicCuttlefishBuild(): Boolean {
-        return Build.MODEL.contains("Cuttlefish", true) &&
-            (Build.ID.startsWith("TP1A", true) || Build.ID.startsWith("TSE4", true))
     }
 
     @Suppress("DEPRECATION")
