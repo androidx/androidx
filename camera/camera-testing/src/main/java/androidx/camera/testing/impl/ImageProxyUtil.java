@@ -69,6 +69,27 @@ public final class ImageProxyUtil {
         return planes;
     }
 
+    /**
+     * Creates {@link android.graphics.ImageFormat.RAW_SENSOR} image planes.
+     *
+     * @param width image width.
+     * @param height image height.
+     * @param incrementValue true if the data value will increment by position, e.g. 1, 2, 3, etc,.
+     * @return image planes in image proxy.
+     */
+    @NonNull
+    public static ImageProxy.PlaneProxy[] createRawImagePlanes(
+            final int width,
+            final int height,
+            final int pixelStride,
+            final boolean incrementValue) {
+        ImageProxy.PlaneProxy[] planes = new ImageProxy.PlaneProxy[1];
+
+        planes[0] =
+                createPlane(width, height, pixelStride, /*dataValue=*/ 1, incrementValue);
+        return planes;
+    }
+
     @NonNull
     private static ImageProxy.PlaneProxy createPlane(
             final int width,

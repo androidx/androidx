@@ -340,6 +340,11 @@ public final class ImageUtil {
         return imageFormat == ImageFormat.JPEG || imageFormat == ImageFormat.JPEG_R;
     }
 
+    /** True if the given image format is RAW_SENSOR. */
+    public static boolean isRawFormats(int imageFormat) {
+        return imageFormat == ImageFormat.RAW_SENSOR;
+    }
+
     /** True if the given aspect ratio is meaningful and has effect on the given size. */
     public static boolean isAspectRatioValid(@NonNull Size sourceSize,
             @Nullable Rational aspectRatio) {

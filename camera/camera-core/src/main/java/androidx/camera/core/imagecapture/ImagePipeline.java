@@ -22,6 +22,7 @@ import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.hasCropping;
 import static androidx.camera.core.internal.utils.ImageUtil.isJpegFormats;
+import static androidx.camera.core.internal.utils.ImageUtil.isRawFormats;
 
 import static java.util.Objects.requireNonNull;
 
@@ -246,6 +247,9 @@ public class ImagePipeline {
         if (inputFormat != null && inputFormat == ImageFormat.JPEG_R) {
             return ImageFormat.JPEG_R;
         }
+        if (inputFormat != null && inputFormat == ImageFormat.RAW_SENSOR) {
+            return ImageFormat.RAW_SENSOR;
+        }
 
         // By default, use JPEG format.
         return ImageFormat.JPEG;
@@ -303,9 +307,10 @@ public class ImagePipeline {
             builder.addSurface(mPipelineIn.getSurface());
             builder.setPostviewEnabled(shouldEnablePostview());
 
-            // Only sets the JPEG rotation and quality for JPEG formats. Some devices do not
+            // Sets the JPEG rotation and quality for JPEG and RAW formats. Some devices do not
             // handle these configs for non-JPEG images. See b/204375890.
-            if (isJpegFormats(mPipelineIn.getInputFormat())) {
+            if (isJpegFormats(mPipelineIn.getInputFormat())
+                    || isRawFormats(mPipelineIn.getInputFormat())) {
                 if (EXIF_ROTATION_AVAILABILITY.isRotationOptionSupported()) {
                     builder.addImplementationOption(CaptureConfig.OPTION_ROTATION,
                             takePictureRequest.getRotationDegrees());

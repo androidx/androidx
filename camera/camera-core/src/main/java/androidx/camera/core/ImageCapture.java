@@ -16,7 +16,9 @@
 
 package androidx.camera.core;
 
+import static android.graphics.ImageFormat.JPEG;
 import static android.graphics.ImageFormat.JPEG_R;
+import static android.graphics.ImageFormat.RAW_SENSOR;
 
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_BUFFER_FORMAT;
@@ -310,6 +312,12 @@ public final class ImageCapture extends UseCase {
     public static final int OUTPUT_FORMAT_JPEG_ULTRA_HDR = 1;
 
     /**
+     * Captures raw images in the {@link ImageFormat#RAW_SENSOR} image format.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int OUTPUT_FORMAT_RAW = 2;
+
+    /**
      * Provides a static configuration with implementation-agnostic options.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -463,12 +471,14 @@ public final class ImageCapture extends UseCase {
                 null);
         if (bufferFormat != null) {
             Preconditions.checkArgument(!(isSessionProcessorEnabledInCurrentCamera()
-                            && bufferFormat != ImageFormat.JPEG),
+                            && bufferFormat != JPEG),
                     "Cannot set non-JPEG buffer format with Extensions enabled.");
             builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                     useSoftwareJpeg ? ImageFormat.YUV_420_888 : bufferFormat);
         } else {
-            if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
+            if (isOutputFormatRaw(builder.getMutableConfig())) {
+                builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+            } else if (isOutputFormatUltraHdr(builder.getMutableConfig())) {
                 builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                 builder.getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
                         DynamicRange.UNSPECIFIED);
@@ -480,12 +490,12 @@ public final class ImageCapture extends UseCase {
                         builder.getMutableConfig().retrieveOption(OPTION_SUPPORTED_RESOLUTIONS,
                                 null);
                 if (supportedSizes == null) {
-                    builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                    builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG);
                 } else {
                     // Use Jpeg first if supported.
-                    if (isImageFormatSupported(supportedSizes, ImageFormat.JPEG)) {
+                    if (isImageFormatSupported(supportedSizes, JPEG)) {
                         builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
-                                ImageFormat.JPEG);
+                                JPEG);
                     } else if (isImageFormatSupported(supportedSizes, ImageFormat.YUV_420_888)) {
                         builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
                                 ImageFormat.YUV_420_888);
@@ -513,6 +523,11 @@ public final class ImageCapture extends UseCase {
     private static boolean isOutputFormatUltraHdr(@NonNull MutableConfig config) {
         return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
                 OUTPUT_FORMAT_JPEG_ULTRA_HDR);
+    }
+
+    private static boolean isOutputFormatRaw(@NonNull MutableConfig config) {
+        return Objects.equals(config.retrieveOption(OPTION_OUTPUT_FORMAT, null),
+                OUTPUT_FORMAT_RAW);
     }
 
     /**
@@ -979,6 +994,10 @@ public final class ImageCapture extends UseCase {
                 formats.add(OUTPUT_FORMAT_JPEG_ULTRA_HDR);
             }
 
+            if (isRawSupported()) {
+                formats.add(OUTPUT_FORMAT_RAW);
+            }
+
             return formats;
         }
 
@@ -986,6 +1005,15 @@ public final class ImageCapture extends UseCase {
             if (mCameraInfo instanceof CameraInfoInternal) {
                 CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) mCameraInfo;
                 return cameraInfoInternal.getSupportedOutputFormats().contains(JPEG_R);
+            }
+
+            return false;
+        }
+
+        private boolean isRawSupported() {
+            if (mCameraInfo instanceof CameraInfoInternal) {
+                CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) mCameraInfo;
+                return cameraInfoInternal.getSupportedOutputFormats().contains(RAW_SENSOR);
             }
 
             return false;
@@ -1133,7 +1161,7 @@ public final class ImageCapture extends UseCase {
                 supported = false;
             }
             Integer bufferFormat = mutableConfig.retrieveOption(OPTION_BUFFER_FORMAT, null);
-            if (bufferFormat != null && bufferFormat != ImageFormat.JPEG) {
+            if (bufferFormat != null && bufferFormat != JPEG) {
                 Logger.w(TAG, "Software JPEG cannot be used with non-JPEG output buffer format.");
                 supported = false;
             }
@@ -1274,8 +1302,8 @@ public final class ImageCapture extends UseCase {
                 // Prefer YUV because it takes less time to decode to bitmap.
                 List<Size> sizes = map.get(ImageFormat.YUV_420_888);
                 if (sizes == null || sizes.isEmpty()) {
-                    sizes = map.get(ImageFormat.JPEG);
-                    postviewFormat = ImageFormat.JPEG;
+                    sizes = map.get(JPEG);
+                    postviewFormat = JPEG;
                 }
 
                 if (sizes != null && !sizes.isEmpty()) {
@@ -1598,7 +1626,7 @@ public final class ImageCapture extends UseCase {
      */
     @OptIn(markerClass = androidx.camera.core.ExperimentalImageCaptureOutputFormat.class)
     @Target({ElementType.TYPE_USE})
-    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR})
+    @IntDef({OUTPUT_FORMAT_JPEG, OUTPUT_FORMAT_JPEG_ULTRA_HDR, OUTPUT_FORMAT_RAW})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface OutputFormat {
@@ -2320,12 +2348,14 @@ public final class ImageCapture extends UseCase {
             if (bufferFormat != null) {
                 getMutableConfig().insertOption(OPTION_INPUT_FORMAT, bufferFormat);
             } else {
-                if (isOutputFormatUltraHdr(getMutableConfig())) {
+                if (isOutputFormatRaw(getMutableConfig())) {
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, RAW_SENSOR);
+                } else if (isOutputFormatUltraHdr(getMutableConfig())) {
                     getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG_R);
                     getMutableConfig().insertOption(OPTION_INPUT_DYNAMIC_RANGE,
                             DynamicRange.UNSPECIFIED);
                 } else {
-                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.JPEG);
+                    getMutableConfig().insertOption(OPTION_INPUT_FORMAT, JPEG);
                 }
             }
 
@@ -2830,7 +2860,7 @@ public final class ImageCapture extends UseCase {
          * <p>If not set, the output format will default to {@link #OUTPUT_FORMAT_JPEG}.
          *
          * @param outputFormat The output image format. Value is {@link #OUTPUT_FORMAT_JPEG} or
-         *                     {@link #OUTPUT_FORMAT_JPEG_ULTRA_HDR}.
+         *                     {@link #OUTPUT_FORMAT_JPEG_ULTRA_HDR} or {@link #OUTPUT_FORMAT_RAW}.
          * @return The current Builder.
          *
          * @see OutputFormat
