@@ -19,6 +19,7 @@ package androidx.privacysandbox.ui.integration.sdkproviderutils
 import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.drawable.GradientDrawable
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -46,14 +47,34 @@ class ViewabilityHandler {
 
             private inner class SessionObserverImpl : SessionObserver {
                 lateinit var view: View
+                lateinit var sandboxedSdkViewUiInfo: SandboxedSdkViewUiInfo
 
                 override fun onSessionOpened(sessionObserverContext: SessionObserverContext) {
                     Log.i(TAG, "onSessionOpened $sessionObserverContext")
                     view = checkNotNull(sessionObserverContext.view)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && drawViewability) {
+                        view.setOnScrollChangeListener {
+                            _: View,
+                            scrollX: Int,
+                            scrollY: Int,
+                            _: Int,
+                            _: Int ->
+                            if (::sandboxedSdkViewUiInfo.isInitialized) {
+                                val rect =
+                                    Rect(
+                                        sandboxedSdkViewUiInfo.onScreenGeometry.left + scrollX,
+                                        sandboxedSdkViewUiInfo.onScreenGeometry.top + scrollY,
+                                        sandboxedSdkViewUiInfo.onScreenGeometry.right + scrollX,
+                                        sandboxedSdkViewUiInfo.onScreenGeometry.bottom + scrollY
+                                    )
+                                drawRedRectangle(rect)
+                            }
+                        }
+                    }
                 }
 
                 override fun onUiContainerChanged(uiContainerInfo: Bundle) {
-                    val sandboxedSdkViewUiInfo = SandboxedSdkViewUiInfo.fromBundle(uiContainerInfo)
+                    sandboxedSdkViewUiInfo = SandboxedSdkViewUiInfo.fromBundle(uiContainerInfo)
                     if (drawViewability) {
                         // draw a red rectangle over the received onScreenGeometry of the view
                         drawRedRectangle(sandboxedSdkViewUiInfo.onScreenGeometry)
