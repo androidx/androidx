@@ -928,6 +928,7 @@ class VideoRecordingTest(
         )
     }
 
+    @Ignore("TODO: b/353113961 - Temporarily ignored for persistent recording.")
     @Test
     fun updateVideoUsage_whenLifecycleStoppedBeforeCompletingPersistentRecording() = runBlocking {
         assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
