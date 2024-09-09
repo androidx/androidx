@@ -29,6 +29,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG;
 import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_JPEG_ULTRA_HDR;
+import static androidx.camera.core.ImageCapture.OUTPUT_FORMAT_RAW;
 import static androidx.camera.core.ImageCapture.getImageCaptureCapabilities;
 import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
 import static androidx.camera.integration.core.CameraXViewModel.getConfiguredCameraXCameraImplementation;
@@ -983,19 +984,9 @@ public class CameraXActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         mImageSavedIdlingResource.increment();
                         mStartCaptureTime = SystemClock.elapsedRealtime();
-                        createDefaultPictureFolderIfNotExist();
-                        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS",
-                                Locale.US);
-                        String fileName = "CoreTestApp-" + formatter.format(
-                                Calendar.getInstance().getTime()) + ".jpg";
-                        ContentValues contentValues = new ContentValues();
-                        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
-                        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
+
                         ImageCapture.OutputFileOptions outputFileOptions =
-                                new ImageCapture.OutputFileOptions.Builder(
-                                        getContentResolver(),
-                                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                        contentValues).build();
+                                createOutputFileOptions(mImageOutputFormat);
                         getImageCapture().takePicture(outputFileOptions,
                                 mImageCaptureExecutorService,
                                 new ImageCapture.OnImageSavedCallback() {
@@ -1038,6 +1029,40 @@ public class CameraXActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @SuppressLint("RestrictedApiAndroidX")
+    @NonNull
+    private ImageCapture.OutputFileOptions createOutputFileOptions(
+            @ImageCapture.OutputFormat int imageOutputFormat) {
+        createDefaultPictureFolderIfNotExist();
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss-SSS",
+                Locale.US);
+
+        String suffix = "";
+        String mimetype = "";
+        switch (imageOutputFormat) {
+            case OUTPUT_FORMAT_RAW:
+                suffix = ".dng";
+                mimetype = "image/x-adobe-dng";
+                break;
+            case OUTPUT_FORMAT_JPEG_ULTRA_HDR:
+            case OUTPUT_FORMAT_JPEG:
+                suffix = ".jpg";
+                mimetype = "image/jpeg";
+                break;
+        }
+        String fileName = "CoreTestApp-" + formatter.format(
+                Calendar.getInstance().getTime()) + suffix;
+
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, fileName);
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, mimetype);
+        return new ImageCapture.OutputFileOptions.Builder(
+                        getContentResolver(),
+                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        contentValues).build();
+    }
+
 
     private String getImageCaptureErrorMessage(@NonNull ImageCaptureException exception) {
         String errorCodeString;
@@ -2620,36 +2645,46 @@ public class CameraXActivity extends AppCompatActivity {
         return DYNAMIC_RANGE_UI_DATA.get(itemId).mDynamicRange;
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     @NonNull
     private static String getImageOutputFormatIconName(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return "Jpeg";
         } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return "Ultra HDR";
+        } else if (format == OUTPUT_FORMAT_RAW) {
+            return "Raw";
         }
         return "?";
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     @NonNull
     private static String getImageOutputFormatMenuItemName(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return "Jpeg";
         } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return "Ultra HDR";
+        } else if (format == OUTPUT_FORMAT_RAW) {
+            return "Raw";
         }
         return "Unknown format";
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     private static int imageOutputFormatToItemId(@ImageCapture.OutputFormat int format) {
         if (format == OUTPUT_FORMAT_JPEG) {
             return 0;
         } else if (format == OUTPUT_FORMAT_JPEG_ULTRA_HDR) {
             return 1;
+        } else if (format == OUTPUT_FORMAT_RAW) {
+            return 2;
         } else {
             throw new IllegalArgumentException("Undefined output format: " + format);
         }
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     @ImageCapture.OutputFormat
     private static int itemIdToImageOutputFormat(int itemId) {
         switch (itemId) {
@@ -2657,6 +2692,8 @@ public class CameraXActivity extends AppCompatActivity {
                 return OUTPUT_FORMAT_JPEG;
             case 1:
                 return OUTPUT_FORMAT_JPEG_ULTRA_HDR;
+            case 2:
+                return OUTPUT_FORMAT_RAW;
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);
         }
