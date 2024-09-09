@@ -340,13 +340,12 @@ public class ConversationItem implements Item {
          * <p>The host creates indexed lists to help users navigate through long lists more easily
          * by sorting, filtering, or some other means.
          *
-         * <p>For example, a media app may, by default, show a user's playlists sorted by date
-         * created. If the app provides these playlists via the {@code SectionedItemTemplate} and
-         * enables {@code #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
-         * playlists that start with the letter "H". When this happens, the list is reconstructed
-         * and sorted alphabetically, then shown to the user, jumping down to the letter "H". If
-         * the item is set to {@code #setIndexable(false)}, the item will not show up in this newly
-         * sorted list.
+         * <p>For example, a messaging app may show conversations by last message received. If the
+         * app provides these conversations via the {@code SectionedItemTemplate} and enables
+         * {@code #isAlphabeticalIndexingAllowed}, the user will be able to jump to their
+         * conversations that start with a given letter they chose. The messaging app can choose
+         * to hide, for example, service messages from this filtered list by setting this {@code
+         * #setIndexable(false)}.
          *
          * <p>Individual items can be set to be included or excluded from filtered lists, but it's
          * also possible to enable/disable the creation of filtered lists as a whole via the
