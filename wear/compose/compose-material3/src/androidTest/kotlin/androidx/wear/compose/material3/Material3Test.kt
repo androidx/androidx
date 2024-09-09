@@ -123,9 +123,10 @@ fun ScreenConfiguration(screenSizeDp: Int, content: @Composable () -> Unit) {
 
 /**
  * Valid characters for golden identifiers are [A-Za-z0-9_-] TestParameterInjector adds '[' +
- * parameter_values + ']' to the test name.
+ * parameter_values + ']' + ',' to the test name.
  */
-fun TestName.goldenIdentifier(): String = methodName.replace("[", "_").replace("]", "")
+fun TestName.goldenIdentifier(): String =
+    methodName.replace("[", "_").replace("]", "").replace(",", "_")
 
 internal const val TEST_TAG = "test-item"
 

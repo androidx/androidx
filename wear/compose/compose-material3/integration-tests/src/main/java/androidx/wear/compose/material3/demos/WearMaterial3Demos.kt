@@ -30,7 +30,6 @@ import androidx.wear.compose.material3.samples.EdgeButtonListSample
 import androidx.wear.compose.material3.samples.EdgeButtonSample
 import androidx.wear.compose.material3.samples.EdgeSwipeForSwipeToDismiss
 import androidx.wear.compose.material3.samples.FixedFontSize
-import androidx.wear.compose.material3.samples.HorizontalPageIndicatorSample
 import androidx.wear.compose.material3.samples.HorizontalPageIndicatorWithPagerSample
 import androidx.wear.compose.material3.samples.LazyColumnScalingMorphingEffectSample
 import androidx.wear.compose.material3.samples.LazyColumnTargetMorphingHeightSample
@@ -43,6 +42,7 @@ import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
 import androidx.wear.compose.material3.samples.SwipeToRevealNonAnchoredSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSample
 import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
+import androidx.wear.compose.material3.samples.VerticalPageIndicatorWithPagerSample
 
 val WearMaterial3Demos =
     Material3DemoCategory(
@@ -148,13 +148,13 @@ val WearMaterial3Demos =
                 )
             ),
             Material3DemoCategory(
-                title = "Horizontal Page Indicator",
+                title = "Page Indicator",
                 listOf(
-                    ComposableDemo("Simple HorizontalPageIndicator") {
-                        HorizontalPageIndicatorSample()
-                    },
-                    ComposableDemo("HorizontalPageIndicator with Pager") {
+                    ComposableDemo("HorizontalPageIndicator") {
                         HorizontalPageIndicatorWithPagerSample(it.swipeToDismissBoxState)
+                    },
+                    ComposableDemo("VerticalPageIndicator") {
+                        VerticalPageIndicatorWithPagerSample()
                     },
                 )
             ),
