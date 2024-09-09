@@ -24,17 +24,27 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Size
 import android.view.Display
+import androidx.camera.camera2.pipe.integration.compat.workaround.DisplaySizeCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.MaxPreviewSize
+import androidx.camera.core.internal.utils.SizeUtil
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Suppress("DEPRECATION") // getRealSize
 @Singleton
 public class DisplayInfoManager @Inject constructor(context: Context) {
-    private val MAX_PREVIEW_SIZE = Size(1920, 1080)
-    private val maxPreviewSize: MaxPreviewSize = MaxPreviewSize()
+    private val maxPreviewSize = MaxPreviewSize()
+    private val displaySizeCorrector = DisplaySizeCorrector()
 
     public companion object {
+        private val MAX_PREVIEW_SIZE = Size(1920, 1080)
+        /** This is the smallest size from a device which had issue reported to CameraX. */
+        private val ABNORMAL_DISPLAY_SIZE_THRESHOLD: Size = Size(320, 240)
+        /**
+         * The fallback display size for the case that the retrieved display size is abnormally
+         * small and no correct display size can be retrieved from DisplaySizeCorrector.
+         */
+        private val FALLBACK_DISPLAY_SIZE: Size = Size(640, 480)
         private var lazyMaxDisplay: Display? = null
         private var lazyPreviewSize: Size? = null
 
@@ -131,26 +141,32 @@ public class DisplayInfoManager @Inject constructor(context: Context) {
             return it
         }
 
-        val displaySize = Point()
-        val display: Display = defaultDisplay
-        // TODO(b/230400472): Use WindowManager#getCurrentWindowMetrics(). Display#getRealSize()
-        //  is deprecated since API level 31.
-        display.getRealSize(displaySize)
-        var displayViewSize: Size
-        displayViewSize =
-            if (displaySize.x > displaySize.y) {
-                Size(displaySize.x, displaySize.y)
-            } else {
-                Size(displaySize.y, displaySize.x)
-            }
-        if (
-            displayViewSize.width * displayViewSize.height >
-                MAX_PREVIEW_SIZE.width * MAX_PREVIEW_SIZE.height
-        ) {
+        var displayViewSize = getCorrectedDisplaySize()
+        if (SizeUtil.isSmallerByArea(MAX_PREVIEW_SIZE, displayViewSize)) {
             displayViewSize = MAX_PREVIEW_SIZE
         }
-        displayViewSize = maxPreviewSize.getMaxPreviewResolution(displayViewSize)
+        return maxPreviewSize.getMaxPreviewResolution(displayViewSize).also { lazyPreviewSize = it }
+    }
 
-        return displayViewSize.also { lazyPreviewSize = displayViewSize }
+    private fun getCorrectedDisplaySize(): Size {
+        val displaySize = Point()
+        defaultDisplay.getRealSize(displaySize)
+        var displayViewSize = Size(displaySize.x, displaySize.y)
+
+        // Checks whether the display size is abnormally small.
+        if (SizeUtil.isSmallerByArea(displayViewSize, ABNORMAL_DISPLAY_SIZE_THRESHOLD)) {
+            // Gets the display size from DisplaySizeCorrector if the display size retrieved from
+            // DisplayManager is abnormally small. Falls back the display size to 640x480 if
+            // DisplaySizeCorrector doesn't contain the device's display size info.
+            displayViewSize = displaySizeCorrector.displaySize ?: FALLBACK_DISPLAY_SIZE
+        }
+
+        // Flips the size to landscape orientation
+        if (displayViewSize.height > displayViewSize.width) {
+            displayViewSize =
+                Size(/* width= */ displayViewSize.height, /* height= */ displayViewSize.width)
+        }
+
+        return displayViewSize
     }
 }
