@@ -47,6 +47,7 @@ class CallListAdapter(
         val callIdTextView: TextView = itemView.findViewById(R.id.callIdTextView)
         val currentState: TextView = itemView.findViewById(R.id.callStateTextView)
         val currentEndpoint: TextView = itemView.findViewById(R.id.endpointStateTextView)
+        val participants: TextView = itemView.findViewById(R.id.participantsTextView)
 
         // Call State Buttons
         val activeButton: Button = itemView.findViewById(R.id.activeButton)
@@ -57,6 +58,10 @@ class CallListAdapter(
         val earpieceButton: Button = itemView.findViewById(R.id.selectEndpointButton)
         val speakerButton: Button = itemView.findViewById(R.id.speakerButton)
         val bluetoothButton: Button = itemView.findViewById(R.id.bluetoothButton)
+
+        // Participant Buttons
+        val addParticipantButton: Button = itemView.findViewById(R.id.addParticipantButton)
+        val removeParticipantButton: Button = itemView.findViewById(R.id.removeParticipantButton)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -180,6 +185,25 @@ class CallListAdapter(
                     }
                 }
             }
+
+            holder.addParticipantButton.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    ItemsViewModel.callObject.mParticipantControl?.onParticipantAdded?.invoke()
+                }
+            }
+
+            holder.removeParticipantButton.setOnClickListener {
+                CoroutineScope(Dispatchers.Main).launch {
+                    ItemsViewModel.callObject.mParticipantControl?.onParticipantRemoved?.invoke()
+                }
+            }
+        }
+    }
+
+    fun updateParticipants(callId: String, participants: List<ParticipantState>) {
+        CoroutineScope(Dispatchers.Main).launch {
+            val holder = mCallIdToViewHolder[callId]
+            holder?.participants?.text = "participants=[${printParticipants(participants)}]"
         }
     }
 
@@ -195,6 +219,32 @@ class CallListAdapter(
             val holder = mCallIdToViewHolder[callId]
             holder?.currentEndpoint?.text = "currentEndpoint=[$endpoint]"
         }
+    }
+
+    private fun printParticipants(participants: List<ParticipantState>): String {
+        if (participants.isEmpty()) return "<NONE>"
+        val builder = StringBuilder()
+        val iterator = participants.iterator()
+        while (iterator.hasNext()) {
+            val participant = iterator.next()
+            builder.append("<")
+            if (participant.isActive) {
+                builder.append(" * ")
+            }
+            builder.append(participant.name)
+            if (participant.isSelf) {
+                builder.append("(me)")
+            }
+            if (participant.isHandRaised) {
+                builder.append(" ")
+                builder.append("(RH)")
+            }
+            builder.append(">")
+            if (iterator.hasNext()) {
+                builder.append(", ")
+            }
+        }
+        return builder.toString()
     }
 
     private fun endAudioRecording() {

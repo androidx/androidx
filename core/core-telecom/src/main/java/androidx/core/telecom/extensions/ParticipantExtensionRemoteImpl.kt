@@ -83,6 +83,7 @@ internal class ParticipantExtensionRemoteImpl(
     // Maps a Capability to a receiver that allows the action to register itself with a listener
     // and then return a Receiver that gets called when Cap exchange completes.
     private val actionInitializers = HashMap<Int, ActionExchangeResult>()
+
     // Manages callbacks that are applicable to sub-actions of the Participants
     private val callbacks = ParticipantStateCallbackRepository()
 
@@ -152,6 +153,7 @@ internal class ParticipantExtensionRemoteImpl(
             initializeNotSupportedActions()
             return
         }
+        isSupported = true
         Log.d(TAG, "onNegotiated: setup updates")
         initializeParticipantUpdates()
         initializeActionsLocally(negotiatedCapability)
