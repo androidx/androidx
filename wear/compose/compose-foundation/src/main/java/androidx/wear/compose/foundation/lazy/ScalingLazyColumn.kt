@@ -399,9 +399,7 @@ public fun ScalingLazyColumn(
  * [ScalingLazyColumn] should be wrapped by [HierarchicalFocusCoordinator]. By default
  * [HierarchicalFocusCoordinator] is already implemented in [BasicSwipeToDismissBox], which is a
  * part of material Scaffold - meaning that rotary will be able to request a focus without any
- * additional changes. Another FocusRequester can be added through Modifier chain by adding
- * `.focusRequester(focusRequester)`. Do not call `focusable()` or `focusTarget()` after it as this
- * will reset the focusRequester chain and rotary support will not be available.
+ * additional changes.
  *
  * Example of a [ScalingLazyColumn] with default parameters:
  *
@@ -461,7 +459,8 @@ public fun ScalingLazyColumn(
  *   [flingBehavior] parameter that controls touch scroll are expected to produce similar list
  *   scrolling. For example, if [rotaryScrollableBehavior] is set for snap (using
  *   [RotaryScrollableDefaults.snapBehavior]), [flingBehavior] should be set for snap as well (using
- *   [ScalingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not required.
+ *   [ScalingLazyColumnDefaults.snapFlingBehavior]). Can be null if rotary support is not required
+ *   or when it should be handled externally - with a separate .rotary modifier.
  * @param content The content of the [ScalingLazyColumn]
  */
 @OptIn(ExperimentalWearFoundationApi::class)
