@@ -67,6 +67,10 @@ public class DeviceQuirksLoader {
                 ImageCaptureFailedForSpecificCombinationQuirk.load())) {
             quirks.add(new ImageCaptureFailedForSpecificCombinationQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(PreviewGreenTintQuirk.class,
+                PreviewGreenTintQuirk.load())) {
+            quirks.add(PreviewGreenTintQuirk.INSTANCE);
+        }
 
         return quirks;
     }
