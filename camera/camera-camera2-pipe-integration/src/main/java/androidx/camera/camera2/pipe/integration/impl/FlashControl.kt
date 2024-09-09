@@ -37,7 +37,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 internal const val DEFAULT_FLASH_MODE = ImageCapture.FLASH_MODE_OFF
@@ -64,7 +63,7 @@ constructor(
     override fun reset() {
         _flashMode = DEFAULT_FLASH_MODE
         _screenFlash = null
-        threads.sequentialScope.launch { stopRunningTask() }
+        stopRunningTask()
         setFlashAsync(DEFAULT_FLASH_MODE)
     }
 
@@ -104,20 +103,18 @@ constructor(
             // returns correct value.
             _flashMode = flashMode
 
-            threads.sequentialScope.launch {
-                if (cancelPreviousTask) {
-                    stopRunningTask()
-                } else {
-                    // Propagate the result to the previous updateSignal
-                    _updateSignal?.let { previousUpdateSignal ->
-                        signal.propagateTo(previousUpdateSignal)
-                    }
+            if (cancelPreviousTask) {
+                stopRunningTask()
+            } else {
+                // Propagate the result to the previous updateSignal
+                _updateSignal?.let { previousUpdateSignal ->
+                    signal.propagateTo(previousUpdateSignal)
                 }
-
-                _updateSignal = signal
-                state3AControl.flashMode = flashMode
-                state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
             }
+
+            _updateSignal = signal
+            state3AControl.flashMode = flashMode
+            state3AControl.updateSignal?.propagateTo(signal) ?: run { signal.complete(Unit) }
         }
             ?: run {
                 signal.completeExceptionally(

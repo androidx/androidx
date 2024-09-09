@@ -19,7 +19,7 @@ package androidx.camera.camera2.pipe.integration.impl
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.MeteringRectangle
-import androidx.annotation.GuardedBy
+import androidx.annotation.AnyThread
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraGraph.Constants3A.METERING_REGIONS_DEFAULT
@@ -55,6 +55,10 @@ internal const val DEFAULT_REQUEST_TEMPLATE = CameraDevice.TEMPLATE_PREVIEW
  *
  * Parameters can be stored and managed according to different configuration types. Each type can be
  * modified or overridden independently without affecting other types.
+ *
+ * This class should be used as the entry point for submitting requests to the [UseCaseCameraScope]
+ * layer. This ensures that thread confinement are properly applied at a single place for the whole
+ * [UseCaseCameraScope] and reduces concurrency issues.
  */
 @JvmDefaultWithCompatibility
 public interface UseCaseCameraRequestControl {
@@ -81,6 +85,7 @@ public interface UseCaseCameraRequestControl {
      *   multiple times.
      * @return A [Deferred] object representing the asynchronous operation.
      */
+    @AnyThread
     public fun setParametersAsync(
         type: Type = Type.DEFAULT,
         values: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
@@ -108,6 +113,7 @@ public interface UseCaseCameraRequestControl {
      *   type.
      * @return A [Deferred] representing the asynchronous update operation.
      */
+    @AnyThread
     public fun setConfigAsync(
         type: Type,
         config: Config? = null,
@@ -124,7 +130,7 @@ public interface UseCaseCameraRequestControl {
      *
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    public suspend fun setTorchOnAsync(): Deferred<Result3A>
+    @AnyThread public fun setTorchOnAsync(): Deferred<Result3A>
 
     /**
      * Asynchronously sets the torch (flashlight) state to OFF state.
@@ -133,7 +139,7 @@ public interface UseCaseCameraRequestControl {
      *   [CameraGraph.Session.setTorchOff] for details.
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    public suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A>
+    @AnyThread public fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A>
 
     /**
      * Asynchronously starts a 3A (Auto Exposure, Auto Focus, Auto White Balance) operation with the
@@ -150,7 +156,8 @@ public interface UseCaseCameraRequestControl {
      *   [CameraGraph.Constants3A.DEFAULT_TIME_LIMIT_NS].
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    public suspend fun startFocusAndMeteringAsync(
+    @AnyThread
+    public fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
@@ -166,7 +173,7 @@ public interface UseCaseCameraRequestControl {
      *
      * @return A [Deferred] representing the asynchronous operation and its result ([Result3A]).
      */
-    public suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
+    @AnyThread public fun cancelFocusAndMeteringAsync(): Deferred<Result3A>
 
     // Capture
     /**
@@ -178,7 +185,8 @@ public interface UseCaseCameraRequestControl {
      * @param flashMode The flash mode (from [ImageCapture.FlashMode]).
      * @return A list of [Deferred] objects, one for each capture in the sequence.
      */
-    public suspend fun issueSingleCaptureAsync(
+    @AnyThread
+    public fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
@@ -193,7 +201,8 @@ public interface UseCaseCameraRequestControl {
      *
      * @see [CameraGraph.Session.update3A]
      */
-    public suspend fun update3aRegions(
+    @AnyThread
+    public fun update3aRegions(
         aeRegions: List<MeteringRectangle>? = null,
         afRegions: List<MeteringRectangle>? = null,
         awbRegions: List<MeteringRectangle>? = null,
@@ -209,6 +218,7 @@ constructor(
     private val capturePipeline: CapturePipeline,
     private val state: UseCaseCameraState,
     private val useCaseGraphConfig: UseCaseGraphConfig,
+    private val threads: UseCaseThreads,
 ) : UseCaseCameraRequestControl {
     private val graph = useCaseGraphConfig.graph
 
@@ -221,9 +231,7 @@ constructor(
         var template: RequestTemplate? = null,
     )
 
-    @GuardedBy("lock")
     private val infoBundleMap = mutableMapOf<UseCaseCameraRequestControl.Type, InfoBundle>()
-    private val lock = Any()
 
     override fun setParametersAsync(
         type: UseCaseCameraRequestControl.Type,
@@ -231,15 +239,17 @@ constructor(
         optionPriority: Config.OptionPriority,
     ): Deferred<Unit> =
         runIfNotClosed {
-            synchronized(lock) {
-                    debug { "[$type] Add request option: $values" }
-                    infoBundleMap
-                        .getOrPut(type) { InfoBundle() }
-                        .options
-                        .addAllCaptureRequestOptionsWithPriority(values, optionPriority)
-                    infoBundleMap.merge()
+            threads.confineDeferred {
+                debug {
+                    "UseCaseCameraRequestControlImpl#setParametersAsync: [$type] values = $values" +
+                        ", optionPriority = $optionPriority"
                 }
-                .updateCameraStateAsync()
+                infoBundleMap
+                    .getOrPut(type) { InfoBundle() }
+                    .options
+                    .addAllCaptureRequestOptionsWithPriority(values, optionPriority)
+                infoBundleMap.merge().updateCameraStateAsync()
+            }
         } ?: canceledResult
 
     override fun setConfigAsync(
@@ -252,38 +262,48 @@ constructor(
         sessionConfig: SessionConfig?,
     ): Deferred<Unit> =
         runIfNotClosed {
-            synchronized(lock) {
-                    debug { "[$type] Set config: ${config?.toParameters()}" }
-                    infoBundleMap[type] =
-                        InfoBundle(
-                            Camera2ImplConfig.Builder().apply {
-                                config?.let { insertAllOptions(it) }
-                            },
-                            tags.toMutableMap(),
-                            listeners.toMutableSet(),
-                            template,
-                        )
-                    infoBundleMap.merge()
+            threads.confineDeferred {
+                debug {
+                    "UseCaseCameraRequestControlImpl#setConfigAsync:" +
+                        " [$type] config params = ${config?.toParameters()}"
                 }
-                .updateCameraStateAsync(
-                    streams = streams,
-                    sessionConfig = sessionConfig,
-                )
+                infoBundleMap[type] =
+                    InfoBundle(
+                        Camera2ImplConfig.Builder().apply { config?.let { insertAllOptions(it) } },
+                        tags.toMutableMap(),
+                        listeners.toMutableSet(),
+                        template,
+                    )
+                infoBundleMap
+                    .merge()
+                    .updateCameraStateAsync(
+                        streams = streams,
+                        sessionConfig = sessionConfig,
+                    )
+            }
         } ?: canceledResult
 
-    override suspend fun setTorchOnAsync(): Deferred<Result3A> =
-        runIfNotClosed { useGraphSessionOrFailed { it.setTorchOn() } } ?: submitFailedResult
-
-    override suspend fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> =
+    override fun setTorchOnAsync(): Deferred<Result3A> =
         runIfNotClosed {
-            useGraphSessionOrFailed {
-                it.setTorchOff(
-                    aeMode = aeMode,
-                )
+            threads.confineDeferredSuspend {
+                debug { "UseCaseCameraRequestControlImpl#setTorchOnAsync" }
+                useGraphSessionOrFailed { it.setTorchOn() }
             }
         } ?: submitFailedResult
 
-    override suspend fun startFocusAndMeteringAsync(
+    override fun setTorchOffAsync(aeMode: AeMode): Deferred<Result3A> =
+        runIfNotClosed {
+            threads.confineDeferredSuspend {
+                debug { "UseCaseCameraRequestControlImpl#setTorchOffAsync" }
+                useGraphSessionOrFailed {
+                    it.setTorchOff(
+                        aeMode = aeMode,
+                    )
+                }
+            }
+        } ?: submitFailedResult
+
+    override fun startFocusAndMeteringAsync(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?,
@@ -294,47 +314,59 @@ constructor(
         timeLimitNs: Long,
     ): Deferred<Result3A> =
         runIfNotClosed {
-            useGraphSessionOrFailed {
-                it.lock3A(
-                    aeRegions = aeRegions,
-                    afRegions = afRegions,
-                    awbRegions = awbRegions,
-                    aeLockBehavior = aeLockBehavior,
-                    afLockBehavior = afLockBehavior,
-                    awbLockBehavior = awbLockBehavior,
-                    afTriggerStartAeMode = afTriggerStartAeMode,
-                    convergedTimeLimitNs = timeLimitNs,
-                    lockedTimeLimitNs = timeLimitNs
-                )
+            threads.confineDeferredSuspend {
+                debug { "UseCaseCameraRequestControlImpl#startFocusAndMeteringAsync" }
+                useGraphSessionOrFailed {
+                    it.lock3A(
+                        aeRegions = aeRegions,
+                        afRegions = afRegions,
+                        awbRegions = awbRegions,
+                        aeLockBehavior = aeLockBehavior,
+                        afLockBehavior = afLockBehavior,
+                        awbLockBehavior = awbLockBehavior,
+                        afTriggerStartAeMode = afTriggerStartAeMode,
+                        convergedTimeLimitNs = timeLimitNs,
+                        lockedTimeLimitNs = timeLimitNs
+                    )
+                }
             }
         } ?: submitFailedResult
 
-    override suspend fun cancelFocusAndMeteringAsync(): Deferred<Result3A> =
+    override fun cancelFocusAndMeteringAsync(): Deferred<Result3A> =
         runIfNotClosed {
-            useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }.await()
+            threads.confineDeferredSuspend {
+                debug { "UseCaseCameraRequestControlImpl#cancelFocusAndMeteringAsync" }
 
-            useGraphSessionOrFailed {
-                it.update3A(
-                    aeRegions = METERING_REGIONS_DEFAULT.asList(),
-                    afRegions = METERING_REGIONS_DEFAULT.asList(),
-                    awbRegions = METERING_REGIONS_DEFAULT.asList()
-                )
+                useGraphSessionOrFailed { it.unlock3A(ae = true, af = true, awb = true) }.await()
+
+                useGraphSessionOrFailed {
+                    it.update3A(
+                        aeRegions = METERING_REGIONS_DEFAULT.asList(),
+                        afRegions = METERING_REGIONS_DEFAULT.asList(),
+                        awbRegions = METERING_REGIONS_DEFAULT.asList()
+                    )
+                }
             }
         } ?: submitFailedResult
 
-    override suspend fun issueSingleCaptureAsync(
+    override fun issueSingleCaptureAsync(
         captureSequence: List<CaptureConfig>,
         @ImageCapture.CaptureMode captureMode: Int,
         @ImageCapture.FlashType flashType: Int,
         @ImageCapture.FlashMode flashMode: Int,
     ): List<Deferred<Void?>> =
         runIfNotClosed {
-            if (captureSequence.hasInvalidSurface()) {
-                failedResults(captureSequence.size, "Capture request failed due to invalid surface")
-            }
+            threads.confineDeferredListSuspend(captureSequence.size) {
+                debug { "UseCaseCameraRequestControlImpl#issueSingleCaptureAsync" }
 
-            synchronized(lock) { infoBundleMap.merge() }
-                .let { infoBundle ->
+                if (captureSequence.hasInvalidSurface()) {
+                    failedResults(
+                        captureSequence.size,
+                        "Capture request failed due to invalid surface"
+                    )
+                }
+
+                infoBundleMap.merge().let { infoBundle ->
                     debug {
                         "UseCaseCameraRequestControl: Submitting still captures to capture pipeline"
                     }
@@ -347,24 +379,28 @@ constructor(
                         flashMode = flashMode,
                     )
                 }
+            }
         }
             ?: failedResults(
                 captureSequence.size,
                 "Capture request is cancelled on closed CameraGraph"
             )
 
-    override suspend fun update3aRegions(
+    override fun update3aRegions(
         aeRegions: List<MeteringRectangle>?,
         afRegions: List<MeteringRectangle>?,
         awbRegions: List<MeteringRectangle>?
     ): Deferred<Result3A> =
         runIfNotClosed {
-            useGraphSessionOrFailed {
-                it.update3A(
-                    aeRegions = aeRegions ?: METERING_REGIONS_DEFAULT.asList(),
-                    afRegions = afRegions ?: METERING_REGIONS_DEFAULT.asList(),
-                    awbRegions = awbRegions ?: METERING_REGIONS_DEFAULT.asList()
-                )
+            threads.confineDeferredSuspend {
+                debug { "UseCaseCameraRequestControlImpl#update3aRegions" }
+                useGraphSessionOrFailed {
+                    it.update3A(
+                        aeRegions = aeRegions ?: METERING_REGIONS_DEFAULT.asList(),
+                        afRegions = afRegions ?: METERING_REGIONS_DEFAULT.asList(),
+                        awbRegions = awbRegions ?: METERING_REGIONS_DEFAULT.asList()
+                    )
+                }
             }
         } ?: submitFailedResult
 

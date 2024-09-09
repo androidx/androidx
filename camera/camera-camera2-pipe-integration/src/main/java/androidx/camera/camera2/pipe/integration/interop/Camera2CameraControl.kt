@@ -30,7 +30,6 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.core.util.Preconditions
 import com.google.common.util.concurrent.ListenableFuture
-import kotlinx.coroutines.async
 
 /**
  * An class that provides ability to interoperate with the [android.hardware.camera2] APIs.
@@ -146,9 +145,7 @@ private constructor(
 
     private fun updateAsync(tag: String): ListenableFuture<Void?> =
         Futures.nonCancellationPropagating(
-            threads.sequentialScope
-                .async { compat.applyAsync(requestControl).await() }
-                .asListenableFuture(tag)
+            compat.applyAsync(requestControl).asListenableFuture(tag)
         )
 
     public companion object {

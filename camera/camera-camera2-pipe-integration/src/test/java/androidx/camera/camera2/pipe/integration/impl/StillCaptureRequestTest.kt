@@ -449,6 +449,7 @@ class StillCaptureRequestTest {
                     ),
                 state = fakeUseCaseCameraState,
                 useCaseGraphConfig = fakeUseCaseGraphConfig,
+                threads = fakeUseCaseThreads,
             )
     }
 

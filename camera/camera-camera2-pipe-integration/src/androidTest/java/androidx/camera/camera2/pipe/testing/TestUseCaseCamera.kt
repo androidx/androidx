@@ -143,6 +143,7 @@ class TestUseCaseCamera(
                         templateParamsOverride = NoOpTemplateParamsOverride,
                     ),
                 useCaseGraphConfig = useCaseCameraGraphConfig,
+                threads = threads,
             )
             .apply {
                 SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->
