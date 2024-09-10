@@ -16,12 +16,10 @@
 
 package androidx.ink.geometry.internal
 
-import androidx.annotation.RestrictTo
 import kotlin.reflect.KProperty
 
 /**
- * Allows more convenient lambda syntax for declaring and initializing a [ThreadLocal]. Use with
- * `by` to treat it as a delegate and access its value implicitly.
+ * [ThreadLocal] subclass that can be used as a read-only delegate with the `by` operator.
  *
  * Example:
  * ```
@@ -30,18 +28,13 @@ import kotlin.reflect.KProperty
  * foo.y = 6F
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public fun <T> threadLocal(initialValueProvider: () -> T): ThreadLocal<T> =
-    object : ThreadLocal<T>() {
-        override fun initialValue(): T = initialValueProvider()
-    }
+internal fun <T> threadLocal(initialValueProvider: () -> T): ThreadLocalDelegate<T> =
+    ThreadLocalDelegate(initialValueProvider)
 
-/**
- * Allows a [ThreadLocal] to act as a delegate, so a `ThreadLocal<T>` can act in code like a simple
- * `T` object. This method doesn't need to be called explicitly, as it is an operator for access.
- * See [threadLocal] for easier syntax for declaration and initialization, as well as for examples.
- */
-@Suppress("NOTHING_TO_INLINE")
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public inline operator fun <T> ThreadLocal<T>.getValue(thisObj: Any?, property: KProperty<*>): T =
-    get()!!
+internal class ThreadLocalDelegate<T> constructor(private val initialValueProvider: () -> T) :
+    ThreadLocal<T>() {
+    override fun initialValue(): T = initialValueProvider()
+
+    @Suppress("NOTHING_TO_INLINE")
+    inline operator fun getValue(thisObj: Any?, property: KProperty<*>): T = get()!!
+}

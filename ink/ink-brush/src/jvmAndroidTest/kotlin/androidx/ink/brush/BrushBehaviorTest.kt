@@ -466,6 +466,42 @@ class BrushBehaviorTest {
     }
 
     @Test
+    fun interpolationConstants_areDistinct() {
+        val list =
+            listOf<BrushBehavior.Interpolation>(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.Interpolation.INVERSE_LERP,
+            )
+        assertThat(list.toSet()).hasSize(list.size)
+    }
+
+    @Test
+    fun interpolationHashCode_withIdenticalValues_match() {
+        assertThat(BrushBehavior.Interpolation.LERP.hashCode())
+            .isEqualTo(BrushBehavior.Interpolation.LERP.hashCode())
+
+        assertThat(BrushBehavior.Interpolation.LERP.hashCode())
+            .isNotEqualTo(BrushBehavior.Interpolation.INVERSE_LERP.hashCode())
+    }
+
+    @Test
+    fun interpolationEquals_checksEqualityOfValues() {
+        assertThat(BrushBehavior.Interpolation.LERP).isEqualTo(BrushBehavior.Interpolation.LERP)
+
+        assertThat(BrushBehavior.Interpolation.LERP)
+            .isNotEqualTo(BrushBehavior.Interpolation.INVERSE_LERP)
+        assertThat(BrushBehavior.Interpolation.LERP).isNotEqualTo(null)
+    }
+
+    @Test
+    fun interpolationToString_returnsCorrectString() {
+        assertThat(BrushBehavior.Interpolation.LERP.toString())
+            .isEqualTo("BrushBehavior.Interpolation.LERP")
+        assertThat(BrushBehavior.Interpolation.INVERSE_LERP.toString())
+            .isEqualTo("BrushBehavior.Interpolation.INVERSE_LERP")
+    }
+
+    @Test
     fun sourceNodeConstructor_throwsForNonFiniteSourceValueRange() {
         assertFailsWith<IllegalArgumentException> {
             BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, Float.NaN, 1f)
@@ -489,7 +525,7 @@ class BrushBehaviorTest {
     @Test
     fun sourceNodeInputs_isEmpty() {
         val node = BrushBehavior.SourceNode(BrushBehavior.Source.NORMALIZED_PRESSURE, 0f, 1f)
-        assertThat(node.inputs()).isEmpty()
+        assertThat(node.inputs).isEmpty()
     }
 
     @Test
@@ -526,7 +562,7 @@ class BrushBehaviorTest {
 
     @Test
     fun constantNodeInputs_isEmpty() {
-        assertThat(BrushBehavior.ConstantNode(42f).inputs()).isEmpty()
+        assertThat(BrushBehavior.ConstantNode(42f).inputs).isEmpty()
     }
 
     @Test
@@ -557,7 +593,7 @@ class BrushBehaviorTest {
         val input = BrushBehavior.ConstantNode(0f)
         val node =
             BrushBehavior.FallbackFilterNode(BrushBehavior.OptionalInputProperty.PRESSURE, input)
-        assertThat(node.inputs()).containsExactly(input)
+        assertThat(node.inputs).containsExactly(input)
     }
 
     @Test
@@ -622,7 +658,7 @@ class BrushBehaviorTest {
     fun toolTypeFilterNodeInputs_containsInput() {
         val input = BrushBehavior.ConstantNode(0f)
         val node = BrushBehavior.ToolTypeFilterNode(setOf(InputToolType.STYLUS), input)
-        assertThat(node.inputs()).containsExactly(input)
+        assertThat(node.inputs).containsExactly(input)
     }
 
     @Test
@@ -702,7 +738,7 @@ class BrushBehaviorTest {
     fun dampingNodeInputs_containsInput() {
         val input = BrushBehavior.ConstantNode(0f)
         val node = BrushBehavior.DampingNode(BrushBehavior.DampingSource.TIME_IN_SECONDS, 1f, input)
-        assertThat(node.inputs()).containsExactly(input)
+        assertThat(node.inputs).containsExactly(input)
     }
 
     @Test
@@ -765,7 +801,7 @@ class BrushBehaviorTest {
     fun responseNodeInputs_containsInput() {
         val input = BrushBehavior.ConstantNode(0f)
         val node = BrushBehavior.ResponseNode(EasingFunction.Predefined.EASE, input)
-        assertThat(node.inputs()).containsExactly(input)
+        assertThat(node.inputs).containsExactly(input)
     }
 
     @Test
@@ -823,7 +859,7 @@ class BrushBehaviorTest {
         val firstInput = BrushBehavior.ConstantNode(0f)
         val secondInput = BrushBehavior.ConstantNode(1f)
         val node = BrushBehavior.BinaryOpNode(BrushBehavior.BinaryOp.SUM, firstInput, secondInput)
-        assertThat(node.inputs()).containsExactly(firstInput, secondInput).inOrder()
+        assertThat(node.inputs).containsExactly(firstInput, secondInput).inOrder()
     }
 
     @Test
@@ -884,6 +920,90 @@ class BrushBehaviorTest {
     }
 
     @Test
+    fun interpolationNodeInputs_containsInputsInOrder() {
+        val paramInput = BrushBehavior.ConstantNode(0.5f)
+        val startInput = BrushBehavior.ConstantNode(0f)
+        val endInput = BrushBehavior.ConstantNode(1f)
+        val node =
+            BrushBehavior.InterpolationNode(
+                interpolation = BrushBehavior.Interpolation.LERP,
+                paramInput = paramInput,
+                startInput = startInput,
+                endInput = endInput,
+            )
+        assertThat(node.inputs).containsExactly(paramInput, startInput, endInput).inOrder()
+    }
+
+    @Test
+    fun interpolationNodeToString() {
+        val node =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        assertThat(node.toString())
+            .isEqualTo(
+                "InterpolationNode(LERP, ConstantNode(0.5), ConstantNode(0.0), ConstantNode(1.0))"
+            )
+    }
+
+    @Test
+    fun interpolationNodeEquals_checksEqualityOfValues() {
+        val node1 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1).isEqualTo(node2)
+        assertThat(node1).isNotEqualTo(node3)
+    }
+
+    @Test
+    fun interpolationNodeHashCode_withIdenticalValues_match() {
+        val node1 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node2 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(1f),
+            )
+        val node3 =
+            BrushBehavior.InterpolationNode(
+                BrushBehavior.Interpolation.LERP,
+                BrushBehavior.ConstantNode(0.5f),
+                BrushBehavior.ConstantNode(0f),
+                BrushBehavior.ConstantNode(2f),
+            )
+        assertThat(node1.hashCode()).isEqualTo(node2.hashCode())
+        assertThat(node1.hashCode()).isNotEqualTo(node3.hashCode())
+    }
+
+    @Test
     fun targetNodeConstructor_throwsForNonFiniteTargetModifierRange() {
         val input = BrushBehavior.ConstantNode(0f)
         assertFailsWith<IllegalArgumentException> {
@@ -911,7 +1031,7 @@ class BrushBehaviorTest {
     fun targetNodeInputs_containsInput() {
         val input = BrushBehavior.ConstantNode(0f)
         val node = BrushBehavior.TargetNode(BrushBehavior.Target.SIZE_MULTIPLIER, 0f, 1f, input)
-        assertThat(node.inputs()).containsExactly(input)
+        assertThat(node.inputs).containsExactly(input)
     }
 
     @Test

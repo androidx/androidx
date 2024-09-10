@@ -517,10 +517,6 @@ class InProgressStrokeTest {
 
         val triangleIndexBuffer = stroke.getRawTriangleIndexBuffer(0, 0)
 
-        // TODO: b/302535371 - Make this buffer read only
-        // assertThat(triangleIndexBuffer.isDirect).isTrue()
-        // assertThat(triangleIndexBuffer.isReadOnly).isTrue()
-        // assertFailsWith<ReadOnlyBufferException> { triangleIndexBuffer.put(5) }
         assertThat(triangleIndexBuffer.limit()).isEqualTo(0)
         assertThat(triangleIndexBuffer.capacity()).isEqualTo(0)
     }
@@ -533,10 +529,6 @@ class InProgressStrokeTest {
 
         val triangleIndexBuffer = stroke.getRawTriangleIndexBuffer(0, 0)
 
-        // TODO: b/302535371 - Make this buffer read only
-        // assertThat(triangleIndexBuffer.isDirect).isTrue()
-        // assertThat(triangleIndexBuffer.isReadOnly).isTrue()
-        // assertFailsWith<ReadOnlyBufferException> { triangleIndexBuffer.put(5) }
         assertThat(triangleIndexBuffer.limit()).isNotEqualTo(0)
         assertThat(triangleIndexBuffer.capacity()).isNotEqualTo(0)
     }

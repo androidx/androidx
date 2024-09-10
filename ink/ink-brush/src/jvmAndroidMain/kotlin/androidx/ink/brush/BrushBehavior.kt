@@ -145,7 +145,7 @@ public class BrushBehavior(
                 val result = node as T
                 if (predicate(result)) return result
             }
-            stack.addAll(node.inputs())
+            stack.addAll(node.inputs)
         }
         return null
     }
@@ -346,6 +346,7 @@ public class BrushBehavior(
 
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is BrushBehavior) return false
+        if (other === this) return true
         return targetNodes == other.targetNodes
     }
 
@@ -368,7 +369,7 @@ public class BrushBehavior(
         while (!stack.isEmpty()) {
             stack.removeLast().let { node ->
                 orderedNodes.addFirst(node)
-                stack.addAll(node.inputs())
+                stack.addAll(node.inputs)
             }
         }
 
@@ -1023,15 +1024,54 @@ public class BrushBehavior(
         }
     }
 
+    /** Interpolation functions for use in an [InterpolationNode]. */
+    public class Interpolation private constructor(@JvmField internal val value: Int) {
+
+        internal fun toSimpleString(): String =
+            when (this) {
+                LERP -> "LERP"
+                INVERSE_LERP -> "INVERSE_LERP"
+                else -> "INVALID"
+            }
+
+        override fun toString(): String = PREFIX + this.toSimpleString()
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is Interpolation) return false
+            return value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
+
+        public companion object {
+            /**
+             * Linear interpolation. Evaluates to the [InterpolationNode.startInput] value when the
+             * [InterpolationNode.paramInput] value is 0, and to the [InterpolationNode.endInput]
+             * value when the [InterpolationNode.paramInput] value is 1.
+             */
+            @JvmField public val LERP: Interpolation = Interpolation(0)
+            /**
+             * Inverse linear interpolation. Evaluates to 0 when the [InterpolationNode.paramInput]
+             * value is equal to the [InterpolationNode.startInput] value, and to 1 when the
+             * parameter is equal to the [InterpolationNode.endInput] value. Evaluates to null when
+             * the [InterpolationNode.startInput] and [InterpolationNode.endInput] values are equal.
+             */
+            @JvmField public val INVERSE_LERP: Interpolation = Interpolation(1)
+
+            private const val PREFIX = "BrushBehavior.Interpolation."
+        }
+    }
+
     /**
      * Represents one node in a [BrushBehavior]'s expression graph. [Node] objects are immutable and
      * their inputs must be chosen at construction time; therefore, they can only ever be assembled
      * into an acyclic graph.
      */
-    public abstract class Node internal constructor() {
-        /** Returns the ordered list of inputs that this node directly depends on. */
-        public open fun inputs(): List<ValueNode> = emptyList()
-
+    public abstract class Node
+    internal constructor(
+        /** The ordered list of inputs that this node directly depends on. */
+        public val inputs: List<ValueNode>
+    ) {
         /** Appends a native version of this [Node] to a native [BrushBehavior]. */
         internal abstract fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long)
     }
@@ -1040,7 +1080,7 @@ public class BrushBehavior(
      * A [ValueNode] is a non-terminal node in the graph; it produces a value to be consumed as an
      * input by other [Node]s, and may itself depend on zero or more inputs.
      */
-    public abstract class ValueNode internal constructor() : Node() {}
+    public abstract class ValueNode internal constructor(inputs: List<ValueNode>) : Node(inputs) {}
 
     /** A [ValueNode] that gets data from the stroke input batch. */
     public class SourceNode
@@ -1050,7 +1090,7 @@ public class BrushBehavior(
         public val sourceValueRangeLowerBound: Float,
         public val sourceValueRangeUpperBound: Float,
         public val sourceOutOfRangeBehavior: OutOfRange = OutOfRange.CLAMP,
-    ) : ValueNode() {
+    ) : ValueNode(emptyList()) {
         init {
             require(sourceValueRangeLowerBound.isFinite()) {
                 "sourceValueRangeLowerBound must be finite, was $sourceValueRangeLowerBound"
@@ -1104,7 +1144,7 @@ public class BrushBehavior(
     }
 
     /** A [ValueNode] that produces a constant output value. */
-    public class ConstantNode constructor(public val value: Float) : ValueNode() {
+    public class ConstantNode constructor(public val value: Float) : ValueNode(emptyList()) {
         init {
             require(value.isFinite()) { "value must be finite, was $value" }
         }
@@ -1135,9 +1175,7 @@ public class BrushBehavior(
      */
     public class FallbackFilterNode
     constructor(public val isFallbackFor: OptionalInputProperty, public val input: ValueNode) :
-        ValueNode() {
-        override fun inputs(): List<ValueNode> = listOf(input)
-
+        ValueNode(listOf(input)) {
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             nativeAppendFallbackFilterNode(nativeBehaviorPointer, isFallbackFor.value)
         }
@@ -1147,6 +1185,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is FallbackFilterNode) return false
+            if (other === this) return true
             return isFallbackFor == other.isFallbackFor && input == other.input
         }
 
@@ -1175,14 +1214,12 @@ public class BrushBehavior(
         // The [enabledToolTypes] val below is a defensive copy of this parameter.
         enabledToolTypes: Set<InputToolType>,
         public val input: ValueNode,
-    ) : ValueNode() {
+    ) : ValueNode(listOf(input)) {
         public val enabledToolTypes: Set<InputToolType> = unmodifiableSet(enabledToolTypes.toSet())
 
         init {
             require(!enabledToolTypes.isEmpty()) { "enabledToolTypes must be non-empty" }
         }
-
-        override fun inputs(): List<ValueNode> = listOf(input)
 
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             nativeAppendToolTypeFilterNode(
@@ -1198,6 +1235,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is ToolTypeFilterNode) return false
+            if (other === this) return true
             return enabledToolTypes == other.enabledToolTypes && input == other.input
         }
 
@@ -1229,14 +1267,12 @@ public class BrushBehavior(
         public val dampingSource: DampingSource,
         public val dampingGap: Float,
         public val input: ValueNode,
-    ) : ValueNode() {
+    ) : ValueNode(listOf(input)) {
         init {
             require(dampingGap.isFinite() && dampingGap >= 0.0f) {
                 "dampingGap must be finite and non-negative, was $dampingGap"
             }
         }
-
-        override fun inputs(): List<ValueNode> = listOf(input)
 
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             nativeAppendDampingNode(nativeBehaviorPointer, dampingSource.value, dampingGap)
@@ -1247,6 +1283,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is DampingNode) return false
+            if (other === this) return true
             return dampingSource == other.dampingSource &&
                 dampingGap == other.dampingGap &&
                 input == other.input
@@ -1271,9 +1308,7 @@ public class BrushBehavior(
     /** A [ValueNode] that maps an input value through a response curve. */
     public class ResponseNode
     constructor(public val responseCurve: EasingFunction, public val input: ValueNode) :
-        ValueNode() {
-        override fun inputs(): List<ValueNode> = listOf(input)
-
+        ValueNode(listOf(input)) {
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             when (responseCurve) {
                 is EasingFunction.Predefined ->
@@ -1312,6 +1347,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is ResponseNode) return false
+            if (other === this) return true
             return responseCurve == other.responseCurve && input == other.input
         }
 
@@ -1372,9 +1408,7 @@ public class BrushBehavior(
         public val operation: BinaryOp,
         public val firstInput: ValueNode,
         public val secondInput: ValueNode,
-    ) : ValueNode() {
-        override fun inputs(): List<ValueNode> = listOf(firstInput, secondInput)
-
+    ) : ValueNode(listOf(firstInput, secondInput)) {
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             nativeAppendBinaryOpNode(nativeBehaviorPointer, operation.value)
         }
@@ -1384,6 +1418,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is BinaryOpNode) return false
+            if (other === this) return true
             return operation == other.operation &&
                 firstInput == other.firstInput &&
                 secondInput == other.secondInput
@@ -1404,6 +1439,55 @@ public class BrushBehavior(
     }
 
     /**
+     * A [ValueNode] that interpolates between two inputs based on a parameter input. The specific
+     * kind of interpolation performed depends on the [Interpolation] parameter.
+     */
+    public class InterpolationNode
+    constructor(
+        /** What kind of interpolation to perform. */
+        public val interpolation: Interpolation,
+        /** The input whose value is used as the parameter within the interpolation range. */
+        public val paramInput: ValueNode,
+        /** The input whose value forms the start of the interpolation range. */
+        public val startInput: ValueNode,
+        /** The input whose value forms the end of the interpolation range. */
+        public val endInput: ValueNode,
+    ) : ValueNode(listOf(paramInput, startInput, endInput)) {
+        override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
+            nativeAppendInterpolationNode(nativeBehaviorPointer, interpolation.value)
+        }
+
+        override fun toString(): String =
+            "InterpolationNode(${interpolation.toSimpleString()}, $paramInput, $startInput, $endInput)"
+
+        override fun equals(other: Any?): Boolean {
+            if (other == null || other !is InterpolationNode) return false
+            if (other === this) return true
+            return interpolation == other.interpolation &&
+                paramInput == other.paramInput &&
+                startInput == other.startInput &&
+                endInput == other.endInput
+        }
+
+        override fun hashCode(): Int {
+            var result = interpolation.hashCode()
+            result = 31 * result + paramInput.hashCode()
+            result = 31 * result + startInput.hashCode()
+            result = 31 * result + endInput.hashCode()
+            return result
+        }
+
+        /**
+         * Appends a native `BrushBehavior::InterpolationNode` to a native brush behavior struct.
+         */
+        // TODO: b/355248266 - @Keep must go in Proguard config file instead.
+        private external fun nativeAppendInterpolationNode(
+            nativeBehaviorPointer: Long,
+            interpolation: Int,
+        )
+    }
+
+    /**
      * A [TargetNode] is a terminal node in the graph; it does not produce a value and cannot be
      * used as an input to other [Node]s, but instead applies a modification to the brush tip state.
      * A [BrushBehavior] consists of a list of [TargetNode]s and the various [ValueNode]s that they
@@ -1415,7 +1499,7 @@ public class BrushBehavior(
         public val targetModifierRangeLowerBound: Float,
         public val targetModifierRangeUpperBound: Float,
         public val input: ValueNode,
-    ) : Node() {
+    ) : Node(listOf(input)) {
         init {
             require(targetModifierRangeLowerBound.isFinite()) {
                 "targetModifierRangeLowerBound must be finite, was $targetModifierRangeLowerBound"
@@ -1427,8 +1511,6 @@ public class BrushBehavior(
                 "targetModifierRangeLowerBound and targetModifierRangeUpperBound must be distinct, both were $targetModifierRangeLowerBound"
             }
         }
-
-        override fun inputs(): List<ValueNode> = listOf(input)
 
         override fun appendToNativeBrushBehavior(nativeBehaviorPointer: Long) {
             nativeAppendTargetNode(
@@ -1444,6 +1526,7 @@ public class BrushBehavior(
 
         override fun equals(other: Any?): Boolean {
             if (other == null || other !is TargetNode) return false
+            if (other === this) return true
             return target == other.target &&
                 targetModifierRangeLowerBound == other.targetModifierRangeLowerBound &&
                 targetModifierRangeUpperBound == other.targetModifierRangeUpperBound &&
