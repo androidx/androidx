@@ -38,7 +38,9 @@ internal actual class Lock actual constructor() {
 
     private val lockImpl = LockImpl()
 
-    @Suppress("unused") // The returned Cleaner must be assigned to a property
+    // unused - The returned Cleaner must be assigned to a property
+    // TODO(/365786168) Replace with kotlin.native.ref.createCleaner, after kotlin bump to 1.9+
+    @Suppress("unused", "DEPRECATION")
     @OptIn(ExperimentalStdlibApi::class)
     private val cleaner = createCleaner(lockImpl, LockImpl::destroy)
 

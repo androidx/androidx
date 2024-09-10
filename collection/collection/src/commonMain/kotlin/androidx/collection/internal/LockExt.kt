@@ -19,6 +19,9 @@ package androidx.collection.internal
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 
+// Workaround for applying callsInPlace to expect fun no longer works.
+// See: https://youtrack.jetbrains.com/issue/KT-29963
+@Suppress("LEAKED_IN_PLACE_LAMBDA", "WRONG_INVOCATION_KIND")
 internal inline fun <T> Lock.synchronized(block: () -> T): T {
     contract { callsInPlace(block, InvocationKind.EXACTLY_ONCE) }
     return synchronizedImpl(block)
