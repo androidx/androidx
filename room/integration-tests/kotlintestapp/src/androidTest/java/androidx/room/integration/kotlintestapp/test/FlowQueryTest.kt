@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
@@ -36,7 +37,6 @@ import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.produceIn
 import kotlinx.coroutines.flow.take
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.yield
 import org.junit.After
@@ -44,7 +44,7 @@ import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class FlowQueryTest : TestDatabaseTest() {
@@ -98,7 +98,7 @@ class FlowQueryTest : TestDatabaseTest() {
 
         val latch = CountDownLatch(1)
         val job =
-            launch(Dispatchers.IO) {
+            async(Dispatchers.IO) {
                 booksDao.getBooksFlow().collect {
                     assertThat(it).isEqualTo(listOf(TestUtil.BOOK_1, TestUtil.BOOK_2))
                     latch.countDown()
@@ -119,7 +119,7 @@ class FlowQueryTest : TestDatabaseTest() {
         val secondResultLatch = CountDownLatch(1)
         val results = mutableListOf<List<Book>>()
         val job =
-            launch(Dispatchers.IO) {
+            async(Dispatchers.IO) {
                 booksDao.getBooksFlow().collect {
                     when (results.size) {
                         0 -> {
