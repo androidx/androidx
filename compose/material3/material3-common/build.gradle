@@ -31,11 +31,23 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.compose.material3.common"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+
+        compileSdk = 35
+        aarMetadata.minCompileSdk = 35
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -99,10 +111,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    compileSdk 35
-    namespace "androidx.compose.material3.common"
-}
 
 androidx {
     name = "Compose Material 3 Common"

@@ -22,7 +22,6 @@
  * modifying its settings.
  */
 
-
 import androidx.build.KotlinTarget
 import androidx.build.PlatformIdentifier
 import androidx.build.LibraryType
@@ -30,11 +29,20 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.room.testing"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     ios()
     jvm()
     linux()
@@ -88,9 +96,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace "androidx.room.testing"
-}
 
 androidx {
     name = "Room Testing"

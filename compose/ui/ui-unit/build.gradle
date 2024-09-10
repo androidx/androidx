@@ -28,12 +28,27 @@ import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
     id("AndroidXComposePlugin")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "androidx.compose.ui.unit"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+        optimization {
+            it.consumerKeepRules.publish = true
+            it.consumerKeepRules.files.add(
+                    new File(project.projectDir, "proguard-rules.pro")
+            )
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -116,9 +131,3 @@ androidx {
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }
 
-android {
-    namespace "androidx.compose.ui.unit"
-    buildTypes.configureEach {
-        consumerProguardFiles("proguard-rules.pro")
-    }
-}

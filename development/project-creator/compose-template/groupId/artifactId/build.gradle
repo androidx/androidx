@@ -28,11 +28,20 @@ import androidx.build.PlatformIdentifier
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
+    androidLibrary {
+        namespace = "<PACKAGE>"
+        withAndroidTestOnDeviceBuilder {
+            it.compilationName = "instrumentedTest"
+            it.defaultSourceSetName = "androidInstrumentedTest"
+            it.sourceSetTreeName = "test"
+        }
+        withAndroidTestOnJvmBuilder {
+            it.defaultSourceSetName = "androidUnitTest"
+        }
+    }
     jvmStubs()
     linuxX64Stubs()
 
@@ -97,9 +106,6 @@ androidXMultiplatform {
     }
 }
 
-android {
-    namespace "<PACKAGE>"
-}
 
 androidx {
     name = "<NAME>"

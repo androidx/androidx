@@ -32,6 +32,7 @@
         <ignore path="**/src/androidUnitTest/**" />
         <ignore path="**/src/jvmTest/**" />
         <ignore path="**/src/commonTest/**" />
+        <ignore path="**/src/nonEmulatorJvmTest/**" />
         <!-- Required for AppSearch icing tests. -->
         <ignore path="**/java/tests/**" />
     </issue>
