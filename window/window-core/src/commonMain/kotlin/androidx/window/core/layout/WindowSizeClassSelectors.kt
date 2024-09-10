@@ -60,7 +60,7 @@ fun Set<WindowSizeClass>.computeWindowSizeClass(widthDp: Int, heightDp: Int): Wi
         if (
             bucket.minWidthDp == maxWidth &&
                 bucket.minHeightDp <= heightDp &&
-                match.minHeightDp < bucket.minHeightDp
+                match.minHeightDp <= bucket.minHeightDp
         ) {
             match = bucket
         }
@@ -94,7 +94,7 @@ fun Set<WindowSizeClass>.computeWindowSizeClassPreferHeight(
         if (
             bucket.minHeightDp == maxHeight &&
                 bucket.minWidthDp <= widthDp &&
-                match.minWidthDp < bucket.minWidthDp
+                match.minWidthDp <= bucket.minWidthDp
         ) {
             match = bucket
         }
