@@ -95,6 +95,9 @@ internal fun List<String>.require(
     return remaining
 }
 
+internal fun List<String>.containsOnly(vararg strings: String): Boolean =
+    toSet().union(setOf(*strings)).size == this.size
+
 fun camelCase(vararg strings: String): String {
     if (strings.isEmpty()) return ""
     return StringBuilder()
