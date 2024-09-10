@@ -142,7 +142,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private static final String KEY_RAW_BOUNDS = "b";
     private static final String KEY_PADDING = "pa";
     private static final String KEY_LOOKAT_POINT = "l";
-    private static final String KEY_DEFAULT_ZOOM_CHANGED = "dzc";
     private static final int OVERSCROLL_THRESHOLD = 25;
     /** Fallback duration for the zoom animation, when material attributes are unavailable. */
     private static final int FALLBACK_ZOOM_ANIMATION_DURATION_MS = 250;
@@ -217,7 +216,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     private boolean mStraightenVerticalScroll;
     private boolean mInitialZoomDone = false;
     private boolean mScaleInProgress = false;
-    private boolean mDefaultZoomChanged = false;
     /**
      * Padding changes require a {@link #mViewport} update. {@link #setPadding(int, int, int, int)}
      * will request a layout pass but {@link #onLayout(boolean, int, int, int, int)} will be called
@@ -575,11 +573,9 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
 
                 // Possibly change the zoom, depending on keepFitZoomOnRotate or RotateMode setting.
                 if (isFitZoom && mKeepFitZoomOnRotate) {
-                    setZoom(getDefaultZoom());
+                    setZoom(getConstrainedZoomToFit());
                 } else if (mRotateMode == RotateMode.KEEP_SAME_VIEWPORT_WIDTH) {
-                    setZoom(constrainZoom(mDefaultZoomChanged
-                            ? (getZoom() * newWidth / oldWidth)
-                            : getDefaultZoom()));
+                    setZoom(constrainZoom(getZoom() * newWidth / oldWidth));
                 } else if (mRotateMode == RotateMode.KEEP_SAME_VIEWPORT_HEIGHT) {
                     setZoom(constrainZoom(getZoom() * newHeight / oldHeight));
                 } else {
@@ -627,7 +623,7 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     public float getInitialZoom() {
         switch (mInitialZoomMode) {
             case InitialZoomMode.ZOOM_TO_FIT:
-                return getDefaultZoom();
+                return getConstrainedZoomToFit();
             case InitialZoomMode.MIN_ZOOM:
                 return getMinZoom();
             case InitialZoomMode.MAX_ZOOM:
@@ -671,19 +667,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             return Math.max(mMaxZoom, getUnconstrainedZoomToFit());
         }
         return mMaxZoom;
-    }
-
-    private float getDefaultZoom() {
-        Screen screenUtils = new Screen(getContext());
-        int screenWidth = getContext().getResources().getDisplayMetrics().widthPixels;
-        int screenWidthDp = screenUtils.dpFromPx(screenWidth);
-        if (screenWidthDp > 840) {
-            // Add paddings on both sides for large form factors
-            float viewingScreen = mViewport.width() - screenUtils.pxFromDp(160);
-
-            return viewingScreen / mContentView.getWidth();
-        }
-        return getConstrainedZoomToFit();
     }
 
     /** Set the maximum zoom - also configurable in XML. Returns this. */
@@ -901,7 +884,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
     public void setZoom(float zoom, float pivotX, float pivotY) {
         zoom = Float.isNaN(zoom) ? ZOOM_RESET : zoom;
         mInitialZoomDone = true;
-        mDefaultZoomChanged = getDefaultZoom() != zoom;
         int deltaX = ZoomUtils.scrollDeltaNeededForZoomChange(getZoom(), zoom, pivotX,
                 getScrollX());
         int deltaY = ZoomUtils.scrollDeltaNeededForZoomChange(getZoom(), zoom, pivotY,
@@ -1068,7 +1050,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             bundle.putParcelable(KEY_RAW_BOUNDS, mContentRawBounds);
             bundle.putParcelable(KEY_PADDING, mPaddingOnLastViewportUpdate);
             bundle.putParcelable(KEY_LOOKAT_POINT, computeLookAtPoint());
-            bundle.putBoolean(KEY_DEFAULT_ZOOM_CHANGED, mDefaultZoomChanged);
         }
         return bundle;
     }
@@ -1087,7 +1068,6 @@ public class ZoomView extends GestureTrackingView implements ZoomScrollRestorer 
             mContentRawBounds.set(Objects.requireNonNull(bundle.getParcelable(KEY_RAW_BOUNDS)));
             mPaddingOnLastViewportUpdate = bundle.getParcelable(KEY_PADDING);
             mRestoreLookAtPoint = bundle.getParcelable(KEY_LOOKAT_POINT);
-            mDefaultZoomChanged = bundle.getBoolean(KEY_DEFAULT_ZOOM_CHANGED);
         }
     }
 
