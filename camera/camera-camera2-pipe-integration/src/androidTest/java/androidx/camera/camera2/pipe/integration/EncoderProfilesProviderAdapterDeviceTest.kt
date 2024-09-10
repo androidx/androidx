@@ -150,6 +150,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
         val videoProxy = profilesProxy!!.videoProfiles[0]
         val audioProxy = profilesProxy.audioProfiles[0]
 
+        // Don't check video/audio profile, see cts/CamcorderProfileTest.java
         assertThat(profilesProxy.defaultDurationSeconds).isEqualTo(profiles.defaultDurationSeconds)
         assertThat(profilesProxy.recommendedFileFormat).isEqualTo(profiles.recommendedFileFormat)
         assertThat(videoProxy.codec).isEqualTo(video.codec)
@@ -158,7 +159,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assertThat(videoProxy.frameRate).isEqualTo(video.frameRate)
         assertThat(videoProxy.width).isEqualTo(video.width)
         assertThat(videoProxy.height).isEqualTo(video.height)
-        assertThat(videoProxy.profile).isEqualTo(video.profile)
         assertThat(videoProxy.bitDepth).isEqualTo(BIT_DEPTH_8)
         assertThat(videoProxy.chromaSubsampling).isEqualTo(YUV_420)
         assertThat(videoProxy.hdrFormat).isEqualTo(HDR_NONE)
@@ -167,7 +167,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assertThat(audioProxy.bitrate).isEqualTo(audio.bitrate)
         assertThat(audioProxy.sampleRate).isEqualTo(audio.sampleRate)
         assertThat(audioProxy.channels).isEqualTo(audio.channels)
-        assertThat(audioProxy.profile).isEqualTo(audio.profile)
     }
 
     @SdkSuppress(minSdkVersion = 33)
@@ -182,6 +181,7 @@ class EncoderProfilesProviderAdapterDeviceTest(
         val videoProxy = profilesProxy!!.videoProfiles[0]
         val audioProxy = profilesProxy.audioProfiles[0]
 
+        // Don't check video/audio profile, see cts/CamcorderProfileTest.java
         assertThat(profilesProxy.defaultDurationSeconds).isEqualTo(profiles.defaultDurationSeconds)
         assertThat(profilesProxy.recommendedFileFormat).isEqualTo(profiles.recommendedFileFormat)
         assertThat(videoProxy.codec).isEqualTo(video.codec)
@@ -190,7 +190,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assertThat(videoProxy.frameRate).isEqualTo(video.frameRate)
         assertThat(videoProxy.width).isEqualTo(video.width)
         assertThat(videoProxy.height).isEqualTo(video.height)
-        assertThat(videoProxy.profile).isEqualTo(video.profile)
         assertThat(videoProxy.bitDepth).isEqualTo(video.bitDepth)
         assertThat(videoProxy.chromaSubsampling).isEqualTo(video.chromaSubsampling)
         assertThat(videoProxy.hdrFormat).isEqualTo(video.hdrFormat)
@@ -199,7 +198,6 @@ class EncoderProfilesProviderAdapterDeviceTest(
         assertThat(audioProxy.bitrate).isEqualTo(audio.bitrate)
         assertThat(audioProxy.sampleRate).isEqualTo(audio.sampleRate)
         assertThat(audioProxy.channels).isEqualTo(audio.channels)
-        assertThat(audioProxy.profile).isEqualTo(audio.profile)
     }
 
     @LabTestRule.LabTestOnly
