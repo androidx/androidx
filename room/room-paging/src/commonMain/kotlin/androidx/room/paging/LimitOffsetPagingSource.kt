@@ -20,6 +20,8 @@ import androidx.annotation.RestrictTo
 import androidx.paging.PagingSource
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
+import androidx.paging.PagingSource.LoadResult.Invalid
+import androidx.room.InvalidationTracker
 import androidx.room.RoomDatabase
 import androidx.room.RoomRawQuery
 import androidx.room.immediateTransaction
@@ -29,8 +31,6 @@ import androidx.room.paging.util.queryItemCount
 import androidx.room.useReaderConnection
 import androidx.sqlite.SQLiteStatement
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -56,45 +56,43 @@ expect abstract class LimitOffsetPagingSource<Value : Any>(
 }
 
 internal class CommonLimitOffsetImpl<Value : Any>(
-    private val tables: Array<out String>,
-    private val pagingSource: LimitOffsetPagingSource<Value>,
+    tables: Array<out String>,
+    val pagingSource: LimitOffsetPagingSource<Value>,
     private val convertRows: (SQLiteStatement, Int) -> List<Value>
 ) {
     private val db = pagingSource.db
     private val sourceQuery = pagingSource.sourceQuery
-
     internal val itemCount = atomic(INITIAL_ITEM_COUNT)
-
-    private val invalidationFlowStarted = atomic(false)
-    private var invalidationFlowJob: Job? = null
+    private val registered = atomic(false)
+    private val observer =
+        object : InvalidationTracker.Observer(tables) {
+            override fun onInvalidated(tables: Set<String>) {
+                pagingSource.invalidate()
+            }
+        }
 
     init {
-        pagingSource.registerInvalidatedCallback { invalidationFlowJob?.cancel() }
+        pagingSource.registerInvalidatedCallback {
+            db.getCoroutineScope().launch { db.invalidationTracker.unsubscribe(observer) }
+        }
     }
 
     suspend fun load(params: LoadParams<Int>): LoadResult<Int, Value> {
-        if (invalidationFlowStarted.compareAndSet(expect = false, update = true)) {
-            invalidationFlowJob =
-                db.getCoroutineScope().launch {
-                    db.invalidationTracker.createFlow(*tables, emitInitialState = false).collect {
-                        if (pagingSource.invalid) {
-                            throw CancellationException("PagingSource is invalid")
-                        }
-                        pagingSource.invalidate()
-                    }
-                }
-        }
-
-        val tempCount = itemCount.value
-        // if itemCount is < 0, then it is initial load
-        return try {
-            if (tempCount == INITIAL_ITEM_COUNT) {
-                initialLoad(params)
-            } else {
-                nonInitialLoad(params, tempCount)
+        return withContext(db.getCoroutineScope().coroutineContext) {
+            if (!pagingSource.invalid && registered.compareAndSet(expect = false, update = true)) {
+                db.invalidationTracker.subscribe(observer)
             }
-        } catch (e: Exception) {
-            LoadResult.Error(e)
+            val tempCount = itemCount.value
+            // if itemCount is < 0, then it is initial load
+            try {
+                if (tempCount == INITIAL_ITEM_COUNT) {
+                    initialLoad(params)
+                } else {
+                    nonInitialLoad(params, tempCount)
+                }
+            } catch (e: Exception) {
+                LoadResult.Error(e)
+            }
         }
     }
 
@@ -136,16 +134,12 @@ internal class CommonLimitOffsetImpl<Value : Any>(
                 itemCount = tempCount,
                 convertRows = convertRows
             )
-        // TODO(b/192269858): Create a better API to facilitate source invalidation.
-        // Manually check if database has been updated. If so, invalidate the source and the result.
-        withContext(db.getCoroutineScope().coroutineContext) {
-            if (db.invalidationTracker.refresh(*tables)) {
-                pagingSource.invalidate()
-            }
-        }
+        // manually check if database has been updated. If so, the observer's
+        // invalidation callback will invalidate this paging source
+        db.invalidationTracker.refreshInvalidation()
 
         @Suppress("UNCHECKED_CAST")
-        return if (pagingSource.invalid) INVALID as LoadResult.Invalid<Int, Value> else loadResult
+        return if (pagingSource.invalid) INVALID as Invalid<Int, Value> else loadResult
     }
 
     companion object {
@@ -154,7 +148,7 @@ internal class CommonLimitOffsetImpl<Value : Any>(
          *
          * Any loaded data or queued loads prior to returning INVALID will be discarded
          */
-        val INVALID = LoadResult.Invalid<Any, Any>()
+        val INVALID = Invalid<Any, Any>()
 
         const val BUG_LINK =
             "https://issuetracker.google.com/issues/new?component=413107&template=1096568"

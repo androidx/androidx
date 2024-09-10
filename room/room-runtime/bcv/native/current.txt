@@ -379,9 +379,18 @@ final class androidx.room/DatabaseConfiguration { // androidx.room/DatabaseConfi
 final class androidx.room/InvalidationTracker { // androidx.room/InvalidationTracker|null[0]
     constructor <init>(androidx.room/RoomDatabase, kotlin.collections/Map<kotlin/String, kotlin/String>, kotlin.collections/Map<kotlin/String, kotlin.collections/Set<kotlin/String>>, kotlin/Array<out kotlin/String>...) // androidx.room/InvalidationTracker.<init>|<init>(androidx.room.RoomDatabase;kotlin.collections.Map<kotlin.String,kotlin.String>;kotlin.collections.Map<kotlin.String,kotlin.collections.Set<kotlin.String>>;kotlin.Array<out|kotlin.String>...){}[0]
 
-    final fun createFlow(kotlin/Array<out kotlin/String>..., kotlin/Boolean = ...): kotlinx.coroutines.flow/Flow<kotlin.collections/Set<kotlin/String>> // androidx.room/InvalidationTracker.createFlow|createFlow(kotlin.Array<out|kotlin.String>...;kotlin.Boolean){}[0]
     final fun refreshAsync() // androidx.room/InvalidationTracker.refreshAsync|refreshAsync(){}[0]
-    final suspend fun refresh(kotlin/Array<out kotlin/String>...): kotlin/Boolean // androidx.room/InvalidationTracker.refresh|refresh(kotlin.Array<out|kotlin.String>...){}[0]
+    final fun stop() // androidx.room/InvalidationTracker.stop|stop(){}[0]
+    final suspend fun refreshInvalidation() // androidx.room/InvalidationTracker.refreshInvalidation|refreshInvalidation(){}[0]
+    final suspend fun subscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.subscribe|subscribe(androidx.room.InvalidationTracker.Observer){}[0]
+    final suspend fun unsubscribe(androidx.room/InvalidationTracker.Observer) // androidx.room/InvalidationTracker.unsubscribe|unsubscribe(androidx.room.InvalidationTracker.Observer){}[0]
+
+    abstract class Observer { // androidx.room/InvalidationTracker.Observer|null[0]
+        constructor <init>(kotlin/Array<out kotlin/String>) // androidx.room/InvalidationTracker.Observer.<init>|<init>(kotlin.Array<out|kotlin.String>){}[0]
+        constructor <init>(kotlin/String, kotlin/Array<out kotlin/String>...) // androidx.room/InvalidationTracker.Observer.<init>|<init>(kotlin.String;kotlin.Array<out|kotlin.String>...){}[0]
+
+        abstract fun onInvalidated(kotlin.collections/Set<kotlin/String>) // androidx.room/InvalidationTracker.Observer.onInvalidated|onInvalidated(kotlin.collections.Set<kotlin.String>){}[0]
+    }
 }
 
 final class androidx.room/RoomRawQuery { // androidx.room/RoomRawQuery|null[0]

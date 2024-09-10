@@ -33,14 +33,12 @@ import androidx.sqlite.SQLiteStatement
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.testutils.FilteringCoroutineContext
 import androidx.testutils.FilteringExecutor
 import androidx.testutils.TestExecutor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
@@ -660,17 +658,14 @@ class LimitOffsetPagingSourceTest {
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
+class LimitOffsetPagingSourceTestWithFilteringExecutor {
 
     private lateinit var db: LimitOffsetTestDb
     private lateinit var dao: TestItemDao
 
     // Multiple threads are necessary to prevent deadlock, since Room will acquire a thread to
     // dispatch on, when using the query / transaction dispatchers.
-    private val queryContext = FilteringCoroutineContext(delegate = Executors.newFixedThreadPool(2))
-    private val queryExecutor: FilteringExecutor
-        get() = queryContext.executor
-
+    private val queryExecutor = FilteringExecutor(delegate = Executors.newFixedThreadPool(2))
     private val mainThreadQueries = mutableListOf<Pair<String, String>>()
 
     @Before
@@ -693,7 +688,7 @@ class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
                     // instantly execute the log callback so that we can check the thread.
                     it.run()
                 }
-                .setQueryCoroutineContext(queryContext)
+                .setQueryExecutor(queryExecutor)
                 .build()
         dao = db.getDao()
     }
@@ -716,8 +711,9 @@ class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
         assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(0, 15))
 
         // blocks invalidation notification from Room
-        queryContext.filterFunction = { context, _ ->
-            context[CoroutineName]?.name?.contains("Room Invalidation Tracker Refresh") != true
+        queryExecutor.filterFunction = {
+            // TODO(b/): Avoid relying on function name, very brittle.
+            !it.toString().contains("refreshInvalidationAsync")
         }
 
         // now write to the database
@@ -744,9 +740,7 @@ class LimitOffsetPagingSourceTestWithFilteringCoroutineDispatcher {
         assertThat(result.data).containsExactlyElementsIn(ITEMS_LIST.subList(20, 35))
 
         // blocks invalidation notification from Room
-        queryContext.filterFunction = { context, _ ->
-            context[CoroutineName]?.name?.contains("Room Invalidation Tracker Refresh") != true
-        }
+        queryExecutor.filterFunction = { !it.toString().contains("refreshInvalidationAsync") }
 
         // now write to the database
         dao.deleteTestItem(ITEMS_LIST[30])
