@@ -418,7 +418,7 @@ class TextButtonTest {
             status = Status.Enabled,
             colors = { TextButtonDefaults.filledTonalTextButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
         )
     }
 

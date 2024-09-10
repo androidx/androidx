@@ -339,7 +339,7 @@ class IconButtonTest {
             status = Status.Enabled,
             colors = { IconButtonDefaults.iconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.primary }
         )
     }
 
@@ -415,7 +415,7 @@ class IconButtonTest {
             status = Status.Enabled,
             colors = { IconButtonDefaults.filledTonalIconButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.surfaceContainer },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
+            expectedContentColor = { MaterialTheme.colorScheme.primary }
         )
     }
 
@@ -441,7 +441,7 @@ class IconButtonTest {
             status = Status.Enabled,
             colors = { IconButtonDefaults.outlinedIconButtonColors() },
             expectedContainerColor = { Color.Transparent },
-            expectedContentColor = { MaterialTheme.colorScheme.onSurface }
+            expectedContentColor = { MaterialTheme.colorScheme.primary }
         )
     }
 
