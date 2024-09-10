@@ -33,10 +33,10 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMaxOfOrNull
 import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.packInts
@@ -783,6 +783,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 it - beforeContentPadding + afterContentPadding
             }
 
+        debugLog { "pinned items: $pinnedItems" }
+
         var extraItemOffset = itemScrollOffsets[0]
         val extraItemsBefore =
             calculateExtraItems(
@@ -799,15 +801,23 @@ private fun LazyStaggeredGridMeasureContext.measure(
                     when (lane) {
                         Unset,
                         FullSpan -> {
-                            firstItemIndices.all { it > itemIndex }
+                            measuredItems.all {
+                                val firstIndex = it.firstOrNull()?.index ?: -1
+                                firstIndex > itemIndex
+                            }
                         }
                         else -> {
-                            firstItemIndices[lane] > itemIndex
+                            val firstIndex = measuredItems[lane].firstOrNull()?.index ?: -1
+                            firstIndex > itemIndex
                         }
                     }
                 },
                 beforeVisibleBounds = true
             )
+
+        debugLog {
+            "extra items before: ${extraItemsBefore.fastJoinToString { it.index.toString() }}"
+        }
 
         val visibleItems =
             calculateVisibleItems(
@@ -846,6 +856,10 @@ private fun LazyStaggeredGridMeasureContext.measure(
                 },
                 beforeVisibleBounds = false
             )
+
+        debugLog {
+            "extra items after: ${extraItemsAfter.fastJoinToString { it.index.toString() }}"
+        }
 
         val positionedItems = mutableListOf<LazyStaggeredGridMeasuredItem>()
         positionedItems.addAll(extraItemsBefore)
