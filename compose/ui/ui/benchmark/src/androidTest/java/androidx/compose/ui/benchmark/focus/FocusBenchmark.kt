@@ -16,11 +16,20 @@
 
 package androidx.compose.ui.benchmark.focus
 
+import android.view.KeyEvent
+import android.view.KeyEvent.ACTION_DOWN
+import android.view.KeyEvent.ACTION_UP
+import android.view.KeyEvent.KEYCODE_TAB
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
+import androidx.compose.testutils.doFramesUntilNoChangesPending
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusTarget
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -43,6 +52,31 @@ class FocusBenchmark {
                 override fun MeasuredContent() {
                     Box(Modifier.focusTarget())
                 }
+            }
+        }
+    }
+
+    @Test
+    fun focusTraversal() {
+        composeBenchmarkRule.runBenchmarkFor({
+            object : ComposeTestCase {
+                @Composable
+                override fun Content() {
+                    Column(Modifier.fillMaxSize()) {
+                        repeat(10) {
+                            Row(Modifier.focusTarget()) {
+                                repeat(10) { Box(Modifier.focusTarget()) }
+                            }
+                        }
+                    }
+                }
+            }
+        }) {
+            composeBenchmarkRule.runOnUiThread { doFramesUntilNoChangesPending() }
+
+            composeBenchmarkRule.measureRepeatedOnUiThread {
+                getHostView().dispatchKeyEvent(KeyEvent(ACTION_DOWN, KEYCODE_TAB))
+                getHostView().dispatchKeyEvent(KeyEvent(ACTION_UP, KEYCODE_TAB))
             }
         }
     }
