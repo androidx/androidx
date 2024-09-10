@@ -19,7 +19,6 @@ package androidx.core.splashscreen.test
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.SystemClock
 import android.util.Base64
 import android.util.Log
 import android.view.View
@@ -31,6 +30,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.screenshot.matchers.MSSIMMatcher
 import androidx.test.uiautomator.UiDevice
+import androidx.testutils.PollingCheck
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileInputStream
@@ -161,7 +161,8 @@ public class SplashscreenParametrizedTest(
             // During the transition from the splash screen of system starting window to the
             // activity, there may be a moment that `PhoneWindowManager`'s
             // `mTopFullscreenOpaqueWindowState` would be `null`, which might lead to the flicker of
-            // status bar (b/64291272, ag/2664318)
+            // status bar (b/64291272,
+            // https://android.googlesource.com/platform/frameworks/base/+/c0c9324fcb03c85ef7bed2d997c441119823d31c%5E%21/)
             val topFullscreenWinState = "mTopFullscreenOpaqueWindowState"
 
             // We should take the screenshot when `mTopFullscreenOpaqueWindowState` is window of the
@@ -185,15 +186,8 @@ public class SplashscreenParametrizedTest(
                     dumpedWindowPolicy.contains(topFullscreenWinStateBelongsToActivity)
             }
 
-            val timeout = 2000L
-            val interval = 100L
-            val start = SystemClock.uptimeMillis()
-            var topFullscreenWinStateReady = isTopFullscreenWinStateReady()
-            while (!topFullscreenWinStateReady && SystemClock.uptimeMillis() - start < timeout) {
-                SystemClock.sleep(interval)
-                topFullscreenWinStateReady = isTopFullscreenWinStateReady()
-            }
-            if (!topFullscreenWinStateReady)
+            PollingCheck.waitFor(2000, isTopFullscreenWinStateReady)
+            if (!isTopFullscreenWinStateReady())
                 fail("$topFullscreenWinState is not ready, cannot take screenshot")
 
             splashScreenViewScreenShot =
