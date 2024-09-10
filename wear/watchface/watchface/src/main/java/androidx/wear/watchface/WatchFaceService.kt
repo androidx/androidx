@@ -1267,6 +1267,8 @@ public abstract class WatchFaceService : WallpaperService() {
         @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public val deferredWatchFaceImpl = CompletableDeferred<WatchFaceImpl>()
 
+        public val deferredFirstFrame = CompletableDeferred<Unit>()
+
         @VisibleForTesting public var deferredValidation = CompletableDeferred<Unit>()
 
         /**
@@ -2447,9 +2449,14 @@ public abstract class WatchFaceService : WallpaperService() {
                     // Now init has completed, it's OK to complete deferredWatchFaceImpl.
                     initComplicationsDone.complete(Unit)
 
-                    // validateSchemaWireSize is fairly expensive so only perform it for
-                    // interactive watch faces.
+                    // validateSchemaWireSize is fairly expensive so only perform it for interactive
+                    // watch faces.
                     if (!watchState.isHeadless) {
+                        // Wait until the first frame has been rendered since
+                        // validateSchemaWireSize is computationally expensive and it may trigger
+                        // lazy Icon construction and we want to avoid CPU contention with user
+                        // visible tasks.
+                        deferredFirstFrame.await()
                         validateSchemaWireSize(currentUserStyleRepository.schema)
                     }
                 } catch (e: CancellationException) {
@@ -2530,6 +2537,7 @@ public abstract class WatchFaceService : WallpaperService() {
                         }
                     }
                 }
+                deferredFirstFrame.complete(Unit)
 
                 Log.d(TAG, "init complete ${watchState.watchFaceInstanceId.value}")
             }
