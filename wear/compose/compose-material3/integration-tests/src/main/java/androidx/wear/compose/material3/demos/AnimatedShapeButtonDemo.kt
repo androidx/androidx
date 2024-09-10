@@ -48,7 +48,8 @@ fun AnimatedShapeButtonDemo() {
                 val interactionSource1 = remember { MutableInteractionSource() }
                 TextButton(
                     onClick = {},
-                    shape = TextButtonDefaults.animatedShape(interactionSource1)
+                    shape = TextButtonDefaults.animatedShape(interactionSource1),
+                    interactionSource = interactionSource1,
                 ) {
                     Text(text = "ABC")
                 }
@@ -62,8 +63,9 @@ fun AnimatedShapeButtonDemo() {
                         TextButtonDefaults.animatedShape(
                             interactionSource2,
                             shape = CutCornerShape(15.dp),
-                            pressedShape = RoundedCornerShape(15.dp)
-                        )
+                            pressedShape = RoundedCornerShape(15.dp),
+                        ),
+                    interactionSource = interactionSource2,
                 ) {
                     Text(text = "ABC")
                 }

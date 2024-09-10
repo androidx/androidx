@@ -392,7 +392,7 @@ class IconToggleButtonTest {
         rule.verifyIconToggleButtonColors(
             status = Status.Enabled,
             checked = true,
-            colors = { IconButtonDefaults.iconToggleButtonColors() },
+            colors = { IconToggleButtonDefaults.iconToggleButtonColors() },
             containerColor = { MaterialTheme.colorScheme.primary },
             contentColor = { MaterialTheme.colorScheme.onPrimary }
         )
@@ -403,7 +403,7 @@ class IconToggleButtonTest {
         rule.verifyIconToggleButtonColors(
             status = Status.Enabled,
             checked = false,
-            colors = { IconButtonDefaults.iconToggleButtonColors() },
+            colors = { IconToggleButtonDefaults.iconToggleButtonColors() },
             containerColor = { MaterialTheme.colorScheme.surfaceContainer },
             contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
         )
@@ -414,7 +414,7 @@ class IconToggleButtonTest {
         rule.verifyIconToggleButtonColors(
             status = Status.Disabled,
             checked = false,
-            colors = { IconButtonDefaults.iconToggleButtonColors() },
+            colors = { IconToggleButtonDefaults.iconToggleButtonColors() },
             containerColor = {
                 MaterialTheme.colorScheme.onSurface.toDisabledColor(DisabledContainerAlpha)
             },
@@ -427,7 +427,7 @@ class IconToggleButtonTest {
         rule.verifyIconToggleButtonColors(
             status = Status.Disabled,
             checked = true,
-            colors = { IconButtonDefaults.iconToggleButtonColors() },
+            colors = { IconToggleButtonDefaults.iconToggleButtonColors() },
             containerColor = {
                 MaterialTheme.colorScheme.onSurface.toDisabledColor(DisabledContainerAlpha)
             },
@@ -443,7 +443,9 @@ class IconToggleButtonTest {
             status = Status.Enabled,
             checked = true,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(checkedContainerColor = overrideColor)
+                IconToggleButtonDefaults.iconToggleButtonColors(
+                    checkedContainerColor = overrideColor
+                )
             },
             containerColor = { overrideColor },
             contentColor = { MaterialTheme.colorScheme.onPrimary }
@@ -459,7 +461,7 @@ class IconToggleButtonTest {
             status = Status.Enabled,
             checked = true,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(checkedContentColor = overrideColor)
+                IconToggleButtonDefaults.iconToggleButtonColors(checkedContentColor = overrideColor)
             },
             containerColor = { MaterialTheme.colorScheme.primary },
             contentColor = { overrideColor }
@@ -475,7 +477,9 @@ class IconToggleButtonTest {
             status = Status.Enabled,
             checked = false,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(uncheckedContainerColor = overrideColor)
+                IconToggleButtonDefaults.iconToggleButtonColors(
+                    uncheckedContainerColor = overrideColor
+                )
             },
             containerColor = { overrideColor },
             contentColor = { MaterialTheme.colorScheme.onSurfaceVariant }
@@ -491,7 +495,9 @@ class IconToggleButtonTest {
             status = Status.Enabled,
             checked = false,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(uncheckedContentColor = overrideColor)
+                IconToggleButtonDefaults.iconToggleButtonColors(
+                    uncheckedContentColor = overrideColor
+                )
             },
             containerColor = { MaterialTheme.colorScheme.surfaceContainer },
             contentColor = { overrideColor }
@@ -507,7 +513,7 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = true,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(
+                IconToggleButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
                     disabledCheckedContainerColor = overrideColor
                 )
@@ -526,7 +532,7 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = true,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(
+                IconToggleButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
                     disabledCheckedContentColor = overrideColor
                 )
@@ -547,7 +553,7 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(
+                IconToggleButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
                     disabledUncheckedContainerColor = overrideColor
                 )
@@ -566,7 +572,7 @@ class IconToggleButtonTest {
             status = Status.Disabled,
             checked = false,
             colors = {
-                IconButtonDefaults.iconToggleButtonColors(
+                IconToggleButtonDefaults.iconToggleButtonColors(
                     // Apply the content color override for the content alpha to be applied
                     disabledUncheckedContentColor = overrideColor
                 )
@@ -643,7 +649,7 @@ class IconToggleButtonTest {
 
     @Composable
     private fun shapeColor(): Color {
-        return IconButtonDefaults.iconToggleButtonColors()
+        return IconToggleButtonDefaults.iconToggleButtonColors()
             .containerColor(enabled = true, checked = true)
             .value
     }

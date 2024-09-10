@@ -489,8 +489,6 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors iconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors iconButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public float iconSizeFor(float size);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconToggleButtonColors iconToggleButtonColors();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconToggleButtonColors iconToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors outlinedIconButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconButtonColors outlinedIconButtonColors(optional long contentColor, optional long disabledContentColor);
     property public final float DefaultButtonSize;
@@ -538,6 +536,19 @@ package androidx.wear.compose.material3 {
     property public final long disabledUncheckedContentColor;
     property public final long uncheckedContainerColor;
     property public final long uncheckedContentColor;
+  }
+
+  public final class IconToggleButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedToggleButtonShape(androidx.compose.foundation.interaction.InteractionSource interactionSource, boolean checked, optional androidx.compose.foundation.shape.CornerSize uncheckedCornerSize, optional androidx.compose.foundation.shape.CornerSize checkedCornerSize, optional androidx.compose.foundation.shape.CornerSize pressedCornerSize, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> onPressAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> onReleaseAnimationSpec);
+    method public androidx.compose.foundation.shape.CornerSize getCheckedCornerSize();
+    method public androidx.compose.foundation.shape.CornerSize getPressedCornerSize();
+    method public androidx.compose.foundation.shape.CornerSize getUncheckedCornerSize();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconToggleButtonColors iconToggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.IconToggleButtonColors iconToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
+    property public final androidx.compose.foundation.shape.CornerSize CheckedCornerSize;
+    property public final androidx.compose.foundation.shape.CornerSize PressedCornerSize;
+    property public final androidx.compose.foundation.shape.CornerSize UncheckedCornerSize;
+    field public static final androidx.wear.compose.material3.IconToggleButtonDefaults INSTANCE;
   }
 
   @SuppressCompatibility @androidx.compose.runtime.Immutable @androidx.wear.compose.material3.ExperimentalWearMaterial3Api public final class InlineSliderColors {
@@ -1258,8 +1269,6 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors outlinedTextButtonColors(optional long contentColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors textButtonColors();
     method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextButtonColors textButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextToggleButtonColors textToggleButtonColors();
-    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextToggleButtonColors textToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
     property public final float DefaultButtonSize;
     property public final float LargeButtonSize;
     property public final float SmallButtonSize;
@@ -1323,6 +1332,19 @@ package androidx.wear.compose.material3 {
     property public final long disabledUncheckedContentColor;
     property public final long uncheckedContainerColor;
     property public final long uncheckedContentColor;
+  }
+
+  public final class TextToggleButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape animatedToggleButtonShape(androidx.compose.foundation.interaction.InteractionSource interactionSource, boolean checked, optional androidx.compose.foundation.shape.CornerSize uncheckedCornerSize, optional androidx.compose.foundation.shape.CornerSize checkedCornerSize, optional androidx.compose.foundation.shape.CornerSize pressedCornerSize, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> onPressAnimationSpec, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> onReleaseAnimationSpec);
+    method public androidx.compose.foundation.shape.CornerSize getCheckedCornerSize();
+    method public androidx.compose.foundation.shape.CornerSize getPressedCornerSize();
+    method public androidx.compose.foundation.shape.CornerSize getUncheckedCornerSize();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextToggleButtonColors textToggleButtonColors();
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.material3.TextToggleButtonColors textToggleButtonColors(optional long checkedContainerColor, optional long checkedContentColor, optional long uncheckedContainerColor, optional long uncheckedContentColor, optional long disabledCheckedContainerColor, optional long disabledCheckedContentColor, optional long disabledUncheckedContainerColor, optional long disabledUncheckedContentColor);
+    property public final androidx.compose.foundation.shape.CornerSize CheckedCornerSize;
+    property public final androidx.compose.foundation.shape.CornerSize PressedCornerSize;
+    property public final androidx.compose.foundation.shape.CornerSize UncheckedCornerSize;
+    field public static final androidx.wear.compose.material3.TextToggleButtonDefaults INSTANCE;
   }
 
   @androidx.compose.runtime.Immutable public final class TimePickerColors {
