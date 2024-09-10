@@ -16,24 +16,16 @@
 
 package androidx.wear.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -155,30 +147,9 @@ class TimePickerScreenshotTest {
         isLargeScreen: Boolean = false,
         content: @Composable () -> Unit
     ) {
-        val screenSizeDp = if (isLargeScreen) SCREENSHOT_SIZE_LARGE else SCREENSHOT_SIZE
-        setContentWithTheme {
-            val originalConfiguration = LocalConfiguration.current
-            val fixedScreenSizeConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenWidthDp = screenSizeDp
-                        screenHeightDp = screenSizeDp
-                    }
-                }
-            CompositionLocalProvider(LocalConfiguration provides fixedScreenSizeConfiguration) {
-                Box(
-                    modifier =
-                        Modifier.size(screenSizeDp.dp)
-                            .background(MaterialTheme.colorScheme.background)
-                ) {
-                    content()
-                }
-            }
-        }
+        val screenSizeDp = if (isLargeScreen) SCREEN_SIZE_LARGE else SCREEN_SIZE_SMALL
+        setContentWithTheme { ScreenConfiguration(screenSizeDp) { content() } }
 
         onNodeWithTag(testTag).captureToImage().assertAgainstGolden(screenshotRule, methodName)
     }
 }
-
-private const val SCREENSHOT_SIZE = 192
-private const val SCREENSHOT_SIZE_LARGE = 228

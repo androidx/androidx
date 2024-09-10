@@ -19,8 +19,6 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
@@ -58,7 +56,7 @@ class ButtonGroupScreenshotTest {
 
     @Test
     fun button_group_3_items_different_sizes() =
-        verifyScreenshot(numItems = 3, weight2 = 2f, weight3 = 3f)
+        verifyScreenshot(numItems = 3, minWidth1 = 24.dp, weight2 = 2f, weight3 = 3f)
 
     private fun verifyScreenshot(
         numItems: Int = 2,
@@ -73,12 +71,10 @@ class ButtonGroupScreenshotTest {
     ) {
         require(numItems in 1..3)
         rule.setContentWithTheme {
-            val interactionSource1 = remember { MutableInteractionSource() }
-            val interactionSource2 = remember { MutableInteractionSource() }
-            val interactionSource3 = remember { MutableInteractionSource() }
-            Box(
-                modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-            ) {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                val interactionSource1 = remember { MutableInteractionSource() }
+                val interactionSource2 = remember { MutableInteractionSource() }
+                val interactionSource3 = remember { MutableInteractionSource() }
                 ButtonGroup(
                     Modifier.testTag(TEST_TAG),
                     spacing = spacing,

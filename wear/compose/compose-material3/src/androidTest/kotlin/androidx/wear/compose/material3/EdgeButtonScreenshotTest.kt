@@ -17,7 +17,6 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -55,23 +54,18 @@ class EdgeButtonScreenshotTest {
     @get:Rule val testName = TestName()
 
     @Test
-    fun edge_button_default() =
-        verifyScreenshot() {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-                EdgeButton(
-                    onClick = { /* Do something */ },
-                    modifier = Modifier.testTag(TEST_TAG)
-                ) {
-                    BasicText("Text")
-                }
+    fun edge_button_default() = verifyScreenshot {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+            EdgeButton(onClick = { /* Do something */ }, modifier = Modifier.testTag(TEST_TAG)) {
+                BasicText("Text")
             }
         }
+    }
 
     @Test
-    fun edge_button_xsmall() =
-        verifyScreenshot() {
-            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall)
-        }
+    fun edge_button_xsmall() = verifyScreenshot {
+        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall)
+    }
 
     @Test
     fun edge_button_small() =
@@ -101,41 +95,34 @@ class EdgeButtonScreenshotTest {
         }
 
     @Test
-    fun edge_button_small_space_limited() =
-        verifyScreenshot() {
-            BasicEdgeButton(
-                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
-                constrainedHeight = 30.dp
-            )
-        }
+    fun edge_button_small_space_limited() = verifyScreenshot {
+        BasicEdgeButton(
+            buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+            constrainedHeight = 30.dp
+        )
+    }
 
     @Test
-    fun edge_button_small_slightly_limited() =
-        verifyScreenshot() {
-            BasicEdgeButton(
-                buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
-                constrainedHeight = 40.dp
-            )
-        }
+    fun edge_button_small_slightly_limited() = verifyScreenshot {
+        BasicEdgeButton(
+            buttonHeight = ButtonDefaults.EdgeButtonHeightSmall,
+            constrainedHeight = 40.dp
+        )
+    }
 
     private val LONG_TEXT =
         "Lorem ipsum dolor sit amet, consectetur adipiscing elit, " +
             "sed do eiusmod tempor incididunt ut labore et dolore."
 
     @Test
-    fun edge_button_xsmall_long_text() =
-        verifyScreenshot() {
-            BasicEdgeButton(
-                buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall,
-                text = LONG_TEXT
-            )
-        }
+    fun edge_button_xsmall_long_text() = verifyScreenshot {
+        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightExtraSmall, text = LONG_TEXT)
+    }
 
     @Test
-    fun edge_button_large_long_text() =
-        verifyScreenshot() {
-            BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge, text = LONG_TEXT)
-        }
+    fun edge_button_large_long_text() = verifyScreenshot {
+        BasicEdgeButton(buttonHeight = ButtonDefaults.EdgeButtonHeightLarge, text = LONG_TEXT)
+    }
 
     @Composable
     private fun BasicEdgeButton(
@@ -164,11 +151,8 @@ class EdgeButtonScreenshotTest {
         content: @Composable () -> Unit
     ) {
         rule.setContentWithTheme {
-            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                Box(
-                    modifier =
-                        Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
-                ) {
+            ScreenConfiguration(SCREEN_SIZE_SMALL) {
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     content()
                 }
             }

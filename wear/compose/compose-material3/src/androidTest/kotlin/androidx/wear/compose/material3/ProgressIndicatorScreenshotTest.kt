@@ -16,7 +16,6 @@
 
 package androidx.wear.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -28,13 +27,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
@@ -234,21 +231,9 @@ class ProgressIndicatorScreenshotTest {
         screenSize: ScreenSize,
         content: @Composable () -> Unit
     ) {
-        rule.setContentWithTheme(modifier = Modifier.background(Color.Black)) {
-            val originalConfiguration = LocalConfiguration.current
-            val fixedScreenSizeConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenWidthDp = screenSize.size
-                        screenHeightDp = screenSize.size
-                    }
-                }
-
-            CompositionLocalProvider(
-                LocalLayoutDirection provides LayoutDirection.Ltr,
-                LocalConfiguration provides fixedScreenSizeConfiguration
-            ) {
-                Box(modifier = Modifier.size(screenSize.size.dp).background(Color.Black)) {
+        rule.setContentWithTheme {
+            ScreenConfiguration(screenSize.size) {
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
                     content()
                 }
             }

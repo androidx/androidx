@@ -30,7 +30,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -38,6 +37,7 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMapIndexed
+import androidx.wear.compose.materialcore.screenHeightDp
 import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collectLatest
@@ -46,7 +46,7 @@ import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.launch
 
 /** Scope for the children of a [ButtonGroup] */
-public class ButtonGroupScope {
+class ButtonGroupScope {
     internal val items = mutableListOf<ButtonGroupItem>()
 
     /**
@@ -225,7 +225,7 @@ object ButtonGroupDefaults {
      */
     @Composable
     fun fullWidthPaddings(): PaddingValues {
-        val screenHeight = LocalConfiguration.current.screenHeightDp.dp
+        val screenHeight = screenHeightDp().dp
         return PaddingValues(
             horizontal = screenHeight * FullWidthHorizontalPaddingPercentage / 100,
             vertical = 0.dp

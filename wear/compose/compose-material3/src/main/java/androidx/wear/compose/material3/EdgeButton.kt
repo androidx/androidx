@@ -55,7 +55,6 @@ import androidx.compose.ui.layout.layout
 import androidx.compose.ui.node.LayoutModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
@@ -70,6 +69,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.materialcore.screenWidthDp
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
@@ -140,7 +140,7 @@ fun EdgeButton(
     val easing = CubicBezierEasing(0.25f, 0f, 0.75f, 1.0f)
 
     val density = LocalDensity.current
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp.dp
+    val screenWidthDp = screenWidthDp().dp
 
     val contentShapeHelper =
         remember(buttonHeight) {
@@ -221,7 +221,7 @@ fun EdgeButton(
                     val alpha =
                         easing
                             .transform(
-                                (height - contentFadeEndPx).toFloat() /
+                                (height - contentFadeEndPx) /
                                     ((contentFadeStartPx - contentFadeEndPx))
                             )
                             .coerceIn(0f, 1f)
@@ -308,8 +308,6 @@ internal class ShapeHelper(private val density: Density) {
     internal var contentWindow: Rect = Rect(0f, 0f, 0f, 0f)
 
     fun contentWidthDp() = with(density) { contentWindow.width.toDp() }
-
-    fun contentHeightDp() = with(density) { contentWindow.height.toDp() }
 
     fun update(size: Size) {
         lastSize.value = size
