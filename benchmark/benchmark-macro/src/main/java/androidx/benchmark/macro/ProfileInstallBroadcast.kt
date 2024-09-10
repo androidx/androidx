@@ -70,6 +70,9 @@ internal object ProfileInstallBroadcast {
                             if (sdkInt in 31..33) {
                                 " Please use profileinstaller `1.2.1`" +
                                     " or newer for API 31-33 support"
+                            } else if (sdkInt >= 34) {
+                                " Please use profileinstaller `1.4.0`" +
+                                    " or newer for API 34+ support"
                             } else {
                                 ""
                             }

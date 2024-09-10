@@ -28,7 +28,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     api("androidx.savedstate:savedstate:1.2.1")
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.6.1")
-    implementation("androidx.profileinstaller:profileinstaller:1.4.0-rc01")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
     implementation("androidx.tracing:tracing:1.0.0")
     implementation(libs.kotlinCoroutinesCore)
     api(libs.kotlinStdlib)

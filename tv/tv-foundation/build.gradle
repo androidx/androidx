@@ -49,7 +49,7 @@ dependencies {
     api("androidx.compose.ui:ui-graphics:$composeVersion")
     api("androidx.compose.ui:ui-text:$composeVersion")
 
-    implementation("androidx.profileinstaller:profileinstaller:1.4.0-rc01")
+    implementation("androidx.profileinstaller:profileinstaller:1.4.0")
 
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":compose:runtime:runtime"))
