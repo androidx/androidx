@@ -20,14 +20,13 @@ import android.graphics.Canvas
 import android.graphics.Matrix
 import android.os.Build
 import android.view.View
-import androidx.annotation.RestrictTo
 import androidx.ink.rendering.android.canvas.CanvasStrokeRenderer
 import androidx.ink.rendering.android.canvas.StrokeDrawScope
 
 /**
- * Helps developers using Android Views to draw [Stroke] objects in their UI, in an easier way than
- * using [CanvasStrokeRenderer] directly. Construct this once for your [View] and reuse it during
- * each [View.onDraw] call.
+ * Helps developers using Android Views to draw [androidx.ink.strokes.Stroke] objects in their UI,
+ * in an easier way than using [CanvasStrokeRenderer] directly. Construct this once for your [View]
+ * and reuse it during each [View.onDraw] call.
  *
  * This utility is valid as long as [View.onDraw]
  * 1. Does not call [Canvas.setMatrix].
@@ -36,8 +35,8 @@ import androidx.ink.rendering.android.canvas.StrokeDrawScope
  *    using [View.setRenderEffect], or by calling [Canvas.drawRenderNode] using a
  *    [android.graphics.RenderNode] that has been configured with
  *    [android.graphics.RenderNode.setRenderEffect]. Developers who want to use
- *    [android.graphics.RenderEffect] in conjunction with [Stroke] rendering must use
- *    [CanvasStrokeRenderer.draw] directly.
+ *    [android.graphics.RenderEffect] in conjunction with [androidx.ink.strokes.Stroke] rendering
+ *    must use [CanvasStrokeRenderer.draw] directly.
  *
  * Example:
  * ```
@@ -56,7 +55,6 @@ import androidx.ink.rendering.android.canvas.StrokeDrawScope
  * }
  * ```
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 public class ViewStrokeRenderer(
     private val canvasStrokeRenderer: CanvasStrokeRenderer,
     private val view: View,
@@ -66,21 +64,20 @@ public class ViewStrokeRenderer(
     private val recycledDrawScopes = mutableListOf<StrokeDrawScope>()
 
     /**
-     * Call this at the beginning of [View.onDraw] and perform your Canvas manipulations within its
-     * scope. For example:
+     * Kotlin developers should call this at the beginning of [View.onDraw] and perform their
+     * [Canvas] manipulations within its scope.
+     *
+     * For example:
      * ```
      * viewStrokeRenderer.drawWithStrokes(canvas) { scope ->
+     *   canvas.scale(...) // or concat, or translate, or rotate, etc.
      *   scope.drawStroke(stroke)
      *   // Repeat with other strokes, draw other things to the canvas, etc.
      * }
      * ```
      *
-     * This is the preferred equivalent of:
-     * ```
-     * val scope = viewStrokeRenderer.obtainDrawScope(canvas)
-     * scope.drawStroke(stroke)
-     * viewStrokeRenderer.recycleDrawScope(scope)
-     * ```
+     * Java callers should prefer to use the non-inline overload of [drawWithStrokes] with a
+     * non-capturing lambda or an object that is allocated once and reused.
      */
     public inline fun drawWithStrokes(canvas: Canvas, block: (StrokeDrawScope) -> Unit) {
         val scope = obtainDrawScope(canvas)
@@ -89,13 +86,43 @@ public class ViewStrokeRenderer(
     }
 
     /**
-     * Manually obtain a scope to draw into the given [canvas].
+     * Java developers should call this at the beginning of [View.onDraw] and perform their [Canvas]
+     * manipulations within its scope.
      *
-     * Prefer to use [drawWithStrokes] instead. This function is only public as a requirement for
-     * [drawWithStrokes] to be an inline function. If you do use this, be sure to call
-     * [recycleDrawScope] when finished drawing.
+     * The structure of the callback in this non-inline version makes it easier for Java callers to
+     * write performant code, since forwarding the value of [canvas] allows a lambda to be
+     * non-capturing, thereby avoiding an allocation of the lambda on every frame.
+     *
+     * For example:
+     * ```java
+     * viewStrokeRenderer.drawWithStrokes(canvas, (scopedCanvas, scope) -> {
+     *   // Make sure to use `scopedCanvas` rather than `canvas` in this lambda!
+     *   scopedCanvas.scale(...); // or concat, or translate, or rotate, etc.
+     *   scope.drawStroke(stroke);
+     *   // Repeat with other strokes, draw other things to the canvas, etc.
+     * });
+     * ```
+     *
+     * Alternatively, the callback could be an object that is allocated once and reused.
+     *
+     * Kotlin callers should prefer to use the inline overload of [drawWithStrokes], as it better
+     * guarantees that the lambda argument will not cause an allocation.
      */
-    public fun obtainDrawScope(canvas: Canvas): StrokeDrawScope {
+    public fun drawWithStrokes(
+        canvas: Canvas,
+        block: (scopedCanvas: Canvas, StrokeDrawScope) -> Unit
+    ) {
+        val scope = obtainDrawScope(canvas)
+        block(canvas, scope)
+        recycleDrawScope(scope)
+    }
+
+    /**
+     * Manually obtain a scope to draw into the given [canvas]. Make sure to call [recycleDrawScope]
+     * when finished drawing. Prefer to use the public [drawWithStrokes] function instead.
+     */
+    @PublishedApi
+    internal fun obtainDrawScope(canvas: Canvas): StrokeDrawScope {
         val viewToScreenTransform =
             scratchMatrix.also {
                 it.reset()
@@ -112,12 +139,11 @@ public class ViewStrokeRenderer(
     }
 
     /**
-     * Recycle a [scope] for future use.
-     *
-     * This function should only be called by users if [scope] was obtained by directly calling
-     * [obtainDrawScope]. Prefer to use [drawWithStrokes] instead.
+     * Recycle a [scope] for future use, that was previously obtained with [obtainDrawScope]. Prefer
+     * to use the public [drawWithStrokes] function instead.
      */
-    public fun recycleDrawScope(scope: StrokeDrawScope) {
+    @PublishedApi
+    internal fun recycleDrawScope(scope: StrokeDrawScope) {
         recycledDrawScopes.add(scope)
     }
 }

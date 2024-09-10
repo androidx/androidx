@@ -24,12 +24,10 @@ import androidx.ink.strokes.Stroke
 /**
  * A utility to simplify usage of [CanvasStrokeRenderer] by automatically calculating the
  * `strokeToCanvasTransform` parameter of [CanvasStrokeRenderer.draw]. Obtain an instance of this
- * class using [ViewStrokeRenderer], if using [android.view.View]. Use this scope by calling its
- * [drawStroke] function.
- *
- * TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
+ * class using [androidx.ink.rendering.android.view.ViewStrokeRenderer], if using
+ * [android.view.View]. Use this scope by calling its [drawStroke] function.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+// TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
 public class StrokeDrawScope
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 constructor(private val renderer: CanvasStrokeRenderer) {
@@ -56,7 +54,7 @@ constructor(private val renderer: CanvasStrokeRenderer) {
      * transformations.
      *
      * We assume that any non-identity value of the matrix at the start of [onDrawStart] is already
-     * part of the [canvasToScreenTransform] passed to [onDrawStart] as shown in the following
+     * part of the `canvasToScreenTransform` passed to [onDrawStart] as shown in the following
      * diagram:
      *
      *                     |-       [canvasToScreenTransform]         -|
