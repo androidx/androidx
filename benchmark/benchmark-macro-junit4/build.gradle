@@ -35,6 +35,17 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 23
+
+        // The package name is passed to the app as an instrumentation runner argument.
+        // Set default target package at runtime. This could also be set by baseline profile
+        // gradle plugin, but that's not used here.
+        testInstrumentationRunnerArguments["androidx.benchmark.targetPackageName"] =
+                "androidx.benchmark.integration.macrobenchmark.target"
+
+        // We don't care about perf from these correctness tests, so suppress
+        // anything that may otherwise block these tests
+        testInstrumentationRunnerArguments["androidx.benchmark.suppressErrors"] =
+                "CODE-COVERAGE,DEBUGGABLE,EMULATOR,LOW-BATTERY,UNLOCKED"
     }
     namespace "androidx.benchmark.macro.junit4"
 }
@@ -49,13 +60,11 @@ dependencies {
     implementation("androidx.test:rules:1.5.0")
     implementation("androidx.test:runner:1.5.2")
 
-    androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.mockitoCore)
-    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.truth)
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -75,5 +84,9 @@ androidx {
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark JUnit4"
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        targetAppProject = project(":benchmark:integration-tests:macrobenchmark-target")
+        targetAppVariant = "release"
+    }
     kotlinTarget = KotlinTarget.KOTLIN_1_9
 }

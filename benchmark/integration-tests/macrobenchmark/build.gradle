@@ -33,12 +33,6 @@ plugins {
 android {
     defaultConfig {
         minSdkVersion 23
-
-        // The package name is passed to the app as an instrumentation runner argument.
-        // Set default target package at runtime. This could also be set by baseline profile
-        // gradle plugin, but that's not used here.
-        testInstrumentationRunnerArguments["androidx.benchmark.targetPackageName"] =
-                "androidx.benchmark.integration.macrobenchmark.target"
     }
     sourceSets {
         main.assets.srcDirs += new File(
