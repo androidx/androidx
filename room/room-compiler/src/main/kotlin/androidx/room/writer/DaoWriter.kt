@@ -33,12 +33,13 @@ import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
-import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER
 import androidx.room.ext.RoomTypeNames.DELETE_OR_UPDATE_ADAPTER_COMPAT
 import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER
 import androidx.room.ext.RoomTypeNames.INSERT_ADAPTER_COMPAT
+import androidx.room.ext.RoomTypeNames.RAW_QUERY
 import androidx.room.ext.RoomTypeNames.ROOM_DB
+import androidx.room.ext.RoomTypeNames.ROOM_SQL_QUERY
 import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER
 import androidx.room.ext.RoomTypeNames.UPSERT_ADAPTER_COMPAT
 import androidx.room.ext.SupportDbTypeNames
@@ -333,21 +334,36 @@ class DaoWriter(
     }
 
     private fun createRawQueryMethodBody(method: RawQueryMethod): XCodeBlock {
-        if (
-            method.runtimeQueryParam == null ||
-                !method.runtimeQueryParam.isRawQuery() ||
-                !method.queryResultBinder.isMigratedToDriver()
-        ) {
+        if (method.runtimeQueryParam == null || !method.queryResultBinder.isMigratedToDriver()) {
             return compatCreateRawQueryMethodBody(method)
         }
 
         val scope = CodeGenScope(this@DaoWriter, useDriverApi = true)
         val sqlQueryVar = scope.getTmpVar("_sql")
+        val rawQueryParamName =
+            if (method.runtimeQueryParam.isSupportQuery()) {
+                val rawQueryVar = scope.getTmpVar("_rawQuery")
+                scope.builder.addLocalVariable(
+                    name = rawQueryVar,
+                    typeName = RAW_QUERY,
+                    assignExpr =
+                        XCodeBlock.of(
+                            scope.language,
+                            format = "%T.copyFrom(%L).toRoomRawQuery()",
+                            ROOM_SQL_QUERY,
+                            method.runtimeQueryParam.paramName
+                        )
+                )
+                rawQueryVar
+            } else {
+                method.runtimeQueryParam.paramName
+            }
+
         scope.builder.addLocalVal(
             sqlQueryVar,
             CommonTypeNames.STRING,
             "%L.%L",
-            method.runtimeQueryParam.paramName,
+            rawQueryParamName,
             when (codeLanguage) {
                 CodeLanguage.JAVA -> "getSql()"
                 CodeLanguage.KOTLIN -> "sql"
@@ -360,7 +376,7 @@ class DaoWriter(
                 bindStatement = { stmtVar ->
                     this.builder.addStatement(
                         "%L.getBindingFunction().invoke(%L)",
-                        method.runtimeQueryParam.paramName,
+                        rawQueryParamName,
                         stmtVar
                     )
                 },
@@ -387,7 +403,7 @@ class DaoWriter(
                     shouldReleaseQuery = true
                     addLocalVariable(
                         name = roomSQLiteQueryVar,
-                        typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                        typeName = ROOM_SQL_QUERY,
                         assignExpr =
                             XCodeBlock.of(
                                 codeLanguage,
@@ -402,7 +418,7 @@ class DaoWriter(
                     shouldReleaseQuery = false
                     addLocalVariable(
                         name = roomSQLiteQueryVar,
-                        typeName = RoomTypeNames.ROOM_SQL_QUERY,
+                        typeName = ROOM_SQL_QUERY,
                         assignExpr =
                             XCodeBlock.of(
                                 codeLanguage,

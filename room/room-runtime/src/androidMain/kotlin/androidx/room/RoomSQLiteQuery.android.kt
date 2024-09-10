@@ -78,6 +78,11 @@ class RoomSQLiteQuery private constructor(@field:VisibleForTesting val capacity:
         }
     }
 
+    /** Converts a SupportSQLiteStatement to a [RoomRawQuery]. */
+    fun toRoomRawQuery(): RoomRawQuery {
+        return RoomRawQuery(sql = this.sql, onBindStatement = { this.bindTo(it) })
+    }
+
     override val sql: String
         get() = checkNotNull(this.query)
 
