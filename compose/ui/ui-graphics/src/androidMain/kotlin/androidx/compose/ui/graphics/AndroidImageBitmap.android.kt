@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.util.DisplayMetrics
 import androidx.annotation.RequiresApi
@@ -28,6 +29,10 @@ import androidx.compose.ui.graphics.colorspace.ColorSpaces
  * [Bitmap] and changes to it will modify the returned [ImageBitmap]
  */
 fun Bitmap.asImageBitmap(): ImageBitmap = AndroidImageBitmap(this)
+
+internal actual fun createImageBitmap(bytes: ByteArray): ImageBitmap {
+    return BitmapFactory.decodeByteArray(bytes, 0, bytes.size).asImageBitmap()
+}
 
 internal actual fun ActualImageBitmap(
     width: Int,
