@@ -21,8 +21,8 @@ import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.util.Rational
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.internal.utils.SizeUtil
 import androidx.camera.extensions.ExtensionsManager
@@ -97,7 +97,8 @@ class ImageCaptureExtenderValidationTest(private val config: CameraXExtensionTes
                 cameraProvider.bindToLifecycle(FakeLifecycleOwner(), extensionCameraSelector)
             }
 
-        cameraCharacteristics = Camera2CameraInfo.extractCameraCharacteristics(camera.cameraInfo)
+        cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
     }
 
     @After
