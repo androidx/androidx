@@ -27,8 +27,7 @@ if [ "`command -v getprop`" == "" ]; then
     else
         echo "Could not find adb. Options are:"
         echo "  1. Ensure adb is on your \$PATH"
-        echo "  2. Use './gradlew lockClocks'"
-        echo "  3. Manually adb push this script to your device, and run it there"
+        echo "  2. Manually adb push this script to your device, and run it there"
         exit -1
     fi
 fi
@@ -38,6 +37,7 @@ echo ""
 # require root
 if [[ `id` != "uid=0"* ]]; then
     echo "Not running as root, cannot disable jit, aborting"
+    echo "Run 'adb root' and retry"
     exit -1
 fi
 
@@ -45,7 +45,19 @@ setprop dalvik.vm.extra-opts "-Xusejit:false"
 stop
 start
 
+## Poll for boot animation to start...
+echo "  Waiting for boot animation to start..."
+while [[ "`getprop init.svc.bootanim`" == "stopped" ]]; do
+  sleep 0.1; # frequent polling for boot anim to start, in case it's fast
+done
+
+## And then complete
+echo "  Waiting for boot animation to stop..."
+while [[ "`getprop init.svc.bootanim`" == "running" ]]; do
+  sleep 0.5;
+done
+
 DEVICE=`getprop ro.product.device`
-echo "JIT compilation has been disabled on $DEVICE!"
+echo "\nJIT compilation has been disabled on $DEVICE!"
 echo "Performance will be terrible for almost everything! (except e.g. AOT benchmarks)"
 echo "To reenable it (strongly recommended after benchmarking!!!), reboot or run resetDevice.sh"
