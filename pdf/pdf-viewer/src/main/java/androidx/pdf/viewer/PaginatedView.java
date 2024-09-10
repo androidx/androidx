@@ -97,9 +97,6 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-        if (mPageRangeHandler != null) {
-            mPageRangeHandler.setVisiblePages(null);
-        }
         mModel.removeObserver(this);
     }
 
@@ -333,6 +330,10 @@ public class PaginatedView extends ViewGroup implements PaginationModelObserver 
 
     @Override
     public void removeAllViews() {
+        if (mPageRangeHandler != null) {
+            mPageRangeHandler.setVisiblePages(null);
+        }
+
         for (int i = 0; i < mPageViews.size(); i++) {
             mPageViews.valueAt(i).clearAll();
         }
