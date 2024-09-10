@@ -31,8 +31,14 @@ internal class BaselineProfilePluginLogger(private val logger: Logger) {
             maxAgpVersion = false
         }
 
+    private var suppressAllWarnings: Boolean = false
+
     fun setWarnings(warnings: Warnings) {
         this.warnings = warnings
+    }
+
+    fun suppressAllWarnings() {
+        suppressAllWarnings = true
     }
 
     fun debug(message: String) = logger.debug(message)
@@ -40,12 +46,13 @@ internal class BaselineProfilePluginLogger(private val logger: Logger) {
     fun info(message: String) = logger.info(message)
 
     fun warn(property: Warnings.() -> (Boolean), propertyName: String?, message: String) {
+        if (suppressAllWarnings) return
         if (property(warnings)) {
             logger.warn(message)
             if (propertyName != null) {
                 logger.warn(
                     """
-                
+
                 This warning can be disabled setting the following property:
                 baselineProfile {
                     warnings {
