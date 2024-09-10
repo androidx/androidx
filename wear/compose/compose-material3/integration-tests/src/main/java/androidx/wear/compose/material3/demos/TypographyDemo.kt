@@ -43,16 +43,12 @@ import androidx.wear.compose.integration.demos.common.Centralize
 import androidx.wear.compose.integration.demos.common.ComposableDemo
 import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material3.CurvedTextDefaults
-import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.InlineSlider
-import androidx.wear.compose.material3.InlineSliderDefaults
 import androidx.wear.compose.material3.MaterialTheme
+import androidx.wear.compose.material3.Slider
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextToggleButton
 import androidx.wear.compose.material3.curvedText
 
-@OptIn(ExperimentalWearMaterial3Api::class)
 var TypographyDemos =
     listOf(
         DemoCategory(
@@ -151,7 +147,6 @@ var TypographyDemos =
         ),
     )
 
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
 private fun ArcWithLetterSpacing(arcStyle: TextStyle, label: String) {
     var topLetterSpacing by remember { mutableStateOf(0.6f) }
@@ -188,20 +183,16 @@ private fun ArcWithLetterSpacing(arcStyle: TextStyle, label: String) {
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
-            InlineSlider(
+            Slider(
                 value = topLetterSpacing,
                 onValueChange = { topLetterSpacing = it },
-                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 valueRange = 0f..4f,
                 steps = 39,
                 segmented = false
             )
-            InlineSlider(
+            Slider(
                 value = bottomLetterSpacing,
                 onValueChange = { bottomLetterSpacing = it },
-                increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-                decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
                 valueRange = 0f..4f,
                 steps = 39,
                 segmented = false
