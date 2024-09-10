@@ -238,6 +238,13 @@ inline fun <A : ComponentActivity> AndroidComposeUiTestEnvironment(
 abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     private val effectContext: CoroutineContext = EmptyCoroutineContext
 ) {
+    /**
+     * Returns the current host activity of type [A]. If no such activity is available, for example
+     * if you've navigated to a different activity and the original host has now been destroyed,
+     * this will return `null`.
+     */
+    protected abstract val activity: A?
+
     private val idlingResourceRegistry = IdlingResourceRegistry()
 
     internal val composeRootRegistry = ComposeRootRegistry()
@@ -335,13 +342,6 @@ abstract class AndroidComposeUiTestEnvironment<A : ComponentActivity>(
     internal val testReceiverScope = AndroidComposeUiTestImpl()
     private val testOwner = AndroidTestOwner()
     private val testContext = TestContext(testOwner)
-
-    /**
-     * Returns the current host activity of type [A]. If no such activity is available, for example
-     * if you've navigated to a different activity and the original host has now been destroyed,
-     * this will return `null`.
-     */
-    protected abstract val activity: A?
 
     /**
      * The receiver scope of the test passed to [runTest]. Note that some of the properties and
