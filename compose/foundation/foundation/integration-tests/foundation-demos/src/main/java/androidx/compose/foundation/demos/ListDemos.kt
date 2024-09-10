@@ -34,7 +34,6 @@ import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
@@ -1045,15 +1044,9 @@ fun CrossListDragAndDropDemo() {
 private fun LazyItemScope.DragAndDropItem(index: Int, color: Color) {
     Box(
         Modifier.dragAndDropSource {
-                detectTapGestures(
-                    onLongPress = {
-                        startTransfer(
-                            DragAndDropTransferData(
-                                clipData = ClipData.newPlainText("item_id", index.toString()),
-                                localState = index
-                            )
-                        )
-                    }
+                DragAndDropTransferData(
+                    clipData = ClipData.newPlainText("item_id", index.toString()),
+                    localState = index
                 )
             }
             .animateItem()

@@ -33,7 +33,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.draganddrop.dragAndDropSource
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -117,15 +116,9 @@ fun TextDragAndDropSourceSample(modifier: Modifier) {
         modifier =
             modifier
                 .dragAndDropSource {
-                    detectTapGestures(
-                        onLongPress = {
-                            startTransfer(
-                                DragAndDropTransferData(
-                                    clipData = ClipData.newPlainText(label, label),
-                                    flags = View.DRAG_FLAG_GLOBAL,
-                                )
-                            )
-                        }
+                    DragAndDropTransferData(
+                        clipData = ClipData.newPlainText(label, label),
+                        flags = View.DRAG_FLAG_GLOBAL,
                     )
                 }
                 .border(
@@ -158,6 +151,22 @@ fun TextDragAndDropTargetSample(
         )
     }
     var backgroundColor by remember { mutableStateOf(Color.Transparent) }
+    val dragAndDropTarget = remember {
+        object : DragAndDropTarget {
+            override fun onStarted(event: DragAndDropEvent) {
+                backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
+            }
+
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                onDragAndDropEventDropped(event)
+                return true
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                backgroundColor = Color.Transparent
+            }
+        }
+    }
     Box(
         modifier =
             Modifier.fillMaxSize()
@@ -169,21 +178,7 @@ fun TextDragAndDropTargetSample(
                                 }
                             hasValidMimeType
                         },
-                    target =
-                        object : DragAndDropTarget {
-                            override fun onStarted(event: DragAndDropEvent) {
-                                backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
-                            }
-
-                            override fun onDrop(event: DragAndDropEvent): Boolean {
-                                onDragAndDropEventDropped(event)
-                                return true
-                            }
-
-                            override fun onEnded(event: DragAndDropEvent) {
-                                backgroundColor = Color.Transparent
-                            }
-                        },
+                    target = dragAndDropTarget,
                 )
                 .background(backgroundColor)
                 .border(width = 4.dp, color = Color.Magenta, shape = RoundedCornerShape(16.dp)),
@@ -288,7 +283,7 @@ fun DragAndDropSourceWithColoredDragShadowSample(color: Color) {
             Modifier.size(56.dp).background(color = color).dragAndDropSource(
                 drawDragDecoration = { drawRect(color) },
             ) {
-                detectTapGestures(onLongPress = { startTransfer(color.toDragAndDropTransfer()) })
+                color.toDragAndDropTransfer()
             }
     )
 }
@@ -325,15 +320,13 @@ private fun Modifier.stateDragSource(state: State) =
     dragAndDropSource(
         drawDragDecoration = { drawRoundRect(state.color) },
     ) {
-        detectTapGestures(onLongPress = { startTransfer(state.color.toDragAndDropTransfer()) })
+        state.color.toDragAndDropTransfer()
     }
 
-private fun Modifier.stateDropTarget(state: State) =
-    dragAndDropTarget(
-        shouldStartDragAndDrop = { startEvent ->
-            startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
-        },
-        target =
+@Composable
+private fun Modifier.stateDropTarget(state: State): Modifier {
+    val dragAndDropTarget =
+        remember(state) {
             object : DragAndDropTarget {
                 override fun onStarted(event: DragAndDropEvent) {
                     state.onStarted()
@@ -371,7 +364,14 @@ private fun Modifier.stateDropTarget(state: State) =
                     }
                 }
             }
+        }
+    return dragAndDropTarget(
+        shouldStartDragAndDrop = { startEvent ->
+            startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
+        },
+        target = dragAndDropTarget
     )
+}
 
 @Stable
 private class State(
