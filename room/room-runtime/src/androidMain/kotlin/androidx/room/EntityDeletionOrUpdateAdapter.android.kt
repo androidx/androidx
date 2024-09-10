@@ -28,6 +28,7 @@ import androidx.sqlite.db.SupportSQLiteStatement
  *   given database.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@Deprecated("No longer used by generated code.", ReplaceWith("EntityDeleteOrUpdateAdapter"))
 abstract class EntityDeletionOrUpdateAdapter<T>(database: RoomDatabase) :
     SharedSQLiteStatement(database) {
     /**
