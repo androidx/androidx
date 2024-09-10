@@ -344,6 +344,7 @@ private class DialogWrapper(
                 )
                 .also { it.gravity = Gravity.CENTER }
         )
+        frameLayout.clipChildren = false
         ViewCompat.setOnApplyWindowInsetsListener(frameLayout, this)
         ViewCompat.setWindowInsetsAnimationCallback(
             frameLayout,
