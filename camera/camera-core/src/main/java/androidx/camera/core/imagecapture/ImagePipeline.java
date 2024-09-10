@@ -27,6 +27,7 @@ import static androidx.camera.core.internal.utils.ImageUtil.isRawFormats;
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraCharacteristics;
 import android.media.ImageReader;
 import android.util.Size;
 
@@ -88,8 +89,9 @@ public class ImagePipeline {
     @VisibleForTesting
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
-            @NonNull Size cameraSurfaceSize) {
-        this(useCaseConfig, cameraSurfaceSize, /*cameraEffect=*/ null,
+            @NonNull Size cameraSurfaceSize,
+            @NonNull CameraCharacteristics cameraCharacteristics) {
+        this(useCaseConfig, cameraSurfaceSize, cameraCharacteristics, /*cameraEffect=*/ null,
                 /*isVirtualCamera=*/ false, /* postviewSize */ null, ImageFormat.YUV_420_888);
     }
 
@@ -97,9 +99,10 @@ public class ImagePipeline {
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize,
+            @NonNull CameraCharacteristics cameraCharacteristics,
             @Nullable CameraEffect cameraEffect,
             boolean isVirtualCamera) {
-        this(useCaseConfig, cameraSurfaceSize, cameraEffect, isVirtualCamera,
+        this(useCaseConfig, cameraSurfaceSize, cameraCharacteristics, cameraEffect, isVirtualCamera,
                 null, ImageFormat.YUV_420_888);
     }
 
@@ -107,6 +110,7 @@ public class ImagePipeline {
     public ImagePipeline(
             @NonNull ImageCaptureConfig useCaseConfig,
             @NonNull Size cameraSurfaceSize,
+            @Nullable CameraCharacteristics cameraCharacteristics,
             @Nullable CameraEffect cameraEffect,
             boolean isVirtualCamera,
             @Nullable Size postviewSize,
@@ -119,6 +123,7 @@ public class ImagePipeline {
         mCaptureNode = new CaptureNode();
         mProcessingNode = new ProcessingNode(
                 requireNonNull(mUseCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor())),
+                cameraCharacteristics,
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
         // Connect nodes

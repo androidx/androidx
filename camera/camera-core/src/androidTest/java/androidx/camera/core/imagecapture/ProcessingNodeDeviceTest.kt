@@ -143,7 +143,7 @@ class ProcessingNodeDeviceTest {
 
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
         val imageIn =
             createYuvFakeImageProxy(
@@ -162,7 +162,11 @@ class ProcessingNodeDeviceTest {
     private suspend fun processJpegAndVerifyEffectApplied(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
         val node =
-            ProcessingNode(mainThreadExecutor(), InternalImageProcessor(GrayscaleImageEffect()))
+            ProcessingNode(
+                mainThreadExecutor(),
+                null,
+                InternalImageProcessor(GrayscaleImageEffect())
+            )
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         val imageIn =
             createJpegFakeImageProxy(
@@ -215,7 +219,7 @@ class ProcessingNodeDeviceTest {
         outputFileOptions: OutputFileOptions?
     ) {
         // Arrange: create a request with no cropping
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -255,7 +259,7 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange: create a request with no cropping
         val format = ImageFormat.JPEG_R
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(format, format)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -301,7 +305,7 @@ class ProcessingNodeDeviceTest {
 
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
         // Arrange.
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -341,7 +345,7 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange.
         val format = ImageFormat.JPEG_R
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(format, format)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -380,7 +384,7 @@ class ProcessingNodeDeviceTest {
 
     private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -420,7 +424,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun saveJpegrOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
         val format = ImageFormat.JPEG_R
-        val node = ProcessingNode(mainThreadExecutor())
+        val node = ProcessingNode(mainThreadExecutor(), null)
         val nodeIn = ProcessingNode.In.of(format, format)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
@@ -478,7 +482,7 @@ class ProcessingNodeDeviceTest {
         // Arrange.
         // Force inject the quirk for the A24 incorrect JPEG metadata problem
         val node =
-            ProcessingNode(mainThreadExecutor(), Quirks(listOf(IncorrectJpegMetadataQuirk())))
+            ProcessingNode(mainThreadExecutor(), Quirks(listOf(IncorrectJpegMetadataQuirk())), null)
         val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()

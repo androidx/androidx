@@ -66,6 +66,7 @@ import android.content.ContentValues;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
+import android.hardware.camera2.CameraCharacteristics;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -1335,7 +1336,21 @@ public final class ImageCapture extends UseCase {
             }
         }
 
-        mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera,
+        CameraCharacteristics cameraCharacteristics = null;
+        if (getCamera() != null) {
+            try {
+                Object obj = getCamera().getCameraInfoInternal().getCameraCharacteristics();
+                if (obj instanceof CameraCharacteristics) {
+                    cameraCharacteristics = (CameraCharacteristics) obj;
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "getCameraCharacteristics failed", e);
+            }
+        }
+
+        mImagePipeline = new ImagePipeline(config, resolution,
+                cameraCharacteristics,
+                getEffect(), isVirtualCamera,
                 postViewSize, postviewFormat);
 
         if (mTakePictureManager == null) {

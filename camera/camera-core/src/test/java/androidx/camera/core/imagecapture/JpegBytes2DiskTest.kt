@@ -24,7 +24,7 @@ import android.os.Build
 import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.OutputFileOptions
-import androidx.camera.core.imagecapture.JpegBytes2Disk.moveFileToTarget
+import androidx.camera.core.imagecapture.FileUtil.moveFileToTarget
 import androidx.camera.core.imagecapture.Utils.ALTITUDE
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.EXIF_DESCRIPTION
