@@ -43,7 +43,7 @@ androidXMultiplatform {
             dependencies {
                 api(project(":lifecycle:lifecycle-runtime"))
                 api("androidx.annotation:annotation:1.8.1")
-                api(project(":compose:runtime:runtime"))
+                api("androidx.compose.runtime:runtime:1.7.1")
             }
         }
 
