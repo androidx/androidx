@@ -175,6 +175,12 @@ class SecurityPatchStateTest {
                         "asb_identifiers": ["ASB-A-2020"],
                         "severity": "high",
                         "components": ["system", "vendor"]
+                    }],
+                    "2020-05-01": [{
+                        "cve_identifiers": ["CVE-2020-5678"],
+                        "asb_identifiers": ["PUB-A-5678"],
+                        "severity": "moderate",
+                        "components": ["system"]
                     }]
                 },
                 "extra_field": { test: 12345 },
@@ -192,7 +198,31 @@ class SecurityPatchStateTest {
             )
 
         assertEquals(1, fixes[SecurityPatchState.Severity.HIGH]?.size)
+        assertEquals(1, fixes[SecurityPatchState.Severity.MODERATE]?.size)
         assertEquals(setOf("CVE-2020-1234"), fixes[SecurityPatchState.Severity.HIGH])
+        assertEquals(setOf("CVE-2020-5678"), fixes[SecurityPatchState.Severity.MODERATE])
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testParseVulnerabilityReport_invalidAsb_throwsIllegalArgumentException() {
+        val jsonString =
+            """
+            {
+                "vulnerabilities": {
+                    "2020-01-01": [{
+                        "cve_identifiers": ["CVE-2020-1234"],
+                        "asb_identifiers": ["ASB-123"],
+                        "severity": "high",
+                        "components": ["system", "vendor"]
+                    }]
+                },
+                "extra_field": { test: 12345 },
+                "kernel_lts_versions": {
+                    "2020-01-01": ["4.14"]
+                }
+            }
+        """
+        securityState.loadVulnerabilityReport(jsonString)
     }
 
     @Test(expected = IllegalArgumentException::class)
