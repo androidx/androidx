@@ -78,14 +78,13 @@ interface HealthConnectFeatures {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         annotation class FeatureStatus
 
-        // TODO(b/362483564): Change to SDK EXT in API 34 once that's available
-        private val API_35_PLATFORM_VERSION: HealthConnectPlatformVersion =
-            HealthConnectPlatformVersion(buildVersionCode = 35)
+        private val SDK_EXT_13_PLATFORM_VERSION: HealthConnectPlatformVersion =
+            HealthConnectPlatformVersion(buildVersionCode = 34, sdkExtensionVersion = 13)
 
         internal val FEATURE_TO_VERSION_INFO_MAP: Map<Int, HealthConnectVersionInfo> =
             mapOf(
                 FEATURE_READ_HEALTH_DATA_IN_BACKGROUND to
-                    HealthConnectVersionInfo(platformVersion = API_35_PLATFORM_VERSION)
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION)
             )
     }
 }

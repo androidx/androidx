@@ -115,8 +115,8 @@ class HealthConnectClientUpsideDownImplTest {
     }
 
     @Test
-    fun backgroundReads_androidV_isSupported() {
-        assumeTrue(Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM)
+    fun backgroundReads_ext13_isSupported() {
+        assumeTrue(SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 13)
 
         assertThat(
                 healthConnectClient.features.getFeatureStatus(
