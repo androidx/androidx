@@ -27,8 +27,10 @@ import androidx.security.state.SecurityStateManager.Companion.KEY_VENDOR_SPL
 import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import com.google.gson.annotations.SerializedName
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -158,30 +160,34 @@ constructor(
     ) : SecurityPatchLevel() {
 
         public companion object {
-            private const val DATE_FORMAT = "yyyy-MM-dd"
-            private val dateFormatter =
-                SimpleDateFormat(DATE_FORMAT, Locale.US).apply {
-                    isLenient = false // Set the date parsing to be strict
-                }
+            private val DATE_FORMATS = listOf("yyyy-MM", "yyyy-MM-dd")
 
             @JvmStatic
             public fun fromString(value: String): DateBasedSecurityPatchLevel {
-                val calendar = Calendar.getInstance()
-                try {
-                    calendar.time =
-                        dateFormatter.parse(value)
-                            ?: throw IllegalArgumentException(
-                                "Invalid date format. Expected format: yyyy-MM-dd"
-                            )
+                var date: Date? = null
+                for (dateFormat in DATE_FORMATS) {
+                    try {
+                        date =
+                            SimpleDateFormat(dateFormat, Locale.US)
+                                .apply {
+                                    isLenient = false // Set the date parsing to be strict
+                                }
+                                .parse(value)
+                    } catch (e: ParseException) {
+                        // Ignore and try other date format.
+                    }
+                }
+                if (date != null) {
+                    val calendar = Calendar.getInstance()
+                    calendar.time = date
                     val year = calendar.get(Calendar.YEAR)
                     /* Calendar.MONTH is zero-based */
                     val month = calendar.get(Calendar.MONTH) + 1
                     val day = calendar.get(Calendar.DAY_OF_MONTH)
                     return DateBasedSecurityPatchLevel(year, month, day)
-                } catch (e: Exception) {
+                } else {
                     throw IllegalArgumentException(
-                        "Invalid date format. Expected format: yyyy-MM-dd",
-                        e
+                        "Invalid date format. Expected formats: $DATE_FORMATS",
                     )
                 }
             }
