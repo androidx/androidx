@@ -18,9 +18,9 @@ package androidx.compose.foundation.content.internal
 
 import androidx.compose.foundation.implementedInJetBrainsFork
 import androidx.compose.ui.draganddrop.DragAndDropEvent
-import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
+import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 
 internal actual fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
     dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
-): DragAndDropTargetModifierNode = implementedInJetBrainsFork()
+): DragAndDropModifierNode = implementedInJetBrainsFork()

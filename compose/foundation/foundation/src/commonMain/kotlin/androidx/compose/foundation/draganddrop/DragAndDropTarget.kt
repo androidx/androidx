@@ -18,8 +18,8 @@ package androidx.compose.foundation.draganddrop
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
@@ -37,6 +37,8 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * All drag and drop target modifiers in the hierarchy will be given an opportunity to participate
  * in a given drag and drop session via [shouldStartDragAndDrop].
+ *
+ * @see [DragAndDropModifierNode.acceptDragAndDropTransfer]
  */
 fun Modifier.dragAndDropTarget(
     shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
@@ -87,7 +89,7 @@ private class DragAndDropTargetNode(
     private var target: DragAndDropTarget
 ) : DelegatingNode() {
 
-    private var dragAndDropNode: DragAndDropTargetModifierNode? = null
+    private var dragAndDropNode: DragAndDropModifierNode? = null
 
     override fun onAttach() {
         createAndAttachDragAndDropModifierNode()
@@ -112,7 +114,7 @@ private class DragAndDropTargetNode(
     private fun createAndAttachDragAndDropModifierNode() {
         dragAndDropNode =
             delegate(
-                DragAndDropTargetModifierNode(
+                DragAndDropModifierNode(
                     // We wrap the this.shouldStartDragAndDrop invocation in a lambda as it might
                     // change over
                     // time, and updates to shouldStartDragAndDrop are not destructive.

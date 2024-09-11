@@ -17,26 +17,90 @@
 package androidx.compose.foundation.draganddrop
 
 import android.graphics.Picture
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.CacheDrawModifierNode
 import androidx.compose.ui.draw.CacheDrawScope
 import androidx.compose.ui.draw.DrawResult
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.draw
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 
-@Immutable
-internal actual object DragAndDropSourceDefaults {
-    actual val DefaultStartDetector: DragAndDropStartDetector = {
-        detectTapGestures(onLongPress = { offset -> requestDragAndDropTransfer(offset) })
+/**
+ * A Modifier that allows an element it is applied to to be treated like a source for drag and drop
+ * operations. It displays the element dragged as a drag shadow.
+ *
+ * Learn how to use [Modifier.dragAndDropSource]:
+ *
+ * @sample androidx.compose.foundation.samples.TextDragAndDropSourceSample
+ * @param block A lambda with a [DragAndDropSourceScope] as a receiver which provides a
+ *   [PointerInputScope] to detect the drag gesture, after which a drag and drop gesture can be
+ *   started with [DragAndDropSourceScope.startTransfer].
+ */
+fun Modifier.dragAndDropSource(block: suspend DragAndDropSourceScope.() -> Unit): Modifier =
+    this then
+        DragAndDropSourceWithDefaultShadowElement(
+            dragAndDropSourceHandler = block,
+        )
+
+private class DragAndDropSourceWithDefaultShadowElement(
+    /** @see Modifier.dragAndDropSource */
+    val dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
+) : ModifierNodeElement<DragSourceNodeWithDefaultPainter>() {
+    override fun create() =
+        DragSourceNodeWithDefaultPainter(
+            dragAndDropSourceHandler = dragAndDropSourceHandler,
+        )
+
+    override fun update(node: DragSourceNodeWithDefaultPainter) =
+        with(node) {
+            dragAndDropSourceHandler =
+                this@DragAndDropSourceWithDefaultShadowElement.dragAndDropSourceHandler
+        }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "dragSourceWithDefaultPainter"
+        properties["dragAndDropSourceHandler"] = dragAndDropSourceHandler
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is DragAndDropSourceWithDefaultShadowElement) return false
+
+        return dragAndDropSourceHandler == other.dragAndDropSourceHandler
+    }
+
+    override fun hashCode(): Int {
+        return dragAndDropSourceHandler.hashCode()
     }
 }
 
-internal actual class CacheDrawScopeDragShadowCallback {
+private class DragSourceNodeWithDefaultPainter(
+    var dragAndDropSourceHandler: suspend DragAndDropSourceScope.() -> Unit
+) : DelegatingNode() {
+
+    init {
+        val cacheDrawScopeDragShadowCallback =
+            CacheDrawScopeDragShadowCallback().also {
+                delegate(CacheDrawModifierNode(it::cachePicture))
+            }
+        delegate(
+            DragAndDropSourceNode(
+                drawDragDecoration = { cacheDrawScopeDragShadowCallback.drawDragShadow(this) },
+                dragAndDropSourceHandler = { dragAndDropSourceHandler.invoke(this) }
+            )
+        )
+    }
+}
+
+private class CacheDrawScopeDragShadowCallback {
     private var cachedPicture: Picture? = null
 
-    actual fun drawDragShadow(drawScope: DrawScope) =
+    fun drawDragShadow(drawScope: DrawScope) =
         with(drawScope) {
             when (val picture = cachedPicture) {
                 null ->
@@ -47,7 +111,7 @@ internal actual class CacheDrawScopeDragShadowCallback {
             }
         }
 
-    actual fun cachePicture(scope: CacheDrawScope): DrawResult =
+    fun cachePicture(scope: CacheDrawScope): DrawResult =
         with(scope) {
             val picture = Picture()
             cachedPicture = picture
