@@ -97,6 +97,9 @@ androidx {
     description = "Android Benchmark - Common"
     legacyDisableKotlinStrictApiMode = true
     kotlinTarget = KotlinTarget.KOTLIN_1_9
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {

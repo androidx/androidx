@@ -70,6 +70,9 @@ androidx {
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto SDK"
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }
 
 android {

@@ -96,6 +96,9 @@ androidx {
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark"
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }
 
 tasks.withType(KotlinCompile).configureEach {

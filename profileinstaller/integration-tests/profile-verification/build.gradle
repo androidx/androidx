@@ -82,6 +82,12 @@ def prepareAssetsTaskProvider = tasks.register("prepareAssets", PrepareAssetsTas
     outputDir.set(layout.buildDirectory.dir("intermediates/profile-verification-assets"))
 }
 
+androidx {
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
+}
+
 android {
     compileSdk 35
     defaultConfig {
