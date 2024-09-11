@@ -1611,7 +1611,7 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
                 )
                 fun getArtistSongCount(): Map<Artist, Int>
 
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Suppress("DEPRECATION") // For @MapInfo
                 @MapInfo(valueColumn = "songId")
                 @Query("SELECT * FROM Artist JOIN Song ON Artist.artistId = Song.artistKey")
@@ -1655,14 +1655,14 @@ class DaoKotlinCodeGenTest : BaseDaoKotlinCodeGenTest() {
 
             @Dao
             interface MyDao {
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Query(
                     "SELECT * FROM Artist JOIN (Album JOIN Song ON Album.albumName = Song.album) " +
                     "ON Artist.artistName = Album.albumArtist"
                 )
                 fun singleNested(): Map<Artist, Map<Album, List<Song>>>
 
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Query(
                     "SELECT * FROM Playlist JOIN (Artist JOIN (Album JOIN Song " +
                     "ON Album.albumName = Song.album) " +

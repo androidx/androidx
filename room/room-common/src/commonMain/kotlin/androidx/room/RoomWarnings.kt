@@ -26,8 +26,15 @@ public open class RoomWarnings {
     public companion object {
         /**
          * The warning dispatched by Room when the return value of a [Query] method does not exactly
+         * match the columns in the query result.
+         */
+        public const val QUERY_MISMATCH: String = "ROOM_QUERY_MISMATCH"
+
+        /**
+         * The warning dispatched by Room when the return value of a [Query] method does not exactly
          * match the fields in the query result.
          */
+        @Deprecated("Replaced by QUERY_MISMATCH.", ReplaceWith("QUERY_MISMATCH"))
         public const val CURSOR_MISMATCH: String = "ROOM_CURSOR_MISMATCH"
 
         /**

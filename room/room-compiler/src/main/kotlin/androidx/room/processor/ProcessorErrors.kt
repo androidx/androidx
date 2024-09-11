@@ -152,7 +152,7 @@ object ProcessorErrors {
         "Query/Insert method parameters cannot " + "start with underscore (_)."
 
     fun cannotFindQueryResultAdapter(returnTypeName: String) =
-        "Not sure how to convert a " + "Cursor to this method's return type ($returnTypeName)."
+        "Not sure how to convert the query result to this method's return type ($returnTypeName)."
 
     fun classMustImplementEqualsAndHashCode(keyType: String) =
         "The key" +
@@ -290,7 +290,7 @@ object ProcessorErrors {
 
     val CANNOT_FIND_STMT_BINDER = "Cannot figure out how to bind this field into a statement."
 
-    val CANNOT_FIND_CURSOR_READER = "Cannot figure out how to read this field from a cursor."
+    val CANNOT_FIND_STMT_READER = "Cannot figure out how to read this field from a statement."
 
     const val DEFAULT_VALUE_NULLABILITY = "Use of NULL as the default value of a non-null field"
 
@@ -351,7 +351,7 @@ object ProcessorErrors {
             .trim()
     }
 
-    fun cursorPojoMismatch(
+    fun queryFieldPojoMismatch(
         pojoTypeNames: List<String>,
         unusedColumns: List<String>,
         allColumns: List<String>,
@@ -390,7 +390,7 @@ object ProcessorErrors {
             $unusedColumnsWarning
             ${unusedFieldsWarning.joinToString(separator = " ")}
             You can suppress this warning by annotating the method with
-            @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH).
+            @SuppressWarnings(RoomWarnings.QUERY_MISMATCH).
             Columns returned by the query: ${allColumns.joinToString(", ")}.
             """
             .trim()

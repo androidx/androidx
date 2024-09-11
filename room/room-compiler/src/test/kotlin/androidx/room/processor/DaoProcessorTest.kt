@@ -214,7 +214,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
     fun suppressedWarnings() {
         singleDao(
             """
-            @SuppressWarnings({"ALL", RoomWarnings.CURSOR_MISMATCH})
+            @SuppressWarnings({"ALL", RoomWarnings.QUERY_MISMATCH})
             @Dao interface MyDao {
                 @Query("SELECT * from user")
                 abstract User users();
@@ -226,7 +226,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
 
             assertThat(
                 daoProcessor.context.logger.suppressedWarnings,
-                `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH))
+                `is`(setOf(Warning.ALL, Warning.QUERY_MISMATCH))
             )
 
             dao.queryMethods.forEach {
@@ -240,7 +240,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                         .context
                         .logger
                         .suppressedWarnings,
-                    `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH))
+                    `is`(setOf(Warning.ALL, Warning.QUERY_MISMATCH))
                 )
             }
         }
@@ -255,7 +255,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             package foo.bar
             import androidx.room.*
             @Dao
-            @Suppress(RoomWarnings.CURSOR_MISMATCH)
+            @Suppress(RoomWarnings.QUERY_MISMATCH)
             interface MyDao {
                 @Query("SELECT uid from user")
                 fun userId(): Int
@@ -274,7 +274,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             val dbType = invocation.context.processingEnv.requireType(ROOM_DB)
             val daoProcessor = DaoProcessor(invocation.context, dao, dbType, null)
             assertThat(daoProcessor.context.logger.suppressedWarnings)
-                .containsExactly(Warning.CURSOR_MISMATCH)
+                .containsExactly(Warning.QUERY_MISMATCH)
         }
     }
 
@@ -282,7 +282,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
     fun suppressedWarningsInheritance() {
         singleDao(
             """
-            @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+            @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
             @Dao interface MyDao {
                 @SuppressWarnings("ALL")
                 @Query("SELECT * from user")
@@ -294,7 +294,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
             val daoProcessor = DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(
                 daoProcessor.context.logger.suppressedWarnings,
-                `is`(setOf(Warning.CURSOR_MISMATCH))
+                `is`(setOf(Warning.QUERY_MISMATCH))
             )
 
             dao.queryMethods.forEach {
@@ -308,7 +308,7 @@ class DaoProcessorTest(private val enableVerification: Boolean) {
                         .context
                         .logger
                         .suppressedWarnings,
-                    `is`(setOf(Warning.ALL, Warning.CURSOR_MISMATCH))
+                    `is`(setOf(Warning.ALL, Warning.QUERY_MISMATCH))
                 )
             }
         }

@@ -22,7 +22,9 @@ import java.util.Locale
 // If these warnings are updated also update androidx.room.RoomWarnings
 enum class Warning(val publicKey: String) {
     ALL("ALL"),
+    @Deprecated("Replaced by QUERY_MISMATCH.", ReplaceWith("QUERY_MISMATCH"))
     CURSOR_MISMATCH("ROOM_CURSOR_MISMATCH"),
+    QUERY_MISMATCH("ROOM_QUERY_MISMATCH"),
     DOES_NOT_IMPLEMENT_EQUALS_HASHCODE("ROOM_TYPE_DOES_NOT_IMPLEMENT_EQUALS_HASHCODE"),
     MISSING_JAVA_TMP_DIR("ROOM_MISSING_JAVA_TMP_DIR"),
     CANNOT_CREATE_VERIFICATION_DATABASE("ROOM_CANNOT_CREATE_VERIFICATION_DATABASE"),

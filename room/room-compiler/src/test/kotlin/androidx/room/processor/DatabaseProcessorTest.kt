@@ -548,7 +548,7 @@ class DatabaseProcessorTest {
     fun suppressedWarnings() {
         singleDb(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Database(entities = {User.class}, version = 42)
                 public abstract class MyDb extends RoomDatabase {
                     abstract UserDao userDao();
@@ -559,7 +559,7 @@ class DatabaseProcessorTest {
         ) { db, invocation ->
             assertThat(
                 DatabaseProcessor(invocation.context, db.element).context.logger.suppressedWarnings,
-                `is`(setOf(Warning.CURSOR_MISMATCH))
+                `is`(setOf(Warning.QUERY_MISMATCH))
             )
         }
     }

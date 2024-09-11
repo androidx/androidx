@@ -363,7 +363,7 @@ data class RelationCollector(
                     val context =
                         baseContext.fork(
                             element = relation.field.element,
-                            forceSuppressedWarnings = setOf(Warning.CURSOR_MISMATCH),
+                            forceSuppressedWarnings = setOf(Warning.QUERY_MISMATCH),
                             forceBuiltInConverters =
                                 BuiltInConverterFlags.DEFAULT.copy(
                                     byteBuffer = BuiltInTypeConverters.State.ENABLED

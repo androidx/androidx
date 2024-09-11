@@ -113,7 +113,7 @@ class FieldProcessor(
                 field.cursorValueReader =
                     context.typeAdapterStore.findCursorValueReader(field.type, field.affinity)
                 if (field.cursorValueReader == null) {
-                    onBindingError(field, ProcessorErrors.CANNOT_FIND_CURSOR_READER)
+                    onBindingError(field, ProcessorErrors.CANNOT_FIND_STMT_READER)
                 }
             }
         }

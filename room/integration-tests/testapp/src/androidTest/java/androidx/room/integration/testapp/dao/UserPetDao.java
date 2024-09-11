@@ -57,7 +57,7 @@ public interface UserPetDao {
     @Query("SELECT * FROM Pet p LEFT OUTER JOIN User u ON u.mId = p.mUserId")
     List<UserAndPet> loadPets();
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings({RoomWarnings.QUERY_MISMATCH, RoomWarnings.CURSOR_MISMATCH})
     @Transaction
     @Query("SELECT * FROM User u LEFT OUTER JOIN Pet p ON u.mId = p.mUserId")
     DataSource.Factory<Integer, UserAndAllPets> dataSourceFactoryMultiTable();
@@ -70,12 +70,12 @@ public interface UserPetDao {
     @Query("SELECT * FROM User u")
     List<UserAndAllPetsViaJunction> loadAllUsersWithTheirPetsViaJunction();
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings({RoomWarnings.QUERY_MISMATCH, RoomWarnings.CURSOR_MISMATCH})
     @Transaction
     @Query("SELECT * FROM User u")
     List<UserIdAndPetIds> loadUserIdAndPetids();
 
-    @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+    @SuppressWarnings({RoomWarnings.QUERY_MISMATCH, RoomWarnings.CURSOR_MISMATCH})
     @Transaction
     @Query("SELECT * FROM User u")
     List<UserIdAndPetNames> loadUserAndPetNames();

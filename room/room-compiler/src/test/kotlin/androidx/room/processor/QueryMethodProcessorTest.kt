@@ -760,7 +760,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
     fun suppressWarnings() {
         singleQueryMethod<ReadQueryMethod>(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Query("SELECT uid from User")
                 abstract public int[] foo();
                 """
@@ -776,7 +776,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                         .logger
                         .suppressedWarnings
                 )
-                .isEqualTo(setOf(Warning.CURSOR_MISMATCH))
+                .isEqualTo(setOf(Warning.QUERY_MISMATCH))
         }
     }
 
@@ -1015,7 +1015,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                     )
                 )
                 hasWarningContaining(
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("name", "lastName"),
                         pojoUnusedFields =
@@ -1067,7 +1067,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             assertThat(adapter?.mapping?.unusedFields).isEmpty()
             invocation.assertCompilationResult {
                 hasWarningContaining(
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("uid"),
                         pojoUnusedFields = emptyMap(),
@@ -1093,7 +1093,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
 
             invocation.assertCompilationResult {
                 hasWarningContaining(
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = emptyList(),
                         allColumns = listOf("lastName"),
@@ -1120,7 +1120,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
 
             invocation.assertCompilationResult {
                 hasWarningContaining(
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = emptyList(),
                         pojoUnusedFields = mapOf(POJO.canonicalName to listOf(createField("name"))),
@@ -1152,7 +1152,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
                 .containsExactlyElementsIn(adapter?.pojo?.fields?.filter { it.name == "lastName" })
             invocation.assertCompilationResult {
                 hasWarningContaining(
-                    ProcessorErrors.cursorPojoMismatch(
+                    ProcessorErrors.queryFieldPojoMismatch(
                         pojoTypeNames = listOf(POJO.canonicalName),
                         unusedColumns = listOf("uid"),
                         allColumns = listOf("uid", "name"),
@@ -1357,7 +1357,9 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorCount(2)
                 hasErrorContaining("Multimap 'value' collection type must be a List, Set or Map.")
-                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+                hasErrorContaining(
+                    "Not sure how to convert the query result to this method's return type"
+                )
             }
         }
     }
@@ -1374,7 +1376,9 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             invocation.assertCompilationResult {
                 hasErrorCount(2)
                 hasErrorContaining(DO_NOT_USE_GENERIC_IMMUTABLE_MULTIMAP)
-                hasErrorContaining("Not sure how to convert a Cursor to this method's return type")
+                hasErrorContaining(
+                    "Not sure how to convert the query result to this method's return type"
+                )
             }
         }
     }
@@ -1406,7 +1410,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @MapInfo(keyColumn = "uid", keyTable = "u")
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
@@ -1425,7 +1429,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @MapInfo(keyColumn = "uid", keyTable = "User")
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
@@ -1443,7 +1447,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         }
         singleQueryMethod<ReadQueryMethod>(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @MapInfo(keyColumn = "name", valueColumn = "bookCount")
                 @Query("SELECT name, (SELECT count(*) FROM User u JOIN Book b ON u.uid == b.uid) "
                     + "AS bookCount FROM User")
@@ -1462,7 +1466,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
                 abstract Map<@MapColumn(columnName = "uid") Integer, Book> getMultimap();
@@ -1480,7 +1484,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
                 abstract Map<@MapColumn(columnName = "uid", tableName = "NoName") Integer, Book> getMultimap();
@@ -1503,7 +1507,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid JOIN Page on b.uid == pBid")
                 abstract Map<@MapColumn(columnName = "uid") Integer, Map<Book, @MapColumn(columnName = "pBid") Integer>> getMultimap();
@@ -1521,7 +1525,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid JOIN Page on b.uid == pBid")
                 abstract Map<@MapColumn(columnName = "uid") Integer, Map<@MapColumn(columnName = "bookId") Integer, @MapColumn(columnName = "pBid") Integer>> getMultimap();
@@ -1538,7 +1542,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         }
         singleQueryMethod<ReadQueryMethod>(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Query("SELECT name, (SELECT count(*) FROM User u JOIN Book b ON u.uid == b.uid) "
                     + "AS bookCount FROM User")
                 abstract Map<@MapColumn(columnName = "name") String, @MapColumn(columnName = "bookCount") Integer> getMultimap();
@@ -1556,7 +1560,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         singleQueryMethod<ReadQueryMethod>(
             """
                 @SuppressWarnings(
-                    {RoomWarnings.CURSOR_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
+                    {RoomWarnings.QUERY_MISMATCH, RoomWarnings.AMBIGUOUS_COLUMN_IN_RESULT}
                 )
                 @MapInfo(keyColumn = "uid", keyTable = "u")
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
@@ -1753,7 +1757,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
         }
         singleQueryMethod<ReadQueryMethod>(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @MapInfo(keyColumn = "uid")
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
                 abstract Map<Integer, Book> getMultimap();
@@ -1800,7 +1804,7 @@ class QueryMethodProcessorTest(private val enableVerification: Boolean) {
             )
         singleQueryMethod<ReadQueryMethod>(
             """
-                @SuppressWarnings(RoomWarnings.CURSOR_MISMATCH)
+                @SuppressWarnings(RoomWarnings.QUERY_MISMATCH)
                 @Query("SELECT * FROM User u JOIN Book b ON u.uid == b.uid")
                 abstract Map<Id, Book> getMultimap();
             """,
