@@ -23,20 +23,31 @@ import androidx.compose.foundation.gestures.TransformEvent.TransformStopped
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerEvent
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
+import androidx.compose.ui.input.pointer.isCtrlPressed
 import androidx.compose.ui.input.pointer.positionChanged
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.PointerInputModifierNode
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.PI
 import kotlin.math.abs
+import kotlin.math.pow
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.NonCancellable.isActive
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -142,10 +153,17 @@ private class TransformableNode(
     private var canPan: (Offset) -> Boolean,
     private var lockRotationOnZoomPan: Boolean,
     private var enabled: Boolean
-) : DelegatingNode() {
+) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
 
     private val updatedCanPan: (Offset) -> Boolean = { canPan.invoke(it) }
     private val channel = Channel<TransformEvent>(capacity = Channel.UNLIMITED)
+
+    private var scrollConfig: ScrollConfig? = null
+
+    override fun onAttach() {
+        super.onAttach()
+        scrollConfig = platformScrollConfig()
+    }
 
     private val pointerInputNode =
         delegate(
@@ -174,6 +192,7 @@ private class TransformableNode(
                             }
                         }
                     }
+
                     awaitEachGesture {
                         try {
                             detectZoom(lockRotationOnZoomPan, channel, updatedCanPan)
@@ -186,6 +205,8 @@ private class TransformableNode(
                 }
             }
         )
+
+    private var pointerInputModifierMouse: PointerInputModifierNode? = null
 
     fun update(
         state: TransformableState,
@@ -205,6 +226,101 @@ private class TransformableNode(
             pointerInputNode.resetPointerInputHandler()
         }
     }
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        val scrollConfig = scrollConfig
+        if (
+            enabled &&
+                pointerEvent.changes.fastAny { it.type == PointerType.Mouse } &&
+                scrollConfig != null &&
+                pointerInputModifierMouse == null
+        ) {
+            pointerInputModifierMouse =
+                delegate(
+                    SuspendingPointerInputModifierNode {
+                        detectZoomByCtrlMouseScroll(channel, scrollConfig)
+                    }
+                )
+        }
+        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+        pointerInputModifierMouse?.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancelPointerInput() {
+        pointerInputNode.onCancelPointerInput()
+        pointerInputModifierMouse?.onCancelPointerInput()
+    }
+}
+
+// The factor used to covert the mouse scroll to zoom.
+// Every 545 pixels of scroll is converted into 2 times zoom. This value is calculated from
+// curve fitting the ChromeOS's zoom factors.
+internal const val SCROLL_FACTOR = 545f
+
+private suspend fun PointerInputScope.detectZoomByCtrlMouseScroll(
+    channel: Channel<TransformEvent>,
+    scrollConfig: ScrollConfig
+) {
+    val currentContext = currentCoroutineContext()
+    awaitPointerEventScope {
+        while (currentContext.isActive) {
+            try {
+                var scrollDelta = awaitFirstCtrlMouseScroll(scrollConfig)
+                channel.trySend(TransformStarted)
+                while (true) {
+                    // This formula is curve fitting form Chrome OS's ctrl + scroll implementation.
+                    val zoomChange = 2f.pow(scrollDelta.y / SCROLL_FACTOR)
+                    channel.trySend(
+                        TransformDelta(
+                            zoomChange = zoomChange,
+                            panChange = Offset.Zero,
+                            rotationChange = 0f
+                        )
+                    )
+                    scrollDelta = awaitCtrlMouseScrollOrNull(scrollConfig) ?: break
+                }
+            } finally {
+                channel.trySend(TransformStopped)
+            }
+        }
+    }
+}
+
+/** Await for the first mouse scroll event while ctrl is pressed and return its scrollDelta. */
+private suspend fun AwaitPointerEventScope.awaitFirstCtrlMouseScroll(
+    scrollConfig: ScrollConfig
+): Offset {
+    var offset: Offset?
+    do {
+        offset = awaitCtrlMouseScrollOrNull(scrollConfig)
+    } while (offset == null)
+    return offset
+}
+
+/**
+ * Await for the next pointer event. If the PointerEvent is a mouse scroll event that has non zero
+ * scrollDelta and the ctrl key is pressed, its scrollDelta is returned. Otherwise, null is
+ * returned. The event is consumed when it detects ctrl + mouse scroll.
+ */
+private suspend fun AwaitPointerEventScope.awaitCtrlMouseScrollOrNull(
+    scrollConfig: ScrollConfig
+): Offset? {
+    val pointer = awaitPointerEvent()
+    if (!pointer.keyboardModifiers.isCtrlPressed || pointer.type != PointerEventType.Scroll) {
+        return null
+    }
+    val scrollDelta = with(scrollConfig) { calculateMouseWheelScroll(pointer, size) }
+
+    if (scrollDelta == Offset.Zero) {
+        return null
+    }
+
+    pointer.changes.fastForEach { it.consume() }
+    return scrollDelta
 }
 
 private suspend fun AwaitPointerEventScope.detectZoom(
