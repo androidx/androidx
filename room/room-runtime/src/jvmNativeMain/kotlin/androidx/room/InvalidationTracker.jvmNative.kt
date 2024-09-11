@@ -17,29 +17,34 @@
 package androidx.room
 
 import androidx.annotation.RestrictTo
-import androidx.room.InvalidationTracker.Observer
 import androidx.sqlite.SQLiteConnection
+import kotlin.jvm.JvmOverloads
+import kotlinx.coroutines.flow.Flow
 
 /**
- * The invalidation tracker keeps track of tables modified by queries and notifies its subscribed
- * [Observer]s about such modifications.
+ * The invalidation tracker keeps track of tables modified by queries and notifies its created
+ * [Flow]s about such modifications.
  *
- * [Observer]s contain one or more tables and are added to the tracker via [subscribe]. Once an
- * observer is subscribed, if a database operation changes one of the tables the observer is
- * subscribed to, then such table is considered 'invalidated' and [Observer.onInvalidated] will be
- * invoked on the observer. If an observer is no longer interested in tracking modifications it can
- * be removed via [unsubscribe].
+ * A [Flow] tracking one or more tables can be created via [createFlow]. Once the [Flow] stream
+ * starts being collected, if a database operation changes one of the tables that the [Flow] was
+ * created from, then such table is considered 'invalidated' and the [Flow] will emit a new value.
  */
 actual class InvalidationTracker
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 actual constructor(
-    database: RoomDatabase,
+    private val database: RoomDatabase,
     shadowTablesMap: Map<String, String>,
     viewTables: Map<String, Set<String>>,
     vararg tableNames: String
 ) {
     private val implementation =
-        TriggerBasedInvalidationTracker(database, shadowTablesMap, viewTables, tableNames)
+        TriggerBasedInvalidationTracker(
+            database = database,
+            shadowTablesMap = shadowTablesMap,
+            viewTables = viewTables,
+            tableNames = tableNames,
+            onInvalidatedTablesIds = {}
+        )
 
     /** Internal method to initialize table tracking. Invoked by generated code. */
     internal actual fun internalInit(connection: SQLiteConnection) {
@@ -47,38 +52,40 @@ actual constructor(
     }
 
     /**
-     * Subscribes the given [observer] with the tracker such that it is notified if any table it is
-     * interested on changes.
+     * Creates a [Flow] that tracks modifications in the database and emits sets of the tables that
+     * were invalidated.
      *
-     * If the observer is already subscribed, then this function does nothing.
+     * The [Flow] will emit at least one value, a set of all the tables registered for observation
+     * to kick-start the stream unless [emitInitialState] is set to `false`.
      *
-     * @param observer The observer that will listen for database changes.
-     * @throws IllegalArgumentException if one of the tables in the observer does not exist.
+     * If one of the tables to observe does not exist in the database, this functions throws an
+     * [IllegalArgumentException].
+     *
+     * The returned [Flow] can be used to create a stream that reacts to changes in the database:
+     * ```
+     * fun getArtistTours(from: Date, to: Date): Flow<Map<Artist, TourState>> {
+     *   return db.invalidationTracker.createFlow("Artist").map { _ ->
+     *     val artists = artistsDao.getAllArtists()
+     *     val tours = tourService.fetchStates(artists.map { it.id })
+     *     associateTours(artists, tours, from, to)
+     *   }
+     * }
+     * ```
+     *
+     * @param tables The name of the tables or views to track.
+     * @param emitInitialState Set to `false` if no initial emission is desired. Default value is
+     *   `true`.
      */
-    // TODO(b/329315924): Replace with Flow based API
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    actual suspend fun subscribe(observer: Observer) {
-        implementation.addObserver(observer)
+    @JvmOverloads
+    actual fun createFlow(vararg tables: String, emitInitialState: Boolean): Flow<Set<String>> {
+        return implementation.createFlow(tables, emitInitialState)
     }
 
     /**
-     * Unsubscribes the given [observer] from the tracker.
-     *
-     * If the observer was never subscribed in the first place, then this function does nothing.
-     *
-     * @param observer The observer to remove.
-     */
-    // TODO(b/329315924): Replace with Flow based API
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    actual suspend fun unsubscribe(observer: Observer) {
-        implementation.removeObserver(observer)
-    }
-
-    /**
-     * Synchronize subscribed observers with their tables.
+     * Synchronize created [Flow]s with their tables.
      *
      * This function should be called before any write operation is performed on the database so
-     * that a tracking link is created between observers and its interest tables.
+     * that a tracking link is created between the flows and its interested tables.
      *
      * @see refreshAsync
      */
@@ -87,52 +94,31 @@ actual constructor(
     }
 
     /**
-     * Refresh subscribed observers asynchronously, invoking [Observer.onInvalidated] on those whose
-     * tables have been invalidated.
+     * Refresh created [Flow]s asynchronously, emitting new values on those whose tables have been
+     * invalidated.
      *
      * This function should be called after any write operation is performed on the database, such
-     * that tracked tables and its associated observers are notified if invalidated.
+     * that tracked tables and its associated flows are notified if invalidated. In most cases Room
+     * will call this function automatically but if a write operation is performed on the database
+     * via another connection or through [RoomDatabase.useConnection] you might need to invoke this
+     * function to trigger invalidation.
      */
     actual fun refreshAsync() {
         implementation.refreshInvalidationAsync()
     }
 
+    /**
+     * Non-asynchronous version of [refreshAsync] with the addition that it will return true if
+     * there were any pending invalidations.
+     *
+     * An optional array of tables can be given to validate if any of those tables had pending
+     * invalidations, if so causing this function to return true.
+     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    actual suspend fun refreshInvalidation() {
-        implementation.refreshInvalidation()
+    actual suspend fun refresh(vararg tables: String): Boolean {
+        return implementation.refreshInvalidation(tables)
     }
 
     /** Stops invalidation tracker operations. */
-    actual fun stop() {}
-
-    /**
-     * An observer that can listen for changes in the database by subscribing to an
-     * [InvalidationTracker].
-     *
-     * @param tables The names of the tables this observer is interested in getting notified if they
-     *   are modified.
-     */
-    actual abstract class Observer
-    actual constructor(internal actual val tables: Array<out String>) {
-        /**
-         * Creates an observer for the given tables and views.
-         *
-         * @param firstTable The name of the table or view.
-         * @param rest More names of tables or views.
-         */
-        protected actual constructor(
-            firstTable: String,
-            vararg rest: String
-        ) : this(arrayOf(firstTable, *rest))
-
-        /**
-         * Invoked when one of the observed tables is invalidated (changed).
-         *
-         * @param tables A set of invalidated tables. When the observer is interested in multiple
-         *   tables, this set can be used to distinguish which of the observed tables were
-         *   invalidated. When observing a database view the names of underlying tables will be in
-         *   the set instead of the view name.
-         */
-        actual abstract fun onInvalidated(tables: Set<String>)
-    }
+    internal actual fun stop() {}
 }
