@@ -17,16 +17,18 @@
 package androidx.room.integration.multiplatformtestapp.test
 
 import androidx.kruth.assertThat
-import androidx.room.InvalidationTracker
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.runTest
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseInvalidationTest {
 
     private lateinit var db: SampleDatabase
@@ -44,52 +46,31 @@ abstract class BaseInvalidationTest {
     }
 
     @Test
-    fun observeOneTable(): Unit = runBlocking {
+    fun observeOneTable() = runTest {
         val dao = db.dao()
 
         val tableName = SampleEntity::class.simpleName!!
-        val observer = LatchObserver(tableName)
+        val invalidations = Channel<Set<String>>(capacity = 10)
+        val collectJob =
+            backgroundScope.launch(Dispatchers.IO) {
+                db.invalidationTracker.createFlow(tableName).collect { invalidatedTables ->
+                    invalidations.send(invalidatedTables)
+                }
+            }
 
-        db.invalidationTracker.subscribe(observer)
+        // Initial emission
+        assertThat(invalidations.receive()).containsExactly(tableName)
 
         dao.insertItem(1)
 
-        assertThat(observer.await()).isTrue()
-        assertThat(observer.invalidatedTables).containsExactly(tableName)
+        // Emissions due to insert
+        assertThat(invalidations.receive()).containsExactly(tableName)
 
-        observer.reset()
-        db.invalidationTracker.unsubscribe(observer)
+        collectJob.cancelAndJoin()
 
         dao.insertItem(2)
 
-        assertThat(observer.await()).isFalse()
-        assertThat(observer.invalidatedTables).isNull()
-    }
-
-    private class LatchObserver(table: String) : InvalidationTracker.Observer(table) {
-
-        var invalidatedTables: Set<String>? = null
-            private set
-
-        private var latch = Mutex(locked = true)
-
-        override fun onInvalidated(tables: Set<String>) {
-            invalidatedTables = tables
-            latch.unlock()
-        }
-
-        suspend fun await(): Boolean {
-            try {
-                withTimeout(200) { latch.withLock {} }
-                return true
-            } catch (ex: TimeoutCancellationException) {
-                return false
-            }
-        }
-
-        fun reset() {
-            invalidatedTables = null
-            latch = Mutex(locked = true)
-        }
+        // No emissions, flow collection canceled
+        assertThat(invalidations.isEmpty).isTrue()
     }
 }
