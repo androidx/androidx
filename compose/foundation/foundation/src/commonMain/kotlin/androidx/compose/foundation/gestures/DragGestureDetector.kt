@@ -24,6 +24,8 @@ package androidx.compose.foundation.gestures
 // TODO(b/193549931): when the new pointer API will be ready we should make *PointerSlop*
 //  functions public
 
+import androidx.compose.foundation.ComposeFoundationFlags.DragGesturePickUpEnabled
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
@@ -224,6 +226,7 @@ suspend fun PointerInputScope.detectDragGestures(
  * @see detectHorizontalDragGestures
  * @see detectDragGesturesAfterLongPress to detect gestures after long press
  */
+@OptIn(ExperimentalFoundationApi::class)
 internal suspend fun PointerInputScope.detectDragGestures(
     onDragStart:
         (
@@ -262,6 +265,34 @@ internal suspend fun PointerInputScope.detectDragGestures(
             } while (drag != null && !drag.isConsumed)
         } else {
             drag = initialDown
+        }
+
+        // if the pointer is still down, keep reading events in case we need to pick up the gesture.
+        if (
+            DragGesturePickUpEnabled && drag == null && currentEvent.changes.fastAny { it.pressed }
+        ) {
+            var event: PointerEvent
+            do {
+                event = awaitPointerEvent()
+            } while (
+                event.changes.fastAny { it.isConsumed } && event.changes.fastAny { it.pressed }
+            )
+
+            // an event was not consumed and there's still a pointer in the screen
+            if (event.changes.fastAny { it.pressed }) {
+                // await touch slop again, using the initial down as starting point.
+                // For most cases this should return immediately since we probably moved
+                // far enough from the initial down event.
+                drag =
+                    awaitPointerSlopOrCancellation(
+                        down.id,
+                        down.type,
+                        orientation = orientationLock
+                    ) { change, over ->
+                        change.consume()
+                        overSlop = over
+                    }
+            }
         }
 
         if (drag != null) {
@@ -753,6 +784,7 @@ private suspend inline fun AwaitPointerEventScope.awaitPointerSlopOrCancellation
     if (currentEvent.isPointerUp(pointerId)) {
         return null // The pointer has already been lifted, so the gesture is canceled
     }
+
     val touchSlop = viewConfiguration.pointerSlop(pointerType)
     var pointer: PointerId = pointerId
     val touchSlopDetector = TouchSlopDetector(orientation)
