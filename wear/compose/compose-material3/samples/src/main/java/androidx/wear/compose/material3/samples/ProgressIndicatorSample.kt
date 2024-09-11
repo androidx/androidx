@@ -145,6 +145,14 @@ fun SmallValuesProgressIndicatorSample() {
 
 @Sampled
 @Composable
+fun IndeterminateProgressIndicatorSample() {
+    Box(modifier = Modifier.fillMaxSize()) {
+        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+    }
+}
+
+@Sampled
+@Composable
 fun SegmentedProgressIndicatorSample() {
     Box(
         modifier =
