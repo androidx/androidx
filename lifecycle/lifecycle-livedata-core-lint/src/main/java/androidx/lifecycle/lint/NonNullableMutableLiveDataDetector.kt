@@ -39,9 +39,11 @@ import org.jetbrains.kotlin.analysis.api.calls.KtCall
 import org.jetbrains.kotlin.analysis.api.calls.KtCallableMemberCall
 import org.jetbrains.kotlin.analysis.api.calls.singleCallOrNull
 import org.jetbrains.kotlin.analysis.api.types.KtNonErrorClassType
+import org.jetbrains.kotlin.analysis.api.types.KtTypeNullability
 import org.jetbrains.kotlin.analysis.api.types.KtTypeParameterType
 import org.jetbrains.kotlin.psi.KtCallExpression
 import org.jetbrains.kotlin.psi.KtCallableDeclaration
+import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtNameReferenceExpression
 import org.jetbrains.kotlin.psi.KtNullableType
 import org.jetbrains.kotlin.psi.KtTypeReference
@@ -310,6 +312,22 @@ class NonNullableMutableLiveDataDetector : Detector(), UastScanner {
  * @return `true` if instance is nullable, `false` otherwise.
  */
 internal fun UElement.isNullable(context: JavaContext): Boolean {
+    val ktExpression = sourcePsi as? KtExpression
+    if (ktExpression != null) {
+        analyze(ktExpression) {
+            val nullability = ktExpression.getKtType()?.nullability
+            // NB: to avoid unnecessary smartcast lookup for definitely non-null type
+            if (nullability == KtTypeNullability.NON_NULLABLE) {
+                return false
+            } else {
+                val smartCastNullity = ktExpression.getSmartCastInfo()?.smartCastType?.nullability
+                if (smartCastNullity == KtTypeNullability.NON_NULLABLE) {
+                    return false
+                }
+                // For unknown (platform-type) or still nullable, fall back to @Nullable lookup.
+            }
+        }
+    }
     if (this is UCallExpression) {
         val psiMethod = resolve() ?: return false
         val sourceMethod = psiMethod.toUElement()?.sourcePsi

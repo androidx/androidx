@@ -23,6 +23,7 @@ import androidx.lifecycle.livedata.core.lint.stubs.STUBS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestLintResult
+import com.android.tools.lint.checks.infrastructure.TestLintTask.OptionSetter
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -37,8 +38,19 @@ class NonNullableMutableLiveDataDetectorTest : LintDetectorTest() {
     override fun getIssues(): MutableList<Issue> =
         mutableListOf(NonNullableMutableLiveDataDetector.ISSUE)
 
-    private fun check(vararg files: TestFile): TestLintResult {
-        return lint().files(*files, *STUBS).testModes(TestMode.DEFAULT).run()
+    private fun check(
+        vararg files: TestFile,
+        optionSetter: OptionSetter? = null,
+    ): TestLintResult {
+        return lint()
+            .apply {
+                if (optionSetter != null) {
+                    this.configureOptions(optionSetter)
+                }
+            }
+            .files(*files, *STUBS)
+            .testModes(TestMode.DEFAULT)
+            .run()
     }
 
     @Test
@@ -920,6 +932,91 @@ src/com/example/Foo.kt:10: Error: Expected non-nullable value [NullSafeMutableLi
 1 errors, 0 warnings
         """
             )
+    }
+
+    @Test
+    fun smartcastToNonNull_platformType() {
+        check(
+                java(
+                    """
+                        package com.example;
+
+                        public class Util {
+                            public static String getPrefix() {
+                                return "prefix";
+                            }
+                        }
+                    """
+                ),
+                kotlin(
+                        """
+            package com.example
+
+            import androidx.lifecycle.MutableLiveData
+
+            class Foo(
+                var target: MutableLiveData<String>
+            ) {
+                fun bar() {
+                    val prefix = Util.getPrefix()
+                    if (!prefix.isNullOrEmpty()) {
+                        target.value = prefix
+                    }
+                }
+            }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
+    }
+
+    @Test
+    fun smartcastToNonNull() {
+        check(
+                kotlin(
+                        """
+            package com.example
+
+            import androidx.lifecycle.MutableLiveData
+
+            class Foo(
+                var target: MutableLiveData<String>
+            ) {
+                fun foo(v: String?) {
+                    if (v != null) {
+                        target.value = v
+                    }
+                }
+            }
+                """
+                    )
+                    .indented()
+            ) { flags ->
+                // smart-cast info is more accurate in AA FIR
+                flags.setUseK2Uast(true)
+            }
+            .expectClean()
+    }
+
+    @Test
+    fun typeParameter() {
+        check(
+                kotlin(
+                        """
+            package com.example
+
+            class EntityHolder<T> {
+                private val mutableLiveData = MutableLiveData<T>()
+                fun postValue(value: T) {
+                    mutableLiveData.postValue(value)
+                }
+            }
+                """
+                    )
+                    .indented()
+            )
+            .expectClean()
     }
 
     @Test
