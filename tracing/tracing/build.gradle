@@ -44,6 +44,9 @@ androidx {
     inceptionYear = "2020"
     description = "Android Tracing"
     legacyDisableKotlinStrictApiMode = true
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }
 
 android {

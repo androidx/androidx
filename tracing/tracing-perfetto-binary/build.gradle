@@ -95,4 +95,7 @@ androidx {
     description = "Provides native binaries required by AndroidX Tracing: Perfetto SDK " +
         "and is not intended to be used outside of that context."
     doNotDocumentReason = "No public API"
+    deviceTests {
+        enableAlsoRunningOnPhysicalDevices = true
+    }
 }

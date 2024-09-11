@@ -384,13 +384,18 @@ abstract class AndroidXExtension(val project: Project) : ExtensionAware, Android
     val additionalDeviceTestApkKeys = mutableListOf<String>()
 
     val additionalDeviceTestTags: MutableList<String> by lazy {
-        when {
-            project.path.startsWith(":privacysandbox:ads:") ->
-                mutableListOf("privacysandbox", "privacysandbox_ads")
-            project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
-            project.path.startsWith(":wear:") -> mutableListOf("wear")
-            else -> mutableListOf()
+        val tags =
+            when {
+                project.path.startsWith(":privacysandbox:ads:") ->
+                    mutableListOf("privacysandbox", "privacysandbox_ads")
+                project.path.startsWith(":privacysandbox:") -> mutableListOf("privacysandbox")
+                project.path.startsWith(":wear:") -> mutableListOf("wear")
+                else -> mutableListOf()
+            }
+        if (deviceTests.enableAlsoRunningOnPhysicalDevices) {
+            tags.add("all_run_on_physical_device")
         }
+        return@lazy tags
     }
 
     fun shouldEnforceKotlinStrictApiMode(): Boolean {
@@ -480,4 +485,5 @@ abstract class DeviceTests {
     var enabled = true
     var targetAppProject: Project? = null
     var targetAppVariant = "debug"
+    var enableAlsoRunningOnPhysicalDevices = false
 }
