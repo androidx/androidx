@@ -268,7 +268,59 @@ class RoomAndroidGradlePluginTest {
             schemaDslLines =
                 listOf(
                     "schemaDirectory(\"flavorOne\", \"\$projectDir/schemas/flavorOne\")",
-                    "schemaDirectory(\"flavorTwo\", \"\$projectDir/schemas/flavorTwo\")"
+                    "schemaDirectory(\"flavorTwo\", \"\$projectDir/schemas/flavorTwo\")",
+                )
+        )
+
+        File(projectSetup.rootDir, "build.gradle")
+            .appendText(
+                """
+            android {
+                flavorDimensions "mode"
+                productFlavors {
+                    flavorOne {
+                        dimension "mode"
+                    }
+                    flavorTwo {
+                        dimension "mode"
+                    }
+                }
+            }
+            """
+                    .trimIndent()
+            )
+
+        runGradleTasks(
+                CLEAN_TASK,
+                "compileFlavorOneDebugJavaWithJavac",
+                "compileFlavorTwoDebugJavaWithJavac"
+            )
+            .let { result ->
+                result.assertTaskOutcome(":compileFlavorOneDebugJavaWithJavac", TaskOutcome.SUCCESS)
+                result.assertTaskOutcome(":compileFlavorTwoDebugJavaWithJavac", TaskOutcome.SUCCESS)
+                result.assertTaskOutcome(":copyRoomSchemasFlavorOne", TaskOutcome.SUCCESS)
+                result.assertTaskOutcome(":copyRoomSchemasFlavorTwo", TaskOutcome.SUCCESS)
+            }
+        // Check schema files are generated for both flavor, each in its own folder.
+        val flavorOneSchema =
+            projectSetup.rootDir.resolve("schemas/flavorOne/room.testapp.MyDatabase/1.json")
+        val flavorTwoSchema =
+            projectSetup.rootDir.resolve("schemas/flavorTwo/room.testapp.MyDatabase/1.json")
+        assertThat(flavorOneSchema.exists()).isTrue()
+        assertThat(flavorTwoSchema.exists()).isTrue()
+        // Check the schemas in both flavors are different
+        assertThat(flavorOneSchema.readText()).isNotEqualTo(flavorTwoSchema.readText())
+    }
+
+    @Test
+    fun testFlavoredProjectPriority() {
+        setup(
+            projectName = "flavored-project",
+            schemaDslLines =
+                listOf(
+                    "schemaDirectory(\"\$projectDir/schemasAll/\")",
+                    "schemaDirectory(\"flavorOne\", \"\$projectDir/schemas/flavorOne\")",
+                    "schemaDirectory(\"flavorTwo\", \"\$projectDir/schemas/flavorTwo\")",
                 )
         )
 
@@ -367,8 +419,9 @@ class RoomAndroidGradlePluginTest {
         runGradleTasks(CLEAN_TASK, COMPILE_TASK, expectFailure = true).let { result ->
             assertThat(result.output)
                 .contains(
-                    "The Room schema directory path for Android variant 'debug' must not be empty."
+                    "Failed to query the value of task ':copyRoomSchemas' property 'schemaDirectory'."
                 )
+            assertThat(result.output).contains("path may not be null or empty string.")
         }
     }
 

@@ -27,6 +27,12 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.process.CommandLineArgumentProvider
 
+/**
+ * Command line argument provider for annotation processing tasks to configure room-compiler and
+ * wire the schema input directory as configured by the user using [RoomExtension.schemaDirectory]
+ * and output directory (avoiding overlapping outputs) that will be an input of a
+ * [RoomSchemaCopyTask].
+ */
 class RoomArgumentProvider(
     @get:Input val forKsp: Boolean,
     @get:InputFiles
