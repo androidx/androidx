@@ -88,9 +88,7 @@ apply(plugin: "com.gradle.common-custom-user-data-gradle-plugin")
 apply(plugin: "androidx.build.gradle.gcpbuildcache")
 apply(plugin: "com.android.settings")
 
-android {
-    ndkVersion = "27.0.12077973"
-}
+apply(from: "buildSrc/ndk.gradle")
 
 def BUILD_NUMBER = System.getenv("BUILD_NUMBER")
 develocity {
