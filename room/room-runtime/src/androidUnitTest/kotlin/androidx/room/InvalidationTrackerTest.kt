@@ -472,7 +472,7 @@ class InvalidationTrackerTest {
     }
 
     @Test
-    fun weakObserver() {
+    fun weakObserver() = runTest {
         val invalidated = atomic(0)
         var observer: InvalidationTracker.Observer? =
             object : InvalidationTracker.Observer("a") {
@@ -560,6 +560,26 @@ class InvalidationTrackerTest {
             assertThat(sqliteDriver.preparedQueries)
                 .contains("DROP TRIGGER IF EXISTS `room_table_modification_trigger_a_$trigger`")
         }
+    }
+
+    @Test
+    fun selfRemovingObserver() = runTest {
+        // Add an observer that manipulates the observer list during invalidation, we are trying to
+        // verify no ConcurrentModificationException is thrown.
+        val observer =
+            object : InvalidationTracker.Observer("a") {
+                override fun onInvalidated(tables: Set<String>) {
+                    roomDatabase.invalidationTracker.removeObserver(this)
+                }
+            }
+        roomDatabase.invalidationTracker.addObserver(observer)
+        // Add two more observers, since we are validating modification we need more than one
+        // item in the observer map.
+        repeat(2) { roomDatabase.invalidationTracker.addObserver(LatchObserver(1, "a")) }
+
+        // Invalidate table 'a', it should cause the first observer to self remove.
+        sqliteDriver.setInvalidatedTables(0)
+        tracker.awaitRefreshAsync()
     }
 
     private fun runTest(testBody: suspend TestScope.() -> Unit) =

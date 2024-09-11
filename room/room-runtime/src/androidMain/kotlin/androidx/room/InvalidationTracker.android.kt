@@ -354,7 +354,9 @@ actual constructor(
     }
 
     private fun notifyInvalidatedObservers(tableIds: Set<Int>) {
-        observerMapLock.withLock { observerMap.values.forEach { it.notifyByTableIds(tableIds) } }
+        observerMapLock
+            .withLock { observerMap.values.toList() }
+            .forEach { it.notifyByTableIds(tableIds) }
     }
 
     /**
@@ -366,13 +368,13 @@ actual constructor(
      * @param tables The invalidated tables.
      */
     internal fun notifyObserversByTableNames(vararg tables: String) {
-        observerMapLock.withLock {
-            observerMap.values.forEach {
+        observerMapLock
+            .withLock { observerMap.values.toList() }
+            .forEach {
                 if (!it.observer.isRemote) {
                     it.notifyByTableNames(setOf(*tables))
                 }
             }
-        }
     }
 
     /**
