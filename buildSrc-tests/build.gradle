@@ -55,7 +55,7 @@ apply from: "${buildscript.sourceFile.parentFile.parent}/buildSrc/shared-depende
 
 dependencies {
     api(libs.javaxInject)
-    api(libs.johnrengelmanShadow)
+    api(libs.shadow)
     api(libs.guavaAndroid)
     api(libs.kotlinGradlePluginApi)
     api(libs.kotlinNativeUtils)

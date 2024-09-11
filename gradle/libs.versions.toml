@@ -62,7 +62,6 @@ mockito = "2.25.0"
 moshi = "1.13.0"
 node = "16.20.2"
 protobuf = "3.22.3"
-shadow = "8.1.1"
 skiko = "0.7.7"
 spdxGradlePlugin = "0.6.0"
 sqldelight = "1.3.0"
@@ -160,7 +159,6 @@ javapoet = { module = "com.squareup:javapoet", version = "1.13.0" }
 javaxInject = { module = "javax.inject:javax.inject", version.ref = "javaxInject" }
 jcodec = { module = "org.jcodec:jcodec", version.ref = "jcodec" }
 jcodecJavaSe = { module = "org.jcodec:jcodec-javase", version.ref = "jcodec" }
-johnrengelmanShadow = { module = "com.github.johnrengelman:shadow", version.ref = "shadow" }
 json = { module = "org.json:json", version = "20180813" }
 jsoup = { module = "org.jsoup:jsoup", version = "1.16.2" }
 jsqlparser = { module = "com.github.jsqlparser:jsqlparser", version = "3.1" }
@@ -280,7 +278,7 @@ robolectric = { module = "org.robolectric:robolectric", version = "4.12.2" }
 rxjava2 = { module = "io.reactivex.rxjava2:rxjava", version = "2.2.9" }
 rxjava3 = { module = "io.reactivex.rxjava3:rxjava", version = "3.0.0" }
 sdklib = { module = "com.android.tools:sdklib", version.ref = "androidLint" }
-shadow = { module = "com.github.johnrengelman.shadow:com.github.johnrengelman.shadow.gradle.plugin", version = "8.1.1" }
+shadow = { module = "com.gradleup.shadow:shadow-gradle-plugin", version = "8.3.1" }
 skiko = { module = "org.jetbrains.skiko:skiko-awt", version.ref = "skiko" }
 skikoCommon = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
 skikoMacOsArm64 = { module = "org.jetbrains.skiko:skiko-awt-runtime-macos-arm64", version.ref = "skiko" }

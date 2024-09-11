@@ -364,5 +364,4 @@ private fun Project.getRepoPublicUrls(): Map<String, String> {
     }
 }
 
-private fun Project.appliesShadowPlugin() =
-    pluginManager.hasPlugin("com.github.johnrengelman.shadow")
+private fun Project.appliesShadowPlugin() = pluginManager.hasPlugin("com.gradleup.shadow")
