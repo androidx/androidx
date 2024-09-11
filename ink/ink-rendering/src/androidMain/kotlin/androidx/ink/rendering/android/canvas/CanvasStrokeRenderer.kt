@@ -29,8 +29,26 @@ import androidx.ink.rendering.android.canvas.internal.CanvasStrokeUnifiedRendere
 import androidx.ink.strokes.InProgressStroke
 import androidx.ink.strokes.Stroke
 
-/** Renders strokes to a [Canvas]. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+/**
+ * Renders strokes to a [Canvas].
+ *
+ * In almost all cases, a developer should use an implementation of this interface obtained from
+ * [CanvasStrokeRenderer.create].
+ *
+ * However, some developers may find it helpful to use their own implementation of this interface,
+ * possibly to draw other effects to the [Canvas], typically delegating to a renderer from
+ * [CanvasStrokeRenderer.create] for part of the custom rendering behavior to have the additional
+ * effects add to or modify the standard stroke rendering behavior. Custom [CanvasStrokeRenderer]
+ * implementations are generally less efficient than effects that can be achieved with a custom
+ * [androidx.ink.brush.BrushFamily]. If a custom implementation draws to different screen locations
+ * than the standard implementation, for example surrounding a stroke with additional content, then
+ * that additional content will not be taken into account in geometry operations like
+ * [androidx.ink.geometry.Intersection] or [androidx.ink.geometry.PartitionedMesh.computeCoverage].
+ *
+ * If custom rendering is needed during live authoring of in-progress strokes and that custom
+ * rendering involves drawing content outside the stroke boundaries, then be sure to override
+ * [strokeModifiedRegionOutsetPx].
+ */
 public interface CanvasStrokeRenderer {
 
     /**
@@ -38,14 +56,14 @@ public interface CanvasStrokeRenderer {
      * [strokeToCanvasTransform].
      *
      * To avoid needing to calculate and maintain [strokeToCanvasTransform], consider using
-     * [ViewStrokeRenderer] instead.
-     *
-     * TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
+     * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
      *
      * The [strokeToCanvasTransform] should represent the complete transformation from stroke
      * coordinates to the canvas, modulo translation. Any existing transforms applied to [canvas]
      * should be undone prior to calling [draw].
      */
+    // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: AffineTransform)
 
     /**
@@ -53,14 +71,14 @@ public interface CanvasStrokeRenderer {
      * [strokeToCanvasTransform].
      *
      * To avoid needing to calculate and maintain [strokeToCanvasTransform], consider using
-     * [ViewStrokeRenderer].
-     *
-     * TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
+     * [androidx.ink.rendering.android.view.ViewStrokeRenderer] instead.
      *
      * The [strokeToCanvasTransform] must be affine. It should represent the complete transformation
      * from stroke coordinates to the canvas, modulo translation. Any existing transforms applied to
      * [canvas] should be undone prior to calling [draw].
      */
+    // TODO: b/353561141 - Reference ComposeStrokeRenderer above once implemented.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(canvas: Canvas, stroke: Stroke, strokeToCanvasTransform: Matrix)
 
     /**
@@ -71,6 +89,7 @@ public interface CanvasStrokeRenderer {
      * coordinates to the canvas, modulo translation. Any existing transforms applied to [canvas]
      * should be undone prior to calling [draw].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -85,6 +104,7 @@ public interface CanvasStrokeRenderer {
      * from stroke coordinates to the canvas, modulo translation. Any existing transforms applied to
      * [canvas] should be undone prior to calling [draw].
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
     public fun draw(
         canvas: Canvas,
         inProgressStroke: InProgressStroke,
@@ -98,18 +118,12 @@ public interface CanvasStrokeRenderer {
      * effects like drop shadows or blurs may render beyond the stroke's geometry, and setting a
      * higher value here can ensure that artifacts are not left on screen after an in-progress
      * stroke has moved on from a particular region of the screen. This value should be set to the
-     * lowest value that avoids the artifacts.
-     *
-     * Custom [CanvasStrokeRenderer] implementations are generally less efficient than achieving the
-     * same effect with a custom [BrushTip], as well as being less compatible with intersection and
-     * hit testing, and more features over time.
-     *
-     * Custom renderers are possible to maximize control over the final effect on screen, but
-     * consider filing a feature request to support your use case with [BrushTip] directly. The more
-     * your rendering relies on a bigger value here, the more likely it will run into complications
-     * later on as your client integration gets more complex or as we add more features.
+     * lowest value that avoids the artifacts, as larger values will be less performant, and effects
+     * that rely on larger values will be less compatible with stroke geometry operations.
      */
-    @Px public fun strokeModifiedRegionOutsetPx(): Int = 3
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
+    @Px
+    public fun strokeModifiedRegionOutsetPx(): Int = 3
 
     public companion object {
 
@@ -118,6 +132,7 @@ public interface CanvasStrokeRenderer {
         }
 
         /** Create a [CanvasStrokeRenderer] that is appropriate to the device's API version. */
+        @JvmStatic
         public fun create(): CanvasStrokeRenderer {
             @OptIn(ExperimentalInkCustomBrushApi::class)
             return create(textureStore = TextureBitmapStore { null })
@@ -134,6 +149,7 @@ public interface CanvasStrokeRenderer {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // NonPublicApi
         @ExperimentalInkCustomBrushApi
         @JvmOverloads
+        @JvmStatic
         public fun create(
             textureStore: TextureBitmapStore,
             forcePathRendering: Boolean = false,
