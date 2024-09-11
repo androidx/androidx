@@ -66,6 +66,9 @@ function run() {
 
 # export some variables
 ANDROID_HOME=../../prebuilts/fullsdk-linux
+export PATH="$ANDROID_HOME/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/python3/bin:$PATH"
+# Remove when b/366010045 is resolved: android platform build requires either en_US.UTF-8 or C.UTF-8 to exist
+export LC_ALL=C.UTF-8
 
 BUILD_STATUS=0
 # enable remote build cache unless explicitly disabled
@@ -77,15 +80,23 @@ fi
 # If our existing native libraries are newer, then we don't downgrade them because
 # something else (like Bash) might be requiring the newer version.
 function areNativeLibsNewEnoughForKonan() {
-  host=`uname`
-  if [[ "$host" == Darwin* ]]; then
+  if [[ "$(uname)" == Darwin* ]]; then
     # we don't have any Macs having native dependencies too old to build KMP/konan
     true
+  elif [[ -f /etc/os-release ]]; then
+    . /etc/os-release
+    version=${VERSION_ID//./}  # Remove dots for comparison
+    if (( version >= 2004 )); then
+      true
+    else
+      # on Ubuntu < 20.04 we check whether we have a sufficiently new GLIBCXX
+      gcc --print-file-name=libstdc++.so.6 | xargs readelf -a -W | grep GLIBCXX_3.4.21 >/dev/null
+    fi
   else
-    # on Linux we check whether we have a sufficiently new GLIBCXX
-    gcc --print-file-name=libstdc++.so.6 | xargs readelf -a -W | grep GLIBCXX_3.4.21 >/dev/null
+    true
   fi
 }
+
 if ! areNativeLibsNewEnoughForKonan; then
   KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
   LOG="$KONAN_HOST_LIBS.log"
