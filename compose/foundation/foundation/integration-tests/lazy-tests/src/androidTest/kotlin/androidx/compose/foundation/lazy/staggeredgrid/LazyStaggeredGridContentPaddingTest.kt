@@ -20,7 +20,11 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.list.assertIsNotPlaced
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Dp
@@ -342,5 +346,38 @@ class LazyStaggeredGridContentPaddingTest(orientation: Orientation) :
         state.scrollBy(itemSizeDp / 2)
 
         rule.onNodeWithTag("19").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 3f)
+    }
+
+    @Test
+    fun pinnedItemWorksIsPlacedOnceInContentPadding() {
+        state = LazyStaggeredGridState(initialFirstVisibleItemIndex = 0)
+        val focusRequester = FocusRequester()
+        rule.setContent {
+            Box(Modifier.axisSize(itemSizeDp * 2, itemSizeDp * 4)) {
+                LazyStaggeredGrid(
+                    lanes = 1,
+                    modifier = Modifier.testTag(LazyStaggeredGrid),
+                    contentPadding = PaddingValues(beforeContent = itemSizeDp),
+                    state = state
+                ) {
+                    item {
+                        LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                        BasicTextField(
+                            "Test",
+                            onValueChange = {},
+                            modifier =
+                                Modifier.focusRequester(focusRequester).mainAxisSize(itemSizeDp)
+                        )
+                    }
+
+                    items(10) { Spacer(Modifier.mainAxisSize(itemSizeDp).testTag("$it")) }
+                }
+            }
+        }
+
+        // scroll to the end
+        state.scrollBy(itemSizeDp / 2)
+
+        rule.onNodeWithTag("0").assertMainAxisStartPositionInRootIsEqualTo(itemSizeDp * 1.5f)
     }
 }
