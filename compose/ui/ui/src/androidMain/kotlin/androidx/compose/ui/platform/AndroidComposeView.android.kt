@@ -102,8 +102,11 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
-import androidx.compose.ui.focus.calculateBoundingRect
+import androidx.compose.ui.focus.FocusTargetNode
+import androidx.compose.ui.focus.calculateBoundingRectRelativeTo
+import androidx.compose.ui.focus.focusRect
 import androidx.compose.ui.focus.is1dFocusSearch
+import androidx.compose.ui.focus.isBetterCandidate
 import androidx.compose.ui.focus.requestFocus
 import androidx.compose.ui.focus.requestInteropFocus
 import androidx.compose.ui.focus.toAndroidFocusDirection
@@ -337,7 +340,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
         if (isFocused) {
             focusOwner.getFocusRect()
         } else {
-            findFocus()?.calculateBoundingRect()
+            findFocus()?.calculateBoundingRectRelativeTo(this)
         }
 
     // TODO(b/177931787) : Consider creating a KeyInputManager like we have for FocusManager so
@@ -866,14 +869,41 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
 
     override fun focusSearch(focused: View?, direction: Int): View? {
         // do not propagate search if a measurement is happening
-        if (focused != null && !measureAndLayoutDelegate.duringMeasureLayout) {
-            // Find the next composable using FocusOwner.
-            val focusedBounds = focused.calculateBoundingRect()
-            val focusDirection = toFocusDirection(direction) ?: Down
-            if (focusOwner.focusSearch(focusDirection, focusedBounds) { true } == true) return this
+        if (focused == null || measureAndLayoutDelegate.duringMeasureLayout) {
+            return super.focusSearch(focused, direction)
         }
 
-        return super.focusSearch(focused, direction)
+        // Find the next subview if any using FocusFinder.
+        val nextView = FocusFinder.getInstance().findNextFocus(this, focused, direction)
+
+        // Find the next composable using FocusOwner.
+        val focusedBounds =
+            if (focused === this) {
+                focusOwner.getFocusRect() ?: focused.calculateBoundingRectRelativeTo(this)
+            } else {
+                focused.calculateBoundingRectRelativeTo(this)
+            }
+        val focusDirection = toFocusDirection(direction) ?: Down
+        var focusTarget: FocusTargetNode? = null
+        val searchResult =
+            focusOwner.focusSearch(focusDirection, focusedBounds) {
+                focusTarget = it
+                true
+            }
+
+        return when {
+            searchResult == null -> focused // Focus Search Cancelled.
+            focusTarget == null -> nextView ?: focused // No compose focus item
+            nextView == null -> this // No found View, so go to the found Compose focus item
+            focusDirection.is1dFocusSearch() -> super.focusSearch(focused, direction)
+            isBetterCandidate(
+                focusTarget!!.focusRect(),
+                nextView.calculateBoundingRectRelativeTo(this),
+                focusedBounds,
+                focusDirection
+            ) -> this // Compose focus is better than View focus
+            else -> nextView // View focus is better than Compose focus
+        }
     }
 
     override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {

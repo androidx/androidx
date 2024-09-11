@@ -124,6 +124,6 @@ fun FocusableView(context: Context): View {
 }
 
 @Composable
-fun FocusableComponent(tag: String? = null) {
-    Box(Modifier.then(if (tag != null) Modifier.testTag(tag) else Modifier).size(50.dp).focusable())
+fun FocusableComponent(tag: String? = null, modifier: Modifier = Modifier) {
+    Box(modifier.then(if (tag != null) Modifier.testTag(tag) else Modifier).size(50.dp).focusable())
 }

@@ -31,8 +31,7 @@ import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
-import kotlin.math.absoluteValue
-import kotlin.math.max
+import androidx.compose.ui.util.fastCoerceAtLeast
 
 private const val InvalidFocusDirection = "This function should only be used for 2-D focus search"
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
@@ -260,7 +259,7 @@ private fun MutableVector<FocusTargetNode>.findBestCandidate(
 // Is this Rect a better candidate than currentCandidateRect for a focus search in a particular
 // direction from a source rect? This is the core routine that determines the order of focus
 // searching.
-private fun isBetterCandidate(
+internal fun isBetterCandidate(
     proposedCandidate: Rect,
     currentCandidate: Rect,
     focusedRect: Rect,
@@ -295,7 +294,7 @@ private fun isBetterCandidate(
                 Down -> top - focusedRect.bottom
                 else -> error(InvalidFocusDirection)
             }
-        return max(0.0f, majorAxisDistance)
+        return majorAxisDistance.fastCoerceAtLeast(0f)
     }
 
     // Find the distance on the minor axis w.r.t the direction to the nearest edge of the
@@ -314,8 +313,8 @@ private fun isBetterCandidate(
     // Fudge-factor opportunity: how to calculate distance given major and minor axis distances.
     // Warning: This fudge factor is finely tuned, run all focus tests if you dare tweak it.
     fun weightedDistance(candidate: Rect): Long {
-        val majorAxisDistance = candidate.majorAxisDistance().absoluteValue.toLong()
-        val minorAxisDistance = candidate.minorAxisDistance().absoluteValue.toLong()
+        val majorAxisDistance = candidate.majorAxisDistance().toLong()
+        val minorAxisDistance = candidate.minorAxisDistance().toLong()
         return 13 * majorAxisDistance * majorAxisDistance + minorAxisDistance * minorAxisDistance
     }
 
@@ -374,7 +373,7 @@ private fun beamBeats(source: Rect, rect1: Rect, rect2: Rect, direction: FocusDi
                 Down -> top - source.bottom
                 else -> error(InvalidFocusDirection)
             }
-        return max(0.0f, majorAxisDistance)
+        return majorAxisDistance.fastCoerceAtLeast(0f)
     }
 
     // The distance along the major axis w.r.t the direction from the edge of source to the far
@@ -389,7 +388,7 @@ private fun beamBeats(source: Rect, rect1: Rect, rect2: Rect, direction: FocusDi
                 Down -> bottom - source.bottom
                 else -> error(InvalidFocusDirection)
             }
-        return max(1.0f, majorAxisDistance)
+        return majorAxisDistance.fastCoerceAtLeast(1f)
     }
 
     return when {
