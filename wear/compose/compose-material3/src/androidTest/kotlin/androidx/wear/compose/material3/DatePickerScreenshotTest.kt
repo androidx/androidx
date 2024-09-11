@@ -16,18 +16,12 @@
 
 package androidx.wear.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -40,7 +34,6 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -323,23 +316,8 @@ class DatePickerScreenshotTest {
     ) {
         val screenSizeDp = if (isLargeScreen) SCREENSHOT_SIZE_LARGE else SCREENSHOT_SIZE
         setContentWithTheme {
-            val originalConfiguration = LocalConfiguration.current
-            val fixedScreenSizeConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenWidthDp = screenSizeDp
-                        screenHeightDp = screenSizeDp
-                    }
-                }
-            CompositionLocalProvider(
-                LocalLayoutDirection provides layoutDirection,
-                LocalConfiguration provides fixedScreenSizeConfiguration
-            ) {
-                Box(
-                    modifier =
-                        Modifier.size(screenSizeDp.dp)
-                            .background(MaterialTheme.colorScheme.background)
-                ) {
+            ScreenConfiguration(screenSizeDp) {
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     content()
                 }
             }

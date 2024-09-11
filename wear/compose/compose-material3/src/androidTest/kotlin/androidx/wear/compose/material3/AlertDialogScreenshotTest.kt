@@ -16,19 +16,14 @@
 
 package androidx.wear.compose.material3
 
-import android.content.res.Configuration
 import android.os.Build
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.remember
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -237,23 +232,8 @@ class AlertDialogScreenshotTest {
         messageText: String? = "Your battery is low. Turn on battery saver.",
         titleText: String = "Mobile network is not currently available"
     ) {
-        setContentWithTheme() {
-            val originalConfiguration = LocalConfiguration.current
-            val originalContext = LocalContext.current
-            val fixedScreenSizeConfiguration =
-                remember(originalConfiguration) {
-                    Configuration(originalConfiguration).apply {
-                        screenWidthDp = screenSize.size
-                        screenHeightDp = screenSize.size
-                        screenLayout = Configuration.SCREENLAYOUT_ROUND_YES
-                    }
-                }
-            originalContext.resources.configuration.updateFrom(fixedScreenSizeConfiguration)
-
-            CompositionLocalProvider(
-                LocalContext provides originalContext,
-                LocalConfiguration provides fixedScreenSizeConfiguration,
-            ) {
+        setContentWithTheme {
+            ScreenConfiguration(screenSize.size) {
                 AlertDialogHelper(
                     modifier = Modifier.size(screenSize.size.dp).testTag(TEST_TAG),
                     title = { Text(titleText) },
