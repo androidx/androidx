@@ -1624,6 +1624,14 @@ internal class SlotWriter(
         return result
     }
 
+    /** Set the slot by index to Composer.Empty, returning previous value */
+    fun clear(slotIndex: Int): Any? {
+        val address = dataIndexToDataAddress(slotIndex)
+        val result = slots[address]
+        slots[address] = Composer.Empty
+        return result
+    }
+
     /**
      * Skip the current slot without updating. If the slot table is inserting then and
      * [Composer.Empty] slot is added and [skip] return [Composer.Empty].
@@ -2020,16 +2028,6 @@ internal class SlotWriter(
 
             override fun next(): Any? =
                 if (hasNext()) slots[dataIndexToDataAddress(current++)] else null
-        }
-    }
-
-    inline fun forEachData(group: Int, block: (index: Int, data: Any?) -> Unit) {
-        val address = groupIndexToAddress(group)
-        val slotsStart = groups.slotIndex(address)
-        val slotsEnd = groups.dataIndex(groupIndexToAddress(group + 1))
-
-        for (slot in slotsStart until slotsEnd) {
-            block(slot - slotsStart, slots[dataIndexToDataAddress(slot)])
         }
     }
 

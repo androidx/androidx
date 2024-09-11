@@ -4202,45 +4202,40 @@ internal fun SlotWriter.deactivateCurrentGroup(rememberManager: RememberManager)
 
     // To ensure this order, we call `enters` as a pre-order traversal
     // of the group tree, and then call `leaves` in the inverse order.
-    val start = currentGroup
-    val end = currentGroupEnd
-    for (group in start until end) {
-        val node = node(group)
-        if (node is ComposeNodeLifecycleCallback) {
-            val endRelativeOrder = slotsSize - slotsStartIndex(group)
-            rememberManager.deactivating(node, endRelativeOrder, -1, -1)
-        }
-
-        forEachData(group) { slotIndex, data ->
-            when (data) {
-                is RememberObserverHolder -> {
-                    val wrapped = data.wrapped
-                    if (wrapped is ReusableRememberObserver) {
-                        // do nothing, the value should be preserved on reuse
-                    } else {
-                        removeData(group, slotIndex, data)
-                        val endRelativeOrder = slotsSize - slotIndex
-                        withAfterAnchorInfo(data.after) { priority, endRelativeAfter ->
-                            rememberManager.forgetting(
-                                wrapped,
-                                endRelativeOrder,
-                                priority,
-                                endRelativeAfter
-                            )
-                        }
+    forAllData(currentGroup) { slotIndex, data ->
+        when (data) {
+            is ComposeNodeLifecycleCallback -> {
+                val endRelativeOrder = slotsSize - slotIndex
+                rememberManager.deactivating(data, endRelativeOrder, -1, -1)
+            }
+            is RememberObserverHolder -> {
+                val wrapped = data.wrapped
+                if (wrapped is ReusableRememberObserver) {
+                    // do nothing, the value should be preserved on reuse
+                } else {
+                    removeData(slotIndex, data)
+                    val endRelativeOrder = slotsSize - slotIndex
+                    withAfterAnchorInfo(data.after) { priority, endRelativeAfter ->
+                        rememberManager.forgetting(
+                            wrapped,
+                            endRelativeOrder,
+                            priority,
+                            endRelativeAfter
+                        )
                     }
                 }
-                is RecomposeScopeImpl -> {
-                    removeData(group, slotIndex, data)
-                    data.release()
-                }
+            }
+            is RecomposeScopeImpl -> {
+                removeData(slotIndex, data)
+                data.release()
             }
         }
     }
 }
 
-private fun SlotWriter.removeData(group: Int, index: Int, data: Any?) {
-    runtimeCheck(data === set(group, index, Composer.Empty)) { "Slot table is out of sync" }
+private fun SlotWriter.removeData(index: Int, data: Any?) {
+    val result = clear(index)
+    runtimeCheck(data === result) { "Slot table is out of sync (expected $data, got $result)" }
 }
 
 @JvmInline
