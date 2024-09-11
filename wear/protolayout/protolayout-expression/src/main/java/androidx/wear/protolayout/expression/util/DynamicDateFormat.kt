@@ -60,6 +60,9 @@ import java.util.Locale
  *       .format(DynamicInt32.IntFormatter.Builder().setMinIntegerDigits(2).build())
  *   )
  * ```
+ *
+ * @property timeZone The time zone used when extracting time parts from the [DynamicInstant]
+ *   provided to [format], defaults to [ZoneId.systemDefault].
  */
 @RequiresSchemaVersion(major = 1, minor = 300)
 public class DynamicDateFormat
@@ -71,7 +74,15 @@ internal constructor(
     private val locale: Locale?,
     public var timeZone: ZoneId,
 ) {
-
+    /**
+     * Constructs a [DynamicDateFormat].
+     *
+     * @param pattern The pattern to use when calling [format], see
+     *   [android.icu.text.SimpleDateFormat] for general syntax and [DynamicDateFormat] for the
+     *   supported subset of features.
+     * @param timeZone The time zone used when extracting time parts from the [DynamicInstant]
+     *   provided to [format], defaults to [ZoneId.systemDefault].
+     */
     @JvmOverloads
     public constructor(
         pattern: String,
@@ -88,8 +99,10 @@ internal constructor(
     private val patternParts: List<Part> = extractPatternParts().mergeConstants().toList()
 
     /**
-     * Formats the [DynamicInstant] (defaults to [DynamicInstant.platformTimeWithSecondsPrecision])
-     * into a date/time [DynamicString].
+     * Formats the [DynamicInstant] into a date/time [DynamicString].
+     *
+     * @param instant The [DynamicInstant] to format, defaults to
+     *   [DynamicInstant.platformTimeWithSecondsPrecision].
      */
     @RequiresSchemaVersion(major = 1, minor = 300)
     @JvmOverloads
