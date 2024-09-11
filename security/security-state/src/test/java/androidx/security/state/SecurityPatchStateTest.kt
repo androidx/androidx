@@ -590,9 +590,30 @@ class SecurityPatchStateTest {
         assertEquals(15, spl.getDay())
     }
 
+    @Test
+    fun testDateBasedSpl_FromString_MissingDay_ReturnsCorrectDateBasedSpl() {
+        val dateString = "2023-09" // Some SPLs only have year and month.
+        val spl = SecurityPatchState.DateBasedSecurityPatchLevel.fromString(dateString)
+        assertEquals(2023, spl.getYear())
+        assertEquals(9, spl.getMonth())
+        assertEquals(1, spl.getDay())
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testDateBasedSpl_FromString_MissingMonth_ThrowsException() {
+        val invalidDate = "2023"
+        SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
+    }
+
+    @Test(expected = IllegalArgumentException::class)
+    fun testDateBasedSpl_FromString_InvalidDate_ThrowsException() {
+        val invalidDate = "2023-13-15"
+        SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
+    }
+
     @Test(expected = IllegalArgumentException::class)
     fun testDateBasedSpl_FromString_InvalidFormat_ThrowsException() {
-        val invalidDate = "2023-09-31" // Invalid date, September has only 30 days
+        val invalidDate = "2023/09/15"
         SecurityPatchState.DateBasedSecurityPatchLevel.fromString(invalidDate)
     }
 
