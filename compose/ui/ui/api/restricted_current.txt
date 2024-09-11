@@ -298,26 +298,14 @@ package androidx.compose.ui.draganddrop {
     ctor public DragAndDropEvent(android.view.DragEvent dragEvent);
   }
 
-  @Deprecated public interface DragAndDropModifierNode extends androidx.compose.ui.node.DelegatableNode androidx.compose.ui.draganddrop.DragAndDropTarget {
-    method @Deprecated public boolean acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent startEvent);
-    method @Deprecated public void drag(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData, long decorationSize, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
+  public interface DragAndDropModifierNode extends androidx.compose.ui.node.DelegatableNode androidx.compose.ui.draganddrop.DragAndDropTarget {
+    method public boolean acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent startEvent);
+    method public void drag(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData, long decorationSize, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
   }
 
   public final class DragAndDropNodeKt {
-    method @Deprecated public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode();
-    method @Deprecated public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> shouldStartDragAndDrop, androidx.compose.ui.draganddrop.DragAndDropTarget target);
-    method public static androidx.compose.ui.draganddrop.DragAndDropSourceModifierNode DragAndDropSourceModifierNode(kotlin.jvm.functions.Function2<? super androidx.compose.ui.draganddrop.DragAndDropStartTransferScope,? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onStartTransfer);
-    method public static androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode DragAndDropTargetModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> shouldStartDragAndDrop, androidx.compose.ui.draganddrop.DragAndDropTarget target);
-  }
-
-  public sealed interface DragAndDropSourceModifierNode extends androidx.compose.ui.node.LayoutAwareModifierNode {
-    method public boolean isRequestDragAndDropTransferRequired();
-    method public void requestDragAndDropTransfer(long offset);
-    property public abstract boolean isRequestDragAndDropTransferRequired;
-  }
-
-  public interface DragAndDropStartTransferScope {
-    method public boolean startDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropTransferData transferData, long decorationSize, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit> drawDragDecoration);
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode();
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> shouldStartDragAndDrop, androidx.compose.ui.draganddrop.DragAndDropTarget target);
   }
 
   public interface DragAndDropTarget {
@@ -328,9 +316,6 @@ package androidx.compose.ui.draganddrop {
     method public default void onExited(androidx.compose.ui.draganddrop.DragAndDropEvent event);
     method public default void onMoved(androidx.compose.ui.draganddrop.DragAndDropEvent event);
     method public default void onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-  }
-
-  public sealed interface DragAndDropTargetModifierNode extends androidx.compose.ui.node.LayoutAwareModifierNode {
   }
 
   public final class DragAndDropTransferData {

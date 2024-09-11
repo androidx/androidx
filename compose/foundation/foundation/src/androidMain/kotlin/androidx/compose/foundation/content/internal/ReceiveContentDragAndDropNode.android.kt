@@ -19,8 +19,8 @@ package androidx.compose.foundation.content.internal
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.content.TransferableContent
 import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropModifierNode
 import androidx.compose.ui.draganddrop.DragAndDropTarget
-import androidx.compose.ui.draganddrop.DragAndDropTargetModifierNode
 import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.platform.toClipEntry
 import androidx.compose.ui.platform.toClipMetadata
@@ -29,8 +29,8 @@ import androidx.compose.ui.platform.toClipMetadata
 internal actual fun ReceiveContentDragAndDropNode(
     receiveContentConfiguration: ReceiveContentConfiguration,
     dragAndDropRequestPermission: (DragAndDropEvent) -> Unit
-): DragAndDropTargetModifierNode {
-    return DragAndDropTargetModifierNode(
+): DragAndDropModifierNode {
+    return DragAndDropModifierNode(
         shouldStartDragAndDrop = {
             // accept any dragging item. The actual decider will be the onReceive callback.
             true
