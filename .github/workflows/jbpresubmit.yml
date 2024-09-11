@@ -86,7 +86,7 @@ jobs:
           echo "DIST_DIR=$HOME/dist" >> $GITHUB_ENV
 
       - name: "Checkout androidx repo"
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.setup.outputs.checkout_ref }}
           repository: ${{ needs.setup.outputs.checkout_repo }}
