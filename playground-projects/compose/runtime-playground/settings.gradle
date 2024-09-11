@@ -20,7 +20,10 @@ pluginManagement {
 }
 plugins {
     id "playground"
+    id "com.android.settings" version "8.7.0-alpha02"
 }
+
+apply ../../buildSrc/ndk.gradle
 
 rootProject.name = "compose-runtime"
 

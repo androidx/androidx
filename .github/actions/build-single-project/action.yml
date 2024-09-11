@@ -36,7 +36,7 @@ runs:
       shell: bash
       run: |
         set -x
-        NDK_VERSION=$(grep "ndkVersion" settings.gradle | awk -F "=" '{gsub(/"| /, ""); print $2}')
+        NDK_VERSION=$(grep "ndkVersion" buildSrc/ndk.gradle | awk -F "=" '{gsub(/"| /, ""); print $2}')
         echo "yes" | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --install "ndk;$NDK_VERSION"
     - name: "Install Android SDK Build-Tools"
       shell: bash
