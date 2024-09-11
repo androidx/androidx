@@ -30,6 +30,7 @@ android {
         }
     }
 
+    namespace "safe.gradle.test.app.dynamic_feature"
     flavorDimensions "mode"
     productFlavors {
         foo {

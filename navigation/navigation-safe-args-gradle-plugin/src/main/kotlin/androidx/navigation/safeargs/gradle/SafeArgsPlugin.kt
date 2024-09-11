@@ -16,6 +16,7 @@
 
 package androidx.navigation.safeargs.gradle
 
+import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationVariant
 import com.android.build.api.variant.DynamicFeatureVariant
@@ -32,16 +33,24 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
-import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
 
 private const val PLUGIN_DIRNAME = "navigation-args"
 internal const val GENERATED_PATH = "generated/source/$PLUGIN_DIRNAME"
 internal const val INCREMENTAL_PATH = "intermediates/incremental"
 
-abstract class SafeArgsPlugin protected constructor(val providerFactory: ProviderFactory) :
+abstract class SafeArgsPlugin protected constructor(private val providerFactory: ProviderFactory) :
     Plugin<Project> {
 
     abstract val generateKotlin: Boolean
+
+    private val agpBasePluginId = "com.android.base"
+
+    private val kgpPluginIds =
+        listOf(
+            "org.jetbrains.kotlin.jvm",
+            "org.jetbrains.kotlin.android",
+            "org.jetbrains.kotlin.multiplatform"
+        )
 
     @Suppress("DEPRECATION") // For BaseVariant should be replaced in later studio versions
     private fun forEachVariant(
@@ -61,24 +70,45 @@ abstract class SafeArgsPlugin protected constructor(val providerFactory: Provide
     }
 
     override fun apply(project: Project) {
-        val extension =
-            project.extensions.findByType(BaseExtension::class.java)
+        var isAndroidProject = false
+        project.plugins.withId(agpBasePluginId) {
+            isAndroidProject = true
+            applySafeArgsPlugin(project)
+        }
+        var isKotlinProject = false
+        kgpPluginIds.forEach { kgpPluginId ->
+            project.plugins.withId(kgpPluginId) { isKotlinProject = true }
+        }
+        project.afterEvaluate {
+            if (!isAndroidProject) {
+                throw GradleException("safeargs plugin must be used with android plugin")
+            }
+            if (!isKotlinProject && generateKotlin) {
+                throw GradleException(
+                    "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
+                )
+            }
+        }
+    }
+
+    private fun applySafeArgsPlugin(project: Project) {
+        // TODO(b/366179719): Handle the case where AGP is not in the same classpath as SafeArgs
+        //  Plugin due to compileOnly dep.
+        val componentsExtension =
+            project.extensions.findByType(AndroidComponentsExtension::class.java)
                 ?: throw GradleException("safeargs plugin must be used with android plugin")
-        val isKotlinProject =
-            project.extensions.findByType(KotlinProjectExtension::class.java) != null
-        if (!isKotlinProject && generateKotlin) {
+        if (componentsExtension.pluginVersion < AndroidPluginVersion(7, 3)) {
             throw GradleException(
-                "androidx.navigation.safeargs.kotlin plugin must be used with kotlin plugin"
+                "safeargs Gradle plugin is only compatible with Android " +
+                    "Gradle plugin (AGP) version 7.3.0 or higher (found " +
+                    "${componentsExtension.pluginVersion})."
             )
         }
         // applicationId determines the location of the generated class
         val applicationIds = mutableMapOf<String, Provider<String>>()
         // namespace determines the package of the R file
         val namespaces = mutableMapOf<String, Provider<String>>()
-        val variantExtension =
-            project.extensions.findByType(AndroidComponentsExtension::class.java)
-                ?: throw GradleException("safeargs plugin must be used with android plugin")
-        variantExtension.onVariants { variant ->
+        componentsExtension.onVariants { variant ->
             when (variant) {
                 is ApplicationVariant -> {
                     applicationIds.getOrPut(variant.name) { variant.applicationId }
@@ -95,7 +125,10 @@ abstract class SafeArgsPlugin protected constructor(val providerFactory: Provide
             }
         }
 
-        forEachVariant(extension) { variant ->
+        val oldVariantExtension =
+            project.extensions.findByType(BaseExtension::class.java)
+                ?: throw GradleException("safeargs plugin must be used with android plugin")
+        forEachVariant(oldVariantExtension) { variant ->
             val task =
                 project.tasks.register(
                     "generateSafeArgs${variant.name.replaceFirstChar {

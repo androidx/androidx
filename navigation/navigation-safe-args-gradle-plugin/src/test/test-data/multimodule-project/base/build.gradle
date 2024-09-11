@@ -31,6 +31,7 @@ android {
     }
     dynamicFeatures = [":app", ":feature", ":dynamic_feature"]
 
+    namespace "safe.gradle.test.app.safe"
     flavorDimensions "mode"
     productFlavors {
         foo {

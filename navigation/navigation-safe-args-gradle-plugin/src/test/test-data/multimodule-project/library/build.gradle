@@ -31,6 +31,7 @@ android {
         }
     }
 
+    namespace "safe.gradle.test.app.library"
     flavorDimensions "mode"
     productFlavors {
         foo {
