@@ -17,6 +17,8 @@
 package androidx.wear.watchface.style
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.drawable.Icon
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -25,7 +27,7 @@ import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyle
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.ListUserStyleSetting.ListOption
 import androidx.wear.watchface.style.test.R
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.util.Locale
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,6 +43,9 @@ public class UserStyleSettingWithStringResourcesTest {
                     setLocale(Locale.ENGLISH)
                 }
             )
+
+    private val icon_10x10 =
+        Icon.createWithBitmap(Bitmap.createBitmap(10, 10, Bitmap.Config.ARGB_8888))
 
     private val colorStyleSetting =
         UserStyleSetting.ListUserStyleSetting(
@@ -71,17 +76,17 @@ public class UserStyleSettingWithStringResourcesTest {
 
     @Test
     public fun stringResources_en() {
-        Truth.assertThat(colorStyleSetting.displayName).isEqualTo("Colors")
-        Truth.assertThat(colorStyleSetting.description).isEqualTo("Watchface colorization")
+        assertThat(colorStyleSetting.displayName).isEqualTo("Colors")
+        assertThat(colorStyleSetting.description).isEqualTo("Watchface colorization")
 
-        Truth.assertThat(
+        assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("red_style"))
                         as UserStyleSetting.ListUserStyleSetting.ListOption)
                     .displayName
             )
             .isEqualTo("Red Style")
 
-        Truth.assertThat(
+        assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("green_style"))
                         as UserStyleSetting.ListUserStyleSetting.ListOption)
                     .displayName
@@ -97,17 +102,17 @@ public class UserStyleSettingWithStringResourcesTest {
             context.resources.configuration.apply { setLocale(Locale.ITALIAN) },
             context.resources.displayMetrics
         )
-        Truth.assertThat(colorStyleSetting.displayName).isEqualTo("Colori")
-        Truth.assertThat(colorStyleSetting.description).isEqualTo("Colorazione del quadrante")
+        assertThat(colorStyleSetting.displayName).isEqualTo("Colori")
+        assertThat(colorStyleSetting.description).isEqualTo("Colorazione del quadrante")
 
-        Truth.assertThat(
+        assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("red_style"))
                         as UserStyleSetting.ListUserStyleSetting.ListOption)
                     .displayName
             )
             .isEqualTo("Stile rosso")
 
-        Truth.assertThat(
+        assertThat(
                 (colorStyleSetting.getOptionForId(UserStyleSetting.Option.Id("green_style"))
                         as UserStyleSetting.ListUserStyleSetting.ListOption)
                     .displayName
@@ -152,16 +157,16 @@ public class UserStyleSettingWithStringResourcesTest {
             )
 
         val option0 = listUserStyleSetting.options[0] as ListOption
-        Truth.assertThat(option0.displayName).isEqualTo("1st option")
-        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
+        assertThat(option0.displayName).isEqualTo("1st option")
+        assertThat(option0.screenReaderName).isEqualTo("1st list option")
 
         val option1 = listUserStyleSetting.options[1] as ListOption
-        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
-        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
+        assertThat(option1.displayName).isEqualTo("2nd option")
+        assertThat(option1.screenReaderName).isEqualTo("2nd list option")
 
         val option2 = listUserStyleSetting.options[2] as ListOption
-        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
-        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
+        assertThat(option2.displayName).isEqualTo("3rd option")
+        assertThat(option2.screenReaderName).isEqualTo("3rd list option")
     }
 
     @Test
@@ -190,9 +195,9 @@ public class UserStyleSettingWithStringResourcesTest {
             ListUserStyleSetting(listUserStyleSetting.toWireFormat())
 
         val option0 = listUserStyleSettingAfterRoundTrip.options[0] as ListOption
-        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        assertThat(option0.displayName).isEqualTo("1st option")
         // We expect screenReaderName to be back filled by the displayName.
-        Truth.assertThat(option0.screenReaderName).isEqualTo("1st option")
+        assertThat(option0.screenReaderName).isEqualTo("1st option")
     }
 
     @Test
@@ -234,16 +239,16 @@ public class UserStyleSettingWithStringResourcesTest {
             )
 
         val option0 = complicationSetting.options[0] as ComplicationSlotsOption
-        Truth.assertThat(option0.displayName).isEqualTo("1st option")
-        Truth.assertThat(option0.screenReaderName).isEqualTo("1st list option")
+        assertThat(option0.displayName).isEqualTo("1st option")
+        assertThat(option0.screenReaderName).isEqualTo("1st list option")
 
         val option1 = complicationSetting.options[1] as ComplicationSlotsOption
-        Truth.assertThat(option1.displayName).isEqualTo("2nd option")
-        Truth.assertThat(option1.screenReaderName).isEqualTo("2nd list option")
+        assertThat(option1.displayName).isEqualTo("2nd option")
+        assertThat(option1.screenReaderName).isEqualTo("2nd list option")
 
         val option2 = complicationSetting.options[2] as ComplicationSlotsOption
-        Truth.assertThat(option2.displayName).isEqualTo("3rd option")
-        Truth.assertThat(option2.screenReaderName).isEqualTo("3rd list option")
+        assertThat(option2.displayName).isEqualTo("3rd option")
+        assertThat(option2.screenReaderName).isEqualTo("3rd list option")
     }
 
     @Test
@@ -293,10 +298,10 @@ public class UserStyleSettingWithStringResourcesTest {
                 )
             )
 
-        Truth.assertThat(schema[one]!!.displayName).isEqualTo("1st style")
-        Truth.assertThat(schema[one]!!.description).isEqualTo("1st style setting")
-        Truth.assertThat(schema[two]!!.displayName).isEqualTo("2nd style")
-        Truth.assertThat(schema[two]!!.description).isEqualTo("2nd style setting")
+        assertThat(schema[one]!!.displayName).isEqualTo("1st style")
+        assertThat(schema[one]!!.description).isEqualTo("1st style setting")
+        assertThat(schema[two]!!.displayName).isEqualTo("2nd style")
+        assertThat(schema[two]!!.description).isEqualTo("2nd style setting")
     }
 
     @Test
@@ -325,8 +330,140 @@ public class UserStyleSettingWithStringResourcesTest {
             ComplicationSlotsUserStyleSetting(complicationSetting.toWireFormat())
 
         val option0 = complicationSettingAfterRoundTrip.options[0] as ComplicationSlotsOption
-        Truth.assertThat(option0.displayName).isEqualTo("1st option")
+        assertThat(option0.displayName).isEqualTo("1st option")
         // We expect screenReaderName to be back filled by the displayName.
-        Truth.assertThat(option0.screenReaderName).isEqualTo("1st option")
+        assertThat(option0.screenReaderName).isEqualTo("1st option")
+    }
+
+    @Test
+    public fun booleanUserStyleSetting_lazyIcon() {
+        val userStyleSetting =
+            UserStyleSetting.BooleanUserStyleSetting(
+                UserStyleSetting.Id("setting"),
+                context.resources,
+                displayNameResourceId = 10,
+                descriptionResourceId = 11,
+                iconProvider = { icon_10x10 },
+                affectsWatchFaceLayers = listOf(WatchFaceLayer.COMPLICATIONS),
+                defaultValue = true
+            )
+
+        assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun complicationSlotsUserStyleSetting_lazyIcon() {
+        val userStyleSetting =
+            ComplicationSlotsUserStyleSetting(
+                UserStyleSetting.Id("complications_style_setting1"),
+                context.resources,
+                displayNameResourceId = 10,
+                descriptionResourceId = 11,
+                iconProvider = { icon_10x10 },
+                complicationConfig =
+                    listOf(
+                        ComplicationSlotsOption(
+                            UserStyleSetting.Option.Id("one"),
+                            context.resources,
+                            displayNameResourceId = R.string.ith_option,
+                            screenReaderNameResourceId = R.string.ith_option_screen_reader_name,
+                            iconProvider = { icon_10x10 },
+                            emptyList()
+                        )
+                    ),
+                listOf(WatchFaceLayer.COMPLICATIONS)
+            )
+
+        assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun complicationSlotsOption_lazyIcon() {
+        val userStyleOption =
+            ComplicationSlotsOption(
+                UserStyleSetting.Option.Id("one"),
+                context.resources,
+                displayNameResourceId = R.string.ith_option,
+                screenReaderNameResourceId = R.string.ith_option_screen_reader_name,
+                iconProvider = { icon_10x10 },
+                emptyList()
+            )
+
+        assertThat(userStyleOption.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun doubleRangeUserStyleSetting_lazyIcon() {
+        val userStyleSetting =
+            UserStyleSetting.DoubleRangeUserStyleSetting(
+                UserStyleSetting.Id("setting"),
+                context.resources,
+                displayNameResourceId = 10,
+                descriptionResourceId = 11,
+                iconProvider = { icon_10x10 },
+                0.0,
+                1.0,
+                listOf(WatchFaceLayer.BASE),
+                defaultValue = 0.75
+            )
+
+        assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun longRangeUserStyleSetting_lazyIcon() {
+        val userStyleSetting =
+            UserStyleSetting.LongRangeUserStyleSetting(
+                UserStyleSetting.Id("setting"),
+                context.resources,
+                displayNameResourceId = 10,
+                descriptionResourceId = 11,
+                iconProvider = { icon_10x10 },
+                0,
+                100,
+                listOf(WatchFaceLayer.BASE),
+                defaultValue = 75
+            )
+
+        assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun listUserStyleSetting_lazyIcon() {
+        val userStyleSetting =
+            UserStyleSetting.ListUserStyleSetting(
+                UserStyleSetting.Id("setting"),
+                context.resources,
+                displayNameResourceId = 10,
+                descriptionResourceId = 11,
+                iconProvider = { icon_10x10 },
+                options =
+                    listOf(
+                        ListOption(
+                            UserStyleSetting.Option.Id("red_style"),
+                            context.resources,
+                            displayNameResourceId = R.string.red_style_name,
+                            screenReaderNameResourceId = R.string.red_style_name,
+                            iconProvider = { null }
+                        )
+                    ),
+                listOf(WatchFaceLayer.BASE, WatchFaceLayer.COMPLICATIONS_OVERLAY)
+            )
+
+        assertThat(userStyleSetting.icon).isEqualTo(icon_10x10)
+    }
+
+    @Test
+    public fun listOption_lazyIcon() {
+        val userStyleOption =
+            ListOption(
+                UserStyleSetting.Option.Id("red_style"),
+                context.resources,
+                displayNameResourceId = R.string.red_style_name,
+                screenReaderNameResourceId = R.string.red_style_name,
+                iconProvider = { icon_10x10 }
+            )
+
+        assertThat(userStyleOption.icon).isEqualTo(icon_10x10)
     }
 }
