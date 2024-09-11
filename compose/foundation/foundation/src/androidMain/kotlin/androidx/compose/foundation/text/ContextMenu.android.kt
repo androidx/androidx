@@ -91,8 +91,12 @@ internal inline fun ContextMenuScope.TextItem(
     enabled: Boolean,
     crossinline operation: () -> Unit
 ) {
-    item(label = { label.resolvedString() }, enabled = enabled) {
-        operation()
-        state.close()
+    // b/365619447 - instead of setting `enabled = enabled` in `item`,
+    //  just remove the item from the menu.
+    if (enabled) {
+        item(label = { label.resolvedString() }) {
+            operation()
+            state.close()
+        }
     }
 }
