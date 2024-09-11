@@ -36,16 +36,13 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.jetbrains.kotlin.gradle.internal.KaptTask
 
 internal class AndroidPluginIntegration(private val common: CommonIntegration) {
-    private val agpPluginIds =
-        listOf("com.android.application", "com.android.library", "com.android.dynamic-feature")
+    private val agpBasePluginId = "com.android.base"
 
     // Map of variant name to schema configuration
     private val configuredVariants = mutableMapOf<String, SchemaConfiguration>()
 
     fun withAndroid(project: Project, roomExtension: RoomExtension) {
-        agpPluginIds.forEach { agpPluginId ->
-            project.plugins.withId(agpPluginId) { configureRoomForAndroid(project, roomExtension) }
-        }
+        project.plugins.withId(agpBasePluginId) { configureRoomForAndroid(project, roomExtension) }
     }
 
     private fun configureRoomForAndroid(project: Project, roomExtension: RoomExtension) {
