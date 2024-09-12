@@ -56,7 +56,7 @@ import androidx.wear.compose.material3.samples.IndeterminateProgressIndicatorSam
 import androidx.wear.compose.material3.samples.LinearProgressIndicatorSample
 import androidx.wear.compose.material3.samples.MediaButtonProgressIndicatorSample
 import androidx.wear.compose.material3.samples.OverflowProgressIndicatorSample
-import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorOnOffSample
+import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorBinarySample
 import androidx.wear.compose.material3.samples.SegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
 import androidx.wear.compose.material3.samples.SmallValuesProgressIndicatorSample
@@ -95,8 +95,8 @@ val ProgressIndicatorDemos =
             Centralize { IndeterminateProgressIndicatorSample() }
         },
         ComposableDemo("Segmented progress") { Centralize { SegmentedProgressIndicatorSample() } },
-        ComposableDemo("Progress segments on/off") {
-            Centralize { SegmentedProgressIndicatorOnOffSample() }
+        ComposableDemo("Segmented binary") {
+            Centralize { SegmentedProgressIndicatorBinarySample() }
         },
         ComposableDemo("Small segmented progress") {
             Centralize { SmallSegmentedProgressIndicatorSample() }

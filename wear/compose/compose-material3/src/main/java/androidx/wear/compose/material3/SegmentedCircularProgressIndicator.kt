@@ -99,15 +99,16 @@ fun SegmentedCircularProgressIndicator(
  *
  * Example of [SegmentedCircularProgressIndicator] where the segments are turned on/off:
  *
- * @sample androidx.wear.compose.material3.samples.SegmentedProgressIndicatorOnOffSample
+ * @sample androidx.wear.compose.material3.samples.SegmentedProgressIndicatorBinarySample
  *
  * Example of smaller size [SegmentedCircularProgressIndicator]:
  *
  * @sample androidx.wear.compose.material3.samples.SmallSegmentedProgressIndicatorSample
  * @param segmentCount Number of equal segments that the progress indicator should be divided into.
  *   Has to be a number equal or greater to 1.
- * @param completed A function that for each segment between 1..[segmentCount] returns true if this
- *   segment has been completed, and false if this segment has not been completed.
+ * @param segmentValue A function that for each segment between 1..[segmentCount] returns true if
+ *   this segment should be displayed with the indicator color to show progress, and false if the
+ *   segment should be displayed with the track color.
  * @param modifier Modifier to be applied to the SegmentedCircularProgressIndicator.
  * @param startAngle The starting position of the progress arc, measured clockwise in degrees (0
  *   to 360) from the 3 o'clock position. For example, 0 and 360 represent 3 o'clock, 90 and 180
@@ -127,7 +128,7 @@ fun SegmentedCircularProgressIndicator(
 @Composable
 fun SegmentedCircularProgressIndicator(
     @IntRange(from = 1) segmentCount: Int,
-    completed: (segmentIndex: Int) -> Boolean,
+    segmentValue: (segmentIndex: Int) -> Boolean,
     modifier: Modifier = Modifier,
     startAngle: Float = CircularProgressIndicatorDefaults.StartAngle,
     endAngle: Float = startAngle,
@@ -137,7 +138,7 @@ fun SegmentedCircularProgressIndicator(
     enabled: Boolean = true,
 ) =
     SegmentedCircularProgressIndicatorImpl(
-        segmentParams = SegmentParams.Completed(completed),
+        segmentParams = SegmentParams.Binary(segmentValue),
         modifier = modifier,
         segmentCount = segmentCount,
         startAngle = startAngle,
@@ -183,9 +184,9 @@ private fun SegmentedCircularProgressIndicatorImpl(
                                 (if (segmentCount > 1) gapSweep / 2 else 0f)
 
                         when (segmentParams) {
-                            is SegmentParams.Completed -> {
+                            is SegmentParams.Binary -> {
                                 val color =
-                                    if (segmentParams.completed(segment))
+                                    if (segmentParams.segmentValue(segment))
                                         colors.indicatorBrush(enabled)
                                     else colors.trackBrush(enabled)
 
@@ -240,7 +241,7 @@ private fun SegmentedCircularProgressIndicatorImpl(
 }
 
 private sealed interface SegmentParams {
-    data class Completed(val completed: (segmentIndex: Int) -> Boolean) : SegmentParams
+    data class Binary(val segmentValue: (segmentIndex: Int) -> Boolean) : SegmentParams
 
     data class Progress(val progress: () -> Float, val allowOverflow: Boolean) : SegmentParams
 }

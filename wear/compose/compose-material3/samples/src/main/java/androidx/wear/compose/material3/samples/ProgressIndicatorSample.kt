@@ -169,7 +169,7 @@ fun SegmentedProgressIndicatorSample() {
 
 @Sampled
 @Composable
-fun SegmentedProgressIndicatorOnOffSample() {
+fun SegmentedProgressIndicatorBinarySample() {
     Box(
         modifier =
             Modifier.background(MaterialTheme.colorScheme.background)
@@ -178,7 +178,7 @@ fun SegmentedProgressIndicatorOnOffSample() {
     ) {
         SegmentedCircularProgressIndicator(
             segmentCount = 5,
-            completed = { it % 2 != 0 },
+            segmentValue = { it % 2 != 0 },
         )
     }
 }
@@ -189,7 +189,7 @@ fun SmallSegmentedProgressIndicatorSample() {
     Box(modifier = Modifier.fillMaxSize()) {
         SegmentedCircularProgressIndicator(
             segmentCount = 8,
-            completed = { it % 2 != 0 },
+            segmentValue = { it % 2 != 0 },
             modifier = Modifier.align(Alignment.Center).size(80.dp)
         )
     }
