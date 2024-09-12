@@ -376,19 +376,16 @@ private fun Project.configureLint(lint: Lint, isLibrary: Boolean) {
 private fun ConfigurableFileCollection.withChangesAllowed(
     block: ConfigurableFileCollection.() -> Unit
 ) {
-    // The `disallowChanges` field is defined on `ConfigurableFileCollection` prior to Gradle 8.6
-    // and on the inner ValueState in later versions.
+    // The `disallowChanges` field is defined on `ConfigurableFileCollection` inner `ValueState`.
     val (target, field) =
-        findDeclaredFieldOnClass("disallowChanges")?.let { field -> Pair(this, field) }
-            ?: findDeclaredFieldOnClass("valueState")?.let { valueState ->
-                valueState.isAccessible = true
-                val target = valueState.get(this)
-                target.findDeclaredFieldOnClass("disallowChanges")?.let { field ->
-                    // For Gradle 8.6 and later,
-                    Pair(target, field)
-                }
+        findDeclaredFieldOnClass("valueState")?.let { valueState ->
+            valueState.isAccessible = true
+            val target = valueState.get(this)
+            target.findDeclaredFieldOnClass("disallowChanges")?.let { field ->
+                // For Gradle 8.6 and later,
+                Pair(target, field)
             }
-            ?: throw NoSuchFieldException()
+        } ?: throw NoSuchFieldException()
 
     // Make the field temporarily accessible while we run the `block`.
     field.isAccessible = true
