@@ -19,8 +19,10 @@
 
 package androidx.health.connect.client.impl.platform.records
 
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 import androidx.health.connect.client.units.BloodGlucose
 import androidx.health.connect.client.units.Energy
@@ -30,6 +32,7 @@ import androidx.health.connect.client.units.Percentage
 import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Pressure
 import androidx.health.connect.client.units.Temperature
+import androidx.health.connect.client.units.TemperatureDelta
 import androidx.health.connect.client.units.Velocity
 import androidx.health.connect.client.units.Volume
 
@@ -63,6 +66,12 @@ internal fun Pressure.toPlatformPressure(): PlatformPressure {
 
 internal fun Temperature.toPlatformTemperature(): PlatformTemperature {
     return PlatformTemperature.fromCelsius(inCelsius)
+}
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+internal fun TemperatureDelta.toPlatformTemperatureDelta(): PlatformTemperatureDelta {
+    return PlatformTemperatureDelta.fromCelsius(inCelsius)
 }
 
 internal fun Velocity.toPlatformVelocity(): PlatformVelocity {
@@ -109,6 +118,12 @@ internal fun PlatformPressure.toSdkPressure(): Pressure {
 
 internal fun PlatformTemperature.toSdkTemperature(): Temperature {
     return Temperature.celsius(inCelsius)
+}
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+internal fun PlatformTemperatureDelta.toSdkTemperatureDelta(): TemperatureDelta {
+    return TemperatureDelta.celsius(inCelsius)
 }
 
 internal fun PlatformVelocity.toSdkVelocity(): Velocity {

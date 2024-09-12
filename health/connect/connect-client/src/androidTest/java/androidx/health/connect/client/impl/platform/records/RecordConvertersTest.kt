@@ -16,7 +16,7 @@
 
 package androidx.health.connect.client.impl.platform.records
 
-import android.annotation.TargetApi
+import android.annotation.SuppressLint
 import android.os.Build
 import androidx.health.connect.client.RECORD_CLASSES
 import androidx.health.connect.client.records.ActiveCaloriesBurnedRecord
@@ -57,6 +57,7 @@ import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.RespiratoryRateRecord
 import androidx.health.connect.client.records.RestingHeartRateRecord
 import androidx.health.connect.client.records.SexualActivityRecord
+import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
 import androidx.health.connect.client.records.SpeedRecord
 import androidx.health.connect.client.records.StepsCadenceRecord
@@ -65,6 +66,7 @@ import androidx.health.connect.client.records.TotalCaloriesBurnedRecord
 import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
+import androidx.health.connect.client.records.isAtLeastSdkExtension13
 import androidx.health.connect.client.records.metadata.DataOrigin
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.units.BloodGlucose
@@ -75,8 +77,10 @@ import androidx.health.connect.client.units.Percentage
 import androidx.health.connect.client.units.Power
 import androidx.health.connect.client.units.Pressure
 import androidx.health.connect.client.units.Temperature
+import androidx.health.connect.client.units.TemperatureDelta
 import androidx.health.connect.client.units.Velocity
 import androidx.health.connect.client.units.Volume
+import androidx.health.connect.client.units.celsius
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -84,13 +88,13 @@ import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.time.ZoneOffset
+import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 @SmallTest
-@TargetApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
 // Comment the SDK suppress to run on emulators lower than U.
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
 class RecordConvertersTest {
@@ -759,6 +763,44 @@ class RecordConvertersTest {
         assertPlatformRecord(platformSexualActivity) {
             assertThat(protectionUsed)
                 .isEqualTo(PlatformSexualActivityProtectionUsed.PROTECTION_USED_PROTECTED)
+        }
+    }
+
+    @SuppressLint("NewApi") // Using assumeTrue to only run on the new API version
+    @Test
+    fun skinTemperatureRecord_convertToPlatform() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val platformSkinTemperatureRecord =
+            SkinTemperatureRecord(
+                    startTime = START_TIME,
+                    endTime = END_TIME,
+                    startZoneOffset = START_ZONE_OFFSET,
+                    endZoneOffset = END_ZONE_OFFSET,
+                    metadata = METADATA,
+                    baseline = 37.celsius,
+                    measurementLocation = SkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST,
+                    deltas =
+                        listOf(
+                            SkinTemperatureRecord.Delta(
+                                time = START_TIME.plusMillis(10),
+                                delta = TemperatureDelta.celsius(0.5)
+                            )
+                        )
+                )
+                .toPlatformRecord() as PlatformSkinTemperatureRecord
+
+        assertPlatformRecord(platformSkinTemperatureRecord) {
+            assertThat(baseline).isEqualTo(PlatformTemperature.fromCelsius(37.0))
+            assertThat(measurementLocation)
+                .isEqualTo(PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST)
+            assertThat(deltas)
+                .containsExactly(
+                    PlatformSkinTemperatureDelta(
+                        PlatformTemperatureDelta.fromCelsius(0.5),
+                        START_TIME.plusMillis(10),
+                    )
+                )
         }
     }
 
@@ -1523,6 +1565,42 @@ class RecordConvertersTest {
 
         assertSdkRecord(sdkSexualActivity) {
             assertThat(protectionUsed).isEqualTo(SexualActivityRecord.PROTECTION_USED_PROTECTED)
+        }
+    }
+
+    @SuppressLint("NewApi") // Using assumeTrue to only run on the new API version
+    @Test
+    fun skinTemperatureRecord_convertToSdk() {
+        assumeTrue(isAtLeastSdkExtension13())
+
+        val sdkSkinTemperatureRecord =
+            PlatformSkinTemperatureRecordBuilder(PLATFORM_METADATA, START_TIME, END_TIME)
+                .setStartZoneOffset(START_ZONE_OFFSET)
+                .setEndZoneOffset(END_ZONE_OFFSET)
+                .setBaseline(PlatformTemperature.fromCelsius(35.5))
+                .setDeltas(
+                    listOf(
+                        PlatformSkinTemperatureDelta(
+                            PlatformTemperatureDelta.fromCelsius(0.2),
+                            START_TIME.plusMillis(20)
+                        )
+                    )
+                )
+                .setMeasurementLocation(PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_FINGER)
+                .build()
+                .toSdkRecord() as SkinTemperatureRecord
+
+        assertSdkRecord(sdkSkinTemperatureRecord) {
+            assertThat(baseline).isEqualTo(35.5.celsius)
+            assertThat(deltas)
+                .containsExactly(
+                    SkinTemperatureRecord.Delta(
+                        START_TIME.plusMillis(20),
+                        TemperatureDelta.celsius(0.2)
+                    )
+                )
+            assertThat(measurementLocation)
+                .isEqualTo(SkinTemperatureRecord.MEASUREMENT_LOCATION_FINGER)
         }
     }
 
