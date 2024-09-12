@@ -46,6 +46,7 @@ CORE_UWB = "1.0.0-alpha08"
 CREDENTIALS = "1.5.0-alpha05"
 CREDENTIALS_E2EE_QUARANTINE = "1.0.0-alpha02"
 CREDENTIALS_FIDO_QUARANTINE = "1.0.0-alpha02"
+CREDENTIALS_REGISTRY = "1.0.0-alpha01"
 CURSORADAPTER = "1.1.0-alpha01"
 CUSTOMVIEW = "1.2.0-alpha03"
 CUSTOMVIEW_POOLINGCONTAINER = "1.1.0-alpha01"
@@ -213,6 +214,7 @@ CORE = { group = "androidx.core" }
 CORE_HAPTICS = { group = "androidx.core.haptics", atomicGroupVersion = "versions.CORE_HAPTICS" }
 CORE_UWB = { group = "androidx.core.uwb", atomicGroupVersion = "versions.CORE_UWB" }
 CREDENTIALS = { group = "androidx.credentials", atomicGroupVersion = "versions.CREDENTIALS" }
+CREDENTIALS_REGISTRY = { group = "androidx.credentials.registry", atomicGroupVersion = "versions.CREDENTIALS_REGISTRY" }
 CURSORADAPTER = { group = "androidx.cursoradapter", atomicGroupVersion = "versions.CURSORADAPTER" }
 CUSTOMVIEW = { group = "androidx.customview" }
 DATASTORE = { group = "androidx.datastore", atomicGroupVersion = "versions.DATASTORE" }
