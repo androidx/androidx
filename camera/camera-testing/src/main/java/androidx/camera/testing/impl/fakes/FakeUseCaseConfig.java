@@ -19,6 +19,7 @@ package androidx.camera.testing.impl.fakes;
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -276,6 +277,15 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setCaptureType(@NonNull CaptureType captureType) {
             getMutableConfig().insertOption(OPTION_CAPTURE_TYPE, captureType);
+            return this;
+        }
+
+        /**
+         * Sets specific target frame rate to the fake use case.
+         */
+        @NonNull
+        public Builder setTargetFrameRate(@NonNull Range<Integer> targetFrameRate) {
+            getMutableConfig().insertOption(OPTION_TARGET_FRAME_RATE, targetFrameRate);
             return this;
         }
     }
