@@ -59,24 +59,10 @@ public class CameraPipeConfigTestRule(
 
             override fun evaluate() {
                 if (active) {
-                    if (!Log.isLoggable(CAMERA_PIPE_MH_FLAG, Log.DEBUG)) {
-                        throw AssumptionViolatedException(
-                            "Ignore Camera-pipe tests since there's no debug flag"
-                        )
-                    }
-                    try {
-                        log("started: ${description.displayName}")
-                        logUncaughtExceptions()
-                        base.evaluate()
-                    } catch (e: AssumptionViolatedException) {
-                        log("AssumptionViolatedException: ${description.displayName}", e)
-                        handleException(e)
-                    } catch (e: Throwable) {
-                        log("failed: ${description.displayName}", e)
-                        handleException(e)
-                    } finally {
-                        restoreUncaughtExceptionHandler()
-                        log("finished: ${description.displayName}")
+                    if (Log.isLoggable(CAMERA_PIPE_MH_FLAG, Log.DEBUG)) {
+                        testInLab()
+                    } else {
+                        testNotInLab()
                     }
                 } else {
                     if (Log.isLoggable(CAMERA2_TEST_DISABLE, Log.DEBUG)) {
@@ -87,6 +73,37 @@ public class CameraPipeConfigTestRule(
                     base.evaluate()
                 }
             }
+
+            private fun testInLab() {
+                try {
+                    log("started: ${description.displayName}")
+                    logUncaughtExceptions()
+                    base.evaluate()
+                } catch (e: AssumptionViolatedException) {
+                    log("AssumptionViolatedException: ${description.displayName}", e)
+                    handleException(e)
+                } catch (e: Throwable) {
+                    log("failed: ${description.displayName}", e)
+                    handleException(e)
+                } finally {
+                    restoreUncaughtExceptionHandler()
+                    log("finished: ${description.displayName}")
+                }
+            }
+
+            private fun testNotInLab() {
+                if (testInAllowList()) {
+                    // Run the test
+                    base.evaluate()
+                } else {
+                    throw AssumptionViolatedException(
+                        "Ignore Camera-pipe tests since there's no debug flag"
+                    )
+                }
+            }
+
+            private fun testInAllowList() =
+                allowPresubmitTests.any { description.displayName.contains(it, ignoreCase = true) }
 
             private fun handleException(e: Throwable) {
                 if (Log.isLoggable(CAMERA_PIPE_TEST_FLAG, Log.DEBUG)) {
@@ -114,6 +131,20 @@ public class CameraPipeConfigTestRule(
         private const val CAMERA_PIPE_TEST_FLAG = "CAMERA_PIPE_TESTING"
         private const val CAMERA_PIPE_MH_FLAG = "CameraPipeMH"
         private const val LOG_TAG = "CameraPipeTest"
+
+        private val allowPresubmitTests =
+            listOf(
+                "BasicUITest",
+                "Camera2InteropIntegrationTest",
+                "CameraDisconnectTest",
+                "CameraInfoDeviceTest",
+                "CameraXInitTest",
+                "CameraXServiceTest",
+                "CaptureOptionSubmissionTest",
+                "ExistingActivityLifecycleTest",
+                "FlashTest",
+                "FocusMeteringDeviceTest",
+            )
 
         fun log(message: String, throwable: Throwable? = null) {
             if (throwable != null) {
