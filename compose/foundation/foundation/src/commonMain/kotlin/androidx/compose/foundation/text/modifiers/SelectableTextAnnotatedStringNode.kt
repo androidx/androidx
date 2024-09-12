@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.internal.requirePreconditionNotNull
+import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -58,6 +59,7 @@ internal class SelectableTextAnnotatedStringNode(
     onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
     overrideColor: ColorProducer? = null,
+    autoSize: AutoSize? = null,
     private var onShowTranslation: ((TextAnnotatedStringNode.TextSubstitutionValue) -> Unit)? = null
 ) : DelegatingNode(), LayoutModifierNode, DrawModifierNode, GlobalPositionAwareModifierNode {
 
@@ -76,6 +78,7 @@ internal class SelectableTextAnnotatedStringNode(
                 onPlaceholderLayout = onPlaceholderLayout,
                 selectionController = selectionController,
                 overrideColor = overrideColor,
+                autoSize = autoSize,
                 onShowTranslation = onShowTranslation
             )
         )
@@ -129,7 +132,8 @@ internal class SelectableTextAnnotatedStringNode(
         onTextLayout: ((TextLayoutResult) -> Unit)?,
         onPlaceholderLayout: ((List<Rect?>) -> Unit)?,
         selectionController: SelectionController?,
-        color: ColorProducer?
+        color: ColorProducer?,
+        autoSize: AutoSize?
     ) {
         delegate.doInvalidations(
             drawChanged = delegate.updateDraw(color, style),
@@ -142,7 +146,8 @@ internal class SelectableTextAnnotatedStringNode(
                     maxLines = maxLines,
                     softWrap = softWrap,
                     fontFamilyResolver = fontFamilyResolver,
-                    overflow = overflow
+                    overflow = overflow,
+                    autoSize = autoSize
                 ),
             callbacksChanged =
                 delegate.updateCallbacks(

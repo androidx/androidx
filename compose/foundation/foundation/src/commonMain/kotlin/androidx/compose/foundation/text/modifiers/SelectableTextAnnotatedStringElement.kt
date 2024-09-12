@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -41,7 +42,8 @@ internal data class SelectableTextAnnotatedStringElement(
     private val placeholders: List<AnnotatedString.Range<Placeholder>>? = null,
     private val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private val selectionController: SelectionController? = null,
-    private val color: ColorProducer? = null
+    private val color: ColorProducer? = null,
+    private val autoSize: AutoSize? = null
 ) : ModifierNodeElement<SelectableTextAnnotatedStringNode>() {
 
     override fun create(): SelectableTextAnnotatedStringNode =
@@ -57,7 +59,8 @@ internal data class SelectableTextAnnotatedStringElement(
             placeholders,
             onPlaceholderLayout,
             selectionController,
-            color
+            color,
+            autoSize
         )
 
     override fun update(node: SelectableTextAnnotatedStringNode) {
@@ -73,7 +76,8 @@ internal data class SelectableTextAnnotatedStringElement(
             onTextLayout = onTextLayout,
             onPlaceholderLayout = onPlaceholderLayout,
             selectionController = selectionController,
-            color = color
+            color = color,
+            autoSize = autoSize
         )
     }
 
@@ -90,6 +94,7 @@ internal data class SelectableTextAnnotatedStringElement(
 
         // these are equally unlikely to change
         if (fontFamilyResolver != other.fontFamilyResolver) return false
+        if (autoSize != other.autoSize) return false
         if (onTextLayout !== other.onTextLayout) return false
         if (overflow != other.overflow) return false
         if (softWrap != other.softWrap) return false
@@ -115,6 +120,7 @@ internal data class SelectableTextAnnotatedStringElement(
         result = 31 * result + (placeholders?.hashCode() ?: 0)
         result = 31 * result + (onPlaceholderLayout?.hashCode() ?: 0)
         result = 31 * result + (selectionController?.hashCode() ?: 0)
+        result = 31 * result + (autoSize?.hashCode() ?: 0)
         result = 31 * result + (color?.hashCode() ?: 0)
         return result
     }

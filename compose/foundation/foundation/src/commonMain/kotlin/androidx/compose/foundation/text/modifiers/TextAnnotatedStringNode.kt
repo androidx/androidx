@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.modifiers
 
+import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -78,6 +79,7 @@ internal class TextAnnotatedStringNode(
     private var onPlaceholderLayout: ((List<Rect?>) -> Unit)? = null,
     private var selectionController: SelectionController? = null,
     private var overrideColor: ColorProducer? = null,
+    private var autoSize: AutoSize? = null,
     private var onShowTranslation: ((TextSubstitutionValue) -> Unit)? = null
 ) : Modifier.Node(), LayoutModifierNode, DrawModifierNode, SemanticsModifierNode {
     @Suppress("PrimitiveInCollection")
@@ -96,7 +98,8 @@ internal class TextAnnotatedStringNode(
                         softWrap,
                         maxLines,
                         minLines,
-                        placeholders
+                        placeholders,
+                        autoSize
                     )
             }
             return _layoutCache!!
@@ -153,7 +156,8 @@ internal class TextAnnotatedStringNode(
         maxLines: Int,
         softWrap: Boolean,
         fontFamilyResolver: FontFamily.Resolver,
-        overflow: TextOverflow
+        overflow: TextOverflow,
+        autoSize: AutoSize?
     ): Boolean {
         var changed: Boolean
 
@@ -187,6 +191,11 @@ internal class TextAnnotatedStringNode(
 
         if (this.overflow != overflow) {
             this.overflow = overflow
+            changed = true
+        }
+
+        if (this.autoSize != autoSize) {
+            this.autoSize = autoSize
             changed = true
         }
 
@@ -241,7 +250,8 @@ internal class TextAnnotatedStringNode(
                 softWrap = softWrap,
                 maxLines = maxLines,
                 minLines = minLines,
-                placeholders = placeholders
+                placeholders = placeholders,
+                autoSize = autoSize
             )
         }
 
@@ -289,7 +299,8 @@ internal class TextAnnotatedStringNode(
                 softWrap,
                 maxLines,
                 minLines,
-                placeholders
+                placeholders,
+                autoSize
             ) ?: return false
         } else {
             val newTextSubstitution = TextSubstitutionValue(text, updatedText)
