@@ -154,5 +154,5 @@ class BaselineProfileRuleTest {
         }
     }
 
-    private fun isMokeyDevice() = Build.MODEL.contains("mokey")
+    private fun isMokeyDevice() = Build.DEVICE.contains("mokey")
 }
