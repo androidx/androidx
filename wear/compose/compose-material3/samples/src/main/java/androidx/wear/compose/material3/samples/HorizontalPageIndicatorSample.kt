@@ -31,14 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.wear.compose.foundation.SwipeToDismissBoxState
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
-import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
 import androidx.wear.compose.material3.HorizontalPageIndicator
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.InlineSlider
-import androidx.wear.compose.material3.InlineSliderDefaults
+import androidx.wear.compose.material3.Slider
 import androidx.wear.compose.material3.Text
 
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Sampled
 @Composable
 fun HorizontalPageIndicatorSample() {
@@ -52,11 +48,9 @@ fun HorizontalPageIndicatorSample() {
         )
 
     Box(modifier = Modifier.fillMaxSize()) {
-        InlineSlider(
+        Slider(
             modifier = Modifier.align(Alignment.Center),
             value = selectedPage,
-            increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-            decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
             valueProgression = 0 until pageCount,
             onValueChange = { selectedPage = it }
         )

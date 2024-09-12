@@ -22,21 +22,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.wear.compose.material3.ExperimentalWearMaterial3Api
-import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.InlineSlider
-import androidx.wear.compose.material3.InlineSliderDefaults
+import androidx.wear.compose.material3.Slider
+import androidx.wear.compose.material3.SliderDefaults
 
 @Sampled
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
-fun InlineSliderSample() {
+fun SliderSample() {
     var value by remember { mutableStateOf(4.5f) }
-    InlineSlider(
+    Slider(
         value = value,
         onValueChange = { value = it },
-        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueRange = 3f..6f,
         steps = 5,
         segmented = false
@@ -44,15 +39,32 @@ fun InlineSliderSample() {
 }
 
 @Sampled
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
-fun InlineSliderSegmentedSample() {
-    var value by remember { mutableStateOf(2f) }
-    InlineSlider(
+fun ChangedSliderSample() {
+    val initialValue = 4.5f
+    var value by remember { mutableStateOf(initialValue) }
+    Slider(
         value = value,
         onValueChange = { value = it },
-        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
+        valueRange = 3f..6f,
+        steps = 5,
+        segmented = false,
+        colors =
+            if (value == initialValue) {
+                SliderDefaults.sliderColors()
+            } else {
+                SliderDefaults.variantSliderColors()
+            }
+    )
+}
+
+@Sampled
+@Composable
+fun SliderSegmentedSample() {
+    var value by remember { mutableStateOf(2f) }
+    Slider(
+        value = value,
+        onValueChange = { value = it },
         valueRange = 1f..4f,
         steps = 7,
         segmented = true
@@ -60,15 +72,12 @@ fun InlineSliderSegmentedSample() {
 }
 
 @Sampled
-@OptIn(ExperimentalWearMaterial3Api::class)
 @Composable
-fun InlineSliderWithIntegerSample() {
+fun SliderWithIntegerSample() {
     var value by remember { mutableStateOf(4) }
-    InlineSlider(
+    Slider(
         value = value,
         onValueChange = { value = it },
-        increaseIcon = { Icon(InlineSliderDefaults.Increase, "Increase") },
-        decreaseIcon = { Icon(InlineSliderDefaults.Decrease, "Decrease") },
         valueProgression = 0..10,
         segmented = false
     )

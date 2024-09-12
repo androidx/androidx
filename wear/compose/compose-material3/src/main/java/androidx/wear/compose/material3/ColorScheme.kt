@@ -251,6 +251,10 @@ class ColorScheme(
     // Progress Indicator
     internal var defaultProgressIndicatorColorsCached: ProgressIndicatorColors? = null
 
+    // Slider
+    internal var defaultSliderColorsCached: SliderColors? = null
+    internal var defaultVariantSliderColorsCached: SliderColors? = null
+
     // Level Indicator
     internal var defaultLevelIndicatorColorsCached: LevelIndicatorColors? = null
 
