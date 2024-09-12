@@ -98,6 +98,13 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
                 }
             };
 
+    public interface  OnFastScrollActiveListener {
+        /** Listens to events when the FastScroll is being Dragged Up or Down. */
+        void onFastScrollActive();
+    }
+
+    private OnFastScrollActiveListener mOnFastScrollActiveListener;
+
     public FastScrollView(@NonNull Context context) {
         this(context, null);
     }
@@ -204,6 +211,10 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         if (mPaginationModel != null) {
             mPaginationModel.removeObserver(this);
         }
+    }
+
+    public void setOnFastScrollActiveListener(@Nullable OnFastScrollActiveListener listener) {
+        mOnFastScrollActiveListener = listener;
     }
 
     public void setScrollbarMarginTop(int scrollbarMarginTop) {
@@ -324,6 +335,9 @@ public class FastScrollView extends FrameLayout implements PaginationModelObserv
         } else if (action == MotionEvent.ACTION_MOVE) {
             if (mState == State.DRAG) {
                 scrollTo((int) me.getY(), false);
+                if (mOnFastScrollActiveListener != null) {
+                    mOnFastScrollActiveListener.onFastScrollActive();
+                }
                 return true;
             }
         }

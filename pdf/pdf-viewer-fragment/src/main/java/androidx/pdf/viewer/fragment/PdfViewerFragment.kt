@@ -618,6 +618,14 @@ public open class PdfViewerFragment : Fragment() {
         findInFileView!!.searchModel.selectedMatch().addObserver(selectedMatchObserver)
 
         annotationButton?.let { findInFileView!!.setAnnotationButton(it) }
+
+        fastScrollView?.setOnFastScrollActiveListener {
+            annotationButton?.let { button ->
+                if (button.visibility == View.VISIBLE) {
+                    button.hide()
+                }
+            }
+        }
     }
 
     /** Restores the contents of this Viewer when it is automatically restored by android. */
@@ -672,6 +680,7 @@ public open class PdfViewerFragment : Fragment() {
             it.selectedMatch().removeObserver(selectedMatchObserver!!)
             it.query().removeObserver(searchQueryObserver!!)
         }
+        fastScrollView?.setOnFastScrollActiveListener(null)
 
         pdfLoaderCallbacks?.searchModel = null
 
