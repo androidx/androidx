@@ -16,40 +16,37 @@
 
 package androidx.health.connect.client.units
 
-import androidx.annotation.RestrictTo
-
 /**
  * Represents a unit of TemperatureDelta difference. Supported units:
- * - Celsius - see [TemperatureDelta.celsius], [Double.celsius]
- * - Fahrenheit - see [TemperatureDelta.fahrenheit], [Double.fahrenheit]
+ * - Celsius - see [TemperatureDelta.celsius]
+ * - Fahrenheit - see [TemperatureDelta.fahrenheit]
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 class TemperatureDelta
 private constructor(
     private val value: Double,
-    private val type: Type,
+    private val temperatureUnit: TemperatureUnit,
 ) : Comparable<TemperatureDelta> {
 
     /** Returns the TemperatureDelta in Celsius degrees. */
     @get:JvmName("getCelsius")
     val inCelsius: Double
         get() =
-            when (type) {
-                Type.CELSIUS -> value
-                Type.FAHRENHEIT -> value / 1.8
+            when (temperatureUnit) {
+                TemperatureUnit.CELSIUS -> value
+                TemperatureUnit.FAHRENHEIT -> value / 1.8
             }
 
     /** Returns the TemperatureDelta in Fahrenheit degrees. */
     @get:JvmName("getFahrenheit")
     val inFahrenheit: Double
         get() =
-            when (type) {
-                Type.CELSIUS -> value * 1.8
-                Type.FAHRENHEIT -> value
+            when (temperatureUnit) {
+                TemperatureUnit.CELSIUS -> value * 1.8
+                TemperatureUnit.FAHRENHEIT -> value
             }
 
     override fun compareTo(other: TemperatureDelta): Int =
-        if (type == other.type) {
+        if (temperatureUnit == other.temperatureUnit) {
             value.compareTo(other.value)
         } else {
             inCelsius.compareTo(other.inCelsius)
@@ -59,7 +56,7 @@ private constructor(
         if (this === other) return true
         if (other !is TemperatureDelta) return false
 
-        if (type == other.type) {
+        if (temperatureUnit == other.temperatureUnit) {
             return value == other.value
         }
 
@@ -68,19 +65,21 @@ private constructor(
 
     override fun hashCode(): Int = inCelsius.hashCode()
 
-    override fun toString(): String = "$value ${type.title}"
+    override fun toString(): String = "$value ${temperatureUnit.title}"
 
     companion object {
         /** Creates [TemperatureDelta] with the specified value in Celsius degrees. */
         @JvmStatic
-        fun celsius(value: Double): TemperatureDelta = TemperatureDelta(value, Type.CELSIUS)
+        fun celsius(value: Double): TemperatureDelta =
+            TemperatureDelta(value, TemperatureUnit.CELSIUS)
 
         /** Creates [TemperatureDelta] with the specified value in Fahrenheit degrees. */
         @JvmStatic
-        fun fahrenheit(value: Double): TemperatureDelta = TemperatureDelta(value, Type.FAHRENHEIT)
+        fun fahrenheit(value: Double): TemperatureDelta =
+            TemperatureDelta(value, TemperatureUnit.FAHRENHEIT)
     }
 
-    private enum class Type {
+    private enum class TemperatureUnit {
         CELSIUS {
             override val title: String = "Celsius"
         },
