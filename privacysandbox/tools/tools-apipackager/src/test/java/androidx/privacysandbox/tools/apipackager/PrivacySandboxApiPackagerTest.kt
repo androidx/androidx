@@ -193,6 +193,43 @@ class PrivacySandboxApiPackagerTest {
     }
 
     @Test
+    fun companionObject_preserved() {
+        val packagedSdkClasspath =
+            compileAndReturnUnzippedPackagedClasspath(
+                Source.kotlin(
+                    "com/mysdk/TestSandboxSdk.kt",
+                    """
+                    |package com.mysdk
+                    |
+                    |import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    |import androidx.privacysandbox.tools.PrivacySandboxService
+                    |import androidx.privacysandbox.tools.PrivacySandboxValue
+                    |
+                    |@PrivacySandboxService
+                    |interface MySdk {
+                    |  companion object MyCompanion {
+                    |    const val MY_CONST = 42
+                    |  }
+                    |}
+                """
+                        .trimMargin()
+                )
+            )
+
+        val relativeDescriptorPaths =
+            packagedSdkClasspath
+                .walk()
+                .filter { it.isFile }
+                .map { packagedSdkClasspath.toPath().relativize(it.toPath()).toString() }
+                .toList()
+        assertThat(relativeDescriptorPaths)
+            .containsExactly(
+                "com/mysdk/MySdk.class",
+                "com/mysdk/MySdk\$MyCompanion.class",
+            )
+    }
+
+    @Test
     fun sdkClasspathDoesNotExist_throwException() {
         val invalidClasspathFile = makeTestDirectory().resolve("dir_that_does_not_exist")
         val validSdkDescriptor = makeTestDirectory().resolve("sdk-descriptors.jar")

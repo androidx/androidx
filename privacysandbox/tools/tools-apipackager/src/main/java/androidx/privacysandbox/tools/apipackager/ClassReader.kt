@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.privacysandbox.tools.apigenerator.parser
+package androidx.privacysandbox.tools.apipackager
 
-import androidx.privacysandbox.tools.PrivacySandboxCallback
-import androidx.privacysandbox.tools.PrivacySandboxInterface
-import androidx.privacysandbox.tools.PrivacySandboxService
-import androidx.privacysandbox.tools.PrivacySandboxValue
 import androidx.privacysandbox.tools.core.PrivacySandboxParsingException
-import java.nio.file.Path
 import kotlinx.metadata.KmClass
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import kotlinx.metadata.jvm.Metadata
@@ -31,50 +26,9 @@ import org.objectweb.asm.Type
 import org.objectweb.asm.tree.AnnotationNode
 import org.objectweb.asm.tree.ClassNode
 
-data class AnnotatedClasses(
-    val services: Set<KmClass>,
-    val values: Set<KmClass>,
-    val callbacks: Set<KmClass>,
-    val interfaces: Set<KmClass>,
-)
-
-internal object AnnotatedClassReader {
-    val annotations = listOf(PrivacySandboxService::class)
-
-    fun readAnnotatedClasses(stubClassPath: Path): AnnotatedClasses {
-        val services = mutableSetOf<KmClass>()
-        val values = mutableSetOf<KmClass>()
-        val callbacks = mutableSetOf<KmClass>()
-        val interfaces = mutableSetOf<KmClass>()
-        stubClassPath
-            .toFile()
-            .walk()
-            .filter { it.extension == "class" }
-            .map { toClassNode(it.readBytes()) }
-            .forEach { classNode ->
-                if (classNode.isAnnotatedWith<PrivacySandboxService>()) {
-                    services.add(parseKotlinMetadata(classNode))
-                }
-                // TODO(b/323369085): Validate that enum variants don't have methods
-                if (classNode.isAnnotatedWith<PrivacySandboxValue>()) {
-                    values.add(parseKotlinMetadata(classNode))
-                }
-                if (classNode.isAnnotatedWith<PrivacySandboxCallback>()) {
-                    callbacks.add(parseKotlinMetadata(classNode))
-                }
-                if (classNode.isAnnotatedWith<PrivacySandboxInterface>()) {
-                    interfaces.add(parseKotlinMetadata(classNode))
-                }
-            }
-        return AnnotatedClasses(
-            services = services.toSet(),
-            values = values.toSet(),
-            callbacks = callbacks.toSet(),
-            interfaces = interfaces.toSet()
-        )
-    }
-
-    private fun toClassNode(classContents: ByteArray): ClassNode {
+// TODO(b/367361746): Move this object to tools-core to share code with the apigenerator.
+internal object ClassReader {
+    internal fun toClassNode(classContents: ByteArray): ClassNode {
         val reader = ClassReader(classContents)
         val classNode = ClassNode(Opcodes.ASM9)
         reader.accept(
@@ -84,7 +38,7 @@ internal object AnnotatedClassReader {
         return classNode
     }
 
-    private fun parseKotlinMetadata(classNode: ClassNode): KmClass {
+    internal fun parseKotlinMetadata(classNode: ClassNode): KmClass {
         val metadataValues =
             classNode.visibleAnnotationsWithType<Metadata>().firstOrNull()?.attributeMap
                 ?: throw PrivacySandboxParsingException(
@@ -116,11 +70,11 @@ internal object AnnotatedClassReader {
         }
     }
 
-    private inline fun <reified T> ClassNode.isAnnotatedWith(): Boolean {
+    internal inline fun <reified T> ClassNode.isAnnotatedWith(): Boolean {
         return visibleAnnotationsWithType<T>().isNotEmpty()
     }
 
-    private inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
+    internal inline fun <reified T> ClassNode.visibleAnnotationsWithType(): List<AnnotationNode> {
         return (visibleAnnotations ?: listOf<AnnotationNode>())
             .filter { Type.getDescriptor(T::class.java) == it?.desc }
             .filterNotNull()

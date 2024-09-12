@@ -17,6 +17,8 @@
 package androidx.privacysandbox.tools.apipackager
 
 import androidx.privacysandbox.tools.apipackager.AnnotationInspector.hasPrivacySandboxAnnotation
+import androidx.privacysandbox.tools.apipackager.ClassReader.parseKotlinMetadata
+import androidx.privacysandbox.tools.apipackager.ClassReader.toClassNode
 import androidx.privacysandbox.tools.core.Metadata
 import java.nio.file.Path
 import java.util.zip.ZipEntry
@@ -26,6 +28,7 @@ import kotlin.io.path.extension
 import kotlin.io.path.inputStream
 import kotlin.io.path.isDirectory
 import kotlin.io.path.notExists
+import kotlin.io.path.readBytes
 
 class PrivacySandboxApiPackager {
 
@@ -57,13 +60,32 @@ class PrivacySandboxApiPackager {
                 it.createNewFile()
             }
 
-        ZipOutputStream(outputFile.outputStream()).use { zipOutputStream ->
+        val companionNames =
             sdkClasspath
                 .toFile()
                 .walk()
                 .filter { it.isFile }
                 .map { it.toPath() }
                 .filter { shouldKeepFile(sdkClasspath, it) }
+                .filter { it.extension == "class" }
+                .mapNotNull { file ->
+                    try {
+                        val klass = parseKotlinMetadata(toClassNode(file.readBytes()))
+                        val companionName = ("${klass.name}$${klass.companionObject}.class")
+                        if (klass.companionObject == null) null else companionName
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                .toList()
+
+        ZipOutputStream(outputFile.outputStream()).use { zipOutputStream ->
+            sdkClasspath
+                .toFile()
+                .walk()
+                .filter { it.isFile }
+                .map { it.toPath() }
+                .filter { shouldKeepFile(sdkClasspath, it, companionNames) }
                 .forEach { file ->
                     val zipEntry = ZipEntry(sdkClasspath.relativize(file).toString())
                     zipOutputStream.putNextEntry(zipEntry)
@@ -73,11 +95,18 @@ class PrivacySandboxApiPackager {
         }
     }
 
-    private fun shouldKeepFile(sdkClasspath: Path, filePath: Path): Boolean {
+    private fun shouldKeepFile(
+        sdkClasspath: Path,
+        filePath: Path,
+        companionNames: List<String> = listOf()
+    ): Boolean {
         if (sdkClasspath.relativize(filePath) == Metadata.filePath) {
             return true
         }
         if (filePath.extension == "class" && hasPrivacySandboxAnnotation(filePath)) {
+            return true
+        }
+        if (companionNames.any { filePath.endsWith(it) }) {
             return true
         }
         return false

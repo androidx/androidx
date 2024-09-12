@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.tools.apigenerator.parser
 
+import androidx.privacysandbox.tools.core.PrivacySandboxParsingException
 import androidx.privacysandbox.tools.core.model.AnnotatedDataClass
 import androidx.privacysandbox.tools.core.model.AnnotatedEnumClass
 import androidx.privacysandbox.tools.core.model.AnnotatedInterface
@@ -186,5 +187,3 @@ internal object ApiStubParser {
         }
     }
 }
-
-class PrivacySandboxParsingException(message: String) : Exception(message)
