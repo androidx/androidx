@@ -26,6 +26,7 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ImageView;
@@ -210,6 +211,14 @@ public class FindInFileView extends LinearLayout {
             mViewingPage = bundle.getInt(KEY_SELECTED_PAGE);
             mMatches = bundle.getParcelable(KEY_MATCH_RECTS, MatchRects.class);
         }
+    }
+
+    /**
+     * Handles touch events and prevents further propagation
+     */
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return true;
     }
 
     /**
