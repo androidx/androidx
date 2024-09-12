@@ -102,4 +102,10 @@ public class JetpackAppSearchEnvironment implements AppSearchEnvironment {
         // INFO logging is enabled by default in Jetpack AppSearch.
         return true;
     }
+
+    @Override
+    @EnvironmentType
+    public int getEnvironment() {
+        return AppSearchEnvironment.JETPACK_ENVIRONMENT;
+    }
 }
