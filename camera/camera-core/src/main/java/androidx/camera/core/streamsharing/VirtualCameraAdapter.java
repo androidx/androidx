@@ -23,6 +23,7 @@ import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_DYNAMIC_RA
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATION_MODE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_TARGET_FRAME_RATE;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotationDegrees;
@@ -37,6 +38,7 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.util.Pair;
+import android.util.Range;
 import android.util.Size;
 import android.view.Surface;
 
@@ -48,6 +50,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -57,6 +60,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
@@ -78,6 +82,7 @@ import java.util.Set;
  */
 class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
+    private static final String TAG = "VirtualCameraAdapter";
     // Children UseCases associated with this virtual camera.
     @NonNull
     final Set<UseCase> mChildren;
@@ -166,6 +171,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                     + " a dynamic range that satisfies all children.");
         }
         mutableConfig.insertOption(OPTION_INPUT_DYNAMIC_RANGE, dynamicRange);
+
+        mutableConfig.insertOption(OPTION_TARGET_FRAME_RATE,
+                resolveTargetFrameRate(mChildrenConfigs));
 
         // Merge Preview stabilization and video stabilization configs.
         for (UseCase useCase : mChildren) {
@@ -508,5 +516,39 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
                     sessionConfig.getRepeatingCaptureConfig().getTagBundle(),
                     cameraCaptureResult));
         }
+    }
+
+    /**
+     * Resolves target frame rate from use case configs.
+     *
+     * <p>Tries to return a intersected frame rate range in priority. If it can't be found, return
+     * the smallest range that includes both frame rate ranges.
+     */
+    @NonNull
+    private static Range<Integer> resolveTargetFrameRate(
+            @NonNull Set<UseCaseConfig<?>> useCaseConfigs) {
+        Range<Integer> resolvedTargetFrameRate = StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED;
+
+        for (UseCaseConfig<?> useCaseConfig : useCaseConfigs) {
+            Range<Integer> targetFrameRate = useCaseConfig.getTargetFrameRate(
+                    resolvedTargetFrameRate);
+
+            if (StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED.equals(resolvedTargetFrameRate)) {
+                resolvedTargetFrameRate = targetFrameRate;
+                continue;
+            }
+
+            try {
+                resolvedTargetFrameRate = resolvedTargetFrameRate.intersect(targetFrameRate);
+            } catch (IllegalArgumentException e) {
+                Logger.d(TAG,
+                        "No intersected frame rate can be found from the target frame rate "
+                                + "settings of the UseCases! Resolved: " + resolvedTargetFrameRate
+                                + " <<>> " + targetFrameRate);
+                return resolvedTargetFrameRate.extend(targetFrameRate);
+            }
+        }
+
+        return resolvedTargetFrameRate;
     }
 }
