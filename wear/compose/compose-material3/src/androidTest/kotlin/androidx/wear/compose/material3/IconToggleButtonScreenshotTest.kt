@@ -116,7 +116,7 @@ class IconToggleButtonScreenshotTest {
                     sampleIconToggleButton(
                         checked = false,
                         shape =
-                            IconToggleButtonDefaults.animatedToggleButtonShape(
+                            IconToggleButtonDefaults.variantAnimatedShape(
                                 interactionSource = interactionSource,
                                 checked = false
                             ),
@@ -145,7 +145,7 @@ class IconToggleButtonScreenshotTest {
                 sampleIconToggleButton(
                     checked = true,
                     shape =
-                        IconToggleButtonDefaults.animatedToggleButtonShape(
+                        IconToggleButtonDefaults.variantAnimatedShape(
                             interactionSource = interactionSource,
                             checked = true
                         ),
@@ -164,7 +164,7 @@ class IconToggleButtonScreenshotTest {
                 sampleIconToggleButton(
                     checked = false,
                     shape =
-                        IconToggleButtonDefaults.animatedToggleButtonShape(
+                        IconToggleButtonDefaults.variantAnimatedShape(
                             interactionSource = interactionSource,
                             checked = false
                         ),

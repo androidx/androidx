@@ -103,7 +103,7 @@ class TextToggleButtonScreenshotTest {
                 sampleTextToggleButton(
                     checked = false,
                     shape =
-                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                        TextToggleButtonDefaults.variantAnimatedShape(
                             interactionSource = interactionSource,
                             checked = false
                         ),
@@ -122,7 +122,7 @@ class TextToggleButtonScreenshotTest {
                 sampleTextToggleButton(
                     checked = true,
                     shape =
-                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                        TextToggleButtonDefaults.variantAnimatedShape(
                             interactionSource = interactionSource,
                             checked = true
                         ),
@@ -141,7 +141,7 @@ class TextToggleButtonScreenshotTest {
                 sampleTextToggleButton(
                     checked = false,
                     shape =
-                        TextToggleButtonDefaults.animatedToggleButtonShape(
+                        TextToggleButtonDefaults.variantAnimatedShape(
                             interactionSource = interactionSource,
                             checked = false
                         ),

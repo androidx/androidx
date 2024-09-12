@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.TextButtonDefaults
 import androidx.wear.compose.material3.TextToggleButton
@@ -59,7 +58,7 @@ fun TextToggleButtonVariantSample() {
         onCheckedChange = { checked = !checked },
         interactionSource = interactionSource,
         shape =
-            TextToggleButtonDefaults.animatedToggleButtonShape(
+            TextToggleButtonDefaults.variantAnimatedShape(
                 interactionSource = interactionSource,
                 checked = checked
             )
@@ -79,7 +78,7 @@ fun LargeTextToggleButtonSample() {
     ) {
         Text(
             text = if (checked) "On" else "Off",
-            style = MaterialTheme.typography.labelLarge,
+            style = TextToggleButtonDefaults.largeButtonTextStyle,
         )
     }
 }

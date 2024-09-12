@@ -18,6 +18,9 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 package androidx.wear.compose.material3.tokens
+
+import androidx.compose.ui.unit.dp
+
 internal object IconToggleButtonTokens {
     val CheckedContainerColor = ColorSchemeKeyTokens.Primary
     val CheckedContentColor = ColorSchemeKeyTokens.OnPrimary
@@ -32,4 +35,13 @@ internal object IconToggleButtonTokens {
     val IconDisabledCheckedContainerShape = ShapeKeyTokens.CornerExtraLarge
     val UncheckedContainerColor = ColorSchemeKeyTokens.SurfaceContainer
     val UncheckedContentColor = ColorSchemeKeyTokens.OnSurfaceVariant
+
+    val ContainerSmallSize = 48.0.dp
+    val ContainerDefaultSize = 52.0.dp
+    val ContainerLargeSize = 60.0.dp
+    val ContainerExtraLargeSize = 72.0.dp
+    val IconSmallSize = 24.0.dp
+    val IconDefaultSize = 26.0.dp
+    val IconLargeSize = 32.0.dp
+    val IconExtraLargeSize = 36.0.dp
 }
