@@ -525,6 +525,10 @@ class AffectedModuleDetectorImpl(
                     ":benchmark:integration-tests:macrobenchmark-target"
                 ), // link benchmark-macro's correctness test and its target
                 setOf(
+                    ":benchmark:benchmark-macro-junit4",
+                    ":benchmark:integration-tests:macrobenchmark-target"
+                ), // link benchmark-macro-junit4's correctness test and its target
+                setOf(
                     ":profileinstaller:integration-tests:profile-verification",
                     ":profileinstaller:integration-tests:profile-verification-sample",
                     ":profileinstaller:integration-tests:" +

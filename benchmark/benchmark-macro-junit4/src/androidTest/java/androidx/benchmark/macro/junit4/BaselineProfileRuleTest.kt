@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.macrobenchmark
+package androidx.benchmark.macro.junit4
 
 import android.content.Intent
 import android.os.Build
 import androidx.benchmark.Arguments
+import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
-import androidx.benchmark.Shell
-import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import java.io.File
@@ -35,7 +34,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 29)
+@SdkSuppress(minSdkVersion = 28)
 class BaselineProfileRuleTest {
 
     @get:Rule val baselineRule = BaselineProfileRule()
@@ -63,9 +62,11 @@ class BaselineProfileRuleTest {
 
     @Test
     fun filter() {
-        // TODO: share this 'is supported' check with the one inside BaselineProfileRule, once this
-        //  test class is moved out of integration-tests, into benchmark-macro-junit4
-        assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
+        // skip if device doesn't support profile capture
+        assumeTrue(
+            DeviceInfo.supportsBaselineProfileCaptureError,
+            DeviceInfo.supportsBaselineProfileCaptureError == null
+        )
 
         // Collects the baseline profile
         baselineRule.collect(
@@ -93,7 +94,11 @@ class BaselineProfileRuleTest {
 
     @Test
     fun startupProfile() {
-        assumeTrue(Build.VERSION.SDK_INT >= 33 || Shell.isSessionRooted())
+        // skip if device doesn't support profile capture
+        assumeTrue(
+            DeviceInfo.supportsBaselineProfileCaptureError,
+            DeviceInfo.supportsBaselineProfileCaptureError == null
+        )
 
         // Collects the baseline profile
         baselineRule.collect(
@@ -126,14 +131,15 @@ class BaselineProfileRuleTest {
     }
 
     private fun List<String>.assertInOrder(
-        vararg toFind: String,
+        @Suppress("SameParameterValue") vararg toFind: String,
         predicate: (String, String) -> (Boolean) = { line, nextToFind -> line.endsWith(nextToFind) }
     ) {
         val remaining = toFind.filter { it.isNotBlank() }.toMutableList()
         for (line in this) {
             val next = remaining.firstOrNull() ?: return
-            if (predicate(line, next)) remaining.removeFirst()
+            if (predicate(line, next)) remaining.removeAt(0)
         }
+
         if (remaining.size > 0) {
             fail(
                 """

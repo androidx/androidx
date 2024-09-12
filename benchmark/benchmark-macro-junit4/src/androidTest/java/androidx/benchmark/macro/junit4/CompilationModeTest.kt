@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.benchmark.integration.macrobenchmark
+package androidx.benchmark.macro.junit4
 
 import android.content.Intent
 import android.os.Build
@@ -22,20 +22,18 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.CompilationMode
 import androidx.benchmark.macro.ExperimentalMacrobenchmarkApi
 import androidx.benchmark.macro.StartupMode
-import androidx.benchmark.macro.junit4.MacrobenchmarkRule
+import androidx.benchmark.macro.StartupTimingMetric
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
-import androidx.testutils.getStartupMetrics
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertEquals
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 
-/**  */
 @LargeTest
 @SdkSuppress(minSdkVersion = 29)
 @OptIn(ExperimentalMacrobenchmarkApi::class)
@@ -101,7 +99,7 @@ class CompilationModeTest {
         benchmarkRule.measureRepeated(
             compilationMode = compilationMode,
             packageName = TARGET_PACKAGE_NAME,
-            metrics = getStartupMetrics(),
+            metrics = listOf(StartupTimingMetric()),
             startupMode = StartupMode.COLD,
             iterations = 1,
         ) {
