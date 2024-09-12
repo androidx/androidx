@@ -23,18 +23,22 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -55,6 +59,7 @@ import androidx.wear.compose.material.Text
 import androidx.wear.compose.material.assertContainsColor
 import androidx.wear.compose.material.setContentWithTheme
 import androidx.wear.compose.material.setContentWithThemeForSizeAssertions
+import kotlinx.coroutines.delay
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -243,6 +248,7 @@ class DialogBehaviourTest {
 
     @Test
     fun supports_swipetodismiss_on_wrapped_alertdialog_with_buttons() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             Box {
                 var showDialog by remember { mutableStateOf(true) }
@@ -255,7 +261,10 @@ class DialogBehaviourTest {
                 }
                 Dialog(
                     showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = {
+                        showDialog = false
+                        dismissCounter++
+                    },
                 ) {
                     Alert(
                         title = {},
@@ -268,11 +277,14 @@ class DialogBehaviourTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        assertEquals(1, dismissCounter)
     }
 
     @Test
     fun supports_swipetodismiss_on_wrapped_alertdialog_with_chips() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             Box {
                 var showDialog by remember { mutableStateOf(true) }
@@ -285,7 +297,10 @@ class DialogBehaviourTest {
                 }
                 Dialog(
                     showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = {
+                        showDialog = false
+                        dismissCounter++
+                    },
                 ) {
                     Alert(
                         icon = {},
@@ -298,11 +313,14 @@ class DialogBehaviourTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        assertEquals(1, dismissCounter)
     }
 
     @Test
     fun supports_swipetodismiss_on_wrapped_confirmationdialog() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             Box {
                 var showDialog by remember { mutableStateOf(true) }
@@ -315,7 +333,10 @@ class DialogBehaviourTest {
                 }
                 Dialog(
                     showDialog = showDialog,
-                    onDismissRequest = { showDialog = false },
+                    onDismissRequest = {
+                        showDialog = false
+                        dismissCounter++
+                    },
                 ) {
                     Confirmation(
                         onTimeout = { showDialog = false },
@@ -327,7 +348,9 @@ class DialogBehaviourTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        assertEquals(1, dismissCounter)
     }
 
     @Test
@@ -383,7 +406,57 @@ class DialogBehaviourTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput({ swipeRight() })
+        rule.waitForIdle()
         rule.onNodeWithText(dismissedText).assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            Box {
+                DialogWithTimeout(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    showDialog = show.value,
+                    onTimeout = {
+                        dismissCounter++
+                        show.value = false
+                    },
+                    durationMillis = 100
+                )
+            }
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            Box {
+                Dialog(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    showDialog = show.value,
+                    onDismissRequest = { dismissCounter++ }
+                ) {
+                    Alert(
+                        icon = {},
+                        title = {},
+                        message = { Text("Text") },
+                        content = {},
+                    )
+                }
+            }
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        assertEquals(0, dismissCounter)
     }
 }
 
@@ -1088,5 +1161,31 @@ class DialogTextStyleTest {
         }
 
         assertEquals(expectedTextStyle, actualTextStyle)
+    }
+}
+
+@Composable
+internal fun DialogWithTimeout(
+    showDialog: Boolean,
+    onTimeout: () -> Unit,
+    modifier: Modifier = Modifier,
+    durationMillis: Long,
+) {
+    val currentOnTimeout by rememberUpdatedState(onTimeout)
+
+    LaunchedEffect(showDialog, durationMillis) {
+        if (showDialog) {
+            delay(durationMillis)
+            currentOnTimeout()
+        }
+    }
+
+    Dialog(showDialog = showDialog, onDismissRequest = currentOnTimeout, modifier = modifier) {
+        Alert(
+            icon = {},
+            title = {},
+            message = { Text("Text") },
+            content = {},
+        )
     }
 }
