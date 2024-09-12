@@ -169,12 +169,13 @@ public final class TestConversationFactory {
         List<CarMessage> messages = new ArrayList<>(1);
         messages.add(createMinimalMessage());
 
-        return new ConversationItem.Builder()
-                .setId("conversation_id")
-                .setTitle(CarText.create("Conversation Title"))
-                .setSelf(createMinimalMessageSender())
-                .setMessages(messages)
-                .setConversationCallback(EMPTY_CONVERSATION_CALLBACK);
+        return new ConversationItem.Builder(
+                "conversation_id",
+                CarText.create("Conversation Title"),
+                createMinimalMessageSender(),
+                messages,
+                EMPTY_CONVERSATION_CALLBACK
+        );
     }
 
     /**

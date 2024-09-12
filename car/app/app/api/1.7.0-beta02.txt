@@ -1076,8 +1076,9 @@ package androidx.car.app.messaging.model {
   }
 
   public static final class ConversationItem.Builder {
-    ctor public ConversationItem.Builder();
+    ctor @Deprecated public ConversationItem.Builder();
     ctor public ConversationItem.Builder(androidx.car.app.messaging.model.ConversationItem);
+    ctor public ConversationItem.Builder(String, androidx.car.app.model.CarText, androidx.core.app.Person, java.util.List<androidx.car.app.messaging.model.CarMessage!>, androidx.car.app.messaging.model.ConversationCallback);
     method public androidx.car.app.messaging.model.ConversationItem.Builder addAction(androidx.car.app.model.Action);
     method public androidx.car.app.messaging.model.ConversationItem build();
     method public androidx.car.app.messaging.model.ConversationItem.Builder setConversationCallback(androidx.car.app.messaging.model.ConversationCallback);

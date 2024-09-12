@@ -70,6 +70,19 @@ public class ConversationItemTest {
     }
 
     @Test
+    public void build_throwsException_ifMessageListContainsNull() {
+        List<CarMessage> messages = new ArrayList<>(1);
+        messages.add(null);
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> TestConversationFactory.createMinimalConversationItemBuilder()
+                        .setMessages(messages)
+                        .build()
+        );
+    }
+
+    @Test
     public void build_throwsException_ifSenderNameMissing() {
         assertThrows(
                 NullPointerException.class,
