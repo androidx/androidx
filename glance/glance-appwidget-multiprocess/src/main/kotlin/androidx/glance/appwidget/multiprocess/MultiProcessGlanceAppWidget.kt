@@ -19,12 +19,14 @@ package androidx.glance.appwidget.multiprocess
 import android.content.ComponentName
 import android.content.Context
 import android.os.Bundle
+import androidx.annotation.LayoutRes
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope
 import androidx.glance.appwidget.AppWidgetId
 import androidx.glance.appwidget.AppWidgetSession
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceComponents
+import androidx.glance.appwidget.R
 import androidx.glance.session.GlanceSessionManager
 import androidx.glance.session.SessionManager
 import androidx.work.multiprocess.RemoteWorkerService
@@ -34,7 +36,9 @@ import androidx.work.multiprocess.RemoteWorkerService
  * to support multiprocess use cases where different widget receivers run in different processes.
  * Note that the worker must still run in the same process as the receiver.
  */
-public abstract class MultiProcessGlanceAppWidget : GlanceAppWidget() {
+public abstract class MultiProcessGlanceAppWidget(
+    @LayoutRes internal open val errorUiLayout: Int = R.layout.glance_error_layout,
+) : GlanceAppWidget(errorUiLayout) {
     /**
      * Override [multiProcessConfig] to provide a [androidx.work.multiprocess.RemoteWorkerService]
      * that runs in the same process as the [androidx.glance.appwidget.GlanceAppWidgetReceiver] that
