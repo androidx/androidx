@@ -168,8 +168,7 @@ fun Confirmation(
         properties = properties,
     ) {
         Box(Modifier.fillMaxSize()) {
-            val horizontalPadding =
-                screenWidthDp().dp * ConfirmationDefaults.HorizontalLinearContentPaddingFraction
+            val horizontalPadding = screenWidthDp().dp * HorizontalLinearContentPaddingFraction
             Column(
                 modifier = Modifier.align(Alignment.Center).padding(horizontal = horizontalPadding),
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -189,14 +188,14 @@ fun Confirmation(
                     LocalTextConfiguration provides
                         TextConfiguration(
                             textAlign = TextAlign.Center,
-                            maxLines = ConfirmationDefaults.LinearContentMaxLines,
+                            maxLines = LinearContentMaxLines,
                             overflow = TextOverflow.Ellipsis
                         ),
                 ) {
                     if (text != null) {
-                        Spacer(Modifier.height(ConfirmationDefaults.LinearContentSpacing))
+                        Spacer(Modifier.height(LinearContentSpacing))
                         text()
-                        Spacer(Modifier.height(ConfirmationDefaults.LinearContentSpacing))
+                        Spacer(Modifier.height(LinearContentSpacing))
                     }
                 }
             }
@@ -335,7 +334,7 @@ object ConfirmationDefaults {
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_check_animation)
         var atEnd by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            delay(FailureIconDelay)
+            delay(IconDelay)
             atEnd = true
         }
         Icon(
@@ -355,7 +354,7 @@ object ConfirmationDefaults {
             AnimatedImageVector.animatedVectorResource(R.drawable.wear_m3c_failure_animation)
         var atEnd by remember { mutableStateOf(false) }
         LaunchedEffect(Unit) {
-            delay(FailureIconDelay)
+            delay(IconDelay)
             atEnd = true
         }
         Icon(
@@ -503,20 +502,7 @@ object ConfirmationDefaults {
                     .also { defaultFailureConfirmationColorsCached = it }
         }
 
-    internal val FailureIconDelay = 67L
-
-    internal val SuccessWidthFraction = 0.496f
-    internal val SuccessHeightFraction = 0.6f
-    internal val FailureSizeFraction = 0.52f
-
-    internal val ConfirmationIconContainerSmallSize = 80.dp
-    internal val ConfirmationIconContainerSizeFraction = 0.52
-
-    internal val ExtraBottomPaddingFraction = 0.02f
-
-    internal val LinearContentSpacing = 8.dp
-    internal val LinearContentMaxLines = 3
-    internal val HorizontalLinearContentPaddingFraction = 0.12f
+    private val IconDelay = 67L
 }
 
 /**
@@ -595,14 +581,7 @@ internal fun ConfirmationImpl(
         properties = properties,
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
-            val bottomPadding =
-                if (curvedText != null)
-                    screenHeightDp() * ConfirmationDefaults.ExtraBottomPaddingFraction
-                else 0f
-            Box(
-                Modifier.fillMaxSize().padding(bottom = bottomPadding.dp),
-                contentAlignment = Alignment.Center
-            ) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 iconContainer()
                 CompositionLocalProvider(LocalContentColor provides colors.iconColor) { content() }
             }
@@ -621,8 +600,8 @@ private fun confirmationIconContainer(
         if (curvedContent) MaterialTheme.shapes.extraLarge else MaterialTheme.shapes.large
     val width =
         if (curvedContent) {
-            (screenWidthDp() * ConfirmationDefaults.ConfirmationIconContainerSizeFraction).dp
-        } else ConfirmationDefaults.ConfirmationIconContainerSmallSize
+            (screenWidthDp() * ConfirmationSizeFraction).dp
+        } else ConfirmationLinearIconContainerSize
 
     Box(
         Modifier.size(width)
@@ -636,8 +615,8 @@ private fun confirmationIconContainer(
 }
 
 private fun successIconContainer(color: Color): @Composable BoxScope.() -> Unit = {
-    val width = screenWidthDp() * ConfirmationDefaults.SuccessWidthFraction
-    val height = screenWidthDp() * ConfirmationDefaults.SuccessHeightFraction
+    val width = screenWidthDp() * SuccessWidthFraction
+    val height = screenHeightDp() * SuccessHeightFraction
     Box(
         Modifier.size(width.dp, height.dp)
             .graphicsLayer {
@@ -651,7 +630,7 @@ private fun successIconContainer(color: Color): @Composable BoxScope.() -> Unit 
 
 private fun failureIconContainer(color: Color): @Composable BoxScope.() -> Unit = {
     val iconShape = MaterialTheme.shapes.extraLarge
-    val width = screenWidthDp() * ConfirmationDefaults.FailureSizeFraction
+    val width = screenWidthDp() * FailureSizeFraction
     Box(
         Modifier.size(width.dp)
             .graphicsLayer {
@@ -661,3 +640,20 @@ private fun failureIconContainer(color: Color): @Composable BoxScope.() -> Unit 
             .background(color)
     )
 }
+
+internal val ConfirmationLinearIconContainerSize = 80.dp
+internal val LinearContentSpacing = 8.dp
+
+private const val SuccessWidthPaddingFraction = 0.2315f
+private const val SuccessHeightPaddingFraction = 0.176
+private const val SuccessWidthFraction = 1 - SuccessWidthPaddingFraction * 2
+private const val SuccessHeightFraction = 1 - SuccessHeightPaddingFraction * 2
+
+private const val FailureSizePaddingFraction = 0.213f
+private const val FailureSizeFraction = 1 - FailureSizePaddingFraction * 2
+
+private const val ConfirmationSizePaddingFraction = 0.213f
+private const val ConfirmationSizeFraction = 1 - ConfirmationSizePaddingFraction * 2
+
+private const val LinearContentMaxLines = 3
+private const val HorizontalLinearContentPaddingFraction = 0.12f
