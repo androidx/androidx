@@ -16,6 +16,8 @@
 
 package androidx.navigation.runtime.lint
 
+import androidx.navigation.lint.common.NAVIGATION_STUBS
+import androidx.navigation.lint.common.TEST_CODE
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector

@@ -14,10 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.navigation.runtime.lint
-
-import androidx.navigation.lint.common.bytecodeStub
-import androidx.navigation.lint.common.kotlinAndBytecodeStub
+package androidx.navigation.lint.common
 
 internal val NAV_CONTROLLER =
     bytecodeStub(
@@ -112,7 +109,7 @@ F1fBQkzDXkUqRCJEKcRoiCx1PcRYiJM/APHZhEWMBgAA
 """
     )
 
-internal val NAV_DESTINATION =
+val NAV_DESTINATION =
     bytecodeStub(
         "NavDestination.kt",
         "androidx/navigation",
@@ -142,7 +139,7 @@ W4PtAQAA
 """
     )
 
-internal val NAV_GRAPH =
+val NAV_GRAPH =
     bytecodeStub(
         "NavGraph.kt",
         "androidx/navigation",
@@ -179,7 +176,166 @@ s4g1rFOIW0Xcxp1TMHO1jVOkFFyFTQVbYUZhS+FeZNMKs78AJaVXJ/gDAAA=
 """
     )
 
-internal val NAV_HOST =
+val NAV_DESTINATION_BUILDER =
+    bytecodeStub(
+        "NavDestinationBuilder.kt",
+        "androidx/navigation",
+        0xa7cc2bf1,
+        """
+package androidx.navigation
+
+public open class NavDestinationBuilder<out D : NavDestination>
+""",
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuQSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWwhqSCaS5yLF661BCgElxDl
+                4k7Oz9VLrUjMLchJhQkrMWgxAAAEUmOigwAAAA==
+                """,
+        """
+                androidx/navigation/NavDestinationBuilder.class:
+                H4sIAAAAAAAA/41QTW/TQBSct86nG6hboKR8thIHmkp1qHpKq0qUCCmSKRJF
+                ueS0iVdhG2cteddRj/kt/ANOSBxQxJEfhXg2OSEkepk3Mztv3+77+evbdwAn
+                2CccSBNnqY5vQiMXeiqdTk14KRd9ZZ02pbzIdRKrrA4i9M76vej/Lafn0bVc
+                yDCRZhq+H1+riTslBH97dVQItTNttDsneC8Phi3UUPdRRYNQcZ+0JRzeYt76
+                iTxjK5qlLtEmfKecjKWT7In5wuP/UgHNAkCgGfs3ulBdZvErwslqGfiiLfzV
+                siwiYLJaNnbaq2XHb/Ap7VFHdMWx6HoX1R+fayKoFL3HfF2f8OI2i6FiePuf
+                rz+aOf70mzRWhM1IG3WZz8cq+yjHCTvbUTqRyVBmutBrs3mlp3xHnjH3r9I8
+                m6i3ujjY/ZAbp+dqqK3m5GtjUlfOstiH4P2ut1Csm/Exq7DUQLXzFc0vTASe
+                MNZKs4KnjK0/AfjY4OrhWZny8Lysj7DHtceZFmfujOANcHeAzQECbDHF9gD3
+                cH8EsniAnRGqFhsWDy3aFrsW9d9uT6qimAIAAA==
+                """
+    )
+
+val NAV_PROVIDER =
+    bytecodeStub(
+        "NavProvider.kt",
+        "androidx/navigation",
+        0x2972320a,
+        """
+package androidx.navigation
+
+public open class NavigatorProvider
+""",
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuQSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWwhqSCaS5yLF661BCgElxDl
+                4k7Oz9VLrUjMLchJhQkrMWgxAAAEUmOigwAAAA==
+                """,
+        """
+                androidx/navigation/NavigatorProvider.class:
+                H4sIAAAAAAAA/41RS0sCURT+zlVHnazMyrQH1CJ6LJqSdkVQQSCYRYWbVldn
+                qJt6L8xcpaW/pX/QKmgR0rIfFZ2ZbN/m43ucy3ncr+/3DwCHWCNsSu2HRvnP
+                npZD9SCtMtpr/lITXodmqPwgzIIIxSc5lF5P6gfvqv0UdGwWKYJzrLSyJ4TU
+                9k6rgAwcF2lkCWn7qCLCVuNfHY4Ic42usT2lvcvASl9ayZ7oD1M8KsWQjwEE
+                6rL/rGK1z8w/IKyPR64rKsIVRWbjUa5cGY9qYp/OMp8vjiiKuK5G8esZbv3X
+                dK9rec5z4weE2YbSQXPQbwfhnWz32Ck1TEf2WjJUsZ6Y7q0ZhJ3gQsWiejPQ
+                VvWDlooUp6daG5vsF2EDgs8wGTi+CmOFlZdoILP7htwrE4Eqo5OYaSwzFn4L
+                kIeb5CsJLmE1+TPCFGeFe6TqmK5jpo5ZFJliro4S5u9BERawyHkEN0I5gvMD
+                Nm+eafABAAA=
+                """
+    )
+
+val NAV_GRAPH_BUILDER =
+    bytecodeStub(
+        "NavGraphBuilder.kt",
+        "androidx/navigation",
+        0x4ff507eb,
+        """
+package androidx.navigation
+
+import kotlin.reflect.KClass
+
+public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
+    public constructor(
+        provider: NavigatorProvider,
+        startDestination: Any,
+        route: KClass<*>?,
+    )
+}
+""",
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuQSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWwhqSCaS5yLF661BCgElxDl
+                4k7Oz9VLrUjMLchJhQkrMWgxAAAEUmOigwAAAA==
+                """,
+        """
+                androidx/navigation/NavGraphBuilder.class:
+                H4sIAAAAAAAA/61Tz08TQRT+ZlvabalStgKlAoKAlIJsQW4lJILRNNRKxJAY
+                DmbarmXa7S6ZmTYc+Vv8DzxpPBji0T/K+HYphagQDh72/Zrvfe/Nm7c/f337
+                DmATmwzz3GtIXzRObY/3RJNr4Xt2lfdeSX5yvNMVbsORcTCGvcoNyBeO0sIL
+                3T5+6yZoSFraLjEs35ksjihDbEt4Qm8zHORv4g5MX+5Lvycoq1Rp8R63Xe41
+                7Te1llPXpUrb167wbOl8dMm393ZdrlRp+ZDh8H+zbhW2Q+L5ii+bdsvRNcmF
+                p2zueb4OyZVd9XW167o0jIXbUAThNdchmHnSb8PEMMNMv3Cr17GFpx3pcdcu
+                e1oSg6irOO4xjNWPnXq7X2ifS95xCMiwlP/HRa4iBwFJky6QwgjSSdzHKENa
+                aS71tfcxkWGI5ANUDGNJDGGcIaqPhWJYvHUD+i9LV1q649wZrL87ZhiSflc7
+                DBM3vC3D6OXJa0fzBtecYkanF6H1Z4FIBAIMrE3xUxF4RbIa6wwfzs9mk0bW
+                GHznZwOVJjFwzfHs+dmGaUUto2gU2c6iOW7F0pGcUYySHiIds1LpeM60DDOS
+                ZUXzx6eYkU4EZTYYVu7+X1HvM7f/Wiy4S+aPOcu1tqaX2fUbNKqRivCcardT
+                c+S7YK+Cyfp17h5yKQK/H0wciCbV7kqyF952PS06TtnrCSXoeLBJz68WlSF5
+                4Hdl3XkpgvzJfs7hRcY1IOZg0K70x06rE0cET8l7T/Eo6dEVK/UV1qr1gGTh
+                CyY+U9DAGskYJaQwDJvswgUYWUyGZKMUz9F5YGXwkDICawrTRF8MGUysk85E
+                CJQIq1/IJMlLSAQboV7FM9JlOp2hXh8dIVLGbBlzZTzGPJlYKGMRT47AFJaQ
+                P0JSYVJhWaGgMKyQU8gorChMKUwrxH8DOWhHI3IFAAA=
+                """
+    )
+
+private val NAV_GRAPH_BUILDER_EXTENSIONS =
+    bytecodeStub(
+        "Anything.kt",
+        "androidx/navigation",
+        0xb024f15a,
+        """
+            package androidx.navigation
+
+// NavGraphBuilder
+public inline fun <reified T : Any> NavGraphBuilder.navigation(
+    startDestination: Any,
+) { }
+
+public inline fun NavigatorProvider.navigation(
+    startDestination: Any,
+    route: String? = null,
+    builder: NavGraphBuilder.() -> Unit
+): NavGraph = NavGraph()
+        """,
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuMS5eOHa
+                S1KLS4TYQlLBEoJc7Mn5uXppKSkwISUGLQYAcSTS3IMAAAA=
+                """,
+        """
+                androidx/navigation/AnythingKt.class:
+                H4sIAAAAAAAA/71VS28bVRT+7vg1nrymLqaJ3Zi0cd0kJR3HhAJ5QfoCiyRE
+                TYiEskDX9sS5sT0TzYytdIMiFmwQP6AbFuzYwYoKJBSFHT8Kce54nDgP4khI
+                Xfjcc+95fN85c+713//8/ieAWTxjyHCr4tiicmBYvCWq3BO2ZSxbL71dYVU/
+                92JgDPoeb3Gjzq2q8UVpzyzTaYhBOw1gmJtYuSzRGm996vD93cdNUa+YzvzK
+                +Uzzk1sM6wubcxctS/8nZXSBCnCXVKhUYs326sIy9loNQ1ie6Vi8bhQtzxGW
+                K8puDBpDsrxrlmtrtrfWrNfXucMbJjky3J+4mL/rZEMmqRJiP/oxoKEPg9Qu
+                1+OO99R0PWH5nFXoDENZkd3JdveMFck3K3meOb53rbIZEheZMXz/n02Tqu2s
+                O3ZLXN62i2WtdDVup2mVZSrXeB5oM/OTVzIlNkdvkM3C9PXGJcjypSVoxHqX
+                ML5iO1Vjz/RKDqd5Mbhl2R5vYwfjQl7Zq7zIhZfqJrnFSm0WKtIMt69CjmFU
+                DrEglksMoQk5Ye9gTEMGd2gqr9lWhohjNz3z7LAE/WQY6/WBKe40f7Zi7vBm
+                3WP48U0OWfGSC97ro6XP36qvm4XZE/o3OpCrpscr3OMUoTRaIXoSmRRxKUD3
+                syYVhYwHQmp50iozDD8fHU5pR4eaoivtRYrhtk5LR9UHu05Sd8grpeTZXU09
+                OtSVYTal5EP0CxeieoQMoc+Ov1NTi22vKBliHUNBUxVdTYWHWT5euKVrqZuJ
+                cIICfcnyfcc/RRW1X4b/9ZodHR5/q8S0iHr8qpBnknCB+bVs0jvYq22JTmO6
+                JyDTOXx24Jn0YNpWx7r5cl8OdV/n3+JhjZobfmJXaN6GVoRlrjUbJdPZlMMv
+                k9tlXt/ijpD74DC+Iar0RjYd0tMvmpYnGmbRaglXkHn59BLRDTtvPXmkz7gN
+                bHi8XFvl+wGAtmE3nbL5XMjNSJBj60J+zEBBWH52hPQRRBCl/QLtVmmV335o
+                KhF/jaEHiRskQ4u/ysHAIskoNXcQMSyRPkaug7RP4CZZKQhvIeknHYKOt8ny
+                sR8Xg4S4RYASwqaTCK2j3RDTidsS6FH4D2S++g13fzkDmMSADzhLgUmoPqBk
+                P0qA4z7gaAAotSzu+XRGkUaOKLZJDOOTINsIrcv0GwkHm45MdXQ9jvuYIF3y
+                /YGCo7TmkuHIN68QYau9iIfw2Jcs7leQ8LnGqQ19JOP0pJ1Wk+mqJofJoJrc
+                STW5k2pyQTUKnvj1zOMprS/Ia4ryPNhGqIh3i5gu4iGMIvKYKaKA97bBXEJ6
+                fxsDLiIuHrn4wJdJl/648aGLcRdZ/yTt4iMXc/8C0wTCji4JAAA=
+                """
+    )
+
+val NAV_HOST =
     bytecodeStub(
         "NavHost.kt",
         "androidx/navigation",
@@ -234,7 +390,7 @@ FM7DXUZGIaVQUSgq5OnWFY4oHP0JmQ7w4mgGAAA=
 """
     )
 
-internal val TEST_NAV_HOST =
+val TEST_NAV_HOST =
     bytecodeStub(
         "TestNavHost.kt",
         "androidx/navigation",
@@ -264,10 +420,20 @@ XNdIa+Q1kp+Mv2/DIQIAAA==
 """
     )
 
-internal val NAVIGATION_STUBS =
-    arrayOf(NAV_CONTROLLER, NAV_DESTINATION, NAV_GRAPH, NAV_HOST, TEST_NAV_HOST)
+val NAVIGATION_STUBS =
+    arrayOf(
+        NAV_CONTROLLER,
+        NAV_DESTINATION,
+        NAV_GRAPH,
+        NAV_HOST,
+        TEST_NAV_HOST,
+        NAV_GRAPH_BUILDER,
+        NAV_DESTINATION_BUILDER,
+        NAV_GRAPH_BUILDER_EXTENSIONS,
+        NAV_PROVIDER
+    )
 
-internal val TEST_CODE =
+val TEST_CODE =
     kotlinAndBytecodeStub(
             "Test.kt",
             "androidx/test",
