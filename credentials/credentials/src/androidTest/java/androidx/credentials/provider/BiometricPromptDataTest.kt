@@ -18,6 +18,7 @@ package androidx.credentials.provider
 
 import android.os.Bundle
 import androidx.biometric.BiometricManager
+import androidx.biometric.BiometricPrompt.CryptoObject
 import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_ALLOWED_AUTHENTICATORS
 import androidx.credentials.provider.BiometricPromptData.Companion.BUNDLE_HINT_CRYPTO_OP_ID
 import androidx.credentials.provider.utils.BiometricTestUtils
@@ -143,7 +144,7 @@ class BiometricPromptDataTest {
 
     @Test
     fun fromBundle_validAllowedAuthenticatorAboveApi35_success() {
-        val expectedOpId = TEST_CRYPTO_OBJECT.operationHandle
+        val expectedOpId = getTestCryptoObjectOpId()
         val inputBundle = Bundle()
         inputBundle.putInt(BUNDLE_HINT_ALLOWED_AUTHENTICATORS, TEST_ALLOWED_AUTHENTICATOR)
         inputBundle.putLong(BUNDLE_HINT_CRYPTO_OP_ID, expectedOpId)
@@ -153,10 +154,12 @@ class BiometricPromptDataTest {
         assertThat(actualBiometricPromptData).isNotNull()
         assertThat(actualBiometricPromptData!!.allowedAuthenticators)
             .isEqualTo(TEST_ALLOWED_AUTHENTICATOR)
-        assertThat(actualBiometricPromptData.cryptoObject).isNotNull()
-        assertThat(actualBiometricPromptData.cryptoObject!!.operationHandle)
-            .isEqualTo(TEST_CRYPTO_OBJECT.operationHandle)
+        assertThat(actualBiometricPromptData.cryptoObject).isNull()
+        // TODO(b/368395001) : Add CryptoObject test back when library dependency updates
     }
+
+    private fun getTestCryptoObjectOpId(cryptoObject: CryptoObject = TEST_CRYPTO_OBJECT) =
+        BiometricTestUtils.getTestCryptoObjectOpId(cryptoObject)
 
     @Test
     fun fromBundle_unrecognizedAllowedAuthenticator_success() {
@@ -202,7 +205,7 @@ class BiometricPromptDataTest {
     fun toBundle_api35AndAboveWithOpId_success() {
         val testBiometricPromptData =
             BiometricPromptData(TEST_CRYPTO_OBJECT, TEST_ALLOWED_AUTHENTICATOR)
-        val expectedOpId = TEST_CRYPTO_OBJECT.operationHandle
+        val expectedOpId = getTestCryptoObjectOpId()
 
         val actualBundle = BiometricPromptData.toBundle(testBiometricPromptData)
 

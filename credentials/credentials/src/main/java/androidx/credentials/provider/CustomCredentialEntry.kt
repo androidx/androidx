@@ -32,6 +32,7 @@ import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialOption
 import androidx.credentials.R
 import androidx.credentials.provider.CustomCredentialEntry.Api28Impl.addToSlice
+import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
 
@@ -123,6 +124,11 @@ internal constructor(
     }
 
     /**
+     * Custom credential entry for a custom credential type that is displayed on the account
+     * selector UI.
+     *
+     * Each entry corresponds to an account that can provide a credential.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param title the title shown with this entry on the selector UI
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -179,6 +185,11 @@ internal constructor(
     )
 
     /**
+     * Custom credential entry for a custom credential type that is displayed on the account
+     * selector UI.
+     *
+     * Each entry corresponds to an account that can provide a credential.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param title the title shown with this entry on the selector UI
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -238,6 +249,11 @@ internal constructor(
     )
 
     /**
+     * Custom credential entry for a custom credential type that is displayed on the account
+     * selector UI.
+     *
+     * Each entry corresponds to an account that can provide a credential.
+     *
      * @param context the context of the calling app, required to retrieve fallback resources
      * @param title the title shown with this entry on the selector UI
      * @param pendingIntent the [PendingIntent] that will get invoked when the user selects this
@@ -326,7 +342,7 @@ internal constructor(
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
-                        biometricPromptData.cryptoObject.operationHandle,
+                        getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
                         listOf(SLICE_HINT_CRYPTO_OP_ID)
                     )

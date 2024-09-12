@@ -32,6 +32,7 @@ import androidx.credentials.CredentialManager
 import androidx.credentials.PasswordCredential
 import androidx.credentials.PublicKeyCredential
 import androidx.credentials.provider.CreateEntry.Api28Impl.addToSlice
+import androidx.credentials.provider.utils.CryptoObjectUtils.getOperationHandle
 import java.time.Instant
 import java.util.Collections
 
@@ -369,7 +370,7 @@ internal constructor(
                 )
                 biometricPromptData.cryptoObject?.let {
                     sliceBuilder.addLong(
-                        biometricPromptData.cryptoObject.operationHandle,
+                        getOperationHandle(biometricPromptData.cryptoObject),
                         /*subType=*/ null,
                         listOf(SLICE_HINT_CRYPTO_OP_ID)
                     )
