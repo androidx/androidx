@@ -305,10 +305,10 @@ private fun WideNavigationRailLayout(
                                                 )
                                             )
                                     )
-                                val maxIntrinsicWidth = it.maxIntrinsicWidth(constraintsOffset)
-                                if (expanded && expandedItemMaxWidth < maxIntrinsicWidth) {
+                                val maxItemWidth = measuredItem.measuredWidth
+                                if (expanded && expandedItemMaxWidth < maxItemWidth) {
                                     expandedItemMaxWidth =
-                                        maxIntrinsicWidth +
+                                        maxItemWidth +
                                             (ExpandedRailHorizontalItemPadding * 2).roundToPx()
                                 }
                                 constraintsOffset = measuredItem.height
@@ -344,7 +344,8 @@ private fun WideNavigationRailLayout(
                                         .roundToPx()
                                         .coerceIn(
                                             minimumValue = actualMinWidth,
-                                            maximumValue = currentWidth
+                                            maximumValue =
+                                                currentWidth.coerceAtLeast(actualMinWidth)
                                         )
                             }
                         }
