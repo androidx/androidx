@@ -75,16 +75,24 @@ class DragAndDropNodeTest {
 
     private lateinit var density: Density
 
-    /**
+    /*
      * Sets up a grid of drop targets resembling the following for testing:
+     *    accepts                 accepts
+     * ┌───────────┐           ┌───────────┐
+     * │           │           │           │
+     * │           │           │           │
+     * │           │           │           │
+     * └───────────┘           └───────────┘
      *
-     * accepts accepts ┌───────────┐ ┌───────────┐ │ │ │ │ │ │ │ │ │ │ │ │ └───────────┘
-     * └───────────┘
+     *    accepts                 rejects
+     * ┌───────────┐  accepts  ┌───────────┐
+     * │  accepts  │  ┌─────┐  │  accepts  │
+     * │─────┐     │  │     │  │     ┌─────│
+     * │     │     │  └─────┘  │     │     │
+     * └─────┘─────┘           └─────└─────┘
      *
-     * accepts rejects ┌───────────┐ accepts ┌───────────┐ │ accepts │ ┌─────┐ │ accepts │ │─────┐ │
-     * │ │ │ ┌─────│ │ │ │ └─────┘ │ │ │ └─────┘─────┘ └─────└─────┘
-     *
-     * parent <------> child offset
+     * parent <------> child
+     *         offset
      */
     @Before
     fun setup() {
