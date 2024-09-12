@@ -28,7 +28,7 @@ import androidx.build.AndroidXConfig
 plugins {
     id("AndroidXPlugin")
     id("kotlin")
-    id("com.github.johnrengelman.shadow")
+    id("com.gradleup.shadow")
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")

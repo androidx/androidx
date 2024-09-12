@@ -10,7 +10,6 @@ import androidx.build.LibraryType
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.github.johnrengelman.shadow")
 }
 
 dependencies {

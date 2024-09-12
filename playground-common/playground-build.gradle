@@ -40,7 +40,7 @@ buildscript {
             }
         }
         gradlePluginPortal().content {
-            it.includeModule("gradle.plugin.com.github.johnrengelman", "shadow")
+            it.includeModule("com.gradleup.shadow", "shadow-gradle-plugin")
             it.includeModule("me.champeau.gradle", "japicmp-gradle-plugin")
         }
     }
