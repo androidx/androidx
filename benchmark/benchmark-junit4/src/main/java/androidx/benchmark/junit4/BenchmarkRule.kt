@@ -357,7 +357,6 @@ public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule
  * @throws IllegalStateException if a hard deadline is exceeded while the block is running on the
  *   main thread.
  */
-@Suppress("DocumentExceptions") // `@throws Throwable` not recognized (b/305050883)
 inline fun BenchmarkRule.measureRepeatedOnMainThread(
     crossinline block: BenchmarkRule.Scope.() -> Unit
 ) {
