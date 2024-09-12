@@ -161,7 +161,11 @@ class LazyListSnapLayoutInfoProviderTest(val config: Config) :
     }
 
     companion object {
-        class Config(val orientation: Orientation, val useHeader: Boolean)
+        class Config(val orientation: Orientation, val useHeader: Boolean) {
+            override fun toString(): String {
+                return "orientation=$orientation,useHeader=$useHeader"
+            }
+        }
 
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
