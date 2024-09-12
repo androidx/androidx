@@ -23,7 +23,7 @@ plugins {
     id "com.android.settings" version "8.7.0-alpha02"
 }
 
-apply ../../buildSrc/ndk.gradle
+apply from: "../../buildSrc/ndk.gradle"
 
 rootProject.name = "activity-playground"
 
