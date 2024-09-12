@@ -132,7 +132,7 @@ internal fun RowColumnMeasurePolicy.measure(
                                 if (mainAxisMax == Constraints.Infinity) {
                                     Constraints.Infinity
                                 } else {
-                                    remaining.coerceAtLeast(0)
+                                    remaining.fastCoerceAtLeast(0)
                                 },
                             crossAxisMax = crossAxisDesiredSize ?: crossAxisMax
                         )
@@ -251,9 +251,10 @@ internal fun RowColumnMeasurePolicy.measure(
     // Compute the Row or Column size and position the children.
     val mainAxisLayoutSize = max((fixedSpace + weightedSpace).fastCoerceAtLeast(0), mainAxisMin)
     val crossAxisLayoutSize =
-        max(
+        maxOf(
             crossAxisSpace,
-            max(crossAxisMin, beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine)
+            crossAxisMin,
+            beforeCrossAxisAlignmentLine + afterCrossAxisAlignmentLine
         )
     val mainAxisPositions = IntArray(subSize)
     populateMainAxisPositions(
