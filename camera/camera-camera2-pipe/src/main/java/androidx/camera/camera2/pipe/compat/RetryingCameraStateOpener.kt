@@ -314,7 +314,7 @@ constructor(
             attempts: Int,
             elapsedNs: DurationNs,
             camerasDisabledByDevicePolicy: Boolean,
-            isForeground: Boolean = false,
+            isForeground: Boolean = true,
             cameraOpenRetryMaxTimeoutNs: DurationNs? = null
         ): Boolean {
             val shouldActiveResume = shouldActivateActiveResume(isForeground, errorCode)

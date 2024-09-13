@@ -59,7 +59,7 @@ public class ExternalCameraController(
     override val cameraGraphId: CameraGraphId
         get() = graphId
 
-    override var isForeground: Boolean = false
+    override var isForeground: Boolean = true
 
     override fun start() {
         if (started.compareAndSet(expect = false, update = true)) {

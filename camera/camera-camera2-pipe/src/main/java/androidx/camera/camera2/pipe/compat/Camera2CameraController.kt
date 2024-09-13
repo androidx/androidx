@@ -74,7 +74,7 @@ constructor(
         get() = synchronized(lock) { _isForeground }
         set(value) = synchronized(lock) { _isForeground = value }
 
-    @GuardedBy("lock") private var _isForeground: Boolean = false
+    @GuardedBy("lock") private var _isForeground: Boolean = true
 
     @GuardedBy("lock") private var controllerState: ControllerState = ControllerState.STOPPED
 

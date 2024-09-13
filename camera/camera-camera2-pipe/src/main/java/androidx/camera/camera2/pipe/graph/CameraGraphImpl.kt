@@ -119,11 +119,9 @@ constructor(
     override val graphState: StateFlow<GraphState>
         get() = graphProcessor.graphState
 
-    private var _isForeground = false
-    override var isForeground: Boolean
-        get() = _isForeground
+    override var isForeground: Boolean = true
         set(value) {
-            _isForeground = value
+            field = value
             cameraController.isForeground = value
         }
 
