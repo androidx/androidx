@@ -393,7 +393,7 @@ constructor(
         }
 
         val cvePattern = Pattern.compile("CVE-\\d{4}-\\d{4,}")
-        val asbPattern = Pattern.compile("ASB-A-\\d{4,}")
+        val asbPattern = Pattern.compile("(ASB|PUB)-A-\\d{4,}")
 
         result.vulnerabilities.values.flatten().forEach { group ->
             group.cveIdentifiers.forEach { cve ->
@@ -407,7 +407,7 @@ constructor(
             group.asbIdentifiers.forEach { asb ->
                 if (!asbPattern.matcher(asb).matches()) {
                     throw IllegalArgumentException(
-                        "ASB identifier does not match the required format (ASB-A-XXXX): $asb"
+                        "ASB identifier $asb does not match the required format: $asbPattern"
                     )
                 }
             }
