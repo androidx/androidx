@@ -26,51 +26,51 @@ class ProgressIndicatorTest {
 
     @Test
     fun coerce_progress_fraction_overflow_enabled() {
-        assertEquals(0.2f, coerceProgress(0.2f, true))
+        assertEquals(0.2f, wrapProgress(0.2f, true))
     }
 
     @Test
     fun coerce_progress_fraction_greater_than_one_overflow_enabled() {
-        assertEquals(0.2f, coerceProgress(1.2f, true))
+        assertEquals(0.2f, wrapProgress(1.2f, true))
     }
 
     @Test
     fun coerce_progress_integer_greater_than_one_overflow_enabled() {
-        assertEquals(1.0f, coerceProgress(2.0f, true))
+        assertEquals(1.0f, wrapProgress(2.0f, true))
     }
 
     @Test
     fun coerce_progress_zero_overflow_enabled() {
-        assertEquals(0.0f, coerceProgress(0.0f, true))
+        assertEquals(0.0f, wrapProgress(0.0f, true))
     }
 
     @Test
     fun coerce_progress_negative_overflow_enabled() {
-        assertEquals(0.0f, coerceProgress(-1.0f, true))
+        assertEquals(0.0f, wrapProgress(-1.0f, true))
     }
 
     @Test
     fun coerce_progress_fraction_overflow_disabled() {
-        assertEquals(0.2f, coerceProgress(0.2f, false))
+        assertEquals(0.2f, wrapProgress(0.2f, false))
     }
 
     @Test
     fun coerce_progress_fraction_greater_than_one_overflow_disabled() {
-        assertEquals(1.0f, coerceProgress(1.2f, false))
+        assertEquals(1.0f, wrapProgress(1.2f, false))
     }
 
     @Test
     fun coerce_progress_integer_greater_than_one_overflow_disabled() {
-        assertEquals(1.0f, coerceProgress(2.0f, false))
+        assertEquals(1.0f, wrapProgress(2.0f, false))
     }
 
     @Test
     fun coerce_progress_zero_overflow_disabled() {
-        assertEquals(0.0f, coerceProgress(0.0f, false))
+        assertEquals(0.0f, wrapProgress(0.0f, false))
     }
 
     @Test
     fun coerce_progress_negative_overflow_disabled() {
-        assertEquals(0.0f, coerceProgress(-1.0f, false))
+        assertEquals(0.0f, wrapProgress(-1.0f, false))
     }
 }
