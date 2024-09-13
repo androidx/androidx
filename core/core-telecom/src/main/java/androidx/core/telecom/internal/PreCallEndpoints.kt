@@ -57,6 +57,7 @@ internal class PreCallEndpoints(
     }
 
     fun endpointsAddedUpdate(addedCallEndpoints: List<CallEndpointCompat>) {
+        // START tracking an endpoint
         var addedDevicesCount = 0
         for (maybeNewEndpoint in addedCallEndpoints) {
             addedDevicesCount += maybeAddCallEndpoint(maybeNewEndpoint)
@@ -69,6 +70,7 @@ internal class PreCallEndpoints(
     }
 
     fun endpointsRemovedUpdate(removedCallEndpoints: List<CallEndpointCompat>) {
+        // STOP tracking an endpoint
         var removedDevicesCount = 0
         for (maybeRemovedDevice in removedCallEndpoints) {
             removedDevicesCount += maybeRemoveCallEndpoint(maybeRemovedDevice)
@@ -109,6 +111,7 @@ internal class PreCallEndpoints(
 
     @VisibleForTesting
     internal fun maybeRemoveCallEndpoint(endpoint: CallEndpointCompat): Int {
+        // TODO:: determine if it is necessary to cleanup listeners here
         if (endpoint.isBluetoothType()) {
             if (mBluetoothEndpoints.containsKey(endpoint.name.toString())) {
                 mBluetoothEndpoints.remove(endpoint.name.toString())

@@ -56,11 +56,11 @@ internal class CallSession(
     val onDisconnectCallback: suspend (disconnectCause: DisconnectCause) -> Unit,
     val onSetActiveCallback: suspend () -> Unit,
     val onSetInactiveCallback: suspend () -> Unit,
-    private val preCallEndpointMapping: PreCallEndpoints? = null,
     private val callChannels: CallChannels,
     private val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
     private val blockingSessionExecution: CompletableDeferred<Unit>
-) : android.telecom.CallControlCallback, android.telecom.CallEventCallback {
+) : android.telecom.CallControlCallback, android.telecom.CallEventCallback, AutoCloseable {
+    private val mCallSessionId: Int = CallEndpointUuidTracker.startSession()
     private var mPlatformInterface: CallControl? = null
     // cache the latest current and available endpoints
     private var mCurrentCallEndpoint: CallEndpointCompat? = null
@@ -77,8 +77,12 @@ internal class CallSession(
         private val TAG: String = CallSession::class.java.simpleName
         private const val WAIT_FOR_BT_TO_CONNECT_TIMEOUT: Long = 1000L
         private const val SWITCH_TO_SPEAKER_TIMEOUT: Long = WAIT_FOR_BT_TO_CONNECT_TIMEOUT + 1000L
-        private const val INITIAL_ENDPOINT_SWITCH_TIMEOUT: Long = 3000L
-        private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 1000L
+
+        // TODO:: b/369153472 , remove delay and instead wait until onCallEndpointChanged
+        //    provides the bluetooth endpoint before requesting the switch
+        private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 2000L
+        private const val INITIAL_ENDPOINT_SWITCH_TIMEOUT: Long =
+            DELAY_INITIAL_ENDPOINT_SWITCH + 1000L
     }
 
     @VisibleForTesting
@@ -108,27 +112,21 @@ internal class CallSession(
      */
     @VisibleForTesting
     internal fun toRemappedCallEndpointCompat(platformEndpoint: CallEndpoint): CallEndpointCompat {
-        if (platformEndpoint.endpointType == CallEndpoint.TYPE_BLUETOOTH) {
-            val key = platformEndpoint.endpointName
-            val btEndpointMapping = preCallEndpointMapping?.mBluetoothEndpoints
-            return if (btEndpointMapping != null && btEndpointMapping.containsKey(key)) {
-                val existingEndpoint = btEndpointMapping[key]!!
-                mJetpackToPlatformCallEndpoint[existingEndpoint.identifier] = platformEndpoint
-                existingEndpoint
-            } else {
-                EndpointUtils.Api34PlusImpl.toCallEndpointCompat(platformEndpoint)
-            }
-        } else {
-            val key = platformEndpoint.endpointType
-            val nonBtEndpointMapping = preCallEndpointMapping?.mNonBluetoothEndpoints
-            return if (nonBtEndpointMapping != null && nonBtEndpointMapping.containsKey(key)) {
-                val existingEndpoint = nonBtEndpointMapping[key]!!
-                mJetpackToPlatformCallEndpoint[existingEndpoint.identifier] = platformEndpoint
-                existingEndpoint
-            } else {
-                EndpointUtils.Api34PlusImpl.toCallEndpointCompat(platformEndpoint)
-            }
-        }
+        val jetpackUuid =
+            CallEndpointUuidTracker.getUuid(
+                mCallSessionId,
+                platformEndpoint.endpointType,
+                platformEndpoint.endpointName.toString()
+            )
+        mJetpackToPlatformCallEndpoint[jetpackUuid] = platformEndpoint
+        val j =
+            CallEndpointCompat(
+                platformEndpoint.endpointName,
+                platformEndpoint.endpointType,
+                jetpackUuid
+            )
+        Log.d(TAG, " n=[${platformEndpoint.endpointName}]  plat=[${platformEndpoint}] --> jet=[$j]")
+        return j
     }
 
     override fun onCallEndpointChanged(endpoint: CallEndpoint) {
@@ -249,17 +247,15 @@ internal class CallSession(
                 Log.i(TAG, "switchStartingCallEndpointOnCallStart: before awaitAll")
                 awaitAll(mIsAvailableEndpointsSet)
                 Log.i(TAG, "switchStartingCallEndpointOnCallStart: after awaitAll")
-                launch {
-                    // Delay the switch to a new [CallEndpointCompat] if there is a BT device
-                    // because the request will be overridden once the BT device connects!
-                    if (mAvailableEndpoints.any { it.isBluetoothType() }) {
-                        Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay START")
-                        delay(DELAY_INITIAL_ENDPOINT_SWITCH)
-                        Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay END")
-                    }
-                    val res = requestEndpointChange(startingCallEndpoint)
-                    Log.i(TAG, "switchStartingCallEndpointOnCallStart: result=$res")
+                // Delay the switch to a new [CallEndpointCompat] if there is a BT device
+                // because the request will be overridden once the BT device connects!
+                if (mAvailableEndpoints.any { it.isBluetoothType() }) {
+                    Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay START")
+                    delay(DELAY_INITIAL_ENDPOINT_SWITCH)
+                    Log.i(TAG, "switchStartingCallEndpointOnCallStart: BT delay END")
                 }
+                val res = requestEndpointChange(startingCallEndpoint)
+                Log.i(TAG, "switchStartingCallEndpointOnCallStart: result=$res")
             }
         } catch (e: Exception) {
             Log.e(TAG, "switchStartingCallEndpointOnCallStart: hit exception=[$e]")
@@ -396,11 +392,10 @@ internal class CallSession(
             } else {
                 EndpointUtils.Api34PlusImpl.toCallEndpoint(endpoint)
             }
-
         if (mPlatformInterface == null) {
             return CallControlResult.Error(androidx.core.telecom.CallException.ERROR_UNKNOWN)
         }
-
+        Log.d(TAG, "jet=[${endpoint}] --> plat=[${potentiallyRemappedEndpoint}]")
         mPlatformInterface!!.requestCallEndpointChange(
             potentiallyRemappedEndpoint,
             Runnable::run,
@@ -529,5 +524,10 @@ internal class CallSession(
             callChannels.availableEndpointChannel.receiveAsFlow()
 
         override val isMuted: Flow<Boolean> = callChannels.isMutedChannel.receiveAsFlow()
+    }
+
+    override fun close() {
+        Log.i(TAG, "close: CallSessionId=[$mCallSessionId]")
+        CallEndpointUuidTracker.endSession(mCallSessionId)
     }
 }

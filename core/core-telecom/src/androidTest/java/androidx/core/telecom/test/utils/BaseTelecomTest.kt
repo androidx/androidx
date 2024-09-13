@@ -28,7 +28,12 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallAttributesCompat
 import androidx.core.telecom.CallControlScope
+import androidx.core.telecom.CallEndpointCompat
+import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_BLUETOOTH
+import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_EARPIECE
+import androidx.core.telecom.CallEndpointCompat.Companion.TYPE_SPEAKER
 import androidx.core.telecom.CallsManager
+import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.JetpackConnectionService
 import androidx.core.telecom.internal.utils.Utils
 import androidx.test.core.app.ApplicationProvider
@@ -66,6 +71,10 @@ abstract class BaseTelecomTest {
     lateinit var mAudioManager: AudioManager
     lateinit var mPackagePhoneAccountHandle: PhoneAccountHandle
     internal lateinit var mConnectionService: JetpackConnectionService
+    private val mBaseSessionId: Int = 123
+    val mEarpieceEndpoint = CallEndpointCompat("EARPIECE", TYPE_EARPIECE, mBaseSessionId)
+    val mSpeakerEndpoint = CallEndpointCompat("SPEAKER", TYPE_SPEAKER, mBaseSessionId)
+    val mBluetoothEndpoint = CallEndpointCompat("BLUETOOTH", TYPE_BLUETOOTH, mBaseSessionId)
 
     @Before
     fun setUpBase() {
@@ -90,6 +99,7 @@ abstract class BaseTelecomTest {
         TestUtils.resetCallbackConfigs()
         TestUtils.setDefaultDialer(mPreviousDefaultDialer)
         maybeCleanupStuckCalls()
+        CallEndpointUuidTracker.endSession(mBaseSessionId)
     }
 
     fun setUpV2Test() {

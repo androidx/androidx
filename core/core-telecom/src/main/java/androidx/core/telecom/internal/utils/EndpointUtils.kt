@@ -22,7 +22,6 @@ import android.media.AudioDeviceInfo
 import android.os.Build
 import android.os.Build.VERSION.SDK_INT
 import android.os.Build.VERSION_CODES.P
-import android.os.ParcelUuid
 import android.telecom.CallAudioState
 import android.util.Log
 import androidx.annotation.DoNotInline
@@ -30,17 +29,20 @@ import androidx.annotation.RequiresApi
 import androidx.core.telecom.CallEndpointCompat
 import androidx.core.telecom.CallEndpointCompat.Companion.EndpointType
 import androidx.core.telecom.R
+import androidx.core.telecom.internal.CallEndpointUuidTracker.getUuid
 import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.O)
 internal class EndpointUtils {
 
     companion object {
+        const val BLUETOOTH_DEVICE_DEFAULT_NAME = "Bluetooth Device"
         private val TAG: String = EndpointUtils::class.java.simpleName.toString()
 
         /** [AudioDeviceInfo]s to [CallEndpointCompat]s */
         fun getEndpointsFromAudioDeviceInfo(
             c: Context,
+            flowId: Int,
             adiArr: List<AudioDeviceInfo>?
         ): List<CallEndpointCompat> {
             if (adiArr == null) {
@@ -49,7 +51,7 @@ internal class EndpointUtils {
             val endpoints: MutableList<CallEndpointCompat> = mutableListOf()
             val omittedDevices = StringBuilder("omitting devices =[")
             adiArr.toList().forEach { audioDeviceInfo ->
-                val endpoint = getEndpointFromAudioDeviceInfo(c, audioDeviceInfo)
+                val endpoint = getEndpointFromAudioDeviceInfo(c, flowId, audioDeviceInfo)
                 if (endpoint.type != CallEndpointCompat.TYPE_UNKNOWN) {
                     endpoints.add(endpoint)
                 } else {
@@ -69,13 +71,16 @@ internal class EndpointUtils {
         /** [AudioDeviceInfo] --> [CallEndpointCompat] */
         private fun getEndpointFromAudioDeviceInfo(
             c: Context,
+            flowId: Int,
             adi: AudioDeviceInfo
         ): CallEndpointCompat {
+            val endpointName = remapAudioDeviceNameToEndpointName(c, adi)
+            val endpointType = remapAudioDeviceTypeToCallEndpointType(adi.type)
             val newEndpoint =
                 CallEndpointCompat(
-                    remapAudioDeviceNameToEndpointName(c, adi),
-                    remapAudioDeviceTypeToCallEndpointType(adi.type),
-                    ParcelUuid(UUID.randomUUID())
+                    endpointName,
+                    endpointType,
+                    getUuid(flowId, endpointType, endpointName)
                 )
             if (SDK_INT >= P && newEndpoint.isBluetoothType()) {
                 newEndpoint.mMackAddress = adi.address
@@ -159,34 +164,40 @@ internal class EndpointUtils {
                 endpoint.type == CallEndpointCompat.TYPE_WIRED_HEADSET
         }
 
-        fun toCallEndpointCompat(state: CallAudioState): CallEndpointCompat {
+        fun toCallEndpointCompat(state: CallAudioState, sessionId: Int): CallEndpointCompat {
             val type: Int = mapRouteToType(state.route)
             return if (type == CallEndpointCompat.TYPE_BLUETOOTH && SDK_INT >= P) {
-                BluetoothApi28PlusImpl.getCallEndpointFromAudioState(state)
+                BluetoothApi28PlusImpl.getCallEndpointFromAudioState(state, sessionId)
             } else {
-                CallEndpointCompat(endpointTypeToString(type), type)
+                CallEndpointCompat(endpointTypeToString(type), type, getUuid(sessionId, type))
             }
         }
 
-        fun toCallEndpointsCompat(state: CallAudioState): List<CallEndpointCompat> {
+        fun toCallEndpointsCompat(state: CallAudioState, sessionId: Int): List<CallEndpointCompat> {
             val endpoints: ArrayList<CallEndpointCompat> = ArrayList()
             val bitMask = state.supportedRouteMask
             if (hasEarpieceType(bitMask)) {
                 endpoints.add(
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_EARPIECE),
-                        CallEndpointCompat.TYPE_EARPIECE
+                        CallEndpointCompat.TYPE_EARPIECE,
+                        getUuid(sessionId, CallEndpointCompat.TYPE_EARPIECE)
                     )
                 )
             }
             if (hasBluetoothType(bitMask)) {
                 if (SDK_INT >= P) {
-                    endpoints.addAll(BluetoothApi28PlusImpl.getBluetoothEndpoints(state))
+                    endpoints.addAll(BluetoothApi28PlusImpl.getBluetoothEndpoints(state, sessionId))
                 } else {
                     endpoints.add(
                         CallEndpointCompat(
                             endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH),
-                            CallEndpointCompat.TYPE_BLUETOOTH
+                            CallEndpointCompat.TYPE_BLUETOOTH,
+                            getUuid(
+                                sessionId,
+                                CallEndpointCompat.TYPE_BLUETOOTH,
+                                endpointTypeToString(CallEndpointCompat.TYPE_BLUETOOTH)
+                            )
                         )
                     )
                 }
@@ -195,7 +206,8 @@ internal class EndpointUtils {
                 endpoints.add(
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_WIRED_HEADSET),
-                        CallEndpointCompat.TYPE_WIRED_HEADSET
+                        CallEndpointCompat.TYPE_WIRED_HEADSET,
+                        getUuid(sessionId, CallEndpointCompat.TYPE_WIRED_HEADSET)
                     )
                 )
             }
@@ -203,7 +215,8 @@ internal class EndpointUtils {
                 endpoints.add(
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_SPEAKER),
-                        CallEndpointCompat.TYPE_SPEAKER
+                        CallEndpointCompat.TYPE_SPEAKER,
+                        getUuid(sessionId, CallEndpointCompat.TYPE_SPEAKER)
                     )
                 )
             }
@@ -211,7 +224,8 @@ internal class EndpointUtils {
                 endpoints.add(
                     CallEndpointCompat(
                         endpointTypeToString(CallEndpointCompat.TYPE_STREAMING),
-                        CallEndpointCompat.TYPE_STREAMING
+                        CallEndpointCompat.TYPE_STREAMING,
+                        getUuid(sessionId, CallEndpointCompat.TYPE_STREAMING)
                     )
                 )
             }
@@ -276,15 +290,6 @@ internal class EndpointUtils {
     @RequiresApi(34)
     object Api34PlusImpl {
         @JvmStatic
-        fun toCallEndpointCompat(endpoint: android.telecom.CallEndpoint): CallEndpointCompat {
-            return CallEndpointCompat(
-                endpoint.endpointName,
-                endpoint.endpointType,
-                endpoint.identifier
-            )
-        }
-
-        @JvmStatic
         @DoNotInline
         fun toCallEndpoint(e: CallEndpointCompat): android.telecom.CallEndpoint {
             return android.telecom.CallEndpoint(e.name, e.type, e.identifier)
@@ -294,47 +299,55 @@ internal class EndpointUtils {
     @RequiresApi(28)
     object BluetoothApi28PlusImpl {
         @JvmStatic
-        fun getBluetoothEndpoints(state: CallAudioState): ArrayList<CallEndpointCompat> {
+        fun getBluetoothEndpoints(
+            state: CallAudioState,
+            sessionId: Int
+        ): ArrayList<CallEndpointCompat> {
             val endpoints: ArrayList<CallEndpointCompat> = ArrayList()
             val supportedBluetoothDevices = state.supportedBluetoothDevices
             for (bluetoothDevice in supportedBluetoothDevices) {
-                if (bluetoothDevice != null) {
-                    endpoints.add(getCallEndpointFromBluetoothDevice(bluetoothDevice))
-                }
+                endpoints.add(getCallEndpointFromBluetoothDevice(bluetoothDevice, sessionId))
             }
             return endpoints
         }
 
         @JvmStatic
-        fun getCallEndpointFromBluetoothDevice(btDevice: BluetoothDevice): CallEndpointCompat {
+        fun getCallEndpointFromBluetoothDevice(
+            btDevice: BluetoothDevice,
+            sessionId: Int
+        ): CallEndpointCompat {
             var endpointName: String? = null
-            var endpointIdentity: String? = null
+            var mackAddress: String? = null
             try {
-                endpointIdentity = btDevice.address
                 endpointName = btDevice.name
+                mackAddress = btDevice.address
             } catch (se: SecurityException) {
                 // A SecurityException will be thrown if the user has no granted the
                 // BLUETOOTH_CONNECT permission
                 se.printStackTrace()
             }
-            // Account for [BluetoothDevice#getAddress()] returning a null value
-            if (endpointIdentity == null) {
-                endpointIdentity = UUID.randomUUID().toString()
-            }
             // Account for [BluetoothDevice#getName()] returning a null value
             if (endpointName == null) {
-                endpointName = "Bluetooth Device"
+                endpointName = BLUETOOTH_DEVICE_DEFAULT_NAME
+            }
+            // Account for [BluetoothDevice#getAddress()] returning a null value
+            if (mackAddress == null) {
+                mackAddress = UUID.randomUUID().toString()
             }
             return CallEndpointCompat(
                 endpointName,
                 CallEndpointCompat.TYPE_BLUETOOTH,
-                endpointIdentity
+                sessionId,
+                mackAddress = mackAddress
             )
         }
 
         @JvmStatic
-        fun getCallEndpointFromAudioState(state: CallAudioState): CallEndpointCompat {
-            return getCallEndpointFromBluetoothDevice(state.activeBluetoothDevice)
+        fun getCallEndpointFromAudioState(
+            state: CallAudioState,
+            sessionId: Int
+        ): CallEndpointCompat {
+            return getCallEndpointFromBluetoothDevice(state.activeBluetoothDevice, sessionId)
         }
     }
 }

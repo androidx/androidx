@@ -21,9 +21,9 @@ import android.os.ParcelUuid
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.utils.EndpointUtils
 import java.util.Objects
-import java.util.UUID
 
 /**
  * Constructor for a [CallEndpointCompat] object.
@@ -40,7 +40,7 @@ public class CallEndpointCompat(
     public val type: Int,
     public val identifier: ParcelUuid
 ) : Comparable<CallEndpointCompat> {
-    internal var mMackAddress: String = "-1"
+    internal var mMackAddress: String = UNKNOWN_MAC_ADDRESS
 
     override fun toString(): String {
         return "CallEndpoint(" +
@@ -116,19 +116,17 @@ public class CallEndpointCompat(
 
         /** Indicates that the type of endpoint through which call media flows is an external. */
         public const val TYPE_STREAMING: Int = 5
+
+        internal const val UNKNOWN_MAC_ADDRESS: String = "-1"
     }
 
     internal constructor(
         name: String,
-        @EndpointType type: Int
-    ) : this(name, type, ParcelUuid(UUID.randomUUID())) {}
-
-    internal constructor(
-        name: String,
         @EndpointType type: Int,
-        address: String
-    ) : this(name, type) {
-        mMackAddress = address
+        sessionId: Int,
+        mackAddress: String = "-1"
+    ) : this(name, type, CallEndpointUuidTracker.getUuid(sessionId, type, name)) {
+        mMackAddress = mackAddress
     }
 
     /** Internal helper to determine if this [CallEndpointCompat] is EndpointType#TYPE_BLUETOOTH */

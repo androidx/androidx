@@ -45,6 +45,7 @@ import androidx.core.telecom.extensions.ExtensionInitializationScope
 import androidx.core.telecom.extensions.ExtensionInitializationScopeImpl
 import androidx.core.telecom.internal.AddCallResult
 import androidx.core.telecom.internal.CallChannels
+import androidx.core.telecom.internal.CallEndpointUuidTracker
 import androidx.core.telecom.internal.CallSession
 import androidx.core.telecom.internal.CallSessionLegacy
 import androidx.core.telecom.internal.JetpackConnectionService
@@ -90,13 +91,9 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     private val mTelecomManager: TelecomManager =
         mContext.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
     internal val mConnectionService: JetpackConnectionService = JetpackConnectionService()
-
     // A single declared constant for a direct [Executor], since the coroutines primitives we invoke
     // from the associated callbacks will perform their own dispatch as needed.
     private val mDirectExecutor = Executor { it.run() }
-    // This list is modified in [getAvailableStartingCallEndpoints] and used to store the
-    // mappings of jetpack call endpoint UUIDs
-    private var mPreCallEndpointsList: MutableList<PreCallEndpoints> = mutableListOf()
 
     public companion object {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -359,11 +356,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
     /**
      * Fetch the current available call audio endpoints that can be used for a new call session. The
      * callback flow will be continuously updated until the call session is established via
-     * [addCall]. Once [addCall] is invoked with a
-     * [CallAttributesCompat.preferredStartingCallEndpoint], the callback containing the
-     * [CallEndpointCompat] will stop receiving updates. If the flow is canceled before adding the
-     * call, the [CallAttributesCompat.preferredStartingCallEndpoint] will be voided. If a call
-     * session isn't started, the flow should be cleaned up client-side by calling cancel() from the
+     * [addCall]. The callbackFlow should be cleaned up client-side by calling cancel() from the
      * same [kotlinx.coroutines.CoroutineScope] the [callbackFlow] is collecting in.
      *
      * Note: The endpoints emitted will be sorted by the [CallEndpointCompat.type] . See
@@ -373,21 +366,23 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
      * @return a flow of [CallEndpointCompat]s that can be used for a new call session
      */
     public fun getAvailableStartingCallEndpoints(): Flow<List<CallEndpointCompat>> = callbackFlow {
+        val id: Int = CallEndpointUuidTracker.startSession()
         val audioManager = mContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
         // [AudioDeviceInfo] <-- AudioManager / platform
         val initialAudioDevices = getAvailableAudioDevices(audioManager)
-        // [AudioDeviceInfo] --> [CallEndpoints]
-        val initialEndpoints = getEndpointsFromAudioDeviceInfo(mContext, initialAudioDevices)
-
+        // [CallEndpoints]   <-- [AudioDeviceInfo]
+        val initialEndpoints = getEndpointsFromAudioDeviceInfo(mContext, id, initialAudioDevices)
+        // The emitted endpoints need to be tracked so that when the device list changes,
+        // the added or removed endpoints can be re-emitted as a whole list.  Otherwise, only
+        // the added or removed endpoints will be emitted.
         val preCallEndpoints = PreCallEndpoints(initialEndpoints.toMutableList(), this.channel)
-        mPreCallEndpointsList.add(preCallEndpoints)
-
+        // register an audio callback that will listen for updates
         val audioDeviceCallback =
             object : AudioDeviceCallback() {
                 override fun onAudioDevicesAdded(addedDevices: Array<out AudioDeviceInfo>?) {
                     if (addedDevices != null) {
                         preCallEndpoints.endpointsAddedUpdate(
-                            getEndpointsFromAudioDeviceInfo(mContext, addedDevices.toList())
+                            getEndpointsFromAudioDeviceInfo(mContext, id, addedDevices.toList())
                         )
                     }
                 }
@@ -395,7 +390,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                 override fun onAudioDevicesRemoved(removedDevices: Array<out AudioDeviceInfo>?) {
                     if (removedDevices != null) {
                         preCallEndpoints.endpointsRemovedUpdate(
-                            getEndpointsFromAudioDeviceInfo(mContext, removedDevices.toList())
+                            getEndpointsFromAudioDeviceInfo(mContext, id, removedDevices.toList())
                         )
                     }
                 }
@@ -410,7 +405,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         awaitClose {
             Log.i(TAG, "getAvailableStartingCallEndpoints: awaitClose")
             audioManager.unregisterAudioDeviceCallback(audioDeviceCallback)
-            mPreCallEndpointsList.remove(preCallEndpoints)
+            CallEndpointUuidTracker.endSession(id)
         }
     }
 
@@ -444,11 +439,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
         // exception, addCall will unblock.
         val blockingSessionExecution = CompletableDeferred<Unit>(parent = coroutineContext.job)
 
-        val preCallEndpoints: PreCallEndpoints? =
-            mPreCallEndpointsList.find {
-                it.isCallEndpointBeingTracked(callAttributes.preferredStartingCallEndpoint)
-            }
-
+        val closableCallSession: AutoCloseable?
         // create a call session based off the build version
         @RequiresApi(34)
         if (Utils.hasPlatformV2Apis()) {
@@ -465,12 +456,11 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     onDisconnect,
                     onSetActive,
                     onSetInactive,
-                    preCallEndpoints,
                     callChannels,
                     onEvent,
                     blockingSessionExecution
                 )
-
+            closableCallSession = callSession
             /**
              * The Platform [android.telecom.TelecomManager.addCall] requires a
              * [OutcomeReceiver]#<[CallControl], [CallException]> that will receive the async
@@ -533,7 +523,6 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
                     onSetInactive,
                     onEvent,
                     callAttributes.preferredStartingCallEndpoint,
-                    preCallEndpoints,
                     blockingSessionExecution
                 )
 
@@ -542,6 +531,7 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             pauseExecutionUntilCallIsReadyOrTimeout(openResult, blockingSessionExecution, request)
 
             val result = openResult.getCompleted() as AddCallResult.SuccessCallSessionLegacy
+            closableCallSession = result.callSessionLegacy
             val scope =
                 CallSessionLegacy.CallControlScopeImpl(
                     result.callSessionLegacy,
@@ -554,8 +544,8 @@ public class CallsManager(context: Context) : CallsManagerExtensions {
             // CallControlScope interface implementation declared above.
             scope.block()
         }
-        preCallEndpoints?.mSendChannel?.close()
         blockingSessionExecution.await()
+        closableCallSession.close()
     }
 
     @ExperimentalCoroutinesApi

@@ -60,9 +60,8 @@ internal class CallSessionLegacy(
     val onSetInactiveCallback: suspend () -> Unit,
     val onEventCallback: suspend (event: String, extras: Bundle) -> Unit,
     private val preferredStartingCallEndpoint: CallEndpointCompat? = null,
-    private val preCallEndpointMapping: PreCallEndpoints? = null,
     private val blockingSessionExecution: CompletableDeferred<Unit>
-) : android.telecom.Connection() {
+) : android.telecom.Connection(), AutoCloseable {
     // instance vars
     private val TAG: String = CallSessionLegacy::class.java.simpleName
     private var mCachedBluetoothDevices: ArrayList<BluetoothDevice> = ArrayList()
@@ -72,10 +71,13 @@ internal class CallSessionLegacy(
     private var mCurrentCallEndpoint: CallEndpointCompat? = null
     private var mAvailableCallEndpoints: List<CallEndpointCompat>? = null
     private var mLastClientRequestedEndpoint: CallEndpointCompat? = null
+    private val mCallSessionLegacyId: Int = CallEndpointUuidTracker.startSession()
 
     companion object {
         private const val WAIT_FOR_BT_TO_CONNECT_TIMEOUT: Long = 1000L
-        private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 1000L
+        // TODO:: b/369153472 , remove delay and instead wait until onCallEndpointChanged
+        //    provides the bluetooth endpoint before requesting the switch
+        private const val DELAY_INITIAL_ENDPOINT_SWITCH: Long = 2000L
         // CallStates. All these states mirror the values in the platform.
         const val STATE_INITIALIZING = 0
         const val STATE_NEW = 1
@@ -115,34 +117,29 @@ internal class CallSessionLegacy(
      */
     @VisibleForTesting
     internal fun toRemappedCallEndpointCompat(endpoint: CallEndpointCompat): CallEndpointCompat {
-        if (endpoint.isBluetoothType()) {
-            val key = endpoint.name.toString()
-            val btEndpointMapping = preCallEndpointMapping?.mBluetoothEndpoints
-            return if (btEndpointMapping != null && btEndpointMapping.containsKey(key)) {
-                btEndpointMapping[key]!!
-            } else {
-                endpoint
-            }
-        } else {
-            val key = endpoint.type
-            val nonBtEndpointMapping = preCallEndpointMapping?.mNonBluetoothEndpoints
-            return if (nonBtEndpointMapping != null && nonBtEndpointMapping.containsKey(key)) {
-                nonBtEndpointMapping[key]!!
-            } else {
-                endpoint
-            }
-        }
+        val jetpackUuid =
+            CallEndpointUuidTracker.getUuid(
+                mCallSessionLegacyId,
+                endpoint.type,
+                endpoint.name.toString()
+            )
+        val jetpackEndpoint = CallEndpointCompat(endpoint.name, endpoint.type, jetpackUuid)
+        Log.d(TAG, " n=[${endpoint.name}]  plat=[${endpoint}] --> jet=[$jetpackEndpoint]")
+        return jetpackEndpoint
     }
 
     private fun setCurrentCallEndpoint(state: CallAudioState) {
         mPreviousCallEndpoint = mCurrentCallEndpoint
-        mCurrentCallEndpoint = toRemappedCallEndpointCompat(toCallEndpointCompat(state))
+        mCurrentCallEndpoint =
+            toRemappedCallEndpointCompat(toCallEndpointCompat(state, mCallSessionLegacyId))
         callChannels.currentEndpointChannel.trySend(mCurrentCallEndpoint!!).getOrThrow()
     }
 
     private fun setAvailableCallEndpoints(state: CallAudioState) {
         val availableEndpoints =
-            toCallEndpointsCompat(state).map { toRemappedCallEndpointCompat(it) }.sorted()
+            toCallEndpointsCompat(state, mCallSessionLegacyId)
+                .map { toRemappedCallEndpointCompat(it) }
+                .sorted()
         mAvailableCallEndpoints = availableEndpoints
         callChannels.availableEndpointChannel.trySend(availableEndpoints).getOrThrow()
     }
@@ -334,7 +331,12 @@ internal class CallSessionLegacy(
     fun requestEndpointChange(callEndpoint: CallEndpointCompat): CallControlResult {
         // cache the last CallEndpoint the user requested to reference in audio callbacks
         mLastClientRequestedEndpoint = callEndpoint
-        return if (Build.VERSION.SDK_INT < VERSION_CODES.P) {
+        return if (
+            Build.VERSION.SDK_INT <
+                VERSION_CODES.P || /* In the event the client hasn't accepted BLUETOOTH_CONNECT,
+                  let the platform decide */
+                (callEndpoint.name == EndpointUtils.BLUETOOTH_DEVICE_DEFAULT_NAME)
+        ) {
             Api26PlusImpl.setAudio(callEndpoint, this)
             CallControlResult.Success()
         } else {
@@ -557,5 +559,10 @@ internal class CallSessionLegacy(
             callChannels.availableEndpointChannel.receiveAsFlow()
 
         override val isMuted: Flow<Boolean> = callChannels.isMutedChannel.receiveAsFlow()
+    }
+
+    override fun close() {
+        Log.i(TAG, "close: CallSessionLegacyId=[$mCallSessionLegacyId]")
+        CallEndpointUuidTracker.endSession(mCallSessionLegacyId)
     }
 }
