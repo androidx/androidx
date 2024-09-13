@@ -36,7 +36,6 @@ import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.TestExtension
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
-import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasDeviceTests
 import com.android.build.api.variant.KotlinMultiplatformAndroidComponentsExtension
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
@@ -564,6 +563,7 @@ fun Project.configureTestConfigGeneration(
 
 private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCollection> {
     val testSourceFileCollections = mutableListOf<FileCollection>()
+    @Suppress("DEPRECATION") // usage of HasAndroidTest
     when (variant) {
         is TestVariant -> {
             // com.android.test modules keep test code in main sourceset
@@ -579,7 +579,7 @@ private fun Project.getTestSourceSetsForAndroid(variant: Variant?): List<FileCol
             // Note, don't have to add kotlin-multiplatform as it is not compatible with
             // com.android.test modules
         }
-        is HasAndroidTest -> {
+        is com.android.build.api.variant.HasAndroidTest -> {
             variant.androidTest?.sources?.java?.all?.let {
                 testSourceFileCollections.add(files(it))
             }
