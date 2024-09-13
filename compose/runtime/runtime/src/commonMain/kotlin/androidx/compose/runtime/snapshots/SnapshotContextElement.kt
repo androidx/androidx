@@ -35,4 +35,6 @@ interface SnapshotContextElement : CoroutineContext.Element {
     companion object Key : CoroutineContext.Key<SnapshotContextElement>
 }
 
-internal expect class SnapshotContextElementImpl(snapshot: Snapshot) : SnapshotContextElement
+internal expect class SnapshotContextElementImpl(snapshot: Snapshot) : SnapshotContextElement {
+    override val key: CoroutineContext.Key<*>
+}
