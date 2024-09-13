@@ -26,6 +26,8 @@ import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.ConfigurationError
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.ExperimentalConfig
 import androidx.benchmark.InstrumentationResults
 import androidx.benchmark.Profiler
 import androidx.benchmark.ResultWriter
@@ -34,13 +36,12 @@ import androidx.benchmark.checkAndGetSuppressionState
 import androidx.benchmark.conditionalError
 import androidx.benchmark.inMemoryTrace
 import androidx.benchmark.json.BenchmarkData
-import androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
 import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
-import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoTraceProcessor
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assume.assumeFalse
+import perfetto.protos.AndroidStartupMetric
 
 /** Get package ApplicationInfo, throw if not found. */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -197,7 +198,7 @@ internal fun checkErrors(packageName: String): ConfigurationError.SuppressionSta
  *
  * This function is a building block for public testing APIs
  */
-@ExperimentalPerfettoCaptureApi
+@ExperimentalBenchmarkConfigApi
 private fun macrobenchmark(
     uniqueName: String,
     className: String,
@@ -208,7 +209,7 @@ private fun macrobenchmark(
     iterations: Int,
     launchWithClearTask: Boolean,
     startupModeMetricHint: StartupMode?,
-    perfettoConfig: PerfettoConfig?,
+    experimentalConfig: ExperimentalConfig?,
     perfettoSdkConfig: PerfettoSdkConfig?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
@@ -273,7 +274,7 @@ private fun macrobenchmark(
                 scope = scope,
                 profiler = null, // Don't profile when measuring
                 metrics = metrics,
-                perfettoConfig = perfettoConfig,
+                experimentalConfig = experimentalConfig,
                 perfettoSdkConfig = perfettoSdkConfig,
                 setupBlock = setupBlock,
                 measureBlock = measureBlock
@@ -292,7 +293,7 @@ private fun macrobenchmark(
                     scope = scope,
                     profiler = MethodTracingProfiler(scope),
                     metrics = emptyList(), // Nothing to measure
-                    perfettoConfig = perfettoConfig,
+                    experimentalConfig = experimentalConfig,
                     perfettoSdkConfig = perfettoSdkConfig,
                     setupBlock = setupBlock,
                     measureBlock = measureBlock
@@ -303,11 +304,13 @@ private fun macrobenchmark(
     val tracePaths = mutableListOf<String>()
     val profilerResults = mutableListOf<Profiler.ResultFile>()
     val measurementsList = mutableListOf<List<Metric.Measurement>>()
+    val insightsList = mutableListOf<List<AndroidStartupMetric.SlowStartReason>>()
 
     outputs.forEach {
         tracePaths += it.tracePaths
         profilerResults += it.profilerResults
         measurementsList += it.measurements
+        insightsList += it.insights
     }
 
     // Merge measurements
@@ -327,6 +330,7 @@ private fun macrobenchmark(
             warningMessage = warningMessage,
             testName = uniqueName,
             measurements = measurements,
+            insights = createInsightsIdeSummary(insightsList),
             iterationTracePaths = tracePaths,
             profilerResults = profilerResults
         )
@@ -372,7 +376,7 @@ private fun macrobenchmark(
 
 /** Run a macrobenchmark with the specified StartupMode */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@ExperimentalPerfettoCaptureApi
+@ExperimentalBenchmarkConfigApi
 fun macrobenchmarkWithStartupMode(
     uniqueName: String,
     className: String,
@@ -381,7 +385,7 @@ fun macrobenchmarkWithStartupMode(
     metrics: List<Metric>,
     compilationMode: CompilationMode,
     iterations: Int,
-    perfettoConfig: PerfettoConfig?,
+    experimentalConfig: ExperimentalConfig?,
     startupMode: StartupMode?,
     setupBlock: MacrobenchmarkScope.() -> Unit,
     measureBlock: MacrobenchmarkScope.() -> Unit
@@ -407,7 +411,7 @@ fun macrobenchmarkWithStartupMode(
         compilationMode = compilationMode,
         iterations = iterations,
         startupModeMetricHint = startupMode,
-        perfettoConfig = perfettoConfig,
+        experimentalConfig = experimentalConfig,
         perfettoSdkConfig = perfettoSdkConfig,
         setupBlock = {
             if (startupMode == StartupMode.COLD) {

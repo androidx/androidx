@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
+import java.lang.StringBuilder
 import java.util.Locale
 import org.jetbrains.annotations.TestOnly
 
@@ -63,7 +64,8 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         message: String? = null,
         measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
-        profilerResults: List<Profiler.ResultFile> = emptyList()
+        profilerResults: List<Profiler.ResultFile> = emptyList(),
+        insights: List<Insight> = emptyList(),
     ) {
         if (warningMessage != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(warningMessage)
@@ -74,7 +76,8 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
                 message = message,
                 measurements = measurements,
                 iterationTracePaths = iterationTracePaths,
-                profilerResults = profilerResults
+                profilerResults = profilerResults,
+                insights = insights
             )
         reportIdeSummary(summaryV1 = summaryPair.summaryV1, summaryV2 = summaryPair.summaryV2)
     }
@@ -168,7 +171,8 @@ object InstrumentationResults {
         message: String? = null,
         measurements: Measurements? = null,
         iterationTracePaths: List<String>? = null,
-        profilerResults: List<Profiler.ResultFile> = emptyList()
+        profilerResults: List<Profiler.ResultFile> = emptyList(),
+        insights: List<Insight> = emptyList(),
     ): IdeSummaryPair {
         val warningMessage = ideWarningPrefix.ifEmpty { null }
         ideWarningPrefix = ""
@@ -178,7 +182,7 @@ object InstrumentationResults {
         val linkableIterTraces =
             iterationTracePaths?.map { absolutePath ->
                 Outputs.relativePathFor(absolutePath).replace("(", "\\(").replace(")", "\\)")
-            }
+            } ?: emptyList()
 
         if (measurements != null) {
             require(measurements.isNotEmpty()) { "Require non-empty list of metric results." }
@@ -248,7 +252,7 @@ object InstrumentationResults {
                 "  $name   min $min,   median $median,   max $max"
             }
             v2metricLines =
-                if (linkableIterTraces != null) {
+                if (linkableIterTraces.isNotEmpty()) {
                     // Per iteration trace paths present, so link min/med/max to respective
                     // iteration traces
                     metricLines { name, min, median, max, result ->
@@ -267,34 +271,72 @@ object InstrumentationResults {
             v2metricLines = emptyList()
         }
 
-        val v2traceLinks =
-            if (linkableIterTraces != null) {
-                listOf(
-                    "    Traces: Iteration " +
-                        linkableIterTraces
-                            .mapIndexed { index, path -> "[$index](file://$path)" }
-                            .joinToString(" ")
-                )
+        fun markdownFileLink(label: String, outputRelativePath: String): String =
+            "[$label](file://$outputRelativePath)"
+
+        // TODO(353692849): split into methods and remove the v1 format (replace with a v2 getter)
+        val v2lines =
+            if (insights.isEmpty()) {
+                val v2traceLinks =
+                    if (linkableIterTraces.isNotEmpty()) {
+                        listOf(
+                            "    Traces: Iteration " +
+                                linkableIterTraces
+                                    .mapIndexed { index, path -> markdownFileLink("$index", path) }
+                                    .joinToString(" ")
+                        )
+                    } else {
+                        emptyList()
+                    } +
+                        profilerResults.map {
+                            "    ${markdownFileLink(it.label, it.sanitizedOutputRelativePath)}"
+                        }
+                listOfNotNull(warningMessage, testName, message) +
+                    v2metricLines +
+                    v2traceLinks +
+                    "" /* adds \n */
             } else {
-                emptyList()
-            } +
-                profilerResults.map {
-                    "    [${it.label}](file://${it.sanitizedOutputRelativePath})"
+                buildList {
+                    if (warningMessage != null) add(warningMessage)
+                    if (testName != null) add(testName)
+                    if (message != null) add(message)
+                    val tree = TreeBuilder()
+                    if (v2metricLines.isNotEmpty()) {
+                        tree.append("Metrics", 0)
+                        for (metric in v2metricLines) tree.append(metric, 1)
+                    }
+                    if (insights.isNotEmpty()) {
+                        tree.append("App Startup Insights", 0)
+                        for ((criterion, observed) in insights) {
+                            tree.append(criterion, 1)
+                            tree.append(observed, 2)
+                        }
+                    }
+                    if (linkableIterTraces.isNotEmpty() || profilerResults.isNotEmpty()) {
+                        tree.append("Traces", 0)
+                        if (linkableIterTraces.isNotEmpty())
+                            tree.append(
+                                linkableIterTraces
+                                    .mapIndexed { ix, trace -> markdownFileLink("$ix", trace) }
+                                    .joinToString(prefix = "Iteration ", separator = " "),
+                                1
+                            )
+                        for (line in profilerResults) tree.append(
+                            markdownFileLink(line.label, line.sanitizedOutputRelativePath),
+                            1
+                        )
+                    }
+                    addAll(tree.build())
+                    add("")
                 }
-        return IdeSummaryPair(
-            v1lines =
-                listOfNotNull(
-                    warningMessage,
-                    testName,
-                    message,
-                ) + v1metricLines + /* adds \n */ "",
-            v2lines =
-                listOfNotNull(
-                    warningMessage,
-                    testName,
-                    message,
-                ) + v2metricLines + v2traceLinks + /* adds \n */ ""
-        )
+            }
+
+        // TODO(353692849): replace the v1 format with a v2 format regardless insights
+        val v1lines =
+            if (insights.isNotEmpty()) v2lines
+            else listOfNotNull(warningMessage, testName, message) + v1metricLines + /* adds \n */ ""
+
+        return IdeSummaryPair(v1lines = v1lines, v2lines = v2lines)
     }
 
     /**
@@ -339,4 +381,35 @@ object InstrumentationResults {
     internal fun reportBundle(bundle: Bundle) {
         InstrumentationRegistry.getInstrumentation().sendStatus(2, bundle)
     }
+}
+
+/**
+ * Constructs a hierarchical, tree-like representation of data, similar to the output of the 'tree'
+ * command.
+ */
+private class TreeBuilder {
+    private val lines = mutableListOf<StringBuilder>()
+    private val nbsp = '\u00A0'
+
+    fun append(message: String, depth: Int): TreeBuilder {
+        require(depth >= 0)
+
+        // Create a new line for the tree node, with appropriate indentation using spaces.
+        val line = StringBuilder()
+        repeat(depth * 4) { line.append(nbsp) }
+        line.append("└── ")
+        line.append(message)
+        lines.add(line)
+
+        // Update vertical lines (pipes) to visually connect the new node to its parent/sibling.
+        // TODO: Optimize this for deep trees to avoid potential quadratic time complexity.
+        val anchorColumn = depth * 4
+        var i = lines.lastIndex - 1 // start climbing with the first line above the newly added one
+        while (i >= 0 && lines[i].getOrNull(anchorColumn) == nbsp) lines[i--][anchorColumn] = '│'
+        if (i >= 0 && lines[i].getOrNull(anchorColumn) == '└') lines[i][anchorColumn] = '├'
+
+        return this
+    }
+
+    fun build(): List<String> = lines.map { it.toString() }
 }
