@@ -24,13 +24,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.pointer.pointerInput
@@ -44,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxOfOrNull
-import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.HierarchicalFocusCoordinator
 import androidx.wear.compose.foundation.rememberActiveFocusRequester
 import kotlin.math.roundToInt
@@ -52,11 +46,9 @@ import kotlinx.coroutines.coroutineScope
 
 /**
  * A group of [Picker]s to build components where multiple pickers are required to be combined
- * together. The component maintains the focus between different [Picker]s by using
- * [PickerGroupState]. It can be handled from outside the component using the same instance and its
- * properties. When touch exploration services are enabled, the focus moves to the picker which is
- * clicked. To handle clicks in a different manner, use the [onSelected] lambda to control the focus
- * of talkback and actual focus.
+ * together. At most one [Picker] can be selected at a time. When touch exploration services are
+ * enabled, the focus moves to the picker which is clicked. To handle clicks in a different manner,
+ * use the [onPickerSelected] lambda to control the focus of talkback and actual focus.
  *
  * It is recommended to ensure that a [Picker] in non read only mode should have user scroll enabled
  * when touch exploration services are running.
@@ -68,37 +60,36 @@ import kotlinx.coroutines.coroutineScope
  * Example of an auto centering picker group where the total width exceeds screen's width:
  *
  * @sample androidx.wear.compose.material3.samples.AutoCenteringPickerGroup
- * @param pickers List of [Picker]s represented using [PickerGroupItem] in the same order of display
- *   from left to right.
+ * @param selectedPickerIndex The index of the [Picker] that is selected. The value is ignored when
+ *   negative, which means that no [Picker] is selected.
+ * @param onPickerSelected Action triggered when one of the [Picker]s is selected inside the group.
+ *   Typically, [selectedPickerIndex] and [onPickerSelected] are used in tandem to apply a visual
+ *   highlight to the currently selected [Picker] as a guide to the user.
  * @param modifier [Modifier] to be applied to the [PickerGroup].
- * @param pickerGroupState The state of the component.
- * @param onSelected Action triggered when one of the [Picker] is selected inside the group.
  * @param autoCenter Indicates whether the selected [Picker] should be centered on the screen. It is
  *   recommended to set this as true when all the pickers cannot be fit into the screen. Or provide
  *   a mechanism to navigate to pickers which are not visible on screen. If false, the whole row
  *   containing pickers would be centered.
  * @param propagateMinConstraints Whether the incoming min constraints should be passed to content.
- * @param touchExplorationStateProvider A [TouchExplorationStateProvider] to provide the current
- *   state of touch exploration service. This will be used to determine how the PickerGroup and
- *   talkback focus behaves/reacts to click and scroll events.
  * @param separator A composable block which describes the separator between different [Picker]s.
  *   The integer parameter to the composable depicts the index where it will be kept. For example, 0
  *   would represent the separator between the first and second picker.
+ * @param content The content of the [PickerGroup] as a container of [Picker]s.
  */
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
+@Suppress("ComposableLambdaParameterPosition")
 fun PickerGroup(
-    vararg pickers: PickerGroupItem,
+    selectedPickerIndex: Int,
+    onPickerSelected: (selectedIndex: Int) -> Unit,
     modifier: Modifier = Modifier,
-    pickerGroupState: PickerGroupState = rememberPickerGroupState(),
-    onSelected: (selectedIndex: Int) -> Unit = {},
     autoCenter: Boolean = true,
+    separator: (@Composable (Int) -> Unit)? = null,
     propagateMinConstraints: Boolean = false,
-    touchExplorationStateProvider: TouchExplorationStateProvider =
-        DefaultTouchExplorationStateProvider(),
-    separator: (@Composable (Int) -> Unit)? = null
+    content: PickerGroupScope.() -> Unit
 ) {
-    val touchExplorationServicesEnabled by touchExplorationStateProvider.touchExplorationState()
+    val actualContent = PickerGroupScope().apply(block = content)
+    val touchExplorationServicesEnabled by
+        LocalTouchExplorationStateProvider.current.touchExplorationState()
 
     AutoCenteringRow(
         modifier =
@@ -107,9 +98,14 @@ fun PickerGroup(
                 // composable to selected picker
                 if (
                     touchExplorationServicesEnabled &&
-                        pickerGroupState.selectedIndex in pickers.indices
+                        selectedPickerIndex >= 0 &&
+                        selectedPickerIndex in actualContent.items.indices
                 ) {
-                    Modifier.scrollablePicker(pickers[pickerGroupState.selectedIndex].pickerState)
+                    Modifier.scrollable(
+                        state = actualContent.items[selectedPickerIndex].pickerState,
+                        orientation = Orientation.Vertical,
+                        reverseDirection = true
+                    )
                 } else {
                     Modifier
                 }
@@ -119,11 +115,10 @@ fun PickerGroup(
         // When no Picker is selected, provide an empty composable as a placeholder
         // and tell the HierarchicalFocusCoordinator to clear the focus.
         HierarchicalFocusCoordinator(
-            requiresFocus = { !pickers.indices.contains(pickerGroupState.selectedIndex) }
+            requiresFocus = { !actualContent.items.indices.contains(selectedPickerIndex) }
         ) {}
-        pickers.forEachIndexed { index, pickerData ->
-            val pickerSelected = index == pickerGroupState.selectedIndex
-            val flingBehavior = PickerDefaults.flingBehavior(state = pickerData.pickerState)
+        actualContent.items.forEachIndexed { index, pickerData ->
+            val pickerSelected = index == selectedPickerIndex
             HierarchicalFocusCoordinator(requiresFocus = { pickerSelected }) {
                 val focusRequester = pickerData.focusRequester ?: rememberActiveFocusRequester()
                 Picker(
@@ -141,7 +136,6 @@ fun PickerGroup(
                             // Do not need focusable as it's already set in ScalingLazyColumn
                             .focusRequester(focusRequester),
                     readOnlyLabel = pickerData.readOnlyLabel,
-                    flingBehavior = flingBehavior,
                     onSelected = pickerData.onSelected,
                     spacing = pickerData.spacing,
                     userScrollEnabled = !touchExplorationServicesEnabled || pickerSelected,
@@ -158,8 +152,7 @@ fun PickerGroup(
                                             while (true) {
                                                 awaitEachGesture {
                                                     awaitFirstDown(requireUnconsumed = false)
-                                                    pickerGroupState.selectedIndex = index
-                                                    onSelected(index)
+                                                    onPickerSelected(index)
                                                 }
                                             }
                                         }
@@ -171,67 +164,62 @@ fun PickerGroup(
                     }
                 )
             }
-            if (index < pickers.size - 1) {
+            if (index < actualContent.items.size - 1) {
                 separator?.invoke(index)
             }
         }
     }
 }
 
-/**
- * Creates a [PickerGroupState] that is remembered across compositions.
- *
- * @param initiallySelectedIndex the picker index that will be initially focused.
- */
-@Composable
-fun rememberPickerGroupState(initiallySelectedIndex: Int = 0): PickerGroupState =
-    rememberSaveable(initiallySelectedIndex, saver = PickerGroupState.Saver) {
-        PickerGroupState(initiallySelectedIndex)
-    }
+class PickerGroupScope {
+    internal val items = mutableListOf<PickerGroupItem>()
 
-/**
- * A state object that can be used to observe the selected [Picker].
- *
- * @param initiallySelectedIndex the picker index that will be initially selected.
- */
-class PickerGroupState(
-    initiallySelectedIndex: Int = 0,
-) {
-
-    /** The current selected [Picker] index. */
-    var selectedIndex by mutableIntStateOf(initiallySelectedIndex)
-
-    companion object {
-        val Saver =
-            listSaver<PickerGroupState, Any?>(
-                save = { listOf(it.selectedIndex) },
-                restore = { saved -> PickerGroupState(initiallySelectedIndex = saved[0] as Int) }
+    /**
+     * Adds a [Picker] item to the [PickerGroup]
+     *
+     * @param pickerState The state of the picker.
+     * @param modifier [Modifier] to be applied to the [Picker].
+     * @param contentDescription Text used by accessibility services to describe what the selected
+     *   option represents. This text should be localized, such as by using
+     *   [androidx.compose.ui.res.stringResource] or similar. Typically, the content description is
+     *   inferred via derivedStateOf to avoid unnecessary recompositions, like this: val description
+     *   by remember { derivedStateOf { /* expression using state.selectedOption */ } }.
+     * @param focusRequester Optional [FocusRequester] for the [Picker]. If not provided, a local
+     *   instance of [FocusRequester] will be created to handle the focus between different pickers.
+     * @param onSelected Action triggered when the [Picker] is selected by clicking.
+     * @param spacing The amount of spacing in [Dp] between items. Can be negative, which can be
+     *   useful for Text if it has plenty of whitespace.
+     * @param readOnlyLabel A slot for providing a label, displayed above the selected option when
+     *   the [Picker] is read-only. The label is overlaid with the currently selected option within
+     *   a Box, so it is recommended that the label is given [Alignment.TopCenter].
+     * @param option A block which describes the content. The integer parameter to the composable
+     *   denotes the index of the option and boolean denotes whether the picker is selected or not.
+     */
+    fun pickerGroupItem(
+        pickerState: PickerState,
+        modifier: Modifier = Modifier,
+        contentDescription: String? = null,
+        focusRequester: FocusRequester? = null,
+        onSelected: () -> Unit = {},
+        readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
+        spacing: Dp = 0.dp,
+        option: @Composable PickerScope.(optionIndex: Int, pickerSelected: Boolean) -> Unit
+    ) =
+        items.add(
+            PickerGroupItem(
+                pickerState,
+                modifier,
+                contentDescription,
+                focusRequester,
+                onSelected,
+                readOnlyLabel,
+                spacing,
+                option
             )
-    }
+        )
 }
 
-/**
- * A class for representing [Picker] which will be composed inside a [PickerGroup].
- *
- * @param pickerState The state of the picker.
- * @param modifier [Modifier] to be applied to the [Picker].
- * @param contentDescription Text used by accessibility services to describe what the selected
- *   option represents. This text should be localized, such as by using
- *   [androidx.compose.ui.res.stringResource] or similar. Typically, the content description is
- *   inferred via derivedStateOf to avoid unnecessary recompositions, like this: val description by
- *   remember { derivedStateOf { /* expression using state.selectedOption */ } }.
- * @param focusRequester Optional [FocusRequester] for the [Picker]. If not provided, a local
- *   instance of [FocusRequester] will be created to handle the focus between different pickers.
- * @param onSelected Action triggered when the [Picker] is selected by clicking.
- * @param spacing The amount of spacing in [Dp] between items. Can be negative, which can be useful
- *   for Text if it has plenty of whitespace.
- * @param readOnlyLabel A slot for providing a label, displayed above the selected option when the
- *   [Picker] is read-only. The label is overlaid with the currently selected option within a Box,
- *   so it is recommended that the label is given [Alignment.TopCenter].
- * @param option A block which describes the content. The integer parameter to the composable
- *   denotes the index of the option and boolean denotes whether the picker is selected or not.
- */
-class PickerGroupItem(
+internal data class PickerGroupItem(
     val pickerState: PickerState,
     val modifier: Modifier = Modifier,
     val contentDescription: String? = null,
@@ -276,19 +264,6 @@ private fun AutoCenteringRow(
             }
         }
     }
-}
-
-/**
- * A scrollable modifier which can be applied on a composable to propagate the scrollable events to
- * the specified [Picker] defined by the [PickerState].
- */
-private fun Modifier.scrollablePicker(pickerState: PickerState) = composed {
-    this.scrollable(
-        state = pickerState,
-        orientation = Orientation.Vertical,
-        flingBehavior = PickerDefaults.flingBehavior(state = pickerState),
-        reverseDirection = true
-    )
 }
 
 /**

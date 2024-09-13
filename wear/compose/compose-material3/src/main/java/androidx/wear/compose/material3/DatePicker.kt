@@ -44,7 +44,9 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -60,6 +62,7 @@ import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.ButtonDefaults.filledTonalButtonColors
@@ -119,16 +122,23 @@ fun DatePicker(
 
     val datePickerState = remember(initialDate) { DatePickerState(initialDate, minDate, maxDate) }
 
-    val touchExplorationStateProvider = remember { DefaultTouchExplorationStateProvider() }
-    val touchExplorationServicesEnabled by touchExplorationStateProvider.touchExplorationState()
+    val touchExplorationServicesEnabled by
+        LocalTouchExplorationStateProvider.current.touchExplorationState()
 
-    // When the time picker loads, none of the individual pickers are selected in talkback mode,
-    // otherwise first picker should be focused.
-    val pickerGroupState =
-        if (touchExplorationServicesEnabled) {
-            rememberPickerGroupState(NoneSelectedIndex)
-        } else {
-            rememberPickerGroupState(0)
+    /** The current selected [Picker] index. */
+    var selectedIndex by
+        remember(touchExplorationServicesEnabled) {
+            // When the date picker loads, none of the individual pickers are selected in talkback
+            // mode,
+            // otherwise first picker should be focused (depends on the picker ordering given by
+            // datePickerType)
+            val initiallySelectedIndex =
+                if (touchExplorationServicesEnabled) {
+                    null
+                } else {
+                    0
+                }
+            mutableStateOf(initiallySelectedIndex)
         }
 
     val isLargeScreen = LocalConfiguration.current.screenWidthDp > 225
@@ -153,7 +163,7 @@ fun DatePicker(
     val dayString = getString(DatePickerDay)
 
     val prevStartMonth = remember { mutableIntStateOf(datePickerState.monthOptionStartMonth) }
-    LaunchedEffect(datePickerState.yearState.selectedOption) {
+    LaunchedEffect(datePickerState.yearState.selectedOptionIndex) {
         adjustOptionSelection(
             prevStartState = prevStartMonth,
             currentStartValue = datePickerState.monthOptionStartMonth,
@@ -164,8 +174,8 @@ fun DatePicker(
 
     val prevStartDay = remember { mutableIntStateOf(datePickerState.dayOptionStartDay) }
     LaunchedEffect(
-        datePickerState.yearState.selectedOption,
-        datePickerState.monthState.selectedOption
+        datePickerState.yearState.selectedOptionIndex,
+        datePickerState.monthState.selectedOptionIndex
     ) {
         adjustOptionSelection(
             prevStartState = prevStartDay,
@@ -179,12 +189,12 @@ fun DatePicker(
     val fullMonthNames = remember { getMonthNames("MMMM") }
     val yearContentDescription by
         remember(
-            pickerGroupState.selectedIndex,
+            selectedIndex,
             datePickerState.currentYear(),
         ) {
             derivedStateOf {
                 createDescriptionDatePicker(
-                    pickerGroupState,
+                    selectedIndex,
                     datePickerState.currentYear(),
                     yearString,
                 )
@@ -192,11 +202,11 @@ fun DatePicker(
         }
     val monthContentDescription by
         remember(
-            pickerGroupState.selectedIndex,
+            selectedIndex,
             datePickerState.currentMonth(),
         ) {
             derivedStateOf {
-                if (pickerGroupState.selectedIndex == NoneSelectedIndex) {
+                if (selectedIndex == null) {
                     monthString
                 } else {
                     fullMonthNames[(datePickerState.currentMonth() - 1) % 12]
@@ -205,12 +215,12 @@ fun DatePicker(
         }
     val dayContentDescription by
         remember(
-            pickerGroupState.selectedIndex,
+            selectedIndex,
             datePickerState.currentDay(),
         ) {
             derivedStateOf {
                 createDescriptionDatePicker(
-                    pickerGroupState,
+                    selectedIndex,
                     datePickerState.currentDay(),
                     dayString,
                 )
@@ -221,10 +231,10 @@ fun DatePicker(
     val confirmButtonIndex = datePickerOptions.size
 
     val onPickerSelected = { current: Int, next: Int ->
-        if (pickerGroupState.selectedIndex != current) {
-            pickerGroupState.selectedIndex = current
+        if (selectedIndex != current) {
+            selectedIndex = current
         } else {
-            pickerGroupState.selectedIndex = next
+            selectedIndex = next
             if (next == confirmButtonIndex) {
                 focusRequesterConfirmButton.requestFocus()
             }
@@ -240,12 +250,14 @@ fun DatePicker(
             Spacer(Modifier.height(14.dp))
             Text(
                 text =
-                    when (datePickerOptions.getOrNull(pickerGroupState.selectedIndex)) {
-                        DatePickerOption.Day -> dayString
-                        DatePickerOption.Month -> monthString
-                        DatePickerOption.Year -> yearString
-                        else -> ""
-                    },
+                    selectedIndex?.let {
+                        when (datePickerOptions.getOrNull(it)) {
+                            DatePickerOption.Day -> dayString
+                            DatePickerOption.Month -> monthString
+                            DatePickerOption.Year -> yearString
+                            else -> ""
+                        }
+                    } ?: "",
                 color = colors.pickerLabelColor,
                 style = labelTextStyle,
                 maxLines = 1,
@@ -290,28 +302,35 @@ fun DatePicker(
 
                 Row(
                     modifier =
-                        Modifier.fillMaxWidth()
-                            .weight(1f)
-                            .offset(
+                        Modifier.fillMaxWidth().weight(1f).offset {
+                            IntOffset(
                                 getPickerGroupRowOffset(
-                                    boxConstraints.maxWidth,
-                                    dayWidth,
-                                    monthYearWidth,
-                                    monthYearWidth,
-                                    touchExplorationServicesEnabled,
-                                    pickerGroupState,
-                                ),
-                            ),
+                                        boxConstraints.maxWidth,
+                                        dayWidth,
+                                        monthYearWidth,
+                                        monthYearWidth,
+                                        touchExplorationServicesEnabled,
+                                        selectedIndex,
+                                    )
+                                    .roundToPx(),
+                                0
+                            )
+                        },
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center,
                 ) {
                     val spacing = if (isLargeScreen) 6.dp else 4.dp
-
-                    val pickerGroupItems =
-                        datePickerOptions.mapIndexed { index, datePickerOption ->
+                    // Pass a negative value as the selected picker index when none is selected.
+                    PickerGroup(
+                        selectedPickerIndex = selectedIndex ?: -1,
+                        onPickerSelected = { selectedIndex = it },
+                        autoCenter = true,
+                        separator = { Spacer(Modifier.width(if (isLargeScreen) 12.dp else 8.dp)) },
+                    ) {
+                        datePickerOptions.forEachIndexed { index, datePickerOption ->
                             when (datePickerOption) {
                                 DatePickerOption.Day ->
-                                    PickerGroupItem(
+                                    pickerGroupItem(
                                         pickerState = datePickerState.dayState,
                                         modifier = Modifier.width(dayWidth).fillMaxHeight(),
                                         onSelected = { onPickerSelected(index, index + 1) },
@@ -331,7 +350,7 @@ fun DatePicker(
                                         spacing = spacing,
                                     )
                                 DatePickerOption.Month ->
-                                    PickerGroupItem(
+                                    pickerGroupItem(
                                         pickerState = datePickerState.monthState,
                                         modifier = Modifier.width(monthYearWidth).fillMaxHeight(),
                                         onSelected = { onPickerSelected(index, index + 1) },
@@ -352,7 +371,7 @@ fun DatePicker(
                                         spacing = spacing,
                                     )
                                 DatePickerOption.Year ->
-                                    PickerGroupItem(
+                                    pickerGroupItem(
                                         pickerState = datePickerState.yearState,
                                         modifier = Modifier.width(monthYearWidth).fillMaxHeight(),
                                         onSelected = { onPickerSelected(index, index + 1) },
@@ -373,41 +392,31 @@ fun DatePicker(
                                     )
                             }
                         }
-
-                    PickerGroup(
-                        *pickerGroupItems.toTypedArray(),
-                        pickerGroupState = pickerGroupState,
-                        autoCenter = true,
-                        separator = { Spacer(Modifier.width(if (isLargeScreen) 12.dp else 8.dp)) },
-                        touchExplorationStateProvider = touchExplorationStateProvider,
-                    )
+                    }
                 }
             }
             Spacer(Modifier.height(if (isLargeScreen) 6.dp else 4.dp))
             EdgeButton(
                 onClick = {
-                    if (pickerGroupState.selectedIndex >= 2) {
-                        val confirmedYear: Int = datePickerState.currentYear()
-                        val confirmedMonth: Int = datePickerState.currentMonth()
-                        val confirmedDay: Int = datePickerState.currentDay()
-                        val confirmedDate =
-                            LocalDate.of(confirmedYear, confirmedMonth, confirmedDay)
-                        onDatePicked(confirmedDate)
-                    } else {
-                        onPickerSelected(
-                            pickerGroupState.selectedIndex,
-                            pickerGroupState.selectedIndex + 1
-                        )
+                    selectedIndex?.let { selectedIndex ->
+                        if (selectedIndex >= 2) {
+                            val confirmedYear: Int = datePickerState.currentYear()
+                            val confirmedMonth: Int = datePickerState.currentMonth()
+                            val confirmedDay: Int = datePickerState.currentDay()
+                            val confirmedDate =
+                                LocalDate.of(confirmedYear, confirmedMonth, confirmedDay)
+                            onDatePicked(confirmedDate)
+                        } else {
+                            onPickerSelected(selectedIndex, selectedIndex + 1)
+                        }
                     }
                 },
                 modifier =
-                    Modifier.semantics {
-                            focused = pickerGroupState.selectedIndex == confirmButtonIndex
-                        }
+                    Modifier.semantics { focused = (selectedIndex == confirmButtonIndex) }
                         .focusRequester(focusRequesterConfirmButton)
                         .focusable(),
                 colors =
-                    if (pickerGroupState.selectedIndex >= 2) {
+                    if (selectedIndex?.let { it >= 2 } == true) {
                         buttonColors(
                             contentColor = colors.confirmButtonContentColor,
                             containerColor = colors.confirmButtonContainerColor,
@@ -419,17 +428,20 @@ fun DatePicker(
                         )
                     }
             ) {
+                // If none is selected (selectedIndex == null) we show 'next' instead of 'confirm'.
+                val showConfirm = selectedIndex?.let { it >= 2 } == true
                 Icon(
                     imageVector =
-                        if (pickerGroupState.selectedIndex < 2) {
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight
-                        } else {
+                        if (showConfirm) {
                             Icons.Filled.Check
+                        } else {
+                            Icons.AutoMirrored.Filled.KeyboardArrowRight
                         },
                     contentDescription =
-                        if (pickerGroupState.selectedIndex >= 2) {
+                        if (showConfirm) {
                             getString(PickerConfirmButtonContentDescription)
                         } else {
+                            // If none is selected, return the 'next' content description.
                             getString(PickerNextButtonContentDescription)
                         },
                     modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
@@ -535,8 +547,7 @@ object DatePickerDefaults {
 }
 
 @Immutable
-class DatePickerColors
-constructor(
+class DatePickerColors(
     val selectedPickerContentColor: Color,
     val unselectedPickerContentColor: Color,
     val pickerLabelColor: Color,
@@ -637,13 +648,13 @@ private fun getPickerGroupRowOffset(
     monthPickerWidth: Dp,
     yearPickerWidth: Dp,
     touchExplorationServicesEnabled: Boolean,
-    pickerGroupState: PickerGroupState,
+    selectedIndex: Int?,
 ): Dp {
     val currentOffset = (rowWidth - (dayPickerWidth + monthPickerWidth + yearPickerWidth)) / 2
 
-    return if (touchExplorationServicesEnabled && pickerGroupState.selectedIndex < 0) {
+    return if (touchExplorationServicesEnabled && selectedIndex == null) {
         ((rowWidth - dayPickerWidth) / 2) - currentOffset
-    } else if (touchExplorationServicesEnabled && pickerGroupState.selectedIndex > 2) {
+    } else if (touchExplorationServicesEnabled && selectedIndex!! > 2) {
         ((rowWidth - yearPickerWidth) / 2) - (dayPickerWidth + monthPickerWidth + currentOffset)
     } else {
         0.dp
@@ -652,7 +663,7 @@ private fun getPickerGroupRowOffset(
 
 @RequiresApi(Build.VERSION_CODES.O)
 private class DatePickerState(
-    private val date: LocalDate,
+    date: LocalDate,
     private val fromDate: LocalDate?,
     private val toDate: LocalDate?,
 ) {
@@ -669,22 +680,22 @@ private class DatePickerState(
     val yearState =
         PickerState(
             initialNumberOfOptions = numOfYears,
-            initiallySelectedOption = date.year - startYear,
-            repeatItems = numOfYears > 2
+            initiallySelectedIndex = date.year - startYear,
+            shouldRepeatOptions = numOfYears > 2
         )
 
     val monthState =
         PickerState(
             initialNumberOfOptions = numberOfMonth,
-            initiallySelectedOption = date.monthValue - monthOptionStartMonth,
-            repeatItems = numberOfMonth > 2
+            initiallySelectedIndex = date.monthValue - monthOptionStartMonth,
+            shouldRepeatOptions = numberOfMonth > 2
         )
 
     val dayState =
         PickerState(
             initialNumberOfOptions = numberOfDay,
-            initiallySelectedOption = date.dayOfMonth - dayOptionStartDay,
-            repeatItems = numberOfDay > 2
+            initiallySelectedIndex = date.dayOfMonth - dayOptionStartDay,
+            shouldRepeatOptions = numberOfDay > 2
         )
 
     val numberOfMonth: Int
@@ -725,15 +736,15 @@ private class DatePickerState(
                 maxDayInMonth
             }
 
-    fun currentYear(year: Int = yearState.selectedOption): Int {
+    fun currentYear(year: Int = yearState.selectedOptionIndex): Int {
         return year + startYear
     }
 
-    fun currentMonth(monthIndex: Int = monthState.selectedOption): Int {
+    fun currentMonth(monthIndex: Int = monthState.selectedOptionIndex): Int {
         return monthIndex + monthOptionStartMonth
     }
 
-    fun currentDay(day: Int = dayState.selectedOption): Int {
+    fun currentDay(day: Int = dayState.selectedOptionIndex): Int {
         return day + dayOptionStartDay
     }
 
@@ -762,15 +773,10 @@ private class DatePickerState(
 }
 
 private fun createDescriptionDatePicker(
-    pickerGroupState: PickerGroupState,
+    selectedIndex: Int?,
     selectedValue: Int,
     label: String,
-): String {
-    return when (pickerGroupState.selectedIndex) {
-        NoneSelectedIndex -> label
-        else -> "$label, $selectedValue"
-    }
-}
+): String = if (selectedIndex == null) label else "$label, $selectedValue"
 
 private suspend fun adjustOptionSelection(
     prevStartState: MutableIntState,
@@ -779,7 +785,7 @@ private suspend fun adjustOptionSelection(
     pickerState: PickerState
 ) {
     val prevStartValue = prevStartState.intValue
-    val prevSelectedOption = pickerState.selectedOption
+    val prevSelectedOption = pickerState.selectedOptionIndex
     val prevSelectedValue = prevSelectedOption + prevStartValue
     val prevNumberOfOptions: Int = pickerState.numberOfOptions
     // Update picker's number of options if changed.
@@ -819,5 +825,3 @@ private suspend fun adjustOptionSelection(
         }
     }
 }
-
-private const val NoneSelectedIndex = -1

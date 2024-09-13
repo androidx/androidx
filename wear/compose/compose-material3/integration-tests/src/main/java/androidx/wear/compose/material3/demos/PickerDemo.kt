@@ -48,7 +48,7 @@ val PickerDemos =
 fun PickerWithoutGradient() {
     val items = listOf("One", "Two", "Three", "Four", "Five")
     val state = rememberPickerState(items.size)
-    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+    val contentDescription by remember { derivedStateOf { "${state.selectedOptionIndex + 1}" } }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Picker(
             readOnly = false,

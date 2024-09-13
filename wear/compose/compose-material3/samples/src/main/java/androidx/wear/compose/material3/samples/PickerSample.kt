@@ -40,11 +40,11 @@ import kotlinx.coroutines.launch
 fun SimplePicker() {
     val items = listOf("One", "Two", "Three", "Four", "Five")
     val state = rememberPickerState(items.size)
-    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+    val contentDescription by remember { derivedStateOf { "${state.selectedOptionIndex + 1}" } }
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             modifier = Modifier.align(Alignment.TopCenter).padding(top = 10.dp),
-            text = "Selected: ${items[state.selectedOption]}"
+            text = "Selected: ${items[state.selectedOptionIndex]}"
         )
         Picker(
             modifier = Modifier.size(100.dp, 100.dp),
@@ -61,7 +61,7 @@ fun SimplePicker() {
 fun PickerScrollToOption() {
     val coroutineScope = rememberCoroutineScope()
     val state = rememberPickerState(initialNumberOfOptions = 10)
-    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+    val contentDescription by remember { derivedStateOf { "${state.selectedOptionIndex + 1}" } }
     Picker(
         state = state,
         spacing = 4.dp,
@@ -79,7 +79,7 @@ fun PickerScrollToOption() {
 fun PickerAnimateScrollToOption() {
     val coroutineScope = rememberCoroutineScope()
     val state = rememberPickerState(initialNumberOfOptions = 10)
-    val contentDescription by remember { derivedStateOf { "${state.selectedOption + 1}" } }
+    val contentDescription by remember { derivedStateOf { "${state.selectedOptionIndex + 1}" } }
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Picker(
