@@ -44,9 +44,10 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.compat.workaround.CaptureFailedRetryEnabler;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCameraControl;
+import androidx.camera.testing.imagecapture.CaptureResult;
 import androidx.camera.testing.impl.CoreAppTestUtil;
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
 import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
@@ -126,7 +127,7 @@ public class ImageCaptureTest {
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
-            fakeCameraControl.notifyAllRequestsOnCaptureCancelled();
+            fakeCameraControl.completeAllCaptureRequests(CaptureResult.cancelledResult());
         });
 
         mInstrumentation.runOnMainSync(
@@ -156,7 +157,7 @@ public class ImageCaptureTest {
                 getCameraControlImplementation(mCameraUseCaseAdapter.getCameraControl());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
-            fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+            fakeCameraControl.completeAllCaptureRequests(CaptureResult.failedResult());
         });
 
         mInstrumentation.runOnMainSync(
@@ -304,7 +305,7 @@ public class ImageCaptureTest {
         // Simulates the case that the capture request failed after running in 300 ms.
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             CameraXExecutors.mainThreadExecutor().schedule(() -> {
-                fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+                fakeCameraControl.completeAllCaptureRequests(CaptureResult.failedResult());
             }, 300, TimeUnit.MILLISECONDS);
         });
 
@@ -482,7 +483,7 @@ public class ImageCaptureTest {
         CaptureFailedRetryEnabler retryEnabler = new CaptureFailedRetryEnabler();
         // Because of retry in some devices, we may need to notify capture failures multiple times.
         addExtraFailureNotificationsForRetry(fakeCameraControl, retryEnabler.getRetryCount());
-        fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+        fakeCameraControl.completeAllCaptureRequests(CaptureResult.failedResult());
 
         // Assert.
         verify(callback, timeout(1000).times(1)).onError(any());
@@ -494,7 +495,7 @@ public class ImageCaptureTest {
         if (retryCount > 0) {
             cameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
                 addExtraFailureNotificationsForRetry(cameraControl, retryCount - 1);
-                cameraControl.notifyAllRequestsOnCaptureFailed();
+                cameraControl.completeAllCaptureRequests(CaptureResult.failedResult());
             });
         }
     }

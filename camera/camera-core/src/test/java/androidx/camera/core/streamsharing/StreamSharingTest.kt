@@ -66,8 +66,8 @@ import androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME
 import androidx.camera.core.processing.DefaultSurfaceProcessor
 import androidx.camera.core.processing.SurfaceProcessorWithExecutor
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
 import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
 import androidx.camera.testing.impl.fakes.FakeUseCase

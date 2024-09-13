@@ -22,9 +22,9 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.os.Build
 import android.util.Size
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.ExifUtil.createExif
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

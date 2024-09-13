@@ -21,7 +21,7 @@ import android.graphics.Rect
 import android.util.Size
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.fakes.FakeCameraCaptureResult
 import java.io.File
 import java.util.UUID
 import org.mockito.Mockito.mock

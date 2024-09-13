@@ -27,6 +27,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraControl
+import androidx.camera.testing.imagecapture.CaptureResult.Companion.successfulResult
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.testing.impl.fakes.FakeOnImageCapturedCallback
 import androidx.camera.testing.impl.fakes.FakeOnImageSavedCallback
@@ -99,10 +100,13 @@ class ImageCaptureTest(
     @Ignore("b/318314454")
     @Test
     fun canCreateBitmapFromTakenImage_whenImageCapturedCallbackIsUsed(): Unit = runBlocking {
-        val callback = FakeOnImageCapturedCallback()
+        val callback = FakeOnImageCapturedCallback(closeImageOnSuccess = false)
+
         imageCapture.takePicture(CameraXExecutors.directExecutor(), callback)
+        cameraControl.submitCaptureResult(successfulResult())
+
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
-        callback.results.first().image.toBitmap()
+        assertThat(callback.results.first().image.toBitmap()).isNotNull()
     }
 
     // Duplicate to ImageCaptureTest on core-test-app JVM tests, any change here may need to be
@@ -119,6 +123,7 @@ class ImageCaptureTest(
             CameraXExecutors.directExecutor(),
             callback
         )
+        cameraControl.submitCaptureResult(successfulResult())
 
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
         assertThat(saveLocation.length()).isGreaterThan(previousLength)
@@ -131,11 +136,14 @@ class ImageCaptureTest(
     fun canFindImage_whenMediaStoreAndImageSavedCallbackIsUsed(): Unit = runBlocking {
         val initialCount = getMediaStoreCameraXImageCount()
         val callback = FakeOnImageSavedCallback()
+
         imageCapture.takePicture(
             createMediaStoreOutputOptions(),
             CameraXExecutors.directExecutor(),
             callback
         )
+        cameraControl.submitCaptureResult(successfulResult())
+
         callback.awaitCapturesAndAssert(capturedImagesCount = 1)
         assertThat(getMediaStoreCameraXImageCount()).isEqualTo(initialCount + 1)
     }
