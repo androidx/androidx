@@ -41,7 +41,22 @@ import androidx.core.util.Pair;
  * cases.
  *
  * <p>The following code snippet demonstrates how to display in Picture-in-Picture mode:
- * <pre>{@code
+ * <pre>
+ *                        16
+ *         --------------------------------
+ *         |               c0             |
+ *         |                              |
+ *         |                              |
+ *         |                              |
+ *         |  ---------                   |  9
+ *         |  |       |                   |
+ *         |  |   c1  |                   |
+ *         |  |       |                   |
+ *         |  ---------                   |
+ *         --------------------------------
+ *         c0: primary camera
+ *         c1: secondary camera
+ *     {@code
  *         ResolutionSelector resolutionSelector = new ResolutionSelector.Builder()
  *                 .setAspectRatioStrategy(
  *                         AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
@@ -73,10 +88,7 @@ import androidx.core.util.Pair;
  *                         .build(),
  *                 lifecycleOwner);
  *         cameraProvider.bindToLifecycle(ImmutableList.of(primary, secondary));
- * }}</pre>
- *
- * <img src="/images/reference/androidx/camera/camera-core/
- *           concurrent_camera_composition_settings.png"/>
+ * }</pre>
  */
 public class CompositionSettings {
 
