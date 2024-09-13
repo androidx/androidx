@@ -30,14 +30,18 @@ import androidx.activity.ComponentActivity
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.AbsoluteAlignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -47,6 +51,7 @@ import androidx.compose.ui.test.LayoutDirection
 import androidx.compose.ui.test.junit4.AndroidComposeTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.graphics.Insets as AndroidXInsets
@@ -119,6 +124,158 @@ class WindowInsetsPaddingTest {
         rule.runOnIdle {
             val expectedRect = Rect(10f, 11f, width - 12f, height - 13f)
             assertThat(coordinates.boundsInRoot()).isEqualTo(expectedRect)
+        }
+    }
+
+    @Test
+    fun recalculateWindowInsets() {
+        var coordinates: LayoutCoordinates? = null
+
+        var padding by mutableIntStateOf(10)
+
+        setContent {
+            val paddingDp = with(LocalDensity.current) { padding.toDp() }
+            Box(Modifier.padding(paddingDp)) {
+                Box(Modifier.fillMaxSize().recalculateWindowInsets().safeDrawingPadding()) {
+                    Box(Modifier.fillMaxSize().onGloballyPositioned { coordinates = it })
+                }
+            }
+        }
+
+        rule.waitUntil { coordinates != null }
+        val coords = coordinates!!
+
+        sendInsets(WindowInsetsCompat.Type.systemBars(), AndroidXInsets.of(11, 17, 23, 29))
+
+        rule.waitUntil { // older devices animate the insets
+            rule.runOnUiThread { coords.boundsInRoot().top > 16.99f }
+        }
+
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            val rootSize = coords.findRootCoordinates().size
+            assertThat(bounds.left).isWithin(0.1f).of(11f)
+            assertThat(bounds.top).isWithin(0.1f).of(17f)
+            assertThat(bounds.right).isWithin(0.1f).of(rootSize.width - 23f)
+            assertThat(bounds.bottom).isWithin(0.1f).of(rootSize.height - 29f)
+
+            padding = 5
+        }
+
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            val rootSize = coords.findRootCoordinates().size
+            assertThat(bounds.left).isWithin(0.1f).of(11f)
+            assertThat(bounds.top).isWithin(0.1f).of(17f)
+            assertThat(bounds.right).isWithin(0.1f).of(rootSize.width - 23f)
+            assertThat(bounds.bottom).isWithin(0.1f).of(rootSize.height - 29f)
+
+            padding = 20
+        }
+
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            val rootSize = coords.findRootCoordinates().size
+            assertThat(bounds.left).isWithin(0.1f).of(20f)
+            assertThat(bounds.top).isWithin(0.1f).of(20f)
+            assertThat(bounds.right).isWithin(0.1f).of(rootSize.width - 23f)
+            assertThat(bounds.bottom).isWithin(0.1f).of(rootSize.height - 29f)
+        }
+    }
+
+    @Test
+    fun recalculateWindowInsetsWithMovement() {
+        var coordinates: LayoutCoordinates? = null
+
+        var alignment by mutableStateOf(AbsoluteAlignment.TopLeft)
+        setContent {
+            Box(Modifier.background(Color.Blue)) {
+                val sizeDp = with(LocalDensity.current) { 100.toDp() }
+                Box(
+                    Modifier.size(sizeDp)
+                        .recalculateWindowInsets()
+                        .safeDrawingPadding()
+                        .align(alignment)
+                        .background(Color.Yellow)
+                        .onPlaced { coordinates = it }
+                )
+            }
+        }
+
+        rule.waitUntil { coordinates != null }
+        val coords = coordinates!!
+
+        sendInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(11, 17, 23, 29))
+        rule.waitUntil { // older devices animate the insets
+            rule.runOnUiThread { coords.boundsInRoot().top > 16.9f }
+        }
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            assertThat(bounds.left).isWithin(0.1f).of(11f)
+            assertThat(bounds.top).isWithin(0.1f).of(17f)
+            assertThat(bounds.right).isWithin(0.1f).of(100f)
+            assertThat(bounds.bottom).isWithin(0.1f).of(100f)
+
+            alignment = AbsoluteAlignment.BottomRight
+        }
+
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            val rootSize = coords.findRootCoordinates().size
+            assertThat(bounds.left).isWithin(0.1f).of(rootSize.width - 100f)
+            assertThat(bounds.top).isWithin(0.1f).of(rootSize.height - 100f)
+            assertThat(bounds.right).isWithin(0.1f).of(rootSize.width - 23f)
+            assertThat(bounds.bottom).isWithin(0.1f).of(rootSize.height - 29f)
+        }
+    }
+
+    @Test
+    fun recalculateWindowInsetsWithNestedMovement() {
+        val coordinates = mutableStateOf<LayoutCoordinates?>(null)
+
+        var alignment by mutableStateOf(AbsoluteAlignment.TopLeft)
+        var size = 0f
+        setContent {
+            size = with(LocalDensity.current) { 100.dp.toPx() }
+            Box(Modifier.background(Color.Blue)) {
+                Box(Modifier.size(100.dp).align(alignment)) {
+                    Box(Modifier.requiredSize(100.dp)) {
+                        Box(
+                            Modifier.size(100.dp)
+                                .recalculateWindowInsets()
+                                .safeDrawingPadding()
+                                .background(Color.Yellow)
+                                .onPlaced { coordinates.value = it }
+                        )
+                    }
+                }
+            }
+        }
+
+        rule.waitUntil { coordinates.value != null }
+        val coords = coordinates.value!!
+
+        sendInsets(WindowInsetsCompat.Type.statusBars(), AndroidXInsets.of(11, 17, 23, 29))
+        rule.waitUntil { // older devices animate the insets
+            rule.runOnUiThread { coords.boundsInRoot().top > 16.9f }
+        }
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            assertThat(bounds.left).isWithin(1f).of(11f)
+            assertThat(bounds.top).isWithin(1f).of(17f)
+            assertThat(bounds.right).isWithin(1f).of(size)
+            assertThat(bounds.bottom).isWithin(1f).of(size)
+
+            alignment = AbsoluteAlignment.BottomRight
+        }
+
+        rule.runOnIdle {
+            val bounds = coords.boundsInRoot()
+            val rootSize = coords.findRootCoordinates().size
+            assertThat(bounds.left).isWithin(1f).of(rootSize.width - size)
+            assertThat(bounds.top).isWithin(1f).of(rootSize.height - size)
+            assertThat(bounds.right).isWithin(1f).of(rootSize.width - 23f)
+            assertThat(bounds.bottom).isWithin(1f).of(rootSize.height - 29f)
         }
     }
 

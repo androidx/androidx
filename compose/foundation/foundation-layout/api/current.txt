@@ -372,6 +372,7 @@ package androidx.compose.foundation.layout {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumeWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.PaddingValues paddingValues);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier consumeWindowInsets(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier onConsumedWindowInsetsChanged(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.WindowInsets,kotlin.Unit> block);
+    method public static androidx.compose.ui.Modifier recalculateWindowInsets(androidx.compose.ui.Modifier);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier windowInsetsPadding(androidx.compose.ui.Modifier, androidx.compose.foundation.layout.WindowInsets insets);
   }
 
