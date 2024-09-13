@@ -17,27 +17,31 @@
 package androidx.wear.compose.material3
 
 import android.os.Build
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
 import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
+import com.google.testing.junit.testparameterinjector.TestParameter
+import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestName
 import org.junit.runner.RunWith
 
 @MediumTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(TestParameterInjector::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class SwipeToRevealScreenshotTest {
     @get:Rule val rule = createComposeRule()
@@ -48,52 +52,23 @@ class SwipeToRevealScreenshotTest {
 
     @OptIn(ExperimentalWearFoundationApi::class)
     @Test
-    fun swipeToReveal_showsPrimaryAction() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState = rememberRevealState(initialValue = RevealValue.Revealing),
-                actions = {
-                    primaryAction(
-                        {},
-                        { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
-                        "Clear"
-                    )
-                }
-            ) {
-                Button({}, Modifier.fillMaxWidth()) {
-                    Text("This text should be partially visible.")
-                }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalWearFoundationApi::class)
-    @Test
-    fun swipeToReveal_showsPrimaryAndSecondaryActions() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState =
-                    rememberRevealState(
-                        initialValue = RevealValue.Revealing,
-                        anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
-                    ),
-                actions = {
-                    primaryAction(
-                        {},
-                        { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
-                        "Clear"
-                    )
-                    secondaryAction(
-                        {},
-                        { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
-                        "More"
-                    )
-                }
-            ) {
-                Button({}, Modifier.fillMaxWidth()) {
-                    Text("This text should be partially visible.")
+    fun swipeToReveal_showsPrimaryAction(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                    actions = {
+                        primaryAction(
+                            {},
+                            { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
+                            "Clear"
+                        )
+                    }
+                ) {
+                    Button({}, Modifier.fillMaxWidth()) {
+                        Text("This text should be partially visible.")
+                    }
                 }
             }
         }
@@ -101,55 +76,32 @@ class SwipeToRevealScreenshotTest {
 
     @OptIn(ExperimentalWearFoundationApi::class)
     @Test
-    fun swipeToReveal_showsUndoPrimaryAction() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState = rememberRevealState(initialValue = RevealValue.Revealed),
-                actions = {
-                    primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
-                    undoPrimaryAction({}, "Undo Primary Action")
-                }
-            ) {
-                Button({}) { Text(/* Empty for testing */ "") }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalWearFoundationApi::class)
-    @Test
-    fun swipeToReveal_showsUndoSecondaryAction() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState =
-                    rememberRevealState(initialValue = RevealValue.Revealed).apply {
-                        lastActionType = RevealActionType.SecondaryAction
-                    },
-                actions = {
-                    primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
-                    undoPrimaryAction({}, /* Empty for testing */ "")
-                    secondaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
-                    undoSecondaryAction({}, "Undo Secondary Action")
-                }
-            ) {
-                Button({}) { Text(/* Empty for testing */ "") }
-            }
-        }
-    }
-
-    @OptIn(ExperimentalWearFoundationApi::class)
-    @Test
-    fun swipeToReveal_showsContent() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                actions = {
-                    primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
-                }
-            ) {
-                Button({}, Modifier.fillMaxWidth()) {
-                    Text("This content should be fully visible.")
+    fun swipeToReveal_showsPrimaryAndSecondaryActions(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState =
+                        rememberRevealState(
+                            initialValue = RevealValue.Revealing,
+                            anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
+                        ),
+                    actions = {
+                        primaryAction(
+                            {},
+                            { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
+                            "Clear"
+                        )
+                        secondaryAction(
+                            {},
+                            { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
+                            "More"
+                        )
+                    }
+                ) {
+                    Button({}, Modifier.fillMaxWidth()) {
+                        Text("This text should be partially visible.")
+                    }
                 }
             }
         }
@@ -157,22 +109,18 @@ class SwipeToRevealScreenshotTest {
 
     @OptIn(ExperimentalWearFoundationApi::class)
     @Test
-    fun swipeToRevealCard_showsLargePrimaryAction() {
-        rule.verifyScreenshot(testName.methodName, screenshotRule) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState = rememberRevealState(initialValue = RevealValue.Revealing),
-                actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
-                actions = {
-                    primaryAction(
-                        {},
-                        { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
-                        "Clear"
-                    )
-                }
-            ) {
-                Card({}, Modifier.fillMaxWidth()) {
-                    Text("This content should be partially visible.")
+    fun swipeToReveal_showsUndoPrimaryAction(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState = rememberRevealState(initialValue = RevealValue.Revealed),
+                    actions = {
+                        primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
+                        undoPrimaryAction({}, "Undo Primary")
+                    }
+                ) {
+                    Button({}) { Text(/* Empty for testing */ "") }
                 }
             }
         }
@@ -180,33 +128,114 @@ class SwipeToRevealScreenshotTest {
 
     @OptIn(ExperimentalWearFoundationApi::class)
     @Test
-    fun swipeToRevealCard_showsLargePrimaryAndSecondaryActions() {
-        rule.verifyScreenshot(screenshotRule = screenshotRule, methodName = testName.methodName) {
-            SwipeToReveal(
-                modifier = Modifier.testTag(TEST_TAG),
-                revealState =
-                    rememberRevealState(
-                        initialValue = RevealValue.Revealing,
-                        anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
-                    ),
-                actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
-                actions = {
-                    primaryAction(
-                        {},
-                        { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
-                        "Clear"
-                    )
-                    secondaryAction(
-                        {},
-                        { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
-                        "More"
-                    )
-                }
-            ) {
-                Card({}, Modifier.fillMaxWidth()) {
-                    Text("This content should be partially visible.")
+    fun swipeToReveal_showsUndoSecondaryAction(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState =
+                        rememberRevealState(initialValue = RevealValue.Revealed).apply {
+                            lastActionType = RevealActionType.SecondaryAction
+                        },
+                    actions = {
+                        primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
+                        undoPrimaryAction({}, /* Empty for testing */ "")
+                        secondaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
+                        undoSecondaryAction({}, "Undo Secondary")
+                    }
+                ) {
+                    Button({}) { Text(/* Empty for testing */ "") }
                 }
             }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun swipeToReveal_showsContent(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    actions = {
+                        primaryAction({}, /* Empty for testing */ {}, /* Empty for testing */ "")
+                    }
+                ) {
+                    Button({}, Modifier.fillMaxWidth()) {
+                        Text("This content should be fully visible.")
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun swipeToRevealCard_showsLargePrimaryAction(@TestParameter screenSize: ScreenSize) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState = rememberRevealState(initialValue = RevealValue.Revealing),
+                    actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
+                    actions = {
+                        primaryAction(
+                            {},
+                            { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
+                            "Clear"
+                        )
+                    }
+                ) {
+                    Card({}, Modifier.fillMaxWidth()) {
+                        Text("This content should be partially visible.")
+                    }
+                }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun swipeToRevealCard_showsLargePrimaryAndSecondaryActions(
+        @TestParameter screenSize: ScreenSize
+    ) {
+        verifyScreenshotForSize(screenSize) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                SwipeToReveal(
+                    modifier = Modifier.testTag(TEST_TAG),
+                    revealState =
+                        rememberRevealState(
+                            initialValue = RevealValue.Revealing,
+                            anchorWidth = SwipeToRevealDefaults.DoubleActionAnchorWidth
+                        ),
+                    actionButtonHeight = SwipeToRevealDefaults.LargeActionButtonHeight,
+                    actions = {
+                        primaryAction(
+                            {},
+                            { Icon(Icons.Outlined.Close, contentDescription = "Clear") },
+                            "Clear"
+                        )
+                        secondaryAction(
+                            {},
+                            { Icon(Icons.Outlined.MoreVert, contentDescription = "More") },
+                            "More"
+                        )
+                    }
+                ) {
+                    Card({}, Modifier.fillMaxWidth()) {
+                        Text("This content should be partially visible.")
+                    }
+                }
+            }
+        }
+    }
+
+    private fun verifyScreenshotForSize(screenSize: ScreenSize, content: @Composable () -> Unit) {
+        rule.verifyScreenshot(
+            screenshotRule = screenshotRule,
+            methodName = testName.goldenIdentifier()
+        ) {
+            ScreenConfiguration(screenSize.size) { content() }
         }
     }
 }
