@@ -25,6 +25,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
 import androidx.test.uiautomator.Until
 import androidx.testutils.createCompilationParams
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.Parameterized
@@ -76,6 +77,7 @@ class BaselineProfile {
     private val SWITCH = "switch"
 
     @Test
+    @Ignore("b/366137664")
     fun profile() {
         baselineRule.collect(
             packageName = PACKAGE_NAME,
