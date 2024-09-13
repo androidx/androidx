@@ -332,7 +332,8 @@ private fun macrobenchmark(
             measurements = measurements,
             insights = createInsightsIdeSummary(insightsList),
             iterationTracePaths = tracePaths,
-            profilerResults = profilerResults
+            profilerResults = profilerResults,
+            useTreeDisplayFormat = experimentalConfig?.startupInsightsConfig?.isEnabled == true
         )
 
         warningMessage = "" // warning only printed once
