@@ -346,20 +346,18 @@ val RoundRect.isFinite
 /** Whether this rounded rectangle is a simple rectangle with zero corner radii. */
 val RoundRect.isRect
     get(): Boolean =
-        (topLeftCornerRadius.x == 0.0f || topLeftCornerRadius.y == 0.0f) &&
-            (topRightCornerRadius.x == 0.0f || topRightCornerRadius.y == 0.0f) &&
-            (bottomLeftCornerRadius.x == 0.0f || bottomLeftCornerRadius.y == 0.0f) &&
-            (bottomRightCornerRadius.x == 0.0f || bottomRightCornerRadius.y == 0.0f)
+        topLeftCornerRadius.isZero() &&
+            topRightCornerRadius.isZero() &&
+            bottomLeftCornerRadius.isZero() &&
+            bottomRightCornerRadius.isZero()
 
 /** Whether this rounded rectangle has no side with a straight section. */
 val RoundRect.isEllipse
     get(): Boolean =
-        topLeftCornerRadius.x == topRightCornerRadius.x &&
-            topLeftCornerRadius.y == topRightCornerRadius.y &&
-            topRightCornerRadius.x == bottomRightCornerRadius.x &&
-            topRightCornerRadius.y == bottomRightCornerRadius.y &&
-            bottomRightCornerRadius.x == bottomLeftCornerRadius.x &&
-            bottomRightCornerRadius.y == bottomLeftCornerRadius.y &&
+        topLeftCornerRadius.isCircular() &&
+            topRightCornerRadius.isCircular() &&
+            bottomLeftCornerRadius.isCircular() &&
+            bottomRightCornerRadius.isCircular() &&
             width <= 2.0 * topLeftCornerRadius.x &&
             height <= 2.0 * topLeftCornerRadius.y
 
@@ -390,13 +388,10 @@ val RoundRect.center: Offset
  */
 val RoundRect.isSimple: Boolean
     get() =
-        topLeftCornerRadius.x == topLeftCornerRadius.y &&
-            topLeftCornerRadius.x == topRightCornerRadius.x &&
-            topLeftCornerRadius.x == topRightCornerRadius.y &&
-            topLeftCornerRadius.x == bottomRightCornerRadius.x &&
-            topLeftCornerRadius.x == bottomRightCornerRadius.y &&
-            topLeftCornerRadius.x == bottomLeftCornerRadius.x &&
-            topLeftCornerRadius.x == bottomLeftCornerRadius.y
+        topLeftCornerRadius.isCircular() &&
+            topLeftCornerRadius.packedValue == topRightCornerRadius.packedValue &&
+            topLeftCornerRadius.packedValue == bottomRightCornerRadius.packedValue &&
+            topLeftCornerRadius.packedValue == bottomLeftCornerRadius.packedValue
 
 /**
  * Linearly interpolate between two rounded rectangles.

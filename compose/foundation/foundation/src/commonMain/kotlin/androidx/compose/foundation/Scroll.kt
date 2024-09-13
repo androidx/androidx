@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.horizontalScrollAxisRange
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
@@ -364,7 +365,7 @@ internal class ScrollNode(
         state.maxValue = side
         state.viewportSize = if (isVertical) height else width
         return layout(width, height) {
-            val scroll = state.value.coerceIn(0, side)
+            val scroll = state.value.fastCoerceIn(0, side)
             val absScroll = if (reverseScrolling) scroll - side else -scroll
             val xOffset = if (isVertical) 0 else absScroll
             val yOffset = if (isVertical) absScroll else 0
