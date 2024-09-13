@@ -769,7 +769,7 @@ private class OutlinedTextFieldMeasurePolicy(
         val bottomPadding = paddingValues.calculateBottomPadding().roundToPx()
 
         // measure leading icon
-        val relaxedConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val relaxedConstraints = constraints.copyMaxDimensions()
         val leadingPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LeadingId }?.measure(relaxedConstraints)
         occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)

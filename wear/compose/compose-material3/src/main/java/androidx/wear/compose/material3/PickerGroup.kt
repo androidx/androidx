@@ -261,7 +261,7 @@ private fun AutoCenteringRow(
             if (propagateMinConstraints) {
                 parentConstraints
             } else {
-                parentConstraints.copy(minWidth = 0, minHeight = 0)
+                parentConstraints.copyMaxDimensions()
             }
         val placeables = measurables.fastMap { it.measure(constraints) }
         val centeringOffset = computeCenteringOffset(placeables)

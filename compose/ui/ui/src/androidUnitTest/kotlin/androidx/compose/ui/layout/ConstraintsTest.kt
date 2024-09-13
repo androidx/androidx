@@ -437,6 +437,12 @@ class ConstraintsTest {
         assertEquals(Constraints.Infinity, constraints4.maxWidth)
     }
 
+    @Test
+    fun testCopyMaxDimensions() {
+        val constraints = Constraints(0x283A7620506CEC0L)
+        assertEquals(constraints.copy(minWidth = 0, minHeight = 0), constraints.copyMaxDimensions())
+    }
+
     private fun testConstraints(
         minWidth: Int = 0,
         maxWidth: Int = Constraints.Infinity,

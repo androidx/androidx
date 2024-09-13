@@ -135,8 +135,7 @@ class AndroidViewCompatTest {
                     }
                 ) { measurables, constraints ->
                     assertEquals(1, measurables.size)
-                    val placeable =
-                        measurables.first().measure(constraints.copy(minWidth = 0, minHeight = 0))
+                    val placeable = measurables.first().measure(constraints.copyMaxDimensions())
                     assertEquals(placeable.width, expectedSize)
                     assertEquals(placeable.height, expectedSize)
                     layout(constraints.maxWidth, constraints.maxHeight) { placeable.place(0, 0) }

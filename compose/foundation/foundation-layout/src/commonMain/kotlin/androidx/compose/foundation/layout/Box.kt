@@ -133,7 +133,7 @@ private data class BoxMeasurePolicy(
             if (propagateMinConstraints) {
                 constraints
             } else {
-                constraints.copy(minWidth = 0, minHeight = 0)
+                constraints.copyMaxDimensions()
             }
 
         if (measurables.size == 1) {

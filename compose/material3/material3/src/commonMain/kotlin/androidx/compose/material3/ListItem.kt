@@ -209,7 +209,7 @@ private class ListItemMeasurePolicy : MultiContentMeasurePolicy {
             measurables
         var currentTotalWidth = 0
 
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val looseConstraints = constraints.copyMaxDimensions()
         val startPadding = ListItemStartPadding
         val endPadding = ListItemEndPadding
         val horizontalPadding = (startPadding + endPadding).roundToPx()
