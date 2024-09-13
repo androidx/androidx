@@ -169,7 +169,8 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
      * @param observer The observer to notify.
      * @throws IllegalStateException if no event up from observer's initial state
      */
-    override fun addObserver(observer: LifecycleObserver) {
+    @MainThread
+    actual override fun addObserver(observer: LifecycleObserver) {
         enforceMainThreadIfNeeded("addObserver")
         val initialState = if (state == State.DESTROYED) State.DESTROYED else State.INITIALIZED
         val statefulObserver = ObserverWithState(observer, initialState)
@@ -209,7 +210,8 @@ private constructor(provider: LifecycleOwner, private val enforceMainThread: Boo
         parentStates.add(state)
     }
 
-    override fun removeObserver(observer: LifecycleObserver) {
+    @MainThread
+    actual override fun removeObserver(observer: LifecycleObserver) {
         enforceMainThreadIfNeeded("removeObserver")
         // we consciously decided not to send destruction events here in opposition to addObserver.
         // Our reasons for that:

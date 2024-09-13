@@ -15,6 +15,7 @@
  */
 package androidx.lifecycle
 
+import androidx.annotation.MainThread
 import androidx.annotation.VisibleForTesting
 import kotlin.jvm.JvmStatic
 
@@ -36,6 +37,10 @@ public expect open class LifecycleRegistry
  */
 constructor(provider: LifecycleOwner) : Lifecycle {
     override var currentState: State
+
+    @MainThread() override fun addObserver(observer: LifecycleObserver)
+
+    @MainThread() override fun removeObserver(observer: LifecycleObserver)
 
     /**
      * Sets the current state and notifies the observers.
