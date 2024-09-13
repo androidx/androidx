@@ -303,19 +303,22 @@ constructor(
                 session?.disconnect()
                 camera?.disconnect()
             }
-        if (graphConfig.flags.closeCaptureSessionOnDisconnect) {
+        if (
+            graphConfig.flags.abortCapturesOnStop ||
+                graphConfig.flags.closeCaptureSessionOnDisconnect
+        ) {
             // It seems that on certain devices, CameraCaptureSession.close() can block for an
             // extended period of time [1]. Wrap the await call with a timeout to prevent us from
             // getting blocked for too long.
             //
             // [1] b/307594946 - [ANR] at Camera2CameraController.disconnectSessionAndCamera
-            runBlockingWithTimeout(threads.backgroundDispatcher, CLOSE_CAPTURE_SESSION_TIMEOUT_MS) {
+            runBlockingWithTimeout(threads.backgroundDispatcher, DISCONNECT_TIMEOUT_MS) {
                 deferred.await()
             }
         }
     }
 
     companion object {
-        private const val CLOSE_CAPTURE_SESSION_TIMEOUT_MS = 2_000L // 2s
+        private const val DISCONNECT_TIMEOUT_MS = 2_000L // 2s
     }
 }
