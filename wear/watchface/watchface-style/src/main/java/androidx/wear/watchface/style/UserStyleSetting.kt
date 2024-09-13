@@ -72,13 +72,17 @@ import java.util.Locale
 import org.xmlpull.v1.XmlPullParser
 
 /** Wrapper around either a [CharSequence] or a string resource. */
-internal sealed class DisplayText {
+internal abstract class DisplayText {
     abstract fun toCharSequence(): CharSequence
 
     override fun toString(): String = toCharSequence().toString()
 
     /** Used in evaluating [UserStyleSchema.getDigestHash]. */
     internal open fun write(dos: DataOutputStream) {
+        // Intentionally empty.
+    }
+
+    open fun setIndex(index: Int) {
         // Intentionally empty.
     }
 
@@ -105,7 +109,7 @@ internal sealed class DisplayText {
         private var index: Int? = null
         private var indexString: String = ""
 
-        fun setIndex(index: Int) {
+        override fun setIndex(index: Int) {
             this.index = index
         }
 
@@ -181,17 +185,9 @@ private constructor(
         // Assign 1 based indices to display names to allow names such as Option 1, Option 2,
         // etc...
         for ((index, option) in options.withIndex()) {
-            option.displayNameInternal?.let {
-                if (it is DisplayText.ResourceDisplayTextWithIndex) {
-                    it.setIndex(index + 1)
-                }
-            }
+            option.displayNameInternal?.setIndex(index + 1)
 
-            option.screenReaderNameInternal?.let {
-                if (it is DisplayText.ResourceDisplayTextWithIndex) {
-                    it.setIndex(index + 1)
-                }
-            }
+            option.screenReaderNameInternal?.setIndex(index + 1)
         }
     }
 
