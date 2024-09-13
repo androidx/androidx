@@ -15,7 +15,6 @@
  */
 package androidx.savedstate
 
-import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
 
@@ -54,7 +53,7 @@ class SavedStateRegistryController private constructor(private val owner: SavedS
      * @param savedState restored state
      */
     @MainThread
-    fun performRestore(savedState: Bundle?) {
+    fun performRestore(savedState: SavedState?) {
         // To support backward compatibility with libraries that do not explicitly
         // call performAttach(), we make sure that work is done here
         if (!attached) {
@@ -71,10 +70,10 @@ class SavedStateRegistryController private constructor(private val owner: SavedS
      * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
      * all registered providers and merge with unconsumed state.
      *
-     * @param outBundle Bundle in which to place a saved state
+     * @param outBundle SavedState in which to place a saved state
      */
     @MainThread
-    fun performSave(outBundle: Bundle) {
+    fun performSave(outBundle: SavedState) {
         savedStateRegistry.performSave(outBundle)
     }
 
