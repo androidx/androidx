@@ -87,6 +87,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                     JSpecifyNullnessMigration.ISSUE,
                     TypeMirrorToString.ISSUE,
                     BanNullMarked.ISSUE,
+                    AutoValueNullnessOverride.ISSUE,
                 )
             }
     }
