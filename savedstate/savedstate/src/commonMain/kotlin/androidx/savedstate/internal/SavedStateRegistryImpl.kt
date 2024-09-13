@@ -29,7 +29,7 @@ import androidx.savedstate.write
 
 internal class SavedStateRegistryImpl(
     private val owner: SavedStateRegistryOwner,
-    internal val onAttach: () -> Unit,
+    internal val onAttach: () -> Unit = {},
 ) {
 
     private val lock = SynchronizedObject()
@@ -69,12 +69,13 @@ internal class SavedStateRegistryImpl(
             }
             keyToProviders[key] = provider
         }
-
     }
 
     fun getSavedStateProvider(key: String): SavedStateProvider? {
         return synchronized(lock) {
-            keyToProviders.firstNotNullOfOrNull { (k, provider) -> if (k == key) provider else null }
+            keyToProviders.firstNotNullOfOrNull { (k, provider) ->
+                if (k == key) provider else null
+            }
         }
     }
 

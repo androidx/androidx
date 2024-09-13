@@ -6,11 +6,43 @@
 // - Show declarations: true
 
 // Library unique name: <androidx.savedstate:savedstate>
+abstract interface androidx.savedstate/SavedStateRegistryOwner : androidx.lifecycle/LifecycleOwner { // androidx.savedstate/SavedStateRegistryOwner|null[0]
+    abstract val savedStateRegistry // androidx.savedstate/SavedStateRegistryOwner.savedStateRegistry|{}savedStateRegistry[0]
+        abstract fun <get-savedStateRegistry>(): androidx.savedstate/SavedStateRegistry // androidx.savedstate/SavedStateRegistryOwner.savedStateRegistry.<get-savedStateRegistry>|<get-savedStateRegistry>(){}[0]
+}
+
 final class androidx.savedstate/SavedState { // androidx.savedstate/SavedState|null[0]
     constructor <init>(kotlin.collections/MutableMap<kotlin/String, kotlin/Any> = ...) // androidx.savedstate/SavedState.<init>|<init>(kotlin.collections.MutableMap<kotlin.String,kotlin.Any>){}[0]
 
     final val map // androidx.savedstate/SavedState.map|{}map[0]
         final fun <get-map>(): kotlin.collections/MutableMap<kotlin/String, kotlin/Any> // androidx.savedstate/SavedState.map.<get-map>|<get-map>(){}[0]
+}
+
+final class androidx.savedstate/SavedStateRegistry { // androidx.savedstate/SavedStateRegistry|null[0]
+    final val isRestored // androidx.savedstate/SavedStateRegistry.isRestored|{}isRestored[0]
+        final fun <get-isRestored>(): kotlin/Boolean // androidx.savedstate/SavedStateRegistry.isRestored.<get-isRestored>|<get-isRestored>(){}[0]
+
+    final fun consumeRestoredStateForKey(kotlin/String): androidx.savedstate/SavedState? // androidx.savedstate/SavedStateRegistry.consumeRestoredStateForKey|consumeRestoredStateForKey(kotlin.String){}[0]
+    final fun getSavedStateProvider(kotlin/String): androidx.savedstate/SavedStateRegistry.SavedStateProvider? // androidx.savedstate/SavedStateRegistry.getSavedStateProvider|getSavedStateProvider(kotlin.String){}[0]
+    final fun registerSavedStateProvider(kotlin/String, androidx.savedstate/SavedStateRegistry.SavedStateProvider) // androidx.savedstate/SavedStateRegistry.registerSavedStateProvider|registerSavedStateProvider(kotlin.String;androidx.savedstate.SavedStateRegistry.SavedStateProvider){}[0]
+    final fun unregisterSavedStateProvider(kotlin/String) // androidx.savedstate/SavedStateRegistry.unregisterSavedStateProvider|unregisterSavedStateProvider(kotlin.String){}[0]
+
+    abstract fun interface SavedStateProvider { // androidx.savedstate/SavedStateRegistry.SavedStateProvider|null[0]
+        abstract fun saveState(): androidx.savedstate/SavedState // androidx.savedstate/SavedStateRegistry.SavedStateProvider.saveState|saveState(){}[0]
+    }
+}
+
+final class androidx.savedstate/SavedStateRegistryController { // androidx.savedstate/SavedStateRegistryController|null[0]
+    final val savedStateRegistry // androidx.savedstate/SavedStateRegistryController.savedStateRegistry|{}savedStateRegistry[0]
+        final fun <get-savedStateRegistry>(): androidx.savedstate/SavedStateRegistry // androidx.savedstate/SavedStateRegistryController.savedStateRegistry.<get-savedStateRegistry>|<get-savedStateRegistry>(){}[0]
+
+    final fun performAttach() // androidx.savedstate/SavedStateRegistryController.performAttach|performAttach(){}[0]
+    final fun performRestore(androidx.savedstate/SavedState?) // androidx.savedstate/SavedStateRegistryController.performRestore|performRestore(androidx.savedstate.SavedState?){}[0]
+    final fun performSave(androidx.savedstate/SavedState) // androidx.savedstate/SavedStateRegistryController.performSave|performSave(androidx.savedstate.SavedState){}[0]
+
+    final object Companion { // androidx.savedstate/SavedStateRegistryController.Companion|null[0]
+        final fun create(androidx.savedstate/SavedStateRegistryOwner): androidx.savedstate/SavedStateRegistryController // androidx.savedstate/SavedStateRegistryController.Companion.create|create(androidx.savedstate.SavedStateRegistryOwner){}[0]
+    }
 }
 
 final value class androidx.savedstate/SavedStateReader { // androidx.savedstate/SavedStateReader|null[0]
