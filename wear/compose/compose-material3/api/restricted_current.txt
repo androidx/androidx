@@ -918,7 +918,7 @@ package androidx.wear.compose.material3 {
 
   public final class SegmentedCircularProgressIndicatorKt {
     method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function0<java.lang.Float> progress, optional androidx.compose.ui.Modifier modifier, optional boolean allowProgressOverflow, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
-    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> completed, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
+    method @androidx.compose.runtime.Composable public static void SegmentedCircularProgressIndicator(@IntRange(from=1L) int segmentCount, kotlin.jvm.functions.Function1<? super java.lang.Integer,java.lang.Boolean> segmentValue, optional androidx.compose.ui.Modifier modifier, optional float startAngle, optional float endAngle, optional androidx.wear.compose.material3.ProgressIndicatorColors colors, optional float strokeWidth, optional float gapSize, optional boolean enabled);
   }
 
   public final class ShapeDefaults {

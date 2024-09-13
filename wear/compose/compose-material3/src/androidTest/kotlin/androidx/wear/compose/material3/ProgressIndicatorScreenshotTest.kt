@@ -207,7 +207,7 @@ class ProgressIndicatorScreenshotTest {
         verifyProgressIndicatorScreenshot(screenSize = screenSize) {
             SegmentedCircularProgressIndicator(
                 segmentCount = 6,
-                completed = { it % 2 == 0 },
+                segmentValue = { it % 2 == 0 },
                 modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
                 startAngle = 120f,
                 endAngle = 60f,
@@ -219,7 +219,7 @@ class ProgressIndicatorScreenshotTest {
         verifyProgressIndicatorScreenshot(screenSize = screenSize) {
             SegmentedCircularProgressIndicator(
                 segmentCount = 6,
-                completed = { it % 2 == 0 },
+                segmentValue = { it % 2 == 0 },
                 modifier = Modifier.aspectRatio(1f).testTag(TEST_TAG),
                 startAngle = 120f,
                 endAngle = 60f,

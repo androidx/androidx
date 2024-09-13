@@ -214,7 +214,7 @@ class SegmentedCircularProgressIndicatorTest {
         setContentWithTheme {
             SegmentedCircularProgressIndicator(
                 segmentCount = 6,
-                completed = { it % 2 != 0 },
+                segmentValue = { it % 2 != 0 },
                 modifier = Modifier.testTag(TEST_TAG),
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -243,7 +243,7 @@ class SegmentedCircularProgressIndicatorTest {
         setContentWithTheme {
             SegmentedCircularProgressIndicator(
                 segmentCount = 6,
-                completed = { true },
+                segmentValue = { true },
                 modifier = Modifier.testTag(TEST_TAG),
                 colors =
                     ProgressIndicatorDefaults.colors(
@@ -267,7 +267,7 @@ class SegmentedCircularProgressIndicatorTest {
         setContentWithTheme {
             SegmentedCircularProgressIndicator(
                 segmentCount = 6,
-                completed = { false },
+                segmentValue = { false },
                 modifier = Modifier.testTag(TEST_TAG),
                 colors =
                     ProgressIndicatorDefaults.colors(
