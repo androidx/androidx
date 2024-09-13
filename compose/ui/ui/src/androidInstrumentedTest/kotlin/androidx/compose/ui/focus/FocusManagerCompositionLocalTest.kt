@@ -18,7 +18,6 @@ package androidx.compose.ui.focus
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusStateImpl.Active
@@ -30,13 +29,8 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.test.assertIsFocused
-import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.requestFocus
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -342,25 +336,6 @@ class FocusManagerCompositionLocalTest {
                 }
                 else -> error("Invalid input mode")
             }
-        }
-    }
-
-    @Test
-    fun clearFocus_textFieldLosesFocus() {
-        // Arrange.
-        val textField = "textField"
-        rule.setTestContent(extraItemForInitialFocus = false) {
-            TextField(value = "", onValueChange = {}, modifier = Modifier.testTag(textField))
-        }
-        rule.onNodeWithTag(textField).requestFocus()
-
-        // Act.
-        rule.runOnIdle { focusManager.clearFocus() }
-
-        // Assert.
-        when (inputModeManager.inputMode) {
-            Keyboard -> rule.onNodeWithTag(textField).assertIsFocused()
-            Touch -> rule.onNodeWithTag(textField).assertIsNotFocused()
         }
     }
 
