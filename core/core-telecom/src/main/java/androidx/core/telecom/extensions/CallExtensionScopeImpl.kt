@@ -104,6 +104,7 @@ internal class CallExtensionScopeImpl(
 
         internal const val CAPABILITY_EXCHANGE_VERSION = 1
         internal const val RESOLVE_EXTENSIONS_TYPE_TIMEOUT_MS = 1000L
+        internal const val CALL_READY_TIMEOUT_MS = 500L
         internal const val CAPABILITY_EXCHANGE_TIMEOUT_MS = 1000L
 
         /** Constants used to denote the extension level supported by the VOIP app. */
@@ -328,6 +329,15 @@ internal class CallExtensionScopeImpl(
      * does not support extensions at all.
      */
     private suspend fun performExchangeWithRemote(): CapabilityExchangeResult? {
+        if (Utils.hasPlatformV2Apis()) {
+            Log.d(TAG, "performExchangeWithRemote: waiting for call ready signal...")
+            withTimeoutOrNull(CALL_READY_TIMEOUT_MS) {
+                // On Android U/V, we must wait for the jetpack lib to send a call ready event to
+                // prevent a race between telecom setting the TransactionalServiceWrapper and
+                // sending the CAPABILITY_EXCHANGE event
+                waitForCallReady()
+            }
+        }
         Log.d(TAG, "performExchangeWithRemote: requesting extensions from remote")
         val extensions =
             withTimeoutOrNull(CAPABILITY_EXCHANGE_TIMEOUT_MS) { registerWithRemoteService() }
@@ -335,6 +345,21 @@ internal class CallExtensionScopeImpl(
             Log.w(TAG, "performExchangeWithRemote: never received response")
         }
         return extensions
+    }
+
+    /** Wait for the Call to receive [CallsManager.EVENT_CALL_READY] from the call producer. */
+    private suspend fun waitForCallReady() = suspendCancellableCoroutine { continuation ->
+        val callback =
+            object : Callback() {
+                override fun onConnectionEvent(call: Call?, event: String?, extras: Bundle?) {
+                    if (call == null || event == null) return
+                    if (event == CallsManager.EVENT_CALL_READY) {
+                        continuation.resume(Unit)
+                    }
+                }
+            }
+        call.registerCallback(callback, Handler(Looper.getMainLooper()))
+        continuation.invokeOnCancellation { call.unregisterCallback(callback) }
     }
 
     /**
