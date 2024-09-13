@@ -2,18 +2,23 @@
 package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class CornerRadius {
+    ctor public CornerRadius(long packedValue);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @androidx.compose.runtime.Stable public inline operator float component2();
     method public long copy(optional float x, optional float y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
-    method public float getX();
-    method public float getY();
+    method public long getPackedValue();
+    method public inline float getX();
+    method public inline float getY();
+    method @androidx.compose.runtime.Stable public inline boolean isCircular();
+    method @androidx.compose.runtime.Stable public inline boolean isZero();
     method @androidx.compose.runtime.Stable public operator long minus(long other);
     method @androidx.compose.runtime.Stable public operator long plus(long other);
     method @androidx.compose.runtime.Stable public operator long times(float operand);
-    method @androidx.compose.runtime.Stable public operator long unaryMinus();
-    property @androidx.compose.runtime.Stable public final float x;
-    property @androidx.compose.runtime.Stable public final float y;
+    method @androidx.compose.runtime.Stable public inline operator long unaryMinus();
+    property public final long packedValue;
+    property @androidx.compose.runtime.Stable public final inline float x;
+    property @androidx.compose.runtime.Stable public final inline float y;
     field public static final androidx.compose.ui.geometry.CornerRadius.Companion Companion;
   }
 
@@ -23,7 +28,7 @@ package androidx.compose.ui.geometry {
   }
 
   public final class CornerRadiusKt {
-    method @androidx.compose.runtime.Stable public static long CornerRadius(float x, optional float y);
+    method @androidx.compose.runtime.Stable public static inline long CornerRadius(float x, optional float y);
     method @androidx.compose.runtime.Stable public static long lerp(long start, long stop, float fraction);
   }
 

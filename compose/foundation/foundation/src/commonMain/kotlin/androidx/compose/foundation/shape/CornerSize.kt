@@ -18,6 +18,7 @@ package androidx.compose.foundation.shape
 
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import androidx.compose.foundation.internal.throwIllegalArgumentException
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
@@ -91,7 +92,7 @@ private data class PercentCornerSize(
 ) : CornerSize, InspectableValue {
     init {
         if (percent < 0 || percent > 100) {
-            throw IllegalArgumentException("The percent should be in the range of [0, 100]")
+            throwIllegalArgumentException("The percent should be in the range of [0, 100]")
         }
     }
 
