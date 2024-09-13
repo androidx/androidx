@@ -207,6 +207,12 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         synchronized(pendingOperations) {
             val currentlyRunningOperations = runningOperations.toMutableList()
             runningOperations.clear()
+            // If we have no pendingOperations, we should always cancel without seeking,
+            // otherwise, we should check if the fragment has mTransitioning set.
+            for (operation in currentlyRunningOperations) {
+                operation.isSeeking =
+                    pendingOperations.isNotEmpty() && operation.fragment.mTransitioning
+            }
             for (operation in currentlyRunningOperations) {
                 // Another operation is about to run while we already have operations running
                 // There are 2 cases that need to be handled:
@@ -232,12 +238,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
                             "SpecialEffectsController: Cancelling operation $operation"
                         )
                     }
-                    // If we have no pendingOperations, we should always cancel without seeking,
-                    // otherwise, we should check if the fragment has mTransitioning set.
-                    operation.cancel(
-                        container,
-                        pendingOperations.isNotEmpty() && operation.fragment.mTransitioning
-                    )
+                    operation.cancel(container)
                 }
                 runningNonSeekableTransition = false
                 if (!operation.isComplete) {
@@ -339,6 +340,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             // First cancel running operations
             val runningOperations = runningOperations.toMutableList()
             for (operation in runningOperations) {
+                operation.isSeeking = false
+            }
+            for (operation in runningOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     val notAttachedMessage =
                         if (attachedToWindow) {
@@ -358,6 +362,9 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
 
             // Then cancel pending operations
             val pendingOperations = pendingOperations.toMutableList()
+            for (operation in pendingOperations) {
+                operation.isSeeking = false
+            }
             for (operation in pendingOperations) {
                 if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                     val notAttachedMessage =
@@ -606,7 +613,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             private set
 
         var isSeeking = false
-            private set
+            internal set
 
         var isStarted = false
             private set
@@ -636,16 +643,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
             } else {
                 effects.toList().forEach { it.cancel(container) }
             }
-        }
-
-        fun cancel(container: ViewGroup, withSeeking: Boolean) {
-            if (isCanceled) {
-                return
-            }
-            if (withSeeking) {
-                isSeeking = true
-            }
-            cancel(container)
         }
 
         fun mergeWith(finalState: State, lifecycleImpact: LifecycleImpact) {

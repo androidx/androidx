@@ -126,6 +126,201 @@ class FragmentTransitionSeekingTest {
     }
 
     @Test
+    fun multipleReplaceOperationFastSystemBack() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionFragment(R.layout.scene1)
+            fragment1.setReenterTransition(Fade().apply { duration = 300 })
+            fragment1.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = TransitionFragment(R.layout.scene1)
+            fragment2.setReenterTransition(Fade().apply { duration = 300 })
+            fragment2.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment1.waitForTransition()
+            fragment2.waitForTransition()
+
+            val fragment3 = TransitionFragment(R.layout.scene1)
+            fragment3.setReenterTransition(Fade().apply { duration = 300 })
+            fragment3.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment3, "3")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment2.waitForTransition()
+            fragment3.waitForTransition()
+
+            val fragment4 = TransitionFragment(R.layout.scene1)
+            fragment4.setReenterTransition(Fade().apply { duration = 300 })
+            fragment4.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment4, "3")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment3.waitForTransition()
+            fragment4.waitForTransition()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            fragment1.waitForNoTransition()
+
+            assertThat(fragment2.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("2")).isEqualTo(null)
+
+            // Make sure the original fragment was correctly readded to the container
+            assertThat(fragment1.requireView().parent).isNotNull()
+        }
+    }
+
+    @Test
+    fun multipleReplaceOperationFastGestureBack() {
+        withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
+            val fm1 = withActivity { supportFragmentManager }
+
+            val fragment1 = TransitionFragment(R.layout.scene1)
+            fragment1.setReenterTransition(Fade().apply { duration = 300 })
+            fragment1.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment1, "1")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            val fragment2 = TransitionFragment(R.layout.scene1)
+            fragment2.setReenterTransition(Fade().apply { duration = 300 })
+            fragment2.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment2, "2")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment1.waitForTransition()
+            fragment2.waitForTransition()
+
+            val fragment3 = TransitionFragment(R.layout.scene1)
+            fragment3.setReenterTransition(Fade().apply { duration = 300 })
+            fragment3.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment3, "3")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment2.waitForTransition()
+            fragment3.waitForTransition()
+
+            val fragment4 = TransitionFragment(R.layout.scene1)
+            fragment4.setReenterTransition(Fade().apply { duration = 300 })
+            fragment4.setReturnTransition(Fade().apply { duration = 300 })
+
+            fm1.beginTransaction()
+                .replace(R.id.fragmentContainer, fragment4, "3")
+                .setReorderingAllowed(true)
+                .addToBackStack(null)
+                .commit()
+            waitForExecution()
+
+            fragment3.waitForTransition()
+            fragment4.waitForTransition()
+
+            val dispatcher = withActivity { onBackPressedDispatcher }
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                dispatcher.dispatchOnBackProgressed(
+                    BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                dispatcher.dispatchOnBackProgressed(
+                    BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            withActivity {
+                dispatcher.dispatchOnBackStarted(
+                    BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT)
+                )
+                dispatcher.dispatchOnBackProgressed(
+                    BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+                )
+            }
+            withActivity { dispatcher.onBackPressed() }
+            waitForExecution()
+
+            fragment1.waitForNoTransition()
+
+            assertThat(fragment2.isAdded).isFalse()
+            assertThat(fm1.findFragmentByTag("2")).isEqualTo(null)
+
+            // Make sure the original fragment was correctly readded to the container
+            assertThat(fragment1.requireView().parent).isNotNull()
+        }
+    }
+
+    @Test
     fun replaceOperationWithTransitionsThenBackCancelled() {
         withUse(ActivityScenario.launch(FragmentTransitionTestActivity::class.java)) {
             val fm1 = withActivity { supportFragmentManager }
@@ -141,7 +336,7 @@ class FragmentTransitionSeekingTest {
                                 startedEnterCountDownLatch.countDown()
                             }
 
-                            override fun onTransitionEnd(transition: Transition) {
+                            override fun onTransitionCancel(transition: Transition) {
                                 transitionEndCountDownLatch.countDown()
                             }
                         }
