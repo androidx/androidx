@@ -33,8 +33,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,6 +61,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
+import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.Plurals
 import androidx.wear.compose.material3.internal.Strings
 import androidx.wear.compose.material3.internal.getPlurals
@@ -341,7 +340,7 @@ fun TimePicker(
                     ),
             ) {
                 Icon(
-                    imageVector = Icons.Filled.Check,
+                    imageVector = Icons.Check,
                     contentDescription = getString(Strings.PickerConfirmButtonContentDescription),
                     modifier = Modifier.size(24.dp).wrapContentSize(align = Alignment.Center),
                 )

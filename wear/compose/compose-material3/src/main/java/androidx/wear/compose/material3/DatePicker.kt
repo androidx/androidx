@@ -34,9 +34,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,6 +63,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.ButtonDefaults.buttonColors
 import androidx.wear.compose.material3.ButtonDefaults.filledTonalButtonColors
+import androidx.wear.compose.material3.internal.Icons
 import androidx.wear.compose.material3.internal.Strings.Companion.DatePickerDay
 import androidx.wear.compose.material3.internal.Strings.Companion.DatePickerMonth
 import androidx.wear.compose.material3.internal.Strings.Companion.DatePickerYear
@@ -433,9 +431,9 @@ fun DatePicker(
                 Icon(
                     imageVector =
                         if (showConfirm) {
-                            Icons.Filled.Check
+                            Icons.Check
                         } else {
-                            Icons.AutoMirrored.Filled.KeyboardArrowRight
+                            Icons.AutoMirrored.KeyboardArrowRight
                         },
                     contentDescription =
                         if (showConfirm) {
