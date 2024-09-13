@@ -16,9 +16,9 @@
 package androidx.savedstate
 
 import androidx.annotation.MainThread
-import androidx.arch.core.internal.SafeIterableMap
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.savedstate.internal.SynchronizedObject
 
 /**
  * An interface for plugging components that consumes and contributes to the saved state.
@@ -27,7 +27,8 @@ import androidx.lifecycle.LifecycleEventObserver
  * recreated, new instance of the object is created as well.
  */
 class SavedStateRegistry internal constructor() {
-    private val components = SafeIterableMap<String, SavedStateProvider>()
+    private val lock = SynchronizedObject()
+    private val keyToProviders = mutableMapOf<String, SavedStateProvider>()
     private var attached = false
     private var restoredState: SavedState? = null
 
@@ -95,8 +96,13 @@ class SavedStateRegistry internal constructor() {
      */
     @MainThread
     fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
-        val previous = components.putIfAbsent(key, provider)
-        require(previous == null) { "SavedStateProvider with the given key is already registered" }
+        synchronized(lock) {
+            require(key !in keyToProviders) {
+                "SavedStateProvider with the given key is already registered"
+            }
+            keyToProviders[key] = provider
+        }
+
     }
 
     /**
@@ -109,14 +115,9 @@ class SavedStateRegistry internal constructor() {
      * null if no provider has been registered with the given key.
      */
     fun getSavedStateProvider(key: String): SavedStateProvider? {
-        var provider: SavedStateProvider? = null
-        for ((k, value) in components) {
-            if (k == key) {
-                provider = value
-                break
-            }
+        return synchronized(lock) {
+             keyToProviders.firstNotNullOfOrNull { (k, provider) -> if (k == key) provider else null }
         }
-        return provider
     }
 
     /**
@@ -126,7 +127,7 @@ class SavedStateRegistry internal constructor() {
      */
     @MainThread
     fun unregisterSavedStateProvider(key: String) {
-        components.remove(key)
+        synchronized(lock) { keyToProviders.remove(key) }
     }
 
     /**
@@ -214,8 +215,10 @@ class SavedStateRegistry internal constructor() {
     internal fun performSave(outBundle: SavedState) {
         val inState = savedState {
             restoredState?.let { putAll(it) }
-            for ((key, provider) in components) {
-                putSavedState(key, provider.saveState())
+            synchronized(lock) {
+                for ((key, provider) in keyToProviders) {
+                    putSavedState(key, provider.saveState())
+                }
             }
         }
 
