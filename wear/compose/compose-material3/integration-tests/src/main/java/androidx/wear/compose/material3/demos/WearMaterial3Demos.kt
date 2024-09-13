@@ -38,6 +38,9 @@ import androidx.wear.compose.material3.samples.StatefulSwipeToDismissBox
 import androidx.wear.compose.material3.samples.StepperSample
 import androidx.wear.compose.material3.samples.StepperWithIntegerSample
 import androidx.wear.compose.material3.samples.StepperWithRangeSemanticsSample
+import androidx.wear.compose.material3.samples.SwipeToRevealNonAnchoredSample
+import androidx.wear.compose.material3.samples.SwipeToRevealSample
+import androidx.wear.compose.material3.samples.SwipeToRevealSingleActionCardSample
 
 val WearMaterial3Demos =
     Material3DemoCategory(
@@ -153,6 +156,23 @@ val WearMaterial3Demos =
                     },
                 )
             ),
+            Material3DemoCategory(
+                title = "Swipe to Reveal",
+                listOf(
+                    ComposableDemo("Two Actions") { Centralize { SwipeToRevealSample() } },
+                    ComposableDemo("Two Undo Actions") {
+                        Centralize { SwipeToRevealTwoActionsWithUndo() }
+                    },
+                    ComposableDemo("Single action with Card") {
+                        Centralize { SwipeToRevealSingleActionCardSample() }
+                    },
+                    ComposableDemo("In a list") { Centralize { SwipeToRevealInList() } },
+                    ComposableDemo("Non-anchoring") {
+                        Centralize { SwipeToRevealNonAnchoredSample() }
+                    }
+                )
+            ),
+            Material3DemoCategory(title = "Typography", TypographyDemos),
             Material3DemoCategory(
                 "Animated Text",
                 if (Build.VERSION.SDK_INT > 31) {
