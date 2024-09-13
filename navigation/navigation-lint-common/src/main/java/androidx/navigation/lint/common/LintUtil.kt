@@ -19,6 +19,8 @@ package androidx.navigation.lint.common
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles
+import com.intellij.psi.PsiClass
+import com.intellij.psi.impl.source.PsiClassReferenceType
 import java.util.Locale
 import org.intellij.lang.annotations.Language
 import org.jetbrains.kotlin.analysis.api.analyze
@@ -28,6 +30,7 @@ import org.jetbrains.kotlin.idea.references.mainReference
 import org.jetbrains.kotlin.psi.KtDotQualifiedExpression
 import org.jetbrains.kotlin.psi.KtExpression
 import org.jetbrains.kotlin.psi.KtReferenceExpression
+import org.jetbrains.uast.UClassLiteralExpression
 import org.jetbrains.uast.UExpression
 import org.jetbrains.uast.UQualifiedReferenceExpression
 import org.jetbrains.uast.USimpleNameReferenceExpression
@@ -75,6 +78,16 @@ fun UExpression.isClassReference(
             (checkCompanion && symbol.classKind == KtClassKind.COMPANION_OBJECT)) to
             symbol.name?.asString()
     }
+}
+
+fun UExpression.getKClassType(): PsiClass? {
+    // filter for KClass<*>
+    if (this !is UClassLiteralExpression) return null
+
+    val expressionType = getExpressionType() ?: return null
+    if (expressionType !is PsiClassReferenceType) return null
+    val typeArg = expressionType.typeArguments().firstOrNull() ?: return null
+    return (typeArg as? PsiClassReferenceType)?.reference?.resolve() as? PsiClass
 }
 
 /**

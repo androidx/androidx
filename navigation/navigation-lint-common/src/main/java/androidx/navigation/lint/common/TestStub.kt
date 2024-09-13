@@ -180,30 +180,41 @@ val NAV_DESTINATION_BUILDER =
     bytecodeStub(
         "NavDestinationBuilder.kt",
         "androidx/navigation",
-        0xa7cc2bf1,
+        0xa93da28c,
         """
 package androidx.navigation
 
-public open class NavDestinationBuilder<out D : NavDestination>
+import kotlin.reflect.KClass
+
+public open class NavDestinationBuilder<out D : NavDestination> {
+    public constructor()
+    public constructor(
+        route: KClass<*>?,
+    ): this()
+}
 """,
         """
                 META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuQSTsxLKcrPTKnQy0ssy0xPLMnM
-                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWwhqSCaS5yLF661BCgElxDl
-                4k7Oz9VLrUjMLchJhQkrMWgxAAAEUmOigwAAAA==
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuGS4eOHa
+                S1KLS4S4Q4Cke1FiQQZQVpSLOzk/Vy+1IjG3ICdViA0k512ixKDFAABW1JNV
+                jAAAAA==
                 """,
         """
                 androidx/navigation/NavDestinationBuilder.class:
-                H4sIAAAAAAAA/41QTW/TQBSct86nG6hboKR8thIHmkp1qHpKq0qUCCmSKRJF
-                ueS0iVdhG2cteddRj/kt/ANOSBxQxJEfhXg2OSEkepk3Mztv3+77+evbdwAn
-                2CccSBNnqY5vQiMXeiqdTk14KRd9ZZ02pbzIdRKrrA4i9M76vej/Lafn0bVc
-                yDCRZhq+H1+riTslBH97dVQItTNttDsneC8Phi3UUPdRRYNQcZ+0JRzeYt76
-                iTxjK5qlLtEmfKecjKWT7In5wuP/UgHNAkCgGfs3ulBdZvErwslqGfiiLfzV
-                siwiYLJaNnbaq2XHb/Ap7VFHdMWx6HoX1R+fayKoFL3HfF2f8OI2i6FiePuf
-                rz+aOf70mzRWhM1IG3WZz8cq+yjHCTvbUTqRyVBmutBrs3mlp3xHnjH3r9I8
-                m6i3ujjY/ZAbp+dqqK3m5GtjUlfOstiH4P2ut1Csm/Exq7DUQLXzFc0vTASe
-                MNZKs4KnjK0/AfjY4OrhWZny8Lysj7DHtceZFmfujOANcHeAzQECbDHF9gD3
-                cH8EsniAnRGqFhsWDy3aFrsW9d9uT6qimAIAAA==
+                H4sIAAAAAAAA/41SXU8TQRQ9s0u7y1JlqVIKioKiQk3cSnyREhKBmDRWNGL6
+                wtOUjnVgO5vszDY89rf4D3wy8cE0PvqjjHeWNRoikZf7ce49c+7euz9+fv0G
+                4BnWGTa46qeJ7J9Fio/kgBuZqOiAj/aFNlLl6W4m475IPTCGre39rc7/Ka2d
+                zgkf8SjmahC96Z2IY9NiCC9iHqYYyttSSbPD4K5vdCsowwtQgs8wZT5KzfD4
+                CnrFiKSxtN45TUwsVZSKDzFpRK/2Yq51a6PLsHxJcbuxk9fXOkk6iE6E6aVc
+                Kh1xpRKTC+joIItj3otFK4BjpyulSWYEw8IlegxzvyuvheF9bjhhznDk0uqZ
+                NdPWgIGdEn4mbdakqP+UoTsZ1wOn7gSTce6c0Aa+U2B+rT4ZNwJ/Mg7ZCms4
+                TWfTabq7nl/7/qnshFO7836tWglLS37V8d06a5Zz3LOvb5Lgvv3UK1yR2fHq
+                /1z1k1NDF9pL+rSC2Y5U4iAb9kT63q6IodpJjnnc5am0eQFOH8oBvZGlFK+9
+                y5SRQ9FWI6klld/ylA+FEemLPztnCA6TLD0WL6XlLxac7jnjr0as0k1Kdpvk
+                mf2FyK5SFtn1ki81vmD6c16+R7acgx7uk62cNyDATH6NMiFuTn5OmVOQZy+S
+                g5xcO28oyDYKMUf1tbz7Gh5YGTvCdQrcAnbxMPcreER+j6pVIt44gtvGzTbm
+                2/TsAoWot7GIpSMwjVu4fQRfY0ZjWeOOxl0NTyPUmNOo/AKnk/kd0QMAAA==
                 """
     )
 
@@ -241,13 +252,16 @@ val NAV_GRAPH_BUILDER =
     bytecodeStub(
         "NavGraphBuilder.kt",
         "androidx/navigation",
-        0x4ff507eb,
+        0xa492a7a9,
         """
 package androidx.navigation
 
 import kotlin.reflect.KClass
 
 public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
+    public constructor(
+        route: KClass<*>?,
+    )
     public constructor(
         provider: NavigatorProvider,
         startDestination: Any,
@@ -257,28 +271,30 @@ public open class NavGraphBuilder : NavDestinationBuilder<NavGraph> {
 """,
         """
                 META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuQSTsxLKcrPTKnQy0ssy0xPLMnM
-                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWwhqSCaS5yLF661BCgElxDl
-                4k7Oz9VLrUjMLchJhQkrMWgxAAAEUmOigwAAAA==
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuGS4eOHa
+                S1KLS4S4Q4Cke1FiQQZQVpSLOzk/Vy+1IjG3ICdViA0k512ixKDFAABW1JNV
+                jAAAAA==
                 """,
         """
                 androidx/navigation/NavGraphBuilder.class:
-                H4sIAAAAAAAA/61Tz08TQRT+ZlvabalStgKlAoKAlIJsQW4lJILRNNRKxJAY
-                DmbarmXa7S6ZmTYc+Vv8DzxpPBji0T/K+HYphagQDh72/Zrvfe/Nm7c/f337
-                DmATmwzz3GtIXzRObY/3RJNr4Xt2lfdeSX5yvNMVbsORcTCGvcoNyBeO0sIL
-                3T5+6yZoSFraLjEs35ksjihDbEt4Qm8zHORv4g5MX+5Lvycoq1Rp8R63Xe41
-                7Te1llPXpUrb167wbOl8dMm393ZdrlRp+ZDh8H+zbhW2Q+L5ii+bdsvRNcmF
-                p2zueb4OyZVd9XW167o0jIXbUAThNdchmHnSb8PEMMNMv3Cr17GFpx3pcdcu
-                e1oSg6irOO4xjNWPnXq7X2ifS95xCMiwlP/HRa4iBwFJky6QwgjSSdzHKENa
-                aS71tfcxkWGI5ANUDGNJDGGcIaqPhWJYvHUD+i9LV1q649wZrL87ZhiSflc7
-                DBM3vC3D6OXJa0fzBtecYkanF6H1Z4FIBAIMrE3xUxF4RbIa6wwfzs9mk0bW
-                GHznZwOVJjFwzfHs+dmGaUUto2gU2c6iOW7F0pGcUYySHiIds1LpeM60DDOS
-                ZUXzx6eYkU4EZTYYVu7+X1HvM7f/Wiy4S+aPOcu1tqaX2fUbNKqRivCcardT
-                c+S7YK+Cyfp17h5yKQK/H0wciCbV7kqyF952PS06TtnrCSXoeLBJz68WlSF5
-                4Hdl3XkpgvzJfs7hRcY1IOZg0K70x06rE0cET8l7T/Eo6dEVK/UV1qr1gGTh
-                CyY+U9DAGskYJaQwDJvswgUYWUyGZKMUz9F5YGXwkDICawrTRF8MGUysk85E
-                CJQIq1/IJMlLSAQboV7FM9JlOp2hXh8dIVLGbBlzZTzGPJlYKGMRT47AFJaQ
-                P0JSYVJhWaGgMKyQU8gorChMKUwrxH8DOWhHI3IFAAA=
+                H4sIAAAAAAAA/61UW08TQRT+ZreXpaC0y0VAxAsg5aJb8JKYEhLBaBorGjFN
+                DE9Du5aB7S6ZmTY88lv8Bz5pfDDER3+U8cx2uUQp4cEmPWfOnG++c5k5++v3
+                9x8AHuMpwzQPGzISjUMv5B3R5FpEobfJO68kP9hdb4ug4cssGMPrag/kC19p
+                EcZmgl/tBY1Jy2tlhvkrk2WRYsisilDoNYaJYnU/0oEIPel/Cvy69l5vBFyp
+                8nyN4VYP5+rCWuyfqUay6e35ekdyESqPh2Gk41jK22wHAd8JfMrNLs7XBpBB
+                Loc0+hlSelcohtlLq0qypeNpGbW1z3CjR6YMW8VeVGYZyXcy6ghDVt3jHe4F
+                PGx6b3f2iKN8SfW1/8160rbpy9oWadM5Kso5SPgdDDNMJYx7nZYnQu3LkAde
+                JdSSCERdZTHKMFLf9ev7CcM7LnnLJyDDXPGCDM92tgxJs2zuaAzjOdzABENe
+                aS71udfjYJKYrtgRBvffkAyFk7688TVvcM1pz2p1bJodZkSfEWBg+7R/KIxV
+                olVjmeHw+OhezhqzTv/HR92lc2bmSRwfOaNjx0crjptyrZJVYusjzqg7kLcn
+                HNdy7DFWSv38nLHy6fVZ2s/kMxNWKUvaId13AS5n4q8wLF59WqmoqcsHlpki
+                3b9e+sN9TaOxETXoqQ9WRehvtls7vvxghsj0M6rzoMalMHay2bclmhS6LWk9
+                874datHyK2FHKEHu0wfw/Ox5MeS2oras+y+FOT+enKl1T5wD4i4sGlbzsyjX
+                DLKw4ZH1jCyLdHrhKwa+xO4SyQxt0/1hmeRoF4BruB4TpDGIPPlXYrSDR6Sz
+                dMkER8xdSLg/kjtFurDojnzDzSX3Fsl/4wwQr4mz0AWfxilgGFNxHgVM4nac
+                RSGObSex3Tj2kE2goTh2V5o8TiA2fcWNfognpKvkvUMF3N2GXcG9CqYrmMEs
+                LXG/gjkUt8EU5rGwjX6F6wqLCksKg4rmB1mFYYUphUmFBwqFP5W1RowmBgAA
                 """
     )
 
@@ -433,12 +449,8 @@ val NAVIGATION_STUBS =
         NAV_PROVIDER
     )
 
-val TEST_CODE =
-    kotlinAndBytecodeStub(
-            "Test.kt",
-            "androidx/test",
-            0xef517b0b,
-            """
+val TEST_CODE_SOURCE =
+    """
 package androidx.test
 
 val classInstanceRef = TestClass()
@@ -451,6 +463,8 @@ object TestGraph
 
 object TestObject
 
+data object TestDataObject
+
 class TestClass
 
 class TestClassWithArg(val arg: Int)
@@ -461,6 +475,7 @@ object Outer {
     data class InnerClass (
         val innerArg: Int,
     )
+    class InnerClassNotUsed
 }
 
 interface TestInterface
@@ -470,6 +485,11 @@ object InterfaceChildObject: TestInterface
 abstract class TestAbstract
 class AbstractChildClass(val arg: Boolean): TestAbstract()
 object AbstractChildObject: TestAbstract()
+
+sealed class SealedClass {
+    class SealedSubClass : SealedClass()
+}
+
 
 // classes with companion object to simulate classes marked with @Serializable
 class TestClassComp { companion object }
@@ -489,7 +509,15 @@ class InterfaceChildClassComp(val arg: Boolean): TestInterface { companion objec
 abstract class TestAbstractComp { companion object }
 class AbstractChildClassComp(val arg: Boolean): TestAbstractComp() { companion object }
 object AbstractChildObjectComp: TestAbstractComp()
-""",
+    """
+        .trimIndent()
+
+val TEST_CODE =
+    kotlinAndBytecodeStub(
+            "Test.kt",
+            "androidx/test",
+            0x1ed6fc53,
+            TEST_CODE_SOURCE,
             """
 META-INF/main.kotlin_module:
 H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgMuQSTsxLKcrPTKnQy0ssy0xPLMnM
