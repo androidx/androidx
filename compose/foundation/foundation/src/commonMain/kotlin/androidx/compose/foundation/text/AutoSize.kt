@@ -191,7 +191,7 @@ private class AutoSizeStepBased(
             current = (min + max) / 2
         }
         // used size minus minFontSize must be divisible by stepSize
-        current = (floor((current - smallest) / stepSize) * stepSize + smallest)
+        current = (floor((min - smallest) / stepSize) * stepSize + smallest)
 
         // try the next size up and see if it fits
         if (

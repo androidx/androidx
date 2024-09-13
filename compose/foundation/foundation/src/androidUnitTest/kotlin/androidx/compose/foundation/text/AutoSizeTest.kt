@@ -126,10 +126,18 @@ class AutoSizeTest {
     }
 
     @Test
-    fun stepBased_getFontSize_overflowsWhenFontSizeIsGreaterThan60Px() {
+    fun stepBased_getFontSize_cappedAtMaxSize_beforeOverflow() {
         val autoSize = AutoSize.StepBased(12.sp, 112.sp, 0.25.sp)
         val searchScope: FontSizeSearchScope = OverflowsWhenFontSizeIsGreaterThan60px()
         with(autoSize) { assertThat(searchScope.getFontSize().value).isEqualTo(60) }
+    }
+
+    @Test
+    fun stepBased_getFontSize_searchRangeMidpoint_overflows() {
+        val autoSize = AutoSize.StepBased(0.sp, 100.sp, 70.sp)
+        val searchScope: FontSizeSearchScope = OverflowsWhenFontSizeIsGreaterThan60px()
+        // Here we're testing when (max - min) / 2 overflows and min doesn't overflow
+        with(autoSize) { assertThat(searchScope.getFontSize().value) }.isEqualTo(0)
     }
 
     @Test
