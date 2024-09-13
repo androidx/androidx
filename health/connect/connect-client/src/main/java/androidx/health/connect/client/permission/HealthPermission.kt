@@ -43,6 +43,7 @@ import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PlannedExerciseSessionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
@@ -174,6 +175,7 @@ internal constructor(
             PERMISSION_PREFIX + "READ_TOTAL_CALORIES_BURNED"
         internal const val READ_VO2_MAX = PERMISSION_PREFIX + "READ_VO2_MAX"
         internal const val READ_WHEELCHAIR_PUSHES = PERMISSION_PREFIX + "READ_WHEELCHAIR_PUSHES"
+        internal const val READ_PLANNED_EXERCISE = PERMISSION_PREFIX + "READ_PLANNED_EXERCISE"
         internal const val READ_POWER = PERMISSION_PREFIX + "READ_POWER"
         internal const val READ_SPEED = PERMISSION_PREFIX + "READ_SPEED"
 
@@ -232,6 +234,7 @@ internal constructor(
             PERMISSION_PREFIX + "WRITE_TOTAL_CALORIES_BURNED"
         internal const val WRITE_VO2_MAX = PERMISSION_PREFIX + "WRITE_VO2_MAX"
         internal const val WRITE_WHEELCHAIR_PUSHES = PERMISSION_PREFIX + "WRITE_WHEELCHAIR_PUSHES"
+        internal const val WRITE_PLANNED_EXERCISE = PERMISSION_PREFIX + "WRITE_PLANNED_EXERCISE"
         internal const val WRITE_POWER = PERMISSION_PREFIX + "WRITE_POWER"
         internal const val WRITE_SPEED = PERMISSION_PREFIX + "WRITE_SPEED"
 
@@ -328,6 +331,8 @@ internal constructor(
                     READ_OVULATION_TEST.substringAfter(READ_PERMISSION_PREFIX),
                 OxygenSaturationRecord::class to
                     READ_OXYGEN_SATURATION.substringAfter(READ_PERMISSION_PREFIX),
+                PlannedExerciseSessionRecord::class to
+                    READ_PLANNED_EXERCISE.substringAfter(READ_PERMISSION_PREFIX),
                 PowerRecord::class to READ_POWER.substringAfter(READ_PERMISSION_PREFIX),
                 RespiratoryRateRecord::class to
                     READ_RESPIRATORY_RATE.substringAfter(READ_PERMISSION_PREFIX),

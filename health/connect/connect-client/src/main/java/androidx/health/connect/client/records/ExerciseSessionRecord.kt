@@ -65,6 +65,7 @@ internal constructor(
      * session.
      */
     val exerciseRouteResult: ExerciseRouteResult = ExerciseRouteResult.NoData(),
+    val plannedExerciseSessionId: String? = null
 ) : IntervalRecord {
 
     @JvmOverloads
@@ -83,6 +84,8 @@ internal constructor(
         segments: List<ExerciseSegment> = emptyList(),
         laps: List<ExerciseLap> = emptyList(),
         exerciseRoute: ExerciseRoute? = null,
+        /** The planned exercise session this workout was based upon. Optional field. */
+        plannedExerciseSessionId: String? = null,
     ) : this(
         startTime,
         startZoneOffset,
@@ -94,7 +97,8 @@ internal constructor(
         metadata,
         segments,
         laps,
-        exerciseRoute?.let { ExerciseRouteResult.Data(it) } ?: ExerciseRouteResult.NoData()
+        exerciseRoute?.let { ExerciseRouteResult.Data(it) } ?: ExerciseRouteResult.NoData(),
+        plannedExerciseSessionId,
     )
 
     init {
