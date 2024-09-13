@@ -16,6 +16,9 @@
 
 package androidx.camera.core.imagecapture;
 
+import static android.graphics.ImageFormat.JPEG;
+import static android.graphics.ImageFormat.RAW_SENSOR;
+
 import static androidx.camera.core.ImageCapture.ERROR_CAPTURE_FAILED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
@@ -54,6 +57,8 @@ import androidx.core.util.Consumer;
 
 import com.google.auto.value.AutoValue;
 
+import java.util.List;
+
 /**
  * A {@link Node} that calls back when all the images for one capture are received.
  *
@@ -79,6 +84,10 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
     @Nullable
     SafeCloseImageReaderProxy mSafeCloseImageReaderProxy;
 
+    /* Additional image reader for simultaneous RAW + JPEG capture */
+    @Nullable
+    SafeCloseImageReaderProxy mSecondarySafeCloseImageReaderProxy;
+
     @Nullable
     SafeCloseImageReaderProxy mSafeCloseImageReaderForPostview;
 
@@ -88,6 +97,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
     private In mInputEdge;
     @Nullable
     private NoMetadataImageReader mNoMetadataImageReader = null;
+
     @NonNull
     @Override
     public ProcessingNode.In transform(@NonNull In inputEdge) {
@@ -100,6 +110,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         // Create and configure ImageReader.
         Consumer<ProcessingRequest> requestConsumer;
         ImageReaderProxy wrappedImageReader;
+        ImageReaderProxy secondaryWrappedImageReader = null;
         boolean hasMetadata = !inputEdge.isVirtualCamera();
         CameraCaptureCallback progressCallback = new CameraCaptureCallback() {
             @Override
@@ -120,15 +131,36 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                 });
             }
         };
+
         CameraCaptureCallback cameraCaptureCallbacks;
+        CameraCaptureCallback secondaryCameraCaptureCallback = null;
+        boolean isSimultaneousCaptureEnabled = inputEdge.getOutputFormats().size() > 1;
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
-            // Use MetadataImageReader if the input edge expects metadata.
-            MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
-                    size.getHeight(), format, MAX_IMAGES);
-            cameraCaptureCallbacks =
-                    CameraCaptureCallbacks.createComboCallback(
-                            progressCallback, metadataImageReader.getCameraCaptureCallback());
-            wrappedImageReader = metadataImageReader;
+            if (isSimultaneousCaptureEnabled) {
+                MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
+                        size.getHeight(), JPEG, MAX_IMAGES);
+                cameraCaptureCallbacks =
+                        CameraCaptureCallbacks.createComboCallback(
+                                progressCallback, metadataImageReader.getCameraCaptureCallback());
+                wrappedImageReader = metadataImageReader;
+
+                MetadataImageReader secondaryMetadataImageReader = new MetadataImageReader(
+                        size.getWidth(), size.getHeight(), RAW_SENSOR, MAX_IMAGES);
+                secondaryCameraCaptureCallback =
+                        CameraCaptureCallbacks.createComboCallback(
+                                progressCallback,
+                                secondaryMetadataImageReader.getCameraCaptureCallback());
+                secondaryWrappedImageReader = secondaryMetadataImageReader;
+            } else {
+                // Use MetadataImageReader if the input edge expects metadata.
+                MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
+                        size.getHeight(), format, MAX_IMAGES);
+                cameraCaptureCallbacks =
+                        CameraCaptureCallbacks.createComboCallback(
+                                progressCallback, metadataImageReader.getCameraCaptureCallback());
+                wrappedImageReader = metadataImageReader;
+            }
+
             requestConsumer = this::onRequestAvailable;
         } else {
             cameraCaptureCallbacks = progressCallback;
@@ -144,33 +176,14 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
             };
         }
         inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
+        if (isSimultaneousCaptureEnabled && secondaryCameraCaptureCallback != null) {
+            inputEdge.setSecondaryCameraCaptureCallback(secondaryCameraCaptureCallback);
+        }
         inputEdge.setSurface(requireNonNull(wrappedImageReader.getSurface()));
         mSafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(wrappedImageReader);
 
         // Listen to the input edges.
-        wrappedImageReader.setOnImageAvailableListener(imageReader -> {
-            try {
-                ImageProxy image = imageReader.acquireLatestImage();
-                if (image != null) {
-                    onImageProxyAvailable(image);
-                } else {
-                    if (mCurrentRequest != null) {
-                        sendCaptureError(
-                                TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
-                                        new ImageCaptureException(ERROR_CAPTURE_FAILED,
-                                                "Failed to acquire latest image", null)));
-                    }
-                }
-            } catch (IllegalStateException e) {
-                if (mCurrentRequest != null) {
-                    sendCaptureError(
-                            TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
-                                    new ImageCaptureException(
-                                            ERROR_CAPTURE_FAILED, "Failed to acquire latest image",
-                                            e)));
-                }
-            }
-        }, mainThreadExecutor());
+        setOnImageAvailableListener(wrappedImageReader);
 
         // Postview
         if (inputEdge.getPostviewSize() != null) {
@@ -196,10 +209,20 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
                     inputEdge.getPostviewSize(), inputEdge.getPostviewImageFormat());
         }
 
+        // Simultaneous capture RAW + JPEG
+        if (isSimultaneousCaptureEnabled && secondaryWrappedImageReader != null) {
+            inputEdge.setSecondarySurface(secondaryWrappedImageReader.getSurface());
+            mSecondarySafeCloseImageReaderProxy = new SafeCloseImageReaderProxy(
+                    secondaryWrappedImageReader);
+            setOnImageAvailableListener(secondaryWrappedImageReader);
+        }
+
         inputEdge.getRequestEdge().setListener(requestConsumer);
         inputEdge.getErrorEdge().setListener(this::sendCaptureError);
 
-        mOutputEdge = ProcessingNode.In.of(inputEdge.getInputFormat(), inputEdge.getOutputFormat());
+        mOutputEdge = ProcessingNode.In.of(
+                inputEdge.getInputFormat(),
+                inputEdge.getOutputFormats());
 
         return mOutputEdge;
     }
@@ -213,6 +236,33 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         } else {
             return ImageReaderProxys.createIsolatedReader(width, height, format, MAX_IMAGES);
         }
+    }
+
+    private void setOnImageAvailableListener(@NonNull ImageReaderProxy imageReaderProxy) {
+        imageReaderProxy.setOnImageAvailableListener(imageReader -> {
+            try {
+                ImageProxy image = imageReader.acquireLatestImage();
+                if (image != null) {
+                    onImageProxyAvailable(image);
+                } else {
+                    if (mCurrentRequest != null) {
+                        sendCaptureError(
+                                TakePictureManager.CaptureError.of(
+                                        mCurrentRequest.getRequestId(),
+                                        new ImageCaptureException(ERROR_CAPTURE_FAILED,
+                                                "Failed to acquire latest image", null)));
+                    }
+                }
+            } catch (IllegalStateException e) {
+                if (mCurrentRequest != null) {
+                    sendCaptureError(
+                            TakePictureManager.CaptureError.of(mCurrentRequest.getRequestId(),
+                                    new ImageCaptureException(
+                                            ERROR_CAPTURE_FAILED,
+                                            "Failed to acquire latest image", e)));
+                }
+            }
+        }, mainThreadExecutor());
     }
 
     @VisibleForTesting
@@ -247,7 +297,20 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
         // The capture is complete. Let the pipeline know it can take another picture.
         ProcessingRequest request = mCurrentRequest;
-        mCurrentRequest = null;
+
+        // If simultaneous capture RAW + JPEG, only reset when both images are processed.
+        boolean isSimultaneousCaptureEnabled = mInputEdge.getOutputFormats().size() > 1;
+        if (isSimultaneousCaptureEnabled && mCurrentRequest != null) {
+            mCurrentRequest.getTakePictureRequest()
+                    .markFormatProcessStatusInSimultaneousCapture(
+                            imageProxy.getFormat(), true);
+        }
+        boolean isProcessed = !isSimultaneousCaptureEnabled
+                || (isSimultaneousCaptureEnabled && mCurrentRequest.getTakePictureRequest()
+                .isFormatProcessedInSimultaneousCapture());
+        if (isProcessed) {
+            mCurrentRequest = null;
+        }
         request.onImageCaptured();
     }
 
@@ -309,12 +372,14 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         checkMainThread();
         releaseInputResources(requireNonNull(mInputEdge),
                 requireNonNull(mSafeCloseImageReaderProxy),
+                mSecondarySafeCloseImageReaderProxy,
                 mSafeCloseImageReaderForPostview);
 
     }
 
     private void releaseInputResources(@NonNull CaptureNode.In inputEdge,
             @NonNull SafeCloseImageReaderProxy imageReader,
+            @Nullable SafeCloseImageReaderProxy secondaryImageReader,
             @Nullable SafeCloseImageReaderProxy imageReaderForPostview) {
         inputEdge.getSurface().close();
         // Wait for the termination to close the ImageReader or the Surface may be released
@@ -328,6 +393,15 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
             inputEdge.getPostviewSurface().getTerminationFuture().addListener(() -> {
                 if (imageReaderForPostview != null) {
                     imageReaderForPostview.safeClose();
+                }
+            }, mainThreadExecutor());
+        }
+
+        if (inputEdge.getOutputFormats().size() > 1 && inputEdge.getSecondarySurface() != null) {
+            inputEdge.getSecondarySurface().close();
+            inputEdge.getSecondarySurface().getTerminationFuture().addListener(() -> {
+                if (secondaryImageReader != null) {
+                    secondaryImageReader.safeClose();
                 }
             }, mainThreadExecutor());
         }
@@ -371,8 +445,16 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         private CameraCaptureCallback mCameraCaptureCallback = new CameraCaptureCallback() {
         };
 
+        /* Additional camera capture callback for simultaneous RAW + JPEG capture */
+        @Nullable
+        private CameraCaptureCallback mSecondaryCameraCaptureCallback;
+
         @Nullable
         private DeferrableSurface mSurface;
+
+        /* Additional surface for simultaneous RAW + JPEG capture */
+        @Nullable
+        private DeferrableSurface mSecondarySurface;
 
         @Nullable
         private DeferrableSurface mPostviewSurface = null;
@@ -380,6 +462,7 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         /**
          * Size of the {@link ImageReader} buffer.
          */
+        @NonNull
         abstract Size getSize();
 
         /**
@@ -390,10 +473,13 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
         /**
          * The output format of the pipeline.
          *
-         * <p> For public users, only {@link ImageFormat#JPEG} and {@link ImageFormat#JPEG_R} are
-         * supported. Other formats are only used by in-memory capture in tests.
+         * <p> For public users, {@link ImageFormat#JPEG}, {@link ImageFormat#JPEG_R} and
+         * {@link ImageFormat#RAW_SENSOR}} are supported. Other formats are only used by in-memory
+         * capture in tests.
          */
-        abstract int getOutputFormat();
+        @SuppressWarnings("AutoValueImmutableFields")
+        @NonNull
+        abstract List<Integer> getOutputFormats();
 
         /**
          * Whether the pipeline is connected to a virtual camera.
@@ -449,6 +535,13 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
             return mPostviewSurface;
         }
 
+        /**
+         * Edge that accepts the image frames for simultaneous RAW + JPEG capture.
+         */
+        @Nullable
+        DeferrableSurface getSecondarySurface() {
+            return mSecondarySurface;
+        }
 
         void setSurface(@NonNull Surface surface) {
             checkState(mSurface == null, "The surface is already set.");
@@ -457,6 +550,12 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
 
         void setPostviewSurface(@NonNull Surface surface, @NonNull Size size, int imageFormat) {
             mPostviewSurface = new ImmediateSurface(surface, size, imageFormat);
+        }
+
+        void setSecondarySurface(@NonNull Surface surface) {
+            checkState(mSecondarySurface == null, "The secondary surface is "
+                    + "already set.");
+            mSecondarySurface = new ImmediateSurface(surface, getSize(), getInputFormat());
         }
 
         /**
@@ -473,19 +572,37 @@ class CaptureNode implements Node<CaptureNode.In, ProcessingNode.In> {
             mCameraCaptureCallback = cameraCaptureCallback;
         }
 
+        @Nullable
+        CameraCaptureCallback getSecondaryCameraCaptureCallback() {
+            return mSecondaryCameraCaptureCallback;
+        }
+
+        void setSecondaryCameraCaptureCallback(
+                @NonNull CameraCaptureCallback cameraCaptureCallback) {
+            mSecondaryCameraCaptureCallback = cameraCaptureCallback;
+        }
+
         @NonNull
-        static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
+        static In of(
+                @NonNull Size size,
+                int inputFormat,
+                @NonNull List<Integer> outputFormats,
+                boolean isVirtualCamera,
                 @Nullable ImageReaderProxyProvider imageReaderProxyProvider) {
-            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
+            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormats, isVirtualCamera,
                     imageReaderProxyProvider, null, ImageFormat.YUV_420_888,
                     new Edge<>(), new Edge<>());
         }
 
         @NonNull
-        static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
+        static In of(
+                @NonNull Size size,
+                int inputFormat,
+                @NonNull List<Integer> outputFormats,
+                boolean isVirtualCamera,
                 @Nullable ImageReaderProxyProvider imageReaderProxyProvider,
                 @Nullable Size postviewSize, int postviewImageFormat) {
-            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
+            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormats, isVirtualCamera,
                     imageReaderProxyProvider, postviewSize, postviewImageFormat,
                     new Edge<>(), new Edge<>());
         }

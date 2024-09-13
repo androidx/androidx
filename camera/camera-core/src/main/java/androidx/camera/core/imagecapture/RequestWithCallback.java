@@ -49,6 +49,7 @@ public class RequestWithCallback implements TakePictureCallback {
     private final ListenableFuture<Void> mCompleteFuture;
     private CallbackToFutureAdapter.Completer<Void> mCaptureCompleter;
     private CallbackToFutureAdapter.Completer<Void> mCompleteCompleter;
+
     // Flag tracks if the request has been aborted by the UseCase. Once aborted, this class stops
     // propagating callbacks to the app.
     private boolean mIsAborted = false;
@@ -282,7 +283,11 @@ public class RequestWithCallback implements TakePictureCallback {
     }
 
     private void markComplete() {
-        checkState(!mCompleteFuture.isDone(), "The callback can only complete once.");
+        boolean isSimultaneousCapture = mTakePictureRequest.getOutputFileOptions() != null
+                && mTakePictureRequest.getOutputFileOptions().size() > 1;
+        if (!isSimultaneousCapture) {
+            checkState(!mCompleteFuture.isDone(), "The callback can only complete once.");
+        }
         mCompleteCompleter.set(null);
     }
 

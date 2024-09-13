@@ -16,6 +16,8 @@
 
 package androidx.camera.core.impl;
 
+import android.graphics.ImageFormat;
+
 import androidx.annotation.NonNull;
 import androidx.camera.core.Camera;
 import androidx.camera.core.DynamicRange;
@@ -25,6 +27,8 @@ import androidx.core.util.Preconditions;
 public interface ImageInputConfig extends ReadableConfig {
     Config.Option<Integer> OPTION_INPUT_FORMAT =
             Config.Option.create("camerax.core.imageInput.inputFormat", int.class);
+    Config.Option<Integer> OPTION_SECONDARY_INPUT_FORMAT =
+            Config.Option.create("camerax.core.imageInput.secondaryInputFormat", int.class);
     Config.Option<DynamicRange> OPTION_INPUT_DYNAMIC_RANGE =
             Config.Option.create("camerax.core.imageInput.inputDynamicRange",
                     DynamicRange.class);
@@ -45,6 +49,19 @@ public interface ImageInputConfig extends ReadableConfig {
      */
     default int getInputFormat() {
         return retrieveOption(OPTION_INPUT_FORMAT);
+    }
+
+    /**
+     * Retrieve the secondary input image format.
+     *
+     * <p>This is the format that is required for simultaneous capture. Currently only RAW + JPEG
+     * are supported and the input format must be set to RAW and secondary input format must be set
+     * to JPEG.
+     *
+     * <p>If the secondary input format is not set, {@link ImageFormat#UNKNOWN} will be returned.
+     */
+    default int getSecondaryInputFormat() {
+        return retrieveOption(OPTION_SECONDARY_INPUT_FORMAT, ImageFormat.UNKNOWN);
     }
 
     /**

@@ -34,6 +34,7 @@ import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.TIMESTAMP
 import androidx.camera.core.imagecapture.Utils.WIDTH
+import androidx.camera.core.imagecapture.Utils.createTakePictureRequest
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
@@ -144,7 +145,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun processYuvAndVerifyOutputSize(outputFileOptions: OutputFileOptions?) {
         // Arrange: create node with JPEG input and grayscale effect.
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.YUV_420_888, listOf(ImageFormat.JPEG))
         val imageIn =
             createYuvFakeImageProxy(
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
@@ -167,7 +168,7 @@ class ProcessingNodeDeviceTest {
                 null,
                 InternalImageProcessor(GrayscaleImageEffect())
             )
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, listOf(ImageFormat.JPEG))
         val imageIn =
             createJpegFakeImageProxy(
                 CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
@@ -194,11 +195,13 @@ class ProcessingNodeDeviceTest {
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                CROP_RECT,
-                /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    CROP_RECT,
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -220,18 +223,20 @@ class ProcessingNodeDeviceTest {
     ) {
         // Arrange: create a request with no cropping
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, listOf(ImageFormat.JPEG))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                Rect(0, 0, WIDTH, HEIGHT),
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -260,18 +265,20 @@ class ProcessingNodeDeviceTest {
         // Arrange: create a request with no cropping
         val format = ImageFormat.JPEG_R
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(format, format)
+        val nodeIn = ProcessingNode.In.of(format, listOf(format))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                Rect(0, 0, WIDTH, HEIGHT),
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -306,18 +313,20 @@ class ProcessingNodeDeviceTest {
     private suspend fun inMemoryInputPacket_callbackInvoked(outputFileOptions: OutputFileOptions?) {
         // Arrange.
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, listOf(ImageFormat.JPEG))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                Rect(0, 0, WIDTH, HEIGHT),
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -346,18 +355,20 @@ class ProcessingNodeDeviceTest {
         // Arrange.
         val format = ImageFormat.JPEG_R
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(format, format)
+        val nodeIn = ProcessingNode.In.of(format, listOf(format))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                Rect(0, 0, WIDTH, HEIGHT),
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -385,7 +396,7 @@ class ProcessingNodeDeviceTest {
     private suspend fun saveJpegOnDisk_verifyOutput(outputFileOptions: OutputFileOptions?) {
         // Arrange: create a on-disk processing request.
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, listOf(ImageFormat.JPEG))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
         val jpegBytes =
@@ -395,11 +406,13 @@ class ProcessingNodeDeviceTest {
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                CROP_RECT,
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    CROP_RECT,
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -425,7 +438,7 @@ class ProcessingNodeDeviceTest {
         // Arrange: create a on-disk processing request.
         val format = ImageFormat.JPEG_R
         val node = ProcessingNode(mainThreadExecutor(), null)
-        val nodeIn = ProcessingNode.In.of(format, format)
+        val nodeIn = ProcessingNode.In.of(format, listOf(format))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
         val jpegBytes =
@@ -438,11 +451,13 @@ class ProcessingNodeDeviceTest {
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                outputFileOptions,
-                CROP_RECT,
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    if (outputFileOptions == null) null else listOf(outputFileOptions),
+                    CROP_RECT,
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )
@@ -483,18 +498,20 @@ class ProcessingNodeDeviceTest {
         // Force inject the quirk for the A24 incorrect JPEG metadata problem
         val node =
             ProcessingNode(mainThreadExecutor(), Quirks(listOf(IncorrectJpegMetadataQuirk())), null)
-        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        val nodeIn = ProcessingNode.In.of(ImageFormat.JPEG, listOf(ImageFormat.JPEG))
         node.transform(nodeIn)
         val takePictureCallback = FakeTakePictureCallback()
 
         val processingRequest =
             ProcessingRequest(
                 { listOf() },
-                null,
-                Rect(0, 0, WIDTH, HEIGHT),
-                0,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    /*outputFileOptions=*/ null,
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    /*rotationDegrees=*/ 0, // 0 because exif does not have rotation.
+                    /*jpegQuality=*/ 100
+                ),
                 takePictureCallback,
                 Futures.immediateFuture(null)
             )

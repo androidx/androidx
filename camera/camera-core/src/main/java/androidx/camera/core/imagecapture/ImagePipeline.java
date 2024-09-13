@@ -126,11 +126,20 @@ public class ImagePipeline {
                 cameraCharacteristics,
                 cameraEffect != null ? new InternalImageProcessor(cameraEffect) : null);
 
+        // Pass down [RAW_SENSOR, JPEG] to the pipeline if simultaneous capture is enabled.
+        List<Integer> outputFormats = new ArrayList<>();
+        if (mUseCaseConfig.getSecondaryInputFormat() != ImageFormat.UNKNOWN) {
+            outputFormats.add(ImageFormat.RAW_SENSOR);
+            outputFormats.add(ImageFormat.JPEG);
+        } else {
+            outputFormats.add(getOutputFormat());
+        }
+
         // Connect nodes
         mPipelineIn = CaptureNode.In.of(
                 cameraSurfaceSize,
                 mUseCaseConfig.getInputFormat(),
-                getOutputFormat(),
+                outputFormats,
                 isVirtualCamera,
                 mUseCaseConfig.getImageReaderProxyProvider(),
                 postviewSize,
@@ -147,6 +156,10 @@ public class ImagePipeline {
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mUseCaseConfig,
                 resolution);
         builder.addNonRepeatingSurface(mPipelineIn.getSurface());
+        if (mPipelineIn.getOutputFormats().size() > 1
+                && mPipelineIn.getSecondarySurface() != null) {
+            builder.addNonRepeatingSurface(mPipelineIn.getSecondarySurface());
+        }
 
         // Postview surface is generated when initializing CaptureNode.
         if (mPipelineIn.getPostviewSurface() != null) {
@@ -274,11 +287,7 @@ public class ImagePipeline {
             @NonNull ListenableFuture<Void> captureFuture) {
         return new ProcessingRequest(
                 captureBundle,
-                takePictureRequest.getOutputFileOptions(),
-                takePictureRequest.getCropRect(),
-                takePictureRequest.getRotationDegrees(),
-                takePictureRequest.getJpegQuality(),
-                takePictureRequest.getSensorToBufferTransform(),
+                takePictureRequest,
                 takePictureCallback,
                 captureFuture,
                 requestId);
@@ -310,6 +319,10 @@ public class ImagePipeline {
             builder.addAllCameraCaptureCallbacks(
                     takePictureRequest.getSessionConfigCameraCaptureCallbacks());
             builder.addSurface(mPipelineIn.getSurface());
+            if (mPipelineIn.getOutputFormats().size() > 1
+                    && mPipelineIn.getSecondarySurface() != null) {
+                builder.addSurface(mPipelineIn.getSecondarySurface());
+            }
             builder.setPostviewEnabled(shouldEnablePostview());
 
             // Sets the JPEG rotation and quality for JPEG and RAW formats. Some devices do not
@@ -332,6 +345,10 @@ public class ImagePipeline {
             builder.addTag(tagBundleKey, captureStage.getId());
             builder.setId(requestId);
             builder.addCameraCaptureCallback(mPipelineIn.getCameraCaptureCallback());
+            if (mPipelineIn.getOutputFormats().size() > 1
+                    && mPipelineIn.getSecondaryCameraCaptureCallback() != null) {
+                builder.addCameraCaptureCallback(mPipelineIn.getSecondaryCameraCaptureCallback());
+            }
             captureConfigs.add(builder.build());
         }
 

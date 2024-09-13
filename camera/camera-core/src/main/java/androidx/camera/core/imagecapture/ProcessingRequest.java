@@ -41,8 +41,9 @@ import java.util.List;
  */
 class ProcessingRequest {
     private final int mRequestId;
+    @NonNull TakePictureRequest mTakePictureRequest;
     @Nullable
-    private final ImageCapture.OutputFileOptions mOutputFileOptions;
+    private final List<ImageCapture.OutputFileOptions> mOutputFileOptions;
     @NonNull
     private final Rect mCropRect;
     private final int mRotationDegrees;
@@ -62,32 +63,25 @@ class ProcessingRequest {
 
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
-            @Nullable ImageCapture.OutputFileOptions outputFileOptions,
-            @NonNull Rect cropRect,
-            int rotationDegrees,
-            int jpegQuality,
-            @NonNull Matrix sensorToBufferTransform,
+            @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback callback,
             @NonNull ListenableFuture<Void> captureFuture) {
-        this(captureBundle, outputFileOptions, cropRect, rotationDegrees, jpegQuality,
-                sensorToBufferTransform, callback, captureFuture, 0);
+        this(captureBundle, takePictureRequest, callback, captureFuture, 0);
     }
     ProcessingRequest(
             @NonNull CaptureBundle captureBundle,
-            @Nullable ImageCapture.OutputFileOptions outputFileOptions,
-            @NonNull Rect cropRect,
-            int rotationDegrees,
-            int jpegQuality,
-            @NonNull Matrix sensorToBufferTransform,
+            @NonNull TakePictureRequest takePictureRequest,
             @NonNull TakePictureCallback callback,
             @NonNull ListenableFuture<Void> captureFuture,
             int requestId) {
         mRequestId = requestId;
-        mOutputFileOptions = outputFileOptions;
-        mJpegQuality = jpegQuality;
-        mRotationDegrees = rotationDegrees;
-        mCropRect = cropRect;
-        mSensorToBufferTransform = sensorToBufferTransform;
+        mTakePictureRequest = takePictureRequest;
+        mTakePictureRequest.initFormatProcessStatusInSimultaneousCapture();
+        mOutputFileOptions = takePictureRequest.getOutputFileOptions();
+        mJpegQuality = takePictureRequest.getJpegQuality();
+        mRotationDegrees = takePictureRequest.getRotationDegrees();
+        mCropRect = takePictureRequest.getCropRect();
+        mSensorToBufferTransform = takePictureRequest.getSensorToBufferTransform();
         mCallback = callback;
         mTagBundleKey = String.valueOf(captureBundle.hashCode());
         mStageIds = new ArrayList<>();
@@ -111,8 +105,13 @@ class ProcessingRequest {
         return mRequestId;
     }
 
+    @NonNull
+    TakePictureRequest getTakePictureRequest() {
+        return mTakePictureRequest;
+    }
+
     @Nullable
-    ImageCapture.OutputFileOptions getOutputFileOptions() {
+    List<ImageCapture.OutputFileOptions> getOutputFileOptions() {
         return mOutputFileOptions;
     }
 
@@ -135,7 +134,7 @@ class ProcessingRequest {
     }
 
     boolean isInMemoryCapture() {
-        return getOutputFileOptions() == null;
+        return getOutputFileOptions() == null || getOutputFileOptions().isEmpty();
     }
 
     /**

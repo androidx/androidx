@@ -16,19 +16,23 @@
 
 package androidx.camera.core.imagecapture
 
-import android.graphics.ImageFormat
+import android.graphics.ImageFormat.JPEG
+import android.graphics.ImageFormat.RAW_SENSOR
 import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Looper.getMainLooper
+import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
+import androidx.camera.core.imagecapture.Utils.SECONDARY_OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.SENSOR_TO_BUFFER
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.imagecapture.Utils.createProcessingRequest
+import androidx.camera.core.imagecapture.Utils.createTakePictureRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
@@ -38,13 +42,16 @@ import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.impl.TestImageUtil.createJpegrBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegrFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.createRawFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
 import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito.any
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.`when`
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
@@ -65,7 +72,7 @@ class ProcessingNodeTest {
 
     @Before
     fun setUp() {
-        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        processingNodeIn = ProcessingNode.In.of(JPEG, listOf(JPEG))
         node.transform(processingNodeIn)
     }
 
@@ -76,11 +83,13 @@ class ProcessingNodeTest {
         val request =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                Rect(0, 0, WIDTH, HEIGHT),
-                ROTATION_DEGREES,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
                 callback,
                 Futures.immediateFuture(null)
             )
@@ -103,11 +112,13 @@ class ProcessingNodeTest {
         val request =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                Rect(0, 0, WIDTH, HEIGHT),
-                ROTATION_DEGREES,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
                 callback,
                 Futures.immediateFuture(null)
             )
@@ -123,6 +134,93 @@ class ProcessingNodeTest {
     }
 
     @Test
+    fun processRequest_hasDiskResult_whenFormatIsRaw() {
+        // Arrange: create a request with callback.
+        processingNodeIn = ProcessingNode.In.of(RAW_SENSOR, listOf(RAW_SENSOR))
+        node.transform(processingNodeIn)
+
+        val callback = FakeTakePictureCallback()
+        val request =
+            ProcessingRequest(
+                { listOf() },
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
+                callback,
+                Futures.immediateFuture(null)
+            )
+
+        // Act: process the request.
+        val rawImage =
+            createRawFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                WIDTH,
+                HEIGHT
+            )
+        val dngImage2Disk = mock(DngImage2Disk::class.java)
+        node.mDngImage2Disk = dngImage2Disk
+        `when`(dngImage2Disk.apply(any(DngImage2Disk.In::class.java)))
+            .thenReturn(mock(ImageCapture.OutputFileResults::class.java))
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, rawImage))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is saved.
+        assertThat(callback.onDiskResult).isNotNull()
+    }
+
+    @Test
+    fun processRequest_hasDiskResult_whenSimultaneousCaptureEnabled() {
+        // Arrange: create a request with callback.
+        processingNodeIn = ProcessingNode.In.of(RAW_SENSOR, listOf(RAW_SENSOR, JPEG))
+        node.transform(processingNodeIn)
+
+        val callback = FakeTakePictureCallback()
+        val request =
+            ProcessingRequest(
+                { listOf() },
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS, SECONDARY_OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
+                callback,
+                Futures.immediateFuture(null)
+            )
+
+        // Act: process the request.
+        val jpegBytes = createJpegBytes(WIDTH, HEIGHT)
+        val jpegImage = createJpegFakeImageProxy(jpegBytes)
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, jpegImage))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is saved.
+        assertThat(callback.onDiskResult).isNull()
+
+        // Act: process the request.
+        val rawImage =
+            createRawFakeImageProxy(
+                CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+                WIDTH,
+                HEIGHT
+            )
+        val dngImage2Disk = mock(DngImage2Disk::class.java)
+        node.mDngImage2Disk = dngImage2Disk
+        `when`(dngImage2Disk.apply(any(DngImage2Disk.In::class.java)))
+            .thenReturn(mock(ImageCapture.OutputFileResults::class.java))
+        processingNodeIn.edge.accept(ProcessingNode.InputPacket.of(request, rawImage))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: the image is saved.
+        assertThat(callback.onDiskResult).isNotNull()
+    }
+
+    @Test
     fun processAbortedRequest_noOps() {
         // Arrange: create a request with aborted callback.
         val callback = FakeTakePictureCallback()
@@ -130,11 +228,13 @@ class ProcessingNodeTest {
         val request =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                Rect(0, 0, WIDTH, HEIGHT),
-                ROTATION_DEGREES,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
                 callback,
                 Futures.immediateFuture(null)
             )
@@ -156,11 +256,13 @@ class ProcessingNodeTest {
         val request =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                Rect(0, 0, WIDTH, HEIGHT),
-                ROTATION_DEGREES,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
                 callback,
                 Futures.immediateFuture(null)
             )
@@ -183,11 +285,13 @@ class ProcessingNodeTest {
         val request =
             ProcessingRequest(
                 { listOf() },
-                OUTPUT_FILE_OPTIONS,
-                Rect(0, 0, WIDTH, HEIGHT),
-                ROTATION_DEGREES,
-                /*jpegQuality=*/ 100,
-                SENSOR_TO_BUFFER,
+                createTakePictureRequest(
+                    listOf(OUTPUT_FILE_OPTIONS),
+                    Rect(0, 0, WIDTH, HEIGHT),
+                    SENSOR_TO_BUFFER,
+                    ROTATION_DEGREES,
+                    /*jpegQuality=*/ 100
+                ),
                 callback,
                 Futures.immediateFuture(null)
             )
@@ -241,7 +345,7 @@ class ProcessingNodeTest {
         // Creates the ProcessingNode after updating the device name to load the correct quirks
         node = ProcessingNode(mainThreadExecutor(), cameraCharacteristics)
 
-        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        processingNodeIn = ProcessingNode.In.of(JPEG, listOf(JPEG))
         node.transform(processingNodeIn)
 
         // Arrange: create an invalid ImageProxy.
