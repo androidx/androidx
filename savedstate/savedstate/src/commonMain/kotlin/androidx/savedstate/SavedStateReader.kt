@@ -16,6 +16,8 @@
 
 package androidx.savedstate
 
+import kotlin.jvm.JvmInline
+
 /**
  * An inline class that encapsulates an opaque [SavedState], and provides an API for reading the
  * platform specific state.

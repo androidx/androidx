@@ -19,6 +19,7 @@ package androidx.savedstate
 import androidx.savedstate.internal.SavedStateUtils
 import androidx.savedstate.internal.SavedStateUtils.getValueFromSavedState
 import androidx.savedstate.internal.SavedStateUtils.keyNotFoundError
+import kotlin.jvm.JvmInline
 
 @Suppress("NOTHING_TO_INLINE")
 @JvmInline
