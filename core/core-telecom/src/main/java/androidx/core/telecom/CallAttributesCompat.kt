@@ -46,7 +46,7 @@ public class CallAttributesCompat(
     @Direction public val direction: Int,
     @CallType public val callType: Int = CALL_TYPE_AUDIO_CALL,
     @CallCapability public val callCapabilities: Int = SUPPORTS_SET_INACTIVE,
-    public var preferredStartingCallEndpoint: CallEndpointCompat? = null
+    public val preferredStartingCallEndpoint: CallEndpointCompat? = null
 ) {
     internal var mHandle: PhoneAccountHandle? = null
 

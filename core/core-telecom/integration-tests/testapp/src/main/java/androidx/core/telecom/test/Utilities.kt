@@ -29,9 +29,6 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.telecom.CallAttributesCompat
-import androidx.core.telecom.CallAttributesCompat.Companion.CALL_TYPE_VIDEO_CALL
-import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_INCOMING
-import androidx.core.telecom.CallAttributesCompat.Companion.DIRECTION_OUTGOING
 import androidx.core.util.Preconditions
 
 @RequiresApi(34)
@@ -46,28 +43,10 @@ class Utilities {
         // outgoing attributes constants
         const val OUTGOING_NAME = "Darth Maul"
         val OUTGOING_URI: Uri = Uri.parse("tel:6506958985")
-        // Define the minimal set of properties to start an outgoing call
-        var OUTGOING_CALL_ATTRIBUTES =
-            CallAttributesCompat(
-                OUTGOING_NAME,
-                OUTGOING_URI,
-                DIRECTION_OUTGOING,
-                CALL_TYPE_VIDEO_CALL,
-                ALL_CALL_CAPABILITIES
-            )
 
         // incoming attributes constants
         const val INCOMING_NAME = "Sundar Pichai"
         val INCOMING_URI: Uri = Uri.parse("tel:6506958985")
-        // Define all possible properties for CallAttributes
-        val INCOMING_CALL_ATTRIBUTES =
-            CallAttributesCompat(
-                INCOMING_NAME,
-                INCOMING_URI,
-                DIRECTION_INCOMING,
-                CALL_TYPE_VIDEO_CALL,
-                ALL_CALL_CAPABILITIES
-            )
 
         // Audio recording config constants
         private const val SAMPLE_RATE = 44100

@@ -9,7 +9,6 @@ package androidx.core.telecom {
     method public int getDirection();
     method public CharSequence getDisplayName();
     method public androidx.core.telecom.CallEndpointCompat? getPreferredStartingCallEndpoint();
-    method public void setPreferredStartingCallEndpoint(androidx.core.telecom.CallEndpointCompat?);
     property public final android.net.Uri address;
     property public final int callCapabilities;
     property public final int callType;
