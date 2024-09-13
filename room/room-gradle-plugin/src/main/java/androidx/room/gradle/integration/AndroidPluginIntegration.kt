@@ -25,9 +25,7 @@ import androidx.room.gradle.RoomSimpleCopyTask
 import androidx.room.gradle.toOptions
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
-import com.android.build.api.variant.AndroidTest
 import com.android.build.api.variant.ComponentIdentity
-import com.android.build.api.variant.HasAndroidTest
 import com.android.build.api.variant.HasUnitTest
 import com.google.devtools.ksp.gradle.KspTaskJvm
 import org.gradle.api.Project
@@ -61,7 +59,8 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
             (variant as? HasUnitTest)?.unitTest?.let {
                 configureAndroidVariant(project, roomExtension, it)
             }
-            (variant as? HasAndroidTest)?.androidTest?.let {
+            @Suppress("DEPRECATION") // usage of HasAndroidTest
+            (variant as? com.android.build.api.variant.HasAndroidTest)?.androidTest?.let {
                 configureAndroidVariant(project, roomExtension, it)
             }
         }
@@ -105,7 +104,8 @@ internal class AndroidPluginIntegration(private val common: CommonIntegration) {
         // Wires a task that will copy schemas from user configured location to the AGP
         // generated directory to be used as assets inputs of an Android Test app, enabling
         // MigrationTestHelper to automatically pick them up.
-        if (variant is AndroidTest) {
+        @Suppress("DEPRECATION") // Usage of AndroidTest
+        if (variant is com.android.build.api.variant.AndroidTest) {
             variant.sources.assets?.addGeneratedSourceDirectory(
                 project.tasks.register(
                     "copyRoomSchemasToAndroidTestAssets${variant.name.capitalize()}",
