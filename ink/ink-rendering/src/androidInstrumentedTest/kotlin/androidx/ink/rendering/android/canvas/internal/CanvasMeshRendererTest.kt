@@ -67,8 +67,9 @@ class CanvasMeshRendererTest {
 
     private val clock = FakeClock()
 
-    @OptIn(ExperimentalInkCustomBrushApi::class)
-    private val meshRenderer = CanvasMeshRenderer(getDurationTimeMillis = clock::currentTimeMillis)
+    private val meshRenderer =
+        @OptIn(ExperimentalInkCustomBrushApi::class)
+        CanvasMeshRenderer(getDurationTimeMillis = clock::currentTimeMillis)
 
     @Test
     fun obtainShaderMetadata_whenCalledTwiceWithSamePackedInstance_returnsCachedValue() {

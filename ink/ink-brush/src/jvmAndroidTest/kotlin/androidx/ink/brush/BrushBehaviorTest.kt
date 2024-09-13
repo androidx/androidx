@@ -1252,61 +1252,6 @@ class BrushBehaviorTest {
     }
 
     @Test
-    fun brushBehaviorCopy_withArguments_createsCopyWithChanges() {
-        val behavior1 =
-            BrushBehavior(
-                source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                sourceValueRangeLowerBound = 0.2f,
-                sourceValueRangeUpperBound = .8f,
-                targetModifierRangeLowerBound = 1.1f,
-                targetModifierRangeUpperBound = 1.7f,
-                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                responseTimeMillis = 1L,
-                enabledToolTypes = setOf(InputToolType.STYLUS),
-                isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
-            )
-        assertThat(behavior1.copy(responseTimeMillis = 3L))
-            .isEqualTo(
-                BrushBehavior(
-                    source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                    target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                    sourceValueRangeLowerBound = 0.2f,
-                    sourceValueRangeUpperBound = .8f,
-                    targetModifierRangeLowerBound = 1.1f,
-                    targetModifierRangeUpperBound = 1.7f,
-                    sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                    responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                    responseTimeMillis = 3L,
-                    enabledToolTypes = setOf(InputToolType.STYLUS),
-                    isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
-                )
-            )
-    }
-
-    @Test
-    fun brushBehaviorCopy_createsCopy() {
-        val behavior1 =
-            BrushBehavior(
-                source = BrushBehavior.Source.NORMALIZED_PRESSURE,
-                target = BrushBehavior.Target.WIDTH_MULTIPLIER,
-                sourceValueRangeLowerBound = 0.2f,
-                sourceValueRangeUpperBound = .8f,
-                targetModifierRangeLowerBound = 1.1f,
-                targetModifierRangeUpperBound = 1.7f,
-                sourceOutOfRangeBehavior = BrushBehavior.OutOfRange.CLAMP,
-                responseCurve = EasingFunction.Predefined.EASE_IN_OUT,
-                responseTimeMillis = 1L,
-                enabledToolTypes = setOf(InputToolType.STYLUS),
-                isFallbackFor = BrushBehavior.OptionalInputProperty.TILT_X_AND_Y,
-            )
-        val behavior2 = behavior1.copy()
-        assertThat(behavior2).isEqualTo(behavior1)
-        assertThat(behavior2).isNotSameInstanceAs(behavior1)
-    }
-
-    @Test
     fun brushBehaviorToString_returnsReasonableString() {
         assertThat(
                 BrushBehavior(

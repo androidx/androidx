@@ -37,7 +37,7 @@ internal class CanvasStrokeUnifiedRenderer(
 
     private val meshRenderer by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            CanvasMeshRenderer(textureStore)
+            @OptIn(ExperimentalInkCustomBrushApi::class) CanvasMeshRenderer(textureStore)
         } else {
             null
         }
