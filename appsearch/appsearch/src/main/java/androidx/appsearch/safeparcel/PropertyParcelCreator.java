@@ -121,7 +121,7 @@ public class PropertyParcelCreator implements Parcelable.Creator<PropertyParcel>
             }
             builder.setBytesValues(bytes);
             valueSet = true;
-        } else if (docValues != null && docValues.length > 0) {
+        } else if (docValues != null) {
             GenericDocumentParcel[] documentParcels =
                     new GenericDocumentParcel[docValues.length];
             System.arraycopy(docValues, 0, documentParcels, 0, docValues.length);

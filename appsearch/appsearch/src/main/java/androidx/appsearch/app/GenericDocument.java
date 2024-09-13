@@ -24,7 +24,6 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.CurrentTimeMillisLong;
@@ -186,7 +185,6 @@ public class GenericDocument {
     // and getting confused by the inheritability.
     @SuppressWarnings("deprecation")
     @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_OVER_IPC)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
