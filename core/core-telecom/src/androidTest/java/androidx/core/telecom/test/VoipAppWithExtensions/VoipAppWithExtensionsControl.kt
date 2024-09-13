@@ -37,8 +37,10 @@ import androidx.core.telecom.test.ITestAppControlCallback
 import androidx.core.telecom.test.utils.TestUtils
 import androidx.core.telecom.util.ExperimentalAppActions
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -47,7 +49,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-@OptIn(ExperimentalAppActions::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalAppActions::class)
 @RequiresApi(Build.VERSION_CODES.O)
 open class VoipAppWithExtensionsControl : Service() {
     var mCallsManager: CallsManager? = null
@@ -85,13 +87,10 @@ open class VoipAppWithExtensionsControl : Service() {
                 Log.i(TAG, "onDisconnect: disconnectCause=[$it]")
             }
 
-            override fun addCall(
-                requestId: Int,
-                capabilities: List<Capability>,
-                isOutgoing: Boolean
-            ) {
-                Log.i(TAG, "VoipAppWithExtensionsControl: addCall: request")
+            override fun addCall(capabilities: List<Capability>, isOutgoing: Boolean): String {
+                var id = ""
                 runBlocking {
+                    val deferredId = CompletableDeferred<String>()
                     val call = VoipCall(mCallsManager!!, mCallback, capabilities)
                     mScope?.launch {
                         with(call) {
@@ -133,11 +132,14 @@ open class VoipAppWithExtensionsControl : Service() {
                                         localCallSilenceUpdater?.updateIsLocallySilenced(it)
                                     }
                                     .launchIn(this)
-                                mCallback?.onCallAdded(requestId, this.getCallId().toString())
+                                deferredId.complete(this.getCallId().toString())
                             }
                         }
                     }
+                    deferredId.await()
+                    id = deferredId.getCompleted()
                 }
+                return id
             }
 
             override fun updateParticipants(setOfParticipants: List<ParticipantParcelable>) {
