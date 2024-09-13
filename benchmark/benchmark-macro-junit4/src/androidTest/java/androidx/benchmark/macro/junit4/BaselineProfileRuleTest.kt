@@ -25,6 +25,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import java.io.File
 import kotlin.test.assertFailsWith
+import org.junit.After
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Assume.assumeFalse
@@ -36,8 +37,10 @@ import org.junit.Test
 @LargeTest
 @SdkSuppress(minSdkVersion = 28)
 class BaselineProfileRuleTest {
-
     @get:Rule val baselineRule = BaselineProfileRule()
+
+    /** Handle to service running in separate process, does nothing unless connect is called */
+    private val trivialServiceHandle = TrivialServiceHandle()
 
     @Before
     fun setup() {
@@ -45,6 +48,11 @@ class BaselineProfileRuleTest {
         // doesn't output the class symbol line. This makes the test fail. While we investigate
         // the scope of the failure, suppress the test on this device
         assumeFalse(isMokeyDevice())
+    }
+
+    @After
+    fun teardown() {
+        trivialServiceHandle.disconnect()
     }
 
     @Test
@@ -123,11 +131,40 @@ class BaselineProfileRuleTest {
             )
     }
 
+    @Test
+    fun captureRulesRemoteProcess() {
+        baselineRule.collect(
+            TrivialServiceHandle.TARGET,
+            maxIterations = 1,
+        ) {
+            trivialServiceHandle.connect(TrivialServiceHandle.Action.TEST_ACTION1)
+        }
+
+        // Asserts the output of the baseline profile. Note that this name is automatically
+        // generated starting from class and method name, according to the patter
+        // `<class>_<method>-baseline-prof.txt`. Changes for class and method names should be
+        // reflected here in order for the test to succeed.
+        File(
+                Outputs.outputDirectory,
+                "BaselineProfileRuleTest_captureRulesRemoteProcess-baseline-prof.txt"
+            )
+            .readLines()
+            .assertInOrder(
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService;",
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService;-><init>()V",
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService;->onBind(Landroid/content/Intent;)Landroid/os/IBinder;",
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService${DOLLAR}InnerClass;",
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService${DOLLAR}InnerClass;-><init>()V",
+                "androidx/benchmark/integration/macrobenchmark/target/TrivialService${DOLLAR}InnerClass;->function1()V",
+            )
+    }
+
     companion object {
         private const val ACTION =
             "androidx.benchmark.integration.macrobenchmark.target.EMPTY_ACTIVITY"
         private const val PROFILE_LINE_EMPTY_ACTIVITY =
             "androidx/benchmark/integration/macrobenchmark/target/EmptyActivity;"
+        private const val DOLLAR = "$"
     }
 
     private fun List<String>.assertInOrder(
