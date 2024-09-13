@@ -31,7 +31,6 @@ import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.isSatisfiedBy
 import androidx.compose.ui.util.fastRoundToInt
 
 /**
@@ -163,19 +162,19 @@ private class AspectRatioNode(
 
     private fun Constraints.findSize(): IntSize {
         if (!matchHeightConstraintsFirst) {
-            tryMaxWidth().also { if (it != IntSize.Zero) return it }
-            tryMaxHeight().also { if (it != IntSize.Zero) return it }
-            tryMinWidth().also { if (it != IntSize.Zero) return it }
-            tryMinHeight().also { if (it != IntSize.Zero) return it }
+            tryMaxWidth(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMaxHeight(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMinWidth(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMinHeight(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
             tryMaxWidth(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
             tryMaxHeight(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
             tryMinWidth(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
             tryMinHeight(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
         } else {
-            tryMaxHeight().also { if (it != IntSize.Zero) return it }
-            tryMaxWidth().also { if (it != IntSize.Zero) return it }
-            tryMinHeight().also { if (it != IntSize.Zero) return it }
-            tryMinWidth().also { if (it != IntSize.Zero) return it }
+            tryMaxHeight(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMaxWidth(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMinHeight(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
+            tryMinWidth(enforceConstraints = true).also { if (it != IntSize.Zero) return it }
             tryMaxHeight(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
             tryMaxWidth(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
             tryMinHeight(enforceConstraints = false).also { if (it != IntSize.Zero) return it }
@@ -184,55 +183,57 @@ private class AspectRatioNode(
         return IntSize.Zero
     }
 
-    private fun Constraints.tryMaxWidth(enforceConstraints: Boolean = true): IntSize {
+    private fun Constraints.tryMaxWidth(enforceConstraints: Boolean): IntSize {
         val maxWidth = this.maxWidth
         if (maxWidth != Constraints.Infinity) {
             val height = (maxWidth / aspectRatio).fastRoundToInt()
             if (height > 0) {
-                val size = IntSize(maxWidth, height)
-                if (!enforceConstraints || isSatisfiedBy(size)) {
-                    return size
+                if (!enforceConstraints || isSatisfiedBy(maxWidth, height)) {
+                    return IntSize(maxWidth, height)
                 }
             }
         }
         return IntSize.Zero
     }
 
-    private fun Constraints.tryMaxHeight(enforceConstraints: Boolean = true): IntSize {
+    private fun Constraints.tryMaxHeight(enforceConstraints: Boolean): IntSize {
         val maxHeight = this.maxHeight
         if (maxHeight != Constraints.Infinity) {
             val width = (maxHeight * aspectRatio).fastRoundToInt()
             if (width > 0) {
-                val size = IntSize(width, maxHeight)
-                if (!enforceConstraints || isSatisfiedBy(size)) {
-                    return size
+                if (!enforceConstraints || isSatisfiedBy(width, maxHeight)) {
+                    return IntSize(width, maxHeight)
                 }
             }
         }
         return IntSize.Zero
     }
 
-    private fun Constraints.tryMinWidth(enforceConstraints: Boolean = true): IntSize {
+    private fun Constraints.tryMinWidth(enforceConstraints: Boolean): IntSize {
         val minWidth = this.minWidth
         val height = (minWidth / aspectRatio).fastRoundToInt()
         if (height > 0) {
-            val size = IntSize(minWidth, height)
-            if (!enforceConstraints || isSatisfiedBy(size)) {
-                return size
+            if (!enforceConstraints || isSatisfiedBy(minWidth, height)) {
+                return IntSize(minWidth, height)
             }
         }
         return IntSize.Zero
     }
 
-    private fun Constraints.tryMinHeight(enforceConstraints: Boolean = true): IntSize {
+    private fun Constraints.tryMinHeight(enforceConstraints: Boolean): IntSize {
         val minHeight = this.minHeight
         val width = (minHeight * aspectRatio).fastRoundToInt()
         if (width > 0) {
-            val size = IntSize(width, minHeight)
-            if (!enforceConstraints || isSatisfiedBy(size)) {
-                return size
+            if (!enforceConstraints || isSatisfiedBy(width, minHeight)) {
+                return IntSize(width, minHeight)
             }
         }
         return IntSize.Zero
     }
+}
+
+/** Takes a size and returns whether it satisfies the current constraints. */
+@Stable
+internal fun Constraints.isSatisfiedBy(width: Int, height: Int): Boolean {
+    return width in minWidth..maxWidth && height in minHeight..maxHeight
 }
