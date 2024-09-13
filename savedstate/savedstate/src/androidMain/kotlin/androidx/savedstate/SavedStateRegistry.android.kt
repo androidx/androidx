@@ -17,8 +17,7 @@ package androidx.savedstate
 
 import androidx.annotation.MainThread
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.savedstate.internal.SynchronizedObject
+import androidx.savedstate.internal.SavedStateRegistryImpl
 
 /**
  * An interface for plugging components that consumes and contributes to the saved state.
@@ -26,11 +25,9 @@ import androidx.savedstate.internal.SynchronizedObject
  * This objects lifetime is bound to the lifecycle of owning component: when activity or fragment is
  * recreated, new instance of the object is created as well.
  */
-class SavedStateRegistry internal constructor() {
-    private val lock = SynchronizedObject()
-    private val keyToProviders = mutableMapOf<String, SavedStateProvider>()
-    private var attached = false
-    private var restoredState: SavedState? = null
+class SavedStateRegistry internal constructor(
+    private val impl: SavedStateRegistryImpl,
+) {
 
     /**
      * Whether the state was restored after creation and can be safely consumed with
@@ -39,11 +36,9 @@ class SavedStateRegistry internal constructor() {
      * [isRestored] == true if state was restored
      */
     @get:MainThread
-    var isRestored = false
-        private set
+    val isRestored get() = impl.isRestored
 
     private var recreatorProvider: Recreator.SavedStateProvider? = null
-    internal var isAllowingSavingState = true
 
     /**
      * Consumes saved state previously supplied by [SavedStateProvider] registered via
@@ -63,22 +58,7 @@ class SavedStateRegistry internal constructor() {
      * @return `S` with the previously saved state or {@code null}
      */
     @MainThread
-    fun consumeRestoredStateForKey(key: String): SavedState? {
-        check(isRestored) {
-            "You can consumeRestoredStateForKey " +
-                "only after super.onCreate of corresponding component"
-        }
-
-        val state = restoredState ?: return null
-
-        val consumed = state.read { if (contains(key)) getSavedState(key) else null }
-        state.write { remove(key) }
-        if (state.read { isEmpty() }) {
-            restoredState = null
-        }
-
-        return consumed
-    }
+    fun consumeRestoredStateForKey(key: String): SavedState? = impl.consumeRestoredStateForKey(key)
 
     /**
      * Registers a [SavedStateProvider] by the given `key`. This `savedStateProvider` will be called
@@ -96,13 +76,7 @@ class SavedStateRegistry internal constructor() {
      */
     @MainThread
     fun registerSavedStateProvider(key: String, provider: SavedStateProvider) {
-        synchronized(lock) {
-            require(key !in keyToProviders) {
-                "SavedStateProvider with the given key is already registered"
-            }
-            keyToProviders[key] = provider
-        }
-
+        impl.registerSavedStateProvider(key, provider)
     }
 
     /**
@@ -114,11 +88,7 @@ class SavedStateRegistry internal constructor() {
      * Returns the [SavedStateProvider] previously registered with [registerSavedStateProvider] or
      * null if no provider has been registered with the given key.
      */
-    fun getSavedStateProvider(key: String): SavedStateProvider? {
-        return synchronized(lock) {
-             keyToProviders.firstNotNullOfOrNull { (k, provider) -> if (k == key) provider else null }
-        }
-    }
+    fun getSavedStateProvider(key: String): SavedStateProvider? = impl.getSavedStateProvider(key)
 
     /**
      * Unregisters a component previously registered by the given `key`
@@ -126,9 +96,7 @@ class SavedStateRegistry internal constructor() {
      * @param key a key with which a component was previously registered.
      */
     @MainThread
-    fun unregisterSavedStateProvider(key: String) {
-        synchronized(lock) { keyToProviders.remove(key) }
-    }
+    fun unregisterSavedStateProvider(key: String) = impl.unregisterSavedStateProvider(key)
 
     /**
      * Subclasses of this interface will be automatically recreated if they were previously
@@ -159,7 +127,7 @@ class SavedStateRegistry internal constructor() {
      */
     @MainThread
     fun runOnNextRecreation(clazz: Class<out AutoRecreated>) {
-        check(isAllowingSavingState) { "Can not perform this action after onSaveInstanceState" }
+        check(impl.isAllowingSavingState) { "Can not perform this action after onSaveInstanceState" }
         recreatorProvider = recreatorProvider ?: Recreator.SavedStateProvider(this)
         try {
             clazz.getDeclaredConstructor()
@@ -171,60 +139,6 @@ class SavedStateRegistry internal constructor() {
             )
         }
         recreatorProvider?.add(clazz.name)
-    }
-
-    /** An interface for an owner of this [SavedStateRegistry] to attach this to a [Lifecycle]. */
-    @MainThread
-    internal fun performAttach(lifecycle: Lifecycle) {
-        check(!attached) { "SavedStateRegistry was already attached." }
-
-        lifecycle.addObserver(
-            LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_START) {
-                    isAllowingSavingState = true
-                } else if (event == Lifecycle.Event.ON_STOP) {
-                    isAllowingSavingState = false
-                }
-            }
-        )
-        attached = true
-    }
-
-    /** An interface for an owner of this [SavedStateRegistry] to restore saved state. */
-    @MainThread
-    internal fun performRestore(savedState: SavedState?) {
-        check(attached) {
-            "You must call performAttach() before calling performRestore(SavedState)."
-        }
-        check(!isRestored) { "SavedStateRegistry was already restored." }
-
-        restoredState =
-            savedState?.read {
-                if (contains(SAVED_COMPONENTS_KEY)) getSavedState(SAVED_COMPONENTS_KEY) else null
-            }
-        isRestored = true
-    }
-
-    /**
-     * An interface for an owner of this [SavedStateRegistry] to perform state saving, it will call
-     * all registered providers and merge with unconsumed state.
-     *
-     * @param outBundle SavedState in which to place a saved state
-     */
-    @MainThread
-    internal fun performSave(outBundle: SavedState) {
-        val inState = savedState {
-            restoredState?.let { putAll(it) }
-            synchronized(lock) {
-                for ((key, provider) in keyToProviders) {
-                    putSavedState(key, provider.saveState())
-                }
-            }
-        }
-
-        if (inState.read { !isEmpty() }) {
-            outBundle.write { putSavedState(SAVED_COMPONENTS_KEY, inState) }
-        }
     }
 
     /** This interface marks a component that contributes to saved state. */
