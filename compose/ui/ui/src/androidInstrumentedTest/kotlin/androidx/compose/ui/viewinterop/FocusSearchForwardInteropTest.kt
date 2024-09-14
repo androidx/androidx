@@ -20,11 +20,16 @@ import android.os.Build.VERSION_CODES.O
 import android.view.KeyEvent as AndroidKeyEvent
 import android.view.KeyEvent.ACTION_DOWN
 import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.EditText
 import android.widget.LinearLayout
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
@@ -629,6 +634,46 @@ class FocusSearchForwardInteropTest(private val moveFocusProgrammatically: Boole
             assertThat(view2.isFocused).isTrue()
         }
         rule.onNodeWithTag(composable).assertIsNotFocused()
+    }
+
+    @Test
+    fun focusableInTouchMode() {
+        val tag = "tag"
+        lateinit var editText: EditText
+        lateinit var composeView: ComposeView
+        setContent {
+            AndroidView(
+                {
+                    LinearLayout(it).also { linearLayout ->
+                        linearLayout.orientation = LinearLayout.VERTICAL
+                        linearLayout.addView(EditText(linearLayout.context))
+                        editText = EditText(linearLayout.context)
+                        editText.setSingleLine()
+                        editText.setText("1")
+                        editText.inputType = EditorInfo.TYPE_NUMBER_VARIATION_NORMAL
+                        editText.imeOptions = EditorInfo.IME_FLAG_NAVIGATE_NEXT
+                        linearLayout.addView(editText)
+                        composeView =
+                            ComposeView(linearLayout.context).apply {
+                                setContent {
+                                    Column { TextField("Hello World", {}, Modifier.testTag(tag)) }
+                                }
+                            }
+                        linearLayout.addView(composeView)
+                    }
+                },
+                Modifier.safeContentPadding()
+            )
+        }
+        rule.runOnIdle {
+            val instrumentation = InstrumentationRegistry.getInstrumentation()
+            instrumentation.setInTouchMode(true)
+            editText.requestFocusFromTouch()
+        }
+        rule.waitUntil { rule.runOnUiThread { editText.isFocused } }
+        rule.waitForIdle()
+        rule.runOnIdle { editText.onEditorAction(EditorInfo.IME_ACTION_NEXT) }
+        rule.onNodeWithTag(tag).assertIsFocused()
     }
 
     private fun ComposeContentTestRule.focusSearchForward(waitForIdle: Boolean = true) {
