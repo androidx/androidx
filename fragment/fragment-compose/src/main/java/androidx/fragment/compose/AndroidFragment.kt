@@ -16,7 +16,9 @@
 
 package androidx.fragment.compose
 
+import android.content.Context
 import android.os.Bundle
+import android.view.View
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.currentCompositeKeyHash
@@ -84,20 +86,13 @@ fun <T : Fragment> AndroidFragment(
     val view = LocalView.current
     val fragmentManager = remember(view) { FragmentManager.findFragmentManager(view) }
     val context = LocalContext.current
-    lateinit var container: FragmentContainerView
-    AndroidView(
-        {
-            container = FragmentContainerView(context)
-            container.id = hashKey
-            container
-        },
-        modifier
-    )
+    val containerFactory = remember { FragmentContainerViewFactory(hashKey) }
+    AndroidView(factory = containerFactory, modifier)
 
-    DisposableEffect(fragmentManager, clazz, fragmentState) {
+    DisposableEffect(fragmentManager, containerFactory, clazz, fragmentState) {
         var removeEvenIfStateIsSaved = false
         val fragment =
-            fragmentManager.findFragmentById(container.id)
+            fragmentManager.findFragmentById(containerFactory.container.id)
                 ?: fragmentManager.fragmentFactory
                     .instantiate(context.classLoader, clazz.name)
                     .apply {
@@ -107,7 +102,7 @@ fun <T : Fragment> AndroidFragment(
                             fragmentManager
                                 .beginTransaction()
                                 .setReorderingAllowed(true)
-                                .add(container, this, "$hashKey")
+                                .add(containerFactory.container, this, "$hashKey")
                         if (fragmentManager.isStateSaved) {
                             // If the state is saved when we add the fragment,
                             // we want to remove the Fragment in onDispose
@@ -128,7 +123,7 @@ fun <T : Fragment> AndroidFragment(
                             transaction.commitNow()
                         }
                     }
-        fragmentManager.onContainerAvailable(container)
+        fragmentManager.onContainerAvailable(containerFactory.container)
         @Suppress("UNCHECKED_CAST") updateCallback.value(fragment as T)
         onDispose {
             val state = fragmentManager.saveFragmentInstanceState(fragment)
@@ -145,4 +140,24 @@ fun <T : Fragment> AndroidFragment(
             }
         }
     }
+}
+
+private class FragmentContainerViewFactory(private val containerId: Int) : (Context) -> View {
+
+    // Backing field that stores the last created container
+    // that is assumed to be created always before it is access
+    // via the container property
+    private var lastCreatedContainer: FragmentContainerView? = null
+
+    val container: FragmentContainerView
+        get() =
+            checkNotNull(lastCreatedContainer) {
+                "AndroidView has not created a container for $containerId yet"
+            }
+
+    override operator fun invoke(context: Context) =
+        FragmentContainerView(context).also { container ->
+            container.id = containerId
+            lastCreatedContainer = container
+        }
 }
