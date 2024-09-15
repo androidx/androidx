@@ -48,15 +48,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field overflowOptions with type List&lt;TextOverflow>: replace with IntList"
-        errorLine1="private val overflowOptions = listOf(TextOverflow.Visible, TextOverflow.Ellipsis, TextOverflow.Clip)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/foundation/demos/text/ComposeText.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="variable colorList with type List&lt;? extends Color>: replace with LongList"
         errorLine1="    val colorList ="
         errorLine2="    ^">
