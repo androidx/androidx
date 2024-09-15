@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,19 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal.compat.workaround;
+package androidx.camera.camera2.internal.compat.quirk;
 
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.util.Range;
 
-import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
-import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
-import androidx.camera.core.impl.Quirks;
+import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,10 +37,12 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.StreamConfigurationMapBuilder;
 
+import java.util.List;
+
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
-public class AeFpsRangeTest {
+public class AeFpsRangeLegacyQuirkTest {
 
     private static final String ANY_CAMERA_ID = "0";
 
@@ -56,12 +57,10 @@ public class AeFpsRangeTest {
                 new Range<>(30, 30),
         };
 
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                         availableFpsRanges);
-
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isEqualTo(new Range<>(15, 30));
+        assertThat(aeFpsRangeQuirk.getTargetAeFpsRange()).isEqualTo(Range.create(15, 30));
     }
 
     @SuppressWarnings("unchecked")
@@ -74,20 +73,20 @@ public class AeFpsRangeTest {
                 new Range<>(11, 22),
         };
 
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                         availableFpsRanges);
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isNull();
+        assertThat(aeFpsRangeQuirk.getTargetAeFpsRange()).isEqualTo(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED);
     }
 
     @Test
     public void availableArrayIsNull_doesNotSetFpsRange() {
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
                         null);
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isNull();
+        assertThat(aeFpsRangeQuirk.getTargetAeFpsRange()).isEqualTo(
+                StreamSpec.FRAME_RATE_RANGE_UNSPECIFIED);
     }
 
     @SuppressWarnings("unchecked")
@@ -97,12 +96,10 @@ public class AeFpsRangeTest {
                 new Range<>(15, 30),
         };
 
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                         availableFpsRanges);
-
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isNull();
+        assertThat(aeFpsRangeQuirk).isNull();
     }
 
     @SuppressWarnings("unchecked")
@@ -112,12 +109,10 @@ public class AeFpsRangeTest {
                 new Range<>(15, 30),
         };
 
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                         availableFpsRanges);
-
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isNull();
+        assertThat(aeFpsRangeQuirk).isNull();
     }
 
     @SuppressWarnings("unchecked")
@@ -127,15 +122,14 @@ public class AeFpsRangeTest {
                 new Range<>(15, 30),
         };
 
-        AeFpsRange aeFpsRange =
-                createAeFpsRange(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
+        AeFpsRangeQuirk aeFpsRangeQuirk =
+                createAeFpsRangeQuirk(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3,
                         availableFpsRanges);
-
-        Range<Integer> pick = getAeFpsRange(aeFpsRange);
-        assertThat(pick).isNull();
+        assertThat(aeFpsRangeQuirk).isNull();
     }
 
-    private AeFpsRange createAeFpsRange(int hardwareLevel,
+    @Nullable
+    private AeFpsRangeQuirk createAeFpsRangeQuirk(int hardwareLevel,
             Range<Integer>[] availableFpsRanges) {
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -151,14 +145,8 @@ public class AeFpsRangeTest {
         CameraCharacteristicsCompat characteristicsCompat =
                 CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics,
                         ANY_CAMERA_ID);
-        final Quirks quirks = CameraQuirks.get(ANY_CAMERA_ID, characteristicsCompat);
-        return new AeFpsRange(quirks);
-    }
-
-    private Range<Integer> getAeFpsRange(AeFpsRange aeFpsRange) {
-        Camera2ImplConfig.Builder builder = new Camera2ImplConfig.Builder();
-        aeFpsRange.addAeFpsRangeOptions(builder);
-        return builder.build().getCaptureRequestOption(
-                CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, null);
+        List<AeFpsRangeQuirk> aeFpsRangeQuirkList = CameraQuirks.get(ANY_CAMERA_ID,
+                characteristicsCompat).getAll(AeFpsRangeQuirk.class);
+        return aeFpsRangeQuirkList.isEmpty() ? null : aeFpsRangeQuirkList.get(0);
     }
 }

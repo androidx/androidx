@@ -18,12 +18,10 @@ package androidx.camera.camera2.pipe.integration.impl
 
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
-import android.util.Range
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.propagateTo
-import androidx.camera.camera2.pipe.integration.compat.workaround.AeFpsRange
 import androidx.camera.camera2.pipe.integration.compat.workaround.AutoFlashAEModeDisabler
 import androidx.camera.camera2.pipe.integration.config.CameraScope
 import androidx.camera.core.CameraControl
@@ -45,7 +43,6 @@ public class State3AControl
 constructor(
     public val cameraProperties: CameraProperties,
     private val aeModeDisabler: AutoFlashAEModeDisabler,
-    private val aeFpsRange: AeFpsRange,
 ) : UseCaseCameraControl, UseCaseManager.RunningUseCasesChangeListener {
     private var _requestControl: UseCaseCameraRequestControl? = null
     override var requestControl: UseCaseCameraRequestControl?
@@ -100,14 +97,11 @@ constructor(
      */
     public var preferredAeMode: Int? by updateOnPropertyChange(null)
     public var preferredFocusMode: Int? by updateOnPropertyChange(null)
-    public var preferredAeFpsRange: Range<Int>? by
-        updateOnPropertyChange(aeFpsRange.getTargetAeFpsRange())
 
     override fun reset() {
         synchronized(lock) { updateSignals.toList() }.cancelAll()
         tryExternalFlashAeMode = false
         preferredAeMode = null
-        preferredAeFpsRange = null
         preferredFocusMode = null
         flashMode = DEFAULT_FLASH_MODE
         template = DEFAULT_REQUEST_TEMPLATE
@@ -187,10 +181,6 @@ constructor(
                                 CaptureRequest.CONTROL_AWB_MODE_AUTO
                             )
                     )
-
-                preferredAeFpsRange?.let {
-                    parameters[CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE] = it
-                }
 
                 requestControl?.setParametersAsync(values = parameters)
             }

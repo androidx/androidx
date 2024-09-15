@@ -59,6 +59,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.TargetConfig;
+import androidx.camera.core.internal.compat.quirk.AeFpsRangeQuirk;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.camera.core.resolutionselector.ResolutionSelector;
 import androidx.camera.core.streamsharing.StreamSharing;
@@ -1115,6 +1116,34 @@ public abstract class UseCase {
             }
         }
         return false;
+    }
+
+    /**
+     * Applies the AE fps range to the session config builder according to the stream spec and
+     * quirk values.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected void applyExpectedFrameRateRange(@NonNull SessionConfig.Builder sessionConfigBuilder,
+            @NonNull StreamSpec streamSpec) {
+        // Directly applies the apps' setting if the value is not FRAME_RATE_RANGE_UNSPECIFIED
+        if (!FRAME_RATE_RANGE_UNSPECIFIED.equals(streamSpec.getExpectedFrameRateRange())) {
+            sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+            return;
+        }
+
+        synchronized (mCameraLock) {
+            CameraInfoInternal cameraInfoInternal = Preconditions.checkNotNull(
+                    mCamera).getCameraInfoInternal();
+            List<AeFpsRangeQuirk> aeFpsRangeQuirks = cameraInfoInternal.getCameraQuirks().getAll(
+                    AeFpsRangeQuirk.class);
+            Preconditions.checkArgument(aeFpsRangeQuirks.size() <= 1,
+                    "There should not have more than one AeFpsRangeQuirk.");
+
+            if (!aeFpsRangeQuirks.isEmpty()) {
+                sessionConfigBuilder.setExpectedFrameRateRange(
+                        aeFpsRangeQuirks.get(0).getTargetAeFpsRange());
+            }
+        }
     }
 
     enum State {

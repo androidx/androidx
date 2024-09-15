@@ -422,7 +422,9 @@ public final class ImageAnalysis extends UseCase {
                 },
                 CameraXExecutors.mainThreadExecutor());
 
-        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        // Applies the AE fps range to the session config builder according to the stream spec and
+        // quirk values.
+        applyExpectedFrameRateRange(sessionConfigBuilder, streamSpec);
 
         sessionConfigBuilder.addSurface(mDeferrableSurface,
                 streamSpec.getDynamicRange(),

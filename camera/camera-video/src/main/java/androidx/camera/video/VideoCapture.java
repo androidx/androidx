@@ -704,7 +704,9 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 streamSpec.getResolution());
         // Use the frame rate range directly from the StreamSpec here (don't resolve it to the
         // default if unresolved).
-        sessionConfigBuilder.setExpectedFrameRateRange(streamSpec.getExpectedFrameRateRange());
+        // Applies the AE fps range to the session config builder according to the stream spec and
+        // quirk values.
+        applyExpectedFrameRateRange(sessionConfigBuilder, streamSpec);
         sessionConfigBuilder.setVideoStabilization(config.getVideoStabilizationMode());
         if (mCloseableErrorListener != null) {
             mCloseableErrorListener.close();
