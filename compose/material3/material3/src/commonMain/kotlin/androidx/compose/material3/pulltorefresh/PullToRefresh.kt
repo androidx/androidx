@@ -231,6 +231,9 @@ internal class PullToRefreshModifierNode(
     var threshold: Dp,
 ) : DelegatingNode(), CompositionLocalConsumerModifierNode, NestedScrollConnection {
 
+    override val shouldAutoInvalidate: Boolean
+        get() = false
+
     private var nestedScrollNode: DelegatableNode =
         nestedScrollModifierNode(
             connection = this,
@@ -629,9 +632,11 @@ interface PullToRefreshState {
      */
     @get:FloatRange(from = 0.0) val distanceFraction: Float
 
-    /** Whether the state is currently animating */
+    /**
+     * whether the state is currently animating the indicator to the threshold offset, or back to
+     * the hidden offset
+     */
     val isAnimating: Boolean
-        get() = false
 
     /**
      * Animate the distance towards the anchor or threshold position, where the indicator will be

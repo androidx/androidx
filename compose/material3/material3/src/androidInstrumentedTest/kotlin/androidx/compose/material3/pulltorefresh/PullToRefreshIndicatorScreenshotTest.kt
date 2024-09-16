@@ -111,6 +111,9 @@ class PullRefreshIndicatorScreenshotTest(private val scheme: ColorSchemeWrapper)
             override val distanceFraction: Float
                 get() = 1f
 
+            override val isAnimating: Boolean
+                get() = false
+
             override suspend fun animateToThreshold() {}
 
             override suspend fun animateToHidden() {}
