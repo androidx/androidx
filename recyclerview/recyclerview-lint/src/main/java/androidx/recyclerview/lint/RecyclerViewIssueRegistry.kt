@@ -25,7 +25,7 @@ import com.android.tools.lint.detector.api.Issue
 
 class RecyclerViewIssueRegistry : IssueRegistry() {
     override val minApi = CURRENT_API
-    override val api = 14
+    override val api = 16
     override val issues: List<Issue>
         get() = listOf(InvalidSetHasFixedSizeDetector.ISSUE)
 

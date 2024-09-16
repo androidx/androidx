@@ -23,7 +23,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 /** Issue Registry containing ProtoLayout specific lint Issues. */
 @Suppress("UnstableApiUsage")
 class ProtoLayoutIssueRegistry : IssueRegistry() {
-    override val api = 14
+    override val api = 16
     override val minApi = CURRENT_API
     override val issues =
         listOf(

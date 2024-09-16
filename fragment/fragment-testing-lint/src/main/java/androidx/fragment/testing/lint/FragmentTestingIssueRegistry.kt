@@ -22,7 +22,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 
 @Suppress("UnstableApiUsage")
 class FragmentTestingIssueRegistry : IssueRegistry() {
-    override val api = 14
+    override val api = 16
     override val minApi = CURRENT_API
     override val issues
         get() = listOf(GradleConfigurationDetector.ISSUE)

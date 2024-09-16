@@ -2,16 +2,17 @@
 # -----------------------------------------------------------------------------
 # All of the following should be updated in sync.
 # -----------------------------------------------------------------------------
-androidGradlePlugin = "8.7.0-alpha02"
+androidGradlePlugin = "8.8.0-alpha01"
 # NOTE: When updating the lint version we also need to update the `api` version
 # supported by `IssueRegistry`'s.' For e.g. r.android.com/1331903
-androidLint = "31.7.0-alpha02"
+androidLint = "31.8.0-alpha01"
 # Once you have a chosen version of AGP to upgrade to, go to
 # https://developer.android.com/studio/archive and find the matching version of Studio.
-androidStudio = "2024.1.3.2"
+androidStudio = "2024.2.2.1"
 # -----------------------------------------------------------------------------
 
 androidLintMin = "31.1.0"
+androidLintPrev = "31.7.0-alpha02"
 androidxTestRunner = "1.6.1"
 androidxTestRules = "1.6.1"
 androidxTestMonitor = "1.7.1"
@@ -79,11 +80,14 @@ androidGradlePluginz = { module = "com.android.tools.build:gradle", version.ref 
 androidLayoutlibApi = { module = "com.android.tools.layoutlib:layoutlib-api", version.ref = "androidLint" }
 androidLint = { module = "com.android.tools.lint:lint", version.ref = "androidLint" }
 androidLintMin = { module = "com.android.tools.lint:lint", version.ref = "androidLintMin" }
+androidLintPrev = { module = "com.android.tools.lint:lint", version.ref = "androidLintPrev" }
+androidLintPrevApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintPrev" }
 androidLintApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLint" }
 androidLintMinApi = { module = "com.android.tools.lint:lint-api", version.ref = "androidLintMin" }
 androidLintChecks = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLint" }
 androidLintChecksMin = { module = "com.android.tools.lint:lint-checks", version.ref = "androidLintMin" }
 androidLintTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLint" }
+androidLintPrevTests = { module = "com.android.tools.lint:lint-tests", version.ref = "androidLintPrev" }
 androidToolsCommon = { module = "com.android.tools:common", version.ref = "androidLint" }
 androidToolsNinepatch = { module = "com.android.tools:ninepatch", version.ref = "androidLint" }
 androidToolsRepository= { module = "com.android.tools:repository", version.ref = "androidLint" }

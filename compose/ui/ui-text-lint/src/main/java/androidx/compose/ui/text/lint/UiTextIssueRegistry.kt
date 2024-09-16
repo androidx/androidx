@@ -22,7 +22,7 @@ import com.android.tools.lint.detector.api.CURRENT_API
 
 /** [IssueRegistry] containing Compose ui-text specific lint issues. */
 class UiTextIssueRegistry : IssueRegistry() {
-    override val api = 14
+    override val api = 16
     override val minApi = CURRENT_API
     override val issues
         get() = listOf(LocaleInvalidLanguageTagDetector.InvalidLanguageTagDelimiter)
