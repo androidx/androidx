@@ -38,6 +38,10 @@
     <string name="wear_m3c_date_picker_year" msgid="4697690064312147449">"Unyaka"</string>
     <string name="wear_m3c_picker_confirm_button_content_description" msgid="8440144719909288057">"Qinisekisa"</string>
     <string name="wear_m3c_picker_next_button_content_description" msgid="3346011303652897029">"Okulandelayo"</string>
+    <!-- no translation found for wear_m3c_slider_decrease_content_description (8242572466064289486) -->
+    <skip />
+    <!-- no translation found for wear_m3c_slider_increase_content_description (3329631766954416834) -->
+    <skip />
     <string name="wear_m3c_confirmation_failure_message" msgid="6690105830380889949">"Yehlulekile"</string>
     <string name="wear_m3c_confirmation_success_message" msgid="7045594078216655038">"Impumelelo"</string>
     <string name="wear_m3c_open_on_phone" msgid="5829463187924353601">"Vula efonini"</string>
