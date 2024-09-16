@@ -420,6 +420,36 @@ class ParagraphLayoutCacheTest {
     }
 
     @Test
+    fun TextLayoutResult_autoSize_increaseConstraintsSize_checkOverflow() {
+        val smallConstraints =
+            Constraints(minWidth = 0, maxWidth = 50, minHeight = 0, maxHeight = 50)
+        val largeConstraints =
+            Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
+
+        val textDelegate =
+            ParagraphLayoutCache(
+                    text = "Hello World",
+                    style = createTextStyle(20.sp),
+                    fontFamilyResolver = fontFamilyResolver,
+                    overflow = TextOverflow.Clip,
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                )
+                .also { it.density = density }
+
+        textDelegate.layoutWithConstraints(smallConstraints, LayoutDirection.Ltr)
+        var layoutResult = textDelegate.paragraph!!
+        // this should overflow - 20.sp is too large a font size to use for the smaller constraints
+        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutResult.height).isEqualTo(120)
+
+        textDelegate.layoutWithConstraints(largeConstraints, LayoutDirection.Ltr)
+        layoutResult = textDelegate.paragraph!!
+        // 25.sp is picked with the bigger constraints, this doesn't overflow
+        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutResult.height).isEqualTo(100)
+    }
+
+    @Test
     fun TextLayoutResult_autoSize_textLongerThan30Characters_doesOverflow() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
 

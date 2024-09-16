@@ -145,9 +145,20 @@ internal class MultiParagraphLayoutCache(
             return true
         }
         if (autoSize != null) {
-            autoSize!!.performAutoSize(finalConstraints, layoutDirection).also {
-                style = style.copy(fontSize = it)
+            val optimalFontSize = autoSize!!.performAutoSize(finalConstraints, layoutDirection)
+            if (optimalFontSize == style.fontSize && fontSizeSearchScope.multiParagraph != null) {
+                layoutCache =
+                    textLayoutResult(
+                        layoutDirection,
+                        finalConstraints,
+                        fontSizeSearchScope.multiParagraph!!
+                    )
+                return true
             }
+            style = style.copy(fontSize = optimalFontSize)
+            // paragraphIntrinsics now does not match with style and needs to be set to null
+            // otherwise the correct font size will not be used in layout
+            paragraphIntrinsics = null
         }
 
         val multiParagraph = layoutText(finalConstraints, layoutDirection)
@@ -180,6 +191,7 @@ internal class MultiParagraphLayoutCache(
         fontSizeSearchScope.layoutDirection = layoutDirection
         fontSizeSearchScope.constraints = finalConstraints
         fontSizeSearchScope.resolvedStyle = resolveDefaults(style, layoutDirection)
+        fontSizeSearchScope.multiParagraph = null
 
         var optimalFontSize = fontSizeSearchScope.getFontSize()
         if (optimalFontSize.isEm) {
@@ -380,6 +392,9 @@ internal class MultiParagraphLayoutCache(
         /** The resolved version of [style] before layout */
         var resolvedStyle: TextStyle? = null
 
+        /** The cache of the [MultiParagraph] generated from layout */
+        var multiParagraph: MultiParagraph? = null
+
         // override Density attributes
         override val density
             get() = this@MultiParagraphLayoutCache.density!!.density
@@ -433,6 +448,11 @@ internal class MultiParagraphLayoutCache(
                         localMultiParagraph.height.ceilToIntPx()
                     )
                 )
+
+            style = usedStyle
+            paragraphIntrinsics = localParagraphIntrinsics
+            multiParagraph = localMultiParagraph
+            layoutCache = textLayoutResult(layoutDirection, constraints, localMultiParagraph)
             return localSize.width < localMultiParagraph.width ||
                 localSize.height < localMultiParagraph.height
         }
