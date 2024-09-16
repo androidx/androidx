@@ -222,7 +222,7 @@ class LayoutInspectorTreeTest {
             )
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
                 left = 0.dp,
                 top = 0.0.dp,
@@ -260,7 +260,7 @@ class LayoutInspectorTreeTest {
             )
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
                 left = 21.dp,
                 top = 53.dp,
@@ -348,10 +348,10 @@ class LayoutInspectorTreeTest {
         validate(nodes, builder) {
             node("ModalDrawer", isRenderNode = true, children = listOf("Column", "Text"))
             node("Column", inlined = true, children = listOf("Text", "Button"))
-            node("Text", isRenderNode = false)
+            node("Text", isRenderNode = true)
             node("Button", isRenderNode = true, children = listOf("Text"))
-            node("Text", isRenderNode = false)
-            node("Text", isRenderNode = false)
+            node("Text", isRenderNode = true)
+            node("Text", isRenderNode = true)
         }
         assertThat(nodes.size).isEqualTo(1)
     }
@@ -517,7 +517,7 @@ class LayoutInspectorTreeTest {
             node("Column", children = listOf("Text", "Row", "Row"), inlined = true)
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 mergedSemantics = "[Studio]",
                 unmergedSemantics = "[Studio]",
             )
@@ -527,8 +527,8 @@ class LayoutInspectorTreeTest {
                 mergedSemantics = "[Hello, World]",
                 inlined = true,
             )
-            node("Text", isRenderNode = false, unmergedSemantics = "[Hello]")
-            node("Text", isRenderNode = false, unmergedSemantics = "[World]")
+            node("Text", isRenderNode = true, unmergedSemantics = "[Hello]")
+            node("Text", isRenderNode = true, unmergedSemantics = "[World]")
             node(
                 name = "Row",
                 children = listOf("Text", "Text"),
@@ -536,8 +536,8 @@ class LayoutInspectorTreeTest {
                 unmergedSemantics = "[to]",
                 inlined = true,
             )
-            node("Text", isRenderNode = false, unmergedSemantics = "[Hello]")
-            node("Text", isRenderNode = false, unmergedSemantics = "[World]")
+            node("Text", isRenderNode = true, unmergedSemantics = "[Hello]")
+            node("Text", isRenderNode = true, unmergedSemantics = "[World]")
         }
     }
 
@@ -547,7 +547,7 @@ class LayoutInspectorTreeTest {
 
         show {
             Inspectable(slotTableRecord) {
-                Column(modifier = Modifier.fillMaxSize()) {
+                Column {
                     Text("Hello World!")
                     AlertDialog(
                         onDismissRequest = {},
@@ -576,11 +576,10 @@ class LayoutInspectorTreeTest {
                 fileName = "LayoutInspectorTreeTest.kt",
                 children = listOf("Text"),
                 inlined = true,
-                isRenderNode = true,
             )
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
             )
         }
@@ -604,7 +603,7 @@ class LayoutInspectorTreeTest {
             )
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
             )
         }
@@ -643,7 +642,7 @@ class LayoutInspectorTreeTest {
             )
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
             )
         }
@@ -657,7 +656,7 @@ class LayoutInspectorTreeTest {
             node(name = "Popup", fileName = "LayoutInspectorTreeTest.kt", children = listOf("Text"))
             node(
                 name = "Text",
-                isRenderNode = false,
+                isRenderNode = true,
                 fileName = "LayoutInspectorTreeTest.kt",
             )
         }

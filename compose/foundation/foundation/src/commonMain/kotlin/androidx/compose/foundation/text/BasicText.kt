@@ -16,8 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.ComposeFoundationFlags
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
@@ -115,7 +113,8 @@ fun BasicText(
     val finalModifier =
         if (selectionController != null || onTextLayout != null) {
             modifier
-                .optionalGraphicsLayer()
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
                 .textModifier(
                     AnnotatedString(text = text),
                     style = style,
@@ -132,7 +131,9 @@ fun BasicText(
                     onShowTranslation = null
                 )
         } else {
-            modifier.optionalGraphicsLayer() then
+            modifier
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer() then
                 TextStringSimpleElement(
                     text = text,
                     style = style,
@@ -207,7 +208,8 @@ fun BasicText(
         Layout(
             modifier =
                 modifier
-                    .optionalGraphicsLayer()
+                    // TODO(b/274781644): Remove this graphicsLayer
+                    .graphicsLayer()
                     .textModifier(
                         text = text,
                         style = style,
@@ -564,7 +566,8 @@ private fun LayoutWithLinksAndInlineContent(
         },
         modifier =
             modifier
-                .optionalGraphicsLayer()
+                // TODO(b/274781644): Remove this graphicsLayer
+                .graphicsLayer()
                 .textModifier(
                     text = styledText(),
                     style = style,
@@ -596,15 +599,3 @@ private fun LayoutWithLinksAndInlineContent(
             }
     )
 }
-
-/**
- * Applies a full [graphicsLayer] modifier only if the associated flag
- * [ComposeFoundationFlags.RemoveBasicTextGraphicsLayerEnabled] is disabled.
- */
-@OptIn(ExperimentalFoundationApi::class)
-private fun Modifier.optionalGraphicsLayer() =
-    if (ComposeFoundationFlags.RemoveBasicTextGraphicsLayerEnabled) {
-        this
-    } else {
-        this.graphicsLayer()
-    }
