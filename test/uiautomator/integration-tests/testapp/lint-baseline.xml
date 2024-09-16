@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.4.0-alpha09" type="baseline" client="gradle" dependencies="false" name="AGP (8.4.0-alpha09)" variant="all" version="8.4.0-alpha09">
+<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
 
     <issue
         id="MissingPermission"
@@ -8,6 +8,24 @@
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/test/uiautomator/testapp/NotificationTestActivity.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;androidx.test.uiautomator.testapp.DragTestActivity>` requires API level 24 (current min is 21)"
+        errorLine1="        &lt;activity android:name=&quot;.DragTestActivity&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="`&lt;androidx.test.uiautomator.testapp.SplitScreenTestActivity>` requires API level 32 (current min is 21)"
+        errorLine1="        &lt;activity android:name=&quot;.SplitScreenTestActivity&quot;"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
     </issue>
 
     <issue

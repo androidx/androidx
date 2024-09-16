@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+<issues format="6" by="lint 8.8.0-alpha01" type="baseline" client="gradle" dependencies="false" name="AGP (8.8.0-alpha01)" variant="all" version="8.8.0-alpha01">
+
+    <issue
+        id="NewApi"
+        message="`&lt;androidx.benchmark.integration.macrobenchmark.target.AudioActivity>` requires API level 23 (current min is 21)"
+        errorLine1="        &lt;activity"
+        errorLine2="        ^">
+        <location
+            file="src/main/AndroidManifest.xml"/>
+    </issue>
 
     <issue
         id="BanThreadSleep"
