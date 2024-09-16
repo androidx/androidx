@@ -20,6 +20,7 @@ import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -40,27 +41,27 @@ class PaneExpansionStateTest {
     fun test_paneExpansionStateSaver() {
         val mockPaneExpansionStateDataMap =
             mutableMapOf(
-                Pair(PaneExpansionStateKey.Default, PaneExpansionStateData(1, 0.2F, 3)),
+                Pair(PaneExpansionStateKey.Default, PaneExpansionStateData(1, 0.2F, 3, null)),
                 Pair(
                     TwoPaneExpansionStateKeyImpl(
                         ThreePaneScaffoldRole.Primary,
                         ThreePaneScaffoldRole.Secondary
                     ),
-                    PaneExpansionStateData(4, 0.5F, 6)
+                    PaneExpansionStateData(4, 0.5F, 6, PaneExpansionAnchor.Proportion(0.4F))
                 ),
                 Pair(
                     TwoPaneExpansionStateKeyImpl(
                         ThreePaneScaffoldRole.Secondary,
                         ThreePaneScaffoldRole.Tertiary
                     ),
-                    PaneExpansionStateData(7, 0.8F, 9)
+                    PaneExpansionStateData(7, 0.8F, 9, PaneExpansionAnchor.Offset(200.dp))
                 ),
                 Pair(
                     TwoPaneExpansionStateKeyImpl(
                         ThreePaneScaffoldRole.Tertiary,
                         ThreePaneScaffoldRole.Primary
                     ),
-                    PaneExpansionStateData(10, 0.3F, 12)
+                    PaneExpansionStateData(10, 0.3F, 12, null)
                 ),
             )
 
