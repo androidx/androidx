@@ -136,6 +136,7 @@ public class CameraPipeConfigTestRule(
             listOf(
                 "BasicUITest",
                 "Camera2InteropIntegrationTest",
+                "CameraControlDeviceTest",
                 "CameraDisconnectTest",
                 "CameraInfoDeviceTest",
                 "CameraXInitTest",
@@ -144,6 +145,21 @@ public class CameraPipeConfigTestRule(
                 "ExistingActivityLifecycleTest",
                 "FlashTest",
                 "FocusMeteringDeviceTest",
+                "FovDeviceTest",
+                "androidx.camera.integration.core.ImageAnalysisTest",
+                "ImageCaptureLatencyTest",
+                "androidx.camera.integration.core.ImageCaptureTest",
+                "ImageCaptureWithoutStoragePermissionTest",
+                "androidx.camera.integration.core.camera2.PreviewTest",
+                "ResolutionSelectorDeviceTest",
+                "StreamSharingTest",
+                "SurfaceOrientedMeteringPointFactoryTest",
+                "TakePictureTest",
+                "ToggleButtonUITest",
+                "UseCaseCombinationTest",
+                "VideoRecordingEffectTest",
+                "VideoRecordingFrameDropTest",
+                "ZoomControlDeviceTest",
             )
 
         fun log(message: String, throwable: Throwable? = null) {
