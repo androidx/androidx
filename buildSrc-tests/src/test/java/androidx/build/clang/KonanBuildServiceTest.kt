@@ -37,20 +37,21 @@ class KonanBuildServiceTest : BaseClangTest() {
 
     @Test
     fun compilationFailure() {
-        val compileParams = createCompileParameters(
-            "failedCode.c", """
+        val compileParams =
+            createCompileParameters(
+                "failedCode.c",
+                """
             #include <stdio.h>
             int main() {
                printf("Hello, World!");
                return 0 // no ; :)
             }
-        """.trimIndent()
-        )
-        assertThrows<GradleException> {
-            buildService.compile(compileParams)
-        }.hasMessageThat().contains(
-            "expected ';' after return statement"
-        )
+        """
+                    .trimIndent()
+            )
+        assertThrows<GradleException> { buildService.compile(compileParams) }
+            .hasMessageThat()
+            .contains("expected ';' after return statement")
     }
 
     @Test
@@ -60,51 +61,50 @@ class KonanBuildServiceTest : BaseClangTest() {
         val outputFiles = compileParams.output.getRegularFiles()
         assertThat(outputFiles).hasSize(1)
         val outputFile = outputFiles.single()
-        assertThat(
-            outputFile.name
-        ).isEqualTo("code.o")
+        assertThat(outputFile.name).isEqualTo("code.o")
         val strings = extractStrings(outputFile)
-        assertThat(strings).contains("Hello, World!")
+        assertThat(strings).contains("Hello, World!!")
         // shouldn't link yet
         assertThat(strings).doesNotContain("libc")
     }
 
     @Test
     fun compileWithInclude() {
-        val compileParameters = createCompileParameters(
-            "code.c",
-            """
+        val compileParameters =
+            createCompileParameters(
+                "code.c",
+                """
             #include <stdio.h>
             #include "dependency.h"
             int my_function() {
                return dependency_method();
             }
-            """.trimIndent()
-        )
-        val dependency = tmpFolder.newFolder("depSrc").also {
-            it.resolve("dependency.h").writeText(
-                """
-                    int dependency_method();
-                """.trimIndent()
+            """
+                    .trimIndent()
             )
-        }
-        compileParameters.includes.from(
-            dependency
-        )
+        val dependency =
+            tmpFolder.newFolder("depSrc").also {
+                it.resolve("dependency.h")
+                    .writeText(
+                        """
+                    int dependency_method();
+                """
+                            .trimIndent()
+                    )
+            }
+        compileParameters.includes.from(dependency)
         buildService.compile(compileParameters)
         val outputFiles = compileParameters.output.getRegularFiles()
         val strings = extractStrings(outputFiles.single())
-        assertThat(
-            strings
-        ).contains("dependency_method")
+        assertThat(strings).contains("dependency_method")
     }
 
     @Test
     fun createSharedLibrary() {
         val compileParameters = createCompileParameters("code.c", C_HELLO_WORLD)
         buildService.compile(compileParameters)
-        val sharedLibraryParameters = project.objects
-            .newInstance(ClangSharedLibraryParameters::class.java)
+        val sharedLibraryParameters =
+            project.objects.newInstance(ClangSharedLibraryParameters::class.java)
         sharedLibraryParameters.konanTarget.set(compileParameters.konanTarget)
         sharedLibraryParameters.objectFiles.from(compileParameters.output)
         val outputFile = tmpFolder.newFile("code.so")
@@ -112,28 +112,24 @@ class KonanBuildServiceTest : BaseClangTest() {
         buildService.createSharedLibrary(sharedLibraryParameters)
 
         val strings = extractStrings(outputFile)
-        assertThat(strings).contains("Hello, World!")
+        assertThat(strings).contains("Hello, World!!")
         // should link with libc
         assertThat(strings).contains("libc")
 
         // verify shared lib files are aligned to 16Kb boundary for Android targets
         if (sharedLibraryParameters.konanTarget.get().asKonanTarget.family == Family.ANDROID) {
-            val alignment = ProcessBuilder("objdump", "-p", outputFile.path)
-                .start()
-                .inputStream
-                .bufferedReader()
-                .useLines { lines ->
-                    lines.filter {
-                        it.contains("LOAD")
-                    }.map {
-                        it.split(" ").last()
-                    }.firstOrNull()
-                }
-            assertThat(
-                alignment
-            ).isEqualTo(
-                "2**14"
-            )
+            val alignment =
+                ProcessBuilder("objdump", "-p", outputFile.path)
+                    .start()
+                    .inputStream
+                    .bufferedReader()
+                    .useLines { lines ->
+                        lines
+                            .filter { it.contains("LOAD") }
+                            .map { it.split(" ").last() }
+                            .firstOrNull()
+                    }
+            assertThat(alignment).isEqualTo("2**14")
         }
     }
 
@@ -149,49 +145,36 @@ class KonanBuildServiceTest : BaseClangTest() {
         buildService.archiveLibrary(archiveParams)
 
         val strings = extractStrings(outputFile)
-        assertThat(strings).contains("Hello, World!")
+        assertThat(strings).contains("Hello, World!!")
         // should not with libc
         assertThat(strings).doesNotContain("libc")
     }
 
-    private fun createCompileParameters(
-        fileName: String,
-        code: String
-    ): ClangCompileParameters {
+    private fun createCompileParameters(fileName: String, code: String): ClangCompileParameters {
         val srcDir = tmpFolder.newFolder("src")
-        srcDir.resolve(fileName).writeText(
-            code
-        )
+        srcDir.resolve(fileName).writeText(code)
         val compileParams = project.objects.newInstance(ClangCompileParameters::class.java)
-        compileParams.konanTarget.set(
-            SerializableKonanTarget(KonanTarget.LINUX_X64)
-        )
-        compileParams.output.set(
-            tmpFolder.newFolder()
-        )
+        compileParams.konanTarget.set(SerializableKonanTarget(KonanTarget.LINUX_X64))
+        compileParams.output.set(tmpFolder.newFolder())
         compileParams.sources.from(srcDir)
         return compileParams
     }
 
-    private fun DirectoryProperty.getRegularFiles() = get().asFile.walkTopDown().filter {
-        it.isFile
-    }.toList()
+    private fun DirectoryProperty.getRegularFiles() =
+        get().asFile.walkTopDown().filter { it.isFile }.toList()
 
-    /**
-     * Extract strings from a binary file so that we can assert output contents.
-     */
-    private fun extractStrings(
-        file: File
-    ): String {
+    /** Extract strings from a binary file so that we can assert output contents. */
+    private fun extractStrings(file: File): String {
         val outputStream = ByteArrayOutputStream()
         val errorStream = ByteArrayOutputStream()
-        val response = project.exec {
-            it.executable = "strings"
-            it.setErrorOutput(errorStream)
-            it.setStandardOutput(outputStream)
-            it.isIgnoreExitValue = true
-            it.args(file.canonicalPath)
-        }
+        val response =
+            project.exec {
+                it.executable = "strings"
+                it.setErrorOutput(errorStream)
+                it.setStandardOutput(outputStream)
+                it.isIgnoreExitValue = true
+                it.args(file.canonicalPath)
+            }
         if (response.exitValue != 0) {
             throw AssertionError(
                 """
@@ -200,19 +183,22 @@ class KonanBuildServiceTest : BaseClangTest() {
                 ${outputStream.toString(Charsets.UTF_8)}
                 Error:
                 ${errorStream.toString(Charsets.UTF_8)}
-            """.trimIndent()
+            """
+                    .trimIndent()
             )
         }
         return outputStream.toString(Charsets.UTF_8)
     }
 
     companion object {
-        private val C_HELLO_WORLD = """
+        private val C_HELLO_WORLD =
+            """
             #include <stdio.h>
             int my_function() {
-               printf("Hello, World!");
+               printf("Hello, World!!");
                return 0;
             }
-        """.trimIndent()
+        """
+                .trimIndent()
     }
 }
