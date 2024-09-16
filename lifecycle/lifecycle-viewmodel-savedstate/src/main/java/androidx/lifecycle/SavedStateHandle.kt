@@ -93,7 +93,8 @@ class SavedStateHandle {
     @MainThread
     fun <T> getLiveData(key: String): MutableLiveData<T> {
         @Suppress("UNCHECKED_CAST")
-        return getLiveDataInternal(key, false, null) as MutableLiveData<T>
+        return getLiveDataInternal(key, hasInitialValue = false, initialValue = null)
+            as MutableLiveData<T>
     }
 
     /**
@@ -139,7 +140,7 @@ class SavedStateHandle {
      */
     @MainThread
     fun <T> getLiveData(key: String, initialValue: T): MutableLiveData<T> {
-        return getLiveDataInternal(key, true, initialValue)
+        return getLiveDataInternal(key, hasInitialValue = true, initialValue)
     }
 
     private fun <T> getLiveDataInternal(
@@ -147,27 +148,18 @@ class SavedStateHandle {
         hasInitialValue: Boolean,
         initialValue: T
     ): MutableLiveData<T> {
-        @Suppress("UNCHECKED_CAST") val previousLiveData = liveDatas[key] as? MutableLiveData<T>
-        if (previousLiveData != null) {
-            return previousLiveData
-        }
-
-        // double hashing but null is valid value
-        val newLiveData: SavingStateLiveData<T> =
-            when {
-                regular.containsKey(key) -> {
-                    @Suppress("UNCHECKED_CAST") SavingStateLiveData(this, key, regular[key] as T)
-                }
-                hasInitialValue -> {
-                    regular[key] = initialValue
-                    SavingStateLiveData(this, key, initialValue)
-                }
-                else -> {
-                    SavingStateLiveData(this, key)
+        val liveData =
+            liveDatas.getOrPut(key) {
+                when {
+                    key in regular -> SavingStateLiveData(handle = this, key, regular[key])
+                    hasInitialValue -> {
+                        regular[key] = initialValue
+                        SavingStateLiveData(handle = this, key, initialValue)
+                    }
+                    else -> SavingStateLiveData(handle = this, key)
                 }
             }
-        liveDatas[key] = newLiveData
-        return newLiveData
+        @Suppress("UNCHECKED_CAST") return liveData as MutableLiveData<T>
     }
 
     /**
@@ -205,20 +197,18 @@ class SavedStateHandle {
      */
     @MainThread
     fun <T> getStateFlow(key: String, initialValue: T): StateFlow<T> {
-        @Suppress("UNCHECKED_CAST")
         // If a flow exists we should just return it, and since it is a StateFlow and a value must
         // always be set, we know a value must already be available
-        return flows
-            .getOrPut(key) {
+        val flow =
+            flows.getOrPut(key) {
                 // If there is not a value associated with the key, add the initial value,
-                // otherwise,
-                // use the one we already have.
-                if (!regular.containsKey(key)) {
+                // otherwise, use the one we already have.
+                if (key !in regular) {
                     regular[key] = initialValue
                 }
-                MutableStateFlow(regular[key]).apply { flows[key] = this }
+                MutableStateFlow(regular[key])
             }
-            .asStateFlow() as StateFlow<T>
+        @Suppress("UNCHECKED_CAST") return flow.asStateFlow() as StateFlow<T>
     }
 
     /**
