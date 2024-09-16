@@ -387,7 +387,7 @@ class SecurityPatchStateTest {
     }
 
     @Test
-    fun testGetPublishedKernelVersions_ReturnsCorrectVersions() {
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersions_DifferentVersionsSameSpl() {
         val jsonInput =
             """
             {
@@ -418,6 +418,82 @@ class SecurityPatchStateTest {
         assertEquals(1, version1.getMinorVersion())
         assertEquals(234, version1.getBuildVersion())
         assertEquals(25, version1.getPatchVersion())
+
+        assertEquals(2, versions.size)
+    }
+
+    @Test
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersions_DifferentVersionsDifferentSpls() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-05-15": [{
+                        "cve_identifiers": ["CVE-5678-1234"],
+                        "asb_identifiers": ["ASB-A-2024222"],
+                        "severity": "critical",
+                        "components": ["vendor"]
+                    }]
+                },
+                "kernel_lts_versions": {
+                    "2024-04-27": ["5.10.209", "5.15.148"],
+                    "2024-06-12": ["5.15.149"],
+                    "2024-06-21": ["5.10.210"]
+                }
+            }
+        """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        val versions =
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL)
+        val version0 = versions[0] as SecurityPatchState.VersionedSecurityPatchLevel
+        val version1 = versions[1] as SecurityPatchState.VersionedSecurityPatchLevel
+
+        assertEquals(5, version0.getMajorVersion())
+        assertEquals(10, version0.getMinorVersion())
+        assertEquals(210, version0.getPatchVersion())
+        assertEquals(5, version1.getMajorVersion())
+        assertEquals(15, version1.getMinorVersion())
+        assertEquals(149, version1.getPatchVersion())
+
+        assertEquals(2, versions.size)
+    }
+
+    @Test
+    fun testGetPublishedKernelVersions_ReturnsCorrectVersion() {
+        val jsonInput =
+            """
+            {
+                "vulnerabilities": {
+                    "2023-05-15": [{
+                        "cve_identifiers": ["CVE-5678-1234"],
+                        "asb_identifiers": ["ASB-A-2024222"],
+                        "severity": "critical",
+                        "components": ["vendor"]
+                    }]
+                },
+                "kernel_lts_versions": {
+                    "2021-11-05": ["5.4.86"],
+                    "2022-11-05": ["5.4.147"],
+                    "2023-11-05": ["5.4.233"]
+                }
+            }
+        """
+                .trimIndent()
+
+        securityState.loadVulnerabilityReport(jsonInput)
+
+        val versions =
+            securityState.getPublishedSecurityPatchLevel(SecurityPatchState.COMPONENT_KERNEL)
+        val version0 = versions[0] as SecurityPatchState.VersionedSecurityPatchLevel
+
+        assertEquals(5, version0.getMajorVersion())
+        assertEquals(4, version0.getMinorVersion())
+        assertEquals(233, version0.getPatchVersion())
+
+        assertEquals(1, versions.size)
     }
 
     @Test
