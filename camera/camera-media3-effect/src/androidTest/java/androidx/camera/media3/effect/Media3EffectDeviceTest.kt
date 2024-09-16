@@ -16,6 +16,13 @@
 
 package androidx.camera.media3.effect
 
+import android.util.Size
+import androidx.camera.core.CameraEffect
+import androidx.camera.core.SurfaceRequest
+import androidx.camera.core.impl.utils.Threads.runOnMainSync
+import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
+import androidx.camera.testing.fakes.FakeCamera
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -30,7 +37,56 @@ import org.junit.runner.RunWith
 class Media3EffectDeviceTest {
 
     @Test
-    fun smokeTest() {
-        assertThat(true).isTrue()
+    fun closeAClosedEffect_throwsException() {
+        // Arrange.
+        val media3Effect =
+            Media3Effect(
+                context = ApplicationProvider.getApplicationContext(),
+                targets = CameraEffect.PREVIEW,
+                executor = mainThreadExecutor(),
+                errorListener = { throw it }
+            )
+        var exception: Exception? = null
+
+        // Act: close the effect twice.
+        runOnMainSync {
+            media3Effect.close()
+            try {
+                media3Effect.close()
+            } catch (e: IllegalStateException) {
+                exception = e
+            }
+        }
+
+        // Assert: IllegalStateException was thrown.
+        assertThat(exception!!).isInstanceOf(IllegalStateException::class.java)
+    }
+
+    @Test
+    fun closeEffect_pendingRequestIsCancelled() {
+        // Arrange: create a Media3Effect and a SurfaceRequest.
+        val media3Effect =
+            Media3Effect(
+                context = ApplicationProvider.getApplicationContext(),
+                targets = CameraEffect.PREVIEW,
+                executor = mainThreadExecutor(),
+                errorListener = { throw it }
+            )
+        val surfaceRequest = SurfaceRequest(Size(10, 10), FakeCamera()) {}
+
+        // Act: provide the surface request and close the effect.
+        runOnMainSync {
+            media3Effect.surfaceProcessor!!.onInputSurface(surfaceRequest)
+            media3Effect.close()
+        }
+
+        // Assert: the surface request is cancelled.
+        var exception: Exception? = null
+        try {
+            surfaceRequest.deferrableSurface.surface.get()
+        } catch (e: Exception) {
+            exception = e
+        }
+        assertThat(exception!!.message).contains("Surface request will not complete.")
     }
 }
