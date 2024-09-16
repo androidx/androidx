@@ -105,6 +105,7 @@ import androidx.room.solver.shortcut.result.InsertOrUpsertMethodAdapter
 import androidx.room.solver.types.BoxedBooleanToBoxedIntConverter
 import androidx.room.solver.types.BoxedPrimitiveColumnTypeAdapter
 import androidx.room.solver.types.ByteArrayColumnTypeAdapter
+import androidx.room.solver.types.ByteArrayWrapperColumnTypeAdapter
 import androidx.room.solver.types.ByteBufferColumnTypeAdapter
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.solver.types.CompositeAdapter
@@ -183,6 +184,8 @@ private constructor(
                 .forEach(::addColumnAdapter)
             StringColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
             ByteArrayColumnTypeAdapter.create(context.processingEnv).forEach(::addColumnAdapter)
+            ByteArrayWrapperColumnTypeAdapter.create(context.processingEnv)
+                .forEach(::addColumnAdapter)
             PrimitiveBooleanToIntConverter.create(context.processingEnv).forEach(::addTypeConverter)
             // null aware converter is able to automatically null wrap converters so we don't
             // need this as long as we are running in KSP

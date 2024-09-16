@@ -216,6 +216,16 @@ final class <#A: kotlin/Any?> androidx.room/EntityUpsertAdapter { // androidx.ro
     final object Companion // androidx.room/EntityUpsertAdapter.Companion|null[0]
 }
 
+final class androidx.room.util/ByteArrayWrapper { // androidx.room.util/ByteArrayWrapper|null[0]
+    constructor <init>(kotlin/ByteArray) // androidx.room.util/ByteArrayWrapper.<init>|<init>(kotlin.ByteArray){}[0]
+
+    final val array // androidx.room.util/ByteArrayWrapper.array|{}array[0]
+        final fun <get-array>(): kotlin/ByteArray // androidx.room.util/ByteArrayWrapper.array.<get-array>|<get-array>(){}[0]
+
+    final fun equals(kotlin/Any?): kotlin/Boolean // androidx.room.util/ByteArrayWrapper.equals|equals(kotlin.Any?){}[0]
+    final fun hashCode(): kotlin/Int // androidx.room.util/ByteArrayWrapper.hashCode|hashCode(){}[0]
+}
+
 final class androidx.room.util/FtsTableInfo { // androidx.room.util/FtsTableInfo|null[0]
     constructor <init>(kotlin/String, kotlin.collections/Set<kotlin/String>, kotlin.collections/Set<kotlin/String>) // androidx.room.util/FtsTableInfo.<init>|<init>(kotlin.String;kotlin.collections.Set<kotlin.String>;kotlin.collections.Set<kotlin.String>){}[0]
     constructor <init>(kotlin/String, kotlin.collections/Set<kotlin/String>, kotlin/String) // androidx.room.util/FtsTableInfo.<init>|<init>(kotlin.String;kotlin.collections.Set<kotlin.String>;kotlin.String){}[0]

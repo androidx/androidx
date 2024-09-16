@@ -468,6 +468,16 @@ abstract class BaseQueryTest {
     }
 
     @Test
+    fun relationByteKey() = runTest {
+        val sampleEntity1 = SampleEntity1Byte(ByteArray(1))
+        val sampleEntity2 = SampleEntity2Byte(ByteArray(1))
+        db.dao().insert(sampleEntity1)
+        db.dao().insert(sampleEntity2)
+        assertThat(db.dao().getSample1To2Byte())
+            .isEqualTo(SampleDao.Sample1And2Byte(sample1 = sampleEntity1, sample2 = sampleEntity2))
+    }
+
+    @Test
     fun relation1toMany() = runTest {
         val sampleEntity1 = SampleEntity(1, 1)
         val sampleEntity2 = SampleEntity2(1, 2)

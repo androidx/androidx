@@ -457,6 +457,11 @@ package androidx.room.paging {
 
 package androidx.room.util {
 
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class ByteArrayWrapper {
+    ctor public ByteArrayWrapper(byte[] array);
+    field public final byte[] array;
+  }
+
   @RestrictTo({androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX}) public final class CursorUtil {
     method public static android.database.Cursor copyAndClose(android.database.Cursor c);
     method @VisibleForTesting public static int findColumnIndexBySuffix(String[] columnNames, String name);
