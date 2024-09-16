@@ -59,6 +59,23 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
                         Scope.JAVA_FILE_SCOPE
                     )
             )
+        val MissingKeepAnnotationIssue =
+            Issue.create(
+                id = "MissingKeepAnnotation",
+                briefDescription =
+                    "In minified builds, Enum classes used as type-safe " +
+                        "Navigation arguments should be annotated with @androidx.annotation.Keep ",
+                explanation =
+                    "Type-safe nav arguments such as Enum types can get " +
+                        "incorrectly obfuscated in minified builds when not referenced directly",
+                category = Category.CORRECTNESS,
+                severity = Severity.WARNING,
+                implementation =
+                    Implementation(
+                        TypeSafeDestinationMissingAnnotationDetector::class.java,
+                        Scope.JAVA_FILE_SCOPE
+                    )
+            )
     }
 
     // methods that delegates to NavGraphBuilder/NavDestinationBuilder
@@ -81,6 +98,10 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
             } ?: return
 
         checkMissingSerializableAnnotation(kClazzType, context)
+
+        // filter for Enums in Class fields
+        val enums = kClazzType.getEnumFields()
+        if (enums.isNotEmpty()) checkMissingKeepAnnotation(enums, context)
     }
 
     override fun visitConstructor(
@@ -90,6 +111,10 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
     ) {
         val kClazzType = node.getRouteKClassType() ?: return
         checkMissingSerializableAnnotation(kClazzType, context)
+
+        // filter for Enums in Class fields
+        val enums = kClazzType.getEnumFields()
+        if (enums.isNotEmpty()) checkMissingKeepAnnotation(enums, context)
     }
 
     // resolves and returns the actual type of KClass<*>
@@ -112,6 +137,29 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
                 context.getNameLocation(uElement),
                 """To use this class or object as a type-safe destination, annotate it with @Serializable"""
             )
+        }
+    }
+
+    private fun PsiClass.getEnumFields(): List<PsiClass> {
+        return fields.mapNotNull {
+            val resolved = (it.type as? PsiClassReferenceType)?.resolve()
+            resolved?.takeIf { resolved.isEnum }
+        }
+    }
+
+    private fun checkMissingKeepAnnotation(fields: List<PsiClass>, context: JavaContext) {
+        fields.onEach {
+            if (!it.hasAnnotation("androidx.annotation.Keep")) {
+                val uElement = it.toUElement() ?: return
+                context.report(
+                    MissingKeepAnnotationIssue,
+                    uElement,
+                    context.getNameLocation(uElement),
+                    """To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep
+                        """
+                        .trimMargin()
+                )
+            }
         }
     }
 }
