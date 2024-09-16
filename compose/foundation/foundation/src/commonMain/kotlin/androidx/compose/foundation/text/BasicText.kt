@@ -485,6 +485,7 @@ private fun Modifier.textModifier(
                 onPlaceholderLayout,
                 null,
                 color,
+                null,
                 onShowTranslation
             )
         return this then Modifier /* selection position */ then staticTextModifier
