@@ -257,7 +257,10 @@ public class WatchFace(
                 watchFaceService.createHeadlessEngine(componentName)
                     as WatchFaceService.EngineWrapper
             val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
-            return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
+            return engine.watchFaceDetails!!
+                .deferredWatchFaceImpl
+                .await()
+                .WFEditorDelegate(headlessWatchFaceImpl)
         }
     }
 

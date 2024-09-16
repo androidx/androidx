@@ -181,7 +181,7 @@ internal class InteractiveWatchFaceImpl(
                     try {
                         withContext(uiThreadCoroutineScope.coroutineContext) {
                             engine?.let {
-                                it.deferredWatchFaceImpl.await()
+                                it.watchFaceDetails?.deferredWatchFaceImpl?.await()
                                 it.unpauseAnimation()
                             }
                             InteractiveInstanceManager.releaseInstance(instanceId)

@@ -265,25 +265,29 @@ constructor(
         }
     }
 
+    // WallpaperService can retain SurfaceHolderCallback even after it's unregistered so we need
+    // a nullable renderer reference, in order to prevent the Renderer from being retained after
+    // onDestroy is called.
+    private class SurfaceHolderCallback(var renderer: Renderer?) : SurfaceHolder.Callback {
+        override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
+            renderer?.surfaceChanged(holder)
+        }
+
+        override fun surfaceDestroyed(holder: SurfaceHolder) {}
+
+        override fun surfaceCreated(holder: SurfaceHolder) {}
+    }
+
+    private val surfaceChangedCallback = SurfaceHolderCallback(this)
+
+    private fun surfaceChanged(holder: SurfaceHolder) {
+        screenBounds = holder.surfaceFrame
+        centerX = screenBounds.exactCenterX()
+        centerY = screenBounds.exactCenterY()
+    }
+
     init {
-        surfaceHolder.addCallback(
-            object : SurfaceHolder.Callback {
-                override fun surfaceChanged(
-                    holder: SurfaceHolder,
-                    format: Int,
-                    width: Int,
-                    height: Int
-                ) {
-                    screenBounds = holder.surfaceFrame
-                    centerX = screenBounds.exactCenterX()
-                    centerY = screenBounds.exactCenterY()
-                }
-
-                override fun surfaceDestroyed(holder: SurfaceHolder) {}
-
-                override fun surfaceCreated(holder: SurfaceHolder) {}
-            }
-        )
+        surfaceHolder.addCallback(surfaceChangedCallback)
     }
 
     /**
@@ -340,6 +344,8 @@ constructor(
 
     internal fun onDestroyInternal() {
         try {
+            surfaceHolder.removeCallback(surfaceChangedCallback)
+            surfaceChangedCallback.renderer = null
             onDestroy()
         } finally {
             runBlocking { releaseSharedAssets(this@Renderer) }
