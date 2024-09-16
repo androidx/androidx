@@ -358,7 +358,7 @@ internal class ParagraphLayoutCache(
         val annotatedString = AnnotatedString(text)
         paragraph ?: return null
         paragraphIntrinsics ?: return null
-        val finalConstraints = prevConstraints.copy(minWidth = 0, minHeight = 0)
+        val finalConstraints = prevConstraints.copyMaxDimensions()
 
         // and redo layout with MultiParagraph
         return TextLayoutResult(

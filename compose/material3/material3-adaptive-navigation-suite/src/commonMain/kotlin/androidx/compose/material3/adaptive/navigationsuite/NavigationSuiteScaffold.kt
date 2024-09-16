@@ -155,7 +155,7 @@ fun NavigationSuiteScaffoldLayout(
         Box(Modifier.layoutId(NavigationSuiteLayoutIdTag)) { navigationSuite() }
         Box(Modifier.layoutId(ContentLayoutIdTag)) { content() }
     }) { measurables, constraints ->
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val looseConstraints = constraints.copyMaxDimensions()
         // Find the navigation suite composable through it's layoutId tag
         val navigationPlaceable =
             measurables

@@ -422,7 +422,7 @@ private fun SplitButtonLayout(
         },
         modifier,
         measurePolicy = { measurables, constraints ->
-            val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+            val looseConstraints = constraints.copyMaxDimensions()
 
             val leadingButtonPlaceable =
                 measurables

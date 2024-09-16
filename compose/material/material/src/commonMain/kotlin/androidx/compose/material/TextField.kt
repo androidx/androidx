@@ -722,7 +722,7 @@ private class TextFieldMeasurePolicy(
         var occupiedSpaceHorizontally = 0
 
         // measure leading icon
-        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val looseConstraints = constraints.copyMaxDimensions()
         val leadingPlaceable =
             measurables.fastFirstOrNull { it.layoutId == LeadingId }?.measure(looseConstraints)
         occupiedSpaceHorizontally += widthOrZero(leadingPlaceable)

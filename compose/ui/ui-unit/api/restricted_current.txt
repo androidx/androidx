@@ -8,6 +8,7 @@ package androidx.compose.ui.unit {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Constraints {
     ctor public Constraints(@kotlin.PublishedApi long value);
     method public long copy(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method public inline long copyMaxDimensions();
     method public boolean getHasBoundedHeight();
     method public boolean getHasBoundedWidth();
     method public boolean getHasFixedHeight();
@@ -47,6 +48,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static int constrainWidth(long, int width);
     method @androidx.compose.runtime.Stable public static boolean isSatisfiedBy(long, long size);
     method @androidx.compose.runtime.Stable public static long offset(long, optional int horizontal, optional int vertical);
+    field @kotlin.PublishedApi internal static final long MaxDimensionsAndFocusMask = -8589934589L; // 0xfffffffe00000003L
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmDefaultWithCompatibility public interface Density extends androidx.compose.ui.unit.FontScaling {

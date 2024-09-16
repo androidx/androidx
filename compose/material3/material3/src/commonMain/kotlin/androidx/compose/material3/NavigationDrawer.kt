@@ -406,7 +406,7 @@ fun ModalNavigationDrawer(
                         }
                     },
         ) { measurables, constraints ->
-            val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+            val looseConstraints = constraints.copyMaxDimensions()
             val placeables = measurables.fastMap { it.measure(looseConstraints) }
             val width = placeables.fastMaxOfOrNull { it.width } ?: 0
             val height = placeables.fastMaxOfOrNull { it.height } ?: 0

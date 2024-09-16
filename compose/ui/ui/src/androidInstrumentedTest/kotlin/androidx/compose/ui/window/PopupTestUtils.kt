@@ -97,7 +97,7 @@ internal fun SimpleContainer(
                         height?.roundToPx() ?: Constraints.Infinity
                     )
             )
-        val childConstraints = containerConstraints.copy(minWidth = 0, minHeight = 0)
+        val childConstraints = containerConstraints.copyMaxDimensions()
         var placeable: Placeable? = null
         val containerWidth =
             if (containerConstraints.hasFixedWidth) {

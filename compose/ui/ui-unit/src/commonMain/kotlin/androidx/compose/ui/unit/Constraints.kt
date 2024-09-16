@@ -196,6 +196,12 @@ value class Constraints(@PublishedApi internal val value: Long) {
         return createConstraints(minWidth, maxWidth, minHeight, maxHeight)
     }
 
+    /**
+     * Copies the existing [Constraints], setting [minWidth] and [minHeight] to 0, and preserving
+     * [maxWidth] and [maxHeight] as-is.
+     */
+    inline fun copyMaxDimensions() = Constraints(value and MaxDimensionsAndFocusMask)
+
     override fun toString(): String {
         val maxWidth = maxWidth
         val maxWidthStr = if (maxWidth == Infinity) "Infinity" else maxWidth.toString()
@@ -400,6 +406,9 @@ private const val MaxFocusMask = 0x3FFFF // 256K-1 (18 bits)
 /** The number of bits to use for the non-focused dimension when there is maximal focus. */
 private const val MaxNonFocusBits = 13
 private const val MaxAllowedForMaxNonFocusBits = (1 shl (31 - MaxNonFocusBits)) - 2
+
+// 0xFFFFFFFE_00000003UL.toLong(), written as a signed value to declare it const
+@PublishedApi internal const val MaxDimensionsAndFocusMask = -0x00000001_FFFFFFFDL
 
 // Wrap those throws in functions to avoid inlining the string building at the call sites
 // Keep internal for codegen

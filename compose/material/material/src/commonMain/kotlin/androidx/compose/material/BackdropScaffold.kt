@@ -386,7 +386,7 @@ fun BackdropScaffold(
             }
         }
     val calculateBackLayerConstraints: (Constraints) -> Constraints = {
-        it.copy(minWidth = 0, minHeight = 0).offset(vertical = -headerHeightPx.roundToInt())
+        it.copyMaxDimensions().offset(vertical = -headerHeightPx.roundToInt())
     }
 
     val state = scaffoldState.anchoredDraggableState

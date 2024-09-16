@@ -145,7 +145,7 @@ class LayerTouchTransformTest {
 @Composable
 fun SimpleLayout(modifier: Modifier, content: @Composable () -> Unit = {}) {
     Layout(content, modifier) { measurables, constraints ->
-        val childConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        val childConstraints = constraints.copyMaxDimensions()
         val placeables = measurables.map { it.measure(childConstraints) }
         var containerWidth = constraints.minWidth
         var containerHeight = constraints.minHeight

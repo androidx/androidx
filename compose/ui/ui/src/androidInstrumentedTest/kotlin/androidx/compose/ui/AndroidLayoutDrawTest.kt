@@ -4212,7 +4212,7 @@ internal val AlignTopLeft =
             measurable: Measurable,
             constraints: Constraints
         ): MeasureResult {
-            val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            val placeable = measurable.measure(constraints.copyMaxDimensions())
             return layout(constraints.maxWidth, constraints.maxHeight) {
                 placeable.placeRelative(0, 0)
             }

@@ -8,6 +8,7 @@ package androidx.compose.ui.unit {
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Constraints {
     ctor public Constraints(@kotlin.PublishedApi long value);
     method public long copy(optional int minWidth, optional int maxWidth, optional int minHeight, optional int maxHeight);
+    method public inline long copyMaxDimensions();
     method public boolean getHasBoundedHeight();
     method public boolean getHasBoundedWidth();
     method public boolean getHasFixedHeight();
