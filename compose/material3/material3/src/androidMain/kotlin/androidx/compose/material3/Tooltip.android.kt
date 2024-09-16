@@ -60,11 +60,58 @@ import androidx.compose.ui.unit.isSpecified
  * @param shadowElevation the shadow elevation of the tooltip.
  * @param content the composable that will be used to populate the tooltip's content.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Maintained for binary compatibility. " + "Use overload with maxWidth parameter."
+)
 @Composable
 @ExperimentalMaterial3Api
 actual fun TooltipScope.PlainTooltip(
     modifier: Modifier,
     caretSize: DpSize,
+    shape: Shape,
+    contentColor: Color,
+    containerColor: Color,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    content: @Composable () -> Unit
+) =
+    PlainTooltip(
+        modifier = modifier,
+        caretSize = caretSize,
+        maxWidth = TooltipDefaults.plainTooltipMaxWidth,
+        shape = shape,
+        contentColor = contentColor,
+        containerColor = containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        content = content
+    )
+
+/**
+ * Plain tooltip that provides a descriptive message.
+ *
+ * Usually used with [TooltipBox].
+ *
+ * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
+ *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
+ *   in Dp.Unspecified for this parameter if no caret is desired.
+ * @param maxWidth the maximum width for the plain tooltip
+ * @param shape the [Shape] that should be applied to the tooltip container.
+ * @param contentColor [Color] that will be applied to the tooltip's content.
+ * @param containerColor [Color] that will be applied to the tooltip's container.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
+ * @param content the composable that will be used to populate the tooltip's content.
+ */
+@Composable
+@ExperimentalMaterial3Api
+actual fun TooltipScope.PlainTooltip(
+    modifier: Modifier,
+    caretSize: DpSize,
+    maxWidth: Dp,
     shape: Shape,
     contentColor: Color,
     containerColor: Color,
@@ -99,7 +146,7 @@ actual fun TooltipScope.PlainTooltip(
             modifier =
                 Modifier.sizeIn(
                         minWidth = TooltipMinWidth,
-                        maxWidth = PlainTooltipMaxWidth,
+                        maxWidth = maxWidth,
                         minHeight = TooltipMinHeight
                     )
                     .padding(PlainTooltipContentPadding)
@@ -133,6 +180,11 @@ actual fun TooltipScope.PlainTooltip(
  * @param shadowElevation the shadow elevation of the tooltip.
  * @param text the composable that will be used to populate the rich tooltip's text.
  */
+@Suppress("DEPRECATION")
+@Deprecated(
+    level = DeprecationLevel.HIDDEN,
+    message = "Maintained for binary compatibility. " + "Use overload with maxWidth parameter."
+)
 @Composable
 @ExperimentalMaterial3Api
 actual fun TooltipScope.RichTooltip(
@@ -140,6 +192,52 @@ actual fun TooltipScope.RichTooltip(
     title: (@Composable () -> Unit)?,
     action: (@Composable () -> Unit)?,
     caretSize: DpSize,
+    shape: Shape,
+    colors: RichTooltipColors,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    text: @Composable () -> Unit
+) =
+    RichTooltip(
+        modifier = modifier,
+        title = title,
+        action = action,
+        caretSize = caretSize,
+        maxWidth = TooltipDefaults.richTooltipMaxWidth,
+        shape = shape,
+        colors = colors,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation,
+        text = text
+    )
+
+/**
+ * Rich text tooltip that allows the user to pass in a title, text, and action. Tooltips are used to
+ * provide a descriptive message.
+ *
+ * Usually used with [TooltipBox]
+ *
+ * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param title An optional title for the tooltip.
+ * @param action An optional action for the tooltip.
+ * @param caretSize [DpSize] for the caret of the tooltip, if a default caret is desired with a
+ *   specific dimension. Please see [TooltipDefaults.caretSize] to see the default dimensions. Pass
+ *   in Dp.Unspecified for this parameter if no caret is desired.
+ * @param maxWidth the maximum width for the rich tooltip
+ * @param shape the [Shape] that should be applied to the tooltip container.
+ * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
+ * @param text the composable that will be used to populate the rich tooltip's text.
+ */
+@Composable
+@ExperimentalMaterial3Api
+actual fun TooltipScope.RichTooltip(
+    modifier: Modifier,
+    title: (@Composable () -> Unit)?,
+    action: (@Composable () -> Unit)?,
+    caretSize: DpSize,
+    maxWidth: Dp,
     shape: Shape,
     colors: RichTooltipColors,
     tonalElevation: Dp,
@@ -169,7 +267,7 @@ actual fun TooltipScope.RichTooltip(
         modifier =
             drawCaretModifier.sizeIn(
                 minWidth = TooltipMinWidth,
-                maxWidth = RichTooltipMaxWidth,
+                maxWidth = maxWidth,
                 minHeight = TooltipMinHeight
             ),
         shape = shape,
