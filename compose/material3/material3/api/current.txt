@@ -3093,10 +3093,10 @@ package androidx.compose.material3.pulltorefresh {
     method public suspend Object? animateToHidden(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? animateToThreshold(kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @FloatRange(from=0.0) public float getDistanceFraction();
-    method public default boolean isAnimating();
+    method public boolean isAnimating();
     method public suspend Object? snapTo(@FloatRange(from=0.0) float targetValue, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property @FloatRange(from=0.0) public abstract float distanceFraction;
-    property public default boolean isAnimating;
+    property public abstract boolean isAnimating;
   }
 
 }

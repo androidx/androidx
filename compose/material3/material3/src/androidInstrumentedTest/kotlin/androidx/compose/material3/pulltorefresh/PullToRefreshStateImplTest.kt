@@ -104,6 +104,9 @@ class PullToRefreshStateImplTest {
                 override val distanceFraction: Float
                     get() = distanceFractionState
 
+                override val isAnimating: Boolean
+                    get() = false
+
                 override suspend fun animateToThreshold() {}
 
                 override suspend fun animateToHidden() {}
@@ -147,6 +150,9 @@ class PullToRefreshStateImplTest {
                 var distanceFractionState by mutableStateOf(0f)
                 override val distanceFraction: Float
                     get() = distanceFractionState
+
+                override val isAnimating: Boolean
+                    get() = false
 
                 override suspend fun animateToThreshold() {}
 
@@ -198,6 +204,9 @@ class PullToRefreshStateImplTest {
                 var distanceFractionState by mutableStateOf(0f)
                 override val distanceFraction: Float
                     get() = distanceFractionState
+
+                override val isAnimating: Boolean
+                    get() = false
 
                 override suspend fun animateToThreshold() {}
 
