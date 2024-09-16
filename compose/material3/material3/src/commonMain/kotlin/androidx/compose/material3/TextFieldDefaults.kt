@@ -27,12 +27,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.input.OutputTransformation
+import androidx.compose.foundation.text.input.TextFieldBuffer
 import androidx.compose.foundation.text.input.TextFieldDecorator
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldLineLimits.MultiLine
 import androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine
 import androidx.compose.foundation.text.input.TextFieldState
-import androidx.compose.foundation.text.input.toTextFieldBuffer
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.material3.internal.CommonDecorationBox
@@ -181,10 +181,13 @@ object TextFieldDefaults {
         val visualText =
             if (outputTransformation == null) state.text
             else {
-                val buffer = state.toTextFieldBuffer()
+                // TODO: use constructor to create TextFieldBuffer from TextFieldState when
+                // available
+                lateinit var buffer: TextFieldBuffer
+                state.edit { buffer = this }
                 // after edit completes, mutations on buffer are ineffective
                 with(outputTransformation) { buffer.transformOutput() }
-                buffer.toString()
+                buffer.asCharSequence()
             }
 
         CommonDecorationBox(
@@ -993,10 +996,13 @@ object OutlinedTextFieldDefaults {
         val visualText =
             if (outputTransformation == null) state.text
             else {
-                val buffer = state.toTextFieldBuffer()
+                // TODO: use constructor to create TextFieldBuffer from TextFieldState when
+                // available
+                lateinit var buffer: TextFieldBuffer
+                state.edit { buffer = this }
                 // after edit completes, mutations on buffer are ineffective
                 with(outputTransformation) { buffer.transformOutput() }
-                buffer.toString()
+                buffer.asCharSequence()
             }
 
         CommonDecorationBox(
