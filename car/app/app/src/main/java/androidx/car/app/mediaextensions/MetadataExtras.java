@@ -106,6 +106,16 @@ public final class MetadataExtras {
             "androidx.car.app.mediaextensions.KEY_IMMERSIVE_AUDIO";
 
     /**
+     * {@link Bundle} key used in the extras of a media item to indicate that the metadata of this
+     * media item should not be shown next to content from other applications
+     *
+     * <p>TYPE: long - to enable, use value
+     * {@link androidx.media.utils.MediaConstants#METADATA_VALUE_ATTRIBUTE_PRESENT}</p>
+     */
+    public static final String KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST =
+            "androidx.car.app.mediaextensions.KEY_EXCLUDE_MEDIA_ITEM_FROM_MIXED_APP_LIST";
+
+    /**
      * {@link Bundle} key used in the extras of a media item to indicate a tintable vector drawable
      * representing its content format. This drawable must be rendered in large views showing
      * information about the currently playing media item, in an area roughly equivalent to 15
