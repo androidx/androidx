@@ -69,9 +69,6 @@ import androidx.compose.ui.unit.Density
  * @param enabled controls the enabled state of this text field. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param readOnly controls the editable state of the text field. When `true`, the text field cannot
- *   be modified. However, a user can still focus it. Read-only text fields are usually used to
- *   display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
  * @param labelPosition the position of the label. See [TextFieldLabelPosition].
  * @param label the optional label to be displayed with this text field. The default text style uses
@@ -131,7 +128,6 @@ fun SecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
@@ -179,7 +175,6 @@ fun SecureTextField(
                         minHeight = TextFieldDefaults.MinHeight
                     ),
             enabled = enabled,
-            readOnly = readOnly,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError)),
             keyboardOptions = keyboardOptions,
@@ -239,9 +234,6 @@ fun SecureTextField(
  * @param enabled controls the enabled state of this text field. When `false`, this component will
  *   not respond to user input, and it will appear visually disabled and disabled to accessibility
  *   services.
- * @param readOnly controls the editable state of the text field. When `true`, the text field cannot
- *   be modified. However, a user can still focus it. Read-only text fields are usually used to
- *   display pre-filled forms that a user cannot edit.
  * @param textStyle the style to be applied to the input text. Defaults to [LocalTextStyle].
  * @param labelPosition the position of the label. See [TextFieldLabelPosition].
  * @param label the optional label to be displayed with this text field. The default text style uses
@@ -301,7 +293,6 @@ fun OutlinedSecureTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
     labelPosition: TextFieldLabelPosition = TextFieldLabelPosition.Default(),
     label: @Composable (TextFieldLabelScope.() -> Unit)? = null,
@@ -355,7 +346,6 @@ fun OutlinedSecureTextField(
                         minHeight = OutlinedTextFieldDefaults.MinHeight
                     ),
             enabled = enabled,
-            readOnly = readOnly,
             textStyle = mergedTextStyle,
             cursorBrush = SolidColor(colors.cursorColor(isError)),
             keyboardOptions = keyboardOptions,
