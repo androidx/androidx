@@ -2086,14 +2086,14 @@ private fun ChipContent(
             val leadingIconPlaceable: Placeable? =
                 measurables
                     .fastFirstOrNull { it.layoutId == LeadingIconLayoutId }
-                    ?.measure(constraints.copyMaxDimensions())
+                    ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
             val leadingIconWidth = leadingIconPlaceable.widthOrZero
             val leadingIconHeight = leadingIconPlaceable.heightOrZero
 
             val trailingIconPlaceable: Placeable? =
                 measurables
                     .fastFirstOrNull { it.layoutId == TrailingIconLayoutId }
-                    ?.measure(constraints.copyMaxDimensions())
+                    ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
             val trailingIconWidth = trailingIconPlaceable.widthOrZero
             val trailingIconHeight = trailingIconPlaceable.heightOrZero
 

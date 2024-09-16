@@ -1913,7 +1913,7 @@ private fun CircularLayout(
 ) {
     Layout(modifier = modifier, content = content) { measurables, constraints ->
         val radiusPx = radius.toPx()
-        val itemConstraints = constraints.copyMaxDimensions()
+        val itemConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val placeables =
             measurables
                 .fastFilter {
