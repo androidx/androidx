@@ -20,6 +20,7 @@ import androidx.compose.animation.core.Transition
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.LookaheadScope
+import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
 import androidx.compose.ui.platform.InspectorInfo
@@ -27,6 +28,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMaxOfOrNull
 
 /**
  * Extended scope for the panes of pane scaffolds. All pane scaffolds will implement this interface
@@ -190,8 +192,21 @@ private class AnimatedPaneNode : ParentDataModifierNode, Modifier.Node() {
         }
 }
 
+internal val List<Measurable>.minTouchTargetSize: Dp
+    get() =
+        fastMaxOfOrNull {
+            val size =
+                (it.parentData as? PaneScaffoldParentData)?.minTouchTargetSize ?: Dp.Unspecified
+            if (size == Dp.Unspecified) {
+                0.dp
+            } else {
+                size
+            }
+        } ?: 0.dp
+
 internal data class PaneScaffoldParentData(
     var preferredWidth: Float? = null,
     var paneMargins: PaneMargins = PaneMargins.Unspecified,
-    var isAnimatedPane: Boolean = false
+    var isAnimatedPane: Boolean = false,
+    var minTouchTargetSize: Dp = Dp.Unspecified
 )

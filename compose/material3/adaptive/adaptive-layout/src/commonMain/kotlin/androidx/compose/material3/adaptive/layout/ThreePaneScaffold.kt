@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxOfOrNull
 import kotlin.math.max
 import kotlin.math.min
 
@@ -455,11 +454,12 @@ private class ThreePaneContentMeasurePolicy(
                         paneExpansionState.currentDraggingOffset
                     }
                 measureAndPlaceDragHandleIfNeeded(
-                    dragHandleMeasurables,
-                    constraints,
-                    outerBounds,
-                    verticalSpacerSize,
-                    handleOffsetX
+                    measurables = dragHandleMeasurables,
+                    constraints = constraints,
+                    contentBounds = outerBounds,
+                    minHorizontalMargin = verticalSpacerSize / 2,
+                    minTouchTargetSize = dragHandleMeasurables.minTouchTargetSize.roundToPx(),
+                    offsetX = handleOffsetX
                 )
             } else if (!isLookingAhead) {
                 paneExpansionState.onExpansionOffsetMeasured(PaneExpansionState.Unspecified)
@@ -648,19 +648,40 @@ private class ThreePaneContentMeasurePolicy(
         measurables: List<Measurable>,
         constraints: Constraints,
         contentBounds: IntRect,
-        maxHandleWidth: Int,
+        minHorizontalMargin: Int,
+        minTouchTargetSize: Int,
         offsetX: Int
     ) {
         if (offsetX == PaneExpansionState.Unspecified) {
             return
         }
+        val clampedOffsetX =
+            offsetX.coerceIn(
+                contentBounds.left + minHorizontalMargin,
+                contentBounds.right - minHorizontalMargin
+            )
+        val appliedHorizontalMargin =
+            min(clampedOffsetX - contentBounds.left, contentBounds.right - clampedOffsetX)
+        // When drag down to the end, we want to keep a consistent margin from the middle of the
+        // drag handle to the edge of the layout. This may incur the requirement to "expand" and
+        // "shift" the touch target area as part of the original area may get cut. When the margin
+        // to the layout edge is larger than half of the min touch target size, no adjustment is
+        // needed. On the other hand, if it's smaller than half of the min touch target size, we
+        // need to expand the whole touch target size to 2 * (minTouchTargetSize - marginSize),
+        // therefore the actual "touchable" area will be
+        // (marginSize + minTouchTargetSize - marginSize) = minTouchTargetSize.
+        val minDragHandleWidth =
+            if (appliedHorizontalMargin < minTouchTargetSize / 2) {
+                2 * (minTouchTargetSize - appliedHorizontalMargin)
+            } else {
+                minTouchTargetSize
+            }
         val placeables =
             measurables.fastMap {
-                it.measure(Constraints(maxWidth = maxHandleWidth, maxHeight = contentBounds.height))
+                it.measure(
+                    Constraints(minWidth = minDragHandleWidth, maxHeight = contentBounds.height)
+                )
             }
-        val halfMaxWidth = placeables.fastMaxOfOrNull { it.width }!! / 2
-        val clampedOffsetX =
-            offsetX.coerceIn(contentBounds.left + halfMaxWidth, contentBounds.right - halfMaxWidth)
         placeables.fastForEach {
             it.place(clampedOffsetX - it.width / 2, (constraints.maxHeight - it.height) / 2)
         }
