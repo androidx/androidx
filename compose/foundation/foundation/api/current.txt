@@ -107,11 +107,6 @@ package androidx.compose.foundation {
     method public void update(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, String? onLongClickLabel, kotlin.jvm.functions.Function0<kotlin.Unit>? onLongClick, kotlin.jvm.functions.Function0<kotlin.Unit>? onDoubleClick, androidx.compose.foundation.interaction.MutableInteractionSource? interactionSource, androidx.compose.foundation.IndicationNodeFactory? indicationNodeFactory, boolean enabled, String? onClickLabel, androidx.compose.ui.semantics.Role? role);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class ComposeFoundationFlags {
-    field public static final androidx.compose.foundation.ComposeFoundationFlags INSTANCE;
-    field public static boolean RemoveBasicTextGraphicsLayerEnabled;
-  }
-
   public final class DarkThemeKt {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static boolean isSystemInDarkTheme();
   }
