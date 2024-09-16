@@ -230,8 +230,11 @@ constructor(
 
     override fun getOutputLatency(streamId: StreamId?): StreamGraph.OutputLatency? {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            return currentSession?.getRealtimeCaptureLatency().let {
-                StreamGraph.OutputLatency(it?.captureLatency ?: 0, it?.processingLatency ?: 0)
+            return currentSession?.getRealtimeCaptureLatency()?.let {
+                // Convert output latency to ns for consistency with stall duration.
+                val captureLatencyNs = it.captureLatency * MS_TO_NS
+                val processingLatencyNs = it.processingLatency * MS_TO_NS
+                StreamGraph.OutputLatency(captureLatencyNs, processingLatencyNs)
             }
         }
         return null
@@ -320,5 +323,6 @@ constructor(
 
     companion object {
         private const val DISCONNECT_TIMEOUT_MS = 2_000L // 2s
+        private const val MS_TO_NS = 1_000_000
     }
 }
