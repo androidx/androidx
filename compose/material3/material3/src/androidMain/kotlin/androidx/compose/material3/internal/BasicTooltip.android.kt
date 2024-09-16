@@ -18,7 +18,6 @@
 
 package androidx.compose.material3.internal
 
-import android.view.MotionEvent
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.R
 import androidx.compose.foundation.gestures.awaitEachGesture
@@ -31,13 +30,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.changedToUp
-import androidx.compose.ui.input.pointer.isOutOfBounds
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -45,8 +41,6 @@ import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.onLongClick
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.util.fastAll
-import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
@@ -170,13 +164,20 @@ private fun Modifier.handleGestures(enabled: Boolean, state: TooltipState): Modi
                         // Long press will finish before or after show so keep track of it, in a
                         // flow to handle both cases
                         val isLongPressedFlow: MutableStateFlow<Boolean> = MutableStateFlow(false)
+                        val longPressTimeout = viewConfiguration.longPressTimeoutMillis
                         val pass = PointerEventPass.Initial
 
                         // wait for the first down press
                         val inputType = awaitFirstDown(pass = pass).type
 
                         if (inputType == PointerType.Touch || inputType == PointerType.Stylus) {
-                            if (waitForLongPress(pass = pass)) {
+                            try {
+                                // listen to if there is up gesture
+                                // within the longPressTimeout limit
+                                withTimeout(longPressTimeout) {
+                                    waitForUpOrCancellation(pass = pass)
+                                }
+                            } catch (_: PointerEventTimeoutCancellationException) {
                                 // handle long press - Show the tooltip
                                 launch(start = CoroutineStart.UNDISPATCHED) {
                                     try {
@@ -195,8 +196,9 @@ private fun Modifier.handleGestures(enabled: Boolean, state: TooltipState): Modi
                                 // Long press may still be in progress
                                 val upEvent = waitForUpOrCancellation(pass = pass)
                                 upEvent?.consume()
+                            } finally {
+                                isLongPressedFlow.tryEmit(false)
                             }
-                            isLongPressedFlow.tryEmit(false)
                         }
                     }
                 }
@@ -242,45 +244,3 @@ private fun Modifier.anchorSemantics(
             )
         }
     } else this
-
-// TODO: b/305997392 move to use foundation API for tooltip gestures and remove this
-/** @return true if long press occurred, false otherwise */
-private suspend fun AwaitPointerEventScope.waitForLongPress(
-    pass: PointerEventPass = PointerEventPass.Main
-): Boolean {
-    var result = false
-    try {
-        withTimeout(viewConfiguration.longPressTimeoutMillis) {
-            while (true) {
-                val event = awaitPointerEvent(pass)
-                if (event.changes.fastAll { it.changedToUp() }) {
-                    // All pointers are up
-                    break
-                }
-
-                if (event.classification == MotionEvent.CLASSIFICATION_DEEP_PRESS) {
-                    result = true
-                    break
-                }
-
-                if (
-                    event.changes.fastAny {
-                        it.isConsumed || it.isOutOfBounds(size, extendedTouchPadding)
-                    }
-                ) {
-                    break
-                }
-
-                // Check for cancel by position consumption. We can look on the Final pass of the
-                // existing pointer event because it comes after the pass we checked above.
-                val consumeCheck = awaitPointerEvent(PointerEventPass.Final)
-                if (consumeCheck.changes.fastAny { it.isConsumed }) {
-                    break
-                }
-            }
-        }
-    } catch (_: PointerEventTimeoutCancellationException) {
-        return true
-    }
-    return result
-}
