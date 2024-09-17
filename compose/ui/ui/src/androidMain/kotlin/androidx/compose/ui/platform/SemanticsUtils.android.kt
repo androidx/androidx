@@ -33,6 +33,8 @@ import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.SemanticsProperties.HideFromAccessibility
+import androidx.compose.ui.semantics.SemanticsProperties.InvisibleToUser
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.util.fastForEach
@@ -128,14 +130,20 @@ internal fun Role.toLegacyClassName(): String? =
     }
 
 internal fun SemanticsNode.isImportantForAccessibility() =
-    isVisible &&
+    !isHidden &&
         (unmergedConfig.isMergingSemanticsOfDescendants ||
             unmergedConfig.containsImportantForAccessibility())
 
-// TODO(347749977): go through and remove experimental tag on `invisible` properties
 @OptIn(ExperimentalComposeUiApi::class)
-internal val SemanticsNode.isVisible: Boolean
-    get() = !isTransparent && !unmergedConfig.contains(SemanticsProperties.InvisibleToUser)
+@Suppress("DEPRECATION")
+internal val SemanticsNode.isHidden: Boolean
+    // A node is considered hidden if it is transparent, or explicitly is hidden from accessibility.
+    // This also checks if the node has been marked as `invisibleToUser`, which is what the
+    // `hiddenFromAccessibility` API used to  be named.
+    get() =
+        isTransparent ||
+            (unmergedConfig.contains(HideFromAccessibility) ||
+                unmergedConfig.contains(InvisibleToUser))
 
 internal val DefaultFakeNodeBounds = Rect(0f, 0f, 10f, 10f)
 
