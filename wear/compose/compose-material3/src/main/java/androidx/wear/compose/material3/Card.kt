@@ -111,7 +111,7 @@ fun Card(
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     enabled: Boolean = true,
-    shape: Shape = CardTokens.Shape.value,
+    shape: Shape = CardDefaults.shape,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
@@ -218,7 +218,7 @@ fun AppCard(
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     enabled: Boolean = true,
-    shape: Shape = CardTokens.Shape.value,
+    shape: Shape = CardDefaults.shape,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
@@ -239,58 +239,58 @@ fun AppCard(
         contentPadding = contentPadding,
         shape = shape
     ) {
-        Column {
+        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+        // Modifier.height().
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    appImage?.let {
-                        appImage()
-                        Spacer(Modifier.width(6.dp))
-                    }
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.appNameColor,
-                        LocalTextStyle provides CardTokens.AppNameTypography.value,
-                    ) {
-                        appName()
-                    }
-                }
-
-                time?.let {
+                appImage?.let {
+                    appImage()
                     Spacer(Modifier.width(6.dp))
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.timeColor,
-                        LocalTextStyle provides CardTokens.TimeTypography.value,
-                    ) {
-                        time()
-                    }
+                }
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.appNameColor,
+                    LocalTextStyle provides CardTokens.AppNameTypography.value,
+                ) {
+                    appName()
                 }
             }
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                content = {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.titleColor,
-                        LocalTextStyle provides CardTokens.TitleTypography.value,
-                    ) {
-                        title()
-                    }
+
+            time?.let {
+                Spacer(Modifier.width(6.dp))
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.timeColor,
+                    LocalTextStyle provides CardTokens.TimeTypography.value,
+                ) {
+                    time()
                 }
-            )
-            Spacer(modifier = Modifier.height(2.dp))
-            CompositionLocalProvider(
-                LocalContentColor provides colors.contentColor,
-                LocalTextStyle provides CardTokens.ContentTypography.value,
-            ) {
-                content()
             }
+        }
+        Spacer(modifier = Modifier.height(6.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            content = {
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.titleColor,
+                    LocalTextStyle provides CardTokens.TitleTypography.value,
+                ) {
+                    title()
+                }
+            }
+        )
+        Spacer(modifier = Modifier.height(2.dp))
+        CompositionLocalProvider(
+            LocalContentColor provides colors.contentColor,
+            LocalTextStyle provides CardTokens.ContentTypography.value,
+        ) {
+            content()
         }
     }
 }
@@ -371,7 +371,7 @@ fun TitleCard(
     time: @Composable (() -> Unit)? = null,
     subtitle: @Composable (ColumnScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = CardTokens.Shape.value,
+    shape: Shape = CardDefaults.shape,
     colors: CardColors = CardDefaults.cardColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
@@ -403,46 +403,44 @@ fun TitleCard(
         contentPadding = contentPadding,
         shape = shape
     ) {
-        Column {
-            if (content == null && time != null) {
-                timeWithTextStyle()
-                Spacer(modifier = Modifier.height(4.dp))
-            }
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
-                Row(Modifier.weight(1f)) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.titleColor,
-                        LocalTextStyle provides CardTokens.TitleTypography.value,
-                    ) {
-                        title()
-                    }
-                }
-                if (content != null) {
-                    Spacer(modifier = Modifier.width(4.dp))
-                    timeWithTextStyle()
-                }
-            }
-            content?.let {
-                Spacer(modifier = Modifier.height(2.dp))
+        // NB We are in ColumnScope, so spacing between elements will be done with Spacer using
+        // Modifier.height().
+        if (content == null && time != null) {
+            timeWithTextStyle()
+            Spacer(modifier = Modifier.height(4.dp))
+        }
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
+            Row(Modifier.weight(1f)) {
                 CompositionLocalProvider(
-                    values =
-                        arrayOf(
-                            LocalContentColor provides colors.contentColor,
-                            LocalTextStyle provides CardTokens.ContentTypography.value
-                        ),
-                    content = content
-                )
-            }
-            subtitle?.let {
-                Spacer(
-                    modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp)
-                )
-                CompositionLocalProvider(
-                    LocalContentColor provides colors.subtitleColor,
-                    LocalTextStyle provides CardTokens.SubtitleTypography.value
+                    LocalContentColor provides colors.titleColor,
+                    LocalTextStyle provides CardTokens.TitleTypography.value,
                 ) {
-                    subtitle()
+                    title()
                 }
+            }
+            if (content != null) {
+                Spacer(modifier = Modifier.width(4.dp))
+                timeWithTextStyle()
+            }
+        }
+        content?.let {
+            Spacer(modifier = Modifier.height(2.dp))
+            CompositionLocalProvider(
+                values =
+                    arrayOf(
+                        LocalContentColor provides colors.contentColor,
+                        LocalTextStyle provides CardTokens.ContentTypography.value
+                    ),
+                content = content
+            )
+        }
+        subtitle?.let {
+            Spacer(modifier = Modifier.height(if (time == null && content == null) 2.dp else 6.dp))
+            CompositionLocalProvider(
+                LocalContentColor provides colors.subtitleColor,
+                LocalTextStyle provides CardTokens.SubtitleTypography.value
+            ) {
+                subtitle()
             }
         }
     }
@@ -495,7 +493,7 @@ fun OutlinedCard(
     onLongClick: (() -> Unit)? = null,
     onLongClickLabel: String? = null,
     enabled: Boolean = true,
-    shape: Shape = OutlinedCardTokens.Shape.value,
+    shape: Shape = CardDefaults.shape,
     colors: CardColors = CardDefaults.outlinedCardColors(),
     border: BorderStroke = CardDefaults.outlinedCardBorder(),
     contentPadding: PaddingValues = CardDefaults.ContentPadding,
@@ -708,6 +706,16 @@ object CardDefaults {
     /** The default size of the app icon/image when used inside a [AppCard]. */
     val AppImageSize: Dp = CardTokens.AppImageSize
 
+    /** The default shape of [Card], which determines its corner radius. */
+    val shape: Shape
+        @Composable get() = CardTokens.Shape.value
+
+    /**
+     * The default height of [Card], [AppCard] and [TitleCard]. The card will increase its height to
+     * accommodate the contents, if necessary.
+     */
+    val Height: Dp = CardTokens.ContainerMinHeight
+
     private val ColorScheme.defaultCardColors: CardColors
         get() {
             return defaultCardColorsCached
@@ -739,7 +747,7 @@ object CardDefaults {
 
 @Composable
 private fun Modifier.cardSizeModifier(): Modifier =
-    defaultMinSize(minHeight = CardTokens.ContainerMinHeight).height(IntrinsicSize.Min)
+    defaultMinSize(minHeight = CardDefaults.Height).height(IntrinsicSize.Min)
 
 /**
  * Represents Colors used in [Card]. Unlike other Material 3 components, Cards do not change their
