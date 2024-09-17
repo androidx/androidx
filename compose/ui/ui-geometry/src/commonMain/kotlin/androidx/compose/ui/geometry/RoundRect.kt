@@ -354,10 +354,9 @@ val RoundRect.isRect
 /** Whether this rounded rectangle has no side with a straight section. */
 val RoundRect.isEllipse
     get(): Boolean =
-        topLeftCornerRadius.isCircular() &&
-            topRightCornerRadius.isCircular() &&
-            bottomLeftCornerRadius.isCircular() &&
-            bottomRightCornerRadius.isCircular() &&
+        topLeftCornerRadius.packedValue == topRightCornerRadius.packedValue &&
+            topRightCornerRadius.packedValue == bottomRightCornerRadius.packedValue &&
+            bottomRightCornerRadius.packedValue == bottomLeftCornerRadius.packedValue &&
             width <= 2.0 * topLeftCornerRadius.x &&
             height <= 2.0 * topLeftCornerRadius.y
 
