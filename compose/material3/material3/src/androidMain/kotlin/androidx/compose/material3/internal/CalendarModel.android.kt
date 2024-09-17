@@ -16,9 +16,12 @@
 
 package androidx.compose.material3.internal
 
+import android.icu.text.DateFormat
+import android.icu.text.DisplayContext
+import android.icu.util.TimeZone
 import android.os.Build
-import android.text.format.DateFormat
 import androidx.compose.material3.CalendarLocale
+import java.util.Date
 
 /** Returns a [CalendarModel] to be used by the date picker. */
 internal actual fun createCalendarModel(locale: CalendarLocale): CalendarModel {
@@ -49,20 +52,31 @@ internal actual fun formatWithSkeleton(
     locale: CalendarLocale,
     cache: MutableMap<String, Any>
 ): String {
-    // Prepend the skeleton and language tag with a "S" to avoid cache collisions when the
-    // called already cached a string as value when the pattern equals to the skeleton it
-    // was created from.
+    // Use ICU to format the time on API 24+.
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        val instanceForSkeleton =
+            cache.getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
+                val instanceForSkeleton = DateFormat.getInstanceForSkeleton(skeleton, locale)
+                instanceForSkeleton.setContext(DisplayContext.CAPITALIZATION_FOR_STANDALONE)
+                // Note: ICU uses the terms GMT and UTC interchangeably, as it does not handle leap
+                // seconds or historical behavior.
+                instanceForSkeleton.timeZone = TimeZone.GMT_ZONE
+                instanceForSkeleton
+            } as DateFormat
+        return instanceForSkeleton.format(Date(utcTimeMillis))
+    }
+    // On older APIs, resolve the best pattern from the skeleton and format the time using the
+    // pattern and the supported CalendarModel.
+    // For the caching, prepend the skeleton and language tag with a "S" to avoid cache collisions
+    // by marking this as a cached result for a skeleton.
     val pattern =
         cache
             .getOrPut(key = "S:$skeleton${locale.toLanguageTag()}") {
-                DateFormat.getBestDateTimePattern(locale, skeleton)
+                android.text.format.DateFormat.getBestDateTimePattern(locale, skeleton)
             }
             .toString()
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        CalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
-    } else {
-        LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
-    }
+
+    return LegacyCalendarModelImpl.formatWithPattern(utcTimeMillis, pattern, locale, cache)
 }
 
 /**

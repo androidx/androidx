@@ -188,6 +188,40 @@ internal class CalendarModelTest(private val model: CalendarModel) {
         assertThat(formatted).isEqualTo("21")
     }
 
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    @Test
+    fun formatWithSkeletonCapitalizationForLocale() {
+        // English
+        val usFormatted =
+            formatWithSkeleton(
+                January2022Millis,
+                skeleton = "yMMMM",
+                Locale.US,
+                cache = mutableMapOf()
+            )
+        // Spanish
+        val esFormatted =
+            formatWithSkeleton(
+                January2022Millis,
+                skeleton = "yMMMM",
+                Locale("ES"),
+                cache = mutableMapOf()
+            )
+        // Danish
+        val daFormatted =
+            formatWithSkeleton(
+                January2022Millis,
+                skeleton = "yMMMM",
+                Locale("DA"),
+                cache = mutableMapOf()
+            )
+        // Note: Expecting the month names to be capitalized in English and Spanish, but lowercase
+        // in Danish.
+        assertThat(usFormatted).isEqualTo("January 2022")
+        assertThat(esFormatted).isEqualTo("Enero de 2022")
+        assertThat(daFormatted).isEqualTo("januar 2022")
+    }
+
     @Test
     fun weekdayNames() {
         // Ensure we are running on a US locale for this test.
