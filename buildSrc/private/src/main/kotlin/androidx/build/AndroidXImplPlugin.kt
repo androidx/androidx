@@ -220,6 +220,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 project.addLicensesToPublishedArtifacts(androidXExtension.license)
             }
             project.registerValidateMultiplatformSourceSetNamingTask()
+            project.validateLintVersionTestExists(androidXExtension)
         }
         project.disallowAccidentalAndroidDependenciesInKmpProject(androidXKmpExtension)
         TaskUpToDateValidator.setup(project, registry)
@@ -1394,6 +1395,21 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         /** Fail the build if a non-Studio task runs longer than expected */
         const val TASK_TIMEOUT_MINUTES = 60L
+    }
+}
+
+private fun Project.validateLintVersionTestExists(androidXExtension: AndroidXExtension) {
+    if (androidXExtension.type != LibraryType.LINT) {
+        return
+    }
+    kotlinExtensionOrNull?.let { extension ->
+        val projectFiles = extension.sourceSets.flatMap { it.kotlin.files }
+        // if the project doesn't define a registry it doesn't make sense to test versions
+        if (projectFiles.none { it.name.contains("Registry") }) {
+            return
+        }
+        projectFiles.find { it.name == "ApiLintVersionsTest.kt" }
+            ?: throw GradleException("Lint projects should include ApiLintVersionsTest.kt")
     }
 }
 
