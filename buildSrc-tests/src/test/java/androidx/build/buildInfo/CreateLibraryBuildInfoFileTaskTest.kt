@@ -94,6 +94,7 @@ class CreateLibraryBuildInfoFileTaskTest {
         assertThat(buildInfo.shouldPublishDocs).isFalse()
         assertThat(buildInfo.isKmp).isFalse()
         assertThat(buildInfo.target).isEqualTo("androidx")
+        assertThat(buildInfo.kmpChildren).isEqualTo(setOf("android", "jvm"))
     }
 
     @Test
@@ -164,7 +165,8 @@ class CreateLibraryBuildInfoFileTaskTest {
                             project.provider { "fakeSha" },
                             false,
                             false,
-                            "androidx"
+                            "androidx",
+                            ["android", "jvm"].toSet()
                         )
                     }
                 }
@@ -174,7 +176,7 @@ class CreateLibraryBuildInfoFileTaskTest {
         )
     }
 
-    fun parseBuildInfo(buildInfoFile: File): LibraryBuildInfoFile {
+    private fun parseBuildInfo(buildInfoFile: File): LibraryBuildInfoFile {
         val gson = Gson()
         val contents = buildInfoFile.readText(Charsets.UTF_8)
         return gson.fromJson(contents, LibraryBuildInfoFile::class.java)

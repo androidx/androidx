@@ -49,6 +49,7 @@ import org.gradle.api.internal.component.SoftwareComponentInternal
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.internal.publication.MavenPublicationInternal
 import org.gradle.api.tasks.Input
@@ -59,6 +60,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.plugin.getKotlinPluginVersion
+import org.jetbrains.kotlin.utils.mapToSetOrEmpty
 
 /**
  * This task generates a library build information file containing the artifactId, groupId, and
@@ -117,6 +119,10 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
     /** The project's build target */
     @get:Input abstract val target: Property<String>
 
+    /** The list of KMP artifact children */
+    @get:[Input Optional]
+    abstract val kmpChildren: SetProperty<String>
+
     private fun writeJsonToFile(info: LibraryBuildInfoFile) {
         val resolvedOutputFile: File = outputFile.get()
         val outputDir = resolvedOutputFile.parentFile
@@ -156,6 +162,8 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.shouldPublishDocs = shouldPublishDocs.get()
         libraryBuildInfoFile.isKmp = kmp.get()
         libraryBuildInfoFile.target = target.get()
+        libraryBuildInfoFile.kmpChildren =
+            if (kmpChildren.isPresent) kmpChildren.get() else emptySet()
         return libraryBuildInfoFile
     }
 
@@ -182,6 +190,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
             shouldPublishDocs: Boolean,
             isKmp: Boolean,
             target: String,
+            kmpChildren: Set<String>,
         ): TaskProvider<CreateLibraryBuildInfoFileTask> {
             return project.tasks.register(
                 TASK_NAME + variant.taskSuffix,
@@ -223,6 +232,7 @@ abstract class CreateLibraryBuildInfoFileTask : DefaultTask() {
                 task.shouldPublishDocs.set(shouldPublishDocs)
                 task.kmp.set(isKmp)
                 task.target.set(target)
+                task.kmpChildren.set(kmpChildren)
             }
         }
 
@@ -299,6 +309,8 @@ fun Project.addCreateLibraryBuildInfoFileTasks(
                         shouldPublishDocs = androidXExtension.requiresDocs(),
                         isKmp = androidXKmpExtension.supportedPlatforms.isNotEmpty(),
                         buildTarget = buildTarget,
+                        kmpChildren =
+                            androidXKmpExtension.supportedPlatforms.mapToSetOrEmpty { it.id }
                     )
                 }
             }
@@ -314,16 +326,18 @@ private fun Project.createTaskForComponent(
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
     buildTarget: String,
+    kmpChildren: Set<String>,
 ) {
     val task =
         createBuildInfoTask(
-            pub,
-            libraryGroup,
-            artifactId,
-            getHeadShaProvider(project),
-            shouldPublishDocs,
-            isKmp,
-            buildTarget,
+            pub = pub,
+            libraryGroup = libraryGroup,
+            artifactId = artifactId,
+            shaProvider = getHeadShaProvider(project),
+            shouldPublishDocs = shouldPublishDocs,
+            isKmp = isKmp,
+            buildTarget = buildTarget,
+            kmpChildren = kmpChildren,
         )
     anchorTask.dependsOn(task)
     addTaskToAggregateBuildInfoFileTask(task)
@@ -337,6 +351,7 @@ private fun Project.createBuildInfoTask(
     shouldPublishDocs: Boolean,
     isKmp: Boolean,
     buildTarget: String,
+    kmpChildren: Set<String>,
 ): TaskProvider<CreateLibraryBuildInfoFileTask> {
     val kmpTaskSuffix = computeTaskSuffix(name, artifactId)
     return CreateLibraryBuildInfoFileTask.setup(
@@ -363,6 +378,7 @@ private fun Project.createBuildInfoTask(
         shouldPublishDocs = shouldPublishDocs && kmpTaskSuffix == "",
         isKmp = isKmp,
         target = buildTarget,
+        kmpChildren = kmpChildren,
     )
 }
 
