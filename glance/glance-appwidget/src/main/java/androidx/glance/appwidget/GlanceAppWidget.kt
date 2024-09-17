@@ -17,6 +17,7 @@
 package androidx.glance.appwidget
 
 import android.appwidget.AppWidgetManager
+import android.appwidget.AppWidgetProviderInfo
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
@@ -89,8 +90,32 @@ abstract class GlanceAppWidget(
         id: GlanceId,
     )
 
+    /**
+     * Override this function to provide a Glance Composable that will be used when running this
+     * widget in preview mode. Use [provideContent] to provide the composable once the data is
+     * ready.
+     *
+     * In order to generate and publish the previews for a provider, use [setWidgetPreviews]. You
+     * can use [composeForPreview] to generate a [RemoteViews] from this Composable without
+     * publishing it.
+     *
+     * The given [widgetCategory] value will be one of
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN],
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD], or
+     * [AppWidgetProviderInfo.WIDGET_CATEGORY_SEARCHBOX], or some combination of all three. This
+     * indicates what kind of widget host this preview can be used for. [widgetCategory] corresponds
+     * to the categories passed to [setWidgetPreviews].
+     *
+     * @sample androidx.glance.appwidget.samples.providePreviewSample
+     * @see AppWidgetProviderInfo.WIDGET_CATEGORY_HOME_SCREEN
+     */
+    open suspend fun providePreview(context: Context, widgetCategory: Int) {}
+
     /** Defines the handling of sizes. */
     open val sizeMode: SizeMode = SizeMode.Single
+
+    /** Defines handling of sizes for previews. */
+    open val previewSizeMode: PreviewSizeMode = SizeMode.Single
 
     /** Data store for widget data specific to the view. */
     open val stateDefinition: GlanceStateDefinition<*>? = PreferencesGlanceStateDefinition

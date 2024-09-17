@@ -59,6 +59,8 @@ object TestGlanceAppWidget : GlanceAppWidget() {
 
     private var onDeleteBlock: ((GlanceId) -> Unit)? = null
 
+    var onProvidePreview: (@Composable TestGlanceAppWidget.(Int) -> Unit)? = null
+
     fun setOnDeleteBlock(block: (GlanceId) -> Unit) {
         onDeleteBlock = block
     }
@@ -80,6 +82,23 @@ object TestGlanceAppWidget : GlanceAppWidget() {
             block()
         } finally {
             errorUiLayout = previousErrorLayout
+        }
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        provideContent { onProvidePreview?.invoke(this, widgetCategory) }
+    }
+
+    inline fun withProvidePreview(
+        noinline previewBlock: @Composable TestGlanceAppWidget.(Int) -> Unit,
+        withBlock: () -> Unit
+    ) {
+        val previousProvidePreview = onProvidePreview
+        onProvidePreview = previewBlock
+        try {
+            withBlock()
+        } finally {
+            onProvidePreview = previousProvidePreview
         }
     }
 }

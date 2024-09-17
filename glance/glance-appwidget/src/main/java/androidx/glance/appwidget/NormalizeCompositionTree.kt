@@ -44,16 +44,30 @@ import androidx.glance.layout.fillMaxHeight
 import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.padding
+import androidx.glance.removeModifiersOfType
 import androidx.glance.text.EmittableText
 import androidx.glance.toEmittableText
 import androidx.glance.unit.Dimension
 
-internal fun normalizeCompositionTree(root: RemoteViewsRoot) {
+internal fun normalizeCompositionTree(
+    root: RemoteViewsRoot,
+    isPreviewComposition: Boolean = false
+) {
     coerceToOneChild(root)
     root.normalizeSizes()
     root.transformTree { view ->
+        if (isPreviewComposition) {
+            view.removeActionModifiers()
+        }
         if (view is EmittableLazyItemWithChildren) normalizeLazyListItem(view)
         view.transformBackgroundImageAndActionRipple()
+    }
+}
+
+/** Remove any action modifiers within the tree. */
+private fun Emittable.removeActionModifiers() {
+    if (this !is EmittableSizeBox && this.modifier.any { it is ActionModifier }) {
+        this.modifier = this.modifier.removeModifiersOfType<ActionModifier>()
     }
 }
 

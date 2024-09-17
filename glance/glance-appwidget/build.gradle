@@ -38,6 +38,7 @@ dependencies {
     api("androidx.compose.runtime:runtime:1.1.1")
     api("androidx.compose.ui:ui-graphics:1.1.1")
     api("androidx.compose.ui:ui-unit:1.1.1")
+    api("androidx.collection:collection-ktx:1.4.3")
 
     implementation('androidx.core:core-ktx:1.7.0')
     implementation("androidx.datastore:datastore:1.0.0")
