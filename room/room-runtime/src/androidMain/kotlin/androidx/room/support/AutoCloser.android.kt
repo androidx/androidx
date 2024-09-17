@@ -65,26 +65,25 @@ internal class AutoCloser(
 
     private var autoCloseJob: Job? = null
 
-    private fun autoCloseDatabase() {
-        if (watch.getMillis() - lastDecrementRefCountTimeStamp.get() < autoCloseTimeoutInMs) {
-            // An increment + decrement beat us to closing the db. We
-            // will not close the database, and there should be at least
-            // one more auto-close scheduled.
-            return
-        }
-        if (referenceCount.get() != 0) {
-            // An increment beat us to closing the db. We don't close the
-            // db, and another closer will be scheduled once the ref
-            // count is decremented.
-            return
-        }
-        onAutoCloseCallback?.invoke()
-            ?: error(
-                "onAutoCloseCallback is null but it should  have been set before use. " +
-                    "Please file a bug against Room at: $BUG_LINK"
-            )
-
+    private fun autoCloseDatabase(): Unit =
         synchronized(lock) {
+            if (watch.getMillis() - lastDecrementRefCountTimeStamp.get() < autoCloseTimeoutInMs) {
+                // An increment + decrement beat us to closing the db. We
+                // will not close the database, and there should be at least
+                // one more auto-close scheduled.
+                return
+            }
+            if (referenceCount.get() != 0) {
+                // An increment beat us to closing the db. We don't close the
+                // db, and another closer will be scheduled once the ref
+                // count is decremented.
+                return
+            }
+            onAutoCloseCallback?.invoke()
+                ?: error(
+                    "onAutoCloseCallback is null but it should  have been set before use. " +
+                        "Please file a bug against Room at: $BUG_LINK"
+                )
             delegateDatabase?.let {
                 if (it.isOpen) {
                     it.close()
@@ -92,7 +91,6 @@ internal class AutoCloser(
             }
             delegateDatabase = null
         }
-    }
 
     /**
      * Since we need to construct the AutoCloser in the [androidx.room.RoomDatabase.Builder], we
@@ -139,15 +137,13 @@ internal class AutoCloser(
      * @return the *unwrapped* SupportSQLiteDatabase.
      */
     fun incrementCountAndEnsureDbIsOpen(): SupportSQLiteDatabase {
-        val previousCount = referenceCount.getAndIncrement()
-
         // If there is a scheduled auto close operation, cancel it.
         autoCloseJob?.cancel()
         autoCloseJob = null
 
+        referenceCount.incrementAndGet()
         check(!manuallyClosed) { "Attempting to open already closed database." }
-
-        fun getDatabase(): SupportSQLiteDatabase {
+        synchronized(lock) {
             delegateDatabase?.let {
                 if (it.isOpen) {
                     return it
@@ -155,16 +151,6 @@ internal class AutoCloser(
             }
             return delegateOpenHelper.writableDatabase.also { delegateDatabase = it }
         }
-
-        // Fast path: If the previous count was not zero, then there is no concurrent auto close
-        // operation that can race with getting the database, so we skip using the lock.
-        if (previousCount > 0) {
-            return getDatabase()
-        }
-        // Slow path: If the previous count was indeed zero, even though we cancel the auto close
-        // operation, it might be on-going already so to avoid a race we use the lock to get the
-        // database.
-        return synchronized(lock) { getDatabase() }
     }
 
     /**
