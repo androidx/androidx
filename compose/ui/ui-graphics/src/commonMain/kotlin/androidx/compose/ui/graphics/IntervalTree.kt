@@ -17,7 +17,7 @@
 package androidx.compose.ui.graphics
 
 import androidx.annotation.RestrictTo
-import kotlin.collections.removeLast as removeLastKt
+import kotlin.jvm.JvmField
 import kotlin.math.max
 import kotlin.math.min
 
@@ -82,9 +82,10 @@ class IntervalTree<T> {
     // structure beyond what can be found in various descriptions of binary search
     // trees and red/black trees
 
-    private val terminator = Node(Float.MAX_VALUE, Float.MIN_VALUE, null, TreeColor.Black)
-    private var root = terminator
-    private val stack = ArrayList<Node>()
+    @JvmField
+    internal val terminator = Node(Float.MAX_VALUE, Float.MIN_VALUE, null, TreeColor.Black)
+    @JvmField internal var root = terminator
+    @JvmField internal val stack = ArrayList<Node>()
 
     /**
      * Clears this tree and prepares it for reuse. After calling [clear], any call to [findOverlaps]
@@ -153,11 +154,7 @@ class IntervalTree<T> {
             val s = stack
             s.add(root)
             while (s.size > 0) {
-
-                // MutableCollections.removeLast() is shadowed by java.util.list.removeAt()
-                // which was added in sdk 35 making this call unsafe
-                // val node = s.removeLast()
-                val node = s.removeLastKt()
+                val node = s.removeAt(s.size - 1)
                 if (node.overlaps(start, end)) block(node)
                 if (node.left !== terminator && node.left.max >= start) {
                     s.add(node.left)
