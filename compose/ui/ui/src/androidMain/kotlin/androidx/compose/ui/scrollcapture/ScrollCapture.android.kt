@@ -30,7 +30,7 @@ import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.platform.isHidden
+import androidx.compose.ui.platform.isVisible
 import androidx.compose.ui.semantics.SemanticsActions.ScrollByOffset
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -130,11 +130,8 @@ private fun visitScrollCaptureCandidates(
     onCandidate: (ScrollCaptureCandidate) -> Unit
 ) {
     fromNode.visitDescendants { node ->
-        // TODO(mnuzen): Verify `isHidden` is needed here.
-        //  See b/354723415 for more details.
-        // Transparent, unimportant for accessibility, and disabled nodes can't be candidates, nor
-        // can any of their descendants.
-        if (node.isHidden || Disabled in node.unmergedConfig) {
+        // Invisible/disabled nodes can't be candidates, nor can any of their descendants.
+        if (!node.isVisible || Disabled in node.unmergedConfig) {
             return@visitDescendants false
         }
 

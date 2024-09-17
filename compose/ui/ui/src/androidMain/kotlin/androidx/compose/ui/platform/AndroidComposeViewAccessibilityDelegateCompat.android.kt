@@ -763,7 +763,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                 getInfoStateDescriptionOrNull(node) != null ||
                 getInfoIsCheckable(node)
 
-        return !node.isHidden &&
+        return node.isVisible &&
             (node.unmergedConfig.isMergingSemanticsOfDescendants ||
                 node.isUnmergedLeafNode && isSpeakingNode)
     }
@@ -920,7 +920,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
         }
 
         // Mark invisible nodes
-        info.isVisibleToUser = !semanticsNode.isHidden
+        info.isVisibleToUser = semanticsNode.isVisible
 
         semanticsNode.unmergedConfig.getOrNull(SemanticsProperties.LiveRegion)?.let {
             info.liveRegion =

@@ -143,7 +143,7 @@ import androidx.compose.ui.semantics.SemanticsProperties.TextSelectionRange
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
-import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
@@ -3358,15 +3358,10 @@ class AndroidAccessibilityTest {
 
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun testSemanticsHitTest_hideFromAccessibilitySemantics() {
+    fun testSemanticsHitTest_invisibleToUserSemantics() {
         // Arrange.
         setContent {
-            Box(
-                Modifier.size(100.dp)
-                    .clickable {}
-                    .testTag(tag)
-                    .semantics { hideFromAccessibility() }
-            ) {
+            Box(Modifier.size(100.dp).clickable {}.testTag(tag).semantics { invisibleToUser() }) {
                 BasicText("")
             }
         }
@@ -4111,8 +4106,9 @@ class AndroidAccessibilityTest {
         rule.runOnIdle { assertThat(hitNodeId).isEqualTo(InvalidId) }
     }
 
+    @OptIn(ExperimentalComposeUiApi::class)
     @Test
-    fun testAccessibilityNodeInfoTreePruned_hideFromAccessibilityDoesNotPrune() {
+    fun testAccessibilityNodeInfoTreePruned_invisibleDoesNotPrune() {
         // Arrange.
         val parentTag = "ParentForOverlappedChildren"
         val childOneTag = "OverlappedChildOne"
@@ -4124,7 +4120,7 @@ class AndroidAccessibilityTest {
                         "Child One",
                         Modifier.zIndex(1f)
                             .testTag(childOneTag)
-                            .semantics { hideFromAccessibility() }
+                            .semantics { invisibleToUser() }
                             .requiredSize(50.toDp())
                     )
                     BasicText("Child Two", Modifier.testTag(childTwoTag).requiredSize(50.toDp()))
