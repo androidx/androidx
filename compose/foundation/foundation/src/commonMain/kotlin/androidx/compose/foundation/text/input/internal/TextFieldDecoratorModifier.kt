@@ -699,6 +699,18 @@ internal class TextFieldDecoratorModifierNode(
         }
     }
 
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        // If the node implements the same interface, it must manually forward calls to
+        //  all its delegatable nodes.
+        dragAndDropNode.onPlaced(coordinates)
+    }
+
+    override fun onRemeasured(size: IntSize) {
+        // If the node implements the same interface, it must manually forward calls to
+        //  all its delegatable nodes.
+        dragAndDropNode.onRemeasured(size)
+    }
+
     private fun startInputSession(fromTap: Boolean) {
         if (!fromTap && !keyboardOptions.showKeyboardOnFocusOrDefault) return
 

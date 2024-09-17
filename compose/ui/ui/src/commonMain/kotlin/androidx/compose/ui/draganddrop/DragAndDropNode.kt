@@ -19,10 +19,12 @@ package androidx.compose.ui.draganddrop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.DelegatableNode
+import androidx.compose.ui.node.LayoutAwareModifierNode
 import androidx.compose.ui.node.TraversableNode
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction
 import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAction.CancelTraversal
@@ -31,12 +33,22 @@ import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAct
 import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.traverseDescendants
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toSize
+import kotlin.js.JsName
+import kotlin.jvm.JvmName
 
 /**
  * A [Modifier.Node] providing low level access to platform drag and drop operations. In most cases,
  * you will want to delegate to the [DragAndDropModifierNode] returned by the eponymous factory
  * method.
  */
+@Deprecated(
+    message =
+        "This interface is deprecated in favor to " +
+            "DragAndDropSourceModifierNode and DragAndDropTargetModifierNode",
+    replaceWith = ReplaceWith("DragAndDropSourceModifierNode")
+)
 interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
     /**
      * Begins a drag and drop session for transferring data.
@@ -47,6 +59,7 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
      * @param drawDragDecoration provides the visual representation of the item dragged during the
      *   drag and drop gesture.
      */
+    @Deprecated("Use DragAndDropSourceModifierNode.requestDragAndDropTransfer instead")
     fun drag(
         transferData: DragAndDropTransferData,
         decorationSize: Size,
@@ -67,10 +80,51 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
 }
 
 /**
+ * A [Modifier.Node] that can be used as a source for platform drag and drop operations. In most
+ * cases, you will want to delegate to the [DragAndDropSourceModifierNode] returned by the eponymous
+ * factory method.
+ */
+sealed interface DragAndDropSourceModifierNode : LayoutAwareModifierNode {
+    /**
+     * Returns a boolean value indicating whether requesting drag and drop transfer is required.
+     *
+     * This variable is used to check if the platform requires drag and drop transfer initiated by
+     * application explicitly, for example via a custom gesture.
+     *
+     * @see requestDragAndDropTransfer
+     */
+    val isRequestDragAndDropTransferRequired: Boolean
+
+    /**
+     * Requests a drag and drop transfer. [isRequestDragAndDropTransferRequired] can be used to
+     * check if it required to be performed.
+     *
+     * @param offset the offset value representing position of the input pointer.
+     */
+    fun requestDragAndDropTransfer(offset: Offset)
+}
+
+/**
+ * A [Modifier.Node] that can be used as a target for platform drag and drop operations. In most
+ * cases, you will want to delegate to the [DragAndDropTargetModifierNode] returned by the eponymous
+ * factory method.
+ *
+ * This interface does not define any additional methods or properties. It simply serves as a marker
+ * interface to identify nodes that can be used as drag and drop target modifiers.
+ */
+sealed interface DragAndDropTargetModifierNode : LayoutAwareModifierNode
+
+/**
  * Creates a [Modifier.Node] for starting platform drag and drop sessions with the intention of
  * transferring data. A drag and stop session is started by calling [DragAndDropModifierNode.drag].
  */
-fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode { null }
+@Deprecated(
+    message = "Use DragAndDropSourceModifierNode instead",
+    replaceWith = ReplaceWith("DragAndDropSourceModifierNode")
+)
+@Suppress("DEPRECATION")
+@JsName("funDragAndDropModifierNode1")
+fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode(onStartTransfer = null)
 
 /**
  * Creates a [Modifier.Node] for receiving transfer data from platform drag and drop sessions. All
@@ -82,12 +136,47 @@ fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode { null 
  *   it.
  * @param target allows for receiving events and transfer data from a given drag and drop session.
  */
+@Deprecated(
+    message = "Use DragAndDropTargetModifierNode instead",
+    replaceWith = ReplaceWith("DragAndDropTargetModifierNode")
+)
+@Suppress("DEPRECATION")
+@JsName("funDragAndDropModifierNode2")
 fun DragAndDropModifierNode(
     shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
     target: DragAndDropTarget
-): DragAndDropModifierNode = DragAndDropNode { startEvent ->
-    if (shouldStartDragAndDrop(startEvent)) target else null
-}
+): DragAndDropModifierNode =
+    DragAndDropNode(
+        onDropTargetValidate = { event -> if (shouldStartDragAndDrop(event)) target else null }
+    )
+
+/**
+ * Creates a [DragAndDropSourceModifierNode] for starting platform drag and drop sessions with the
+ * intention of transferring data.
+ *
+ * @param onStartTransfer the callback function that is invoked when drag and drop session starts.
+ *   It takes an [Offset] parameter representing the start position of the drag.
+ */
+fun DragAndDropSourceModifierNode(
+    onStartTransfer: DragAndDropStartTransferScope.(Offset) -> Unit,
+): DragAndDropSourceModifierNode = DragAndDropNode(onStartTransfer = onStartTransfer)
+
+/**
+ * Creates a [DragAndDropTargetModifierNode] for receiving transfer data from platform drag and drop
+ * sessions.
+ *
+ * @param shouldStartDragAndDrop allows for inspecting the start [DragAndDropEvent] for a given
+ *   session to decide whether or not the provided [DragAndDropTarget] would like to receive from
+ *   it.
+ * @param target allows for receiving events and transfer data from a given drag and drop session.
+ */
+fun DragAndDropTargetModifierNode(
+    shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    target: DragAndDropTarget
+): DragAndDropTargetModifierNode =
+    DragAndDropNode(
+        onDropTargetValidate = { event -> if (shouldStartDragAndDrop(event)) target else null }
+    )
 
 /**
  * Core implementation of drag and drop. This [Modifier.Node] implements tree traversal for drag and
@@ -102,23 +191,47 @@ fun DragAndDropModifierNode(
  *
  * This optimizes traversal for the common case of move events where the event remains within a
  * single node, or moves to a sibling of the node.
+ *
+ * This intended to be used directly only by [DragAndDropManager].
  */
+@Suppress("DEPRECATION")
 internal class DragAndDropNode(
-    private val onDragAndDropStart: (event: DragAndDropEvent) -> DragAndDropTarget?
-) : Modifier.Node(), TraversableNode, DragAndDropModifierNode {
-    companion object {
+    private var onStartTransfer: (DragAndDropStartTransferScope.(Offset) -> Unit)? = null,
+    private val onDropTargetValidate: ((DragAndDropEvent) -> DragAndDropTarget?)? = null,
+) :
+    Modifier.Node(),
+    TraversableNode,
+    DragAndDropModifierNode,
+    DragAndDropSourceModifierNode,
+    DragAndDropTargetModifierNode,
+    DragAndDropTarget {
+    private companion object {
         private object DragAndDropTraversableKey
     }
 
     override val traverseKey: Any = DragAndDropTraversableKey
 
-    /** Child currently receiving drag gestures for dropping into * */
-    private var lastChildDragAndDropModifierNode: DragAndDropModifierNode? = null
+    private val dragAndDropManager: DragAndDropManager
+        get() = requireOwner().dragAndDropManager
 
-    /** This as a drop target if eligible for processing * */
+    /** Child currently receiving drag gestures for dropping into */
+    private var lastChildDragAndDropModifierNode: DragAndDropNode? = null
+
+    /** This as a drop target if eligible for processing */
     private var thisDragAndDropTarget: DragAndDropTarget? = null
 
+    /**
+     * Indicates whether there is a child that is eligible to receive a drop gesture immediately.
+     * This is true if the last move happened over a child that is interested in receiving a drop.
+     */
+    @get:JvmName("hasEligibleDropTarget")
+    val hasEligibleDropTarget: Boolean
+        get() = lastChildDragAndDropModifierNode != null || thisDragAndDropTarget != null
+
+    internal var size: IntSize = IntSize.Zero
+
     // start Node
+
     override fun onDetach() {
         // Clean up
         thisDragAndDropTarget = null
@@ -127,22 +240,91 @@ internal class DragAndDropNode(
 
     // end Node
 
+    // start LayoutAwareModifierNode
+
+    override fun onRemeasured(size: IntSize) {
+        this.size = size
+    }
+
+    // end LayoutAwareModifierNode
+
+    // start DragAndDropSourceModifierNode
+
+    override val isRequestDragAndDropTransferRequired: Boolean
+        get() = dragAndDropManager.isRequestDragAndDropTransferRequired
+
+    override fun requestDragAndDropTransfer(offset: Offset) {
+        checkPrecondition(onStartTransfer != null)
+        dragAndDropManager.requestDragAndDropTransfer(this, offset)
+    }
+
+    // end DragAndDropSourceModifierNode
+
+    /**
+     * Initiates a drag-and-drop operation for transferring data.
+     *
+     * @param offset the offset value representing position of the input pointer.
+     * @param isTransferStarted a lambda function that returns true if the drag-and-drop transfer
+     *   has started, or false otherwise.
+     */
+    fun DragAndDropStartTransferScope.startDragAndDropTransfer(
+        offset: Offset,
+        isTransferStarted: () -> Boolean
+    ) {
+        val nodeCoordinates = requireLayoutNode().coordinates
+        traverseSelfAndDescendants { currentNode ->
+            // TODO: b/303904810 unattached nodes should not be found from an attached
+            //  root drag and drop node
+            if (!currentNode.isAttached) {
+                return@traverseSelfAndDescendants SkipSubtreeAndContinueTraversal
+            }
+
+            val onStartTransfer =
+                currentNode.onStartTransfer ?: return@traverseSelfAndDescendants ContinueTraversal
+
+            if (offset != Offset.Unspecified) {
+                val currentCoordinates = currentNode.requireLayoutNode().coordinates
+                val localPosition = currentCoordinates.localPositionOf(nodeCoordinates, offset)
+                if (!currentNode.size.toSize().toRect().contains(localPosition)) {
+                    return@traverseSelfAndDescendants ContinueTraversal
+                }
+
+                onStartTransfer.invoke(this, localPosition)
+            } else {
+                onStartTransfer.invoke(this, Offset.Unspecified)
+            }
+
+            if (isTransferStarted()) {
+                CancelTraversal
+            } else {
+                ContinueTraversal
+            }
+        }
+    }
+
     // start DragAndDropModifierNode
 
+    @Deprecated("Use DragAndDropSourceModifierNode.requestDragAndDropTransfer instead")
     override fun drag(
         transferData: DragAndDropTransferData,
         decorationSize: Size,
-        drawDragDecoration: DrawScope.() -> Unit,
+        drawDragDecoration: DrawScope.() -> Unit
     ) {
-        requireOwner()
-            .dragAndDropManager
-            .drag(
-                transferData = transferData,
-                decorationSize = decorationSize,
-                drawDragDecoration = drawDragDecoration
-            )
+        checkPrecondition(onStartTransfer == null)
+        onStartTransfer = {
+            startDragAndDropTransfer(transferData, decorationSize, drawDragDecoration)
+        }
+        dragAndDropManager.requestDragAndDropTransfer(this, Offset.Unspecified)
+        onStartTransfer = null
     }
 
+    /**
+     * The entry point to register interest in a drag and drop session for receiving data.
+     *
+     * @return true to indicate interest in the contents of a drag and drop session, false indicates
+     *   no interest. If false is returned, this [Modifier] will not receive any [DragAndDropTarget]
+     *   events.
+     */
     override fun acceptDragAndDropTransfer(startEvent: DragAndDropEvent): Boolean {
         var handled = false
         traverseSelfAndDescendants { currentNode ->
@@ -158,11 +340,11 @@ internal class DragAndDropNode(
             }
 
             // Start receiving events
-            currentNode.thisDragAndDropTarget = currentNode.onDragAndDropStart(startEvent)
+            currentNode.thisDragAndDropTarget = currentNode.onDropTargetValidate?.invoke(startEvent)
 
             val accepted = currentNode.thisDragAndDropTarget != null
             if (accepted) {
-                requireOwner().dragAndDropManager.registerNodeInterest(currentNode)
+                dragAndDropManager.registerTargetInterest(currentNode)
             }
             handled = handled || accepted
             ContinueTraversal
@@ -189,8 +371,8 @@ internal class DragAndDropNode(
     }
 
     override fun onMoved(event: DragAndDropEvent) {
-        val currentChildNode: DragAndDropModifierNode? = lastChildDragAndDropModifierNode
-        val newChildNode: DragAndDropModifierNode? =
+        val currentChildNode: DragAndDropNode? = lastChildDragAndDropModifierNode
+        val newChildNode: DragAndDropNode? =
             when {
                 // Moved within child.
                 currentChildNode?.contains(event.positionInRoot) == true -> currentChildNode
@@ -198,7 +380,7 @@ internal class DragAndDropNode(
                 else ->
                     firstDescendantOrNull { child ->
                         // Only dispatch to children who previously accepted the onStart gesture
-                        requireOwner().dragAndDropManager.isInterestedNode(child) &&
+                        dragAndDropManager.isInterestedTarget(child) &&
                             child.contains(event.positionInRoot)
                     }
             }
@@ -270,17 +452,19 @@ private fun DragAndDropTarget.dispatchEntered(event: DragAndDropEvent) = run {
 }
 
 /** Hit test for a [DragAndDropNode]. */
-private fun DragAndDropModifierNode.contains(position: Offset): Boolean {
+private fun DragAndDropNode.contains(positionInRoot: Offset): Boolean {
     if (!node.isAttached) return false
     val currentCoordinates = requireLayoutNode().coordinates
     if (!currentCoordinates.isAttached) return false
 
-    val (width, height) = currentCoordinates.size
     val (x1, y1) = currentCoordinates.positionInRoot()
-    val x2 = x1 + width
-    val y2 = y1 + height
 
-    return position.x in x1..x2 && position.y in y1..y2
+    // Use measured size instead of size from currentCoordinates because it might be different
+    //  (eg if padding is applied)
+    val x2 = x1 + size.width
+    val y2 = y1 + size.height
+
+    return positionInRoot.x in x1..x2 && positionInRoot.y in y1..y2
 }
 
 private fun <T : TraversableNode> T.traverseSelfAndDescendants(
