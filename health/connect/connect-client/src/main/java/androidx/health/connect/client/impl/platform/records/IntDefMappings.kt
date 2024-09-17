@@ -316,7 +316,7 @@ internal val SDK_TO_PLATFORM_SKIN_TEMPERATURE_MEASUREMENT_LOCATION: Map<Int, Int
         SkinTemperatureRecord.MEASUREMENT_LOCATION_TOE to
             PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_TOE,
         SkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST to
-            PlatformBodyTemperatureMeasurementLocation.MEASUREMENT_LOCATION_WRIST,
+            PlatformSkinTemperatureRecord.MEASUREMENT_LOCATION_WRIST,
     )
 
 internal val PLATFORM_TO_SDK_SKIN_TEMPERATURE_MEASUREMENT_LOCATION =
