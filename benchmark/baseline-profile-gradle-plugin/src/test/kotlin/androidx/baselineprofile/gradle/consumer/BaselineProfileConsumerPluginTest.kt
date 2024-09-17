@@ -26,6 +26,7 @@ import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_1
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
@@ -33,10 +34,10 @@ import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.require
 import androidx.baselineprofile.gradle.utils.requireInOrder
+import androidx.baselineprofile.gradle.utils.toUri
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
-import kotlin.io.path.Path
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -71,8 +72,6 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
 
     private fun readStartupProfileFileContent(variantName: String) =
         projectSetup.readStartupProfileFileContent(variantName)
-
-    private fun File.toUri() = Path(canonicalPath).toUri()
 
     @Test
     fun testGenerateTaskWithNoFlavorsForLibrary() {
@@ -928,83 +927,97 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         projectSetup.consumer.setup(androidPlugin = ANDROID_APPLICATION_PLUGIN)
 
         // Function to setup the producer, run the generate profile command and assert output
-        val setupProducerGenerateAndAssert:
-            (Boolean, Map<String, List<String>>, List<String>) -> (Unit) =
-            { partial, mapFileToProfile, finalProfileAssertList ->
-                projectSetup.producer.setup(
-                    variantProfiles =
-                        listOf(
-                            VariantProfile(
-                                flavor = null,
-                                buildType = "release",
-                                profileFileLines = mapFileToProfile
-                            )
+        fun setupProducerGenerateAndAssert(
+            partial: Boolean,
+            generatedProfiles: Map<String, List<String>>,
+            actualProfile: List<String>
+        ) {
+            projectSetup.producer.setup(
+                variantProfiles =
+                    listOf(
+                        VariantProfile(
+                            flavor = null,
+                            buildType = "release",
+                            profileFileLines = generatedProfiles
                         )
+                    )
+            )
+
+            val args =
+                listOfNotNull(
+                    "generateBaselineProfile",
+                    if (partial) "-Pandroid.testInstrumentationRunnerArguments.class=someClass"
+                    else null
                 )
 
-                val args = mutableListOf("generateBaselineProfile")
-                if (partial)
-                    args.add("-Pandroid.testInstrumentationRunnerArguments.class=someClass")
-                projectSetup.consumer.gradleRunner.build(*args.toTypedArray()) {}
+            projectSetup.consumer.gradleRunner.build(*args.toTypedArray()) {}
 
-                assertThat(readBaselineProfileFileContent("release"))
-                    .containsExactly(*finalProfileAssertList.toTypedArray())
-            }
+            assertThat(readBaselineProfileFileContent("release"))
+                .containsExactly(*actualProfile.toTypedArray())
+        }
 
         // Full generation, 2 new tests.
         setupProducerGenerateAndAssert(
-            false,
-            mapOf(
-                "myTest1" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
-                "myTest2" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
-            ),
-            listOf(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1
-            )
+            partial = false,
+            generatedProfiles =
+                mapOf(
+                    "myTest1" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
+                    "myTest2" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
+                ),
+            actualProfile =
+                listOf(
+                    Fixtures.CLASS_1,
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_2,
+                    Fixtures.CLASS_2_METHOD_1
+                )
         )
 
         // Partial generation, modify 1 test.
         setupProducerGenerateAndAssert(
-            true,
-            mapOf("myTest1" to listOf(Fixtures.CLASS_3, Fixtures.CLASS_3_METHOD_1)),
-            listOf(
-                Fixtures.CLASS_3,
-                Fixtures.CLASS_3_METHOD_1,
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1
-            )
+            partial = true,
+            generatedProfiles =
+                mapOf("myTest1" to listOf(Fixtures.CLASS_3, Fixtures.CLASS_3_METHOD_1)),
+            actualProfile =
+                listOf(
+                    Fixtures.CLASS_3,
+                    Fixtures.CLASS_3_METHOD_1,
+                    Fixtures.CLASS_2,
+                    Fixtures.CLASS_2_METHOD_1
+                )
         )
 
         // Partial generation, add 1 test.
         setupProducerGenerateAndAssert(
-            true,
-            mapOf("myTest3" to listOf(Fixtures.CLASS_4, Fixtures.CLASS_4_METHOD_1)),
-            listOf(
-                Fixtures.CLASS_3,
-                Fixtures.CLASS_3_METHOD_1,
-                Fixtures.CLASS_4,
-                Fixtures.CLASS_4_METHOD_1,
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1
-            )
+            partial = true,
+            generatedProfiles =
+                mapOf("myTest3" to listOf(Fixtures.CLASS_4, Fixtures.CLASS_4_METHOD_1)),
+            actualProfile =
+                listOf(
+                    Fixtures.CLASS_3,
+                    Fixtures.CLASS_3_METHOD_1,
+                    Fixtures.CLASS_4,
+                    Fixtures.CLASS_4_METHOD_1,
+                    Fixtures.CLASS_2,
+                    Fixtures.CLASS_2_METHOD_1
+                )
         )
 
         // Full generation, 2 new tests.
         setupProducerGenerateAndAssert(
-            false,
-            mapOf(
-                "myTest1-new" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
-                "myTest2-new" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
-            ),
-            listOf(
-                Fixtures.CLASS_1,
-                Fixtures.CLASS_1_METHOD_1,
-                Fixtures.CLASS_2,
-                Fixtures.CLASS_2_METHOD_1
-            )
+            partial = false,
+            generatedProfiles =
+                mapOf(
+                    "myTest1-new" to listOf(Fixtures.CLASS_1, Fixtures.CLASS_1_METHOD_1),
+                    "myTest2-new" to listOf(Fixtures.CLASS_2, Fixtures.CLASS_2_METHOD_1)
+                ),
+            actualProfile =
+                listOf(
+                    Fixtures.CLASS_1,
+                    Fixtures.CLASS_1_METHOD_1,
+                    Fixtures.CLASS_2,
+                    Fixtures.CLASS_2_METHOD_1
+                )
         )
     }
 
@@ -2256,5 +2269,49 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
         gradleRunner.buildAndAssertThatOutput("releaseSources") {
             expected.forEach { e -> contains(e.absolutePath) }
         }
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileConsumerPluginTestWithFtl(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_CURRENT)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
+
+    @Test
+    fun testGenerateBaselineProfileWithFtlArtifact() {
+        projectSetup.consumer.setup(androidPlugin = ANDROID_APPLICATION_PLUGIN)
+
+        // The difference with FTL is that artifacts are added as global artifacts instead of
+        // per test result. This different setup can be specified in the `VariantProfile`.
+        projectSetup.producer.setup(
+            variantProfiles =
+                VariantProfile.release(
+                    ftlFileLines =
+                        listOf(
+                            Fixtures.CLASS_2_METHOD_1,
+                        ),
+                )
+        )
+
+        projectSetup.consumer.gradleRunner.build("generateBaselineProfile", "--info") {
+            println(it)
+            val notFound =
+                it.lines()
+                    .requireInOrder(
+                        "A baseline profile was generated for the variant `release`:",
+                        "${projectSetup.baselineProfileFile("release").toUri()}",
+                    )
+            assertThat(notFound).isEmpty()
+        }
+
+        assertThat(projectSetup.readBaselineProfileFileContent("release"))
+            .containsExactly(Fixtures.CLASS_2_METHOD_1)
     }
 }
