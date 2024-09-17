@@ -26,8 +26,10 @@ import androidx.compose.animation.core.VectorizedAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.TestScrollMotionDurationScale
 import androidx.compose.foundation.gestures.FlingBehavior
+import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.TargetedFlingBehavior
 import androidx.compose.foundation.gestures.rememberScrollableState
 import androidx.compose.foundation.layout.Box
@@ -37,6 +39,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.foundation.text.matchers.assertThat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,8 +61,10 @@ import kotlin.math.absoluteValue
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.Rule
 import org.junit.Test
@@ -485,6 +490,35 @@ class SnapFlingBehaviorTest {
 
         // Wait for settling
         rule.runOnIdle { Truth.assertThat(state.firstVisibleItemIndex).isNotEqualTo(previousIndex) }
+    }
+
+    @Test
+    fun performFling_cancellationShouldTriggerAnimationCancellation() {
+        val splineSpec =
+            InspectSplineAnimationSpec(SplineBasedFloatDecayAnimationSpec(rule.density))
+        val splineAnimation = splineSpec.generateDecayAnimationSpec<Float>()
+        val springSpec = InspectSpringAnimationSpec(spring())
+        val scrollScope =
+            object : ScrollScope {
+                override fun scrollBy(pixels: Float): Float {
+                    throw CancellationException()
+                }
+            }
+
+        val flingBehavior =
+            snapFlingBehavior(
+                TestLayoutInfoProvider(),
+                decayAnimationSpec = splineAnimation,
+                snapAnimationSpec = springSpec
+            )
+
+        rule.runOnUiThread {
+            runBlocking(AutoTestFrameClock()) {
+                with(scrollScope) { with(flingBehavior) { performFling(3000f) } }
+            }
+        }
+
+        rule.runOnIdle { assertEquals(0, splineSpec.animationWasExecutions) }
     }
 
     inner class TestLayoutInfoProvider(

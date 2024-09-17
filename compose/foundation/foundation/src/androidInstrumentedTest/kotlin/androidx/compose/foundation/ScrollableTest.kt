@@ -50,6 +50,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.matchers.isZero
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.currentComposer
@@ -115,6 +116,7 @@ import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.test.swipeWithVelocity
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.util.fastForEach
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.CoordinatesProvider
@@ -1729,6 +1731,121 @@ class ScrollableTest {
 
         // child didn't receive more deltas after drag, because fling was cancelled by the parent
         assertThat(childDeltas).isEqualTo(dragged - touchSlop)
+    }
+
+    @Test
+    fun scrollable_nestedFling_shouldCancelWhenHitTheBounds() {
+        var latestAvailableVelocity = Velocity.Zero
+        var onPostFlingCalled = false
+        val connection =
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity
+                ): Velocity {
+                    latestAvailableVelocity = available
+                    onPostFlingCalled = true
+                    return super.onPostFling(consumed, available)
+                }
+            }
+        rule.setContent {
+            Box(
+                Modifier.scrollable(
+                    state = rememberScrollableState { it },
+                    orientation = Orientation.Vertical
+                )
+            ) {
+                Box(Modifier.nestedScroll(connection)) {
+                    Column(
+                        Modifier.testTag("column")
+                            .verticalScroll(
+                                rememberScrollState(with(rule.density) { (5 * 200.dp).roundToPx() })
+                            )
+                    ) {
+                        repeat(10) { Box(Modifier.size(200.dp)) }
+                    }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("column").performTouchInput { swipeDown() }
+
+        /**
+         * Because previously the animation was being completely consumed by the child fling, the
+         * nested scroll connection in the middle would see a zero post fling velocity, even if the
+         * child hit the bounds.
+         */
+        rule.runOnIdle {
+            assertThat(onPostFlingCalled).isTrue()
+            assertThat(latestAvailableVelocity.y).isNonZero()
+        }
+    }
+
+    @Test
+    fun scrollable_nestedFling_parentShouldFlingWithVelocityLeft() {
+        var postFlingCalled = false
+        var lastPostFlingVelocity = Velocity.Zero
+        var flingDelta = 0.0f
+        val fling =
+            object : FlingBehavior {
+                override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
+                    assertThat(initialVelocity).isEqualTo(lastPostFlingVelocity.y)
+                    scrollBy(100f)
+                    return initialVelocity
+                }
+            }
+        val topConnection =
+            object : NestedScrollConnection {
+                override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                    // accumulate deltas for second fling only
+                    if (source == NestedScrollSource.SideEffect && postFlingCalled) {
+                        flingDelta += available.y
+                    }
+                    return super.onPreScroll(available, source)
+                }
+            }
+
+        val middleConnection =
+            object : NestedScrollConnection {
+                override suspend fun onPostFling(
+                    consumed: Velocity,
+                    available: Velocity
+                ): Velocity {
+                    postFlingCalled = true
+                    lastPostFlingVelocity = available
+                    return super.onPostFling(consumed, available)
+                }
+            }
+        val columnState = ScrollState(with(rule.density) { (5 * 200.dp).roundToPx() })
+        rule.setContent {
+            Box(
+                Modifier.nestedScroll(topConnection)
+                    .scrollable(
+                        flingBehavior = fling,
+                        state = rememberScrollableState { it },
+                        orientation = Orientation.Vertical
+                    )
+            ) {
+                Column(
+                    Modifier.nestedScroll(middleConnection)
+                        .testTag("column")
+                        .verticalScroll(columnState)
+                ) {
+                    repeat(10) { Box(Modifier.size(200.dp)) }
+                }
+            }
+        }
+
+        rule.onNodeWithTag("column").performTouchInput { swipeDown() }
+
+        rule.runOnIdle {
+            assertThat(columnState.value).isZero() // column is at the bounds
+            assertThat(postFlingCalled)
+                .isTrue() // we fired a post fling call after the cancellation
+            assertThat(lastPostFlingVelocity.y)
+                .isNonZero() // the post child fling velocity was not zero
+            assertThat(flingDelta).isEqualTo(100f) // the fling delta as propagated correctly
+        }
     }
 
     @Test
