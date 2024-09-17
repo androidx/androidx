@@ -1502,9 +1502,8 @@ private fun View.getWindowBounds(): Rect =
         it.toComposeRect()
     }
 
-private fun LayoutCoordinates?.getAnchorBounds(): Rect {
-    // Don't use `boundsInWindow()` because it can report 0 when the window is animating/resizing
-    return if (this == null) Rect.Zero else Rect(positionInWindow(), size.toSize())
-}
+// Don't use `boundsInWindow()` because it can report 0 when the window is animating/resizing
+private fun LayoutCoordinates?.getAnchorBounds(): Rect =
+    if (this == null || !this.isAttached) Rect.Zero else Rect(positionInWindow(), size.toSize())
 
 private val ExposedDropdownMenuItemHorizontalPadding = 16.dp
