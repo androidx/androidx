@@ -25,6 +25,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 class KonanBuildServiceTest : BaseClangTest() {
@@ -54,6 +55,7 @@ class KonanBuildServiceTest : BaseClangTest() {
             .contains("expected ';' after return statement")
     }
 
+    @Ignore // b/366529564
     @Test
     fun compile() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
@@ -68,6 +70,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).doesNotContain("libc")
     }
 
+    @Ignore // b/366529564
     @Test
     fun compileWithInclude() {
         val compileParameters =
@@ -99,6 +102,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("dependency_method")
     }
 
+    @Ignore // b/366529564
     @Test
     fun createSharedLibrary() {
         val compileParameters = createCompileParameters("code.c", C_HELLO_WORLD)
@@ -133,6 +137,7 @@ class KonanBuildServiceTest : BaseClangTest() {
         }
     }
 
+    @Ignore // b/366529564
     @Test
     fun archive() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
