@@ -66,6 +66,7 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList(),
         insights: List<Insight> = emptyList(),
+        useTreeDisplayFormat: Boolean = false
     ) {
         if (warningMessage != null) {
             InstrumentationResults.scheduleIdeWarningOnNextReport(warningMessage)
@@ -77,7 +78,8 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
                 measurements = measurements,
                 iterationTracePaths = iterationTracePaths,
                 profilerResults = profilerResults,
-                insights = insights
+                insights = insights,
+                useTreeDisplayFormat = useTreeDisplayFormat
             )
         reportIdeSummary(summaryV1 = summaryPair.summaryV1, summaryV2 = summaryPair.summaryV2)
     }
@@ -173,6 +175,7 @@ object InstrumentationResults {
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList(),
         insights: List<Insight> = emptyList(),
+        useTreeDisplayFormat: Boolean = false,
     ): IdeSummaryPair {
         val warningMessage = ideWarningPrefix.ifEmpty { null }
         ideWarningPrefix = ""
@@ -276,7 +279,7 @@ object InstrumentationResults {
 
         // TODO(353692849): split into methods and remove the v1 format (replace with a v2 getter)
         val v2lines =
-            if (insights.isEmpty()) {
+            if (!useTreeDisplayFormat) { // use the regular output format
                 val v2traceLinks =
                     if (linkableIterTraces.isNotEmpty()) {
                         listOf(
@@ -295,7 +298,7 @@ object InstrumentationResults {
                     v2metricLines +
                     v2traceLinks +
                     "" /* adds \n */
-            } else {
+            } else { // use the experimental tree-like output format
                 buildList {
                     if (warningMessage != null) add(warningMessage)
                     if (testName != null) add(testName)
