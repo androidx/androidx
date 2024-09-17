@@ -383,16 +383,6 @@ value class NavigationSuiteType private constructor(private val description: Str
         val NavigationDrawer = NavigationSuiteType(description = "NavigationDrawer")
 
         /**
-         * A navigation suite type that instructs the [NavigationSuite] to perform specialized
-         * custom behavior. Different `NavigationSuite` implementations will exhibit different
-         * behaviors when using this type.
-         */
-        @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-        @get:ExperimentalMaterial3AdaptiveNavigationSuiteApi
-        @ExperimentalMaterial3AdaptiveNavigationSuiteApi
-        val Custom = NavigationSuiteType(description = "Custom")
-
-        /**
          * A navigation suite type that instructs the [NavigationSuite] to not display any
          * navigation components on the screen.
          */

@@ -59,12 +59,10 @@ package androidx.compose.material3.adaptive.navigationsuite {
   }
 
   public static final class NavigationSuiteType.Companion {
-    method @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public String getCustom();
     method public String getNavigationBar();
     method public String getNavigationDrawer();
     method public String getNavigationRail();
     method public String getNone();
-    property @SuppressCompatibility @androidx.compose.material3.adaptive.navigationsuite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final String Custom;
     property public final String NavigationBar;
     property public final String NavigationDrawer;
     property public final String NavigationRail;
