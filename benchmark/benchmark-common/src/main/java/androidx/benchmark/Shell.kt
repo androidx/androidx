@@ -479,10 +479,10 @@ object Shell {
 
     fun getPidsForProcess(processName: String): List<Int> {
         if (Build.VERSION.SDK_INT >= 23) {
-            return pgrepLF(pattern = processName).mapNotNull { (pid, fullProcessName) ->
+            return pgrepLF(pattern = processName).mapNotNull { runningProcess ->
                 // aggressive safety - ensure target isn't subset of another running package
-                if (fullProcessNameMatchesProcess(fullProcessName, processName)) {
-                    pid
+                if (fullProcessNameMatchesProcess(runningProcess.processName, processName)) {
+                    runningProcess.pid
                 } else {
                     null
                 }
@@ -515,7 +515,7 @@ object Shell {
      * @return List of processes - pid & full process name
      */
     @RequiresApi(23)
-    private fun pgrepLF(pattern: String): List<Pair<Int, String>> {
+    fun pgrepLF(pattern: String): List<ProcessPid> {
         // Note: we use the unsafe variant for performance, since this is a
         // common operation, and pgrep is stable after API 23 see [ShellBehaviorTest#pgrep]
         return ShellImpl.executeCommandUnsafe("pgrep -l -f $pattern")
@@ -523,23 +523,23 @@ object Shell {
             .filter { it.isNotEmpty() }
             .map {
                 val (pidString, process) = it.trim().split(" ")
-                Pair(pidString.toInt(), process)
+                ProcessPid(process, pidString.toInt())
             }
+    }
+
+    @RequiresApi(23)
+    fun getRunningPidsAndProcessesForPackage(packageName: String): List<ProcessPid> {
+        require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
+        return pgrepLF(pattern = packageName.replace(".", "\\.")).filter {
+            it.processName == packageName || it.processName.startsWith("$packageName:")
+        }
     }
 
     fun getRunningProcessesForPackage(packageName: String): List<String> {
         require(!packageName.contains(":")) { "Package $packageName must not contain ':'" }
-
-        // pgrep is nice and fast, but requires API 23
         if (Build.VERSION.SDK_INT >= 23) {
-            return pgrepLF(pattern = packageName).mapNotNull { (_, process) ->
-                // aggressive safety - ensure target isn't subset of another running package
-                if (process == packageName || process.startsWith("$packageName:")) {
-                    process
-                } else {
-                    null
-                }
-            }
+            // uses pgrep which is nice and fast, but requires API 23
+            return getRunningPidsAndProcessesForPackage(packageName).map { it.processName }
         }
 
         // Grep device side, since ps output by itself gets truncated

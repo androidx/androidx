@@ -63,6 +63,7 @@ object Arguments {
     val dropShadersEnable: Boolean
     val dropShadersThrowOnFailure: Boolean
     val skipBenchmarksOnEmulator: Boolean
+    val saveProfileWaitMillis: Long
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
@@ -265,6 +266,9 @@ object Arguments {
 
         killProcessDelayMillis =
             arguments.getBenchmarkArgument("killProcessDelayMillis")?.toLong() ?: 0L
+
+        saveProfileWaitMillis =
+            arguments.getBenchmarkArgument("saveProfileWaitMillis")?.toLong() ?: 1_000L
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true

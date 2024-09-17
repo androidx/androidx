@@ -327,7 +327,7 @@ warning Ignored scripts due to flag.
 (.*)\[ksp\] loaded provider\(s\):(.*)
 # https://youtrack.jetbrains.com/issue/KT-69929
 e: The daemon has terminated unexpectedly on startup attempt #1 with error code: 0\. The daemon process output:
-    1\. Kotlin compile daemon is ready
+1\. Kotlin compile daemon is ready
 # b/359449191
 > Transform sdk\-interface\-descriptors\.jar \(project :privacysandbox:tools:integration\-tests:testsdk\-asb\) with ExtractCompileSdkShimTransform
 WARN: Attempt to load key 'java\.correct\.class\.type\.by\.place\.resolve\.scope' for not yet loaded registry
@@ -335,3 +335,6 @@ warning: unable to find kotlin\-stdlib\.jar in the Kotlin home directory\. Pass 
 warning: unable to find kotlin\-script\-runtime\.jar in the Kotlin home directory\. Pass either '\-no\-stdlib' to prevent adding it to the classpath, or the correct '\-kotlin\-home'
 # develocity plugin begign warning, reported back to Gradle
 Failed sysctl call: hw\.nperflevels, Error code: 2
+# > Task :benchmark:benchmark-macro:processReleaseAndroidTestManifest
+\$SUPPORT/benchmark/benchmark\-macro/src/androidTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
+receiver\#androidx\.profileinstaller\.ProfileInstallReceiver@android:enabled was tagged at AndroidManifest\.xml:[0-9]+ to replace other declarations but no other declaration present

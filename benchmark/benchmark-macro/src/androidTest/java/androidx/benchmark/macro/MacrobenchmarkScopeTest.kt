@@ -28,6 +28,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
@@ -111,12 +112,46 @@ class MacrobenchmarkScopeTest {
         compilation.resetAndCompile(scope) {
             assertTrue(scope.flushArtProfiles)
             executions += 1
+
+            // on first iter, kill doesn't kill anything, so profiles are not yet flushed
             scope.killProcess()
+            assertEquals(executions != 1, scope.hasFlushedArtProfiles)
+
             scope.pressHome()
             scope.startActivityAndWait()
         }
         assertFalse(scope.flushArtProfiles)
         assertEquals(warmupIterations, executions)
+    }
+
+    @SdkSuppress(minSdkVersion = 24)
+    @Test
+    fun compile_speedProfile_noLaunch() {
+        // Emulator api 30 does not have dex2oat (b/264938965)
+        assumeTrue(Build.VERSION.SDK_INT != Build.VERSION_CODES.R)
+        val scope = MacrobenchmarkScope(Packages.TARGET, launchWithClearTask = true)
+
+        var executions = 0
+        val compilation =
+            CompilationMode.Partial(
+                baselineProfileMode = BaselineProfileMode.Disable,
+                warmupIterations = 2
+            )
+        assertFalse(scope.flushArtProfiles)
+        assertContains(
+            assertFailsWith<IllegalStateException> {
+                    compilation.resetAndCompile(scope) {
+                        assertTrue(scope.flushArtProfiles)
+                        assertFalse(scope.hasFlushedArtProfiles)
+                        // not launching process so profiles can't flush, should fail after this
+                        executions++
+                    }
+                }
+                .message!!,
+            "never flushed profiles in any process"
+        )
+        assertFalse(scope.flushArtProfiles)
+        assertEquals(2, executions)
     }
 
     @Test

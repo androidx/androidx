@@ -352,9 +352,15 @@ sealed class CompilationMode {
             }
             if (warmupIterations > 0) {
                 scope.flushArtProfiles = true
+                check(!scope.hasFlushedArtProfiles)
                 try {
                     repeat(this.warmupIterations) { warmupBlock() }
                     scope.killProcessAndFlushArtProfiles()
+                    check(scope.hasFlushedArtProfiles) {
+                        "Process $packageName never flushed profiles in any process - check that" +
+                            " you launched the process, and that you only killed it with" +
+                            " scope.killProcess, which will save profiles."
+                    }
                     cmdPackageCompile(packageName, "speed-profile")
                 } finally {
                     scope.flushArtProfiles = false

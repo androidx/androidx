@@ -74,6 +74,19 @@ public class MacrobenchmarkScope(
      * compilation by `CompilationMode.Partial` with warmupIterations.
      */
     internal var flushArtProfiles: Boolean = false
+        set(value) {
+            hasFlushedArtProfiles = false
+            field = value
+        }
+
+    /**
+     * When `true`, the app has successfully flushed art profiles for at least one process.
+     *
+     * This will only be set by [killProcessAndFlushArtProfiles] when called directly, or
+     * [killProcess] when [flushArtProfiles] is `true`
+     */
+    internal var hasFlushedArtProfiles: Boolean = false
+        private set
 
     /** `true` if the app is a system app. */
     internal var isSystemApp: Boolean = false
@@ -377,24 +390,31 @@ public class MacrobenchmarkScope(
     internal fun killProcessAndFlushArtProfiles() {
         Log.d(TAG, "Flushing ART profiles for $packageName")
         // For speed profile compilation, ART team recommended to wait for 5 secs when app
-        // is in the foreground, dump the profile, wait for an additional second before
-        // speed-profile compilation.
+        // is in the foreground, dump the profile in each process waiting an additional second each
+        // before speed-profile compilation.
         @Suppress("BanThreadSleep") Thread.sleep(5000)
-        val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
-        if (saveResult == null) {
+        val saveResult = ProfileInstallBroadcast.saveProfilesForAllProcesses(packageName)
+        if (saveResult.processCount > 0) {
+            println("Flushed profiles in ${saveResult.processCount} processes")
+            hasFlushedArtProfiles = true
+        }
+        if (saveResult.error == null) {
             killProcessImpl()
         } else {
             if (Shell.isSessionRooted()) {
                 // fallback on `killall -s SIGUSR1`, if available with root
-                Log.d(TAG, "Unable to saveProfile with profileinstaller ($saveResult), trying kill")
+                Log.d(
+                    TAG,
+                    "Unable to saveProfile with profileinstaller ($saveResult.error), trying kill"
+                )
                 val response =
                     Shell.executeScriptCaptureStdoutStderr("killall -s SIGUSR1 $packageName")
                 check(response.isBlank()) {
                     "Failed to dump profile for $packageName ($response),\n" +
-                        " and failed to save profile with broadcast: $saveResult"
+                        " and failed to save profile with broadcast: ${saveResult.error}"
                 }
             } else {
-                throw RuntimeException(saveResult)
+                throw RuntimeException(saveResult.error)
             }
         }
     }
