@@ -16,6 +16,7 @@
 
 package androidx.core.telecom.test.services
 
+import android.net.Uri
 import android.telecom.Call
 import android.telecom.TelecomManager
 import android.telecom.VideoProfile
@@ -228,7 +229,7 @@ class CallDataEmitter(val trackedCall: IcsCall) {
                 },
             contactName = Compatibility.getContactDisplayName(icsCall.call.details),
             contactUri = Compatibility.getContactPhotoUri(icsCall.call.details),
-            number = icsCall.call.details.handle,
+            number = icsCall.call.details.handle ?: Uri.parse("unknown:UNKNOWN_ID_${icsCall.id}"),
             state = getState(Compatibility.getCallState(icsCall.call)),
             direction =
                 when (icsCall.call.details.callDirection) {
