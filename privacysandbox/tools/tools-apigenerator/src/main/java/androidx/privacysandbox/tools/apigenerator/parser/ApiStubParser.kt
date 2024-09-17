@@ -64,7 +64,11 @@ internal object ApiStubParser {
             .also(::validate)
     }
 
-    private fun parseInterface(service: KmClass, annotationName: String): AnnotatedInterface {
+    private fun parseInterface(
+        interfaceAndConstants: ClassAndConstants,
+        annotationName: String
+    ): AnnotatedInterface {
+        val service = interfaceAndConstants.kClass
         val type = parseClassName(service.name)
         val superTypes = service.supertypes.map(this::parseType).filterNot { it == Types.any }
 
@@ -79,10 +83,12 @@ internal object ApiStubParser {
             type = type,
             superTypes = superTypes,
             methods = service.functions.map(this::parseMethod),
+            constants = interfaceAndConstants.constants?.toList() ?: listOf(),
         )
     }
 
-    private fun parseValue(value: KmClass): AnnotatedValue {
+    private fun parseValue(classAndConstants: ClassAndConstants): AnnotatedValue {
+        val value = classAndConstants.kClass
         val type = parseClassName(value.name)
         val isEnum = value.kind == ClassKind.ENUM_CLASS
 
