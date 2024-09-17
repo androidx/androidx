@@ -98,6 +98,7 @@ internal class TextStringSimpleNode(
                         softWrap,
                         maxLines,
                         minLines,
+                        autoSize
                     )
             }
             return _layoutCache!!
@@ -266,6 +267,7 @@ internal class TextStringSimpleNode(
                     softWrap,
                     maxLines,
                     minLines,
+                    autoSize
                 )
             substitutionLayoutCache.density = layoutCache.density
             newTextSubstitution.layoutCache = substitutionLayoutCache
