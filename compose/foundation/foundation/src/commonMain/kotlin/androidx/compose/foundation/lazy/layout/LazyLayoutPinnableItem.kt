@@ -21,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -101,16 +100,16 @@ private class LazyLayoutPinnableItem(
     private val pinnedItemList: LazyLayoutPinnedItemList,
 ) : PinnableContainer, PinnableContainer.PinnedHandle, LazyLayoutPinnedItemList.PinnedItem {
     /** Current index associated with this item. */
-    override var index by mutableIntStateOf(-1)
+    override var index = -1
 
     /**
      * It is a valid use case when users of this class call [pin] multiple times individually, so we
      * want to do the unpinning only when all of the users called [release].
      */
-    private var pinsCount by mutableIntStateOf(0)
+    private var pinsCount = 0
 
     /** Handle associated with the current [parentPinnableContainer]. */
-    private var parentHandle by mutableStateOf<PinnableContainer.PinnedHandle?>(null)
+    private var parentHandle: PinnableContainer.PinnedHandle? = null
 
     /**
      * Current parent [PinnableContainer]. Note that we should correctly re-pin if we pinned the
