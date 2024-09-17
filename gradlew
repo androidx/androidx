@@ -37,9 +37,6 @@ if [ -n "$DIST_DIR" ]; then
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
 fi
 
-# Loading the AIDL lexer requires disabling Lint's bytecode verification
-export ANDROID_LINT_SKIP_BYTECODE_VERIFIER=true
-
 # unset ANDROID_BUILD_TOP so that Lint doesn't think we're building the platform itself
 unset ANDROID_BUILD_TOP
 # ----------------------------------------------------------------------------
