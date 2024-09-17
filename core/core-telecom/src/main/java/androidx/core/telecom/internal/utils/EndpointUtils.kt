@@ -298,22 +298,32 @@ internal class EndpointUtils {
             val endpoints: ArrayList<CallEndpointCompat> = ArrayList()
             val supportedBluetoothDevices = state.supportedBluetoothDevices
             for (bluetoothDevice in supportedBluetoothDevices) {
-                endpoints.add(getCallEndpointFromBluetoothDevice(bluetoothDevice))
+                if (bluetoothDevice != null) {
+                    endpoints.add(getCallEndpointFromBluetoothDevice(bluetoothDevice))
+                }
             }
             return endpoints
         }
 
         @JvmStatic
-        fun getCallEndpointFromBluetoothDevice(btDevice: BluetoothDevice?): CallEndpointCompat {
-            var endpointName: String = "Bluetooth Device"
-            var endpointIdentity: String = "Unknown Address"
-            if (btDevice != null) {
+        fun getCallEndpointFromBluetoothDevice(btDevice: BluetoothDevice): CallEndpointCompat {
+            var endpointName: String? = null
+            var endpointIdentity: String? = null
+            try {
                 endpointIdentity = btDevice.address
-                try {
-                    endpointName = btDevice.name
-                } catch (e: SecurityException) {
-                    // pass through
-                }
+                endpointName = btDevice.name
+            } catch (se: SecurityException) {
+                // A SecurityException will be thrown if the user has no granted the
+                // BLUETOOTH_CONNECT permission
+                se.printStackTrace()
+            }
+            // Account for [BluetoothDevice#getAddress()] returning a null value
+            if (endpointIdentity == null) {
+                endpointIdentity = UUID.randomUUID().toString()
+            }
+            // Account for [BluetoothDevice#getName()] returning a null value
+            if (endpointName == null) {
+                endpointName = "Bluetooth Device"
             }
             return CallEndpointCompat(
                 endpointName,
