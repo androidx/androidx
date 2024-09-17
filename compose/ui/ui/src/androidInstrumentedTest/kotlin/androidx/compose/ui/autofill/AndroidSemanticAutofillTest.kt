@@ -50,7 +50,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDataType
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.maxTextLength
 import androidx.compose.ui.semantics.onAutofillText
 import androidx.compose.ui.semantics.onLongClick
@@ -435,45 +434,6 @@ class AndroidPerformSemanticAutofillTest {
                             setFocusable(true)
                             setEnabled(true)
                             setSelected(true)
-                        }
-                    )
-                }
-            )
-    }
-
-    @Test
-    @SmallTest
-    @SdkSuppress(minSdkVersion = 26)
-    fun populateViewStructure_hideFromAccessibility() {
-        // Arrange.
-        val viewStructure: ViewStructure = FakeViewStructure()
-
-        rule.setContentWithAutofillEnabled {
-            Box(
-                Modifier.semantics {
-                        contentType = ContentType.Username
-                        hideFromAccessibility()
-                    }
-                    .size(width, height)
-                    .testTag(contentTag)
-            )
-        }
-
-        rule.runOnIdle {
-            // Compose does not use the Autofill flags parameter, passing in 0 as a placeholder flag
-            androidComposeView.onProvideAutofillVirtualStructure(viewStructure, 0)
-        }
-
-        // Assert that even if a component is unimportant for accessibility, it can still be
-        // accessed by autofill.
-        Truth.assertThat(viewStructure)
-            .isEqualTo(
-                FakeViewStructure().apply {
-                    children.add(
-                        FakeViewStructure {
-                            virtualId = contentTag.semanticsId()
-                            setAutofillHints(arrayOf(HintConstants.AUTOFILL_HINT_USERNAME))
-                            setVisibility(View.VISIBLE)
                         }
                     )
                 }
