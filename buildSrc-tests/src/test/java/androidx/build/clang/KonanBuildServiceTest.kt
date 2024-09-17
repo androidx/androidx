@@ -18,14 +18,14 @@ package androidx.build.clang
 
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
-import java.io.ByteArrayOutputStream
+import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
+import org.jetbrains.kotlin.konan.file.use
 import org.jetbrains.kotlin.konan.target.Family
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 class KonanBuildServiceTest : BaseClangTest() {
@@ -55,7 +55,6 @@ class KonanBuildServiceTest : BaseClangTest() {
             .contains("expected ';' after return statement")
     }
 
-    @Ignore // b/366529564
     @Test
     fun compile() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
@@ -70,7 +69,6 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).doesNotContain("libc")
     }
 
-    @Ignore // b/366529564
     @Test
     fun compileWithInclude() {
         val compileParameters =
@@ -102,7 +100,6 @@ class KonanBuildServiceTest : BaseClangTest() {
         assertThat(strings).contains("dependency_method")
     }
 
-    @Ignore // b/366529564
     @Test
     fun createSharedLibrary() {
         val compileParameters = createCompileParameters("code.c", C_HELLO_WORLD)
@@ -137,7 +134,6 @@ class KonanBuildServiceTest : BaseClangTest() {
         }
     }
 
-    @Ignore // b/366529564
     @Test
     fun archive() {
         val compileParams = createCompileParameters("code.c", C_HELLO_WORLD)
@@ -168,31 +164,39 @@ class KonanBuildServiceTest : BaseClangTest() {
     private fun DirectoryProperty.getRegularFiles() =
         get().asFile.walkTopDown().filter { it.isFile }.toList()
 
-    /** Extract strings from a binary file so that we can assert output contents. */
+    /**
+     * Extract strings from a binary file so that we can assert output contents.
+     *
+     * We used to use linux strings command here but it stopped working in CI. This implementation
+     * pretty much matches our strings usage and good enough for these tests.
+     * https://man7.org/linux/man-pages/man1/strings.1.html
+     */
     private fun extractStrings(file: File): String {
-        val outputStream = ByteArrayOutputStream()
-        val errorStream = ByteArrayOutputStream()
-        val response =
-            project.exec {
-                it.executable = "strings"
-                it.setErrorOutput(errorStream)
-                it.setStandardOutput(outputStream)
-                it.isIgnoreExitValue = true
-                it.args(file.canonicalPath)
+        assertWithMessage("Cannot extract strings from file").that(file.isFile).isTrue()
+        val finalString = StringBuilder()
+        val currentSection = StringBuilder()
+        fun finishSection() {
+            if (currentSection.length > 4) {
+                finalString.appendLine(currentSection)
             }
-        if (response.exitValue != 0) {
-            throw AssertionError(
-                """
-                Couldn't read strings from file.
-                Output:
-                ${outputStream.toString(Charsets.UTF_8)}
-                Error:
-                ${errorStream.toString(Charsets.UTF_8)}
-            """
-                    .trimIndent()
-            )
+            currentSection.setLength(0)
         }
-        return outputStream.toString(Charsets.UTF_8)
+        file.inputStream().buffered(1024).use { inputStream ->
+            var byte: Int
+            do {
+                byte = inputStream.read()
+                // if it is a printable string, add it to the list.
+                if (byte in 32..127) {
+                    currentSection.append(byte.toChar())
+                } else {
+                    // cleanup the remaining
+                    finishSection()
+                }
+            } while (byte != -1)
+        }
+        // one final cleanup
+        finishSection()
+        return finalString.toString()
     }
 
     companion object {
