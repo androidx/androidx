@@ -123,6 +123,26 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".IconButtonActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.integration.macrobenchmark.target.ICON_BUTTON_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".AnimatedIconButtonActivity"
+            android:theme="@style/AppTheme"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="androidx.wear.compose.integration.macrobenchmark.target.ANIMATED_ICON_BUTTON_ACTIVITY" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />

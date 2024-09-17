@@ -24,11 +24,11 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-class ButtonBenchmark(compilationMode: CompilationMode) :
+class AnimatedIconButtonBenchmark(compilationMode: CompilationMode) :
     ButtonBenchmarkBase(compilationMode, BUTTON_ACTIVITY) {
     companion object {
         private const val BUTTON_ACTIVITY =
-            "androidx.wear.compose.integration.macrobenchmark.target.BUTTON_ACTIVITY"
+            "androidx.wear.compose.integration.macrobenchmark.target.ANIMATED_ICON_BUTTON_ACTIVITY"
 
         @Parameterized.Parameters(name = "compilation={0}")
         @JvmStatic
