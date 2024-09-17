@@ -541,6 +541,7 @@ private fun PlatformSkinTemperatureRecord.toSdkSkinTemperatureRecord() =
         endTime = endTime,
         endZoneOffset = endZoneOffset,
         metadata = metadata.toSdkMetadata(),
+        measurementLocation = measurementLocation.toSdkSkinTemperatureMeasurementLocation(),
         deltas = deltas.map { it.toSdkSkinTemperatureDelta() },
         baseline = baseline?.toSdkTemperature()
     )
