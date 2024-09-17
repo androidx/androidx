@@ -313,7 +313,8 @@ internal class TextAnnotatedStringNode(
                     softWrap,
                     maxLines,
                     minLines,
-                    placeholders
+                    placeholders,
+                    autoSize
                 )
             substitutionLayoutCache.density = layoutCache.density
             newTextSubstitution.layoutCache = substitutionLayoutCache
