@@ -25,7 +25,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class RoundRectTest {
-
     @Test
     fun testRoundRectContains() {
         val roundRect =
@@ -245,5 +244,66 @@ class RoundRectTest {
     fun testBoundingRect() {
         val rr = RoundRect(1f, 2f, 3f, 4f, CornerRadius(15f, 10f))
         assertEquals(Rect(1f, 2f, 3f, 4f), rr.boundingRect)
+    }
+
+    @Test
+    fun testIsEllipse() {
+        assertTrue(RoundRect(0f, 0f, 32f, 32f, CornerRadius(16f, 16f)).isEllipse)
+        assertTrue(RoundRect(0f, 0f, 32f, 32f, CornerRadius(16f, 24f)).isEllipse)
+        assertFalse(RoundRect(0f, 0f, 33f, 33f, CornerRadius(16f, 16f)).isEllipse)
+        assertFalse(
+            RoundRect(
+                    0f,
+                    0f,
+                    33f,
+                    33f,
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 17f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f)
+                )
+                .isEllipse
+        )
+        assertFalse(
+            RoundRect(
+                    0f,
+                    0f,
+                    33f,
+                    33f,
+                    CornerRadius(17f, 16f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f)
+                )
+                .isEllipse
+        )
+        assertFalse(
+            RoundRect(
+                    0f,
+                    0f,
+                    33f,
+                    33f,
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(17f, 16f),
+                    CornerRadius(16f, 16f)
+                )
+                .isEllipse
+        )
+        assertFalse(
+            RoundRect(
+                    0f,
+                    0f,
+                    33f,
+                    33f,
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 16f),
+                    CornerRadius(16f, 17f)
+                )
+                .isEllipse
+        )
+        assertTrue(RoundRect(0f, 0f, 12f, 32f, CornerRadius(16f, 16f)).isEllipse)
+        assertTrue(RoundRect(0f, 0f, 12f, 32f, CornerRadius(16f, 24f)).isEllipse)
     }
 }
