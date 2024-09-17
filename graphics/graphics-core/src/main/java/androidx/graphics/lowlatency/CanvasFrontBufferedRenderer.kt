@@ -143,6 +143,9 @@ constructor(
         }
     }
 
+    /** Current HardwareBuffer that is being presented by the multi buffered layer */
+    private var mCurrentMultiBuffer: HardwareBuffer? = null
+
     @Volatile private var mFrontBufferReleaseFence: SyncFenceCompat? = null
     private val mCommitCount = AtomicInteger(0)
     private var mColorSpace: ColorSpace = CanvasBufferedRenderer.DefaultColorSpace
@@ -441,6 +444,7 @@ constructor(
                 parentSurfaceControl != null &&
                 parentSurfaceControl.isValid()
         ) {
+            mCurrentMultiBuffer = buffer
             persistedCanvasRenderer?.isVisible = false
             val transaction =
                 SurfaceControlCompat.Transaction()
@@ -652,6 +656,8 @@ constructor(
             mTransform = BufferTransformHintResolver.UNKNOWN_TRANSFORM
 
             renderer.release(cancelPending) {
+                mCurrentMultiBuffer?.close()
+                mCurrentMultiBuffer = null
                 frontBufferSurfaceControl?.release()
                 parentSurfaceControl?.release()
                 multiBufferRenderer?.close()
