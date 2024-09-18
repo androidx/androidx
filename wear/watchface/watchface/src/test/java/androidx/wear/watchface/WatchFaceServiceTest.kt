@@ -755,7 +755,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
             engineWrapper.deferredValidation.awaitWithTimeout()
         }
 
@@ -1894,11 +1895,12 @@ public class WatchFaceServiceTest {
             )
         )
         // Initially the chin size is set to zero.
-        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(0)
+        val mutableWatchState = engineWrapper.watchFaceDetails!!.mutableWatchState
+        assertThat(mutableWatchState.chinHeight).isEqualTo(0)
         // When window insets are delivered to the watch face.
         engineWrapper.onApplyWindowInsets(getChinWindowInsets(chinHeight = 12))
         // Then the chin size is updated.
-        assertThat(engineWrapper.mutableWatchState.chinHeight).isEqualTo(12)
+        assertThat(mutableWatchState.chinHeight).isEqualTo(12)
     }
 
     @Test
@@ -3468,7 +3470,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check the ComplicationData was cached.
             val leftComplicationData =
@@ -3601,7 +3604,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             // Check only the right ComplicationData was cached.
             val leftComplicationData =
@@ -3724,7 +3728,8 @@ public class WatchFaceServiceTest {
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
         runBlocking {
-            val watchFaceImpl2 = engineWrapper2.deferredWatchFaceImpl.awaitWithTimeout()
+            val watchFaceImpl2 =
+                engineWrapper2.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
 
             watchFaceImpl2.complicationSlotsManager.selectComplicationDataForInstant(
                 Instant.ofEpochSecond(999)
@@ -3875,7 +3880,10 @@ public class WatchFaceServiceTest {
 
         // [WatchFaceService.createWatchFace] Will have run by now because we're using an immediate
         // coroutine dispatcher.
-        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
+        runBlocking {
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
+        }
 
         assertThat(
                 watchFaceImpl.complicationSlotsManager[LEFT_COMPLICATION_ID]!!
@@ -5598,7 +5606,7 @@ public class WatchFaceServiceTest {
         engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
-        assertThat(engineWrapper.deferredWatchFaceImpl.isCompleted).isFalse()
+        assertThat(engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.isCompleted).isFalse()
 
         engineWrapper.onDestroy()
         assertThat(onDestroyCalled).isTrue()
@@ -7181,7 +7189,10 @@ public class WatchFaceServiceTest {
         )
 
         // This shouldn't crash.
-        runBlocking { watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout() }
+        runBlocking {
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
+        }
 
         engineWrapper.onDestroy()
     }
@@ -7514,7 +7525,8 @@ public class WatchFaceServiceTest {
             )
 
         runBlocking {
-            watchFaceImpl = engineWrapper.deferredWatchFaceImpl.awaitWithTimeout()
+            watchFaceImpl =
+                engineWrapper.watchFaceDetails!!.deferredWatchFaceImpl.awaitWithTimeout()
             engineWrapper.deferredValidation.awaitWithTimeout()
         }
 
