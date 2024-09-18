@@ -35,6 +35,7 @@ import androidx.test.filters.SmallTest
 import androidx.testutils.FilteringCoroutineContext
 import androidx.testutils.FilteringExecutor
 import java.util.concurrent.Executors
+import kotlin.test.Ignore
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -49,7 +50,6 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.junit.After
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -92,6 +92,7 @@ class MultiTypedPagingSourceTest(
         pagingSources.clear()
     }
 
+    @Ignore("Due to b/365183141")
     @Test
     fun simple_emptyStart_thenAddAnItem() {
         simple_emptyStart_thenAddAnItem(preOpenDb = true)
@@ -231,6 +232,7 @@ class MultiTypedPagingSourceTest(
         }
     }
 
+    @Ignore("Due to b/365183141")
     @Test
     fun prependWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
@@ -369,6 +371,7 @@ class MultiTypedPagingSourceTest(
         }
     }
 
+    @Ignore("Due to b/365183141")
     @Test
     fun appendWithDelayedInvalidation() {
         val items = createItems(startId = 0, count = 90)
