@@ -102,7 +102,16 @@ public fun <T> KSerializer<T>.generateNavArguments(
         navArgument(name) {
             val element = descriptor.getElementDescriptor(index)
             val isNullable = element.isNullable
-            type = element.computeNavType(name, typeMap)
+            type =
+                element.computeNavType(typeMap)
+                    ?: throw IllegalArgumentException(
+                        unknownNavTypeErrorMessage(
+                            name,
+                            element.serialName,
+                            this@generateNavArguments.descriptor.serialName,
+                            typeMap.toString()
+                        )
+                    )
             nullable = isNullable
             if (descriptor.isElementOptional(index)) {
                 // Navigation mostly just cares about defaultValuePresent state for
@@ -150,20 +159,11 @@ private fun <T> KSerializer<T>.assertNotAbstractClass(handler: () -> Unit) {
  * 2. Match to a built-in NavType such as [NavType.IntType], [NavType.BoolArrayType] etc.
  */
 @Suppress("UNCHECKED_CAST")
-private fun SerialDescriptor.computeNavType(
-    name: String,
-    typeMap: Map<KType, NavType<*>>
-): NavType<Any?> {
+private fun SerialDescriptor.computeNavType(typeMap: Map<KType, NavType<*>>): NavType<Any?>? {
     val customType =
         typeMap.keys.find { kType -> matchKType(kType) }?.let { typeMap[it] } as? NavType<Any?>
     val result = customType ?: getNavType()
-    if (result == UNKNOWN) {
-        throw IllegalArgumentException(
-            "Cannot cast $name of type $serialName to a NavType. Make sure " +
-                "to provide custom NavType for this argument."
-        )
-    }
-    return result as NavType<Any?>
+    return if (result == UNKNOWN) null else result as NavType<Any?>
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -182,7 +182,17 @@ private fun <T> KSerializer<T>.forEachIndexed(
 ) {
     for (i in 0 until descriptor.elementsCount) {
         val argName = descriptor.getElementName(i)
-        val navType = descriptor.getElementDescriptor(i).computeNavType(argName, typeMap)
+
+        val navType =
+            descriptor.getElementDescriptor(i).computeNavType(typeMap)
+                ?: throw IllegalArgumentException(
+                    unknownNavTypeErrorMessage(
+                        argName,
+                        descriptor.getElementDescriptor(i).serialName,
+                        descriptor.serialName,
+                        typeMap.toString()
+                    )
+                )
         operation(i, argName, navType)
     }
 }
@@ -199,3 +209,12 @@ private fun <T> KSerializer<T>.forEachIndexed(
         operation(i, argName, navType)
     }
 }
+
+private fun unknownNavTypeErrorMessage(
+    fieldName: String,
+    fieldType: String,
+    className: String,
+    typeMap: String
+) =
+    "Route $className could not find any NavType for argument $fieldName " +
+        "of type $fieldType - typeMap received was $typeMap"
