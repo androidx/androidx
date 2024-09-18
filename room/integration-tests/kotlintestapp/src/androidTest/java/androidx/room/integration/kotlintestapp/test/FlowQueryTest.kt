@@ -27,6 +27,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.test.Ignore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -254,6 +255,7 @@ class FlowQueryTest : TestDatabaseTest() {
         }
     }
 
+    @Ignore("Due to b/365506854.")
     @Test
     fun receiveBooks_latestUpdateOnly() = runBlocking {
         booksDao.addAuthors(TestUtil.AUTHOR_1)

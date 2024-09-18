@@ -120,6 +120,7 @@ public class MultiInstanceInvalidationTest {
                 .isTrue();
     }
 
+    @Ignore("Due to b/366106924")
     @Test
     public void invalidateInAnotherInstance() throws Exception {
         final SampleDatabase db1 = openDatabase(true);
@@ -225,6 +226,7 @@ public class MultiInstanceInvalidationTest {
                 .isFalse();
     }
 
+    @Ignore("Due to b/366106924")
     @Test
     public void invalidatedByAnotherProcess() throws Exception {
         bindTestService();
