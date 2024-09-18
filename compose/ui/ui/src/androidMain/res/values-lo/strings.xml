@@ -35,5 +35,4 @@
     <string name="default_popup_window_title" msgid="6312721426453364202">"ໜ້າຈໍປັອບອັບ"</string>
     <string name="range_start" msgid="7097486360902471446">"ເລີ່ມຕົ້ນໄລຍະ"</string>
     <string name="range_end" msgid="5941395253238309765">"ສິ້ນສຸດໄລຍະ"</string>
-    <string name="snackbar_pane_title" msgid="2792228137354697160">"ແຈ້ງເຕືອນ"</string>
 </resources>

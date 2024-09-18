@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.material.R as MaterialR
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.R
 import androidx.compose.ui.platform.LocalConfiguration
@@ -33,7 +34,7 @@ internal actual fun getString(string: Strings): String {
         Strings.ExposedDropdownMenu -> resources.getString(R.string.dropdown_menu)
         Strings.SliderRangeStart -> resources.getString(R.string.range_start)
         Strings.SliderRangeEnd -> resources.getString(R.string.range_end)
-        Strings.SnackbarPaneTitle -> resources.getString(R.string.snackbar_pane_title)
+        Strings.SnackbarPaneTitle -> resources.getString(MaterialR.string.mc2_snackbar_pane_title)
         else -> ""
     }
 }
