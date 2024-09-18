@@ -145,6 +145,11 @@ public class DeviceQuirksLoader {
                 PreviewBlackScreenQuirk.load())) {
             quirks.add(new PreviewBlackScreenQuirk());
         }
+        if (quirkSettings.shouldEnableQuirk(
+                PrematureEndOfStreamVideoQuirk.class,
+                PrematureEndOfStreamVideoQuirk.load())) {
+            quirks.add(PrematureEndOfStreamVideoQuirk.INSTANCE);
+        }
         return quirks;
     }
 }
