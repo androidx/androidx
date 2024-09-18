@@ -39,8 +39,23 @@ public class MdocEntry(
     public val fields: List<MdocField>,
     entryDisplayData: Set<EntryDisplayData>,
     id: String
-) :
-    DigitalCredentialEntry(
-        id = id,
-        entryDisplayData = entryDisplayData,
-    )
+) : DigitalCredentialEntry(id = id, entryDisplayData = entryDisplayData) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MdocEntry) return false
+        return this.id == other.id &&
+            this.entryDisplayData == other.entryDisplayData &&
+            this.docType == other.docType &&
+            this.fields == other.fields &&
+            this.entryDisplayData == other.entryDisplayData &&
+            this.id == other.id
+    }
+
+    override fun hashCode(): Int {
+        var result = id.hashCode()
+        result = 31 * result + entryDisplayData.hashCode()
+        result = 31 * result + docType.hashCode()
+        result = 31 * result + fields.hashCode()
+        return result
+    }
+}

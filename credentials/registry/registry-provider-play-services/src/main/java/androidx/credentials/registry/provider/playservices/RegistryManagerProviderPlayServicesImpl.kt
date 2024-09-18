@@ -26,7 +26,6 @@ import androidx.credentials.registry.provider.RegisterCredentialsRequest
 import androidx.credentials.registry.provider.RegisterCredentialsResponse
 import androidx.credentials.registry.provider.RegisterCredentialsUnknownException
 import androidx.credentials.registry.provider.RegistryManagerProvider
-import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistryResponse
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.identitycredentials.IdentityCredentialManager
@@ -60,7 +59,7 @@ public class RegistryManagerProviderPlayServicesImpl(private val context: Contex
             .registerCredentials(gmsRequest)
             .addOnSuccessListener {
                 // TODO: b/355652174 - convert this more generically from the parent abstract class
-                callback.onResult(DigitalCredentialRegistryResponse())
+                callback.onResult(object : RegisterCredentialsResponse(request.type) {})
             }
             .addOnFailureListener {
                 callback.onError(RegisterCredentialsUnknownException(it.message))

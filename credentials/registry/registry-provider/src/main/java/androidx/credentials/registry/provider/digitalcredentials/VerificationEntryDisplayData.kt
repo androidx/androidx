@@ -38,4 +38,24 @@ public class VerificationEntryDisplayData(
     public val icon: Bitmap,
     public val explainer: CharSequence? = null,
     public val warning: CharSequence? = null,
-) : EntryDisplayData(DISPLAY_TYPE_VERIFICATION)
+) : EntryDisplayData(DISPLAY_TYPE_VERIFICATION) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VerificationEntryDisplayData) return false
+        return this.title == other.title &&
+            this.subtitle == other.subtitle &&
+            this.icon == other.icon &&
+            this.explainer == other.explainer &&
+            this.warning == other.warning
+    }
+
+    override fun hashCode(): Int {
+        var result = displayType.hashCode()
+        result = 31 * result + title.hashCode()
+        result = 31 * result + (subtitle?.hashCode() ?: 0)
+        result = 31 * result + icon.hashCode()
+        result = 31 * result + (explainer?.hashCode() ?: 0)
+        result = 31 * result + (warning?.hashCode() ?: 0)
+        return result
+    }
+}

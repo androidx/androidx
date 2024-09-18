@@ -33,4 +33,17 @@ import androidx.credentials.registry.provider.digitalcredentials.DigitalCredenti
 public class VerificationFieldDisplayData(
     public val displayName: CharSequence,
     public val displayValue: CharSequence? = null,
-) : FieldDisplayData(DISPLAY_TYPE_VERIFICATION)
+) : FieldDisplayData(DISPLAY_TYPE_VERIFICATION) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is VerificationFieldDisplayData) return false
+        return this.displayName == other.displayName && this.displayValue == other.displayValue
+    }
+
+    override fun hashCode(): Int {
+        var result = displayType.hashCode()
+        result = 31 * result + displayName.hashCode()
+        result = 31 * result + (displayValue?.hashCode() ?: 0)
+        return result
+    }
+}
