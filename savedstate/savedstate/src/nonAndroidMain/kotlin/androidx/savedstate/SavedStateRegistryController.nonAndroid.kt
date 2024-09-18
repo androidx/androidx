@@ -17,6 +17,7 @@ package androidx.savedstate
 
 import androidx.annotation.MainThread
 import androidx.savedstate.internal.SavedStateRegistryImpl
+import kotlin.jvm.JvmStatic
 
 public actual class SavedStateRegistryController
 private actual constructor(
@@ -44,12 +45,7 @@ private actual constructor(
 
         @JvmStatic
         actual fun create(owner: SavedStateRegistryOwner): SavedStateRegistryController {
-            val impl =
-                SavedStateRegistryImpl(
-                    owner = owner,
-                    onAttach = { owner.lifecycle.addObserver(Recreator(owner)) },
-                )
-            return SavedStateRegistryController(impl)
+            return SavedStateRegistryController(SavedStateRegistryImpl(owner))
         }
     }
 }

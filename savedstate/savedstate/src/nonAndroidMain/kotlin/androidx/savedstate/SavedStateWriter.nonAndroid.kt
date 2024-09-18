@@ -16,6 +16,8 @@
 
 package androidx.savedstate
 
+import kotlin.jvm.JvmInline
+
 @Suppress("NOTHING_TO_INLINE")
 @JvmInline
 actual value class SavedStateWriter actual constructor(actual val source: SavedState) {

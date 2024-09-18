@@ -40,10 +40,8 @@ import androidx.lifecycle.LifecycleOwner
  * before it reaches [Lifecycle.State.DESTROYED] state. Hence it should only be called once the
  * owner has received the [Lifecycle.Event.ON_STOP] event. The SavedState passed to performSave will
  * be the SavedState restored by performRestore.
- *
- * @see [ViewTreeSavedStateRegistryOwner]
  */
-interface SavedStateRegistryOwner : LifecycleOwner {
+public interface SavedStateRegistryOwner : androidx.lifecycle.LifecycleOwner {
     /** The [SavedStateRegistry] owned by this SavedStateRegistryOwner */
-    val savedStateRegistry: SavedStateRegistry
+    public val savedStateRegistry: SavedStateRegistry
 }
