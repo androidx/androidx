@@ -45,6 +45,7 @@ private enum class InternalType {
     STRING_NULLABLE,
     INT_ARRAY,
     BOOL_ARRAY,
+    DOUBLE_ARRAY,
     FLOAT_ARRAY,
     LONG_ARRAY,
     ARRAY,
@@ -79,6 +80,7 @@ internal fun SerialDescriptor.getNavType(): NavType<*> {
             InternalType.STRING_NULLABLE -> NavType.StringType
             InternalType.INT_ARRAY -> NavType.IntArrayType
             InternalType.BOOL_ARRAY -> NavType.BoolArrayType
+            InternalType.DOUBLE_ARRAY -> InternalNavType.DoubleArrayType
             InternalType.FLOAT_ARRAY -> NavType.FloatArrayType
             InternalType.LONG_ARRAY -> NavType.LongArrayType
             InternalType.ARRAY -> {
@@ -138,6 +140,7 @@ private fun SerialDescriptor.toInternalType(): InternalType {
         serialName == "kotlin.String" ->
             if (isNullable) InternalType.STRING_NULLABLE else InternalType.STRING
         serialName == "kotlin.IntArray" -> InternalType.INT_ARRAY
+        serialName == "kotlin.DoubleArray" -> InternalType.DOUBLE_ARRAY
         serialName == "kotlin.BooleanArray" -> InternalType.BOOL_ARRAY
         serialName == "kotlin.FloatArray" -> InternalType.FLOAT_ARRAY
         serialName == "kotlin.LongArray" -> InternalType.LONG_ARRAY
@@ -403,6 +406,37 @@ internal object InternalNavType {
                 value?.map { Uri.encode(it) } ?: emptyList()
 
             override fun emptyCollection(): List<String?> = emptyList()
+        }
+
+    val DoubleArrayType: NavType<DoubleArray?> =
+        object : CollectionNavType<DoubleArray?>(true) {
+            override val name: String
+                get() = "double[]"
+
+            override fun put(bundle: Bundle, key: String, value: DoubleArray?) {
+                bundle.putDoubleArray(key, value)
+            }
+
+            @Suppress("DEPRECATION")
+            override fun get(bundle: Bundle, key: String): DoubleArray? =
+                bundle[key] as DoubleArray?
+
+            override fun parseValue(value: String): DoubleArray =
+                doubleArrayOf(DoubleType.parseValue(value))
+
+            override fun parseValue(value: String, previousValue: DoubleArray?): DoubleArray =
+                previousValue?.plus(parseValue(value)) ?: parseValue(value)
+
+            override fun valueEquals(value: DoubleArray?, other: DoubleArray?): Boolean {
+                val valueArray = value?.toTypedArray()
+                val otherArray = other?.toTypedArray()
+                return valueArray.contentDeepEquals(otherArray)
+            }
+
+            override fun serializeAsValues(value: DoubleArray?): List<String> =
+                value?.toList()?.map { it.toString() } ?: emptyList()
+
+            override fun emptyCollection(): DoubleArray = doubleArrayOf()
         }
 
     class EnumNullableType<D : Enum<*>?>(type: Class<D?>) : SerializableNullableType<D?>(type) {

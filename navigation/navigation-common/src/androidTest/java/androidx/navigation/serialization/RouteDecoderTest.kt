@@ -166,6 +166,19 @@ abstract class RouteDecoderTest(val source: ArgumentSource) {
     }
 
     @Test
+    fun decodeDoubleArray() {
+        @Serializable class TestClass(val arg: DoubleArray)
+
+        val map = mapOf("arg" to doubleArrayOf(11E123, 11.11))
+        val result =
+            decode<TestClass>(
+                map,
+                listOf(navArgument("arg") { type = InternalNavType.DoubleArrayType })
+            )
+        assertThat(result.arg).isEqualTo(doubleArrayOf(11E123, 11.11))
+    }
+
+    @Test
     fun decodeLongArray() {
         @Serializable class TestClass(val arg: LongArray)
 
