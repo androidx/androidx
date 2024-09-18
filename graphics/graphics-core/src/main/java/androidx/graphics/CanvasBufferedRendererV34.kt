@@ -77,6 +77,7 @@ internal class CanvasBufferedRendererV34(
     private var mAmbientShadowAlpha: Float = 0f
     private var mSpotShadowAlpha: Float = 0f
     private var mPreserveContents = false
+    private var mCurrentBufferProvider: HardwareBufferProvider? = null
 
     private fun obtainBufferEntry(): HardwareBufferProvider =
         mPool.obtain {
@@ -87,6 +88,7 @@ internal class CanvasBufferedRendererV34(
     override fun close() {
         mPool.close()
         mFdMonitor?.decrementRef()
+        mCurrentBufferProvider?.renderer?.close()
     }
 
     override fun isClosed(): Boolean = mPool.isClosed
@@ -122,7 +124,9 @@ internal class CanvasBufferedRendererV34(
         val transform = request.transform
         executor.execute {
             if (!isClosed()) {
-                with(obtainBufferEntry()) {
+                val bufferProvider = obtainBufferEntry()
+                mCurrentBufferProvider = bufferProvider
+                with(bufferProvider) {
                     renderer.apply {
                         setLightSourceAlpha(ambientShadowAlpha, spotShadowAlpha)
                         setLightSourceGeometry(lightX, lightY, lightZ, lightRadius)
