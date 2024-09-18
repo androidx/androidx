@@ -273,6 +273,72 @@ enum class TestEnum { ONE, TWO }
             )
     }
 
+    @Test
+    fun testDeeplink_noError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.*
+                import androidx.annotation.Keep
+
+                @Serializable class TestClass
+                @Keep enum class DeepLinkArg
+                @Serializable class DeepLink(val arg: DeepLinkArg)
+
+                fun navigation() {
+                    val builder = NavDestinationBuilder<NavGraph>(route = TestClass::class)
+                    builder.deepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+            )
+            .run()
+            .expectClean()
+    }
+
+    @Test
+    fun testDeeplink_hasError() {
+        lint()
+            .files(
+                kotlin(
+                        """
+                package com.example
+
+                import androidx.navigation.*
+                import kotlinx.serialization.*
+                import androidx.annotation.Keep
+
+                @Serializable class TestClass
+                enum class DeepLinkArg
+                @Serializable class DeepLink(val arg: DeepLinkArg)
+
+                fun navigation() {
+                    val builder = NavDestinationBuilder<NavGraph>(route = TestClass::class)
+                    builder.deepLink<DeepLink>()
+                }
+                """
+                    )
+                    .indented(),
+                *STUBS,
+            )
+            .run()
+            .expect(
+                """
+src/com/example/TestClass.kt:8: Warning: To prevent this Enum's serializer from being obfuscated in minified builds, annotate it with @androidx.annotation.Keep [MissingKeepAnnotation]
+enum class DeepLinkArg
+           ~~~~~~~~~~~
+0 errors, 1 warnings
+            """
+                    .trimIndent()
+            )
+    }
+
     internal val KEEP_ANNOTATION =
         bytecodeStub(
             "Keep.kt",

@@ -79,7 +79,7 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
     }
 
     // methods that delegates to NavGraphBuilder/NavDestinationBuilder
-    override fun getApplicableMethodNames(): List<String>? = listOf("navigation")
+    override fun getApplicableMethodNames(): List<String>? = listOf("navigation", "deepLink")
 
     override fun getApplicableConstructorTypes(): List<String>? =
         listOf("androidx.navigation.NavDestinationBuilder", "androidx.navigation.NavGraphBuilder")
@@ -88,12 +88,13 @@ class TypeSafeDestinationMissingAnnotationDetector : Detector(), SourceCodeScann
         val receiver = node.receiver?.getExpressionType()?.canonicalText ?: return
         // get the destination type
         val kClazzType =
-            when (receiver) {
+            when {
                 // reified version
-                "androidx.navigation.NavGraphBuilder" ->
+                receiver == "androidx.navigation.NavGraphBuilder" ||
+                    receiver.contains("androidx.navigation.NavDestinationBuilder") ->
                     (node.typeArguments.first() as? PsiClassReferenceType)?.resolve()
                 // route parameter version
-                "androidx.navigation.NavigatorProvider" -> node.getRouteKClassType()
+                receiver == "androidx.navigation.NavigatorProvider" -> node.getRouteKClassType()
                 else -> return
             } ?: return
 
