@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
 
-  public final class BigDecimalSubject extends androidx.kruth.ComparableSubject<java.math.BigDecimal> {
+  public final class BigDecimalSubject extends androidx.kruth.ComparableSubject<java.math.BigDecimal!> {
     method public void isEqualToIgnoringScale(String!);
     method public void isEqualToIgnoringScale(java.math.BigDecimal!);
     method public void isEqualToIgnoringScale(long);
@@ -14,7 +14,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
   }
 
   @com.google.common.annotations.GwtIncompatible("reflection") public final class ClassSubject extends androidx.kruth.Subject {
-    method public void isAssignableTo(Class<?>!);
+    method public void isAssignableTo(Class<? extends java.lang.Object!>!);
   }
 
   public abstract class ComparableSubject<T extends java.lang.Comparable<?>> extends androidx.kruth.Subject {
@@ -28,24 +28,24 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public final void isNotIn(com.google.common.collect.Range<T!>!);
   }
 
-  public abstract class Correspondence<A extends java.lang.Object, E> {
+  public abstract class Correspondence<A, E> {
     method public abstract boolean compare(A!, E!);
     method @Deprecated public final boolean equals(Object?);
     method public String? formatDiff(A!, E!);
-    method public androidx.kruth.Correspondence<A!,E!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super A,? super E>!);
-    method public static <A extends java.lang.Object, E> androidx.kruth.Correspondence<A!,E!>! from(androidx.kruth.Correspondence.BinaryPredicate<A!,E!>!, String!);
+    method public androidx.kruth.Correspondence<A!,E!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super A!,? super E!>!);
+    method public static <A, E> androidx.kruth.Correspondence<A!,E!>! from(androidx.kruth.Correspondence.BinaryPredicate<A!,E!>!, String!);
     method @Deprecated public final int hashCode();
     method public abstract String toString();
     method public static androidx.kruth.Correspondence<java.lang.Number!,java.lang.Number!>! tolerance(double);
-    method public static <A extends java.lang.Object, E> androidx.kruth.Correspondence<A!,E!>! transforming(com.google.common.base.Function<A!,? extends E>!, String!);
-    method public static <A extends java.lang.Object, E> androidx.kruth.Correspondence<A!,E!>! transforming(com.google.common.base.Function<A!,?>!, com.google.common.base.Function<E!,?>!, String!);
+    method public static <A, E> androidx.kruth.Correspondence<A!,E!>! transforming(com.google.common.base.Function<A!,? extends E!>!, String!);
+    method public static <A, E> androidx.kruth.Correspondence<A!,E!>! transforming(com.google.common.base.Function<A!,? extends java.lang.Object!>!, com.google.common.base.Function<E!,? extends java.lang.Object!>!, String!);
   }
 
-  public static interface Correspondence.BinaryPredicate<A extends java.lang.Object, E> {
+  public static interface Correspondence.BinaryPredicate<A, E> {
     method public boolean apply(A!, E!);
   }
 
-  public static interface Correspondence.DiffFormatter<A extends java.lang.Object, E> {
+  public static interface Correspondence.DiffFormatter<A, E> {
     method public String? formatDiff(A!, E!);
   }
 
@@ -58,7 +58,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public CustomSubjectBuilderT! createSubjectBuilder(androidx.kruth.FailureMetadata!);
   }
 
-  public final class DoubleSubject extends androidx.kruth.ComparableSubject<java.lang.Double> {
+  public final class DoubleSubject extends androidx.kruth.ComparableSubject<java.lang.Double!> {
     method public void isAtLeast(int);
     method public void isAtMost(int);
     method @Deprecated public void isEquivalentAccordingToCompareTo(Double?);
@@ -87,7 +87,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public boolean hasFailures();
   }
 
-  public final class ExpectFailure {
+  public final class ExpectFailure implements org.junit.rules.TestRule {
     ctor public ExpectFailure();
     method @com.google.common.annotations.GwtIncompatible("org.junit.rules.TestRule") public org.junit.runners.model.Statement! apply(org.junit.runners.model.Statement!, org.junit.runner.Description!);
     method public static androidx.kruth.TruthFailureSubject! assertThat(AssertionError?);
@@ -117,7 +117,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public void fail(AssertionError!);
   }
 
-  public final class FloatSubject extends androidx.kruth.ComparableSubject<java.lang.Float> {
+  public final class FloatSubject extends androidx.kruth.ComparableSubject<java.lang.Float!> {
     method public void isAtLeast(int);
     method public void isAtMost(int);
     method @Deprecated public void isEquivalentAccordingToCompareTo(Float?);
@@ -146,109 +146,169 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public void isPresent();
   }
 
-  public class IntegerSubject extends androidx.kruth.ComparableSubject<java.lang.Integer> {
+  public final class IntStreamSubject extends androidx.kruth.Subject {
+    method public void contains(int);
+    method public void containsAnyIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsAnyOf(int, int, int...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(int, int, int...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends java.lang.Object!>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(int...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoDuplicates();
+    method public void containsNoneIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoneOf(int, int, int...!);
+    method public void doesNotContain(int);
+    method public void hasSize(int);
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.IntStreamSubject!,java.util.stream.IntStream!>! intStreams();
+    method public void isEmpty();
+    method public void isInOrder();
+    method public void isInOrder(java.util.Comparator<? super java.lang.Integer!>!);
+    method public void isInStrictOrder();
+    method public void isInStrictOrder(java.util.Comparator<? super java.lang.Integer!>!);
+    method public void isNotEmpty();
+  }
+
+  public class IntegerSubject extends androidx.kruth.ComparableSubject<java.lang.Integer!> {
     ctor protected IntegerSubject(androidx.kruth.FailureMetadata!, Integer?);
     method @Deprecated public final void isEquivalentAccordingToCompareTo(Integer?);
+    method public androidx.kruth.IntegerSubject.TolerantIntegerComparison! isNotWithin(int);
+    method public androidx.kruth.IntegerSubject.TolerantIntegerComparison! isWithin(int);
+  }
+
+  public abstract static class IntegerSubject.TolerantIntegerComparison {
+    method @Deprecated public boolean equals(Object?);
+    method @Deprecated public int hashCode();
+    method public abstract void of(int);
   }
 
   public class IterableSubject extends androidx.kruth.Subject {
-    ctor protected IterableSubject(androidx.kruth.FailureMetadata!, Iterable<?>?);
-    method public <A extends java.lang.Object, E> androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>!);
+    ctor protected IterableSubject(androidx.kruth.FailureMetadata!, Iterable<? extends java.lang.Object!>?);
+    method public <A, E> androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! comparingElementsUsing(androidx.kruth.Correspondence<? super A!,? super E!>!);
     method public final void contains(Object?);
-    method public final void containsAnyIn(Iterable<?>?);
-    method public final void containsAnyIn(Object?[]?);
-    method public final void containsAnyOf(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<?>!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastElementsIn(Object?[]?);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<?>?);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyElementsIn(Object?[]?);
+    method public final void containsAnyIn(Iterable<? extends java.lang.Object!>?);
+    method public final void containsAnyIn(Object![]?);
+    method public final void containsAnyOf(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends java.lang.Object!>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastElementsIn(Object![]?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends java.lang.Object!>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyElementsIn(Object![]?);
     method public final void containsNoDuplicates();
-    method public final void containsNoneIn(Iterable<?>!);
-    method public final void containsNoneIn(Object?[]?);
-    method public final void containsNoneOf(Object?, Object?, java.lang.Object?...);
+    method public final void containsNoneIn(Iterable<? extends java.lang.Object!>?);
+    method public final void containsNoneIn(Object![]?);
+    method public final void containsNoneOf(Object?, Object?, java.lang.Object!...?);
     method public final void doesNotContain(Object?);
-    method public <T> androidx.kruth.IterableSubject.UsingCorrespondence<T!,T!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T,? super T>!);
+    method public <T> androidx.kruth.IterableSubject.UsingCorrespondence<T!,T!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super T!,? super T!>!);
     method public final void hasSize(int);
     method public final void isEmpty();
     method public void isInOrder();
-    method public final void isInOrder(java.util.Comparator<?>!);
+    method public final void isInOrder(java.util.Comparator<? extends java.lang.Object!>!);
     method public void isInStrictOrder();
-    method public final void isInStrictOrder(java.util.Comparator<?>!);
-    method @Deprecated public void isNoneOf(Object?, Object?, java.lang.Object?...);
+    method public final void isInStrictOrder(java.util.Comparator<? extends java.lang.Object!>!);
+    method @Deprecated public void isNoneOf(Object?, Object?, java.lang.Object!...?);
     method public final void isNotEmpty();
-    method @Deprecated public void isNotIn(Iterable<?>?);
+    method @Deprecated public void isNotIn(Iterable<? extends java.lang.Object!>?);
   }
 
-  public static class IterableSubject.UsingCorrespondence<A extends java.lang.Object, E> {
+  public static class IterableSubject.UsingCorrespondence<A, E> {
     method public void contains(E!);
     method public void containsAnyIn(E![]!);
-    method public void containsAnyIn(Iterable<? extends E>!);
-    method @java.lang.SafeVarargs public final void containsAnyOf(E!, E!, E!...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue @java.lang.SafeVarargs public final androidx.kruth.Ordered! containsAtLeast(E!, E!, E!...);
+    method public void containsAnyIn(Iterable<? extends E!>!);
+    method @java.lang.SafeVarargs public final void containsAnyOf(E!, E!, E!...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue @java.lang.SafeVarargs public final androidx.kruth.Ordered! containsAtLeast(E!, E!, E!...!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(E![]!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends E>!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue @java.lang.SafeVarargs public final androidx.kruth.Ordered! containsExactly(E?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(E![]?);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends E>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends E!>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue @java.lang.SafeVarargs public final androidx.kruth.Ordered! containsExactly(E!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(E![]!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends E!>?);
     method public void containsNoneIn(E![]!);
-    method public void containsNoneIn(Iterable<? extends E>!);
-    method @java.lang.SafeVarargs public final void containsNoneOf(E!, E!, E!...);
-    method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super A,?>!, com.google.common.base.Function<? super E,?>!);
-    method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super E,?>!);
+    method public void containsNoneIn(Iterable<? extends E!>!);
+    method @java.lang.SafeVarargs public final void containsNoneOf(E!, E!, E!...!);
+    method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super A!,? extends java.lang.Object!>!, com.google.common.base.Function<? super E!,? extends java.lang.Object!>!);
+    method public androidx.kruth.IterableSubject.UsingCorrespondence<A!,E!>! displayingDiffsPairedBy(com.google.common.base.Function<? super E!,? extends java.lang.Object!>!);
     method public void doesNotContain(E!);
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.equals() is not supported. Did you mean to call" + " containsExactlyElementsIn(expected) instead of equals(expected)?") public final boolean equals(Object?);
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.hashCode() is not supported.") public final int hashCode();
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("UsingCorrespondence.toString() is not supported.") public final String toString();
   }
 
-  public class LongSubject extends androidx.kruth.ComparableSubject<java.lang.Long> {
+  public final class LongStreamSubject extends androidx.kruth.Subject {
+    method public void contains(long);
+    method public void containsAnyIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsAnyOf(long, long, long...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(long, long, long...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends java.lang.Object!>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(long...!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoDuplicates();
+    method public void containsNoneIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoneOf(long, long, long...!);
+    method public void doesNotContain(long);
+    method public void hasSize(int);
+    method public void isEmpty();
+    method public void isInOrder();
+    method public void isInOrder(java.util.Comparator<? super java.lang.Long!>!);
+    method public void isInStrictOrder();
+    method public void isInStrictOrder(java.util.Comparator<? super java.lang.Long!>!);
+    method public void isNotEmpty();
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.LongStreamSubject!,java.util.stream.LongStream!>! longStreams();
+  }
+
+  public class LongSubject extends androidx.kruth.ComparableSubject<java.lang.Long!> {
     ctor protected LongSubject(androidx.kruth.FailureMetadata!, Long?);
     method public final void isAtLeast(int);
     method public final void isAtMost(int);
     method @Deprecated public final void isEquivalentAccordingToCompareTo(Long?);
     method public final void isGreaterThan(int);
     method public final void isLessThan(int);
+    method public androidx.kruth.LongSubject.TolerantLongComparison! isNotWithin(long);
+    method public androidx.kruth.LongSubject.TolerantLongComparison! isWithin(long);
+  }
+
+  public abstract static class LongSubject.TolerantLongComparison {
+    method @Deprecated public boolean equals(Object?);
+    method @Deprecated public int hashCode();
+    method public abstract void of(long);
   }
 
   public class MapSubject extends androidx.kruth.Subject {
-    ctor protected MapSubject(androidx.kruth.FailureMetadata!, java.util.Map<?,?>?);
-    method public final <A extends java.lang.Object, E> androidx.kruth.MapSubject.UsingCorrespondence<A!,E!>! comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastEntriesIn(java.util.Map<?,?>!);
+    ctor protected MapSubject(androidx.kruth.FailureMetadata!, java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public final <A, E> androidx.kruth.MapSubject.UsingCorrespondence<A!,E!>! comparingValuesUsing(androidx.kruth.Correspondence<? super A!,? super E!>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastEntriesIn(java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public final void containsEntry(Object?, Object?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyEntriesIn(java.util.Map<?,?>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyEntriesIn(java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public final void containsKey(Object?);
     method public final void doesNotContainEntry(Object?, Object?);
     method public final void doesNotContainKey(Object?);
-    method public final <V> androidx.kruth.MapSubject.UsingCorrespondence<V!,V!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>!);
+    method public final <V> androidx.kruth.MapSubject.UsingCorrespondence<V!,V!>! formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V!,? super V!>!);
     method public final void hasSize(int);
     method public final void isEmpty();
     method public final void isEqualTo(Object?);
     method public final void isNotEmpty();
   }
 
-  public final class MapSubject.UsingCorrespondence<A extends java.lang.Object, E> {
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(Object?, E?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastEntriesIn(java.util.Map<?,? extends E>!);
+  public final class MapSubject.UsingCorrespondence<A, E> {
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(Object?, E?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastEntriesIn(java.util.Map<? extends java.lang.Object!,? extends E!>!);
     method public void containsEntry(Object?, E!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(Object?, E?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyEntriesIn(java.util.Map<?,? extends E>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(Object?, E?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyEntriesIn(java.util.Map<? extends java.lang.Object!,? extends E!>!);
     method public void doesNotContainEntry(Object?, E!);
   }
 
   public class MultimapSubject extends androidx.kruth.Subject {
-    ctor protected MultimapSubject(androidx.kruth.FailureMetadata!, com.google.common.collect.Multimap<?,?>?);
-    method public <A extends java.lang.Object, E> androidx.kruth.MultimapSubject.UsingCorrespondence<A!,E!>! comparingValuesUsing(androidx.kruth.Correspondence<? super A,? super E>!);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastEntriesIn(com.google.common.collect.Multimap<?,?>!);
+    ctor protected MultimapSubject(androidx.kruth.FailureMetadata!, com.google.common.collect.Multimap<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public <A, E> androidx.kruth.MultimapSubject.UsingCorrespondence<A!,E!>! comparingValuesUsing(androidx.kruth.Correspondence<? super A!,? super E!>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsAtLeastEntriesIn(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public final void containsEntry(Object?, Object?);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(Object?, Object?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyEntriesIn(com.google.common.collect.Multimap<?,?>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactly(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public final androidx.kruth.Ordered! containsExactlyEntriesIn(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public final void containsKey(Object?);
     method public final void doesNotContainEntry(Object?, Object?);
     method public final void doesNotContainKey(Object?);
@@ -259,13 +319,13 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public androidx.kruth.IterableSubject! valuesForKey(Object?);
   }
 
-  public final class MultimapSubject.UsingCorrespondence<A extends java.lang.Object, E> {
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(Object?, E?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastEntriesIn(com.google.common.collect.Multimap<?,? extends E>!);
+  public final class MultimapSubject.UsingCorrespondence<A, E> {
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(Object?, E?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastEntriesIn(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends E!>!);
     method public void containsEntry(Object?, E!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly();
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(Object?, E?, java.lang.Object?...);
-    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyEntriesIn(com.google.common.collect.Multimap<?,? extends E>!);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(Object?, E?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyEntriesIn(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends E!>!);
     method public void doesNotContainEntry(Object?, E!);
   }
 
@@ -280,8 +340,40 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public final void isNotEmpty();
   }
 
+  public final class OptionalDoubleSubject extends androidx.kruth.Subject {
+    method public void hasValue(double);
+    method public void isEmpty();
+    method public void isPresent();
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.OptionalDoubleSubject!,java.util.OptionalDouble!>! optionalDoubles();
+  }
+
+  public final class OptionalIntSubject extends androidx.kruth.Subject {
+    method public void hasValue(int);
+    method public void isEmpty();
+    method public void isPresent();
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.OptionalIntSubject!,java.util.OptionalInt!>! optionalInts();
+  }
+
+  public final class OptionalLongSubject extends androidx.kruth.Subject {
+    method public void hasValue(long);
+    method public void isEmpty();
+    method public void isPresent();
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.OptionalLongSubject!,java.util.OptionalLong!>! optionalLongs();
+  }
+
+  public final class OptionalSubject extends androidx.kruth.Subject {
+    method public void hasValue(Object?);
+    method public void isEmpty();
+    method public void isPresent();
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.OptionalSubject!,java.util.Optional<? extends java.lang.Object!>!>! optionals();
+  }
+
   public interface Ordered {
     method public void inOrder();
+  }
+
+  @com.google.common.annotations.GwtIncompatible @com.google.j2objc.annotations.J2ObjCIncompatible public final class PathSubject extends androidx.kruth.Subject {
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.PathSubject!,java.nio.file.Path!>! paths();
   }
 
   public final class PrimitiveBooleanArraySubject extends androidx.kruth.Subject {
@@ -313,7 +405,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable! usingTolerance(double);
   }
 
-  public static final class PrimitiveDoubleArraySubject.DoubleArrayAsIterable extends androidx.kruth.IterableSubject.UsingCorrespondence<java.lang.Double,java.lang.Number> {
+  public static final class PrimitiveDoubleArraySubject.DoubleArrayAsIterable extends androidx.kruth.IterableSubject.UsingCorrespondence<java.lang.Double!,java.lang.Number!> {
     method public void containsAnyOf(double[]!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(double[]!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(double[]!);
@@ -328,7 +420,7 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable! usingTolerance(double);
   }
 
-  public static final class PrimitiveFloatArraySubject.FloatArrayAsIterable extends androidx.kruth.IterableSubject.UsingCorrespondence<java.lang.Float,java.lang.Number> {
+  public static final class PrimitiveFloatArraySubject.FloatArrayAsIterable extends androidx.kruth.IterableSubject.UsingCorrespondence<java.lang.Float!,java.lang.Number!> {
     method public void containsAnyOf(float[]!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(float[]!);
     method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(float[]!);
@@ -365,37 +457,69 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
     method public final <S extends androidx.kruth.Subject, A> androidx.kruth.SimpleSubjectBuilder<S!,A!>! about(androidx.kruth.Subject.Factory<S!,A!>!);
     method public final void fail();
     method public static androidx.kruth.StandardSubjectBuilder! forCustomFailureStrategy(androidx.kruth.FailureStrategy!);
-    method public final androidx.kruth.PrimitiveBooleanArraySubject! that(boolean[]?);
-    method public final androidx.kruth.PrimitiveByteArraySubject! that(byte[]?);
-    method public final androidx.kruth.PrimitiveCharArraySubject! that(char[]?);
-    method public final androidx.kruth.GuavaOptionalSubject! that(com.google.common.base.Optional<?>?);
-    method public final androidx.kruth.MultimapSubject! that(com.google.common.collect.Multimap<?,?>?);
-    method public final androidx.kruth.MultisetSubject! that(com.google.common.collect.Multiset<?>?);
-    method public final androidx.kruth.TableSubject! that(com.google.common.collect.Table<?,?,?>?);
+    method public final androidx.kruth.PrimitiveBooleanArraySubject! that(boolean[]!);
+    method public final androidx.kruth.PrimitiveByteArraySubject! that(byte[]!);
+    method public final androidx.kruth.PrimitiveCharArraySubject! that(char[]!);
+    method public final androidx.kruth.GuavaOptionalSubject! that(com.google.common.base.Optional<? extends java.lang.Object!>!);
+    method public final androidx.kruth.MultimapSubject! that(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public final androidx.kruth.MultisetSubject! that(com.google.common.collect.Multiset<? extends java.lang.Object!>?);
+    method public final androidx.kruth.TableSubject! that(com.google.common.collect.Table<? extends java.lang.Object!,? extends java.lang.Object!,? extends java.lang.Object!>?);
     method public final <ComparableT extends java.lang.Comparable<?>> androidx.kruth.ComparableSubject<ComparableT!>! that(ComparableT?);
-    method public final androidx.kruth.PrimitiveDoubleArraySubject! that(double[]?);
-    method public final androidx.kruth.PrimitiveFloatArraySubject! that(float[]?);
-    method public final androidx.kruth.PrimitiveIntArraySubject! that(int[]?);
+    method public final androidx.kruth.PrimitiveDoubleArraySubject! that(double[]!);
+    method public final androidx.kruth.PrimitiveFloatArraySubject! that(float[]!);
+    method public final androidx.kruth.PrimitiveIntArraySubject! that(int[]!);
     method public final androidx.kruth.BooleanSubject! that(Boolean?);
-    method @com.google.common.annotations.GwtIncompatible("ClassSubject.java") public final androidx.kruth.ClassSubject! that(Class<?>?);
+    method @com.google.common.annotations.GwtIncompatible("ClassSubject.java") public final androidx.kruth.ClassSubject! that(Class<? extends java.lang.Object!>?);
     method public final androidx.kruth.DoubleSubject! that(Double?);
     method public final androidx.kruth.FloatSubject! that(Float?);
     method public final androidx.kruth.IntegerSubject! that(Integer?);
-    method public final androidx.kruth.IterableSubject! that(Iterable<?>?);
+    method public final androidx.kruth.IterableSubject! that(Iterable<? extends java.lang.Object!>?);
     method public final androidx.kruth.LongSubject! that(Long?);
     method public final androidx.kruth.Subject! that(Object?);
     method public final androidx.kruth.StringSubject! that(String?);
     method public final androidx.kruth.ThrowableSubject! that(Throwable?);
     method public final androidx.kruth.BigDecimalSubject! that(java.math.BigDecimal?);
-    method public final androidx.kruth.MapSubject! that(java.util.Map<?,?>?);
-    method public final androidx.kruth.PrimitiveLongArraySubject! that(long[]?);
-    method public final androidx.kruth.PrimitiveShortArraySubject! that(short[]?);
-    method public final <T> androidx.kruth.ObjectArraySubject<T!>! that(T?[]?);
+    method @com.google.common.annotations.GwtIncompatible @com.google.j2objc.annotations.J2ObjCIncompatible public final androidx.kruth.PathSubject! that(java.nio.file.Path?);
+    method public final androidx.kruth.MapSubject! that(java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public final androidx.kruth.OptionalSubject! that(java.util.Optional<? extends java.lang.Object!>?);
+    method public final androidx.kruth.OptionalDoubleSubject! that(java.util.OptionalDouble?);
+    method public final androidx.kruth.OptionalIntSubject! that(java.util.OptionalInt?);
+    method public final androidx.kruth.OptionalLongSubject! that(java.util.OptionalLong?);
+    method public final androidx.kruth.IntStreamSubject! that(java.util.stream.IntStream?);
+    method public final androidx.kruth.LongStreamSubject! that(java.util.stream.LongStream?);
+    method public final androidx.kruth.StreamSubject! that(java.util.stream.Stream<? extends java.lang.Object!>?);
+    method public final androidx.kruth.PrimitiveLongArraySubject! that(long[]!);
+    method public final androidx.kruth.PrimitiveShortArraySubject! that(short[]!);
+    method public final <T> androidx.kruth.ObjectArraySubject<T!>! that(T![]!);
     method public final androidx.kruth.StandardSubjectBuilder! withMessage(String?);
-    method public final androidx.kruth.StandardSubjectBuilder! withMessage(String!, java.lang.Object?...);
+    method public final androidx.kruth.StandardSubjectBuilder! withMessage(String!, java.lang.Object!...?);
   }
 
-  public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
+  public final class StreamSubject extends androidx.kruth.Subject {
+    method public void contains(Object?);
+    method public void containsAnyIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsAnyOf(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeast(Object?, Object?, java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsAtLeastElementsIn(Iterable<? extends java.lang.Object!>?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactly(java.lang.Object!...?);
+    method @com.google.errorprone.annotations.CanIgnoreReturnValue public androidx.kruth.Ordered! containsExactlyElementsIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoDuplicates();
+    method public void containsNoneIn(Iterable<? extends java.lang.Object!>?);
+    method public void containsNoneOf(Object?, Object?, java.lang.Object!...?);
+    method public void doesNotContain(Object?);
+    method public void hasSize(int);
+    method public void isEmpty();
+    method @Deprecated public void isEqualTo(Object?);
+    method public void isInOrder();
+    method public void isInOrder(java.util.Comparator<? extends java.lang.Object!>!);
+    method public void isInStrictOrder();
+    method public void isInStrictOrder(java.util.Comparator<? extends java.lang.Object!>!);
+    method public void isNotEmpty();
+    method @Deprecated public void isNotEqualTo(Object?);
+    method @Deprecated public static androidx.kruth.Subject.Factory<androidx.kruth.StreamSubject!,java.util.stream.Stream<? extends java.lang.Object!>!>! streams();
+  }
+
+  public class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String!> {
     ctor protected StringSubject(androidx.kruth.FailureMetadata!, String?);
     method public void contains(CharSequence?);
     method public void containsMatch(String?);
@@ -426,21 +550,21 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
   public class Subject {
     ctor protected Subject(androidx.kruth.FailureMetadata!, Object?);
     method @com.google.errorprone.annotations.ForOverride protected String! actualCustomStringRepresentation();
-    method protected final androidx.kruth.StandardSubjectBuilder! check(String!, java.lang.Object?...);
+    method protected final androidx.kruth.StandardSubjectBuilder! check(String!, java.lang.Object!...?);
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("Subject.equals() is not supported. Did you mean to call assertThat(actual).isEqualTo(expected) instead of assertThat(actual).equals(expected)?") public final boolean equals(Object?);
-    method protected final void failWithActual(androidx.kruth.Fact!, androidx.kruth.Fact!...);
+    method protected final void failWithActual(androidx.kruth.Fact!, androidx.kruth.Fact!...!);
     method protected final void failWithActual(String!, Object?);
-    method protected final void failWithoutActual(androidx.kruth.Fact!, androidx.kruth.Fact!...);
+    method protected final void failWithoutActual(androidx.kruth.Fact!, androidx.kruth.Fact!...!);
     method @Deprecated @com.google.errorprone.annotations.DoNotCall("Subject.hashCode() is not supported.") public final int hashCode();
     method protected final androidx.kruth.StandardSubjectBuilder! ignoreCheck();
-    method public void isAnyOf(Object?, Object?, java.lang.Object?...);
+    method public void isAnyOf(Object?, Object?, java.lang.Object!...?);
     method public void isEqualTo(Object?);
-    method public void isIn(Iterable<?>?);
-    method public void isInstanceOf(Class<?>!);
-    method public void isNoneOf(Object?, Object?, java.lang.Object?...);
+    method public void isIn(Iterable<? extends java.lang.Object!>?);
+    method public void isInstanceOf(Class<? extends java.lang.Object!>!);
+    method public void isNoneOf(Object?, Object?, java.lang.Object!...?);
     method public void isNotEqualTo(Object?);
-    method public void isNotIn(Iterable<?>?);
-    method public void isNotInstanceOf(Class<?>!);
+    method public void isNotIn(Iterable<? extends java.lang.Object!>?);
+    method public void isNotInstanceOf(Class<? extends java.lang.Object!>!);
     method public void isNotNull();
     method public final void isNotSameInstanceAs(Object?);
     method public void isNull();
@@ -454,13 +578,13 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
 
   public final class TableSubject extends androidx.kruth.Subject {
     method public void contains(Object?, Object?);
-    method public void containsCell(com.google.common.collect.Table.Cell<?,?,?>!);
+    method public void containsCell(com.google.common.collect.Table.Cell<? extends java.lang.Object!,? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public void containsCell(Object?, Object?, Object?);
     method public void containsColumn(Object?);
     method public void containsRow(Object?);
     method public void containsValue(Object?);
     method public void doesNotContain(Object?, Object?);
-    method public void doesNotContainCell(com.google.common.collect.Table.Cell<?,?,?>!);
+    method public void doesNotContainCell(com.google.common.collect.Table.Cell<? extends java.lang.Object!,? extends java.lang.Object!,? extends java.lang.Object!>!);
     method public void doesNotContainCell(Object?, Object?, Object?);
     method public void hasSize(int);
     method public void isEmpty();
@@ -476,35 +600,54 @@ package @com.google.errorprone.annotations.CheckReturnValue androidx.kruth {
   public final class Truth {
     method public static <CustomSubjectBuilderT extends androidx.kruth.CustomSubjectBuilder> CustomSubjectBuilderT! assertAbout(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT!>!);
     method public static <S extends androidx.kruth.Subject, T> androidx.kruth.SimpleSubjectBuilder<S!,T!>! assertAbout(androidx.kruth.Subject.Factory<S!,T!>!);
-    method public static androidx.kruth.PrimitiveBooleanArraySubject! assertThat(boolean[]?);
-    method public static androidx.kruth.PrimitiveByteArraySubject! assertThat(byte[]?);
-    method public static androidx.kruth.PrimitiveCharArraySubject! assertThat(char[]?);
-    method public static androidx.kruth.GuavaOptionalSubject! assertThat(com.google.common.base.Optional<?>?);
-    method public static androidx.kruth.MultimapSubject! assertThat(com.google.common.collect.Multimap<?,?>?);
-    method public static androidx.kruth.MultisetSubject! assertThat(com.google.common.collect.Multiset<?>?);
-    method public static androidx.kruth.TableSubject! assertThat(com.google.common.collect.Table<?,?,?>?);
+    method public static androidx.kruth.PrimitiveBooleanArraySubject! assertThat(boolean[]!);
+    method public static androidx.kruth.PrimitiveByteArraySubject! assertThat(byte[]!);
+    method public static androidx.kruth.PrimitiveCharArraySubject! assertThat(char[]!);
+    method public static androidx.kruth.GuavaOptionalSubject! assertThat(com.google.common.base.Optional<? extends java.lang.Object!>!);
+    method public static androidx.kruth.MultimapSubject! assertThat(com.google.common.collect.Multimap<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public static androidx.kruth.MultisetSubject! assertThat(com.google.common.collect.Multiset<? extends java.lang.Object!>?);
+    method public static androidx.kruth.TableSubject! assertThat(com.google.common.collect.Table<? extends java.lang.Object!,? extends java.lang.Object!,? extends java.lang.Object!>?);
     method public static <ComparableT extends java.lang.Comparable<?>> androidx.kruth.ComparableSubject<ComparableT!>! assertThat(ComparableT?);
-    method public static androidx.kruth.PrimitiveDoubleArraySubject! assertThat(double[]?);
-    method public static androidx.kruth.PrimitiveFloatArraySubject! assertThat(float[]?);
-    method public static androidx.kruth.PrimitiveIntArraySubject! assertThat(int[]?);
+    method public static androidx.kruth.PrimitiveDoubleArraySubject! assertThat(double[]!);
+    method public static androidx.kruth.PrimitiveFloatArraySubject! assertThat(float[]!);
+    method public static androidx.kruth.PrimitiveIntArraySubject! assertThat(int[]!);
     method public static androidx.kruth.BooleanSubject! assertThat(Boolean?);
-    method @com.google.common.annotations.GwtIncompatible("ClassSubject.java") public static androidx.kruth.ClassSubject! assertThat(Class<?>?);
+    method @com.google.common.annotations.GwtIncompatible("ClassSubject.java") public static androidx.kruth.ClassSubject! assertThat(Class<? extends java.lang.Object!>?);
     method public static androidx.kruth.DoubleSubject! assertThat(Double?);
     method public static androidx.kruth.FloatSubject! assertThat(Float?);
     method public static androidx.kruth.IntegerSubject! assertThat(Integer?);
-    method public static androidx.kruth.IterableSubject! assertThat(Iterable<?>?);
+    method public static androidx.kruth.IterableSubject! assertThat(Iterable<? extends java.lang.Object!>?);
     method public static androidx.kruth.LongSubject! assertThat(Long?);
     method public static androidx.kruth.Subject! assertThat(Object?);
     method public static androidx.kruth.StringSubject! assertThat(String?);
     method public static androidx.kruth.ThrowableSubject! assertThat(Throwable?);
     method public static androidx.kruth.BigDecimalSubject! assertThat(java.math.BigDecimal?);
-    method public static androidx.kruth.MapSubject! assertThat(java.util.Map<?,?>?);
-    method public static androidx.kruth.PrimitiveLongArraySubject! assertThat(long[]?);
-    method public static androidx.kruth.PrimitiveShortArraySubject! assertThat(short[]?);
-    method public static <T> androidx.kruth.ObjectArraySubject<T!>! assertThat(T?[]?);
+    method @com.google.common.annotations.GwtIncompatible @com.google.j2objc.annotations.J2ObjCIncompatible public static androidx.kruth.PathSubject! assertThat(java.nio.file.Path?);
+    method public static androidx.kruth.MapSubject! assertThat(java.util.Map<? extends java.lang.Object!,? extends java.lang.Object!>?);
+    method public static androidx.kruth.OptionalSubject! assertThat(java.util.Optional<? extends java.lang.Object!>?);
+    method public static androidx.kruth.OptionalDoubleSubject! assertThat(java.util.OptionalDouble?);
+    method public static androidx.kruth.OptionalIntSubject! assertThat(java.util.OptionalInt?);
+    method public static androidx.kruth.OptionalLongSubject! assertThat(java.util.OptionalLong?);
+    method public static androidx.kruth.IntStreamSubject! assertThat(java.util.stream.IntStream?);
+    method public static androidx.kruth.LongStreamSubject! assertThat(java.util.stream.LongStream?);
+    method public static androidx.kruth.StreamSubject! assertThat(java.util.stream.Stream<? extends java.lang.Object!>?);
+    method public static androidx.kruth.PrimitiveLongArraySubject! assertThat(long[]!);
+    method public static androidx.kruth.PrimitiveShortArraySubject! assertThat(short[]!);
+    method public static <T> androidx.kruth.ObjectArraySubject<T!>! assertThat(T![]!);
     method public static androidx.kruth.StandardSubjectBuilder! assertWithMessage(String?);
-    method public static androidx.kruth.StandardSubjectBuilder! assertWithMessage(String!, java.lang.Object?...);
+    method public static androidx.kruth.StandardSubjectBuilder! assertWithMessage(String!, java.lang.Object!...?);
     method public static androidx.kruth.StandardSubjectBuilder! assert_();
+  }
+
+  @Deprecated public final class Truth8 {
+    method @Deprecated @com.google.common.annotations.GwtIncompatible @com.google.j2objc.annotations.J2ObjCIncompatible public static androidx.kruth.PathSubject! assertThat(java.nio.file.Path?);
+    method @Deprecated public static androidx.kruth.OptionalSubject! assertThat(java.util.Optional<? extends java.lang.Object!>?);
+    method @Deprecated public static androidx.kruth.OptionalDoubleSubject! assertThat(java.util.OptionalDouble?);
+    method @Deprecated public static androidx.kruth.OptionalIntSubject! assertThat(java.util.OptionalInt?);
+    method @Deprecated public static androidx.kruth.OptionalLongSubject! assertThat(java.util.OptionalLong?);
+    method @Deprecated public static androidx.kruth.IntStreamSubject! assertThat(java.util.stream.IntStream?);
+    method @Deprecated public static androidx.kruth.LongStreamSubject! assertThat(java.util.stream.LongStream?);
+    method @Deprecated public static androidx.kruth.StreamSubject! assertThat(java.util.stream.Stream<? extends java.lang.Object!>?);
   }
 
   public final class TruthFailureSubject extends androidx.kruth.ThrowableSubject {
