@@ -55,7 +55,7 @@ class CanvasMeshRendererRobolectricTest {
                     .asImmutable(),
         )
 
-    @OptIn(ExperimentalInkCustomBrushApi::class) private val meshRenderer = CanvasMeshRenderer()
+    private val meshRenderer = @OptIn(ExperimentalInkCustomBrushApi::class) CanvasMeshRenderer()
 
     @Test
     fun canDraw_withRenderableMesh_returnsTrue() {

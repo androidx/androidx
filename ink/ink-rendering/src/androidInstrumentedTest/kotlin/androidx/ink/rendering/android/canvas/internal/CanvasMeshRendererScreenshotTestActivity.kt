@@ -78,7 +78,7 @@ class CanvasMeshRendererScreenshotTestActivity : Activity() {
         // Stroke with no inputs, and therefore an empty [ModeledShape].
         private val emptyStroke = Stroke(brush, ImmutableStrokeInputBatch.EMPTY)
 
-        @OptIn(ExperimentalInkCustomBrushApi::class) private val renderer = CanvasMeshRenderer()
+        private val renderer = @OptIn(ExperimentalInkCustomBrushApi::class) CanvasMeshRenderer()
 
         override fun onDraw(canvas: Canvas) {
             super.onDraw(canvas)

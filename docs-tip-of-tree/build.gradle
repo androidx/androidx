@@ -208,6 +208,7 @@ dependencies {
     docs(project(":hilt:hilt-navigation-compose"))
     docs(project(":hilt:hilt-navigation-fragment"))
     docs(project(":hilt:hilt-work"))
+    kmpDocs(project(":ink:ink-authoring"))
     kmpDocs(project(":ink:ink-brush"))
     kmpDocs(project(":ink:ink-geometry"))
     kmpDocs(project(":ink:ink-nativeloader"))

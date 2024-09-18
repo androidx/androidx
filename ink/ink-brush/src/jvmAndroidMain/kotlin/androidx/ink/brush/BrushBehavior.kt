@@ -23,7 +23,6 @@ import java.util.Collections.unmodifiableSet
 import kotlin.jvm.JvmField
 import kotlin.jvm.JvmOverloads
 import kotlin.jvm.JvmStatic
-import kotlin.reflect.KClass
 
 /**
  * A behavior describing how stroke input properties should affect the shape and color of the brush
@@ -61,8 +60,7 @@ import kotlin.reflect.KClass
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @ExperimentalInkCustomBrushApi
 // NotCloseable: Finalize is only used to free the native peer.
-// Deprecation: b/356424519 Migrate to targetNodes
-@Suppress("NotCloseable", "DEPRECATION")
+@Suppress("NotCloseable")
 public class BrushBehavior(
     // The [targetNodes] val below is a defensive copy of this parameter.
     targetNodes: List<TargetNode>
@@ -126,134 +124,6 @@ public class BrushBehavior(
             )
         }
     )
-
-    /**
-     * Returns a node in the behavior of the given [Node] subclass, matching the given predicate (if
-     * any).
-     */
-    // TODO: b/356424519 - Remove this method once the below legacy properties are removed.
-    private fun <T : Node> findNode(
-        nodeClass: KClass<T>,
-        predicate: (T) -> Boolean = { true }
-    ): T? {
-        val stack = ArrayDeque<Node>(targetNodes)
-        while (!stack.isEmpty()) {
-            val node = stack.removeLast()
-            // [KClass.safeCast] is apparently discouraged on Android for performance reasons.
-            if (nodeClass.isInstance(node)) {
-                @Suppress("UNCHECKED_CAST") // cast is protected by enclosing if statement
-                val result = node as T
-                if (predicate(result)) return result
-            }
-            stack.addAll(node.inputs)
-        }
-        return null
-    }
-
-    // The below properties are implemented so as to give the correct answer in cases where the
-    // [BrushBehavior] was created using the legacy convenience constructor, and to give _some_ kind
-    // of plausible answer in the more general case of a [BrushBehavior] created with an arbitrary
-    // node graph. Once existing callers of these properties are migrated to working with [Node]s
-    // instead, we can remove them.
-    //
-    // TODO: b/356424519 - Remove the below getters once we no longer need them.
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val source: Source
-        get() = findNode(SourceNode::class)?.source ?: Source.NORMALIZED_PRESSURE
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val target: Target
-        get() = findNode(TargetNode::class)?.target ?: Target.SIZE_MULTIPLIER
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val sourceValueRangeLowerBound: Float
-        get() = findNode(SourceNode::class)?.sourceValueRangeLowerBound ?: 0.0f
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val sourceValueRangeUpperBound: Float
-        get() = findNode(SourceNode::class)?.sourceValueRangeUpperBound ?: 1.0f
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val targetModifierRangeLowerBound: Float
-        get() = findNode(TargetNode::class)?.targetModifierRangeLowerBound ?: 0.0f
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val targetModifierRangeUpperBound: Float
-        get() = findNode(TargetNode::class)?.targetModifierRangeUpperBound ?: 1.0f
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val sourceOutOfRangeBehavior: OutOfRange
-        get() = findNode(SourceNode::class)?.sourceOutOfRangeBehavior ?: OutOfRange.CLAMP
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val responseCurve: EasingFunction
-        get() = findNode(ResponseNode::class)?.responseCurve ?: EasingFunction.Predefined.LINEAR
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val responseTimeMillis: Long
-        get() =
-            ((findNode(DampingNode::class, { it.dampingSource == DampingSource.TIME_IN_SECONDS })
-                    ?.dampingGap ?: 0.0f) * 1000.0f)
-                .toLong()
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val enabledToolTypes: Set<InputToolType>
-        get() = findNode(ToolTypeFilterNode::class)?.enabledToolTypes ?: ALL_TOOL_TYPES
-
-    @Deprecated("Prefer using targetNodes instead.")
-    public val isFallbackFor: OptionalInputProperty?
-        get() = findNode(FallbackFilterNode::class)?.isFallbackFor
-
-    /**
-     * Creates a copy of `this` and allows named properties to be altered while keeping the rest
-     * unchanged.
-     */
-    @JvmSynthetic
-    public fun copy(
-        source: Source = this.source,
-        target: Target = this.target,
-        sourceOutOfRangeBehavior: OutOfRange = this.sourceOutOfRangeBehavior,
-        sourceValueRangeLowerBound: Float = this.sourceValueRangeLowerBound,
-        sourceValueRangeUpperBound: Float = this.sourceValueRangeUpperBound,
-        targetModifierRangeLowerBound: Float = this.targetModifierRangeLowerBound,
-        targetModifierRangeUpperBound: Float = this.targetModifierRangeUpperBound,
-        responseCurve: EasingFunction = this.responseCurve,
-        responseTimeMillis: Long = this.responseTimeMillis,
-        enabledToolTypes: Set<InputToolType> = this.enabledToolTypes,
-        isFallbackFor: OptionalInputProperty? = this.isFallbackFor,
-    ): BrushBehavior =
-        BrushBehavior(
-            source,
-            target,
-            sourceValueRangeLowerBound,
-            sourceValueRangeUpperBound,
-            targetModifierRangeLowerBound,
-            targetModifierRangeUpperBound,
-            sourceOutOfRangeBehavior,
-            responseCurve,
-            responseTimeMillis,
-            enabledToolTypes,
-            isFallbackFor,
-        )
-
-    /**
-     * Returns a [Builder] with values set equivalent to `this`. Java developers, use the returned
-     * builder to build a copy of a BrushBehavior.
-     */
-    public fun toBuilder(): Builder =
-        Builder()
-            .setSource(source)
-            .setTarget(target)
-            .setSourceOutOfRangeBehavior(sourceOutOfRangeBehavior)
-            .setSourceValueRangeLowerBound(sourceValueRangeLowerBound)
-            .setSourceValueRangeUpperBound(sourceValueRangeUpperBound)
-            .setTargetModifierRangeLowerBound(targetModifierRangeLowerBound)
-            .setTargetModifierRangeUpperBound(targetModifierRangeUpperBound)
-            .setResponseCurve(responseCurve)
-            .setResponseTimeMillis(responseTimeMillis)
-            .setEnabledToolTypes(enabledToolTypes)
-            .setIsFallbackFor(isFallbackFor)
 
     /**
      * Builder for [BrushBehavior].
@@ -363,7 +233,6 @@ public class BrushBehavior(
     }
 
     private fun createNativeBrushBehavior(targetNodes: List<TargetNode>): Long {
-        // TODO: b/356424519 - Use dup/swap nodes to avoid repeating common subexpressions.
         val orderedNodes = ArrayDeque<Node>()
         val stack = ArrayDeque<Node>(targetNodes)
         while (!stack.isEmpty()) {

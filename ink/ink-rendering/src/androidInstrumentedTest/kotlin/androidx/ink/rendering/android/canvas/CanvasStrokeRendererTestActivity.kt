@@ -40,6 +40,7 @@ import androidx.ink.strokes.InProgressStroke
 /** An [Activity] to support [CanvasStrokeRendererTest]. */
 @OptIn(ExperimentalInkCustomBrushApi::class)
 class CanvasStrokeRendererTestActivity : Activity() {
+    @OptIn(ExperimentalInkCustomBrushApi::class)
     private val textureStore = TextureBitmapStore { uri ->
         when (uri) {
             TEXTURE_URI_AIRPLANE_EMOJI -> R.drawable.airplane_emoji
@@ -51,11 +52,13 @@ class CanvasStrokeRendererTestActivity : Activity() {
     }
     private val meshRenderer =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            CanvasStrokeRenderer.create(textureStore)
+            @OptIn(ExperimentalInkCustomBrushApi::class) CanvasStrokeRenderer.create(textureStore)
         } else {
             null
         }
-    private val pathRenderer = CanvasStrokeRenderer.create(textureStore, forcePathRendering = true)
+    private val pathRenderer =
+        @OptIn(ExperimentalInkCustomBrushApi::class)
+        CanvasStrokeRenderer.create(textureStore, forcePathRendering = true)
     private val defaultRenderer = CanvasStrokeRenderer.create()
 
     override fun onCreate(savedInstanceState: Bundle?) {

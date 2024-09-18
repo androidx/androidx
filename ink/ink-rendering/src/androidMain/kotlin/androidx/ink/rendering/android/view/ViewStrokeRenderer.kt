@@ -110,7 +110,7 @@ public class ViewStrokeRenderer(
      */
     public fun drawWithStrokes(
         canvas: Canvas,
-        block: (scopedCanvas: Canvas, StrokeDrawScope) -> Unit
+        block: (scopedCanvas: Canvas, StrokeDrawScope) -> Unit,
     ) {
         val scope = obtainDrawScope(canvas)
         block(canvas, scope)
