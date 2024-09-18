@@ -16,6 +16,7 @@
 package androidx.compose.ui.window
 
 import android.util.DisplayMetrics
+import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
@@ -23,6 +24,7 @@ import android.view.View
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
@@ -42,13 +44,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.lerp
 import androidx.compose.ui.gesture.MotionEvent
 import androidx.compose.ui.gesture.PointerProperties
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerCoords
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
@@ -61,6 +67,10 @@ import androidx.compose.ui.test.isRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -68,6 +78,7 @@ import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.roundToInt
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -366,6 +377,44 @@ class DialogTest {
     }
 
     @Test
+    fun ensurePositionIsCorrect() {
+        var positionInRoot by mutableStateOf(Offset.Zero)
+        lateinit var view: View
+
+        rule.setContent {
+            Box(Modifier.fillMaxSize().background(Color.White)) {
+                Dialog(onDismissRequest = {}) {
+                    view = LocalView.current
+                    // I know this is weird, but this is how to reproduce the bug:
+                    val dialogWindowProvider = view.parent as DialogWindowProvider
+                    dialogWindowProvider.window.setGravity(Gravity.FILL)
+
+                    var boxSize by remember { mutableStateOf(IntSize.Zero) }
+
+                    Box(
+                        modifier =
+                            Modifier.fillMaxSize().onGloballyPositioned {
+                                boxSize = it.size
+                                positionInRoot = it.positionOnScreen()
+                            },
+                        contentAlignment = Alignment.TopStart,
+                    ) {
+                        PopupUsingPosition(positionInRoot)
+                    }
+                }
+            }
+        }
+
+        val realPosition = intArrayOf(0, 0)
+        rule.runOnIdle { view.getLocationOnScreen(realPosition) }
+
+        rule.runOnIdle {
+            assertThat(positionInRoot.x.roundToInt()).isEqualTo(realPosition[0])
+            assertThat(positionInRoot.y.roundToInt()).isEqualTo(realPosition[1])
+        }
+    }
+
+    @Test
     fun dismissWhenClickingOutsideContent() {
         var dismissed = false
         var clicked = false
@@ -522,4 +571,21 @@ class DialogTest {
         val positionOnScreen = fetchSemanticsNode().positionOnScreen
         return bounds.translate(positionOnScreen)
     }
+}
+
+@Composable
+private fun PopupUsingPosition(parentPositionInRoot: Offset) {
+    // In split screen mode, the parents can have a y offset in vertical mode and a x offset in
+    // vertical mode, which needs to be accounted for when calculating gravity and offset
+    val popupPositionOffset =
+        object : PopupPositionProvider {
+            override fun calculatePosition(
+                anchorBounds: IntRect,
+                windowSize: IntSize,
+                layoutDirection: LayoutDirection,
+                popupContentSize: IntSize
+            ): IntOffset = anchorBounds.topLeft + parentPositionInRoot.round()
+        }
+
+    Popup(popupPositionProvider = popupPositionOffset) { Box(Modifier.fillMaxSize()) }
 }
