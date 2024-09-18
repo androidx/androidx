@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.flowOf
 
 /** Empty Implementation for devices that do not support the [WindowAreaController] functionality */
 @ExperimentalWindowApi
-internal class EmptyWindowAreaControllerImpl : WindowAreaController {
+internal class EmptyWindowAreaControllerImpl : WindowAreaController() {
 
     override val windowAreaInfos: Flow<List<WindowAreaInfo>>
         get() = flowOf(listOf())

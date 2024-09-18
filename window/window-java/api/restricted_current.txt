@@ -1,10 +1,14 @@
 // Signature format: 4.0
 package androidx.window.java.area {
 
-  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaControllerCallbackAdapter implements androidx.window.area.WindowAreaController {
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class WindowAreaControllerCallbackAdapter extends androidx.window.area.WindowAreaController {
     ctor public WindowAreaControllerCallbackAdapter(androidx.window.area.WindowAreaController controller);
     method public void addWindowAreaInfoListListener(java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+    method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> getWindowAreaInfos();
+    method public void presentContentOnWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaPresentationSessionCallback windowAreaPresentationSessionCallback);
     method public void removeWindowAreaInfoListListener(androidx.core.util.Consumer<java.util.List<androidx.window.area.WindowAreaInfo>> listener);
+    method public void transferActivityToWindowArea(android.os.Binder token, android.app.Activity activity, java.util.concurrent.Executor executor, androidx.window.area.WindowAreaSessionCallback windowAreaSessionCallback);
+    property public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.area.WindowAreaInfo>> windowAreaInfos;
   }
 
 }
