@@ -18,6 +18,7 @@
 
 package androidx.compose.animation
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.MutableTransitionState
@@ -28,6 +29,7 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -63,6 +65,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -93,7 +96,6 @@ class AnimatedContentTest {
     @get:Rule
     val ruleChain: RuleChain = RuleChain.outerRule(DetectLeaksAfterTestSuccess()).around(rule)
 
-    @OptIn(InternalAnimationApi::class)
     @Test
     fun AnimatedContentSizeTransformTest() {
         val size1 = 40
@@ -990,6 +992,76 @@ class AnimatedContentTest {
         rule.waitForIdle()
     }
 
+    @OptIn(ExperimentalSharedTransitionApi::class)
+    @SuppressLint("UnusedContentLambdaTargetStateParameter")
+    @Test
+    fun testSizeTransformAlwaysContinuous() {
+        var large by mutableStateOf(false)
+        var currentWidth: Int = 0
+        var currentHeight: Int = 0
+        rule.setContent {
+            CompositionLocalProvider(LocalDensity provides Density(1f)) {
+                LookaheadScope {
+                    Box(Modifier.clickable { large = !large }) {
+                        AnimatedContent(
+                            label = "Test",
+                            modifier =
+                                Modifier.animateBounds(
+                                        this@LookaheadScope,
+                                        if (!large) Modifier.size(200.dp) else Modifier.size(300.dp)
+                                    )
+                                    .layout { m, c ->
+                                        m.measure(
+                                                c.copy(
+                                                    maxWidth = Constraints.Infinity,
+                                                    maxHeight = Constraints.Infinity
+                                                )
+                                            )
+                                            .run {
+                                                if (!isLookingAhead) {
+                                                    currentWidth = width
+                                                    currentHeight = height
+                                                }
+                                                layout(width, height) { place(0, 0) }
+                                            }
+                                    }
+                                    .background(Color.Gray),
+                            targetState = large,
+                            contentKey = { true },
+                            transitionSpec = { fadeIn().togetherWith(fadeOut()) }
+                        ) {
+                            Box(Modifier.background(Color.Black).size(200.dp, 100.dp))
+                        }
+                    }
+                }
+            }
+        }
+        rule.waitForIdle()
+        rule.mainClock.autoAdvance = false
+        large = true
+
+        assertEquals(200, currentWidth)
+        assertEquals(200, currentHeight)
+        // Expect size to grow
+        var lastWidth: Int = 200
+        var lastHeight: Int = 200
+
+        fun doFrame() {
+            rule.mainClock.advanceTimeByFrame()
+            rule.waitForIdle()
+            assertTrue(currentWidth >= lastWidth)
+            assertTrue(currentHeight >= lastHeight)
+            lastWidth = currentWidth
+            lastHeight = currentHeight
+        }
+
+        repeat(5) { doFrame() }
+
+        while (currentWidth != 300 || currentHeight != 300) {
+            doFrame()
+        }
+    }
+
     @Test
     fun testTargetChangeLookaheadPlacement() {
         var lookaheadPosition1: Offset? = null
@@ -1087,7 +1159,6 @@ class AnimatedContentTest {
         assertEquals(expected.y, actual.y, 0.00001f)
     }
 
-    @OptIn(InternalAnimationApi::class)
     private val Transition<*>.playTimeMillis
         get() = (playTimeNanos / 1_000_000L).toInt()
 }
