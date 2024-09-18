@@ -48,7 +48,7 @@ public class PreviewRegistry(
         credentials = credentialEntries.toCredentialBytes(),
         matcher = getDefaultPreviewMatcher()
     ) {
-    private companion object {
+    internal companion object {
         const val DEFAULT_ID = "androidx.credentials.registry.digitalcredentials.preview.ID_PREVIEW"
 
         private fun getIconBytes(icon: Bitmap): ByteArrayOutputStream {

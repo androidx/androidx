@@ -39,4 +39,19 @@ public class MdocField(
 ) :
     DigitalCredentialField(
         fieldDisplayData = fieldDisplayData,
-    )
+    ) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is MdocField) return false
+        return this.fieldDisplayData == other.fieldDisplayData &&
+            this.fieldName == other.fieldName &&
+            this.fieldValue == other.fieldValue
+    }
+
+    override fun hashCode(): Int {
+        var result = fieldDisplayData.hashCode()
+        result = 31 * result + fieldName.hashCode()
+        result = 31 * result + (fieldValue?.hashCode() ?: 0)
+        return result
+    }
+}
