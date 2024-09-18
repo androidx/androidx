@@ -6,20 +6,19 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable public void ConfirmButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void DismissButton(kotlin.jvm.functions.Function0<kotlin.Unit> onClick, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public void GroupSeparator();
+    method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues confirmDismissContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.PaddingValues contentPadding(boolean hasBottomButton);
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getConfirmIcon();
     method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> getDismissIcon();
-    method public float getEdgeButtonExtraTopPadding();
     method public androidx.compose.foundation.layout.Arrangement.Vertical getVerticalArrangement();
     property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> ConfirmIcon;
     property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.RowScope,kotlin.Unit> DismissIcon;
     property public final androidx.compose.foundation.layout.Arrangement.Vertical VerticalArrangement;
-    property public final float edgeButtonExtraTopPadding;
     field public static final androidx.wear.compose.material3.AlertDialogDefaults INSTANCE;
   }
 
   public final class AlertDialogKt {
-    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit> bottomButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
+    method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? bottomButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
     method @androidx.compose.runtime.Composable public static void AlertDialog(boolean show, kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit> title, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissButton, optional kotlin.jvm.functions.Function0<kotlin.Unit>? icon, optional kotlin.jvm.functions.Function0<kotlin.Unit>? text, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional androidx.compose.ui.window.DialogProperties properties, optional kotlin.jvm.functions.Function1<? super androidx.wear.compose.foundation.lazy.ScalingLazyListScope,kotlin.Unit>? content);
   }
 

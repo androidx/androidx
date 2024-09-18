@@ -16,6 +16,9 @@
 
 package androidx.wear.compose.material3
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 internal object PaddingDefaults {
@@ -27,10 +30,30 @@ internal object PaddingDefaults {
     val verticalContentPaddingPercentage = 10f
 
     /**
+     * Vertical padding between top and bottom edges of the screen and the content for full screen
+     * components, as a dp.
+     */
+    @Composable
+    fun verticalContentPadding(): Dp {
+        val screenHeight = LocalConfiguration.current.screenHeightDp
+        return screenHeight.dp * verticalContentPaddingPercentage / 100
+    }
+
+    /**
      * Horizontal padding between start and end edges of the screen and the content for full screen
      * components, as a percentage.
      */
     val horizontalContentPaddingPercentage = 5.2f
+
+    /**
+     * Horizontal padding between start and end edges of the screen and the content for full screen
+     * components, as a dp.
+     */
+    @Composable
+    fun horizontalContentPadding(): Dp {
+        val screenWidth = LocalConfiguration.current.screenWidthDp
+        return screenWidth.dp * horizontalContentPaddingPercentage / 100
+    }
 
     /** Default minimum padding between the edge of the screen and the content. */
     val edgePadding = 2.dp
