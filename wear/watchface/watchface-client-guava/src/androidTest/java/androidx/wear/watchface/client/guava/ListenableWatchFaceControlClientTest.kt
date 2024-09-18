@@ -20,8 +20,10 @@ import android.content.ComponentName
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.os.Build
 import android.view.Surface
 import android.view.SurfaceHolder
+import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -42,7 +44,9 @@ import java.time.ZonedDateTime
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -55,6 +59,7 @@ private const val TIMEOUT_MS = 500L
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
+@RequiresApi(Build.VERSION_CODES.O_MR1)
 public class ListenableWatchFaceControlClientTest {
 
     @get:Rule val mocks = MockitoJUnit.rule()
@@ -289,6 +294,32 @@ public class ListenableWatchFaceControlClientTest {
                 .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
         assertThat(client).isNotNull()
         client.close()
+    }
+
+    @Test
+    public fun hasComplicationDataCache_oldApi_returnsFalse() {
+        WatchFaceControlTestService.apiVersionOverride = 3
+        val client =
+            ListenableWatchFaceControlClient.createWatchFaceControlClient(
+                    context,
+                    context.packageName
+                )
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+
+        assertFalse(client.hasComplicationDataCache())
+    }
+
+    @Test
+    public fun hasComplicationDataCache_newApi_returnsTrue() {
+        WatchFaceControlTestService.apiVersionOverride = 4
+        val client =
+            ListenableWatchFaceControlClient.createWatchFaceControlClient(
+                    context,
+                    context.packageName
+                )
+                .get(TIMEOUT_MS, TimeUnit.MILLISECONDS)
+
+        assertTrue(client.hasComplicationDataCache())
     }
 
     @Test

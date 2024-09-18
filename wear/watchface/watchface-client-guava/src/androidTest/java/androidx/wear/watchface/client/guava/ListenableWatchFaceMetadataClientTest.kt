@@ -16,45 +16,24 @@
 
 package androidx.wear.watchface.client.guava
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.res.XmlResourceParser
 import android.os.Build
-import android.os.IBinder
 import androidx.annotation.RequiresApi
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.wear.watchface.client.ListenableWatchFaceMetadataClient
 import androidx.wear.watchface.client.WatchFaceMetadataClient
-import androidx.wear.watchface.control.IWatchFaceInstanceServiceStub
 import androidx.wear.watchface.control.WatchFaceControlService
 import com.google.common.truth.Truth
 import java.util.concurrent.TimeUnit
-import kotlinx.coroutines.MainScope
 import org.junit.Test
 import org.junit.runner.RunWith
 
 private const val TIMEOUT_MS = 500L
-
-/**
- * Test shim to allow us to connect to WatchFaceControlService from
- * [ListenableWatchFaceMetadataClientTest] and to optionally override the reported API version.
- */
-@RequiresApi(Build.VERSION_CODES.O_MR1)
-public class WatchFaceControlTestService : WatchFaceControlService() {
-    private val realService =
-        object : WatchFaceControlService() {
-            @SuppressLint("NewApi")
-            override fun createServiceStub(): IWatchFaceInstanceServiceStub =
-                IWatchFaceInstanceServiceStub(this@WatchFaceControlTestService, MainScope())
-        }
-
-    @SuppressLint("NewApi")
-    override fun onBind(intent: Intent?): IBinder? = realService.onBind(intent)
-}
 
 @RunWith(AndroidJUnit4::class)
 @MediumTest
