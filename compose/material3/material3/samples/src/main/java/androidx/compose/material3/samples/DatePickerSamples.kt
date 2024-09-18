@@ -24,6 +24,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -63,7 +65,10 @@ import kotlinx.coroutines.launch
 @Sampled
 @Composable
 fun DatePickerSample() {
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         // Pre-select a date for January 4, 2020
         val datePickerState = rememberDatePickerState(initialSelectedDateMillis = 1578096000000)
         DatePicker(state = datePickerState, modifier = Modifier.padding(16.dp))
@@ -117,7 +122,14 @@ fun DatePickerDialogSample() {
                 TextButton(onClick = { openDialog.value = false }) { Text("Cancel") }
             }
         ) {
-            DatePicker(state = datePickerState)
+            // The verticalScroll will allow scrolling to show the entire month in case there is not
+            // enough horizontal space (for example, when in landscape mode).
+            // Note that it's still currently recommended to use a DisplayMode.Input at the state in
+            // those cases.
+            DatePicker(
+                state = datePickerState,
+                modifier = Modifier.verticalScroll(rememberScrollState())
+            )
         }
     }
 }
@@ -156,7 +168,10 @@ fun DatePickerWithDateSelectableDatesSample() {
                 }
         )
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(
+        modifier = Modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         DatePicker(state = datePickerState)
         Text(
             "Selected date timestamp: ${datePickerState.selectedDateMillis ?: "no selection"}",
