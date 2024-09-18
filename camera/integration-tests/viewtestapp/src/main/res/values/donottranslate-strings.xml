@@ -18,6 +18,7 @@ limitations under the License.
     <string name="app_name">CameraX Views Demo</string>
     <string name="app_name_stream_sharing">StreamSharing Test App</string>
     <string name="effects">Effects</string>
+    <string name="media3_effect">Media3 Effect</string>
     <string name="overlay_effect">Overlay Effect</string>
     <string name="preview">Preview</string>
     <string name="preview_and_video">Preview &amp; Video</string>
@@ -47,6 +48,8 @@ limitations under the License.
     <string name="toggle_camera_back">Back</string>
     <string name="toggle_effect_on">Effect On</string>
     <string name="toggle_effect_off">Effect Off</string>
+    <string name="toggle_hdr_on">HDR On</string>
+    <string name="toggle_hdr_off">HDR Off</string>
     <string name="btn_remove_or_add">Remove/Add</string>
     <string name="btn_shrink">Shrink</string>
     <string name="btn_switch">Switch</string>
