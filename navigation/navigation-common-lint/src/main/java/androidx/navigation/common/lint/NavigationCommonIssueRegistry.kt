@@ -33,6 +33,8 @@ class NavigationCommonIssueRegistry : IssueRegistry() {
             listOf(
                 EmptyNavDeepLinkDetector.EmptyNavDeepLink,
                 WrongStartDestinationTypeDetector.WrongStartDestinationType,
+                TypeSafeDestinationMissingAnnotationDetector.MissingSerializableAnnotationIssue,
+                TypeSafeDestinationMissingAnnotationDetector.MissingKeepAnnotationIssue,
             )
 
     override val vendor =

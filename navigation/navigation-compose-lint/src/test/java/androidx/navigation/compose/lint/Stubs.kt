@@ -203,3 +203,59 @@ internal val NAV_HOST =
     2aSlZOMO7tq4h4UTsACLWDpBNkAqwP0AuRiLAR4EWA6w8hvNMdYWNAQAAA==
     """
     )
+
+internal val COMPOSABLE_NAV_HOST =
+    androidx.navigation.lint.common.bytecodeStub(
+        "StartDestinationLint.kt",
+        "androidx/navigation",
+        0xa9664947,
+        """
+         package androidx.navigation
+
+import androidx.compose.runtime.Composable
+
+// NavHost
+public open class NavHostController
+
+@Composable
+public fun NavHost(
+    navController: NavHostController,
+    startDestination: Any,
+) {}
+        """,
+        """
+                META-INF/main.kotlin_module:
+                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijg8uQSTsxLKcrPTKnQy0ssy0xPLMnM
+                zxPi90ssc87PKynKz8lJLfIuEeIECnjkF5cAmWLBJYlFJS6pxSWZeWDVPpl5
+                QHEucS5euFElQFkhtpBUkAYuUS7u5PxcvdSKxNyCnFSYsBKDFgMAc6sML5MA
+                AAA=
+                """,
+        """
+                androidx/navigation/NavHostController.class:
+                H4sIAAAAAAAA/41Ry04bMRQ910kmYUhJeIUARaKLCuiiExC7IiSgqogUQCoo
+                G1ZOxgpOJrY0diKW+Zb+QVdILKqIJR9V9c6UD2BzdB7X9tH169/nPwCOsUP4
+                LE2cWh0/RkZO9UB6bU10LaeX1vkLa3xqk0SlZRChPpRTGSXSDKKb3lD1fRkF
+                QnCijfanhML+QbeKEoIQRZQJRf+gHWGv864XvhGWOyPrE22iK+VlLL1kT4yn
+                Ba5KGSxkAAKN2H/UmWoxiw8Ju/NZGIqmCEWd2XxWaTTnsyPRovPSy69A1EU2
+                d0TZ6Y1bL1P/XTmvTd6lo43/OvJc+MLGilBjQ11Pxj2V3slews5Kx/Zl0pWp
+                zvSbGd7aSdpXP3QmNn9OjNdj1dVOc3pmjPX55Q6fIHgfb82z9TA2WUW5Bkpf
+                nlD5zURgkzHIzTK2GKv/B7CAMM+3c9zAx/zzCIucVe9RaONDG0tt1FBniuU2
+                VrB6D3JYwzrnDqFDwyH4B46/yoL5AQAA
+                """,
+        """
+                androidx/navigation/StartDestinationLintKt.class:
+                H4sIAAAAAAAA/41STVMTQRB9s4F8SSQJAgEUPwD5sMoFiht6oGJZbBmDZSwu
+                nCabqTjJZsbamWxxzF/yZnmwOPujLHs2KaOBg5d+3W96Xk93z89f338AOMEB
+                wwFXnVjLzrWveCK73Eqt/JblsX0jjJUqJRpS2Xc2B8ZQ7vGE+xFXXf+i3RMh
+                sRmGXJMn59pYhld7jbsUJ+d1rWyso0jEp41ZodP9S4ad6e1QD75oI/x4qKwc
+                CL+exrwdiVOGrYaOu35P2HbMpTI+V0rbtJTxm9o2h1FEWSV6wbRkHgWGzb62
+                kVR+Lxn41JWIFY/8gFJIRYYmh3sMy+FnEfYnMh94zAeCEhl2924/+i+m5US6
+                1MYCSrhfxAIWaV5mZpZ5VEjpP4fEUL1dkqHSmHTxXlje4ZYT5w2SDC2VOVNw
+                Bgys7xyPDq+l8w7J6xwxnNyMqsWbUdEreynUxlC+Ga3XnPEO2XG27BFmCOcI
+                589z7u4xc7Krd/2Pl33a/lxddwTDIhGiORy0RfzJLcy1oUMeXfJYunhCbnwc
+                rzZQiTSSqLPpFhm2Z0//bOKftGJLD+NQvJVOcW1y5/KWHo7gYQ7juaxhHllk
+                sEXRGfEeYemgWvyG8otqlexXNzZsk81SutvnDvkr40QUsJQKlVDBAzp/PsnL
+                Ee463qMgn1bKp0J7qX2GfcLXxC5T/ZUrZAKsBqgF9J71ABt4GOARNq/ADB7j
+                yRWyBvMGTw0KBksGFfJ/A2uvkva7AwAA
+                """
+    )
