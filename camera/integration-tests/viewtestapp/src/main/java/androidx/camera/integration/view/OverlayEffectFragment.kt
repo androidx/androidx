@@ -16,23 +16,35 @@
 package androidx.camera.integration.view
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.Toast
 import androidx.camera.core.CameraEffect.PREVIEW
+import androidx.camera.core.ImageCapture
 import androidx.camera.effects.OverlayEffect
 import androidx.camera.integration.view.effects.BouncyLogoEffect
+import androidx.camera.integration.view.util.takePicture
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.Fragment
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /** Fragment for testing effects integration. */
 class OverlayEffectFragment : Fragment() {
+    private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
 
     private lateinit var cameraController: LifecycleCameraController
     private lateinit var previewView: PreviewView
     private lateinit var bouncyLogoEffect: OverlayEffect
+
+    private lateinit var flashModeButton: Button
+    private lateinit var onDiskCheckBox: CheckBox
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -59,11 +71,64 @@ class OverlayEffectFragment : Fragment() {
         cameraController.setEffects(setOf(bouncyLogoEffect))
         previewView.controller = cameraController
         cameraController.bindToLifecycle(viewLifecycleOwner)
+
+        flashModeButton = view.findViewById(R.id.flash_mode)
+        flashModeButton.setOnClickListener {
+            cameraController.setImageCaptureFlashMode(
+                when (cameraController.getImageCaptureFlashMode()) {
+                    ImageCapture.FLASH_MODE_AUTO -> ImageCapture.FLASH_MODE_ON
+                    ImageCapture.FLASH_MODE_ON -> ImageCapture.FLASH_MODE_OFF
+                    ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_AUTO
+                    else ->
+                        throw IllegalStateException(
+                            "Invalid flash mode: ${cameraController.getImageCaptureFlashMode()}"
+                        )
+                }
+            )
+            flashModeButton.setText(getFlashModeTextResId())
+        }
+        flashModeButton.setText(getFlashModeTextResId())
+
+        onDiskCheckBox = view.findViewById(R.id.on_disk)
+        view.findViewById<View>(R.id.capture).setOnClickListener {
+            cameraController.takePicture(
+                requireContext(),
+                executorService,
+                ::toast,
+                onDiskCheckBox::isChecked
+            )
+        }
+
         return view
+    }
+
+    private fun getFlashModeTextResId() =
+        when (cameraController.getImageCaptureFlashMode()) {
+            ImageCapture.FLASH_MODE_AUTO -> R.string.flash_mode_auto
+            ImageCapture.FLASH_MODE_ON -> R.string.flash_mode_on
+            ImageCapture.FLASH_MODE_SCREEN -> R.string.flash_mode_screen
+            ImageCapture.FLASH_MODE_OFF -> R.string.flash_mode_off
+            else ->
+                throw java.lang.IllegalStateException(
+                    "Invalid flash mode: ${cameraController.getImageCaptureFlashMode()}"
+                )
+        }
+
+    private fun toast(message: String?) {
+        activity?.runOnUiThread {
+            if (isAdded) {
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+        }
+        Log.d(TAG, message!!)
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         bouncyLogoEffect.close()
+    }
+
+    private companion object {
+        const val TAG: String = "CameraCtrlFragment"
     }
 }

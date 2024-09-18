@@ -30,12 +30,11 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageCapture
-import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.utils.Exif
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.integration.view.util.takePictureOnDisk
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.AndroidUtil.isEmulator
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
@@ -605,18 +604,18 @@ class CameraControllerFragmentTest(
         var error: Exception? = null
         var uri: Uri? = null
         instrumentation.runOnMainSync {
-            this.takePicture(
-                object : ImageCapture.OnImageSavedCallback {
-                    override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                        uri = outputFileResults.savedUri
-                        imageCallbackSemaphore.release()
-                    }
-
-                    override fun onError(exception: ImageCaptureException) {
-                        error = exception
-                        imageCallbackSemaphore.release()
-                    }
-                }
+            this.cameraController.takePictureOnDisk(
+                requireContext(),
+                executorService,
+                toastMessenger = this::toast,
+                onImageSaved = { outputFileResults ->
+                    uri = outputFileResults.savedUri
+                    imageCallbackSemaphore.release()
+                },
+                onError = { exception ->
+                    error = exception
+                    imageCallbackSemaphore.release()
+                },
             )
         }
         assertThat(imageCallbackSemaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()

@@ -18,8 +18,35 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-        <androidx.camera.view.PreviewView
-            android:id="@+id/preview_view"
+        <FrameLayout
+            android:id="@+id/container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="0dp"
+            android:layout_weight="1">
+                <androidx.camera.view.PreviewView
+                    android:id="@+id/preview_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+        </FrameLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+                <Button
+                    android:id="@+id/flash_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/capture"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_capture" />
+                <CheckBox
+                    android:id="@+id/on_disk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:text="@string/on_disk"/>
+        </LinearLayout>
+
 </LinearLayout>
