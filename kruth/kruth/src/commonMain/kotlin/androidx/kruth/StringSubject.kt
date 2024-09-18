@@ -31,7 +31,7 @@ expect open class StringSubject protected constructor(metadata: FailureMetadata,
     internal constructor(actual: String?, metadata: FailureMetadata)
 
     /** Fails if the string does not contain the given sequence. */
-    open fun contains(charSequence: CharSequence)
+    open fun contains(charSequence: CharSequence?)
 
     /** Fails if the string does not have the given length. */
     open fun hasLength(expectedLength: Int)
@@ -110,7 +110,8 @@ expect open class StringSubject protected constructor(metadata: FailureMetadata,
 }
 
 /** Fails if the string does not contain the given sequence. */
-internal fun StringSubject.commonContains(charSequence: CharSequence) {
+internal fun StringSubject.commonContains(charSequence: CharSequence?) {
+    requireNonNull(charSequence)
     if (actual == null) {
         failWithActualInternal("expected a string that contains", charSequence)
     } else if (!actual.contains(charSequence)) {

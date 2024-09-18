@@ -39,7 +39,7 @@ expect open class StandardSubjectBuilder internal constructor(metadata: FailureM
      * this method is called multiple times, the messages will appear in the order that they were
      * specified.
      */
-    fun withMessage(messageToPrepend: String): StandardSubjectBuilder
+    fun withMessage(messageToPrepend: String?): StandardSubjectBuilder
 
     fun <T> that(actual: T?): Subject<T>
 
@@ -120,7 +120,7 @@ internal fun commonForCustomFailureStrategy(
 }
 
 internal fun StandardSubjectBuilder.commonWithMessage(
-    messageToPrepend: String
+    messageToPrepend: String?
 ): StandardSubjectBuilder =
     StandardSubjectBuilder(metadata = metadata.withMessage(message = messageToPrepend))
 

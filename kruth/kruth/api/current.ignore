@@ -61,14 +61,6 @@ InvalidNullConversion: androidx.kruth.IterableSubject#containsNoneOf(Object, Obj
     Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExcluded in androidx.kruth.IterableSubject.containsNoneOf(Object firstExcluded, Object secondExcluded, java.lang.Object... restOfExcluded)
 InvalidNullConversion: androidx.kruth.IterableSubject#isNoneOf(Object, Object, java.lang.Object...) parameter #2:
     Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.isNoneOf(Object first, Object second, java.lang.Object... rest)
-InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(Class<?>) parameter #0:
-    Attempted to change nullability of java.lang.Class<?> (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(Class<?> actual)
-InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal) parameter #0:
-    Attempted to change nullability of java.math.BigDecimal (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal actual)
-InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
-    Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter messageToPrepend in androidx.kruth.StandardSubjectBuilder.withMessage(String messageToPrepend)
-InvalidNullConversion: androidx.kruth.StringSubject#contains(CharSequence) parameter #0:
-    Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter charSequence in androidx.kruth.StringSubject.contains(CharSequence charSequence)
 InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(String) parameter #0:
     Attempted to change nullability of java.lang.String (from NULLABLE to NONNULL) in parameter regex in androidx.kruth.StringSubject.containsMatch(String regex)
 InvalidNullConversion: androidx.kruth.StringSubject#containsMatch(java.util.regex.Pattern) parameter #0:

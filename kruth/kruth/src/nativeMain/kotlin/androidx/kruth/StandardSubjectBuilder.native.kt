@@ -42,7 +42,7 @@ actual open class StandardSubjectBuilder internal actual constructor(metadata: F
      * this method is called multiple times, the messages will appear in the order that they were
      * specified.
      */
-    actual fun withMessage(messageToPrepend: String): StandardSubjectBuilder =
+    actual fun withMessage(messageToPrepend: String?): StandardSubjectBuilder =
         commonWithMessage(messageToPrepend)
 
     actual fun <T> that(actual: T?): Subject<T> = commonThat(actual)

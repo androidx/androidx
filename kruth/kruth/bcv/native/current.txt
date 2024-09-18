@@ -301,7 +301,7 @@ open class androidx.kruth/StandardSubjectBuilder { // androidx.kruth/StandardSub
     final fun that(kotlin/LongArray?): androidx.kruth/PrimitiveLongArraySubject // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.LongArray?){}[0]
     final fun that(kotlin/ShortArray?): androidx.kruth/PrimitiveShortArraySubject // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.ShortArray?){}[0]
     final fun that(kotlin/String?): androidx.kruth/StringSubject // androidx.kruth/StandardSubjectBuilder.that|that(kotlin.String?){}[0]
-    final fun withMessage(kotlin/String): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.withMessage|withMessage(kotlin.String){}[0]
+    final fun withMessage(kotlin/String?): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.withMessage|withMessage(kotlin.String?){}[0]
 
     final object Companion { // androidx.kruth/StandardSubjectBuilder.Companion|null[0]
         final fun forCustomFailureStrategy(androidx.kruth/FailureStrategy): androidx.kruth/StandardSubjectBuilder // androidx.kruth/StandardSubjectBuilder.Companion.forCustomFailureStrategy|forCustomFailureStrategy(androidx.kruth.FailureStrategy){}[0]
@@ -315,7 +315,7 @@ open class androidx.kruth/StringSubject : androidx.kruth/ComparableSubject<kotli
     final fun doesNotContainMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.doesNotContainMatch|doesNotContainMatch(kotlin.text.Regex){}[0]
     final fun doesNotMatch(kotlin.text/Regex) // androidx.kruth/StringSubject.doesNotMatch|doesNotMatch(kotlin.text.Regex){}[0]
     final fun matches(kotlin.text/Regex) // androidx.kruth/StringSubject.matches|matches(kotlin.text.Regex){}[0]
-    open fun contains(kotlin/CharSequence) // androidx.kruth/StringSubject.contains|contains(kotlin.CharSequence){}[0]
+    open fun contains(kotlin/CharSequence?) // androidx.kruth/StringSubject.contains|contains(kotlin.CharSequence?){}[0]
     open fun containsMatch(kotlin/String) // androidx.kruth/StringSubject.containsMatch|containsMatch(kotlin.String){}[0]
     open fun doesNotContain(kotlin/CharSequence) // androidx.kruth/StringSubject.doesNotContain|doesNotContain(kotlin.CharSequence){}[0]
     open fun doesNotContainMatch(kotlin/String) // androidx.kruth/StringSubject.doesNotContainMatch|doesNotContainMatch(kotlin.String){}[0]
