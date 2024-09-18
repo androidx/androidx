@@ -18,6 +18,7 @@ package androidx.glance.appwidget.demos
 
 import android.content.Context
 import android.util.Log
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -46,6 +47,15 @@ class ResizingAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Single
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         Column(modifier = GlanceModifier.fillMaxSize().padding(16.dp).background(Color.LightGray)) {
             Row(modifier = GlanceModifier.fillMaxWidth()) {
                 Text(

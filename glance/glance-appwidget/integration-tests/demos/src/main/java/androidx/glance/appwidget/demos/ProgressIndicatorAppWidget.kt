@@ -56,6 +56,15 @@ class ProgressIndicatorAppWidget : GlanceAppWidget() {
     override val sizeMode: SizeMode = SizeMode.Exact
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
+    }
+
+    @Composable
+    private fun Content() {
         GlanceTheme(ProgressIndicatorDemoColorScheme.colors) {
             Scaffold(
                 backgroundColor = GlanceTheme.colors.widgetBackground,

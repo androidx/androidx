@@ -61,11 +61,15 @@ class RippleAppWidget : GlanceAppWidget() {
     private val boxColors = listOf(Color(0xffF7A998), Color(0xffFA5F3D))
 
     override suspend fun provideGlance(context: Context, id: GlanceId) = provideContent {
-        RippleDemoContent()
+        Content()
+    }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) = provideContent {
+        Content()
     }
 
     @Composable
-    private fun RippleDemoContent() {
+    private fun Content() {
         @Suppress("AutoboxingStateCreation") var count by remember { mutableStateOf(0) }
         var type by remember { mutableStateOf(ContentScale.Fit) }
         var columnBgColors by remember { mutableStateOf(columnBgColorsA) }

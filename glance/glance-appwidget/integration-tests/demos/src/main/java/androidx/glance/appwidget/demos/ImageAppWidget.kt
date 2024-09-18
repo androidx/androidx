@@ -82,6 +82,14 @@ class ImageAppWidget : GlanceAppWidget() {
             Scaffold(titleBar = { Header() }, content = { BodyContent(imageUri = imageUri) })
         }
     }
+
+    override suspend fun providePreview(context: Context, widgetCategory: Int) {
+        val imageUri: Uri = getShareableImageUri(context)
+
+        provideContent {
+            Scaffold(titleBar = { Header() }, content = { BodyContent(imageUri = imageUri) })
+        }
+    }
 }
 
 @Composable
