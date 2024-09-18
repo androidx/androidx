@@ -1,4 +1,10 @@
 // Baseline format: 1.0
+AddedFinal: androidx.kruth.LongSubject#isNotWithin(long):
+    Method androidx.kruth.LongSubject.isNotWithin has added 'final' qualifier
+AddedFinal: androidx.kruth.LongSubject#isWithin(long):
+    Method androidx.kruth.LongSubject.isWithin has added 'final' qualifier
+
+
 ChangedType: androidx.kruth.ExpectFailure#assertThat(T):
     Method androidx.kruth.ExpectFailure.assertThat has changed return type from androidx.kruth.TruthFailureSubject to androidx.kruth.TruthFailureSubject<T>
 ChangedType: androidx.kruth.MultimapSubject#valuesForKey(K):
@@ -45,12 +51,18 @@ ChangedType: androidx.kruth.TruthFailureSubject#truthFailures():
     Method androidx.kruth.TruthFailureSubject.truthFailures has changed return type from androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject,java.lang.AssertionError> to androidx.kruth.Subject.Factory<androidx.kruth.TruthFailureSubject<T>,T>
 
 
-InvalidNullConversion: androidx.kruth.IterableSubject#isNotIn(Iterable<?>) parameter #0:
-    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.IterableSubject.isNotIn(Iterable<?> iterable)
+InvalidNullConversion: androidx.kruth.IterableSubject#containsAnyOf(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.containsAnyOf(Object first, Object second, java.lang.Object... rest)
+InvalidNullConversion: androidx.kruth.IterableSubject#containsAtLeast(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExpected in androidx.kruth.IterableSubject.containsAtLeast(Object firstExpected, Object secondExpected, java.lang.Object... restOfExpected)
+InvalidNullConversion: androidx.kruth.IterableSubject#containsExactly(java.lang.Object...) parameter #0:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter expected in androidx.kruth.IterableSubject.containsExactly(java.lang.Object... expected)
+InvalidNullConversion: androidx.kruth.IterableSubject#containsNoneOf(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter restOfExcluded in androidx.kruth.IterableSubject.containsNoneOf(Object firstExcluded, Object secondExcluded, java.lang.Object... restOfExcluded)
+InvalidNullConversion: androidx.kruth.IterableSubject#isNoneOf(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.IterableSubject.isNoneOf(Object first, Object second, java.lang.Object... rest)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(Class<?>) parameter #0:
     Attempted to change nullability of java.lang.Class<?> (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(Class<?> actual)
-InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(T[]) parameter #0:
-    Attempted to change nullability of T (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(T[] actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#that(java.math.BigDecimal) parameter #0:
     Attempted to change nullability of java.math.BigDecimal (from NULLABLE to NONNULL) in parameter actual in androidx.kruth.StandardSubjectBuilder.that(java.math.BigDecimal actual)
 InvalidNullConversion: androidx.kruth.StandardSubjectBuilder#withMessage(String) parameter #0:
@@ -82,37 +94,63 @@ InvalidNullConversion: androidx.kruth.StringSubject#startsWith(String) parameter
 InvalidNullConversion: androidx.kruth.StringSubject.CaseInsensitiveStringComparison#doesNotContain(CharSequence) parameter #0:
     Attempted to change nullability of java.lang.CharSequence (from NULLABLE to NONNULL) in parameter expected in androidx.kruth.StringSubject.CaseInsensitiveStringComparison.doesNotContain(CharSequence expected)
 InvalidNullConversion: androidx.kruth.Subject#check(String, java.lang.Object...) parameter #1:
-    Attempted to change nullability of java.lang.Object (from NULLABLE to NONNULL) in parameter args in androidx.kruth.Subject.check(String format, java.lang.Object... args)
-InvalidNullConversion: androidx.kruth.Subject#isIn(Iterable<?>) parameter #0:
-    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.Subject.isIn(Iterable<?> iterable)
-InvalidNullConversion: androidx.kruth.Subject#isNotIn(Iterable<?>) parameter #0:
-    Attempted to change nullability of java.lang.Object (from NONNULL to NULLABLE) in parameter iterable in androidx.kruth.Subject.isNotIn(Iterable<?> iterable)
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter args in androidx.kruth.Subject.check(String format, java.lang.Object... args)
+InvalidNullConversion: androidx.kruth.Subject#isAnyOf(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isAnyOf(Object first, Object second, java.lang.Object... rest)
+InvalidNullConversion: androidx.kruth.Subject#isNoneOf(Object, Object, java.lang.Object...) parameter #2:
+    Attempted to change nullability of java.lang.Object... (from NULLABLE to NONNULL) in parameter rest in androidx.kruth.Subject.isNoneOf(Object first, Object second, java.lang.Object... rest)
 
 
 RemovedClass: androidx.kruth.Correspondence:
     Removed class androidx.kruth.Correspondence
 RemovedClass: androidx.kruth.CustomSubjectBuilder:
     Removed class androidx.kruth.CustomSubjectBuilder
+RemovedClass: androidx.kruth.IntStreamSubject:
+    Removed class androidx.kruth.IntStreamSubject
+RemovedClass: androidx.kruth.IntegerSubject.TolerantIntegerComparison:
+    Removed class androidx.kruth.IntegerSubject.TolerantIntegerComparison
 RemovedClass: androidx.kruth.IterableSubject.UsingCorrespondence:
     Removed class androidx.kruth.IterableSubject.UsingCorrespondence
+RemovedClass: androidx.kruth.LongStreamSubject:
+    Removed class androidx.kruth.LongStreamSubject
 RemovedClass: androidx.kruth.MapSubject.UsingCorrespondence:
     Removed class androidx.kruth.MapSubject.UsingCorrespondence
 RemovedClass: androidx.kruth.MultimapSubject.UsingCorrespondence:
     Removed class androidx.kruth.MultimapSubject.UsingCorrespondence
+RemovedClass: androidx.kruth.OptionalDoubleSubject:
+    Removed class androidx.kruth.OptionalDoubleSubject
+RemovedClass: androidx.kruth.OptionalIntSubject:
+    Removed class androidx.kruth.OptionalIntSubject
+RemovedClass: androidx.kruth.OptionalLongSubject:
+    Removed class androidx.kruth.OptionalLongSubject
+RemovedClass: androidx.kruth.OptionalSubject:
+    Removed class androidx.kruth.OptionalSubject
+RemovedClass: androidx.kruth.PathSubject:
+    Removed class androidx.kruth.PathSubject
 RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable:
     Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
 RemovedClass: androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable:
     Removed class androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable
+RemovedClass: androidx.kruth.StreamSubject:
+    Removed class androidx.kruth.StreamSubject
 RemovedClass: androidx.kruth.Truth:
     Removed class androidx.kruth.Truth
 RemovedClass: androidx.kruth.TruthJUnit:
     Removed class androidx.kruth.TruthJUnit
 
 
+RemovedDeprecatedClass: androidx.kruth.Truth8:
+    Removed deprecated class androidx.kruth.Truth8
+
+
 RemovedInterface: androidx.kruth.Fact:
     Class androidx.kruth.Fact no longer implements java.io.Serializable
 
 
+RemovedMethod: androidx.kruth.IntegerSubject#isNotWithin(int):
+    Removed method androidx.kruth.IntegerSubject.isNotWithin(int)
+RemovedMethod: androidx.kruth.IntegerSubject#isWithin(int):
+    Removed method androidx.kruth.IntegerSubject.isWithin(int)
 RemovedMethod: androidx.kruth.IterableSubject#IterableSubject(androidx.kruth.FailureMetadata, Iterable<?>):
     Removed constructor androidx.kruth.IterableSubject(androidx.kruth.FailureMetadata,Iterable<?>)
 RemovedMethod: androidx.kruth.IterableSubject#comparingElementsUsing(androidx.kruth.Correspondence<? super A,? super E>):
@@ -159,6 +197,22 @@ RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingTolerance(double):
     Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.nio.file.Path):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.nio.file.Path)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.Optional<?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.Optional<?>)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalDouble):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalDouble)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalInt):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalInt)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.OptionalLong):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.OptionalLong)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.IntStream):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.IntStream)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.LongStream):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.LongStream)
+RemovedMethod: androidx.kruth.StandardSubjectBuilder#that(java.util.stream.Stream<?>):
+    Removed method androidx.kruth.StandardSubjectBuilder.that(java.util.stream.Stream<?>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):
     Removed method androidx.kruth.StandardSubjectBuilder.withMessage(String,java.lang.Object...)
 RemovedMethod: androidx.kruth.Subject#Subject(androidx.kruth.FailureMetadata, Object):
