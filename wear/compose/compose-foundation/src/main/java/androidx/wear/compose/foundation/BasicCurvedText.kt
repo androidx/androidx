@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.foundation
 
+import android.graphics.Paint.LINEAR_TEXT_FLAG
+import android.graphics.Paint.SUBPIXEL_TEXT_FLAG
 import android.graphics.Typeface
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -238,7 +240,11 @@ internal class CurvedTextDelegate {
 
     private var typeFace: State<Typeface?> = mutableStateOf(null)
 
-    private val paint = android.graphics.Paint().apply { isAntiAlias = true }
+    private val paint =
+        android.graphics.Paint().apply {
+            isAntiAlias = true
+            flags = flags or (SUBPIXEL_TEXT_FLAG + LINEAR_TEXT_FLAG)
+        }
     private val backgroundPath = android.graphics.Path()
     private val textPath = android.graphics.Path()
 

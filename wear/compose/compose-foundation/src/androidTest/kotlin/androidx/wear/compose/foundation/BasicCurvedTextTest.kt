@@ -76,7 +76,7 @@ class BasicCurvedTextTest {
 
         // This is a pre-calculated value. It was calculated for specific container size,
         // density and font.
-        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo(93.dp)
+        rule.onNodeWithTag(TEST_TAG).assertWidthIsEqualTo(92.5f.dp)
     }
 
     @Test
