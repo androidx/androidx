@@ -92,6 +92,34 @@ class StreamSharingForceEnablerTest(
                         false
                     )
                 )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 4a",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 5",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(
+                    arrayOf(
+                        "Google",
+                        "Pixel 4a",
+                        "1",
+                        PREVIEW or IMAGE_CAPTURE or VIDEO_CAPTURE,
+                        true
+                    )
+                )
+                add(arrayOf("Google", "Pixel 5a", "1", PREVIEW or IMAGE_CAPTURE, false))
             }
     }
 

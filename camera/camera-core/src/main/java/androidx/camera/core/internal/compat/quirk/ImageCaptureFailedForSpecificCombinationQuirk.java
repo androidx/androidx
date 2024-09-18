@@ -27,22 +27,37 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Quirk;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 359062845
+ *     Bug Id: 359062845, 259335612
  *     Description: Quirk required to check whether still image capture can run failed when a
  *     specific combination of UseCases are bound together.
- *     Device(s): OnePlus 12
+ *     Device(s): OnePlus 12, Pixel 4a, 5, 5a
  */
 public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quirk {
+    private static final Set<String> PIXEL_MODELS = new HashSet<>(Arrays.asList(
+            "pixel 4a", // Pixel 4a
+            "pixel 4a (5g)", // Pixel 4a (5G)
+            "pixel 5", // Pixel 5
+            "pixel 5a" // Pixel 5a
+    ));
+
     static boolean load() {
-        return isOnePlus12();
+        return isOnePlus12() || isPixelProblematicDevice();
     }
 
     private static boolean isOnePlus12() {
         return "oneplus".equalsIgnoreCase(Build.BRAND) && "cph2583".equalsIgnoreCase(Build.MODEL);
+    }
+
+    private static boolean isPixelProblematicDevice() {
+        return "google".equalsIgnoreCase(Build.BRAND) && PIXEL_MODELS.contains(
+                Build.MODEL.toLowerCase());
     }
 
     /**
@@ -53,6 +68,8 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
             @NonNull Collection<UseCase> appUseCases) {
         if (isOnePlus12()) {
             return shouldForceEnableStreamSharingForOnePlus12(cameraId, appUseCases);
+        } else if (isPixelProblematicDevice()) {
+            return shouldForceEnableStreamSharingForPixelDevice(cameraId, appUseCases);
         }
         return false;
     }
@@ -63,7 +80,21 @@ public final class ImageCaptureFailedForSpecificCombinationQuirk implements Quir
      */
     private boolean shouldForceEnableStreamSharingForOnePlus12(@NonNull String cameraId,
             @NonNull Collection<UseCase> appUseCases) {
-        if (!cameraId.equals("1") || appUseCases.size() != 3) {
+        return cameraId.equals("1") && isVideoCapturePreviewImageCaptureCombination(appUseCases);
+    }
+
+    /**
+     * On Pixel 4a, 5 and 5a device, still image capture run failed on the front camera only when
+     * the UseCase combination is exactly Preview + VideoCapture + ImageCapture.
+     */
+    private boolean shouldForceEnableStreamSharingForPixelDevice(@NonNull String cameraId,
+            @NonNull Collection<UseCase> appUseCases) {
+        return cameraId.equals("1") && isVideoCapturePreviewImageCaptureCombination(appUseCases);
+    }
+
+    private boolean isVideoCapturePreviewImageCaptureCombination(
+            @NonNull Collection<UseCase> appUseCases) {
+        if (appUseCases.size() != 3) {
             return false;
         }
 
