@@ -138,6 +138,8 @@ package androidx.compose.material3.adaptive.layout {
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public interface PaneMotion {
     method public androidx.compose.animation.EnterTransition getEnterTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionScope);
     method public androidx.compose.animation.ExitTransition getExitTransition(androidx.compose.material3.adaptive.layout.PaneScaffoldMotionScope);
+    method public int getType();
+    property public abstract int type;
     field public static final androidx.compose.material3.adaptive.layout.PaneMotion.Companion Companion;
   }
 
@@ -164,15 +166,32 @@ package androidx.compose.material3.adaptive.layout {
     property public final androidx.compose.material3.adaptive.layout.PaneMotion NoMotion;
   }
 
+  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @kotlin.jvm.JvmInline public static final value class PaneMotion.Type {
+    method public int getValue();
+    property public final int value;
+    field public static final androidx.compose.material3.adaptive.layout.PaneMotion.Type.Companion Companion;
+  }
+
+  public static final class PaneMotion.Type.Companion {
+    method public int getEntering();
+    method public int getExiting();
+    method public int getHidden();
+    method public int getShown();
+    property public final int Entering;
+    property public final int Exiting;
+    property public final int Hidden;
+    property public final int Shown;
+  }
+
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi public final class PaneMotionData {
-    method public long getCurrentPosition();
-    method public long getCurrentSize();
     method public androidx.compose.material3.adaptive.layout.PaneMotion getMotion();
+    method public long getOriginPosition();
+    method public long getOriginSize();
     method public long getTargetPosition();
     method public long getTargetSize();
-    property public final long currentPosition;
-    property public final long currentSize;
     property public final androidx.compose.material3.adaptive.layout.PaneMotion motion;
+    property public final long originPosition;
+    property public final long originSize;
     property public final long targetPosition;
     property public final long targetSize;
   }

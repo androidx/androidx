@@ -46,6 +46,14 @@ internal class ThreePaneScaffoldHorizontalOrder(
 
     override val size = 3
 
+    operator fun get(index: Int) =
+        when (index) {
+            0 -> firstPane
+            1 -> secondPane
+            2 -> thirdPane
+            else -> throw IndexOutOfBoundsException("Invalid pane index $index")
+        }
+
     override fun indexOf(role: ThreePaneScaffoldRole) =
         when (role) {
             firstPane -> 0
