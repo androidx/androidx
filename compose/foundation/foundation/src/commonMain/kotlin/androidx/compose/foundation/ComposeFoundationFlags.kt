@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.text.BasicText
+import androidx.compose.ui.graphics.graphicsLayer
 import kotlin.jvm.JvmField
 
 /**
@@ -60,4 +62,14 @@ object ComposeFoundationFlags {
      * are doing a flagged roll out of this behavior change.
      */
     @Suppress("MutableBareField") @JvmField var NewNestedFlingPropagationEnabled = true
+
+    /**
+     * We have removed the implicit [graphicsLayer] from [BasicText]. This also affects the `Text`
+     * composable in material modules.
+     *
+     * This change ideally improves the initial rendering performance of [BasicText] but it may have
+     * negative effect on recomposition or redraw since [BasicText]s draw operations would not be
+     * cached in a separate layer.
+     */
+    @JvmField @Suppress("MutableBareField") var RemoveBasicTextGraphicsLayerEnabled: Boolean = true
 }
