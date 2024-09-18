@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.Flow
  * display areas on a device.
  */
 @ExperimentalWindowApi
-interface WindowAreaController {
+abstract class WindowAreaController @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     /**
      * [Flow] of the list of current [WindowAreaInfo]s that are currently available to be interacted
@@ -44,7 +44,7 @@ interface WindowAreaController {
      * If [WindowSdkExtensions.extensionVersion] is less than 2, the flow will return empty
      * [WindowAreaInfo] list flow.
      */
-    val windowAreaInfos: Flow<List<WindowAreaInfo>>
+    abstract val windowAreaInfos: Flow<List<WindowAreaInfo>>
 
     /**
      * Starts a transfer session where the calling [Activity] is moved to the window area identified
@@ -82,7 +82,7 @@ interface WindowAreaController {
      *   ended.
      * @see windowAreaInfos
      */
-    fun transferActivityToWindowArea(
+    abstract fun transferActivityToWindowArea(
         token: Binder,
         activity: Activity,
         executor: Executor,
@@ -118,14 +118,14 @@ interface WindowAreaController {
      *   the currently enabled rear display presentation.
      * @see windowAreaInfos
      */
-    fun presentContentOnWindowArea(
+    abstract fun presentContentOnWindowArea(
         token: Binder,
         activity: Activity,
         executor: Executor,
         windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
     )
 
-    public companion object {
+    companion object {
 
         private val TAG = WindowAreaController::class.simpleName
 
