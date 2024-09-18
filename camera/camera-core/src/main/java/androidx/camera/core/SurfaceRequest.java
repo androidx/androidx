@@ -178,6 +178,8 @@ public final class SurfaceRequest {
         mResolution = resolution;
         mCamera = camera;
         mIsPrimary = isPrimary;
+        Preconditions.checkArgument(dynamicRange.isFullySpecified(),
+                "SurfaceRequest's DynamicRange must always be fully specified.");
         mDynamicRange = dynamicRange;
         mExpectedFrameRate = expectedFrameRate;
 
@@ -349,6 +351,12 @@ public final class SurfaceRequest {
      * {@link android.graphics.ImageFormat} that can support ten bits of dynamic range, such as
      * {@link android.graphics.ImageFormat#PRIVATE} or
      * {@link android.graphics.ImageFormat#YCBCR_P010}.
+     *
+     * <p>The dynamic range returned here will always be fully specified. That is, it will never
+     * have an {@link DynamicRange#getEncoding() encoding} of
+     * {@link DynamicRange#ENCODING_UNSPECIFIED} or {@link DynamicRange#ENCODING_HDR_UNSPECIFIED}
+     * and will never have {@link DynamicRange#getBitDepth() bit depth} of
+     * {@link DynamicRange#BIT_DEPTH_UNSPECIFIED}.
      */
     @NonNull
     public DynamicRange getDynamicRange() {
