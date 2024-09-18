@@ -37,12 +37,20 @@ import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material3.tokens.MotionTokens
 
 /**
- * TODO(b/336715634): A copy of M2 dialog except Scaffold and SwipeToDismissBox. In and Out
- *   animations must be updated according to new motion designs.
+ * This is a base dialog component used by [AlertDialog] and [Confirmation] variations. Dialogs
+ * provide important prompts in a user flow. They can require an action, communicate information, or
+ * help users accomplish a task.
+ *
+ * @param show A boolean value that determines whether the dialog should be displayed.
+ * @param onDismissRequest A lambda function to be called when the dialog is dismissed by swiping
+ *   right.
+ * @param modifier Modifier to be applied to the dialog content.
+ * @param properties An optional [DialogProperties] object for configuring the dialog's behavior.
+ * @param content A composable function that defines the content of the dialog.
  */
 @Composable
 internal fun Dialog(
-    showDialog: Boolean,
+    show: Boolean,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
     properties: DialogProperties = DialogProperties(),
@@ -54,9 +62,7 @@ internal fun Dialog(
     }
     val transition = rememberTransition(transitionState)
 
-    var pendingOnDismissCall by remember { mutableStateOf(false) }
-
-    if (showDialog || transition.currentState == DialogVisibility.Display) {
+    if (show || transition.currentState == DialogVisibility.Display) {
         androidx.compose.ui.window.Dialog(
             onDismissRequest = onDismissRequest,
             properties = properties,
@@ -93,26 +99,13 @@ internal fun Dialog(
                     }
                 }
             }
-            LaunchedEffect(showDialog) {
-                if (showDialog) {
+            LaunchedEffect(show) {
+                if (show) {
                     // a) Fade out previous screen contents b) Scale down dialog contents from 125%
                     transitionState.targetState = DialogVisibility.Display
-                    pendingOnDismissCall = true
                 } else {
                     // a) Fade out dialog contents b) Scale up dialog contents.
                     transitionState.targetState = DialogVisibility.Hide
-                }
-            }
-
-            LaunchedEffect(transitionState.currentState) {
-                if (
-                    pendingOnDismissCall &&
-                        transitionState.currentState == DialogVisibility.Hide &&
-                        transitionState.isIdle
-                ) {
-                    // After the outro animation, leave the dialog & reset alpha/scale transitions.
-                    onDismissRequest()
-                    pendingOnDismissCall = false
                 }
             }
         }

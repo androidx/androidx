@@ -28,8 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -37,6 +39,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.test.filters.SdkSuppress
+import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
 
@@ -95,27 +98,36 @@ class ConfirmationTest {
 
     @Test
     fun confirmation_linearText_supports_swipeToDismiss() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             Confirmation(
                 modifier = Modifier.testTag(TEST_TAG),
                 text = {},
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog
             ) {}
         }
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
     fun confirmation_curvedText_supports_swipeToDismiss() {
+        var dismissCounter = 0
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             Confirmation(
                 modifier = Modifier.testTag(TEST_TAG),
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog,
                 curvedText = {}
             ) {}
@@ -123,16 +135,21 @@ class ConfirmationTest {
 
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
     fun successConfirmation_supports_swipeToDismiss() {
+        var dismissCounter = 0
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             SuccessConfirmation(
                 modifier = Modifier.testTag(TEST_TAG),
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog,
             )
         }
@@ -141,16 +158,21 @@ class ConfirmationTest {
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
         rule.mainClock.advanceTimeBy(1000)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
     fun failureConfirmation_supports_swipeToDismiss() {
+        var dismissCounter = 0
         rule.mainClock.autoAdvance = false
         rule.setContentWithTheme {
             var showDialog by remember { mutableStateOf(true) }
             FailureConfirmation(
                 modifier = Modifier.testTag(TEST_TAG),
-                onDismissRequest = { showDialog = false },
+                onDismissRequest = {
+                    showDialog = false
+                    dismissCounter++
+                },
                 show = showDialog,
             )
         }
@@ -159,6 +181,7 @@ class ConfirmationTest {
         rule.onNodeWithTag(TEST_TAG).performTouchInput { swipeRight() }
         rule.mainClock.advanceTimeBy(1000)
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
@@ -209,6 +232,173 @@ class ConfirmationTest {
             )
         }
         rule.onNodeWithTag(TEST_TAG).assertDoesNotExist()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun confirmation_linearText_onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                text = {},
+                onDismissRequest = { dismissCounter++ },
+                // Set very long duration so that it won't be dismissed by the timeout
+                durationMillis = 100_000,
+                show = show.value
+            ) {}
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(0, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun confirmation_curvedText_onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                curvedText = {},
+                onDismissRequest = { dismissCounter++ },
+                // Set very long duration so that it won't be dismissed by the timeout
+                durationMillis = 100_000,
+                show = show.value
+            ) {}
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(0, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun successConfirmation_onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            SuccessConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissCounter++ },
+                // Set very long duration so that it won't be dismissed by the timeout
+                durationMillis = 100_000,
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(0, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun failureConfirmation_onDismissRequest_not_called_when_hidden() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            FailureConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = { dismissCounter++ },
+                // Set very long duration so that it won't be dismissed by the timeout
+                durationMillis = 100_000,
+                show = show.value
+            )
+        }
+        rule.waitForIdle()
+        show.value = false
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(0, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun confirmation_linearText_calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                text = {},
+                onDismissRequest = {
+                    dismissCounter++
+                    show.value = false
+                },
+                durationMillis = 100,
+                show = show.value
+            ) {}
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun confirmation_curvedText_calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+
+        rule.setContentWithTheme {
+            Confirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                curvedText = {},
+                onDismissRequest = {
+                    dismissCounter++
+                    show.value = false
+                },
+                durationMillis = 100,
+                show = show.value
+            ) {}
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun successConfirmation_curvedText_calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+
+        rule.setContentWithTheme {
+            SuccessConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = {
+                    dismissCounter++
+                    show.value = false
+                },
+                durationMillis = 100,
+                show = show.value
+            ) {}
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(1, dismissCounter)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun failureConfirmation_curvedText_calls_onDismissRequest_on_timeout() {
+        val show = mutableStateOf(true)
+        var dismissCounter = 0
+
+        rule.setContentWithTheme {
+            FailureConfirmation(
+                modifier = Modifier.testTag(TEST_TAG),
+                onDismissRequest = {
+                    dismissCounter++
+                    show.value = false
+                },
+                durationMillis = 100,
+                show = show.value
+            ) {}
+        }
+        rule.waitUntilDoesNotExist(hasTestTag(TEST_TAG))
+        Assert.assertEquals(1, dismissCounter)
     }
 
     @Test
