@@ -110,8 +110,7 @@ class BackgroundTest {
             density = rule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20.0f,
-            shapeSizeY = 20.0f,
+            shapeSize = Size(20f, 20f),
             shapeColor = Color.White
         )
     }
@@ -133,8 +132,7 @@ class BackgroundTest {
             density = rule.density,
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
-            shapeSizeX = 20.0f,
-            shapeSizeY = 20.0f,
+            shapeSize = Size(20f, 20f),
             shapeColor = Color.White
         )
     }
@@ -156,7 +154,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -177,7 +175,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -201,7 +199,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RoundedCornerShape(10f),
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
 
         shape = CircleShape
@@ -213,7 +211,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -252,7 +250,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
 
         roundCorners = true
@@ -264,7 +262,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RoundedCornerShape(50f),
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
 
         roundCorners = false
@@ -276,7 +274,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -320,7 +318,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
 
         roundCorners = true
@@ -332,7 +330,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RoundedCornerShape(50f),
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
 
         roundCorners = false
@@ -344,7 +342,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = RectangleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -367,7 +365,7 @@ class BackgroundTest {
             backgroundColor = Color.Magenta,
             shape = CircleShape,
             shapeColor = Color.White,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -395,7 +393,7 @@ class BackgroundTest {
                 backgroundColor = Color.Magenta,
                 shape = CircleShape,
                 shapeColor = Color.White,
-                shapeOverlapPixelCount = 2.0f
+                antiAliasingGap = 2.0f
             )
     }
 

@@ -122,10 +122,9 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeSizeX = 20.0f,
-            shapeSizeY = 20.0f,
+            shapeSize = Size(20f, 20f),
             shapeColor = Color.Blue,
-            shapeOverlapPixelCount = 3.0f
+            antiAliasingGap = 3.0f
         )
     }
 
@@ -146,10 +145,9 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeSizeX = 20.0f,
-            shapeSizeY = 20.0f,
+            shapeSize = Size(20f, 20f),
             shapeColor = Color.Blue,
-            shapeOverlapPixelCount = 3.0f
+            antiAliasingGap = 3.0f
         )
     }
 
@@ -171,7 +169,7 @@ class BorderTest(val shape: Shape) {
             shapeColor = Color.Red,
             shape = shape,
             backgroundShape = shape,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -193,7 +191,7 @@ class BorderTest(val shape: Shape) {
             shapeColor = Color.Blue,
             shape = shape,
             backgroundShape = shape,
-            shapeOverlapPixelCount = 2.0f
+            antiAliasingGap = 2.0f
         )
     }
 
@@ -215,7 +213,7 @@ class BorderTest(val shape: Shape) {
             backgroundColor = Color.White,
             shapeColor = Color.White,
             shape = RectangleShape,
-            shapeOverlapPixelCount = 1.0f
+            antiAliasingGap = 1.0f
         )
     }
 
@@ -338,10 +336,9 @@ class BorderTest(val shape: Shape) {
                 backgroundColor = Color.Red,
                 shape = shape,
                 backgroundShape = shape,
-                shapeSizeX = 20.0f,
-                shapeSizeY = 20.0f,
+                shapeSize = Size(20f, 20f),
                 shapeColor = Color.Blue,
-                shapeOverlapPixelCount = 3.0f
+                antiAliasingGap = 3.0f
             )
     }
 
@@ -369,10 +366,9 @@ class BorderTest(val shape: Shape) {
                 backgroundColor = Color.Red,
                 shape = shape,
                 backgroundShape = shape,
-                shapeSizeX = 20.0f,
-                shapeSizeY = 20.0f,
+                shapeSize = Size(20f, 20f),
                 shapeColor = Color.Blue,
-                shapeOverlapPixelCount = 3.0f
+                antiAliasingGap = 3.0f
             )
     }
 

@@ -372,7 +372,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
+                antiAliasingGap = 0.0f
             )
     }
 
@@ -412,7 +412,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
+                antiAliasingGap = 0.0f
             )
     }
 
@@ -440,7 +440,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
+                antiAliasingGap = 0.0f
             )
 
         // no cursor when should be no cursor
@@ -453,7 +453,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
+                antiAliasingGap = 0.0f
             )
     }
 
@@ -556,7 +556,7 @@ class TextFieldCursorTest : FocusedWindowTest {
                 shape = RectangleShape,
                 shapeColor = Color.White,
                 backgroundColor = Color.White,
-                shapeOverlapPixelCount = 0.0f
+                antiAliasingGap = 0.0f
             )
     }
 

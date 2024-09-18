@@ -200,7 +200,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 
@@ -235,7 +235,7 @@ class FloatingActionButtonTest {
                 shape = realShape,
                 shapeColor = fabColor,
                 backgroundColor = surface,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 

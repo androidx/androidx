@@ -25,6 +25,7 @@ import androidx.compose.testutils.assertShape
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.asAndroidBitmap
@@ -194,9 +195,8 @@ class CanvasTest {
                 backgroundColor = Color.Red,
                 shapeColor = Color.Blue,
                 shape = CircleShape,
-                shapeSizeX = 20.0f,
-                shapeSizeY = 20.0f,
-                shapeOverlapPixelCount = 2.0f
+                shapeSize = Size(20f, 20f),
+                antiAliasingGap = 2.0f
             )
     }
 }

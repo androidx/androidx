@@ -680,7 +680,7 @@ class IconToggleButtonTest {
                 horizontalPadding = padding,
                 verticalPadding = padding,
                 backgroundColor = backgroundColor,
-                shapeOverlapPixelCount = 2.0f,
+                antiAliasingGap = 2.0f,
                 shapeColor = shapeColor
             )
     }

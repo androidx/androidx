@@ -755,7 +755,7 @@ class IconButtonTest {
                 shape = shape,
                 shapeColor = iconButtonColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 
@@ -1067,7 +1067,7 @@ class IconButtonTest {
                 shape = shape,
                 shapeColor = iconButtonColor,
                 backgroundColor = background,
-                shapeOverlapPixelCount = with(rule.density) { 1.dp.toPx() }
+                antiAliasingGap = with(rule.density) { 1.dp.toPx() }
             )
     }
 
