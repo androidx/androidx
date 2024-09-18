@@ -54,12 +54,12 @@ fun LazyColumnScalingMorphingEffectSample() {
                     Modifier.background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 10.dp)
             ) {
-                item {
+                item(contentType = "header") {
                     // No modifier is applied - no Material 3 Motion.
                     ListHeader { Text("Ingredients") }
                 }
 
-                items(allIngredients) { ingredient ->
+                items(allIngredients, key = { it }) { ingredient ->
                     Text(
                         ingredient,
                         color = MaterialTheme.colorScheme.onSurface,
@@ -104,11 +104,11 @@ fun LazyColumnTargetMorphingHeightSample() {
                     Modifier.background(MaterialTheme.colorScheme.background)
                         .padding(horizontal = 10.dp),
             ) {
-                item {
+                item(contentType = "header") {
                     // No modifier is applied - no Material 3 Motion transformations.
                     ListHeader { Text("Drinks", style = MaterialTheme.typography.labelLarge) }
                 }
-                items(drinks) { notification ->
+                items(drinks, key = { it.title }) { notification ->
                     Column(
                         modifier =
                             Modifier.fillMaxWidth()
