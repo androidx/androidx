@@ -1,1 +1,11 @@
 // Signature format: 4.0
+package androidx.camera.media3.effect {
+
+  public final class Media3Effect extends androidx.camera.core.CameraEffect implements java.lang.AutoCloseable {
+    ctor public Media3Effect(android.content.Context context, int targets, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.lang.Throwable> errorListener);
+    method public void close();
+    method public void setEffects(java.util.List<? extends androidx.media3.common.Effect> effects);
+  }
+
+}
+
