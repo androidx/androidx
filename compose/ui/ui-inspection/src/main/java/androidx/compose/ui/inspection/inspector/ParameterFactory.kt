@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.inspection.inspector.ParameterType.DimensionDp
 import androidx.compose.ui.inspection.util.copy
 import androidx.compose.ui.inspection.util.removeLast
-import androidx.compose.ui.platform.InspectableModifier
 import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -1040,9 +1039,10 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             }
     }
 
+    @Suppress("DEPRECATION")
     private class ModifierCollector {
         val modifiers = mutableListOf<Modifier.Element>()
-        var start: InspectableModifier? = null
+        var start: androidx.compose.ui.platform.InspectableModifier? = null
 
         fun add(element: Modifier.Element) =
             when {
@@ -1050,7 +1050,7 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
                 start != null -> {}
                 else -> {
                     modifiers.add(element)
-                    start = element as? InspectableModifier
+                    start = element as? androidx.compose.ui.platform.InspectableModifier
                 }
             }
     }
