@@ -84,10 +84,23 @@ object Arguments {
 
     private val targetPackageName: String?
 
+    val payload: Map<String, String>
+
     private const val prefix = "androidx.benchmark."
 
     private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
+
+    private fun Bundle.getBenchmarkArgumentsWithPrefix(key: String): Map<String, String> {
+        val combinedPrefix = "$prefix$key."
+        val bundle = this
+        return buildMap {
+            bundle
+                .keySet()
+                .filter { it.startsWith(combinedPrefix) }
+                .forEach { put(it.substringAfter(combinedPrefix), getString(it, null)) }
+        }
+    }
 
     private fun Bundle.getProfiler(outputIsEnabled: Boolean): Pair<Profiler?, Boolean> {
         val argumentName = "profiling.mode"
@@ -292,6 +305,7 @@ object Arguments {
                     .trimIndent()
             )
         }
+        payload = arguments.getBenchmarkArgumentsWithPrefix("output.payload")
     }
 
     fun macrobenchMethodTracingEnabled(): Boolean {
