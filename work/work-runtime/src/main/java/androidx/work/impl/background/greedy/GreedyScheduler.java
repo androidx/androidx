@@ -79,7 +79,7 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
     private DelayedWorkTracker mDelayedWorkTracker;
     private boolean mRegisteredExecutionListener;
     private final Object mLock = new Object();
-    private final StartStopTokens mStartStopTokens = new StartStopTokens();
+    private final StartStopTokens mStartStopTokens = StartStopTokens.create();
     private final Processor mProcessor;
     private final WorkLauncher mWorkLauncher;
 

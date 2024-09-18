@@ -89,7 +89,7 @@ public class SystemAlarmDispatcher implements ExecutionListener {
             @Nullable WorkLauncher launcher
     ) {
         mContext = context.getApplicationContext();
-        mStartStopTokens = new StartStopTokens();
+        mStartStopTokens = StartStopTokens.create();
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
         mCommandHandler = new CommandHandler(
                 mContext, mWorkManager.getConfiguration().getClock(), mStartStopTokens);

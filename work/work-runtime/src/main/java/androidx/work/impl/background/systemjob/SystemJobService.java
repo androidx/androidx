@@ -43,8 +43,10 @@ import android.app.job.JobService;
 import android.net.Network;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Looper;
 import android.os.PersistableBundle;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -74,7 +76,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
     private static final String TAG = Logger.tagWithPrefix("SystemJobService");
     private WorkManagerImpl mWorkManagerImpl;
     private final Map<WorkGenerationalId, JobParameters> mJobParameters = new HashMap<>();
-    private final StartStopTokens mStartStopTokens = new StartStopTokens();
+    private final StartStopTokens mStartStopTokens = StartStopTokens.create(false);
     private WorkLauncher mWorkLauncher;
 
     @Override
@@ -120,6 +122,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStartJob(@NonNull JobParameters params) {
+        assertMainThread("onStartJob");
         if (mWorkManagerImpl == null) {
             Logger.get().debug(TAG, "WorkManager is not initialized; requesting retry.");
             jobFinished(params, true);
@@ -132,22 +135,20 @@ public class SystemJobService extends JobService implements ExecutionListener {
             return false;
         }
 
-        synchronized (mJobParameters) {
-            if (mJobParameters.containsKey(workGenerationalId)) {
-                // This condition may happen due to our workaround for an undesired behavior in API
-                // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
-                Logger.get().debug(TAG, "Job is already being executed by SystemJobService: "
-                        + workGenerationalId);
-                return false;
-            }
-
-            // We don't need to worry about the case where JobParams#isOverrideDeadlineExpired()
-            // returns true. This is because JobScheduler ensures that for PeriodicWork, constraints
-            // are actually met irrespective.
-
-            Logger.get().debug(TAG, "onStartJob for " + workGenerationalId);
-            mJobParameters.put(workGenerationalId, params);
+        if (mJobParameters.containsKey(workGenerationalId)) {
+            // This condition may happen due to our workaround for an undesired behavior in API
+            // 23.  See the documentation in {@link SystemJobScheduler#schedule}.
+            Logger.get().debug(TAG, "Job is already being executed by SystemJobService: "
+                    + workGenerationalId);
+            return false;
         }
+
+        // We don't need to worry about the case where JobParams#isOverrideDeadlineExpired()
+        // returns true. This is because JobScheduler ensures that for PeriodicWork, constraints
+        // are actually met irrespective.
+
+        Logger.get().debug(TAG, "onStartJob for " + workGenerationalId);
+        mJobParameters.put(workGenerationalId, params);
 
         WorkerParameters.RuntimeExtras runtimeExtras = null;
         if (Build.VERSION.SDK_INT >= 24) {
@@ -178,6 +179,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
     @Override
     public boolean onStopJob(@NonNull JobParameters params) {
+        assertMainThread("onStopJob");
         if (mWorkManagerImpl == null) {
             Logger.get().debug(TAG, "WorkManager is not initialized; requesting retry.");
             return true;
@@ -191,9 +193,7 @@ public class SystemJobService extends JobService implements ExecutionListener {
 
         Logger.get().debug(TAG, "onStopJob for " + workGenerationalId);
 
-        synchronized (mJobParameters) {
-            mJobParameters.remove(workGenerationalId);
-        }
+        mJobParameters.remove(workGenerationalId);
         StartStopToken runId = mStartStopTokens.remove(workGenerationalId);
         if (runId != null) {
             int stopReason;
@@ -208,13 +208,12 @@ public class SystemJobService extends JobService implements ExecutionListener {
         return !mWorkManagerImpl.getProcessor().isCancelled(workGenerationalId.getWorkSpecId());
     }
 
+    @MainThread
     @Override
     public void onExecuted(@NonNull WorkGenerationalId id, boolean needsReschedule) {
+        assertMainThread("onExecuted");
         Logger.get().debug(TAG, id.getWorkSpecId() + " executed on JobScheduler");
-        JobParameters parameters;
-        synchronized (mJobParameters) {
-            parameters = mJobParameters.remove(id);
-        }
+        JobParameters parameters = mJobParameters.remove(id);
         mStartStopTokens.remove(id);
         if (parameters != null) {
             jobFinished(parameters, needsReschedule);
@@ -301,5 +300,12 @@ public class SystemJobService extends JobService implements ExecutionListener {
                 reason = WorkInfo.STOP_REASON_UNKNOWN;
         }
         return reason;
+    }
+
+    private static void assertMainThread(String methodName) {
+        if (Looper.getMainLooper().getThread() != Thread.currentThread()) {
+            throw new IllegalStateException("Cannot invoke " + methodName + " on a background"
+                    + " thread");
+        }
     }
 }
