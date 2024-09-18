@@ -410,6 +410,8 @@ package androidx.wear.compose.foundation.lazy {
     method public androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo getLayoutInfo();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public boolean canScrollBackward;
+    property public boolean canScrollForward;
     property public boolean isScrollInProgress;
     property public final androidx.wear.compose.foundation.lazy.LazyColumnLayoutInfo layoutInfo;
   }

@@ -33,6 +33,8 @@ internal class LazyColumnMeasureResult(
     override val visibleItems: List<LazyColumnVisibleItemInfo>,
     /** see [LazyColumnLayoutInfo.totalItemsCount] */
     override val totalItemsCount: Int,
+    var canScrollForward: Boolean,
+    var canScrollBackward: Boolean,
 ) : LazyColumnLayoutInfo, MeasureResult by measureResult {
     /** see [LazyColumnLayoutInfo.viewportSize] */
     override val viewportSize: IntSize
