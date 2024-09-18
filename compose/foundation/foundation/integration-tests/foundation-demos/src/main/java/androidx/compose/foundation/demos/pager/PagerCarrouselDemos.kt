@@ -44,6 +44,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role.Companion.Carousel
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -152,7 +155,8 @@ private fun HorizontalCarrouselDemo(snapPosition: SnapPosition = SnapPosition.St
 
     Column(modifier = Modifier.fillMaxSize()) {
         HorizontalPager(
-            modifier = Modifier,
+            // configures this Pager to work (semantically speaking) as a Carousel (list)
+            modifier = Modifier.semantics { role = Carousel },
             state = pagerState,
             pageSize = PageSize.Fixed(100.dp),
             snapPosition = snapPosition

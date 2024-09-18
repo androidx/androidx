@@ -145,6 +145,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.pageUp
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -561,6 +562,58 @@ class AndroidAccessibilityTest {
                 assertThat(actionList)
                     .contains(
                         AccessibilityActionCompat(ACTION_CLICK, null),
+                    )
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // Pager a11y actions are only available from API 29
+    @Test
+    fun testCreateAccessibilityNodeInfo_pagerActionsWithoutRole_shouldSetPagerActions() {
+        // Arrange.
+        setContent {
+            Box(Modifier.semantics { pageUp { true } }.testTag(tag)) { BasicText("Text") }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(info) {
+                assertThat(actionList)
+                    .contains(
+                        AccessibilityActionCompat(android.R.id.accessibilityActionPageUp, null)
+                    )
+            }
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = 29) // Pager a11y actions are only available from API 29
+    @Test
+    fun testCreateAccessibilityNodeInfo_pagerActionsRole_shouldNotSetPagerActions() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier.semantics { role = Role.Carousel }
+                    .semantics { pageUp { true } }
+                    .testTag(tag)
+            ) {
+                BasicText("Text")
+            }
+        }
+        val virtualId = rule.onNodeWithTag(tag).semanticsId
+
+        // Act.
+        val info = rule.runOnIdle { createAccessibilityNodeInfo(virtualId) }
+
+        // Assert.
+        rule.runOnIdle {
+            with(info) {
+                assertThat(actionList)
+                    .doesNotContain(
+                        AccessibilityActionCompat(android.R.id.accessibilityActionPageUp, null)
                     )
             }
         }

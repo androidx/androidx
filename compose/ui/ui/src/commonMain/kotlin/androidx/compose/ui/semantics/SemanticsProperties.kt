@@ -712,6 +712,16 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
          * behalf of users, facilitating navigation within sets of selectable values.
          */
         val ValuePicker = Role(7)
+
+        /**
+         * This element is a Carousel. This means that even if Pager actions are added, this element
+         * will behave like a regular List collection.
+         *
+         * Associated semantics properties for Pager accessibility actions:
+         * [SemanticsActions.PageUp],[SemanticsActions.PageDown],[SemanticsActions.PageLeft],
+         * [SemanticsActions.PageRight]
+         */
+        val Carousel = Role(8)
     }
 
     override fun toString() =
@@ -724,6 +734,7 @@ value class Role private constructor(@Suppress("unused") private val value: Int)
             Image -> "Image"
             DropdownList -> "DropdownList"
             ValuePicker -> "Picker"
+            Carousel -> "Carousel"
             else -> "Unknown"
         }
 }
@@ -1433,8 +1444,11 @@ fun SemanticsPropertyReceiver.requestFocus(label: String? = null, action: (() ->
 /**
  * Action to page up.
  *
+ * Using [Role.Carousel] will prevent this action from being sent to accessibility services.
+ *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.PageUp] is called.
+ * @see [Role.Carousel] for more information.
  */
 fun SemanticsPropertyReceiver.pageUp(label: String? = null, action: (() -> Boolean)?) {
     this[SemanticsActions.PageUp] = AccessibilityAction(label, action)
@@ -1443,8 +1457,11 @@ fun SemanticsPropertyReceiver.pageUp(label: String? = null, action: (() -> Boole
 /**
  * Action to page down.
  *
+ * Using [Role.Carousel] will prevent this action from being sent to accessibility services.
+ *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.PageDown] is called.
+ * @see [Role.Carousel] for more information.
  */
 fun SemanticsPropertyReceiver.pageDown(label: String? = null, action: (() -> Boolean)?) {
     this[SemanticsActions.PageDown] = AccessibilityAction(label, action)
@@ -1453,8 +1470,11 @@ fun SemanticsPropertyReceiver.pageDown(label: String? = null, action: (() -> Boo
 /**
  * Action to page left.
  *
+ * Using [Role.Carousel] will prevent this action from being sent to accessibility services.
+ *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.PageLeft] is called.
+ * @see [Role.Carousel] for more information.
  */
 fun SemanticsPropertyReceiver.pageLeft(label: String? = null, action: (() -> Boolean)?) {
     this[SemanticsActions.PageLeft] = AccessibilityAction(label, action)
@@ -1463,8 +1483,11 @@ fun SemanticsPropertyReceiver.pageLeft(label: String? = null, action: (() -> Boo
 /**
  * Action to page right.
  *
+ * Using [Role.Carousel] will prevent this action from being sent to accessibility services.
+ *
  * @param label Optional label for this action.
  * @param action Action to be performed when the [SemanticsActions.PageRight] is called.
+ * @see [Role.Carousel] for more information.
  */
 fun SemanticsPropertyReceiver.pageRight(label: String? = null, action: (() -> Boolean)?) {
     this[SemanticsActions.PageRight] = AccessibilityAction(label, action)
