@@ -676,20 +676,15 @@ private class StartIconMeasurePolicy(
         @Suppress("NAME_SHADOWING") val indicatorAnimationProgress = indicatorAnimationProgress()
         val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         // When measuring icon, account for the indicator in its constraints.
-        val iconConstraints =
-            looseConstraints.offset(
-                horizontal = -(indicatorHorizontalPadding * 2).roundToPx(),
-                vertical = -(indicatorVerticalPadding * 2).roundToPx()
-            )
         val iconPlaceable =
-            measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(iconConstraints)
+            measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
         // When measuring the label, account for the indicator, the icon, and the padding between
         // icon and label.
         val labelPlaceable =
             measurables
                 .fastFirst { it.layoutId == LabelLayoutIdTag }
                 .measure(
-                    iconConstraints.offset(
+                    looseConstraints.offset(
                         horizontal =
                             -(iconPlaceable.width + startIconToLabelHorizontalPadding.roundToPx())
                     )
