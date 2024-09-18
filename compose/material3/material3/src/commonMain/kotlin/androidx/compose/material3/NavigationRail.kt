@@ -554,7 +554,7 @@ private fun NavigationRailItemLayout(
         @Suppress("NAME_SHADOWING")
         // Ensure that the progress is >= 0. It may be negative on bouncy springs, for example.
         val animationProgress = sizeAnimationProgress().coerceAtLeast(0f)
-        val looseConstraints = constraints.copyMaxDimensions()
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)
 

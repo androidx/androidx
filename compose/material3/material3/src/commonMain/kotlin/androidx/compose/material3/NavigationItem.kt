@@ -582,7 +582,7 @@ private class TopIconOrIconOnlyMeasurePolicy(
         constraints: Constraints
     ): MeasureResult {
         @Suppress("NAME_SHADOWING") val indicatorAnimationProgress = indicatorAnimationProgress()
-        val looseConstraints = constraints.copyMaxDimensions()
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         // When measuring icon, account for the indicator in its constraints.
         val iconPlaceable =
             measurables
@@ -674,7 +674,7 @@ private class StartIconMeasurePolicy(
         constraints: Constraints
     ): MeasureResult {
         @Suppress("NAME_SHADOWING") val indicatorAnimationProgress = indicatorAnimationProgress()
-        val looseConstraints = constraints.copyMaxDimensions()
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
         // When measuring icon, account for the indicator in its constraints.
         val iconConstraints =
             looseConstraints.offset(
@@ -778,7 +778,7 @@ private class AnimatedMeasurePolicy(
     ): MeasureResult {
         @Suppress("NAME_SHADOWING") val indicatorAnimationProgress = indicatorAnimationProgress()
         val iconPositionProgressValue = iconPositionProgress()
-        val looseConstraints = constraints.copyMaxDimensions()
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
 
         val iconPlaceable =
             measurables.fastFirst { it.layoutId == IconLayoutIdTag }.measure(looseConstraints)

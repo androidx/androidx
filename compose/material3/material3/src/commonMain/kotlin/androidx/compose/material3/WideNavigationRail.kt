@@ -260,7 +260,7 @@ private fun WideNavigationRailLayout(
                         if (itemsCount < 1) {
                             return layout(actualMinWidth, height) {}
                         }
-                        val looseConstraints = constraints.copyMaxDimensions()
+                        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
                         var itemsMeasurables = measurables
 
                         var constraintsOffset = 0
