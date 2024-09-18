@@ -89,7 +89,8 @@ internal class LayoutGenerator {
                 generateContainersChildrenForS(outputLayoutDirS) +
                 generateContainersChildrenBeforeS(outputLayoutDir) +
                 generateRootElements(outputLayoutDir) +
-                generateRootAliases(outputValueDir)
+                generateRootAliases(outputValueDir) +
+                generateViewIds(outputValueDir)
         val topLevelLayouts = containerFiles + childrenFiles.filter { isTopLevelLayout(it) }
         return GeneratedFiles(
             generatedContainers =
@@ -105,7 +106,7 @@ internal class LayoutGenerator {
     }
 
     private fun generateChildIds(outputValuesDir: File) =
-        generateRes(outputValuesDir, "ids") {
+        generateRes(outputValuesDir, "child_ids") {
             val containerSizes = listOf(ValidSize.Match, ValidSize.Wrap, ValidSize.Expand)
             val root = createElement("resources")
             appendChild(root)
@@ -117,6 +118,19 @@ internal class LayoutGenerator {
                         setNamedItem(attribute("name", makeIdName(pos, width, height)))
                     }
                 }
+            }
+        }
+
+    private fun generateViewIds(outputValueDir: File) =
+        generateRes(outputValueDir, "view_ids") {
+            val root = createElement("resources")
+            appendChild(root)
+            repeat(TotalViewCount) {
+                val id =
+                    createElement("id").apply {
+                        attributes.setNamedItem(attribute("name", makeViewIdResourceName(it)))
+                    }
+                root.appendChild(id)
             }
         }
 
@@ -558,6 +572,12 @@ private const val MaxChildCount = 10
  * times that number will be generated.
  */
 internal const val RootLayoutAliasCount = 100
+
+/**
+ * Number of View IDs that will be generated for use throughout the UI layout. This number
+ * determines the maximum number of total views a layout may contain.
+ */
+internal const val TotalViewCount = 500
 
 internal data class GeneratedFiles(
     val generatedContainers: Map<File, List<ContainerProperties>>,

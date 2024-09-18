@@ -199,6 +199,20 @@ internal fun generateRegistry(
     file.addProperty(lastRootAlias)
     file.addProperty(rootAliasCount)
 
+    val firstViewId =
+        propertySpec("FirstViewId", INT, INTERNAL) {
+            initializer("R.id.${makeViewIdResourceName(0)}")
+        }
+    val lastViewId =
+        propertySpec("LastViewId", INT, INTERNAL) {
+            initializer("R.id.${makeViewIdResourceName(TotalViewCount - 1)}")
+        }
+    val totalViewCount =
+        propertySpec("TotalViewCount", INT, INTERNAL) { initializer("%L", TotalViewCount) }
+    file.addProperty(firstViewId)
+    file.addProperty(lastViewId)
+    file.addProperty(totalViewCount)
+
     file.build().writeTo(outputSourceDir)
 }
 
@@ -557,6 +571,8 @@ internal fun makeRootResourceName(width: ValidSize, height: ValidSize) =
         .joinToString(separator = "_")
 
 internal fun makeRootAliasResourceName(index: Int) = "root_alias_%03d".format(index)
+
+internal fun makeViewIdResourceName(index: Int) = "glance_view_id_%03d".format(index)
 
 internal fun makeContainerResourceName(
     file: File,
