@@ -179,6 +179,7 @@ internal class MultiParagraphLayoutCache(
         fontSizeSearchScope.originalFontSize = style.fontSize
         fontSizeSearchScope.layoutDirection = layoutDirection
         fontSizeSearchScope.constraints = finalConstraints
+        fontSizeSearchScope.resolvedStyle = resolveDefaults(style, layoutDirection)
 
         var optimalFontSize = fontSizeSearchScope.getFontSize()
         if (optimalFontSize.isEm) {
@@ -376,7 +377,8 @@ internal class MultiParagraphLayoutCache(
         /** The font size that is initially provided in [style] */
         var originalFontSize: TextUnit = TextUnit.Unspecified
 
-        private var resolvedStyle: TextStyle = resolveDefaults(style, layoutDirection)
+        /** The resolved version of [style] before layout */
+        var resolvedStyle: TextStyle? = null
 
         // override Density attributes
         override val density
@@ -397,7 +399,7 @@ internal class MultiParagraphLayoutCache(
                 usedFontSize = originalFontSize * fontSize.value
             }
 
-            val usedStyle = resolvedStyle.copy(fontSize = usedFontSize)
+            val usedStyle = resolvedStyle!!.copy(fontSize = usedFontSize)
             if (minLines > 1) {
                 constraints = useMinLinesConstrainer(constraints, layoutDirection)
             }

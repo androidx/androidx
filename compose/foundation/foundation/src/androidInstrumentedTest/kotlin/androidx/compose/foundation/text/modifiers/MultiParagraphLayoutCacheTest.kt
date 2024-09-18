@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
-import androidx.compose.foundation.text.FontSizeSearchScope
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.text.AnnotatedString
@@ -313,7 +312,7 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
-    fun TextLayoutResult_autoSize_oneSize_checkOverflowAndHeight() {
+    fun TextLayoutResult_autoSize_oneSizeLaidOut_checkOverflowAndHeight() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
@@ -347,7 +346,7 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
-    fun TextLayoutResult_autoSize_multipleSizes_checkOverflowAndHeight() {
+    fun TextLayoutResult_autoSize_multipleSizesLaidOut_checkOverflowAndHeight() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
@@ -393,7 +392,7 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
-    fun TextLayoutResult_autoSize_changeConstraints_doesOverflow() {
+    fun TextLayoutResult_autoSize_MaxSizeConstraintsEqualTo50_doesOverflow() {
         val constraints = Constraints(minWidth = 0, maxWidth = 50, minHeight = 0, maxHeight = 50)
 
         val layoutCache =
@@ -723,56 +722,4 @@ class MultiParagraphLayoutCacheTest {
             placeholders = null,
             autoSize = autoSize
         )
-
-    /**
-     * Version of AutoSize that takes in an array and attempts to find the largest font size in the
-     * array that doesn't overflow. If this is not found, `100.sp` will be returned
-     *
-     * @param presets The array of font sizes to be checked
-     */
-    private class AutoSizePreset(private val presets: Array<TextUnit>) : AutoSize {
-        override fun FontSizeSearchScope.getFontSize(): TextUnit {
-            var optimalFontSize = 0.sp
-            for (size in presets) {
-                if (
-                    size.toPx() > optimalFontSize.toPx() &&
-                        !performLayoutAndGetOverflow(size.toPx().toSp())
-                ) {
-                    optimalFontSize = size
-                }
-            }
-            return if (optimalFontSize != 0.sp) optimalFontSize else 100.sp
-            // 100.sp is the font size returned when all sizes in the presets array overflow
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is AutoSizePreset) return false
-
-            return presets.contentEquals(other.presets)
-        }
-
-        override fun hashCode(): Int {
-            return presets.contentHashCode()
-        }
-    }
-
-    private class AutoSizeWithoutToPx(private val fontSize: TextUnit) : AutoSize {
-        override fun FontSizeSearchScope.getFontSize(): TextUnit {
-            // if there is overflow then 100.sp is returned. Otherwise 0.sp is returned
-            if (performLayoutAndGetOverflow(fontSize)) return 100.sp
-            return 0.sp
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other !is AutoSizeWithoutToPx) return false
-
-            return fontSize == other.fontSize
-        }
-
-        override fun hashCode(): Int {
-            return fontSize.hashCode()
-        }
-    }
 }

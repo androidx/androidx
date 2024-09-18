@@ -37,6 +37,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.constrain
+import androidx.compose.ui.unit.sp
 import kotlin.math.min
 
 /**
@@ -117,8 +118,15 @@ internal class ParagraphLayoutCache(
     /** Output height for last call to [intrinsicHeight] at [cachedIntrinsicHeightInputWidth] */
     private var cachedIntrinsicHeight: Int = -1
 
+    /** Backing property for [fontSizeSearchScope] */
+    private var _fontSizeSearchScope: FontSizeSearchScopeImpl? = null
+
     /** Used to get the font size if AutoSize is enabled and perform layout with many font sizes */
-    private val fontSizeSearchScope: FontSizeSearchScopeImpl = FontSizeSearchScopeImpl()
+    private val fontSizeSearchScope: FontSizeSearchScopeImpl
+        get() {
+            if (_fontSizeSearchScope == null) _fontSizeSearchScope = FontSizeSearchScopeImpl()
+            return _fontSizeSearchScope!!
+        }
 
     /**
      * Update layout constraints for this text
@@ -203,7 +211,8 @@ internal class ParagraphLayoutCache(
 
         fontSizeSearchScope.originalFontSize = style.fontSize
         fontSizeSearchScope.layoutDirection = layoutDirection
-        fontSizeSearchScope.finalConstraints = finalConstraints
+        fontSizeSearchScope.constraints = finalConstraints
+        fontSizeSearchScope.resolvedStyle = resolveDefaults(style, layoutDirection)
 
         optimalFontSize = fontSizeSearchScope.getFontSize()
         if (optimalFontSize.isEm)
@@ -411,10 +420,17 @@ internal class ParagraphLayoutCache(
      * caches to [style], [paragraph], [prevConstraints] and [layoutSize]
      */
     private inner class FontSizeSearchScopeImpl : FontSizeSearchScope {
-        var finalConstraints: Constraints = Constraints.fixed(0, 0)
+        /** Constraints that will be used to layout the text */
+        var constraints: Constraints = Constraints.fixed(0, 0)
+
+        /** The layout direction of the text */
         var layoutDirection: LayoutDirection = LayoutDirection.Ltr
+
+        /** The font size that is initially provided in [style] */
         var originalFontSize: TextUnit = TextUnit.Unspecified
-        var overflow: TextOverflow = TextOverflow.Clip
+
+        /** The resolved version of [style] before layout */
+        var resolvedStyle: TextStyle? = null
 
         override val density
             get() = this@ParagraphLayoutCache.density!!.density
@@ -423,37 +439,38 @@ internal class ParagraphLayoutCache(
             get() = this@ParagraphLayoutCache.density!!.fontScale
 
         override fun performLayoutAndGetOverflow(fontSize: TextUnit): Boolean {
-            val doesOverflow: Boolean
-
             var usedFontSize = fontSize
             if (fontSize.isEm) {
                 if (originalFontSize == TextUnit.Unspecified) {
-                    // workaround as DefaultFontSize is private in SpanStyle
+                    // hardcoded here as DefaultFontSize is private in SpanStyle
                     // TODO(b/364858402): Make DefaultFontSize public
-                    originalFontSize = resolveDefaults(TextStyle.Default, layoutDirection).fontSize
+                    originalFontSize = DefaultFontSize
                 }
                 usedFontSize = originalFontSize * fontSize.value
             }
 
-            val usedStyle = style.copy(fontSize = usedFontSize)
+            val usedStyle =
+                if (usedFontSize != style.fontSize) resolvedStyle!!.copy(fontSize = usedFontSize)
+                else resolvedStyle!!
+
             if (minLines > 1) {
-                finalConstraints =
-                    useMinLinesConstrainer(finalConstraints, layoutDirection, usedStyle)
+                constraints = useMinLinesConstrainer(constraints, layoutDirection, usedStyle)
             }
 
             val localParagraphIntrinsics =
                 ParagraphIntrinsics(
                     text = text,
-                    style = resolveDefaults(usedStyle, layoutDirection),
+                    style = usedStyle,
                     density = this@ParagraphLayoutCache.density!!,
                     fontFamilyResolver = fontFamilyResolver
                 )
 
-            Paragraph(
+            val localParagraph =
+                Paragraph(
                     paragraphIntrinsics = localParagraphIntrinsics,
                     constraints =
                         finalConstraints(
-                            finalConstraints,
+                            constraints,
                             softWrap,
                             TextOverflow.Clip,
                             localParagraphIntrinsics.maxIntrinsicWidth
@@ -461,15 +478,12 @@ internal class ParagraphLayoutCache(
                     maxLines = finalMaxLines(softWrap, overflow, maxLines),
                     overflow = TextOverflow.Clip
                 )
-                .also {
-                    val localSize =
-                        finalConstraints.constrain(
-                            IntSize(it.width.ceilToIntPx(), it.height.ceilToIntPx())
-                        )
-                    doesOverflow = localSize.width < it.width || localSize.height < it.height
-                }
-
-            return doesOverflow
+            val localSize =
+                constraints.constrain(
+                    IntSize(localParagraph.width.ceilToIntPx(), localParagraph.height.ceilToIntPx())
+                )
+            return localSize.width < localParagraph.width ||
+                localSize.height < localParagraph.height
         }
 
         override fun TextUnit.toPx(): Float {
@@ -479,9 +493,9 @@ internal class ParagraphLayoutCache(
                         "Declare the composable's style.fontSize with Sp units instead."
                 }
                 if (originalFontSize == TextUnit.Unspecified) {
-                    // workaround as DefaultFontSize is private in SpanStyle
+                    // hardcoded here as DefaultFontSize is private in SpanStyle
                     // TODO(b/364858402): Make DefaultFontSize public
-                    originalFontSize = resolveDefaults(TextStyle.Default, layoutDirection).fontSize
+                    originalFontSize = DefaultFontSize
                 }
                 return originalFontSize.toPx() * value
             }
@@ -489,3 +503,5 @@ internal class ParagraphLayoutCache(
         }
     }
 }
+
+private val DefaultFontSize = 14.sp
