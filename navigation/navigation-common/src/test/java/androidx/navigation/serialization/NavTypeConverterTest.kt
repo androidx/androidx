@@ -73,6 +73,13 @@ class NavTypeConverterTest {
     }
 
     @Test
+    fun matchDouble() {
+        val descriptor = serializer<Double>().descriptor
+        val kType = typeOf<Double>()
+        assertThat(descriptor.matchKType(kType)).isTrue()
+    }
+
+    @Test
     fun matchFloat() {
         val descriptor = serializer<Float>().descriptor
         val kType = typeOf<Float>()
