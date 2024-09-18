@@ -17,8 +17,8 @@
 package androidx.credentials.registry.digitalcredentials.mdoc
 
 import android.graphics.Bitmap
-import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayData
-import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayData
+import androidx.credentials.registry.provider.digitalcredentials.VerificationEntryDisplayProperties
+import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -30,7 +30,7 @@ import org.junit.runner.RunWith
 class MdocEntryTest {
     companion object {
         val ENTRY_DISPLAY_DATA =
-            VerificationEntryDisplayData(
+            VerificationEntryDisplayProperties(
                 title = "test-title",
                 subtitle = "test-subtitle",
                 icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
@@ -43,22 +43,22 @@ class MdocEntryTest {
             MdocField(
                 "fieldName1",
                 "fieldVal1",
-                setOf(VerificationFieldDisplayData("displayName1"))
+                setOf(VerificationFieldDisplayProperties("displayName1"))
             )
         val mdocField2 =
-            MdocField("fieldName2", null, setOf(VerificationFieldDisplayData("displayName2")))
+            MdocField("fieldName2", null, setOf(VerificationFieldDisplayProperties("displayName2")))
 
         val entry =
             MdocEntry(
                 docType = "org.iso.18013.5.1.mDL",
                 fields = listOf(mdocField1, mdocField2),
-                entryDisplayData = setOf(ENTRY_DISPLAY_DATA),
+                entryDisplayPropertySet = setOf(ENTRY_DISPLAY_DATA),
                 id = "id"
             )
 
         assertThat(entry.docType).isEqualTo("org.iso.18013.5.1.mDL")
         assertThat(entry.fields).containsExactly(mdocField1, mdocField2).inOrder()
-        assertThat(entry.entryDisplayData).containsExactly(ENTRY_DISPLAY_DATA)
+        assertThat(entry.entryDisplayPropertySet).containsExactly(ENTRY_DISPLAY_DATA)
         assertThat(entry.id).isEqualTo("id")
     }
 }

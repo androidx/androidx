@@ -16,13 +16,12 @@
 
 package androidx.credentials.registry.provider.digitalcredentials
 
-import androidx.annotation.RestrictTo
-
 /**
  * A field or sub-property of a [DigitalCredentialEntry], registered for display and matching
  * purposes.
  *
  * @constructor
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class DigitalCredentialField(public val fieldDisplayData: Set<FieldDisplayData>)
+public abstract class DigitalCredentialField(
+    public val fieldDisplayPropertySet: Set<FieldDisplayProperties>
+)

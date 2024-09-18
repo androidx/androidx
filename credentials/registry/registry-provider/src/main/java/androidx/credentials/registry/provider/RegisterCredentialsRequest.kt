@@ -16,8 +16,6 @@
 
 package androidx.credentials.registry.provider
 
-import androidx.annotation.RestrictTo
-
 /**
  * A request to register credentials with Credential Manager.
  *
@@ -28,9 +26,10 @@ import androidx.annotation.RestrictTo
  * @property credentials the credentials to register
  * @property matcher the matcher wasm binary in bytes; the matcher will be interpreted and run in a
  *   safe and privacy-preserving sandbox upon an incoming request and it should output the qualified
- *   credentials given the [credentials] and the request
+ *   credentials given the [credentials] and the request; an invalid matcher (e.g. one that fails
+ *   wasm interpretation or causes exceptions) will mean that your credentials will never be
+ *   surfaced to the user
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public abstract class RegisterCredentialsRequest(
     public val type: String,
     public val id: String,

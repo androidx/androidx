@@ -16,7 +16,7 @@
 
 package androidx.credentials.registry.digitalcredentials.mdoc
 
-import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayData
+import androidx.credentials.registry.provider.digitalcredentials.VerificationFieldDisplayProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -27,7 +27,7 @@ import org.junit.runner.RunWith
 @SmallTest
 class MdocFieldTest {
     companion object {
-        val FIELD_DISPLAY_DATA = VerificationFieldDisplayData("displayName1")
+        val FIELD_DISPLAY_DATA = VerificationFieldDisplayProperties("displayName1")
     }
 
     @Test
@@ -36,6 +36,6 @@ class MdocFieldTest {
 
         assertThat(field.fieldName).isEqualTo("org.iso.18013.5.1.age_over_21")
         assertThat((field.fieldValue) as Boolean).isTrue()
-        assertThat(field.fieldDisplayData).containsExactly(FIELD_DISPLAY_DATA)
+        assertThat(field.fieldDisplayPropertySet).containsExactly(FIELD_DISPLAY_DATA)
     }
 }

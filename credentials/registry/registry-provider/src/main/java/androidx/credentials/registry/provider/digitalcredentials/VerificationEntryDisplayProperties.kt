@@ -17,31 +17,37 @@
 package androidx.credentials.registry.provider.digitalcredentials
 
 import android.graphics.Bitmap
-import androidx.annotation.RestrictTo
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistry.Companion.DISPLAY_TYPE_VERIFICATION
 
 /**
  * The display metadata associated with a [DigitalCredentialEntry] to be rendered in a selector UI
  * style serving the verification purpose.
  *
+ * The [explainer], if set, will be displayed below the entry and rendered as a note (e.g. in a grey
+ * background). For example, you can use it to display a note of the terms of your service.
+ *
+ * The [warning], if set, will be displayed below the entry, in parallel to the [explainer] and
+ * highlighted as a warning (e.g. bolded, in a red background). For example, you can use it to
+ * display a warning if the calling app is requesting very sensitive information.
+ *
  * @constructor
  * @property title the title to display for this entry in the Credential Manager selector UI
  * @property subtitle the subtitle to display for this entry
- * @property icon the icon to display for this entry
- * @property explainer the additional note or explainer to display for this entry
- * @property warning the warning to display for this entry
+ * @property icon the icon to display for this entry; this icon should be 32x32 and if not will be
+ *   rescaled into a 32x32 pixel PGN for display
+ * @property explainer the additional note or explainer to display for this entry, if applicable
+ * @property warning the warning to display for this entry, if applicable
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VerificationEntryDisplayData(
+public class VerificationEntryDisplayProperties(
     public val title: CharSequence,
     public val subtitle: CharSequence?,
     public val icon: Bitmap,
     public val explainer: CharSequence? = null,
     public val warning: CharSequence? = null,
-) : EntryDisplayData(DISPLAY_TYPE_VERIFICATION) {
+) : EntryDisplayProperties(DISPLAY_TYPE_VERIFICATION) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is VerificationEntryDisplayData) return false
+        if (other !is VerificationEntryDisplayProperties) return false
         return this.title == other.title &&
             this.subtitle == other.subtitle &&
             this.icon == other.icon &&

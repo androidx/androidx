@@ -31,7 +31,7 @@ class VerificationEntryDisplayDataTest {
     fun construction_success() {
         val icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
         val data =
-            VerificationEntryDisplayData(
+            VerificationEntryDisplayProperties(
                 title = "test-title",
                 subtitle = "subtitle",
                 icon = icon,

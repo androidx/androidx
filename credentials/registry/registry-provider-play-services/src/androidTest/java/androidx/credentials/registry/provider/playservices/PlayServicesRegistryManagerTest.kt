@@ -46,7 +46,7 @@ class PlayServicesRegistryManagerTest {
     @Test
     fun registerCredentials_success() =
         runBlocking<Unit> {
-            if (playServicesImpl.isAvailableOnDevice()) {
+            if (playServicesImpl.isAvailable()) {
                 val result =
                     registryManager.registerCredentials(
                         object :

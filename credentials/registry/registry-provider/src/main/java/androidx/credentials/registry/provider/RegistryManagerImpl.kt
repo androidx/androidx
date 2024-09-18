@@ -21,7 +21,7 @@ import android.os.CancellationSignal
 import androidx.credentials.CredentialManagerCallback
 import java.util.concurrent.Executor
 
-internal class RegistryManagerImpl(private val context: Context) : RegistryManager {
+internal class RegistryManagerImpl(private val context: Context) : RegistryManager() {
     override fun registerCredentialsAsync(
         request: RegisterCredentialsRequest,
         cancellationSignal: CancellationSignal?,

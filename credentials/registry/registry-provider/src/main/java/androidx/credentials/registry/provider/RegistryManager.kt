@@ -18,16 +18,18 @@ package androidx.credentials.registry.provider
 
 import android.content.Context
 import android.os.CancellationSignal
-import androidx.annotation.RestrictTo
 import androidx.credentials.CredentialManagerCallback
 import java.util.concurrent.Executor
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
 
-/** APIs for managing credential registries that are registered with the Credential Manager. */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public interface RegistryManager {
+/**
+ * APIs for managing credential registries that are registered with the Credential Manager.
+ *
+ * Use the APIs by constructing a [RegistryManager] with the [create] factory method.
+ */
+public abstract class RegistryManager internal constructor() {
     public companion object {
         /**
          * Creates a [RegistryManager] based on the given [context].
@@ -102,7 +104,7 @@ public interface RegistryManager {
      * @param executor the callback will take place on this executor
      * @param callback the callback invoked when the request succeeds or fails
      */
-    public fun registerCredentialsAsync(
+    public abstract fun registerCredentialsAsync(
         request: RegisterCredentialsRequest,
         cancellationSignal: CancellationSignal?,
         executor: Executor,

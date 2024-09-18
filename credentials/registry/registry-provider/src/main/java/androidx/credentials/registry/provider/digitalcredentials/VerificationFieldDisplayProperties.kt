@@ -16,7 +16,6 @@
 
 package androidx.credentials.registry.provider.digitalcredentials
 
-import androidx.annotation.RestrictTo
 import androidx.credentials.registry.provider.digitalcredentials.DigitalCredentialRegistry.Companion.DISPLAY_TYPE_VERIFICATION
 
 /**
@@ -27,16 +26,16 @@ import androidx.credentials.registry.provider.digitalcredentials.DigitalCredenti
  * @property displayName the localized display value for the name of this field; for example, the
  *   display name of an ISO mDL age-over-twenty-one property may be "Age over 21" localized
  * @property displayValue the localized display value for the value of this field; for example, the
- *   display value of an ISO mDL age-over-twenty-one property may be "Yes" localized
+ *   display value of an ISO mDL age-over-twenty-one property may be "Yes" localized; a null value
+ *   means only the display name will be rendered to the user
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VerificationFieldDisplayData(
+public class VerificationFieldDisplayProperties(
     public val displayName: CharSequence,
     public val displayValue: CharSequence? = null,
-) : FieldDisplayData(DISPLAY_TYPE_VERIFICATION) {
+) : FieldDisplayProperties(DISPLAY_TYPE_VERIFICATION) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is VerificationFieldDisplayData) return false
+        if (other !is VerificationFieldDisplayProperties) return false
         return this.displayName == other.displayName && this.displayValue == other.displayValue
     }
 

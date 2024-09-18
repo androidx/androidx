@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 class DigitalCredentialEntryTest {
     companion object {
         val DISPLAY_DATA =
-            VerificationEntryDisplayData(
+            VerificationEntryDisplayProperties(
                 title = "test-title",
                 subtitle = null,
                 icon = Bitmap.createBitmap(4, 4, Bitmap.Config.ALPHA_8)
@@ -36,14 +36,14 @@ class DigitalCredentialEntryTest {
     }
 
     class TestFormatDigitalCredentialEntry(val subProperty: String) :
-        DigitalCredentialEntry(id = "test-id", entryDisplayData = setOf(DISPLAY_DATA))
+        DigitalCredentialEntry(id = "test-id", entryDisplayPropertySet = setOf(DISPLAY_DATA))
 
     @Test
     fun subclassConstruction_success() {
         val entry = TestFormatDigitalCredentialEntry("subProperty")
 
         assertThat(entry.id).isEqualTo("test-id")
-        assertThat(entry.entryDisplayData).containsExactly(DISPLAY_DATA)
+        assertThat(entry.entryDisplayPropertySet).containsExactly(DISPLAY_DATA)
         assertThat(entry.subProperty).isEqualTo("subProperty")
     }
 }
