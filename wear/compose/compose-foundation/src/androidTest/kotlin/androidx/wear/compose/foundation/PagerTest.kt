@@ -16,12 +16,7 @@
 
 package androidx.wear.compose.foundation
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
-import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -36,6 +31,10 @@ import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
 import androidx.compose.ui.test.swipeUp
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.pager.HorizontalPager
+import androidx.wear.compose.foundation.pager.PagerState
+import androidx.wear.compose.foundation.pager.VerticalPager
+import androidx.wear.compose.foundation.pager.rememberPagerState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.junit.Assert
@@ -47,7 +46,7 @@ class PagerTest {
 
     private val pagerTestTag = "Pager"
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun horizontal_pager_with_nested_scaling_lazy_column_swipes_along_one_page_at_a_time() {
         val pageCount = 5
@@ -56,7 +55,12 @@ class PagerTest {
         rule.setContent {
             pagerState = rememberPagerState { pageCount }
 
-            HorizontalPager(state = pagerState, modifier = Modifier.testTag(pagerTestTag)) { page ->
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.testTag(pagerTestTag),
+                swipeToDismissEdgeZoneFraction = 0f,
+            ) // disable swipe to dismiss as it conflicts with swipeRight()
+            { page ->
                 ScalingLazyColumn(
                     modifier = Modifier.fillMaxSize(),
                 ) {
@@ -82,7 +86,58 @@ class PagerTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalWearFoundationApi::class)
+    @Test
+    fun horizontal_pager_with_nested_scaling_lazy_column_swipes_along_one_page_at_a_time_avoiding_swiping_from_edge() {
+        val pageCount = 5
+        lateinit var pagerState: PagerState
+
+        rule.setContent {
+            pagerState = rememberPagerState { pageCount }
+
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.testTag(pagerTestTag),
+                swipeToDismissEdgeZoneFraction = 0.15f,
+            ) { page ->
+                ScalingLazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    item { BasicText(text = "Page $page") }
+                }
+            }
+        }
+
+        val listOfPageIndices = 0 until pageCount
+
+        // Swipe along to end of pager
+        for (i in listOfPageIndices) {
+            Assert.assertEquals(i, pagerState.currentPage)
+            rule.onNodeWithText("Page $i").assertIsDisplayed()
+            rule.onNodeWithTag(pagerTestTag).performTouchInput {
+                // swipe left - only along middle 60% portion of screen
+                val totalX = right - left
+                val start = right - 0.2f * totalX
+                val end = left + 0.2f * totalX
+                swipeLeft(start, end)
+            }
+        }
+
+        // Swipe along back to start of pager
+        for (i in listOfPageIndices.reversed()) {
+            Assert.assertEquals(i, pagerState.currentPage)
+            rule.onNodeWithText("Page $i").assertIsDisplayed()
+            rule.onNodeWithTag(pagerTestTag).performTouchInput {
+                // swipe right - only along middle 60% portion of screen
+                val totalX = right - left
+                val start = left + 0.2f * totalX
+                val end = right - 0.2f * totalX
+                swipeRight(start, end)
+            }
+        }
+    }
+
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun vertical_pager_with_nested_scaling_lazy_column_swipes_along_one_page_at_a_time() {
         val pageCount = 5
@@ -117,7 +172,6 @@ class PagerTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
     private fun verifyScrollsToEachPage(
         pageCount: Int,
         pagerState: PagerState,
@@ -139,7 +193,7 @@ class PagerTest {
         }
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun horizontal_pager_with_nested_scaling_lazy_column_is_able_to_scroll_to_arbitrary_page() {
         val pageCount = 5
@@ -162,7 +216,7 @@ class PagerTest {
         verifyScrollsToEachPage(pageCount, pagerState, scrollScope)
     }
 
-    @OptIn(ExperimentalFoundationApi::class)
+    @OptIn(ExperimentalWearFoundationApi::class)
     @Test
     fun vertical_pager_with_nested_scaling_lazy_column_is_able_to_scroll_to_arbitrary_page() {
         val pageCount = 5
