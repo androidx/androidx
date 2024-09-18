@@ -318,8 +318,8 @@ class LineHeightStyle(val alignment: Alignment, val trim: Trim, val mode: Mode) 
             val Fixed = Mode(0)
 
             /**
-             * Use the specified line height if the system preferred line height is smaller than
-             * specified line height.
+             * By specifying [Mode.Minimum], when the specified line height is smaller than the
+             * system preferred value, the system preferred one is used instead.
              */
             val Minimum = Mode(1)
         }
