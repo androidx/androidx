@@ -21,6 +21,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
 import android.widget.FrameLayout
+import androidx.annotation.RestrictTo
 import androidx.core.content.ContextCompat
 import androidx.wear.protolayout.DeviceParametersBuilders
 import androidx.wear.protolayout.LayoutElementBuilders
@@ -31,6 +32,7 @@ import androidx.wear.protolayout.expression.PlatformDataValues
 import androidx.wear.protolayout.expression.PlatformHealthSources
 import androidx.wear.protolayout.expression.PlatformHealthSources.DynamicHeartRateAccuracy
 import androidx.wear.protolayout.expression.PlatformHealthSources.HEART_RATE_ACCURACY_MEDIUM
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.RequestBuilders.ResourcesRequest
 import androidx.wear.tiles.renderer.TileRenderer
@@ -80,10 +82,12 @@ internal fun Class<out Any>.findMethod(
  * View adapter that renders a tile preview from a [TilePreviewData]. The preview data is found by
  * invoking the method whose FQN is set in the `tools:tilePreviewMethodFqn` attribute.
  */
-internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
-    FrameLayout(context, attrs) {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+class TileServiceViewAdapter(context: Context, attrs: AttributeSet) : FrameLayout(context, attrs) {
 
     private val executor = ContextCompat.getMainExecutor(context)
+
+    private lateinit var tileRenderer: TileRenderer
 
     init {
         init(attrs)
@@ -100,7 +104,6 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
         val tilePreview = getTilePreview(tilePreviewMethodFqn) ?: return
         val platformDataValues = getPlatformDataValues(tilePreview)
 
-        lateinit var tileRenderer: TileRenderer
         tileRenderer =
             TileRenderer.Builder(context, executor) { newState ->
                     tileRenderer.previewTile(tilePreview, newState)
@@ -147,6 +150,10 @@ internal class TileServiceViewAdapter(context: Context, attrs: AttributeSet) :
             },
             executor
         )
+    }
+
+    fun getAnimations(): List<DynamicTypeAnimator> {
+        return tileRenderer.animations
     }
 
     @SuppressLint("BanUncheckedReflection")

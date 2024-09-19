@@ -1,1 +1,10 @@
 // Signature format: 4.0
+package androidx.wear.tiles.tooling {
+
+  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class TileServiceViewAdapter extends android.widget.FrameLayout {
+    ctor public TileServiceViewAdapter(android.content.Context context, android.util.AttributeSet attrs);
+    method public java.util.List<androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator> getAnimations();
+  }
+
+}
+

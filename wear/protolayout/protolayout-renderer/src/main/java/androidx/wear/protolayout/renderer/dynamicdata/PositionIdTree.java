@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.annotation.VisibleForTesting;
 import androidx.wear.protolayout.renderer.dynamicdata.PositionIdTree.TreeNode;
 
 import java.util.ArrayList;
@@ -188,7 +187,6 @@ public final class PositionIdTree<T extends TreeNode> {
     }
 
     /** Returns all of the current tree nodes. This is intended to be used only in tests. */
-    @VisibleForTesting
     @NonNull
     Collection<T> getAllNodes() {
         return Collections.unmodifiableCollection(mPosIdToTreeNode.values());

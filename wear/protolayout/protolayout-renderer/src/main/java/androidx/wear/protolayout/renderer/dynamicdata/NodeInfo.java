@@ -22,11 +22,13 @@ import android.graphics.drawable.Drawable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArraySet;
 import androidx.vectordrawable.graphics.drawable.SeekableAnimatedVectorDrawable;
 import androidx.wear.protolayout.expression.pipeline.BoundDynamicType;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.DynamicTypeBindingRequest;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
@@ -40,6 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Information about a layout node that has multiple dynamic types or animators to it.
@@ -148,9 +151,7 @@ class NodeInfo implements TreeNode {
     @VisibleForTesting
     @SuppressWarnings("RestrictTo")
     int size() {
-        return mActiveBoundTypes.stream()
-                .mapToInt(BoundDynamicType::getDynamicNodeCount)
-                .sum();
+        return mActiveBoundTypes.stream().mapToInt(BoundDynamicType::getDynamicNodeCount).sum();
     }
 
     /** Play the animation with the given trigger type. */
@@ -241,6 +242,13 @@ class NodeInfo implements TreeNode {
                                 .mapToInt(BoundDynamicType::getRunningAnimationCount)
                                 .sum()
                         + mResolvedAvds.stream().filter(avd -> avd.mDrawable.isRunning()).count());
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public @NonNull List<DynamicTypeAnimator> getAnimations() {
+        return mActiveBoundTypes.stream()
+                .flatMap(dt -> dt.getAnimations().stream())
+                .collect(Collectors.toList());
     }
 
     /** Returns the cost of evaluated expression nodes. */

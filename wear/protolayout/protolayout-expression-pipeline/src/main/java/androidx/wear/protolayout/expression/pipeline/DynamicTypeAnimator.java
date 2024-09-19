@@ -110,4 +110,14 @@ public interface DynamicTypeAnimator {
      * @return The start delay of the animation.
      */
     long getStartDelayMs();
+
+    /**
+     * Returns whether this animator is not used as the input for any subsequent animators. This is
+     * typically used to indicate the end of a chain of animations, where the output of this
+     * animation is not used as the starting point for another.
+     *
+     * @return {@code true} if this animator is not used as the input for any subsequent animators,
+     *     {@code false} otherwise.
+     */
+    boolean isTerminal();
 }

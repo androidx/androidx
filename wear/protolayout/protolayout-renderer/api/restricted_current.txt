@@ -22,6 +22,7 @@ package androidx.wear.protolayout.renderer.impl {
     ctor public ProtoLayoutViewInstance(androidx.wear.protolayout.renderer.impl.ProtoLayoutViewInstance.Config);
     method public void close() throws java.lang.Exception;
     method @UiThread public void detach(android.view.ViewGroup);
+    method public java.util.List<androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator!> getAnimations();
     method public void invalidateCache();
     method @UiThread public com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> renderAndAttach(androidx.wear.protolayout.proto.LayoutElementProto.Layout, androidx.wear.protolayout.proto.ResourceProto.Resources, android.view.ViewGroup);
   }

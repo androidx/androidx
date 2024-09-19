@@ -46,6 +46,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
 import androidx.collection.ArrayMap;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.FixedQuotaManagerImpl;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.QuotaManager;
@@ -99,6 +100,16 @@ import java.util.concurrent.ExecutionException;
  */
 @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
 public class ProtoLayoutViewInstance implements AutoCloseable {
+
+    /**
+     * Returns list of all ProtoAnimations contained in this ProtoLayout. Used by ui-tooling library
+     * for inspection amd modification of animations.
+     */
+    public @NonNull List<DynamicTypeAnimator> getAnimations() {
+        if (mDataPipeline == null) return List.of();
+        return mDataPipeline.getAnimations();
+    }
+
     /**
      * Listener for clicks on Clickable objects that have an Action to (re)load the contents of a
      * layout.

@@ -55,6 +55,7 @@ class QuotaAwareAnimator implements DynamicTypeAnimator {
 
     @Nullable private Object mStartValue = null; // To cache the start value
     @Nullable private Object mEndValue = null; // To cache the end value
+    private boolean mIsTerminal = false;
 
     interface UpdateCallback {
         void onUpdate(@NonNull Object animatedValue);
@@ -313,6 +314,15 @@ class QuotaAwareAnimator implements DynamicTypeAnimator {
     @Override
     public long getStartDelayMs() {
         return mStartDelay;
+    }
+
+    void setTerminal() {
+        mIsTerminal = true;
+    }
+
+    @Override
+    public boolean isTerminal() {
+        return mIsTerminal;
     }
 
     /** Returns whether the animator in this class has an infinite duration. */

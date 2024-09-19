@@ -14,6 +14,7 @@ package androidx.wear.protolayout.expression.pipeline {
     method public long getStartDelayMs();
     method public Object? getStartValue();
     method public android.animation.TypeEvaluator<? extends java.lang.Object!> getTypeEvaluator();
+    method public boolean isTerminal();
     method public void setFloatValues(float...);
     method public void setIntValues(int...);
   }

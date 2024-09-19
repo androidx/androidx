@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.ResourceBuilders;
@@ -32,6 +33,7 @@ import androidx.wear.protolayout.StateBuilders;
 import androidx.wear.protolayout.expression.AppDataKey;
 import androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue;
 import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeAnimator;
 import androidx.wear.protolayout.expression.pipeline.PlatformDataProvider;
 import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.proto.LayoutElementProto;
@@ -48,6 +50,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -231,6 +234,11 @@ public final class TileRenderer {
         return nextState ->
                 loadActionListener.onClick(
                         androidx.wear.tiles.StateBuilders.State.fromProto(nextState.toProto()));
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public @NonNull List<DynamicTypeAnimator> getAnimations() {
+        return this.mInstance.getAnimations();
     }
 
     /**
