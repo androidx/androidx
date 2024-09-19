@@ -22,39 +22,153 @@
  * modifying its settings.
  */
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.dsl.ExplicitApiMode
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
 }
+
+androidXMultiplatform {
+    android()
+    desktop()
+    ios()
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api("androidx.annotation:annotation:1.8.1")
+                api(project(":savedstate:savedstate"))
+                api(project(":lifecycle:lifecycle-viewmodel"))
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation project(":lifecycle:lifecycle-runtime")
+                implementation(libs.kotlinCoroutinesTest)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.core:core-ktx:1.2.0")
+                api(project(":lifecycle:lifecycle-livedata-core"))
+                api(libs.kotlinCoroutinesAndroid)
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation project(":lifecycle:lifecycle-livedata-core")
+                implementation ("androidx.fragment:fragment:1.3.0")
+                implementation project(":internal-testutils-runtime")
+                implementation(libs.truth)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.testRules)
+            }
+        }
+
+        nonAndroidMain {
+            dependsOn(commonMain)
+        }
+
+        nonAndroidTest {
+            dependsOn(commonTest)
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        nativeMain {
+            dependsOn(commonMain)
+            dependsOn(nonAndroidMain)
+        }
+
+        nativeTest {
+            dependsOn(commonTest)
+            dependsOn(nonAndroidTest)
+        }
+
+        darwinMain {
+            dependsOn(nativeMain)
+        }
+
+        darwinTest {
+            dependsOn(nativeTest)
+        }
+
+        linuxMain {
+            dependsOn(nativeMain)
+        }
+
+        linuxTest {
+            dependsOn(nativeTest)
+        }
+
+        targets.configureEach { target ->
+            if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.OSX || konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.IOS) {
+                        dependsOn(darwinTest)
+                    } else if (konanTargetFamily == org.jetbrains.kotlin.konan.target.Family.LINUX) {
+                        dependsOn(linuxTest)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+            }
+        }
+    }
+}
+
 
 android {
     buildTypes.configureEach {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.lifecycle.viewmodel.savedstate"
-}
-
-dependencies {
-    api("androidx.annotation:annotation:1.8.1")
-    api("androidx.core:core-ktx:1.2.0")
-    api("androidx.savedstate:savedstate:1.2.1")
-    api(project(":lifecycle:lifecycle-livedata-core"))
-    api(project(":lifecycle:lifecycle-viewmodel"))
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-
-    androidTestImplementation project(":lifecycle:lifecycle-runtime")
-    androidTestImplementation project(":lifecycle:lifecycle-livedata-core")
-    androidTestImplementation ("androidx.fragment:fragment:1.3.0")
-    androidTestImplementation project(":internal-testutils-runtime")
-    androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
 }
 
 androidx {
