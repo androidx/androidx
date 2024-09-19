@@ -698,7 +698,12 @@ open class AndroidXMultiplatformExtension(val project: Project) {
 }
 
 private fun Project.configureWasm() {
-    rootProject.extensions.findByType<NodeJsRootExtension>()?.version = getVersionByName("node")
+    rootProject.extensions.findByType<NodeJsRootExtension>()?.let {
+        it.version = getVersionByName("node")
+        it.downloadBaseUrl =
+            File(project.getPrebuiltsRoot(), "androidx/external/org/nodejs/node").toURI().toString()
+    }
+
     rootProject.extensions.findByType(YarnRootExtension::class.java)?.let {
         it.version = getVersionByName("yarn")
         it.lockFileDirectory =
