@@ -16,28 +16,31 @@
 
 package androidx.ink.authoring
 
-import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.ink.strokes.Stroke
 
 /**
- * Notifies the client app when a [LegacyStroke] or [Stroke] (or more than one) has been completed.
+ * Notifies the client app when a [Stroke] (or more than one) has been completed on
+ * [InProgressStrokesView].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // PublicApiNotReadyForJetpackReview
 @UiThread
 public interface InProgressStrokesFinishedListener {
     /**
-     * Called when there are no longer any in-progress strokes. All strokes that were in progress
-     * simultaneously will be delivered in the same callback. This callback will execute on the UI
-     * thread. The implementer should prepare to start rendering the given strokes in their own
-     * [android.view.View]. To do that, the strokes should be saved in a variable where they will be
-     * picked up in a view's next call to [android.view.View.onDraw], and that view's
-     * [android.view.View.invalidate] should be called. When that happens, in the same UI thread run
-     * loop (HWUI frame), [InProgressStrokesView.removeFinishedStrokes] should be called with the
-     * IDs of the strokes that are now being rendered in the other view. Failure to adhere to these
-     * guidelines will result in brief rendering errors between this view and the client app's
-     * view - either a gap where the stroke is not drawn during a frame, or a double draw where the
-     * stroke is drawn twice and translucent strokes appear more opaque than they should.
+     * Called when there are no longer any in-progress strokes in the [InProgressStrokesView] for a
+     * short period. All strokes that were in progress simultaneously will be delivered in the same
+     * callback, running on the UI thread.
+     *
+     * An implementation of this function should start rendering the given strokes in an
+     * [android.view.View] by calling its [android.view.View.invalidate] function and using the new
+     * [Stroke] data in the next call to [android.view.View.onDraw].
+     *
+     * In the same UI thread run loop as calling [android.view.View.invalidate], call
+     * [InProgressStrokesView.removeFinishedStrokes] with the IDs of the strokes that are now being
+     * rendered in the other [android.view.View]. If that happens in a different run loop of the UI
+     * thread, there may be brief rendering errors (appearing as flickers) between
+     * [InProgressStrokesView] and the other [android.view.View] - either a gap where the stroke is
+     * not drawn during a frame, or a double draw where the stroke is drawn twice and translucent
+     * strokes appear more opaque than they should.
      */
     public fun onStrokesFinished(strokes: Map<InProgressStrokeId, Stroke>) {}
 }
