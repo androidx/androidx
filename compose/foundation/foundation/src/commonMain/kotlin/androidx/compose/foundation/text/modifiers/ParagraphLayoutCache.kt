@@ -161,9 +161,12 @@ internal class ParagraphLayoutCache(
         }
 
         if (autoSize != null) {
-            autoSize!!.performAutoSize(finalConstraints, layoutDirection).also {
-                style = style.copy(fontSize = it)
-            }
+            val optimalFontSize = autoSize!!.performAutoSize(finalConstraints, layoutDirection)
+            if (optimalFontSize == style.fontSize && paragraph != null) return true
+            style = style.copy(fontSize = optimalFontSize)
+            // paragraphIntrinsics now does not match with style and needs to be set to null
+            // otherwise the correct font size will not be used in layout
+            paragraphIntrinsics = null
         }
 
         paragraph =
@@ -482,8 +485,13 @@ internal class ParagraphLayoutCache(
                 constraints.constrain(
                     IntSize(localParagraph.width.ceilToIntPx(), localParagraph.height.ceilToIntPx())
                 )
-            return localSize.width < localParagraph.width ||
-                localSize.height < localParagraph.height
+            style = usedStyle
+            layoutSize = localSize
+            paragraphIntrinsics = localParagraphIntrinsics
+            paragraph = localParagraph
+            return (localSize.width < localParagraph.width ||
+                    localSize.height < localParagraph.height)
+                .also { didOverflow = it }
         }
 
         override fun TextUnit.toPx(): Float {

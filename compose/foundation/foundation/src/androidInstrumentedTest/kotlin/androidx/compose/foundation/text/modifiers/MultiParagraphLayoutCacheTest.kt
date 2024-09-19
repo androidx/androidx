@@ -438,6 +438,36 @@ class MultiParagraphLayoutCacheTest {
     }
 
     @Test
+    fun TextLayoutResult_autoSize_increaseConstraintsSize_checkOverflow() {
+        val smallConstraints =
+            Constraints(minWidth = 0, maxWidth = 50, minHeight = 0, maxHeight = 50)
+        val largeConstraints =
+            Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
+
+        val layoutCache =
+            MultiParagraphLayoutCache(
+                    text = AnnotatedString("Hello World"),
+                    style = TextStyle(fontSize = 20.sp, fontFamily = fontFamily),
+                    fontFamilyResolver = fontFamilyResolver,
+                    overflow = TextOverflow.Clip,
+                    autoSize = AutoSize.StepBased(20.sp, 51.sp, 1.sp)
+                )
+                .also { it.density = density }
+
+        layoutCache.layoutWithConstraints(smallConstraints, LayoutDirection.Ltr)
+        var layoutResult = layoutCache.textLayoutResult
+        // this should overflow - 20.sp is too large a font size to use for the smaller constraints
+        assertThat(layoutResult.hasVisualOverflow).isTrue()
+        assertThat(layoutResult.multiParagraph.height).isEqualTo(120)
+
+        layoutCache.layoutWithConstraints(largeConstraints, LayoutDirection.Ltr)
+        layoutResult = layoutCache.textLayoutResult
+        // 25.sp is picked with the bigger constraints, this doesn't overflow
+        assertThat(layoutResult.hasVisualOverflow).isFalse()
+        assertThat(layoutResult.multiParagraph.height).isEqualTo(100)
+    }
+
+    @Test
     fun TextLayoutResult_autoSize_ellipsized_isLineEllipsized() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text =
