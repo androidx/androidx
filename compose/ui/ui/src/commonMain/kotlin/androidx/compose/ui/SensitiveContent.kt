@@ -25,6 +25,8 @@ import androidx.compose.ui.platform.InspectorInfo
  * This modifier hints that the composable renders sensitive content (i.e. username, password,
  * credit card etc) on the screen, and the content should be protected during screen share in
  * supported environments.
+ *
+ * @param isContentSensitive whether the content is sensitive or not. Defaults to true.
  */
 fun Modifier.sensitiveContent(isContentSensitive: Boolean = true): Modifier =
     this then SensitiveNodeElement(isContentSensitive)
