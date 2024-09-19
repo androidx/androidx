@@ -22,11 +22,13 @@ import android.view.accessibility.AccessibilityManager.AccessibilityStateChangeL
 import android.view.accessibility.AccessibilityManager.TouchExplorationStateChangeListener
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -37,7 +39,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
  * discouraged to make logic conditional based on state of accessibility services. Please consult
  * with accessibility experts before making such change.
  */
-fun interface TouchExplorationStateProvider {
+internal fun interface TouchExplorationStateProvider {
 
     /**
      * Returns the touch exploration service state wrapped in a [State] to allow composables to
@@ -128,3 +130,10 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         }
     }
 }
+
+/** CompositionLocal to provide a means to override TouchExplorationStateProvider during testing */
+internal val LocalTouchExplorationStateProvider:
+    ProvidableCompositionLocal<TouchExplorationStateProvider> =
+    staticCompositionLocalOf {
+        DefaultTouchExplorationStateProvider()
+    }

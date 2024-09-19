@@ -18,6 +18,7 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -26,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -45,10 +45,12 @@ class PickerGroupTest {
     fun supports_test_tag() {
         rule.setContentWithTheme {
             PickerGroup(
-                pickers = getPickerColumns(1),
+                selectedPickerIndex = 0,
+                onPickerSelected = {},
                 modifier = Modifier.testTag(TEST_TAG_1),
-                pickerGroupState = rememberPickerGroupState()
-            )
+            ) {
+                addPickerColumns(1)
+            }
         }
 
         rule.onNodeWithTag(TEST_TAG_1).assertExists()
@@ -56,42 +58,30 @@ class PickerGroupTest {
 
     @Test
     fun state_returns_initially_selected_index_at_start() {
-        lateinit var pickerGroupState: PickerGroupState
         val initiallySelectedColumn = 1
+        var selectedIndex = initiallySelectedColumn
         rule.setContentWithTheme {
             PickerGroup(
-                pickers = getPickerColumns(2),
-                pickerGroupState =
-                    rememberPickerGroupState(initiallySelectedColumn).also { pickerGroupState = it }
-            )
+                selectedPickerIndex = selectedIndex,
+                onPickerSelected = { selectedIndex = it },
+            ) {
+                addPickerColumns(2)
+            }
         }
 
         rule.waitForIdle()
 
-        assertThat(pickerGroupState.selectedIndex).isEqualTo(initiallySelectedColumn)
-    }
-
-    @Test
-    fun remember_pickerGroupState_after_updates() {
-        lateinit var selectedPicker: MutableState<Int>
-        rule.setContentWithTheme {
-            selectedPicker = remember { mutableStateOf(0) }
-            val pickerGroupState = rememberPickerGroupState(selectedPicker.value)
-            Text(text = "${pickerGroupState.selectedIndex}")
-        }
-
-        selectedPicker.value = 2
-        rule.waitForIdle()
-
-        rule.onNodeWithText("2").assertExists()
+        assertThat(selectedIndex).isEqualTo(initiallySelectedColumn)
     }
 
     @Test
     fun pickers_are_added_to_picker_group() {
-        val pickerColumnZero = getPickerColumnWithTag(TEST_TAG_1)
-        val pickerColumnOne = getPickerColumnWithTag(TEST_TAG_2)
-
-        rule.setContentWithTheme { PickerGroup(pickerColumnZero, pickerColumnOne) }
+        rule.setContentWithTheme {
+            PickerGroup(selectedPickerIndex = 0, onPickerSelected = {}) {
+                addPickerColumnWithTag(TEST_TAG_1)
+                addPickerColumnWithTag(TEST_TAG_2)
+            }
+        }
 
         rule.onNodeWithTag(TEST_TAG_1).assertExists()
         rule.onNodeWithTag(TEST_TAG_2).assertExists()
@@ -99,51 +89,50 @@ class PickerGroupTest {
 
     @Test
     fun picker_changes_focus_when_clicked() {
-        lateinit var pickerGroupState: PickerGroupState
-        val touchExplorationStateProvider =
-            getTouchExplorationServiceState(touchExplorationServiceState = false)
-        val pickerColumnZero = getPickerColumnWithTag(TEST_TAG_1)
-        val pickerColumnOne = getPickerColumnWithTag(TEST_TAG_2)
+        lateinit var selectedIndex: MutableState<Int>
+        val talkBackOff = overrideTalkBackState(touchExplorationServiceState = false)
 
         rule.setContentWithTheme {
-            pickerGroupState = rememberPickerGroupState()
-            PickerGroup(
-                pickerColumnZero,
-                pickerColumnOne,
-                pickerGroupState = pickerGroupState,
-                touchExplorationStateProvider = touchExplorationStateProvider
-            )
+            selectedIndex = remember { mutableStateOf(0) }
+            CompositionLocalProvider(LocalTouchExplorationStateProvider provides talkBackOff) {
+                PickerGroup(
+                    selectedPickerIndex = selectedIndex.value,
+                    onPickerSelected = { selectedIndex.value = it },
+                ) {
+                    addPickerColumnWithTag(TEST_TAG_1)
+                    addPickerColumnWithTag(TEST_TAG_2)
+                }
+            }
         }
 
         rule.onNodeWithTag(TEST_TAG_2).performClick()
         rule.waitForIdle()
 
-        assertThat(pickerGroupState.selectedIndex).isEqualTo(1)
+        assertThat(selectedIndex.value).isEqualTo(1)
     }
 
-    private fun getPickerColumns(count: Int): Array<PickerGroupItem> =
-        Array(count) {
-            PickerGroupItem(pickerState = PickerState(10)) { _: Int, _: Boolean ->
-                Box(modifier = Modifier.size(20.dp))
+    private fun PickerGroupScope.addPickerColumns(count: Int) =
+        repeat(count) {
+            pickerGroupItem(pickerState = PickerState(10)) { index: Int, _: Boolean ->
+                Box(modifier = Modifier.size(100.dp)) { Text(text = "$index") }
             }
         }
 
-    private fun getPickerColumnWithTag(tag: String, onSelected: () -> Unit = {}): PickerGroupItem {
-        return PickerGroupItem(
+    private fun PickerGroupScope.addPickerColumnWithTag(tag: String, onSelected: () -> Unit = {}) =
+        pickerGroupItem(
             pickerState = PickerState(10),
             modifier = Modifier.testTag(tag),
             onSelected = onSelected
         ) { _: Int, _: Boolean ->
             Box(modifier = Modifier.size(20.dp))
         }
-    }
 
-    private fun getTouchExplorationServiceState(
+    private fun overrideTalkBackState(
         touchExplorationServiceState: Boolean
     ): TouchExplorationStateProvider {
         return TouchExplorationStateProvider { rememberUpdatedState(touchExplorationServiceState) }
     }
-
-    private val TEST_TAG_1 = "random string 1"
-    private val TEST_TAG_2 = "random string 2"
 }
+
+private const val TEST_TAG_1 = "random string 1"
+private const val TEST_TAG_2 = "random string 2"

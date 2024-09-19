@@ -676,69 +676,38 @@ package androidx.wear.compose.material3 {
   }
 
   public final class PickerDefaults {
-    method @androidx.compose.runtime.Composable public androidx.compose.foundation.gestures.FlingBehavior flingBehavior(androidx.wear.compose.material3.PickerState state, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float> decay);
     method public float getGradientRatio();
-    method public androidx.wear.compose.foundation.lazy.ScalingParams scalingParams(optional float edgeScale, optional float edgeAlpha, optional float minElementHeight, optional float maxElementHeight, optional float minTransitionArea, optional float maxTransitionArea, optional androidx.compose.animation.core.Easing scaleInterpolator, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Constraints,java.lang.Integer> viewportVerticalOffsetResolver);
+    method @androidx.compose.runtime.Composable public androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior rotarySnapBehavior(androidx.wear.compose.material3.PickerState state);
     property public final float GradientRatio;
     field public static final androidx.wear.compose.material3.PickerDefaults INSTANCE;
   }
 
-  public final class PickerGroupItem {
-    ctor public PickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, optional androidx.compose.ui.Modifier modifier, optional String? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional float spacing, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> option);
-    method public String? getContentDescription();
-    method public androidx.compose.ui.focus.FocusRequester? getFocusRequester();
-    method public androidx.compose.ui.Modifier getModifier();
-    method public kotlin.jvm.functions.Function0<kotlin.Unit> getOnSelected();
-    method public kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> getOption();
-    method public androidx.wear.compose.material3.PickerState getPickerState();
-    method public kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? getReadOnlyLabel();
-    method public float getSpacing();
-    property public final String? contentDescription;
-    property public final androidx.compose.ui.focus.FocusRequester? focusRequester;
-    property public final androidx.compose.ui.Modifier modifier;
-    property public final kotlin.jvm.functions.Function0<kotlin.Unit> onSelected;
-    property public final kotlin.jvm.functions.Function3<androidx.wear.compose.material3.PickerScope,java.lang.Integer,java.lang.Boolean,kotlin.Unit> option;
-    property public final androidx.wear.compose.material3.PickerState pickerState;
-    property public final kotlin.jvm.functions.Function1<androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel;
-    property public final float spacing;
-  }
-
   public final class PickerGroupKt {
-    method @androidx.compose.runtime.Composable public static void PickerGroup(androidx.wear.compose.material3.PickerGroupItem[] pickers, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material3.PickerGroupState pickerGroupState, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onSelected, optional boolean autoCenter, optional boolean propagateMinConstraints, optional androidx.wear.compose.material3.TouchExplorationStateProvider touchExplorationStateProvider, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? separator);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.PickerGroupState rememberPickerGroupState(optional int initiallySelectedIndex);
+    method @androidx.compose.runtime.Composable public static void PickerGroup(int selectedPickerIndex, kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onPickerSelected, optional androidx.compose.ui.Modifier modifier, optional boolean autoCenter, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? separator, optional boolean propagateMinConstraints, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material3.PickerGroupScope,kotlin.Unit> content);
   }
 
-  public final class PickerGroupState {
-    ctor public PickerGroupState();
-    ctor public PickerGroupState(optional int initiallySelectedIndex);
-    method public int getSelectedIndex();
-    method public void setSelectedIndex(int);
-    property public final int selectedIndex;
-    field public static final androidx.wear.compose.material3.PickerGroupState.Companion Companion;
-  }
-
-  public static final class PickerGroupState.Companion {
-    method public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material3.PickerGroupState,java.lang.Object> getSaver();
-    property public final androidx.compose.runtime.saveable.Saver<androidx.wear.compose.material3.PickerGroupState,java.lang.Object> Saver;
+  public final class PickerGroupScope {
+    ctor public PickerGroupScope();
+    method public boolean pickerGroupItem(androidx.wear.compose.material3.PickerState pickerState, optional androidx.compose.ui.Modifier modifier, optional String? contentDescription, optional androidx.compose.ui.focus.FocusRequester? focusRequester, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional float spacing, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,? super java.lang.Boolean,kotlin.Unit> option);
   }
 
   public final class PickerKt {
-    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material3.PickerState state, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional androidx.wear.compose.foundation.lazy.ScalingParams scalingParams, optional float spacing, optional @FloatRange(from=0.0, to=0.5) float gradientRatio, optional long gradientColor, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
-    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.PickerState rememberPickerState(int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
+    method @androidx.compose.runtime.Composable public static void Picker(androidx.wear.compose.material3.PickerState state, String? contentDescription, optional androidx.compose.ui.Modifier modifier, optional boolean readOnly, optional kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.BoxScope,kotlin.Unit>? readOnlyLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, optional float spacing, optional @FloatRange(from=0.0, to=0.5) float gradientRatio, optional long gradientColor, optional boolean userScrollEnabled, optional androidx.wear.compose.foundation.rotary.RotaryScrollableBehavior? rotaryScrollableBehavior, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material3.PickerScope,? super java.lang.Integer,kotlin.Unit> option);
+    method @androidx.compose.runtime.Composable public static androidx.wear.compose.material3.PickerState rememberPickerState(@IntRange(from=1L) int initialNumberOfOptions, optional @IntRange(from=0L) int initiallySelectedIndex, optional boolean shouldRepeatOptions);
   }
 
   public interface PickerScope {
-    method public int getSelectedOption();
-    property public abstract int selectedOption;
+    method public int getSelectedOptionIndex();
+    property public abstract int selectedOptionIndex;
   }
 
   @androidx.compose.runtime.Stable public final class PickerState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public PickerState(@IntRange(from=1L) int initialNumberOfOptions, optional int initiallySelectedOption, optional boolean repeatItems);
+    ctor public PickerState(@IntRange(from=1L) int initialNumberOfOptions, optional @IntRange(from=0L) int initiallySelectedIndex, optional boolean shouldRepeatOptions);
     method public suspend Object? animateScrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public int getNumberOfOptions();
-    method public boolean getRepeatItems();
-    method public int getSelectedOption();
+    method public int getSelectedOptionIndex();
+    method public boolean getShouldRepeatOptions();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,? extends java.lang.Object?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public suspend Object? scrollToOption(int index, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -747,8 +716,8 @@ package androidx.wear.compose.material3 {
     property public boolean canScrollForward;
     property public boolean isScrollInProgress;
     property public final int numberOfOptions;
-    property public final boolean repeatItems;
-    property public final int selectedOption;
+    property public final int selectedOptionIndex;
+    property public final boolean shouldRepeatOptions;
     field public static final androidx.wear.compose.material3.PickerState.Companion Companion;
   }
 
@@ -1456,10 +1425,6 @@ package androidx.wear.compose.material3 {
     method public abstract void separator(optional androidx.compose.ui.text.TextStyle? style);
     method public abstract void text(String text, optional androidx.compose.ui.text.TextStyle? style, optional float weight);
     method public abstract void time();
-  }
-
-  public fun interface TouchExplorationStateProvider {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<java.lang.Boolean> touchExplorationState();
   }
 
   public final class TouchTargetAwareSizeKt {
