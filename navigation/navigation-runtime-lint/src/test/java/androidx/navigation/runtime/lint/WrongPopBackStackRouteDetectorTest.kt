@@ -17,7 +17,7 @@
 package androidx.navigation.runtime.lint
 
 import androidx.navigation.lint.common.NAVIGATION_STUBS
-import androidx.navigation.lint.common.TEST_CODE
+import androidx.navigation.lint.common.TEST_CLASS
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestMode
 import com.android.tools.lint.detector.api.Detector
@@ -54,7 +54,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *NAVIGATION_STUBS,
-                TEST_CODE
+                TEST_CLASS.bytecode
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -97,7 +97,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *NAVIGATION_STUBS,
-                TEST_CODE
+                TEST_CLASS.bytecode
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()
@@ -137,7 +137,7 @@ class WrongPopBackStackRouteDetectorTest : LintDetectorTest() {
                     )
                     .indented(),
                 *NAVIGATION_STUBS,
-                TEST_CODE
+                TEST_CLASS.bytecode
             )
             .skipTestModes(TestMode.FULLY_QUALIFIED)
             .run()

@@ -16,8 +16,8 @@
 
 package androidx.navigation.common.lint
 
+import androidx.navigation.lint.common.KEEP_ANNOTATION
 import androidx.navigation.lint.common.NAVIGATION_STUBS
-import androidx.navigation.lint.common.bytecodeStub
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.detector.api.Detector
 import com.android.tools.lint.detector.api.Issue
@@ -338,51 +338,6 @@ enum class DeepLinkArg
                     .trimIndent()
             )
     }
-
-    internal val KEEP_ANNOTATION =
-        bytecodeStub(
-            "Keep.kt",
-            "androidx/annotation",
-            0x2645a498,
-            """
-package androidx.annotation
-
-@Retention(AnnotationRetention.BINARY)
-@Target(
-    AnnotationTarget.FILE,
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.CLASS,
-    AnnotationTarget.ANNOTATION_CLASS,
-    AnnotationTarget.CONSTRUCTOR,
-    AnnotationTarget.FUNCTION,
-    AnnotationTarget.PROPERTY_GETTER,
-    AnnotationTarget.PROPERTY_SETTER,
-    AnnotationTarget.FIELD
-)
-public annotation class Keep
-        """,
-            """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgsuUSTsxLKcrPTKnQy0ssy0xPLMnM
-                zxPicsyrLMnIzEv3LhHi90ssc87PKynKz8lJLQIKcAIFPPKLS7xLuCS5uJPz
-                c/VSKxJzC3JShbhCUotLXPNKc71LlBi0GACE4q01cgAAAA==
-                """,
-            """
-                androidx/annotation/Keep.class:
-                H4sIAAAAAAAA/4VSy3ISQRQ9PYRnNIAahcSYGCPxTUy5y4rgoFOSGWroWEWx
-                SHWgKzVhmEkxAyY7dn6G/+HColz6UZZ9JcIsUDenT98+99n3x8+v3wC8wUuG
-                gvC6A9/pXpaF5/mhCB3fK3+Q8iIJxpA7FyNRdoV3VrZOz2UnTCLGsDm3Rpwq
-                M5pEnGGj3vND1/GiEluG0iN2wBAfCXcoGXYX6Oahoh6JQ8Os2C2GtQUuXAzO
-                ZKhUK8J1/U+yOzUEDDv/TDDzW6oZdV11XDFNi1e4YZkn1Xql2VSVXp/LVcts
-                cvu4yi2bIVU7NqskY8g2bKuh27x18k7nXLejlua1JV4z9Ppbhq36wuFF+yz9
-                R9LwXadzdUAjXiictbS9+F13ZV9F4lcXkvrmrYbqO3Gk8/eWKjAbGcD0Kf9n
-                gEcyFF0RCuWl9UcxtUKMIE0ABtZT9kuHbnuKdV8zFCfjVEYraBktt576/lkr
-                TMb72h47nIxJsE9f+bf9U0lUzCTRV72QIdP0h4OOrDmuWpqiPVSj6MuPTuCc
-                unL+nUFJBcaS8kxQUYo//43P8EKdXxCH2mukJNLIYFnRG22kJW5ihSBLkJux
-                PMEtgtsEdwhWcXca4B5yKBBtIy5RxBrBKsE6QZ7gPjZUxgdtxAxsGtgy8BDb
-                iuKRgR08boMFKGG3DS3AkwBPfwGJU24VmQMAAA==
-                """
-        )
 
     val STUBS = arrayOf(*NAVIGATION_STUBS, KEEP_ANNOTATION)
 }
