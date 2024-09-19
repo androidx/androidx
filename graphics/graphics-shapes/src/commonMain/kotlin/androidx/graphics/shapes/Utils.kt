@@ -20,7 +20,6 @@ package androidx.graphics.shapes
 
 import kotlin.jvm.JvmName
 import kotlin.math.PI
-import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -38,8 +37,6 @@ internal fun directionVector(x: Float, y: Float): Point {
 }
 
 internal fun directionVector(angleRadians: Float) = Point(cos(angleRadians), sin(angleRadians))
-
-internal fun angle(x: Float, y: Float) = ((atan2(y, x) + TwoPi) % TwoPi)
 
 internal fun radialToCartesian(radius: Float, angleRadians: Float, center: Point = Zero) =
     directionVector(angleRadians) * radius + center
