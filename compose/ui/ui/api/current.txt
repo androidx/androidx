@@ -2514,15 +2514,18 @@ package androidx.compose.ui.layout {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScaleFactor {
+    ctor public ScaleFactor(long packedValue);
     method @androidx.compose.runtime.Stable public inline operator float component1();
     method @androidx.compose.runtime.Stable public inline operator float component2();
     method public long copy(optional float scaleX, optional float scaleY);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
-    method public float getScaleX();
-    method public float getScaleY();
+    method public long getPackedValue();
+    method public inline float getScaleX();
+    method public inline float getScaleY();
     method @androidx.compose.runtime.Stable public operator long times(float operand);
-    property @androidx.compose.runtime.Stable public final float scaleX;
-    property @androidx.compose.runtime.Stable public final float scaleY;
+    property public final long packedValue;
+    property @androidx.compose.runtime.Stable public final inline float scaleX;
+    property @androidx.compose.runtime.Stable public final inline float scaleY;
     field public static final androidx.compose.ui.layout.ScaleFactor.Companion Companion;
   }
 
@@ -2532,7 +2535,7 @@ package androidx.compose.ui.layout {
   }
 
   public final class ScaleFactorKt {
-    method @androidx.compose.runtime.Stable public static long ScaleFactor(float scaleX, float scaleY);
+    method @androidx.compose.runtime.Stable public static inline long ScaleFactor(float scaleX, float scaleY);
     method @androidx.compose.runtime.Stable public static operator long div(long, long scaleFactor);
     method public static inline boolean isSpecified(long);
     method public static inline boolean isUnspecified(long);

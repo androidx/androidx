@@ -54,8 +54,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
-import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.util.fastMaxOfOrDefault
+import kotlin.math.max
 
 /**
  * [AnimatedVisibility] composable animates the appearance and disappearance of its content, as
@@ -781,9 +781,15 @@ private class AnimatedEnterExitMeasurePolicy(val scope: AnimatedVisibilityScopeI
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
-        val placeables = measurables.fastMap { it.measure(constraints) }
-        val maxWidth: Int = placeables.fastMaxBy { it.width }?.width ?: 0
-        val maxHeight = placeables.fastMaxBy { it.height }?.height ?: 0
+        var maxWidth = 0
+        var maxHeight = 0
+        val placeables =
+            measurables.fastMap {
+                it.measure(constraints).apply {
+                    maxWidth = max(maxWidth, width)
+                    maxHeight = max(maxHeight, height)
+                }
+            }
         // Position the children.
         if (isLookingAhead) {
             hasLookaheadOccurred = true
@@ -798,22 +804,22 @@ private class AnimatedEnterExitMeasurePolicy(val scope: AnimatedVisibilityScopeI
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = measurables.fastMaxOfOrNull { it.minIntrinsicWidth(height) } ?: 0
+    ) = measurables.fastMaxOfOrDefault(0) { it.minIntrinsicWidth(height) }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = measurables.fastMaxOfOrNull { it.minIntrinsicHeight(width) } ?: 0
+    ) = measurables.fastMaxOfOrDefault(0) { it.minIntrinsicHeight(width) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
         measurables: List<IntrinsicMeasurable>,
         height: Int
-    ) = measurables.fastMaxOfOrNull { it.maxIntrinsicWidth(height) } ?: 0
+    ) = measurables.fastMaxOfOrDefault(0) { it.maxIntrinsicWidth(height) }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
         measurables: List<IntrinsicMeasurable>,
         width: Int
-    ) = measurables.fastMaxOfOrNull { it.maxIntrinsicHeight(width) } ?: 0
+    ) = measurables.fastMaxOfOrDefault(0) { it.maxIntrinsicHeight(width) }
 }
 
 // This converts Boolean visible to EnterExitState

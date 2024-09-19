@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("NOTHING_TO_INLINE", "KotlinRedundantDiagnosticSuppress")
+
 package androidx.compose.ui.input.pointer.util
 
 import androidx.compose.ui.input.pointer.PointerId
@@ -25,7 +27,6 @@ import androidx.compose.ui.input.pointer.PointerId
  * (since LongArray is not itself resizable).
  */
 internal class PointerIdArray {
-
     /**
      * The size of this [PointerIdArray], which is equal to the number of ids stored in the array.
      */
@@ -33,6 +34,10 @@ internal class PointerIdArray {
     // entries to avoid resizing for every additional id that is added.
     var size = 0
         private set
+
+    /** Returns index of last item in array */
+    inline val lastIndex: Int
+        get() = size - 1
 
     /**
      * The ids are stored as Long values in a LongArray. LongArray is not resizable, and we may need
@@ -58,7 +63,7 @@ internal class PointerIdArray {
      *
      * @return true if [pointerId] was in the array, false otherwise
      */
-    fun remove(pointerId: PointerId): Boolean {
+    inline fun remove(pointerId: PointerId): Boolean {
         return remove(pointerId.value)
     }
 
@@ -70,8 +75,11 @@ internal class PointerIdArray {
      */
     fun remove(pointerIdValue: Long): Boolean {
         for (i in 0 until size) {
-            if (pointerIdValue == this[i].value) {
-                removeAt(i)
+            if (pointerIdValue == internalArray[i]) {
+                for (j in i until size - 1) {
+                    internalArray[j] = internalArray[j + 1]
+                }
+                size--
                 return true
             }
         }
@@ -116,7 +124,7 @@ internal class PointerIdArray {
      *
      * @return true if id was added, false otherwise
      */
-    fun add(pointerId: PointerId): Boolean {
+    inline fun add(pointerId: PointerId): Boolean {
         return add(pointerId.value)
     }
 
@@ -127,12 +135,19 @@ internal class PointerIdArray {
      * it.
      */
     operator fun set(index: Int, value: Long) {
+        var internalArray = internalArray
         if (index >= internalArray.size) {
             // Increase the size of the backing array
-            internalArray = internalArray.copyOf(maxOf(index + 1, internalArray.size * 2))
+            internalArray = resizeStorage(index + 1)
         }
         internalArray[index] = value
         if (index >= size) size = index + 1
+    }
+
+    private fun resizeStorage(minSize: Int): LongArray {
+        return internalArray.copyOf(maxOf(minSize, internalArray.size * 2)).apply {
+            internalArray = this
+        }
     }
 
     /**
@@ -140,7 +155,7 @@ internal class PointerIdArray {
      * current size of the array. If it is equal to the size of the array, the storage in the array
      * will be expanded to ensure that the item can be added to the end of it.
      */
-    operator fun set(index: Int, pointerId: PointerId) {
+    inline operator fun set(index: Int, pointerId: PointerId) {
         set(index, pointerId.value)
     }
 
@@ -151,7 +166,7 @@ internal class PointerIdArray {
     }
 
     /** Returns true if [pointerId] is in the array, false otherwise */
-    fun contains(pointerId: PointerId): Boolean {
+    inline fun contains(pointerId: PointerId): Boolean {
         return contains(pointerId.value)
     }
 
@@ -162,8 +177,4 @@ internal class PointerIdArray {
         }
         return false
     }
-
-    /** Returns index of last item in array */
-    inline val lastIndex: Int
-        get() = size - 1
 }

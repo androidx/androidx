@@ -60,7 +60,6 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxBy
 import androidx.core.graphics.Insets
 import androidx.core.view.OnApplyWindowInsetsListener
 import androidx.core.view.ViewCompat
@@ -74,6 +73,7 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 /**
@@ -562,9 +562,19 @@ private class DialogWrapper(
 @Composable
 private fun DialogLayout(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Layout(content = content, modifier = modifier) { measurables, constraints ->
-        val placeables = measurables.fastMap { it.measure(constraints) }
-        val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
-        val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
-        layout(width, height) { placeables.fastForEach { it.placeRelative(0, 0) } }
+        var maxWidth = 0
+        var maxHeight = 0
+        val placeables =
+            measurables.fastMap {
+                it.measure(constraints).apply {
+                    maxWidth = max(maxWidth, width)
+                    maxHeight = max(maxHeight, height)
+                }
+            }
+        if (measurables.isEmpty()) {
+            maxWidth = constraints.minWidth
+            maxHeight = constraints.minHeight
+        }
+        layout(maxWidth, maxHeight) { placeables.fastForEach { it.placeRelative(0, 0) } }
     }
 }
