@@ -233,7 +233,7 @@ libraries may also be used, but type checking of constants will only be
 performed by lint, and functions overloaded with parameters of different value
 class types are not supported. Prefer the `@JvmInline value class` solution for
 new code unless it would break local consistency with other API in the same
-module that already uses `@IntDef`.
+module that already uses `@IntDef` or compatibility with Java is required.
 
 #### Non-exhaustive alternatives to `sealed class`
 
