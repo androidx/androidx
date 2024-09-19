@@ -23,18 +23,18 @@ import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.AnimateBounds
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterFromLeft
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterFromLeftDelayed
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterFromRight
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterFromRightDelayed
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.EnterWithExpand
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.ExitToLeft
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.ExitToRight
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.ExitWithShrink
-import androidx.compose.material3.adaptive.layout.DefaultPaneMotion.Companion.NoMotion
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.Expanded
 import androidx.compose.material3.adaptive.layout.PaneAdaptedValue.Companion.Hidden
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.AnimateBounds
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.EnterFromLeft
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.EnterFromLeftDelayed
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.EnterFromRight
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.EnterFromRightDelayed
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.EnterWithExpand
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.ExitToLeft
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.ExitToRight
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.ExitWithShrink
+import androidx.compose.material3.adaptive.layout.PaneMotion.Companion.NoMotion
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -79,7 +79,7 @@ class PaneMotionTest {
         ExitWithShrink.assertTransitions(EnterTransition.None, mockExitWithShrinkTransition)
     }
 
-    private fun DefaultPaneMotion.assertTransitions(
+    private fun PaneMotion.assertTransitions(
         expectedEnterTransition: EnterTransition,
         expectedExitTransition: ExitTransition
     ) {

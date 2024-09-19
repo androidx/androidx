@@ -235,11 +235,7 @@ class ThreePaneMotion(
     companion object {
         /** A default [ThreePaneMotion] instance that specifies no motions. */
         val NoMotion =
-            ThreePaneMotion(
-                DefaultPaneMotion.NoMotion,
-                DefaultPaneMotion.NoMotion,
-                DefaultPaneMotion.NoMotion
-            )
+            ThreePaneMotion(PaneMotion.NoMotion, PaneMotion.NoMotion, PaneMotion.NoMotion)
     }
 }
 
