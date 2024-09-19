@@ -20,17 +20,15 @@ import android.content.Context
 import android.graphics.Outline
 import android.os.Build
 import android.view.ContextThemeWrapper
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnLayoutChangeListener
-import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.ViewOutlineProvider
 import android.view.Window
 import android.view.WindowManager
-import android.widget.FrameLayout
 import androidx.activity.ComponentDialog
 import androidx.activity.addCallback
 import androidx.compose.runtime.Composable
@@ -58,6 +56,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceAtLeast
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -225,21 +224,186 @@ interface DialogWindowProvider {
 
 @Suppress("ViewConstructor")
 private class DialogLayout(context: Context, override val window: Window) :
-    AbstractComposeView(context), DialogWindowProvider {
+    AbstractComposeView(context), DialogWindowProvider, OnApplyWindowInsetsListener {
 
     private var content: @Composable () -> Unit by mutableStateOf({})
 
-    var usePlatformDefaultWidth = false
-    var decorFitsSystemWindows = false
+    private var usePlatformDefaultWidth = false
+    private var decorFitsSystemWindows = false
+    private var hasCalledSetLayout = false
 
     override var shouldCreateCompositionOnAttachedToWindow: Boolean = false
         private set
+
+    init {
+        ViewCompat.setOnApplyWindowInsetsListener(this, this)
+        ViewCompat.setWindowInsetsAnimationCallback(
+            this,
+            object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
+                override fun onStart(
+                    animation: WindowInsetsAnimationCompat,
+                    bounds: WindowInsetsAnimationCompat.BoundsCompat
+                ): WindowInsetsAnimationCompat.BoundsCompat =
+                    insetValue(bounds) { l, t, r, b -> bounds.inset(Insets.of(l, t, r, b)) }
+
+                override fun onProgress(
+                    insets: WindowInsetsCompat,
+                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
+                ): WindowInsetsCompat =
+                    insetValue(insets) { l, t, r, b -> insets.inset(l, t, r, b) }
+            }
+        )
+    }
+
+    fun updateProperties(usePlatformDefaultWidth: Boolean, decorFitsSystemWindows: Boolean) {
+        val callSetLayout =
+            !hasCalledSetLayout ||
+                usePlatformDefaultWidth != this.usePlatformDefaultWidth ||
+                decorFitsSystemWindows != this.decorFitsSystemWindows
+        this.usePlatformDefaultWidth = usePlatformDefaultWidth
+        this.decorFitsSystemWindows = decorFitsSystemWindows
+
+        if (callSetLayout) {
+            val attrs = window.attributes
+            val measurementWidth = if (usePlatformDefaultWidth) WRAP_CONTENT else MATCH_PARENT
+            if (measurementWidth != attrs.width || !hasCalledSetLayout) {
+                // Always use WRAP_CONTENT for height. internalOnMeasure() will change
+                // it to MATCH_PARENT if it needs more height. If we use MATCH_PARENT here,
+                // and change to WRAP_CONTENT in internalOnMeasure(), the window size will
+                // be wrong on the first frame.
+                window.setLayout(measurementWidth, WRAP_CONTENT)
+                hasCalledSetLayout = true
+            }
+        }
+    }
+
+    override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        val child = getChildAt(0)
+        if (child == null) {
+            super.internalOnMeasure(widthMeasureSpec, heightMeasureSpec)
+            return
+        }
+        val width = MeasureSpec.getSize(widthMeasureSpec)
+        val height = MeasureSpec.getSize(heightMeasureSpec)
+        val heightMode = MeasureSpec.getMode(heightMeasureSpec)
+        val targetHeight =
+            if (
+                heightMode == MeasureSpec.AT_MOST &&
+                    !usePlatformDefaultWidth &&
+                    !decorFitsSystemWindows &&
+                    window.attributes.height == WRAP_CONTENT
+            ) {
+                // Any size larger than the WRAP_CONTENT to test to see if this is full-screen
+                // content.
+                height + 1
+            } else {
+                height
+            }
+
+        val horizontalPadding = paddingLeft + paddingRight
+        val verticalPadding = paddingTop + paddingBottom
+        val remainingWidth = (width - horizontalPadding).fastCoerceAtLeast(0)
+        val remainingHeight = (targetHeight - verticalPadding).fastCoerceAtLeast(0)
+
+        val widthMode = MeasureSpec.getMode(widthMeasureSpec)
+        val childWidthSpec =
+            if (widthMode == MeasureSpec.UNSPECIFIED) {
+                widthMeasureSpec
+            } else {
+                MeasureSpec.makeMeasureSpec(remainingWidth, MeasureSpec.AT_MOST)
+            }
+        val childHeightSpec =
+            if (heightMode == MeasureSpec.UNSPECIFIED) {
+                heightMeasureSpec
+            } else {
+                MeasureSpec.makeMeasureSpec(remainingHeight, MeasureSpec.AT_MOST)
+            }
+        child.measure(childWidthSpec, childHeightSpec)
+
+        // respect passed dimensions
+        val measuredWidth =
+            when (widthMode) {
+                MeasureSpec.EXACTLY -> width
+                MeasureSpec.AT_MOST -> minOf(width, child.measuredWidth + horizontalPadding)
+                else -> child.measuredWidth + horizontalPadding
+            }
+        val measuredHeight =
+            when (heightMode) {
+                MeasureSpec.EXACTLY -> height
+                MeasureSpec.AT_MOST -> minOf(height, child.measuredHeight + verticalPadding)
+                else -> child.measuredHeight + verticalPadding
+            }
+        setMeasuredDimension(measuredWidth, measuredHeight)
+
+        if (
+            !usePlatformDefaultWidth &&
+                !decorFitsSystemWindows &&
+                child.measuredHeight + verticalPadding > height &&
+                window.attributes.height == WRAP_CONTENT
+        ) {
+            // The size of the window is too small with WRAP_CONTENT for height. Change it
+            // to use MATCH_PARENT to give as much room as possible
+            window.setLayout(MATCH_PARENT, MATCH_PARENT)
+        }
+    }
+
+    override fun internalOnLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        val child = getChildAt(0) ?: return
+
+        // center content
+        val hPadding = paddingLeft + paddingRight
+        val vPadding = paddingTop + paddingBottom
+        val width = right - left
+        val height = bottom - top
+        val childWidth = child.measuredWidth
+        val childHeight = child.measuredHeight
+
+        val extraWidth = width - childWidth - hPadding
+        val extraHeight = height - childHeight - vPadding
+
+        val l = paddingLeft + (extraWidth / 2)
+        val t = paddingTop + (extraHeight / 2)
+        val r = l + childWidth
+        val b = t + childHeight
+        child.layout(l, t, r, b)
+    }
 
     fun setContent(parent: CompositionContext, content: @Composable () -> Unit) {
         setParentCompositionContext(parent)
         this.content = content
         shouldCreateCompositionOnAttachedToWindow = true
         createComposition()
+    }
+
+    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat =
+        insetValue(insets) { l, t, r, b -> insets.inset(l, t, r, b) }
+
+    private inline fun <T> insetValue(
+        unchangedValue: T,
+        block: (left: Int, top: Int, right: Int, bottom: Int) -> T
+    ): T {
+        if (decorFitsSystemWindows) {
+            return unchangedValue
+        }
+        val child = getChildAt(0)
+        val left = maxOf(0, child.left)
+        val top = maxOf(0, child.top)
+        val right = maxOf(0, width - child.right)
+        val bottom = maxOf(0, height - child.bottom)
+        return if (left == 0 && top == 0 && right == 0 && bottom == 0) {
+            unchangedValue
+        } else {
+            block(left, top, right, bottom)
+        }
+    }
+
+    fun isInsideContent(event: MotionEvent): Boolean {
+        val child = getChildAt(0) ?: return false
+        val left = left + child.left
+        val right = left + child.width
+        val top = top + child.top
+        val bottom = top + child.height
+        return event.x.roundToInt() in left..right && event.y.roundToInt() in top..bottom
     }
 
     @Composable
@@ -274,10 +438,7 @@ private class DialogWrapper(
             }
         )
     ),
-    ViewRootForInspector,
-    OnApplyWindowInsetsListener,
-    OnLayoutChangeListener,
-    OnTouchListener {
+    ViewRootForInspector {
 
     private val dialogLayout: DialogLayout
 
@@ -294,6 +455,7 @@ private class DialogWrapper(
         window.setBackgroundDrawableResource(android.R.color.transparent)
         val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
         WindowCompat.setDecorFitsSystemWindows(window, decorFitsSystemWindows)
+
         dialogLayout =
             DialogLayout(context, window).apply {
                 // Set unique id for AbstractComposeView. This allows state restoration for the
@@ -334,56 +496,8 @@ private class DialogWrapper(
 
         // Turn of all clipping so shadows can be drawn outside the window
         (window.decorView as? ViewGroup)?.disableClipping()
-        // Center the ComposeView in a FrameLayout
-        val frameLayout = FrameLayout(context)
-        frameLayout.addView(
-            dialogLayout,
-            FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.WRAP_CONTENT,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
-                )
-                .also { it.gravity = Gravity.CENTER }
-        )
-        frameLayout.clipChildren = false
-        ViewCompat.setOnApplyWindowInsetsListener(frameLayout, this)
-        ViewCompat.setWindowInsetsAnimationCallback(
-            frameLayout,
-            object : WindowInsetsAnimationCompat.Callback(DISPATCH_MODE_CONTINUE_ON_SUBTREE) {
-                private inline fun <T> insetValue(
-                    unchangedValue: T,
-                    block: (left: Int, top: Int, right: Int, bottom: Int) -> T
-                ): T {
-                    if (properties.decorFitsSystemWindows) {
-                        return unchangedValue
-                    }
-                    val left = maxOf(0, dialogLayout.left)
-                    val top = maxOf(0, dialogLayout.top)
-                    val right = maxOf(0, frameLayout.width - dialogLayout.right)
-                    val bottom = maxOf(0, frameLayout.height - dialogLayout.bottom)
-                    return if (left == 0 && top == 0 && right == 0 && bottom == 0) {
-                        unchangedValue
-                    } else {
-                        block(left, top, right, bottom)
-                    }
-                }
 
-                override fun onStart(
-                    animation: WindowInsetsAnimationCompat,
-                    bounds: WindowInsetsAnimationCompat.BoundsCompat
-                ): WindowInsetsAnimationCompat.BoundsCompat =
-                    insetValue(bounds) { l, t, r, b -> bounds.inset(Insets.of(l, t, r, b)) }
-
-                override fun onProgress(
-                    insets: WindowInsetsCompat,
-                    runningAnimations: MutableList<WindowInsetsAnimationCompat>
-                ): WindowInsetsCompat =
-                    insetValue(insets) { l, t, r, b -> insets.inset(l, t, r, b) }
-            }
-        )
-        dialogLayout.addOnLayoutChangeListener(this)
-        frameLayout.addOnLayoutChangeListener(this)
-
-        setContentView(frameLayout)
+        setContentView(dialogLayout)
         dialogLayout.setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
         dialogLayout.setViewTreeViewModelStoreOwner(composeView.findViewTreeViewModelStoreOwner())
         dialogLayout.setViewTreeSavedStateRegistryOwner(
@@ -454,12 +568,12 @@ private class DialogWrapper(
         this.properties = properties
         setSecurePolicy(properties.securePolicy)
         setLayoutDirection(layoutDirection)
-        dialogLayout.usePlatformDefaultWidth = properties.usePlatformDefaultWidth
         val decorFitsSystemWindows = adjustedDecorFitsSystemWindows(properties, context)
-        dialogLayout.decorFitsSystemWindows = decorFitsSystemWindows
+        dialogLayout.updateProperties(
+            usePlatformDefaultWidth = properties.usePlatformDefaultWidth,
+            decorFitsSystemWindows = decorFitsSystemWindows
+        )
         setCanceledOnTouchOutside(properties.dismissOnClickOutside)
-        val frameLayout = dialogLayout.parent as View
-        frameLayout.setOnTouchListener(if (properties.dismissOnClickOutside) this else null)
         val window = window
         if (window != null) {
             val softInput =
@@ -471,29 +585,6 @@ private class DialogWrapper(
                     else -> WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
                 }
             window.setSoftInputMode(softInput)
-            val attrs = window.attributes
-            val measurementWidth =
-                if (properties.usePlatformDefaultWidth) {
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                } else {
-                    WindowManager.LayoutParams.MATCH_PARENT
-                }
-            val measurementHeight =
-                if (properties.usePlatformDefaultWidth || decorFitsSystemWindows) {
-                    WindowManager.LayoutParams.WRAP_CONTENT
-                } else {
-                    WindowManager.LayoutParams.MATCH_PARENT
-                }
-            if (
-                attrs.width != measurementWidth ||
-                    attrs.height != measurementHeight ||
-                    attrs.gravity != Gravity.CENTER
-            ) {
-                attrs.width = measurementWidth
-                attrs.height = measurementHeight
-                attrs.gravity = Gravity.CENTER
-                window.attributes = attrs
-            }
         }
     }
 
@@ -502,9 +593,10 @@ private class DialogWrapper(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        val result = super.onTouchEvent(event)
-        if (result && properties.dismissOnClickOutside) {
+        var result = super.onTouchEvent(event)
+        if (properties.dismissOnClickOutside && !dialogLayout.isInsideContent(event)) {
             onDismissRequest()
+            result = true
         }
 
         return result
@@ -513,49 +605,6 @@ private class DialogWrapper(
     override fun cancel() {
         // Prevents the dialog from dismissing itself
         return
-    }
-
-    override fun onApplyWindowInsets(v: View, insets: WindowInsetsCompat): WindowInsetsCompat {
-        if (properties.decorFitsSystemWindows) {
-            return insets
-        }
-        val left = maxOf(0, dialogLayout.left)
-        val top = maxOf(0, dialogLayout.top)
-        val right = maxOf(0, v.width - dialogLayout.right)
-        val bottom = maxOf(0, v.height - dialogLayout.bottom)
-        return insets.inset(left, top, right, bottom)
-    }
-
-    override fun onLayoutChange(
-        v: View,
-        left: Int,
-        top: Int,
-        right: Int,
-        bottom: Int,
-        oldLeft: Int,
-        oldTop: Int,
-        oldRight: Int,
-        oldBottom: Int
-    ) {
-        v.requestApplyInsets()
-    }
-
-    override fun onTouch(v: View, event: MotionEvent): Boolean {
-        // This handler only set when properties.dismissOnClickOutside is true
-        if (event.actionMasked == MotionEvent.ACTION_UP) {
-            val x = event.x.roundToInt()
-            val y = event.y.roundToInt()
-            val insideContent =
-                x in dialogLayout.left..dialogLayout.right &&
-                    y in dialogLayout.top..dialogLayout.bottom
-            if (!insideContent) {
-                onDismissRequest()
-                return true
-            }
-        }
-        // We must always accept the ACTION_DOWN or else we don't receive the rest of the
-        // event stream.
-        return event.actionMasked == MotionEvent.ACTION_DOWN
     }
 }
 
