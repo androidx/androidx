@@ -30,6 +30,7 @@ import androidx.health.connect.client.records.ExerciseSessionRecord
 import androidx.health.connect.client.records.MealType
 import androidx.health.connect.client.records.MenstruationFlowRecord
 import androidx.health.connect.client.records.OvulationTestRecord
+import androidx.health.connect.client.records.PlannedExerciseStep
 import androidx.health.connect.client.records.SexualActivityRecord
 import androidx.health.connect.client.records.SkinTemperatureRecord
 import androidx.health.connect.client.records.SleepSessionRecord
@@ -356,6 +357,24 @@ internal val SDK_TO_PLATFORM_BLOOD_GLUCOSE_RELATION_TO_MEAL: Map<Int, Int> =
 internal val PLATFORM_TO_SDK_BLOOD_GLUCOSE_RELATION_TO_MEAL =
     SDK_TO_PLATFORM_BLOOD_GLUCOSE_RELATION_TO_MEAL.reversed()
 
+internal val SDK_TO_PLATFORM_EXERCISE_CATEGORY: Map<Int, Int> =
+    mapOf(
+        PlannedExerciseStep.EXERCISE_PHASE_UNKNOWN to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_UNKNOWN,
+        PlannedExerciseStep.EXERCISE_PHASE_WARMUP to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_WARMUP,
+        PlannedExerciseStep.EXERCISE_PHASE_REST to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_REST,
+        PlannedExerciseStep.EXERCISE_PHASE_ACTIVE to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_ACTIVE,
+        PlannedExerciseStep.EXERCISE_PHASE_COOLDOWN to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_COOLDOWN,
+        PlannedExerciseStep.EXERCISE_PHASE_RECOVERY to
+            PlatformPlannedExerciseStep.EXERCISE_CATEGORY_RECOVERY,
+    )
+
+internal val PLATFORM_TO_SDK_EXERCISE_CATEGORY = SDK_TO_PLATFORM_EXERCISE_CATEGORY.reversed()
+
 internal val SDK_TO_PLATFORM_SLEEP_STAGE_TYPE: Map<Int, Int> =
     mapOf(
         SleepSessionRecord.STAGE_TYPE_AWAKE to PlatformSleepStageType.STAGE_TYPE_AWAKE,
@@ -520,6 +539,11 @@ internal val SDK_TO_PLATFORM_RECORDING_METHOD: Map<Int, Int> =
         Metadata.RECORDING_METHOD_MANUAL_ENTRY to PlatformMetadata.RECORDING_METHOD_MANUAL_ENTRY
     )
 
+internal fun Int.toPlatformExerciseCategory(): Int {
+    return SDK_TO_PLATFORM_BLOOD_GLUCOSE_SPECIMEN_SOURCE[this]
+        ?: PlatformPlannedExerciseStep.EXERCISE_CATEGORY_UNKNOWN
+}
+
 internal val PLATFORM_TO_SDK_RECORDING_METHOD: Map<Int, Int> =
     SDK_TO_PLATFORM_RECORDING_METHOD.reversed()
 
@@ -622,6 +646,10 @@ internal fun Int.toSdkExerciseSessionType(): Int {
 internal fun Int.toSdkExerciseSegmentType(): Int {
     return PLATFORM_TO_SDK_EXERCISE_SEGMENT_TYPE[this]
         ?: ExerciseSegment.EXERCISE_SEGMENT_TYPE_UNKNOWN
+}
+
+internal fun Int.toSdkExerciseCategory(): Int {
+    return PLATFORM_TO_SDK_EXERCISE_CATEGORY[this] ?: PlannedExerciseStep.EXERCISE_PHASE_UNKNOWN
 }
 
 internal fun Int.toSdkVo2MaxMeasurementMethod(): Int {

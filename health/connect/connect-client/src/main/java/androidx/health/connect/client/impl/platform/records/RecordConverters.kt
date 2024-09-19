@@ -39,7 +39,9 @@ import androidx.health.connect.client.records.CervicalMucusRecord
 import androidx.health.connect.client.records.CyclingPedalingCadenceRecord
 import androidx.health.connect.client.records.DistanceRecord
 import androidx.health.connect.client.records.ElevationGainedRecord
+import androidx.health.connect.client.records.ExerciseCompletionGoal
 import androidx.health.connect.client.records.ExerciseLap
+import androidx.health.connect.client.records.ExercisePerformanceTarget
 import androidx.health.connect.client.records.ExerciseRoute
 import androidx.health.connect.client.records.ExerciseRouteResult
 import androidx.health.connect.client.records.ExerciseSegment
@@ -56,6 +58,9 @@ import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PlannedExerciseBlock
+import androidx.health.connect.client.records.PlannedExerciseSessionRecord
+import androidx.health.connect.client.records.PlannedExerciseStep
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
@@ -71,6 +76,8 @@ import androidx.health.connect.client.records.Vo2MaxRecord
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.WheelchairPushesRecord
 import androidx.health.connect.client.records.isAtLeastSdkExtension13
+import java.time.Duration
+import kotlin.math.roundToInt
 import kotlin.reflect.KClass
 
 // TODO(b/270559291): Validate that all class fields are being converted.
@@ -139,6 +146,7 @@ private fun Record.toPlatformRecordExt13(): PlatformRecord? {
         return null
     }
     return when (this) {
+        is PlannedExerciseSessionRecord -> toPlatformPlannedExerciseSessionRecord()
         is SkinTemperatureRecord -> toPlatformSkinTemperatureRecord()
         else -> null
     }
@@ -195,6 +203,7 @@ private fun PlatformRecord.toSdkRecordExt13(): Record? {
         return null
     }
     return when (this) {
+        is PlatformPlannedExerciseSessionRecord -> toSdkPlannedExerciseSessionRecord()
         is PlatformSkinTemperatureRecord -> toSdkSkinTemperatureRecord()
         else -> null
     }
@@ -321,6 +330,7 @@ private fun PlatformElevationGainedRecord.toSdkElevationGainedRecord() =
         metadata = metadata.toSdkMetadata()
     )
 
+@SuppressLint("NewApi") // Guarded by sdk extension check
 private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
     ExerciseSessionRecord(
         startTime = startTime,
@@ -337,6 +347,12 @@ private fun PlatformExerciseSessionRecord.toSdkExerciseSessionRecord() =
             route?.let { ExerciseRouteResult.Data(it.toSdkExerciseRoute()) }
                 ?: if (hasRoute()) ExerciseRouteResult.ConsentRequired()
                 else ExerciseRouteResult.NoData(),
+        plannedExerciseSessionId =
+            if (isAtLeastSdkExtension13()) {
+                plannedExerciseSessionId
+            } else {
+                null
+            }
     )
 
 private fun PlatformFloorsClimbedRecord.toSdkFloorsClimbedRecord() =
@@ -750,6 +766,7 @@ private fun ElevationGainedRecord.toPlatformElevationGainedRecord() =
         }
         .build()
 
+@SuppressLint("NewApi") // Guarded by sdk extension check
 private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
     PlatformExerciseSessionRecordBuilder(
             metadata.toPlatformMetadata(),
@@ -767,6 +784,7 @@ private fun ExerciseSessionRecord.toPlatformExerciseSessionRecord() =
             if (exerciseRouteResult is ExerciseRouteResult.Data) {
                 setRoute(exerciseRouteResult.exerciseRoute.toPlatformExerciseRoute())
             }
+            plannedExerciseSessionId?.let { setPlannedExerciseSessionId(it) }
         }
         .build()
 
@@ -946,6 +964,164 @@ private fun OxygenSaturationRecord.toPlatformOxygenSaturationRecord() =
         )
         .apply { zoneOffset?.let { setZoneOffset(it) } }
         .build()
+
+@SuppressLint("NewApi") // Guarded by sdk extension check
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun PlannedExerciseSessionRecord.toPlatformPlannedExerciseSessionRecord() =
+    if (hasExplicitTime) {
+            PlatformPlannedExerciseSessionRecordBuilder(
+                metadata.toPlatformMetadata(),
+                exerciseType.toPlatformExerciseSessionType(),
+                startTime,
+                endTime
+            )
+        } else {
+            PlatformPlannedExerciseSessionRecordBuilder(
+                metadata.toPlatformMetadata(),
+                exerciseType.toPlatformExerciseSessionType(),
+                startTime.atZone(startZoneOffset).toLocalDate(),
+                Duration.between(startTime, endTime)
+            )
+        }
+        .apply {
+            startZoneOffset?.let { setStartZoneOffset(it) }
+            endZoneOffset?.let { setEndZoneOffset(it) }
+            title?.let { setTitle(it) }
+            notes?.let { setNotes(it) }
+            setBlocks(blocks.map { it.toPlatformPlannedExerciseBlock() })
+        }
+        .build()
+
+@SuppressLint("NewApi")
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun PlannedExerciseBlock.toPlatformPlannedExerciseBlock() =
+    PlatformPlannedExerciseBlockBuilder(
+            repetitions,
+        )
+        .apply { setSteps(steps.map { it.toPlatformPlannedExerciseStep() }) }
+        .build()
+
+@SuppressLint("NewApi")
+private fun PlannedExerciseStep.toPlatformPlannedExerciseStep() =
+    PlatformPlannedExerciseStepBuilder(
+            exerciseType.toPlatformExerciseSegmentType(),
+            exercisePhase.toPlatformExerciseCategory(),
+            completionGoal.toPlatformExerciseCompletionGoal()
+        )
+        .apply {
+            setPerformanceGoals(performanceTargets.map { it.toPlatformExercisePerformanceTarget() })
+        }
+        .build()
+
+@SuppressLint("NewApi")
+internal fun ExerciseCompletionGoal.toPlatformExerciseCompletionGoal() =
+    when (this) {
+        is ExerciseCompletionGoal.DistanceGoal -> PlatformDistanceGoal(distance.toPlatformLength())
+        is ExerciseCompletionGoal.DistanceAndDurationGoal ->
+            PlatformDistanceAndDurationGoal(distance.toPlatformLength(), duration)
+        is ExerciseCompletionGoal.StepsGoal -> PlatformStepsGoal(steps)
+        is ExerciseCompletionGoal.DurationGoal -> PlatformDurationGoal(duration)
+        is ExerciseCompletionGoal.RepetitionsGoal -> PlatformRepetitionsGoal(repetitions)
+        is ExerciseCompletionGoal.TotalCaloriesBurnedGoal ->
+            PlatformTotalCaloriesBurnedGoal(totalCalories.toPlatformEnergy())
+        is ExerciseCompletionGoal.ActiveCaloriesBurnedGoal ->
+            PlatformActiveCaloriesBurnedGoal(activeCalories.toPlatformEnergy())
+        is ExerciseCompletionGoal.UnknownGoal -> PlatformUnknownCompletionGoal.INSTANCE
+        is ExerciseCompletionGoal.ManualCompletion -> PlatformManualCompletion.INSTANCE
+        else -> throw IllegalArgumentException("Unsupported exercise completion goal $this")
+    }
+
+@SuppressLint("NewApi")
+internal fun ExercisePerformanceTarget.toPlatformExercisePerformanceTarget() =
+    when (this) {
+        is ExercisePerformanceTarget.PowerTarget ->
+            PlatformPowerTarget(minPower.toPlatformPower(), maxPower.toPlatformPower())
+        is ExercisePerformanceTarget.SpeedTarget ->
+            PlatformSpeedTarget(minSpeed.toPlatformVelocity(), maxSpeed.toPlatformVelocity())
+        is ExercisePerformanceTarget.CadenceTarget -> PlatformCadenceTarget(minCadence, maxCadence)
+        is ExercisePerformanceTarget.HeartRateTarget ->
+            PlatformHeartRateTarget(minHeartRate.roundToInt(), maxHeartRate.roundToInt())
+        is ExercisePerformanceTarget.WeightTarget -> PlatformWeightTarget(mass.toPlatformMass())
+        is ExercisePerformanceTarget.RateOfPerceivedExertionTarget ->
+            PlatformRateOfPerceivedExertionTarget(rpe)
+        is ExercisePerformanceTarget.AmrapTarget -> PlatformAmrapTarget.INSTANCE
+        is ExercisePerformanceTarget.UnknownTarget -> PlatformUnknownPerformanceTarget.INSTANCE
+        else -> throw IllegalArgumentException("Unsupported exercise performance target $this")
+    }
+
+@SuppressLint("NewApi")
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+internal fun PlatformPlannedExerciseSessionRecord.toSdkPlannedExerciseSessionRecord() =
+    PlannedExerciseSessionRecord(
+        startTime = startTime,
+        startZoneOffset = startZoneOffset,
+        endTime = endTime,
+        endZoneOffset = endZoneOffset,
+        metadata = metadata.toSdkMetadata(),
+        hasExplicitTime = hasExplicitTime(),
+        exerciseType = exerciseType.toSdkExerciseSessionType(),
+        completedExerciseSessionId = completedExerciseSessionId,
+        blocks = blocks.map { it.toSdkPlannedExerciseBlock() },
+        title = title?.toString(),
+        notes = notes?.toString(),
+    )
+
+@SuppressLint("NewApi")
+@RequiresExtension(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 13)
+private fun PlatformPlannedExerciseBlock.toSdkPlannedExerciseBlock() =
+    PlannedExerciseBlock(
+        repetitions = repetitions,
+        description = description?.toString(),
+        steps = steps.map { it.toSdkPlannedExerciseStep() },
+    )
+
+@SuppressLint("NewApi")
+private fun PlatformPlannedExerciseStep.toSdkPlannedExerciseStep() =
+    PlannedExerciseStep(
+        exerciseType = exerciseType.toSdkExerciseSegmentType(),
+        exercisePhase = exerciseCategory.toSdkExerciseCategory(),
+        completionGoal = completionGoal.toSdkExerciseCompletionGoal(),
+        performanceTargets = performanceGoals.map { it.toSdkExercisePerformanceTarget() }
+    )
+
+@SuppressLint("NewApi")
+internal fun PlatformExerciseCompletionGoal.toSdkExerciseCompletionGoal() =
+    when (this) {
+        is PlatformDistanceGoal -> ExerciseCompletionGoal.DistanceGoal(distance.toSdkLength())
+        is PlatformDistanceAndDurationGoal ->
+            ExerciseCompletionGoal.DistanceAndDurationGoal(distance.toSdkLength(), duration)
+        is PlatformStepsGoal -> ExerciseCompletionGoal.StepsGoal(steps)
+        is PlatformDurationGoal -> ExerciseCompletionGoal.DurationGoal(duration)
+        is PlatformRepetitionsGoal -> ExerciseCompletionGoal.RepetitionsGoal(repetitions)
+        is PlatformTotalCaloriesBurnedGoal ->
+            ExerciseCompletionGoal.TotalCaloriesBurnedGoal(totalCalories.toSdkEnergy())
+        is PlatformActiveCaloriesBurnedGoal ->
+            ExerciseCompletionGoal.ActiveCaloriesBurnedGoal(activeCalories.toSdkEnergy())
+        is PlatformUnknownCompletionGoal -> ExerciseCompletionGoal.UnknownGoal
+        is PlatformManualCompletion -> ExerciseCompletionGoal.ManualCompletion
+        else -> throw IllegalArgumentException("Unsupported exercise completion goal $this")
+    }
+
+@SuppressLint("NewApi")
+internal fun PlatformExercisePerformanceTarget.toSdkExercisePerformanceTarget() =
+    when (this) {
+        is PlatformPowerTarget ->
+            ExercisePerformanceTarget.PowerTarget(minPower.toSdkPower(), maxPower.toSdkPower())
+        is PlatformSpeedTarget ->
+            ExercisePerformanceTarget.SpeedTarget(
+                minSpeed.toSdkVelocity(),
+                maxSpeed.toSdkVelocity()
+            )
+        is PlatformCadenceTarget -> ExercisePerformanceTarget.CadenceTarget(minRpm, maxRpm)
+        is PlatformHeartRateTarget ->
+            ExercisePerformanceTarget.HeartRateTarget(minBpm.toDouble(), maxBpm.toDouble())
+        is PlatformWeightTarget -> ExercisePerformanceTarget.WeightTarget(mass.toSdkMass())
+        is PlatformRateOfPerceivedExertionTarget ->
+            ExercisePerformanceTarget.RateOfPerceivedExertionTarget(rpe)
+        is PlatformAmrapTarget -> ExercisePerformanceTarget.AmrapTarget
+        is PlatformUnknownPerformanceTarget -> ExercisePerformanceTarget.UnknownTarget
+        else -> throw IllegalArgumentException("Unsupported exercise performance target $this")
+    }
 
 private fun PowerRecord.toPlatformPowerRecord() =
     PlatformPowerRecordBuilder(

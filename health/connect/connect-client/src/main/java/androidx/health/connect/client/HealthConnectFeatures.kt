@@ -44,7 +44,7 @@ interface HealthConnectFeatures {
         const val FEATURE_SKIN_TEMPERATURE = 2
 
         /** Feature constant for planned exercise sessions. */
-        @RestrictTo(RestrictTo.Scope.LIBRARY) const val FEATURE_PLANNED_EXERCISE = 3
+        const val FEATURE_PLANNED_EXERCISE = 3
 
         /** Feature constant for reading health data history. */
         const val FEATURE_READ_HEALTH_DATA_HISTORY = 4
@@ -88,6 +88,8 @@ interface HealthConnectFeatures {
                 FEATURE_SKIN_TEMPERATURE to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION),
                 FEATURE_READ_HEALTH_DATA_HISTORY to
+                    HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION),
+                FEATURE_PLANNED_EXERCISE to
                     HealthConnectVersionInfo(platformVersion = SDK_EXT_13_PLATFORM_VERSION)
             )
     }

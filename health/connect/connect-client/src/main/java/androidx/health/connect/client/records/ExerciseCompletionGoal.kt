@@ -116,7 +116,7 @@ abstract class ExerciseCompletionGoal internal constructor() {
      * An [ExerciseCompletionGoal] that requires a specified number of repetitions to be completed.
      */
     class RepetitionsGoal(
-        val repetitions: Duration,
+        val repetitions: Int,
     ) : ExerciseCompletionGoal() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

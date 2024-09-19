@@ -84,7 +84,10 @@ internal constructor(
         segments: List<ExerciseSegment> = emptyList(),
         laps: List<ExerciseLap> = emptyList(),
         exerciseRoute: ExerciseRoute? = null,
-        /** The planned exercise session this workout was based upon. Optional field. */
+        /**
+         * The planned exercise session this workout was based upon. Optional field. Requires
+         * [androidx.health.connect.client.HealthConnectFeatures.FEATURE_PLANNED_EXERCISE].
+         */
         plannedExerciseSessionId: String? = null,
     ) : this(
         startTime,

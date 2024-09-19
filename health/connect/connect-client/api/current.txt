@@ -54,6 +54,7 @@ package androidx.health.connect.client {
   @SuppressCompatibility @androidx.health.connect.client.feature.ExperimentalFeatureAvailabilityApi public interface HealthConnectFeatures {
     method public int getFeatureStatus(int feature);
     field public static final androidx.health.connect.client.HealthConnectFeatures.Companion Companion;
+    field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
     field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
     field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
@@ -62,6 +63,7 @@ package androidx.health.connect.client {
   }
 
   public static final class HealthConnectFeatures.Companion {
+    field public static final int FEATURE_PLANNED_EXERCISE = 3; // 0x3
     field public static final int FEATURE_READ_HEALTH_DATA_HISTORY = 4; // 0x4
     field public static final int FEATURE_READ_HEALTH_DATA_IN_BACKGROUND = 1; // 0x1
     field public static final int FEATURE_SKIN_TEMPERATURE = 2; // 0x2
@@ -504,9 +506,9 @@ package androidx.health.connect.client.records {
   }
 
   public static final class ExerciseCompletionGoal.RepetitionsGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {
-    ctor public ExerciseCompletionGoal.RepetitionsGoal(java.time.Duration repetitions);
-    method public java.time.Duration getRepetitions();
-    property public final java.time.Duration repetitions;
+    ctor public ExerciseCompletionGoal.RepetitionsGoal(int repetitions);
+    method public int getRepetitions();
+    property public final int repetitions;
   }
 
   public static final class ExerciseCompletionGoal.StepsGoal extends androidx.health.connect.client.records.ExerciseCompletionGoal {

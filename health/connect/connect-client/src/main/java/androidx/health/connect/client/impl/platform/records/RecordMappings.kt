@@ -50,6 +50,7 @@ import androidx.health.connect.client.records.MenstruationPeriodRecord
 import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.OvulationTestRecord
 import androidx.health.connect.client.records.OxygenSaturationRecord
+import androidx.health.connect.client.records.PlannedExerciseSessionRecord
 import androidx.health.connect.client.records.PowerRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.RespiratoryRateRecord
@@ -72,7 +73,10 @@ import kotlin.reflect.KClass
 internal val SDK_TO_PLATFORM_RECORD_CLASS_EXT_13:
     Map<KClass<out Record>, Class<out PlatformRecord>> =
     if (isAtLeastSdkExtension13()) {
-        mapOf(SkinTemperatureRecord::class to PlatformSkinTemperatureRecord::class.java)
+        mapOf(
+            PlannedExerciseSessionRecord::class to PlatformPlannedExerciseSessionRecord::class.java,
+            SkinTemperatureRecord::class to PlatformSkinTemperatureRecord::class.java
+        )
     } else {
         emptyMap()
     }
