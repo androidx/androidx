@@ -1460,6 +1460,7 @@ internal class AndroidComposeView(context: Context, coroutineContext: CoroutineC
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        lastMatrixRecalculationAnimationTime = 0L // reset it so that we're sure to have a new value
         measureAndLayoutDelegate.measureAndLayout(resendMotionEventOnLayout)
         onMeasureConstraints = null
         // we postpone onPositioned callbacks until onLayout as LayoutCoordinates
