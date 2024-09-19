@@ -270,6 +270,19 @@ internal class TextInputServiceAndroid(
     }
 
     private fun processInputCommands() {
+        // If the associated view is not focused anymore, we should check whether the focus has
+        // transitioned into another Editor.
+        if (!view.isFocused) {
+            val focusedView = view.rootView.findFocus()
+            // If a view is focused and is an editor, we can skip the queued up commands since the
+            // new editor is going to manage the keyboard and the input session. Otherwise we should
+            // process the queue since it probably contains StopInput or HideKeyboard calls to
+            // clean up after us.
+            if (focusedView?.onCheckIsTextEditor() == true) {
+                textInputCommandQueue.clear()
+                return
+            }
+        }
         // Multiple commands may have been queued up in the channel while this function was
         // waiting to be resumed. We don't execute the commands as they come in because making a
         // bunch of calls to change the actual IME quickly can result in flickers. Instead, we

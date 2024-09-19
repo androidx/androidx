@@ -18,17 +18,32 @@ package androidx.compose.ui.text.input
 
 import android.view.View
 import android.view.inputmethod.BaseInputConnection
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.InputConnection
+import android.widget.EditText
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusEventModifierNode
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.input.pointer.MatrixPositionCalculator
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.PlatformTextInputModifierNode
 import androidx.compose.ui.platform.establishTextInputSession
+import androidx.compose.ui.platform.platformTextInputServiceInterceptor
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.requestFocus
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -623,6 +638,79 @@ class PlatformTextInputViewIntegrationTest {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Test
+    fun focusSwitchToAndroidViewNonEditor_hidesKeyboard() {
+        lateinit var button: android.widget.Button
+        val inputMethodManager = TestInputMethodManager()
+        platformTextInputServiceInterceptor = { original ->
+            TextInputServiceAndroid(
+                view = (original as TextInputServiceAndroid).view,
+                rootPositionCalculator = FakeMatrixPositionCalculator,
+                inputMethodManager = inputMethodManager
+            )
+        }
+        rule.setContent {
+            Column {
+                Box(TestElement { node1 = it }.focusable().testTag("tag"))
+                AndroidView(
+                    factory = { context ->
+                        android.widget.Button(context).also {
+                            it.isFocusableInTouchMode = true
+                            button = it
+                        }
+                    }
+                )
+            }
+        }
+
+        rule.onNodeWithTag("tag").requestFocus()
+        rule.waitForIdle()
+
+        inputMethodManager.reset()
+
+        // fake TextField is active, a session is started. Now let's request focus on Button
+        rule.runOnUiThread { button.requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(inputMethodManager.restartCalls).isEqualTo(1)
+            assertThat(inputMethodManager.hideKeyboardCalls).isEqualTo(1)
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @Test
+    fun focusSwitchToAndroidViewEditor_doesNotHideKeyboard() {
+        lateinit var editText: EditText
+        val inputMethodManager = TestInputMethodManager()
+        platformTextInputServiceInterceptor = { original ->
+            TextInputServiceAndroid(
+                view = (original as TextInputServiceAndroid).view,
+                rootPositionCalculator = FakeMatrixPositionCalculator,
+                inputMethodManager = inputMethodManager
+            )
+        }
+        rule.setContent {
+            Column {
+                Box(TestElement { node1 = it }.focusable().testTag("tag"))
+                AndroidView(factory = { EditText(it).also { editText = it } })
+            }
+        }
+
+        rule.onNodeWithTag("tag").requestFocus()
+
+        rule.waitForIdle()
+        inputMethodManager.reset()
+
+        // fake TextField is active, a session is started. Now let's request focus on EditText
+        rule.runOnUiThread { editText.requestFocus() }
+
+        rule.runOnIdle {
+            assertThat(inputMethodManager.restartCalls).isEqualTo(0)
+            assertThat(inputMethodManager.hideKeyboardCalls).isEqualTo(0)
+        }
+    }
+
     private fun setupContent() {
         rule.setContent {
             hostView = LocalView.current as AndroidComposeView
@@ -643,10 +731,89 @@ class PlatformTextInputViewIntegrationTest {
     }
 
     private class TestNode(var onNode: (PlatformTextInputModifierNode) -> Unit) :
-        Modifier.Node(), PlatformTextInputModifierNode {
+        Modifier.Node(), PlatformTextInputModifierNode, FocusEventModifierNode {
+
+        private var inputSessionJob: Job? = null
+
+        private fun startInputSession() {
+            inputSessionJob =
+                coroutineScope.launch {
+                    establishTextInputSession {
+                        launch {
+                            startInputMethod(
+                                object : TestInputMethodRequest(view) {
+                                    override fun createInputConnection(
+                                        outAttributes: EditorInfo
+                                    ): InputConnection = BaseInputConnection(view, true)
+                                }
+                            )
+                        }
+                        awaitCancellation()
+                    }
+                }
+        }
+
+        private fun disposeInputSession() {
+            inputSessionJob?.cancel()
+            inputSessionJob = null
+        }
 
         override fun onAttach() {
             onNode(this)
         }
+
+        override fun onFocusEvent(focusState: FocusState) {
+            if (focusState.isFocused) {
+                startInputSession()
+            } else {
+                disposeInputSession()
+            }
+        }
     }
+}
+
+private object FakeMatrixPositionCalculator : MatrixPositionCalculator {
+    override fun localToScreen(localTransform: Matrix) = Unit
+
+    override fun localToScreen(localPosition: Offset) = localPosition
+
+    override fun screenToLocal(positionOnScreen: Offset) = positionOnScreen
+}
+
+@Suppress("DEPRECATION")
+private class TestInputMethodManager : InputMethodManager {
+    var restartCalls = 0
+    var showKeyboardCalls = 0
+    var hideKeyboardCalls = 0
+
+    fun reset() {
+        restartCalls = 0
+        showKeyboardCalls = 0
+        hideKeyboardCalls = 0
+    }
+
+    override fun isActive(): Boolean = true
+
+    override fun restartInput() {
+        restartCalls++
+    }
+
+    override fun showSoftInput() {
+        showKeyboardCalls++
+    }
+
+    override fun hideSoftInput() {
+        hideKeyboardCalls++
+    }
+
+    override fun updateExtractedText(token: Int, extractedText: ExtractedText) {}
+
+    override fun updateSelection(
+        selectionStart: Int,
+        selectionEnd: Int,
+        compositionStart: Int,
+        compositionEnd: Int
+    ) {}
+
+    override fun updateCursorAnchorInfo(cursorAnchorInfo: CursorAnchorInfo) {}
 }
