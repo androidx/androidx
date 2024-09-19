@@ -3,24 +3,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="                callbacks.forEach { callback -> addCaptureCallback(callback, executor) }"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/CameraCallbackMap.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="        val quirkSettings = QuirkSettingsHolder.instance().get()"
-        errorLine2="                                                           ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/compat/quirk/CameraQuirks.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
         errorLine1="        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isTrue()"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -69,15 +51,6 @@
         message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
         errorLine1="        assertThat(fakeRequestControl.torchUpdateEventList.removeFirstKt()).isFalse()"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/pipe/integration/impl/CapturePipelineTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="                    .get(2, TimeUnit.SECONDS)"
-        errorLine2="                     ~~~">
         <location
             file="src/test/java/androidx/camera/camera2/pipe/integration/impl/CapturePipelineTest.kt"/>
     </issue>
@@ -89,78 +62,6 @@
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/test/java/androidx/camera/camera2/pipe/integration/impl/CapturePipelineTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="                        postviewDeferrableSurface.surface.get()!!"
-        errorLine2="                                                          ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/SessionProcessorManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="        useCasesExpectedResultMap.keys.forEach {"
-        errorLine2="                                       ~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/pipe/integration/adapter/SupportedSurfaceCombinationTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="        useCasesExpectedDynamicRangeMap.keys.forEach {"
-        errorLine2="                                             ~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/pipe/integration/adapter/SupportedSurfaceCombinationTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="                useCases.forEach { put(it, it.currentConfig) }"
-        errorLine2="                         ~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/pipe/integration/adapter/SupportedSurfaceCombinationTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="                useCaseConfigs.forEach { put(it, supportedSizes.toList()) }"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/test/java/androidx/camera/camera2/pipe/integration/adapter/SupportedSurfaceCombinationTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Map#forEach`"
-        errorLine1="        streamConfigMap.forEach { (streamConfig, deferrableSurface) ->"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/config/UseCaseCameraConfig.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="        deferrableSurfaces.forEach {"
-        errorLine2="                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/config/UseCaseCameraConfig.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="        forEach { captureConfig ->"
-        errorLine2="        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseCameraRequestControl.kt"/>
     </issue>
 
     <issue
@@ -209,93 +110,12 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="                        cameraGraph.setSurface(it.id, deferrableSurface.surface.get())"
-        errorLine2="                                                                                ~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="            this@getAttachedSurfaceInfoList.forEach { useCase ->"
-        errorLine2="                                            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="            this@getSessionSurfacesConfigs.forEach { useCase ->"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="            forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.lang.Iterable#forEach`"
-        errorLine1="            forEach { useCase -> validatingBuilder.add(useCase.sessionConfig) }"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24, or core library desugaring (current min is 21): `java.util.Map#forEach`"
-        errorLine1="                        surfaceToStreamMap.forEach {"
-        errorLine2="                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/impl/UseCaseSurfaceManager.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 23): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="                        if (surface == testSessionParameters.deferrableSurface.surface.get()) {"
-        errorLine2="                                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/camera2/pipe/integration/UseCaseSurfaceManagerDeviceTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 23): `java.util.regex.Matcher#start` (called from `kotlin.text.MatchGroupCollection#get(String)`)"
-        errorLine1="                        if (surface == testSessionParameters.deferrableSurface.surface.get()) {"
-        errorLine2="                                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/camera/camera2/pipe/integration/UseCaseSurfaceManagerDeviceTest.kt"/>
-    </issue>
-
-    <issue
         id="CameraXQuirksClassDetector"
         message="CameraX quirks should include this template in the javadoc:&#xA;&#xA;* &lt;p>QuirkSummary&#xA;*     Bug Id:&#xA;*     Description:&#xA;*     Device(s):"
         errorLine1="public class AspectRatioLegacyApi21Quirk : Quirk {"
         errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/camera2/pipe/integration/compat/quirk/AspectRatioLegacyApi21Quirk.kt"/>
-    </issue>
-
-    <issue
-        id="CameraXQuirksClassDetector"
-        message="CameraX quirks should include this template in the javadoc:&#xA;&#xA;* &lt;p>QuirkSummary&#xA;*     Bug Id:&#xA;*     Description:&#xA;*     Device(s):"
-        errorLine1="public class ExcludedSupportedSizesQuirk : Quirk {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/camera2/pipe/integration/compat/quirk/ExcludedSupportedSizesQuirk.kt"/>
     </issue>
 
     <issue

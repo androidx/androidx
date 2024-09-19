@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.6.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.6.0-alpha07)" variant="all" version="8.6.0-alpha07">
+<issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
         id="BanThreadSleep"
@@ -103,6 +103,15 @@
     <issue
         id="ListIterator"
         message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                appWidgetManager.installedProviders.firstOrNull { it.provider == componentName }"
+        errorLine2="                                                    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                .filter { it.provider.packageName == packageName }"
         errorLine2="                 ~~~~~~">
         <location
@@ -123,15 +132,6 @@
         message="Creating an unnecessary Iterator to iterate through a List"
         errorLine1="                .toSet()"
         errorLine2="                 ~~~~~">
-        <location
-            file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
-    </issue>
-
-    <issue
-        id="ListIterator"
-        message="Creating an unnecessary Iterator to iterate through a List"
-        errorLine1="                    toRemove.forEach { receiver -> remove(providerKey(receiver)) }"
-        errorLine2="                             ~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/GlanceAppWidgetManager.kt"/>
     </issue>
@@ -517,7 +517,7 @@
     <issue
         id="PrimitiveInCollection"
         message="constructor Responsive has parameter sizes with type Set&lt;DpSize>: replace with LongSet"
-        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode, PreviewSizeMode {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
@@ -526,7 +526,7 @@
     <issue
         id="PrimitiveInCollection"
         message="field sizes with type Set&lt;DpSize>: replace with LongSet"
-        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode, PreviewSizeMode {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
@@ -535,7 +535,7 @@
     <issue
         id="PrimitiveInCollection"
         message="return type Set&lt;DpSize> of getSizes: replace with LongSet"
-        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode {"
+        errorLine1="    class Responsive(val sizes: Set&lt;DpSize>) : SizeMode, PreviewSizeMode {"
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/glance/appwidget/SizeMode.kt"/>
