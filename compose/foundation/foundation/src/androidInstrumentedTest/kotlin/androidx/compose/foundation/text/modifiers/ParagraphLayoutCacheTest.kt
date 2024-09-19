@@ -18,7 +18,6 @@ package androidx.compose.foundation.text.modifiers
 
 import androidx.compose.foundation.text.AutoSize
 import androidx.compose.foundation.text.DefaultMinLines
-import androidx.compose.foundation.text.FontSizeSearchScope
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.toIntPx
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -320,45 +319,45 @@ class ParagraphLayoutCacheTest {
     }
 
     @Test
-    fun TextLayoutResult_autoSize_oneSize_checkOverflowAndHeight() {
+    fun TextLayoutResult_autoSize_oneSizeLaidOut_checkOverflowAndHeight() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(TextUnit.Unspecified),
                     fontFamilyResolver = fontFamilyResolver,
                     overflow = TextOverflow.Clip,
-                    autoSize = AutoSizePreset(arrayOf(25.sp))
+                    autoSize = AutoSizePreset(arrayOf(25.6.sp))
                 )
                 .also { it.density = density }
 
         // 25.6.sp doesn't overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        var layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isFalse()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        var layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(100)
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = "Hello World",
             fontSize = TextUnit.Unspecified,
             autoSize = AutoSizePreset(arrayOf(25.7.sp))
         )
 
         // 25.7.sp does overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isTrue()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isTrue()
         assertThat(layoutResult.height).isEqualTo(1000)
     }
 
     @Test
-    fun TextLayoutResult_autoSize_multipleSizes_checkOverflowAndHeight() {
+    fun TextLayoutResult_autoSize_multipleSizesLaidOut_checkOverflowAndHeight() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(TextUnit.Unspecified),
@@ -369,41 +368,41 @@ class ParagraphLayoutCacheTest {
                 .also { it.density = density }
 
         // All font sizes shouldn't overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        var layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isFalse()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        var layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(100)
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = TextUnit.Unspecified,
             autoSize = AutoSizePreset(arrayOf(25.7.sp, 25.6.sp, 50.sp))
         )
 
         // Only 25.6.sp shouldn't overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isFalse()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(100)
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = TextUnit.Unspecified,
             autoSize = AutoSizePreset(arrayOf(25.9.sp, 25.7.sp, 50.sp))
         )
 
         // All font sizes should overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isTrue()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isTrue()
         assertThat(layoutResult.height).isEqualTo(1000)
     }
 
     @Test
-    fun TextLayoutResult_autoSize_differentConstraints_doesOverflow() {
+    fun TextLayoutResult_autoSize_MaxSizeConstraintsEqualTo50_doesOverflow() {
         val constraints = Constraints(minWidth = 0, maxWidth = 50, minHeight = 0, maxHeight = 50)
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = "Hello World",
                     style = createTextStyle(20.sp),
@@ -413,18 +412,18 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.paragraph!!
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = layoutCache.paragraph!!
         // this should overflow - 20.sp is too large a font size to use for the smaller constraints
-        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutCache.didOverflow).isTrue()
         assertThat(layoutResult.height).isEqualTo(120)
     }
 
     @Test
-    fun TextLayoutResult_autoSize_differentText_doesOverflow() {
+    fun TextLayoutResult_autoSize_textLongerThan30Characters_doesOverflow() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text =
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec egestas " +
@@ -436,10 +435,10 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.paragraph!!
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = layoutCache.paragraph!!
         // this should overflow - 20.sp is too large of a font size to use for the longer text
-        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutCache.didOverflow).isTrue()
         assertThat(layoutResult.height).isEqualTo(600)
     }
 
@@ -450,7 +449,7 @@ class ParagraphLayoutCacheTest {
             "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec egestas " +
                 "sollicitudin arcu, sed mattis orci gravida vel. Donec luctus turpis."
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(TextUnit.Unspecified),
@@ -460,11 +459,11 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.paragraph!!
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = layoutCache.paragraph!!
         // Without ellipsis logic, the text would overflow with a height of 600.
         // This shouldn't overflow due to the ellipsis logic.
-        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(100)
         assertThat(layoutResult.isLineEllipsized(4)).isTrue()
     }
@@ -473,7 +472,7 @@ class ParagraphLayoutCacheTest {
     fun TextLayoutResult_autoSize_visibleOverflow_doesOverflow() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text =
                         "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec egestas " +
@@ -485,10 +484,10 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.paragraph!!
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = layoutCache.paragraph!!
         // this should overflow
-        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(600)
     }
 
@@ -497,7 +496,7 @@ class ParagraphLayoutCacheTest {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(5.sp),
@@ -508,21 +507,21 @@ class ParagraphLayoutCacheTest {
                 .also { it.density = density }
 
         // 5.12.em / 25.6.sp shouldn't overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        var layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isFalse()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        var layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isEqualTo(100)
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = 5.sp,
             autoSize = AutoSizePreset(arrayOf(5.14.em))
         )
 
         // 5.14 .em / 25.7.sp should overflow
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isTrue()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isTrue()
         assertThat(layoutResult.height).isEqualTo(1000)
     }
 
@@ -530,7 +529,7 @@ class ParagraphLayoutCacheTest {
     fun toPx_em_style_fontSize_is_em_throws() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = "Hello World",
                     style = TextStyle(fontSize = 0.01.em),
@@ -540,7 +539,7 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
     }
 
     @Test
@@ -548,7 +547,7 @@ class ParagraphLayoutCacheTest {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(TextUnit.Unspecified),
@@ -558,19 +557,19 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // doesn't overflow
-        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutCache.didOverflow).isFalse()
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = TextUnit.Unspecified,
             AutoSizePreset(arrayOf(2.em))
         )
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // does overflow
-        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutCache.didOverflow).isTrue()
     }
 
     @Test
@@ -578,7 +577,7 @@ class ParagraphLayoutCacheTest {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(1.em),
@@ -588,18 +587,18 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // this shouldn't overflow
-        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutCache.didOverflow).isFalse()
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = 1.em,
             autoSize = AutoSizeWithoutToPx(3.em)
         )
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // this should overflow
-        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutCache.didOverflow).isTrue()
     }
 
     @Test
@@ -607,7 +606,7 @@ class ParagraphLayoutCacheTest {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
         val text = "Hello World"
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = text,
                     style = createTextStyle(TextUnit.Unspecified),
@@ -617,25 +616,25 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // this shouldn't overflow
-        assertThat(textDelegate.didOverflow).isFalse()
+        assertThat(layoutCache.didOverflow).isFalse()
 
-        textDelegate.updateAutoSize(
+        layoutCache.updateAutoSize(
             text = text,
             fontSize = TextUnit.Unspecified,
             autoSize = AutoSizeWithoutToPx(2.em)
         )
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
         // this should overflow
-        assertThat(textDelegate.didOverflow).isTrue()
+        assertThat(layoutCache.didOverflow).isTrue()
     }
 
     @Test
     fun TextLayoutResult_autoSize_minLines_greaterThan_1_checkOverflowAndHeight() {
         val constraints = Constraints(minWidth = 0, maxWidth = 100, minHeight = 0, maxHeight = 100)
 
-        val textDelegate =
+        val layoutCache =
             ParagraphLayoutCache(
                     text = "H",
                     style = createTextStyle(TextUnit.Unspecified),
@@ -645,9 +644,9 @@ class ParagraphLayoutCacheTest {
                 )
                 .also { it.density = density }
 
-        textDelegate.layoutWithConstraints(constraints, LayoutDirection.Ltr)
-        val layoutResult = textDelegate.paragraph!!
-        assertThat(textDelegate.didOverflow).isFalse()
+        layoutCache.layoutWithConstraints(constraints, LayoutDirection.Ltr)
+        val layoutResult = layoutCache.paragraph!!
+        assertThat(layoutCache.didOverflow).isFalse()
         assertThat(layoutResult.height).isAtMost(55) // this value is different between
         // different API levels. Either 51 or 52. Using isAtMost to anticipate future permutations.
     }
@@ -748,54 +747,4 @@ class ParagraphLayoutCacheTest {
             minLines = DefaultMinLines,
             autoSize = autoSize
         )
-
-    private class AutoSizePreset(private val presets: Array<TextUnit>) : AutoSize {
-        override fun FontSizeSearchScope.getFontSize(): TextUnit {
-            var optimalFontSize = 0.sp
-            for (size in presets) {
-                if (
-                    size.toPx() > optimalFontSize.toPx() &&
-                        !performLayoutAndGetOverflow(size.toPx().toSp())
-                ) {
-                    optimalFontSize = size
-                }
-            }
-            return if (optimalFontSize != 0.sp) optimalFontSize else 100.sp
-            // 100.sp is the font size returned when all sizes in the presets array overflow
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-
-            other as AutoSizePreset
-
-            return presets.contentEquals(other.presets)
-        }
-
-        override fun hashCode(): Int {
-            return presets.contentHashCode()
-        }
-    }
-}
-
-private class AutoSizeWithoutToPx(private val fontSize: TextUnit) : AutoSize {
-    override fun FontSizeSearchScope.getFontSize(): TextUnit {
-        // if there is overflow then 100.sp is returned. Otherwise 0.sp is returned
-        if (performLayoutAndGetOverflow(fontSize)) return 100.sp
-        return 0.sp
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as AutoSizeWithoutToPx
-
-        return fontSize == other.fontSize
-    }
-
-    override fun hashCode(): Int {
-        return fontSize.hashCode()
-    }
 }
