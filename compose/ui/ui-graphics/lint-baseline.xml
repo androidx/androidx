@@ -2,6 +2,15 @@
 <issues format="6" by="lint 8.7.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.0-alpha02)" variant="all" version="8.7.0-alpha02">
 
     <issue
+        id="NewApi"
+        message="This Kotlin extension function will be hidden by `java.util.SequencedCollection` starting in API 35"
+        errorLine1="                val node = s.removeLastKt()"
+        errorLine2="                           ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/graphics/IntervalTree.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInCollection"
         message="method drawPoints has parameter points with type List&lt;Offset>: replace with LongList"
         errorLine1="    override fun drawPoints(pointMode: PointMode, points: List&lt;Offset>, paint: Paint) {"
