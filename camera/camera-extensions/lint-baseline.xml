@@ -10,4 +10,31 @@
             file="src/main/java/androidx/camera/extensions/internal/compat/workaround/OnEnableDisableSessionDurationCheck.java"/>
     </issue>
 
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CaptureOutputSurfaceOccupiedQuirk implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/CaptureOutputSurfaceOccupiedQuirk.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class CrashWhenOnDisableTooSoon implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/CrashWhenOnDisableTooSoon.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class GetAvailableKeysNeedsOnInit implements Quirk {"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/internal/compat/quirk/GetAvailableKeysNeedsOnInit.java"/>
+    </issue>
+
 </issues>
