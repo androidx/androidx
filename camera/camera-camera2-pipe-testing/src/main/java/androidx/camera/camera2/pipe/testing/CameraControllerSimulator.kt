@@ -52,7 +52,7 @@ public class CameraControllerSimulator(
     override val cameraGraphId: CameraGraphId
         get() = graphId
 
-    override var isForeground: Boolean = false
+    override var isForeground: Boolean = true
 
     private val lock = Any()
     private var currentSurfaceMap: Map<StreamId, Surface> = emptyMap()

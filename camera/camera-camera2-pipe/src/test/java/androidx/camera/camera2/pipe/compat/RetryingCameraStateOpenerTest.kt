@@ -162,7 +162,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -174,9 +174,9 @@ class RetryingCameraStateOpenerTest {
                 RetryingCameraStateOpener.shouldRetry(
                     ERROR_CAMERA_IN_USE,
                     1,
-                    DurationNs(30_000_000_000L), // 30 seconds
+                    DurationNs(3600_000_000_000L), // 3600 seconds (60 minutes)
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isFalse()
@@ -190,7 +190,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -202,7 +202,7 @@ class RetryingCameraStateOpenerTest {
                 2,
                 DurationNs(1_000_000_001L),
                 camerasDisabledByDevicePolicy = false,
-                isForeground = false,
+                isForeground = true,
             )
         assertThat(secondRetry).isFalse()
     }
@@ -215,7 +215,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -227,7 +227,7 @@ class RetryingCameraStateOpenerTest {
                 2,
                 DurationNs(1_000_000_001L),
                 camerasDisabledByDevicePolicy = false,
-                isForeground = false,
+                isForeground = true,
             )
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
             assertThat(secondRetry).isFalse()
@@ -244,7 +244,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -256,7 +256,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -270,7 +270,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = true,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -282,7 +282,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = true,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isFalse()
@@ -296,7 +296,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -308,7 +308,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -322,7 +322,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -334,7 +334,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -348,7 +348,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -360,7 +360,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -374,7 +374,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -386,7 +386,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -400,7 +400,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -412,7 +412,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -426,7 +426,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isTrue()
@@ -438,7 +438,7 @@ class RetryingCameraStateOpenerTest {
                     2,
                     DurationNs(1_000_000_001L),
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isFalse()
@@ -452,7 +452,7 @@ class RetryingCameraStateOpenerTest {
                     1,
                     DurationNs(1_000_000_000L), // 1 second
                     camerasDisabledByDevicePolicy = false,
-                    isForeground = false,
+                    isForeground = true,
                 )
             )
             .isFalse()
