@@ -64,11 +64,16 @@ function run() {
   fi
 }
 
-# export some variables
-ANDROID_HOME=../../prebuilts/fullsdk-linux
-export PATH="$ANDROID_HOME/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/python3/bin:$PATH"
-# Remove when b/366010045 is resolved: android platform build requires either en_US.UTF-8 or C.UTF-8 to exist
-export LC_ALL=C.UTF-8
+# export some variables depending on the platform
+if [[ "$(uname)" == Darwin* ]]; then
+  ANDROID_HOME=../../prebuilts/fullsdk-darwin
+else
+  ANDROID_HOME=../../prebuilts/fullsdk-linux
+  # Remove when b/365535238 is fixed as the Linux image will contain Python3
+  export PATH="$ANDROID_HOME/ndk-bundle/toolchains/llvm/prebuilt/linux-x86_64/python3/bin:$PATH"
+  # Remove when b/366010045 is resolved: android platform build requires either en_US.UTF-8 or C.UTF-8 to exist
+  export LC_ALL=C.UTF-8
+fi
 
 BUILD_STATUS=0
 # enable remote build cache unless explicitly disabled
