@@ -5218,6 +5218,40 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithObjectDoubleList() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<Double>)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(listOf(11E123, 11.11))) {
+                test<TestClass>()
+            }
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).containsExactly(11E123, 11.11)
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithObjectNullDoubleList() {
+        @Serializable @SerialName("test") class TestClass(val arg: List<Double>? = null)
+
+        val navController = createNavController()
+        navController.graph =
+            navController.createGraph(startDestination = TestClass(null)) { test<TestClass>() }
+
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route!!.arg).isNull()
+
+        navController.navigate(TestClass(listOf(11E123, 11.11)))
+        assertThat(navController.currentDestination?.route).isEqualTo("test?arg={arg}")
+        val route2 = navController.currentBackStackEntry?.toRoute<TestClass>()
+        assertThat(route2!!.arg).containsExactly(11E123, 11.11)
+    }
+
+    @UiThreadTest
+    @Test
     fun testDeepLinkFromNavGraph() {
         val navController = createNavController()
         navController.graph = nav_simple_route_graph
