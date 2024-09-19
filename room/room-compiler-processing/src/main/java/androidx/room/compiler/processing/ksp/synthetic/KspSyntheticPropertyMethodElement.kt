@@ -46,6 +46,7 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyGetter
 import com.google.devtools.ksp.symbol.KSPropertySetter
+import com.google.devtools.ksp.symbol.Origin
 
 /**
  * Kotlin properties don't have getters/setters in KSP. As Room expects Java code, we synthesize
@@ -266,8 +267,13 @@ internal sealed class KspSyntheticPropertyMethodElement(
             override fun isVarArgs() = false
 
             override val name: String by lazy {
-                enclosingElement.accessor.parameter.name?.asString().let {
-                    if (it == "<set-?>") {
+                val param = enclosingElement.accessor.parameter
+                param.name?.asString().let {
+                    if (
+                        it == "<set-?>" ||
+                            // In KSP2 synthetic setters' parameter name is `value`.
+                            param.origin == Origin.SYNTHETIC
+                    ) {
                         "p0"
                     } else {
                         it

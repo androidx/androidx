@@ -26,7 +26,6 @@ import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import androidx.room.compiler.processing.testcode.TestSuppressWarnings
-import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.getDeclaredField
@@ -562,11 +561,7 @@ class XConvertersTest {
 
     @Test
     fun annotationValues() {
-        runProcessorTest(
-            sources = listOf(kotlinSrc, javaSrc),
-            // Not yet implemented: KSValueArgumentImpl.getParent
-            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
-        ) { invocation ->
+        runProcessorTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
             val kotlinClass = invocation.processingEnv.requireTypeElement("KotlinClass")
             val javaClass = invocation.processingEnv.requireTypeElement("JavaClass")
 

@@ -643,9 +643,7 @@ class XAnnotationBoxTest(private val preCompiled: Boolean) {
             """
                     .trimIndent()
             )
-        // https://github.com/google/ksp/issues/1883
-        runTest(sources = listOf(javaSrc, kotlinSrc), kotlincArgs = KOTLINC_LANGUAGE_1_9_ARGS) {
-            invocation ->
+        runTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
             listOf("JavaSubject", "KotlinSubject")
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->

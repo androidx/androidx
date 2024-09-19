@@ -506,9 +506,7 @@ class XExecutableElementTest {
             """
                     .trimIndent()
             )
-        // https://github.com/google/ksp/issues/1640
-        runProcessorTest(sources = listOf(src), kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS) {
-            invocation ->
+        runProcessorTest(sources = listOf(src)) { invocation ->
             val klass = invocation.processingEnv.requireTypeElement("MyDataClass")
             val methodNames = klass.getAllMethods().map { it.jvmName }.toList()
             assertThat(methodNames)

@@ -318,9 +318,7 @@ class TestRunnerTest {
             )
         runProcessorTest(
             sources = listOf(src),
-            // TODO(b/314151707): Remove the "1.9" args when we move to KAPT4. Our processor
-            //  doesn't get to run with KAPT3 and K2 as we pass "-Werror" and we got warning:
-            //  "Kapt currently doesn't support language version 2.0+. Falling back to 1.9."
+            // TODO(b/314151707): We got warning: "K2 kapt is in Alpha. Use with caution."
             kotlincArguments = listOf("-Werror") + KOTLINC_LANGUAGE_1_9_ARGS,
             javacArguments = listOf("-Werror") // needed for kapt as it uses javac,
         ) { invocation ->
@@ -329,6 +327,56 @@ class TestRunnerTest {
                 // either kapt or ksp, compilation should still fail due to the warning printed
                 // by the processor
                 compilationDidFail()
+            }
+        }
+    }
+
+    @Test
+    fun jvmModuleName() {
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
+            class Foo {
+                internal fun f() {}
+            }
+            """
+                    .trimIndent()
+            )
+        val lib =
+            Source.kotlin(
+                "Bar.kt",
+                """
+            class Bar {
+                internal fun f() {}
+            }
+            """
+                    .trimMargin()
+            )
+        val classpath =
+            compileFiles(
+                listOf(lib),
+                // To workaround https://github.com/google/ksp/issues/2105.
+                kotlincArguments = listOf("-module-name", "lib")
+            )
+        runProcessorTest(sources = listOf(src), classpath = classpath) { invocation ->
+            invocation.processingEnv.requireTypeElement("Foo").let { cls ->
+                assertThat(cls.getDeclaredMethods().single().jvmName).isEqualTo("f\$main")
+            }
+            invocation.processingEnv.requireTypeElement("Bar").let { cls ->
+                assertThat(cls.getDeclaredMethods().single().jvmName).isEqualTo("f\$lib")
+            }
+        }
+        runProcessorTest(
+            sources = listOf(src),
+            classpath = classpath,
+            kotlincArguments = listOf("-module-name", "test")
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("Foo").let { cls ->
+                assertThat(cls.getDeclaredMethods().single().jvmName).isEqualTo("f\$test")
+            }
+            invocation.processingEnv.requireTypeElement("Bar").let { cls ->
+                assertThat(cls.getDeclaredMethods().single().jvmName).isEqualTo("f\$lib")
             }
         }
     }
@@ -362,6 +410,86 @@ class TestRunnerTest {
                 invocation.processingEnv.requireTypeElement("Foo").getDeclaredFields().single()
             assertThat(field.type.typeName.toString()).isEqualTo("DoesNotExist")
             invocation.assertCompilationResult { this.hasErrorContaining("Unresolved reference") }
+        }
+    }
+
+    @Test
+    fun testK2Flags() {
+        val src =
+            Source.kotlin(
+                "Foo.kt",
+                """
+                annotation class Test
+                @Test
+                class Cat {
+                    fun purr() {
+                        println("Purr purr")
+                    }
+                }
+                fun petAnimal(animal: Any) {
+                    val isCat = animal is Cat
+                    if (isCat) {
+                        // This smart cast is a K2 feature. Example was taken from the Kotlin doc.
+                        animal.purr()
+                    }
+                }
+                """
+                    .trimIndent()
+            )
+        // Should succeed with K2 compiler.
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-language-version=2.0", "-api-version=2.0")
+        ) { invocation ->
+            invocation.assertCompilationResult { hasErrorCount(0) }
+        }
+        // Should fail with K1 compiler.
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9")
+        ) { invocation ->
+            invocation.assertCompilationResult {
+                hasErrorCount(1)
+                hasErrorContaining("Unresolved reference: purr")
+            }
+        }
+        // We use K2 compiler by default so this should succeed. We also use K1 KAPT by default.
+        // This will also be the case for Kotlin 2.1:
+        // https://youtrack.jetbrains.com/issue/KT-70879/Kapt-check-that-Kotlin-2.1-language-features-are-ignored-correctly-by-K1-kapt
+        runProcessorTest(sources = listOf(src)) { invocation ->
+            invocation.assertCompilationResult { hasErrorCount(0) }
+        }
+        // We can enable K2 KAPT with an extra flag.
+        runProcessorTest(sources = listOf(src), kotlincArguments = listOf("-Xuse-k2-kapt")) {
+            invocation ->
+            invocation.assertCompilationResult { hasErrorCount(0) }
+        }
+        // K2 KAPT doesn't work with K1 compiler. It's always K1 KAPT when language-version < 2.
+        runProcessorTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9", "-Xuse-k2-kapt")
+        ) { invocation ->
+            invocation.assertCompilationResult {
+                hasWarning("-Xuse-k2-kapt flag can be only used with language version 2.0+.")
+                hasErrorContaining("Unresolved reference: purr")
+            }
+        }
+        // Our test infra uses KSP2 by default.
+        runKspTest(sources = listOf(src)) { invocation -> assertThat(invocation.isKsp2).isTrue() }
+        // Users can switch between KSP1 and KSP2 based on language-version.
+        runKspTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-language-version=2.0", "-api-version=2.0")
+        ) { invocation ->
+            assertThat(invocation.isKsp2).isTrue()
+        }
+        // When setting language-version < 2 it's always KSP1 and K1 KAPT.
+        runKspTest(
+            sources = listOf(src),
+            kotlincArguments = listOf("-language-version=1.9", "-api-version=1.9")
+        ) { invocation ->
+            assertThat(invocation.isKsp2).isFalse()
+            invocation.assertCompilationResult { hasErrorContaining("Unresolved reference: purr") }
         }
     }
 

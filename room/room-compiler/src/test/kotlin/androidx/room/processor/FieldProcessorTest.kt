@@ -310,12 +310,16 @@ class FieldProcessorTest {
                         )
                     )
                 )
+                val elementType =
+                    if (invocation.isKsp2) {
+                        // Java Array has a covariant upper bound in KSP2.
+                        XTypeName.getProducerExtendsName(boxedPrimitive.copy(nullable = true))
+                    } else {
+                        boxedPrimitive.copy(nullable = true)
+                    }
                 assertThat(
                     field.type.asTypeName(),
-                    `is`(
-                        XTypeName.getArrayName(boxedPrimitive.copy(nullable = true))
-                            .copy(nullable = true)
-                    )
+                    `is`(XTypeName.getArrayName(elementType).copy(nullable = true))
                 )
             }
         }

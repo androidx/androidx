@@ -99,9 +99,8 @@ internal constructor(
                 "Using JVM IR backend",
                 "Configuring the compilation environment",
                 "Loading modules:",
-                // TODO: Remove once we use a Kotlin 2.x version that has
-                // https://github.com/JetBrains/kotlin/commit/7e9d6e601d007bc1250e1b47c6b2e55e3399145b
-                "Kapt currently doesn't support language version"
+                "Support for language version 2.0+ in kapt is in Alpha and must be enabled explicitly. Falling back to 1.9.",
+                "K2 kapt is in Alpha. Use with caution."
             )
     }
 }

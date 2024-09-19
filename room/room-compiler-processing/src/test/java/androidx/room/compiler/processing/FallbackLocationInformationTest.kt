@@ -17,7 +17,6 @@
 package androidx.room.compiler.processing
 
 import androidx.kruth.assertThat
-import androidx.room.compiler.processing.util.KOTLINC_LANGUAGE_1_9_ARGS
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getField
@@ -65,12 +64,7 @@ class FallbackLocationInformationTest {
         // sources and javac fails to resolve metadata
         val placeholder = Source.kotlin("MyPlaceholder.kt", "")
         val dependency = compileFiles(listOf(kotlinSource, javaSource))
-        runProcessorTest(
-            sources = listOf(placeholder),
-            classpath = dependency,
-            // https://github.com/google/ksp/issues/1865
-            kotlincArguments = KOTLINC_LANGUAGE_1_9_ARGS
-        ) { invocation ->
+        runProcessorTest(sources = listOf(placeholder), classpath = dependency) { invocation ->
             val kotlinSubject = invocation.processingEnv.requireTypeElement("foo.bar.KotlinSubject")
             assertThat(kotlinSubject.getField("prop").fallbackLocationText)
                 .isEqualTo("prop in foo.bar.KotlinSubject")
@@ -93,7 +87,13 @@ class FallbackLocationInformationTest {
                 assertThat(propSetter.fallbackLocationText)
                     .isEqualTo("foo.bar.KotlinSubject.setProp(java.lang.String)")
                 assertThat(propSetter.parameters.first().fallbackLocationText)
-                    .isEqualTo("p0 in foo.bar.KotlinSubject.setProp(java.lang.String)")
+                    .isEqualTo(
+                        if (invocation.isKsp2) {
+                            "value in foo.bar.KotlinSubject.setProp(java.lang.String)"
+                        } else {
+                            "p0 in foo.bar.KotlinSubject.setProp(java.lang.String)"
+                        }
+                    )
             }
 
             kotlinSubject.getMethodByJvmName("setPropWithAccessors").let { propSetter ->

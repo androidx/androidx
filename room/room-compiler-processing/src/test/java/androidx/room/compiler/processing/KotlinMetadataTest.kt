@@ -61,8 +61,8 @@ class KotlinMetadataTest {
                 """
                     .trimIndent()
             )
-        runKaptTest(sources = listOf(source), kotlincArguments = listOf("-Xuse-kapt4")) { invocation
-            ->
+        runKaptTest(sources = listOf(source), kotlincArguments = listOf("-Xuse-k2-kapt")) {
+            invocation ->
             invocation.processingEnv.requireTypeElement("Foo").let { element ->
                 val f = element.getDeclaredFields().single()
                 // This shouldn't throw NullPointerException when inline reified functions are
