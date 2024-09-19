@@ -23,6 +23,8 @@ import androidx.build.buildInfo.CreateAggregateLibraryBuildInfoFileTask.Companio
 import androidx.build.dependencyTracker.AffectedModuleDetector
 import androidx.build.gradle.isRoot
 import androidx.build.license.CheckExternalDependencyLicensesTask
+import androidx.build.logging.TERMINAL_RED
+import androidx.build.logging.TERMINAL_RESET
 import androidx.build.playground.VerifyPlaygroundGradleConfigurationTask
 import androidx.build.studio.StudioTask.Companion.registerStudioTask
 import androidx.build.testConfiguration.registerOwnersServiceTasks
@@ -40,6 +42,8 @@ import org.gradle.api.tasks.bundling.Zip
 import org.gradle.api.tasks.bundling.ZipEntryCompression
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.kotlin.dsl.extra
+import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 
 abstract class AndroidXRootImplPlugin : Plugin<Project> {
     @get:javax.inject.Inject abstract val registry: BuildEventsListenerRegistry
@@ -148,6 +152,7 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
                 )
             dependencyAnalysis.structure { it.ignoreKtx(true) }
         }
+        project.configureTasksForKotlinWeb()
     }
 
     private fun Project.setDependencyVersions() {
@@ -155,5 +160,37 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         androidx.build.dependencies.kspVersion = getVersionByName("ksp")
         androidx.build.dependencies.agpVersion = getVersionByName("androidGradlePlugin")
         androidx.build.dependencies.guavaVersion = getVersionByName("guavaJre")
+    }
+
+    private fun Project.configureTasksForKotlinWeb() {
+        val offlineMirrorStorage =
+            File(getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
+        val createYarnRcFileTask =
+            tasks.register("createYarnRcFile", CreateYarnRcFileTask::class.java) {
+                it.offlineMirrorStorage.set(offlineMirrorStorage)
+                it.yarnrcFile.set(layout.buildDirectory.file("js/.yarnrc"))
+            }
+
+        tasks.withType<KotlinNpmInstallTask>().configureEach {
+            it.dependsOn(createYarnRcFileTask)
+            it.args.addAll(listOf("--ignore-engines", "--verbose"))
+            if (project.useYarnOffline()) {
+                it.args.add("--offline")
+                println(
+                    """
+        Fetching yarn packages from the offline mirror: ${offlineMirrorStorage.path}.
+        Your build will fail if a yarn dependency is not in the offline mirror. To fix, run:
+
+           $TERMINAL_RED./gradlew kotlinNpmInstall -Pandroidx.yarnOfflineMode=false &&
+            ./gradlew kotlinUpgradeYarnLock$TERMINAL_RESET
+
+        this will download the dependencies from the internet and update the lockfile.
+        Don't forget to upload the changes to Gerrit!
+        """
+                        .trimIndent()
+                        .replace("\n", " ")
+                )
+            }
+        }
     }
 }

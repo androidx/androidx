@@ -43,7 +43,6 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 import org.gradle.kotlin.dsl.findByType
-import org.gradle.kotlin.dsl.withType
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -61,7 +60,6 @@ import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinWasmTargetDsl
 import org.jetbrains.kotlin.gradle.targets.js.ir.DefaultIncrementalSyncTask
 import org.jetbrains.kotlin.gradle.targets.js.nodejs.NodeJsRootExtension
-import org.jetbrains.kotlin.gradle.targets.js.npm.tasks.KotlinNpmInstallTask
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnLockMismatchReport
 import org.jetbrains.kotlin.gradle.targets.js.yarn.YarnRootExtension
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
@@ -709,34 +707,6 @@ private fun Project.configureWasm() {
         it.lockFileDirectory =
             File(project.getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
         it.yarnLockMismatchReport = YarnLockMismatchReport.WARNING
-    }
-
-    val offlineMirrorStorage =
-        File(getPrebuiltsRoot(), "androidx/external/wasm/yarn-offline-mirror")
-    val createYarnRcFileTask =
-        rootProject.tasks.register("createYarnRcFile", CreateYarnRcFileTask::class.java) {
-            it.offlineMirrorStorage.set(offlineMirrorStorage)
-            it.yarnrcFile.set(rootProject.layout.buildDirectory.file("js/.yarnrc"))
-        }
-    rootProject.tasks.withType<KotlinNpmInstallTask>().configureEach {
-        it.dependsOn(createYarnRcFileTask)
-        it.args.addAll(listOf("--ignore-engines", "--verbose"))
-
-        println(
-            """
-             Yarn packages will be fetched from the offline mirror: ${offlineMirrorStorage.path}.
-             If yarn has a dependency that is not there, your build will fail. To fix, re-run your
-             Gradle task with -Pandroidx.yarnOfflineMode=false to download the dependencies from the
-             internet into the offline mirror. Don't forget to upload the changes from that repo to
-             Gerrit as well!   
-            """
-                .trimIndent()
-                .replace("\n", " ")
-        )
-
-        if (project.useYarnOffline()) {
-            it.args.add("--offline")
-        }
     }
 
     // Use DSL API when https://youtrack.jetbrains.com/issue/KT-70029 is closed for all tasks below

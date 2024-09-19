@@ -255,33 +255,6 @@
 
     <issue
         id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="        rootProject.tasks.register(&quot;createYarnRcFile&quot;, CreateYarnRcFileTask::class.java) {"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXMultiplatformExtension.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="            it.yarnrcFile.set(rootProject.layout.buildDirectory.file(&quot;js/.yarnrc&quot;))"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXMultiplatformExtension.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
-        message="Avoid using method getRootProject"
-        errorLine1="    rootProject.tasks.withType&lt;KotlinNpmInstallTask>().configureEach {"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="${:buildSrc-tests*main*MAIN*sourceProvider*0*javaDir*4}/androidx/build/AndroidXMultiplatformExtension.kt"/>
-    </issue>
-
-    <issue
-        id="GradleProjectIsolation"
         message="Avoid using method findProject"
         errorLine1="            val requested = rootProject.findProject(path)"
         errorLine2="                                        ~~~~~~~~~~~">
